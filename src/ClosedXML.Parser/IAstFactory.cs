@@ -277,6 +277,18 @@ public interface IAstFactory<TScalarValue, TNode, in TContext>
     TNode SheetName(TContext context, SymbolRange range, string sheet, string name);
 
     /// <summary>
+    /// Create a node that processes a bang name in a formula (e.g <c>"Branch:" &amp; !Data</c>). Bang reference should
+    /// be used only in defined names.
+    /// </summary>
+    /// <remarks>
+    /// TODO: This method is not yet implemented, just added so I don't have to deal with API breakage.
+    /// </remarks>
+    /// <param name="context">User supplied context for parsing a tree that is an argument of a parsing method.</param>
+    /// <param name="range">Range in a formula that contains the bang reference.</param>
+    /// <param name="name">The defined name.</param>
+    TNode BangName(TContext context, SymbolRange range, string name);
+
+    /// <summary>
     /// Create a node that should evaluate to a value of a defined name in a different workbook.
     /// </summary>
     /// <param name="context">User supplied context for parsing a tree that is an argument of a parsing method.</param>

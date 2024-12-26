@@ -143,6 +143,11 @@ public class F : IAstFactory<ScalarValue, AstNode, Ctx>
         return new SheetNameNode(sheet, name);
     }
 
+    public AstNode BangName(Ctx context, SymbolRange range, string name)
+    {
+        return new BangNameNode(name);
+    }
+
     public AstNode ExternalName(Ctx _, SymbolRange range, int workbookIndex, string name)
     {
         return new ExternalNameNode(workbookIndex, name);

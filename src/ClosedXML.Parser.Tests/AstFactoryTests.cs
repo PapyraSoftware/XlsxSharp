@@ -648,6 +648,11 @@ public class AstFactoryTests
             return _defaultNode;
         }
 
+        public TNode BangName(TContext context, SymbolRange range, string name)
+        {
+            return _defaultNode;
+        }
+
         public virtual TNode ExternalName(TContext context, SymbolRange range, int workbookIndex, string name)
         {
             return _defaultNode;

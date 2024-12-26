@@ -248,6 +248,12 @@ public class RefModVisitor : IAstFactory<TransformedSymbol, TransformedSymbol, M
     }
 
     /// <inheritdoc />
+    public TransformedSymbol BangName(ModContext ctx, SymbolRange range, string name)
+    {
+        return s_copyVisitor.BangName(ctx, range, name);
+    }
+
+    /// <inheritdoc />
     public TransformedSymbol ExternalName(ModContext ctx, SymbolRange range, int workbookIndex, string name)
     {
         return s_copyVisitor.ExternalName(ctx, range, workbookIndex, name);
