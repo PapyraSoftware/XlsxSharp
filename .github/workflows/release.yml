@@ -60,7 +60,9 @@ jobs:
           name: nuget
           if-no-files-found: error
           retention-days: 7
-          path: ${{ env.NuGetDirectory }}/*.{nupkg,snupkg}
+          path: |
+            ${{ env.NuGetDirectory }}/*.nupkg
+            ${{ env.NuGetDirectory }}/*.snupkg
 
   deploy:
     # Publish only when creating a GitHub Release
