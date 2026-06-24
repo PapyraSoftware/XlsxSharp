@@ -32,8 +32,8 @@ internal partial class XLDxFormat : IXLStyle
 
     bool IXLStyle.IncludeQuotePrefix
     {
-        get => throw new NotImplementedException();
-        set => throw new NotImplementedException();
+        get => false;
+        set => throw new NotSupportedException($"Differential format doesn't support {nameof(IXLStyle.IncludeQuotePrefix)}.");
     }
 
     IXLNumberFormat IXLStyle.NumberFormat

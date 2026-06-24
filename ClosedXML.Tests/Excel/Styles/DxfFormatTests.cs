@@ -37,4 +37,22 @@ internal class DxfFormatTests
 
         Assert.That(() => cf.Style = ws.Cell("B1").Style, Throws.TypeOf<NotSupportedException>());
     }
+
+    [Test]
+    public void IncludeQuotePrefix_always_returns_false()
+    {
+        using var wb = new XLWorkbook();
+        var ws = wb.AddWorksheet();
+        var cf = ws.Range("A1").AddConditionalFormat();
+        Assert.IsFalse(cf.Style.IncludeQuotePrefix);
+    }
+
+    [Test]
+    public void IncludeQuotePrefix_cant_be_changed()
+    {
+        using var wb = new XLWorkbook();
+        var ws = wb.AddWorksheet();
+        var cf = ws.Range("A1").AddConditionalFormat();
+        Assert.That(() => cf.Style.IncludeQuotePrefix = true, Throws.TypeOf<NotSupportedException>());
+    }
 }
