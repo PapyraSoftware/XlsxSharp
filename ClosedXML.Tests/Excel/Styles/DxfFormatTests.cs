@@ -55,4 +55,46 @@ internal class DxfFormatTests
         var cf = ws.Range("A1").AddConditionalFormat();
         Assert.That(() => cf.Style.IncludeQuotePrefix = true, Throws.TypeOf<NotSupportedException>());
     }
+
+    [TestCase(-1, "$0.00")]
+    [TestCase(XLPredefinedFormat.Number.Integer, "0")]
+    public void NumberFormat_can_be_set_through_format(int numFmtId, string format)
+    {
+        using var wb = new XLWorkbook();
+        var ws = wb.AddWorksheet();
+        var cf = ws.Range("A1").AddConditionalFormat();
+
+        cf.Style.NumberFormat.SetFormat(format);
+
+        Assert.AreEqual(format, cf.Style.NumberFormat.Format);
+        Assert.AreEqual(numFmtId, cf.Style.NumberFormat.NumberFormatId);
+    }
+
+    [TestCase(XLPredefinedFormat.Number.Integer, "0")]
+    public void NumberFormat_can_be_set_through_number_format_id(int numFmtId, string format)
+    {
+        using var wb = new XLWorkbook();
+        var ws = wb.AddWorksheet();
+        var cf = ws.Range("A1").AddConditionalFormat();
+
+        cf.Style.NumberFormat.SetNumberFormatId(numFmtId);
+
+        Assert.AreEqual(numFmtId, cf.Style.NumberFormat.NumberFormatId);
+        Assert.AreEqual(format, cf.Style.NumberFormat.Format);
+    }
+
+    [TestCase(-1, "$0.00")]
+    [TestCase(XLPredefinedFormat.Number.Integer, "0")]
+    public void NumberFormat_can_be_set_by_assigning_number_format(int numFmtId, string format)
+    {
+        using var wb = new XLWorkbook();
+        var ws = wb.AddWorksheet();
+        var numberFormat = ws.Range("A1").AddConditionalFormat().Style.NumberFormat.SetFormat(format).NumberFormat;
+        var cf = ws.Range("A2").AddConditionalFormat();
+
+        cf.Style.NumberFormat = numberFormat;
+
+        Assert.AreEqual(numFmtId, cf.Style.NumberFormat.NumberFormatId);
+        Assert.AreEqual(format, cf.Style.NumberFormat.Format);
+    }
 }

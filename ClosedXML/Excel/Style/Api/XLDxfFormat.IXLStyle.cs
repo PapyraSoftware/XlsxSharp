@@ -38,8 +38,8 @@ internal partial class XLDxFormat : IXLStyle
 
     IXLNumberFormat IXLStyle.NumberFormat
     {
-        get => throw new NotImplementedException();
-        set => throw new NotImplementedException();
+        get => NumberFormat;
+        set => NumberFormat.SetValue(value);
     }
 
     IXLProtection IXLStyle.Protection

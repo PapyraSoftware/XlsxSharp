@@ -8,13 +8,15 @@ internal partial class XLDxFormat
     private readonly XLWorkbookStyles _styles;
     private readonly IXLDxfContainer _container;
 
-    public XLDxFormat(XLWorkbookStyles styles, IXLDxfContainer container)
+    internal XLDxFormat(XLWorkbookStyles styles, IXLDxfContainer container)
     {
         _styles = styles;
         _container = container;
     }
 
     private XLDxfValue Dxf => _container.FormatValue ?? XLDxfValue.Empty;
+
+    private XLDxfNumberFormat NumberFormat => new(this);
 
     private XLDxfAlignmentFormat Alignment => new(this);
 
@@ -36,6 +38,11 @@ internal partial class XLDxFormat
     {
         var component = getComponent(Dxf);
         return getProperty(component);
+    }
+
+    internal void ModifyNumberFormat(XLNumberFormat numberFormat)
+    {
+        _container.FormatValue = _styles.RegisterDxFormat(Dxf with { NumberFormat = numberFormat }); ;
     }
 
     internal void ModifyFont<T>(Func<XLDifferentialFontValue, T, XLDifferentialFontValue> modify, T value)
