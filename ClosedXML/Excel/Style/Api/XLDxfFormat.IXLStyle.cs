@@ -50,7 +50,8 @@ internal partial class XLDxFormat : IXLStyle
 
     IXLStyle IXLStyle.SetIncludeQuotePrefix(bool includeQuotePrefix)
     {
-        throw new NotImplementedException();
+        (this as IXLStyle).IncludeQuotePrefix = includeQuotePrefix;
+        return this;
     }
 
     bool IEquatable<IXLStyle>.Equals(IXLStyle? other)
