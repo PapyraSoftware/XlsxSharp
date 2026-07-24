@@ -1028,7 +1028,7 @@ internal class StylesReaderTests
             Assert.AreSame(XLBorderFormatValue.None, styles.Borders[1]);
 
             Assert.AreSame(XLAlignmentFormatValue.Default, style.Alignment);
-            Assert.AreSame(styles.DefaultNormalStyle.Protection, style.Protection);
+            Assert.AreSame(XLProtectionFormatValue.Default, style.Protection);
         }, xml);
     }
 
@@ -1076,7 +1076,7 @@ internal class StylesReaderTests
             Assert.AreSame(XLBorderFormatValue.None, styles.Borders[1]);
 
             Assert.AreSame(XLAlignmentFormatValue.Default, format.Alignment);
-            Assert.AreSame(styles.DefaultNormalStyle.Protection, format.Protection);
+            Assert.AreSame(XLProtectionFormatValue.Default, format.Protection);
         }, xml);
     }
 

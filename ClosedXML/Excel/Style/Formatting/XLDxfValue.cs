@@ -12,7 +12,7 @@ internal record XLDxfValue
         Fill = XLDifferentialFillValue.Empty,
         Alignment = XLDifferentialAlignmentValue.Empty,
         Border = XLDifferentialBorderValue.Empty,
-        Protection = null
+        Protection = XLDifferentialProtectionValue.Empty
     };
 
     public required string? NumberFormat { get; init; }
@@ -25,5 +25,5 @@ internal record XLDxfValue
 
     public required XLDifferentialBorderValue Border { get; init; }
 
-    public required XLProtectionFormatValue? Protection { get; init; }
+    public required XLDifferentialProtectionValue Protection { get; init; }
 }

@@ -766,6 +766,19 @@ internal class StylesWriter
         xml.WriteEndElement();
     }
 
+    private void WriteProtection(XmlTreeWriter xml, string elementName, XLDifferentialProtectionValue protection)
+    {
+        xml.WriteStartElement(elementName, _ns);
+
+        if (protection.Locked is { } locked)
+            xml.WriteAttribute("locked", locked);
+
+        if (protection.Hidden is { } hidden)
+            xml.WriteAttribute("hidden", hidden);
+
+        xml.WriteEndElement();
+    }
+
     private void WriteCellStyles(XmlTreeWriter xml, SequentialMap<StyleId, XLCellStyleValue> cellStylesMap)
     {
         xml.WriteStartElement("cellStyles", _ns);
@@ -832,8 +845,8 @@ internal class StylesWriter
             if (dxf.Border != XLDifferentialBorderValue.Empty)
                 WriteBorder(xml, "border", dxf.Border);
 
-            if (dxf.Protection is { } protection)
-                WriteProtection(xml, "protection", protection);
+            if (dxf.Protection != XLDifferentialProtectionValue.Empty)
+                WriteProtection(xml, "protection", dxf.Protection);
 
             // TODO: extLst
             xml.WriteEndElement();

@@ -223,7 +223,7 @@ internal partial class StylesReader
         {
             alignment = ParseCellAlignment("alignment");
         }
-        XLProtectionFormatValue? protection = default;
+        XLDifferentialProtectionValue? protection = default;
         if (_reader.TryOpen("protection", _ns))
         {
             protection = ParseCellProtection("protection");
@@ -251,7 +251,7 @@ internal partial class StylesReader
         return OnCellAlignmentParsed(horizontal, vertical, textRotation, wrapText, indent, relativeIndent, justifyLastLine, shrinkToFit, readingOrder);
     }
 
-    private XLProtectionFormatValue ParseCellProtection(string elementName)
+    private XLDifferentialProtectionValue ParseCellProtection(string elementName)
     {
         var locked = _reader.GetOptionalBool("locked");
         var hidden = _reader.GetOptionalBool("hidden");
@@ -343,7 +343,7 @@ internal partial class StylesReader
         {
             border = ParseBorder("border");
         }
-        XLProtectionFormatValue? protection = default;
+        XLDifferentialProtectionValue? protection = default;
         if (_reader.TryOpen("protection", _ns))
         {
             protection = ParseCellProtection("protection");
@@ -356,7 +356,7 @@ internal partial class StylesReader
         OnDxfParsed(font, numFmt, fill, alignment, border, protection);
     }
 
-    partial void OnDxfParsed(XLDifferentialFontValue? font, (int NumFmtId, string FormatCode)? numFmt, XLFillFormatValue? fill, XLDifferentialAlignmentValue? alignment, XLDifferentialBorderValue? border, XLProtectionFormatValue? protection);
+    partial void OnDxfParsed(XLDifferentialFontValue? font, (int NumFmtId, string FormatCode)? numFmt, XLFillFormatValue? fill, XLDifferentialAlignmentValue? alignment, XLDifferentialBorderValue? border, XLDifferentialProtectionValue? protection);
 
     private void ParseTableStyles(string elementName)
     {

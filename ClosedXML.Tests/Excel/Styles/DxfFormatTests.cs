@@ -97,4 +97,48 @@ internal class DxfFormatTests
         Assert.AreEqual(numFmtId, cf.Style.NumberFormat.NumberFormatId);
         Assert.AreEqual(format, cf.Style.NumberFormat.Format);
     }
+
+    [Test]
+    public void DateFormat_returns_number_format()
+    {
+        using var wb = new XLWorkbook();
+        var ws = wb.AddWorksheet();
+        var cf = ws.Range("A1").AddConditionalFormat();
+        cf.Style.NumberFormat.SetFormat("00.0");
+
+        Assert.AreEqual("00.0", cf.Style.DateFormat.Format);
+    }
+
+    [Test]
+    public void Protection_default_values_are_same_as_in_OOXML()
+    {
+        using var wb = new XLWorkbook();
+        var ws = wb.AddWorksheet();
+        var protection = ws.Range("A1").AddConditionalFormat().Style.Protection;
+
+        Assert.True(protection.Locked);
+        Assert.False(protection.Hidden);
+    }
+
+    [Test]
+    public void Protection_locked_can_be_set()
+    {
+        using var wb = new XLWorkbook();
+        var ws = wb.AddWorksheet();
+        var cf = ws.Range("A1").AddConditionalFormat();
+
+        cf.Style.Protection.SetLocked(false);
+        Assert.False(cf.Style.Protection.Locked);
+    }
+
+    [Test]
+    public void Protection_hidden_can_be_set()
+    {
+        using var wb = new XLWorkbook();
+        var ws = wb.AddWorksheet();
+        var cf = ws.Range("A1").AddConditionalFormat();
+
+        cf.Style.Protection.SetHidden(true);
+        Assert.True(cf.Style.Protection.Hidden);
+    }
 }

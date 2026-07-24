@@ -531,7 +531,7 @@ internal partial class StylesReader
         _styleFormats = xf.Select(x => x.Format).ToList();
     }
 
-    private (XLCellFormatValue Format, int? CellStyleXfId) OnXfParsed(XLDifferentialAlignmentValue? alignment, XLProtectionFormatValue? protection, uint? numFmtId, uint? fontId, uint? fillId, uint? borderId, uint? xfId, bool quotePrefix, bool pivotButton, bool? applyNumberFormat, bool? applyFont, bool? applyFill, bool? applyBorder, bool? applyAlignment, bool? applyProtection)
+    private (XLCellFormatValue Format, int? CellStyleXfId) OnXfParsed(XLDifferentialAlignmentValue? alignment, XLDifferentialProtectionValue? protection, uint? numFmtId, uint? fontId, uint? fillId, uint? borderId, uint? xfId, bool quotePrefix, bool pivotButton, bool? applyNumberFormat, bool? applyFont, bool? applyFill, bool? applyBorder, bool? applyAlignment, bool? applyProtection)
     {
         // When xf is parsed, all number formats, fonts, fills and borders should already be read.
         var numberFormat = _defaultNumberFormat;
@@ -584,7 +584,11 @@ internal partial class StylesReader
             ShrinkToFit = alignment.ShrinkToFit ?? XLAlignmentFormatValue.Default.ShrinkToFit,
             ReadingOrder = alignment.ReadingOrder ?? XLAlignmentFormatValue.Default.ReadingOrder,
         } : XLAlignmentFormatValue.Default;
-        var formatProtection = protection ?? _defaultProtectionFormat;
+        var formatProtection = protection is not null ? new XLProtectionFormatValue
+        {
+            Locked = protection.Locked ?? XLProtectionFormatValue.Default.Locked,
+            Hidden = protection.Hidden ?? XLProtectionFormatValue.Default.Hidden
+        } : XLProtectionFormatValue.Default;
         var format = new XLCellFormatValue
         {
             NumberFormat = numberFormat,
@@ -706,7 +710,7 @@ internal partial class StylesReader
         };
     }
 
-    partial void OnDxfParsed(XLDifferentialFontValue? font, (int NumFmtId, string FormatCode)? numFmt, XLFillFormatValue? fill, XLDifferentialAlignmentValue? alignment, XLDifferentialBorderValue? border, XLProtectionFormatValue? protection)
+    partial void OnDxfParsed(XLDifferentialFontValue? font, (int NumFmtId, string FormatCode)? numFmt, XLFillFormatValue? fill, XLDifferentialAlignmentValue? alignment, XLDifferentialBorderValue? border, XLDifferentialProtectionValue? protection)
     {
         var dxf = new XLDxfValue
         {
@@ -715,7 +719,7 @@ internal partial class StylesReader
             Fill = fill is not null ? new XLDifferentialFillValue(fill) : XLDifferentialFillValue.Empty,
             Alignment = alignment ?? XLDifferentialAlignmentValue.Empty,
             Border = border ?? XLDifferentialBorderValue.Empty,
-            Protection = protection,
+            Protection = protection ?? XLDifferentialProtectionValue.Empty,
         };
         _styles.AddDifferentialFormat(dxf);
     }
@@ -803,13 +807,12 @@ internal partial class StylesReader
         _reader.Skip(elementName);
     }
 
-    private XLProtectionFormatValue OnCellProtectionParsed(bool? locked, bool? hidden)
+    private XLDifferentialProtectionValue OnCellProtectionParsed(bool? locked, bool? hidden)
     {
-        // Defaults are from OI-29500
-        return new XLProtectionFormatValue
+        return new XLDifferentialProtectionValue
         {
-            Locked = locked ?? true,
-            Hidden = hidden ?? false
+            Locked = locked,
+            Hidden = hidden
         };
     }
 

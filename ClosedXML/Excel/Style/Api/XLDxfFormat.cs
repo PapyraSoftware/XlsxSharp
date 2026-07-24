@@ -26,6 +26,8 @@ internal partial class XLDxFormat
 
     private XLDxfBorderFormat Border => new(this);
 
+    private XLDxfProtectionFormat Protection => new(this);
+
     internal TProperty? Resolve<TComponent, TProperty>(Func<XLDxfValue, TComponent> getComponent, Func<TComponent, TProperty?> getProperty)
         where TProperty : struct
     {
@@ -84,6 +86,17 @@ internal partial class XLDxFormat
         {
             var modifiedBorder = modify(dxf.Border, value);
             var modifiedDxf = dxf with { Border = modifiedBorder };
+            return modifiedDxf;
+        });
+        _container.FormatValue = modifiedDxf;
+    }
+
+    internal void ModifyProtection<T>(Func<XLDifferentialProtectionValue, T, XLDifferentialProtectionValue> modify, T value)
+    {
+        var modifiedDxf = _styles.GetRegisteredDxFormat(Dxf, dxf =>
+        {
+            var modifiedProtection = modify(dxf.Protection, value);
+            var modifiedDxf = dxf with { Protection = modifiedProtection };
             return modifiedDxf;
         });
         _container.FormatValue = modifiedDxf;
