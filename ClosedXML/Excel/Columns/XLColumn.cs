@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ClosedXML.Graphics;
 using ClosedXML.Excel.Formatting;
+using ClosedXML.Graphics;
+using ClosedXML.Utils;
 
 namespace ClosedXML.Excel
 {
@@ -191,6 +192,9 @@ namespace ClosedXML.Excel
                     && !autoFilterRows.Contains(t.AutoFilter.Range.FirstRow().RowNumber()))
                 .Select(t => t.AutoFilter.Range.FirstRow().RowNumber()));
 
+            // Cache MDW for each font to avoid too many allocations
+            var scaledMdwMap = new Dictionary<XLFontFormatValue, double>(ReferenceEqualityComparer<XLFontFormatValue>.Instance);
+
             // Reusable buffer
             var glyphs = new List<GlyphBox>();
             var columnWidthPx = 0;
@@ -207,9 +211,12 @@ namespace ClosedXML.Excel
                 cell.GetGlyphBoxes(engine, dpi, glyphs);
                 var textWidthPx = (int)Math.Ceiling(GetContentWidth(cellStyle.Alignment.TextRotation.Value, glyphs));
 
-                // TODO Styles: This allocates for each cell, reuse.
-                var scaledMdw = engine.GetMaxDigitWidth(cellStyle.Font.ToFontBase(), dpi.X);
-                scaledMdw = Math.Round(scaledMdw, MidpointRounding.AwayFromZero);
+                if (!scaledMdwMap.TryGetValue(cellStyle.Font, out var scaledMdw))
+                {
+                    var mdw = engine.GetMaxDigitWidth(cellStyle.Font.ToFontBase(), dpi.X);
+                    scaledMdw = Math.Round(mdw, MidpointRounding.AwayFromZero);
+                    scaledMdwMap.Add(cellStyle.Font, scaledMdw);
+                }
 
                 // Not sure about rounding, but larger is probably better, so use ceiling.
                 // Due to mismatched rendering, add 3% instead of 1.75%, to have additional space.
