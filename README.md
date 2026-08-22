@@ -1,6 +1,6 @@
 ![XlsxSharp](https://github.com/PapyraSoftware/XlsxSharp/blob/develop/resources/logo/readme.png)
 
-[![Release](https://img.shields.io/badge/release-0.106.0--preview1-blue.svg)](https://github.com/PapyraSoftware/XlsxSharp/releases/latest) [![NuGet version (XlsxSharp)](https://img.shields.io/nuget/v/XlsxSharp.svg?style=flat)](https://www.nuget.org/packages/XlsxSharp/) [![.NET](https://img.shields.io/badge/.NET-10.0-512BD4.svg)](#) [![Build & Test](https://github.com/PapyraSoftware/XlsxSharp/actions/workflows/build.yml/badge.svg?branch=develop)](https://github.com/PapyraSoftware/XlsxSharp/actions/workflows/build.yml)
+[![NuGet version (XlsxSharp)](https://img.shields.io/nuget/v/XlsxSharp.svg?style=flat)](https://www.nuget.org/packages/XlsxSharp/) [![.NET](https://img.shields.io/badge/.NET-10.0-512BD4.svg)](#) [![Build & Test](https://github.com/PapyraSoftware/XlsxSharp/actions/workflows/build.yml/badge.svg?branch=develop)](https://github.com/PapyraSoftware/XlsxSharp/actions/workflows/build.yml)
 
 XlsxSharp is a .NET library for reading, manipulating and writing Excel 2007+ (.xlsx, .xlsm) files. It aims to provide an intuitive and user-friendly interface to dealing with the underlying [OpenXML](https://github.com/OfficeDev/Open-XML-SDK) API.
 
