@@ -324,9 +324,9 @@ public class XlRangeAddressTests
         Assert.AreEqual(4, rangeAddress.NumberOfCells);
 
         rangeAddress = ProduceInvalidAddress();
-        Assert.Throws<InvalidOperationException>(() => { });
-        Assert.Throws<InvalidOperationException>(() => { });
-        Assert.Throws<InvalidOperationException>(() => { });
+        Assert.Throws<InvalidOperationException>(() => _ = rangeAddress.ColumnSpan);
+        Assert.Throws<InvalidOperationException>(() => _ = rangeAddress.RowSpan);
+        Assert.Throws<InvalidOperationException>(() => _ = rangeAddress.NumberOfCells);
     }
 
     #region Private Methods
