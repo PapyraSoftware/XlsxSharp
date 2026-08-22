@@ -277,7 +277,7 @@ public class AppendingAndReplacingTableDataTests
                 Assert.AreEqual(5, table.DataRange.RowCount());
                 Assert.AreEqual(6, table.DataRange.ColumnCount());
 
-                Assert.AreEqual(value, cell.CellBelow(NewData.Count()).Value);
+                Assert.AreEqual(value, cell.CellBelow(NewData.Length).Value);
             }
         }
     }

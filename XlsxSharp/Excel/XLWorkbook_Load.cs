@@ -1440,7 +1440,7 @@ public partial class XLWorkbook
     private static void ParseReference(string item, out string sheetName, out string sheetArea)
     {
         string[] sections = item.Trim().Split('!');
-        if (sections.Count() == 1)
+        if (sections.Length == 1)
         {
             sheetName = string.Empty;
             sheetArea = item;

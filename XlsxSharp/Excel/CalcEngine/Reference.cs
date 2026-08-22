@@ -108,7 +108,7 @@ namespace XlsxSharp.Excel.CalcEngine
                         .Where(ws => ws is not null)
                         .Distinct()
                         .ToList();
-            if (lhsWorksheets.Count() > 1)
+            if (lhsWorksheets.Count > 1)
                 return XLError.IncompatibleValue;
 
             var lhsWorksheet = lhsWorksheets.SingleOrDefault();
@@ -121,7 +121,7 @@ namespace XlsxSharp.Excel.CalcEngine
                         .Where(ws => ws is not null)
                         .Distinct()
                         .ToList();
-            if (rhsWorksheets.Count() > 1)
+            if (rhsWorksheets.Count > 1)
                 return XLError.IncompatibleValue;
 
             var rhsWorksheet = rhsWorksheets.SingleOrDefault();

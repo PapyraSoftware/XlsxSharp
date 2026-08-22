@@ -808,9 +808,9 @@ public class XLWorksheetTests
 
         void AssertPicturesAreEqual(IXLWorksheet ws1, IXLWorksheet ws2)
         {
-            Assert.AreEqual(ws1.Pictures.Count(), ws2.Pictures.Count());
+            Assert.AreEqual(ws1.Pictures.Count, ws2.Pictures.Count);
 
-            for (int i = 0; i < ws1.Pictures.Count(); i++)
+            for (int i = 0; i < ws1.Pictures.Count; i++)
             {
                 IXLPicture original = ws1.Pictures.ElementAt(i);
                 IXLPicture copy = ws2.Pictures.ElementAt(i);

@@ -179,7 +179,7 @@ public class RangeIndexTest
             Assert.AreEqual(1, level0.MinimumRow);
             Assert.AreEqual(XLHelper.MaxRowNumber, level0.MaximumRow);
             Assert.IsNull(level0.Ranges);
-            Assert.AreEqual(128, level0.Children.Count());
+            Assert.AreEqual(128, level0.Children.Count);
             Assert.True(level0.Children.All(child => child.Level == 1));
             Assert.AreEqual(
                 64,
@@ -248,7 +248,7 @@ public class RangeIndexTest
             ranges.Add(range3);
             Assert.AreEqual(2, ranges.Count);
 
-            Assert.AreEqual(ranges.Count, ranges.Count<IXLRange>());
+            Assert.AreEqual(ranges.Count, ranges.Count);
 
             // Add many entries to activate QuadTree
             for (int i = 1; i <= TEST_COUNT; i++)

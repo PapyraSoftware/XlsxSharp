@@ -240,7 +240,7 @@ public class XLWorkbookTests
         XLWorkbook wb = new();
         IXLRanges ranges = wb.Ranges("ABC");
         Assert.IsNotNull(ranges);
-        Assert.AreEqual(0, ranges.Count());
+        Assert.AreEqual(0, ranges.Count);
     }
 
     [Test]
