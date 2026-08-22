@@ -17,6 +17,10 @@ jobs:
   publish:
     name: Pack & publish
     runs-on: ubuntu-latest
+    # The nuget.org trusted publishing policy for this repository is scoped to the GitHub Actions
+    # environment 'develop', which becomes part of the OIDC token's claims. Without this, NuGet/login
+    # fails the token exchange with an environment mismatch (expected 'develop', actual '').
+    environment: develop
 
     permissions:
       contents: read
