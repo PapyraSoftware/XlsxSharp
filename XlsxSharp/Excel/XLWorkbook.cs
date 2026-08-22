@@ -470,7 +470,7 @@ public sealed partial class XLWorkbook : IXLWorkbook
     {
         this.ThrowIfDisposed();
 #if DEBUG
-        this.Save(true, false);
+        this.Save(true);
 #else
         Save(false, false);
 #endif
@@ -520,7 +520,7 @@ public sealed partial class XLWorkbook : IXLWorkbook
     {
         this.ThrowIfDisposed();
 #if DEBUG
-        this.SaveAs(file, true, false);
+        this.SaveAs(file, true);
 #else
         SaveAs(file, false, false);
 #endif
@@ -639,7 +639,7 @@ public sealed partial class XLWorkbook : IXLWorkbook
     {
         this.ThrowIfDisposed();
 #if DEBUG
-        this.SaveAs(stream, true, false);
+        this.SaveAs(stream, true);
 #else
         SaveAs(stream, false, false);
 #endif

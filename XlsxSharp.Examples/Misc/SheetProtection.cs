@@ -56,7 +56,7 @@ public class SheetProtection : IXLExample
 
         // Protect a sheet with a password
         IXLWorksheet protectedSheet = wb.Worksheets.Add("Protected Password = 123");
-        IXLSheetProtection protection = protectedSheet.Protect("123", Algorithm.SimpleHash);
+        IXLSheetProtection protection = protectedSheet.Protect("123");
         protection.AllowElement(
             XLSheetProtectionElements.InsertRows | XLSheetProtectionElements.InsertColumns
         );

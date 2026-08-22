@@ -745,7 +745,7 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
     public IXLSheetProtection Protect(
         string password,
         Algorithm algorithm = DefaultProtectionAlgorithm
-    ) => this.Protection.Protect(password, algorithm, XLSheetProtectionElements.SelectEverything);
+    ) => this.Protection.Protect(password, algorithm);
 
     public IXLSheetProtection Protect(
         string password,

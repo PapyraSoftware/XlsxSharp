@@ -727,7 +727,7 @@ public class XLCellTests
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         ws.SparklineGroups.Add("B1:B3", "C1:E3");
 
-        ws.Cell("B1").Clear(XLClearOptions.All);
+        ws.Cell("B1").Clear();
         ws.Cell("B2").Clear(XLClearOptions.Sparklines);
 
         Assert.AreEqual(1, ws.SparklineGroups.Single().Count());

@@ -202,8 +202,7 @@ internal abstract class XLRangeBase : IXLRangeBase
 
     IXLCell IXLRangeBase.FirstCellUsed() => this.FirstCellUsed(XLCellsUsedOptions.AllContents);
 
-    IXLCell IXLRangeBase.FirstCellUsed(XLCellsUsedOptions options) =>
-        this.FirstCellUsed(options, null);
+    IXLCell IXLRangeBase.FirstCellUsed(XLCellsUsedOptions options) => this.FirstCellUsed(options);
 
     IXLCell IXLRangeBase.FirstCellUsed(Func<IXLCell, bool> predicate) =>
         this.FirstCellUsed(predicate);
@@ -213,8 +212,7 @@ internal abstract class XLRangeBase : IXLRangeBase
 
     IXLCell IXLRangeBase.LastCellUsed() => this.LastCellUsed(XLCellsUsedOptions.AllContents);
 
-    IXLCell IXLRangeBase.LastCellUsed(XLCellsUsedOptions options) =>
-        this.LastCellUsed(options, null);
+    IXLCell IXLRangeBase.LastCellUsed(XLCellsUsedOptions options) => this.LastCellUsed(options);
 
     IXLCell IXLRangeBase.LastCellUsed(Func<IXLCell, bool> predicate) =>
         this.LastCellUsed(predicate);

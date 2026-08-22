@@ -252,12 +252,11 @@ internal class XLRange : XLRangeBase, IXLRange
 
     IXLTable IXLRange.CreateTable() => this.CreateTable();
 
-    public XLTable CreateTable() => (XLTable)this.Worksheet.Table(this, true, true);
+    public XLTable CreateTable() => (XLTable)this.Worksheet.Table(this, true);
 
     IXLTable IXLRange.CreateTable(string name) => this.CreateTable(name);
 
-    public XLTable CreateTable(string name) =>
-        (XLTable)this.Worksheet.Table(this, name, true, true);
+    public XLTable CreateTable(string name) => (XLTable)this.Worksheet.Table(this, name, true);
 
     public IXLTable CreateTable(string name, bool setAutofilter) =>
         this.Worksheet.Table(this, name, true, setAutofilter);

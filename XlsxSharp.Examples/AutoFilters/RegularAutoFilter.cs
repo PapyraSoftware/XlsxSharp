@@ -59,7 +59,7 @@ public class RegularAutoFilter : IXLExample
         autoFilter.Column(2).BeginsWith("J");
 
         // Sort the filtered list
-        ws.AutoFilter.Sort(1);
+        ws.AutoFilter.Sort();
 
         #endregion Single Column Numbers
 
@@ -88,7 +88,7 @@ public class RegularAutoFilter : IXLExample
         ws.RangeUsed().SetAutoFilter().Column(1).AddFilter("C").AddFilter("A");
 
         // Sort the filtered list
-        ws.AutoFilter.Sort(1);
+        ws.AutoFilter.Sort();
 
         #endregion Single Column Strings
 
@@ -117,7 +117,7 @@ public class RegularAutoFilter : IXLExample
         ws.RangeUsed().SetAutoFilter().Column(1).AddFilter("C").AddFilter(1);
 
         // Sort the filtered list
-        ws.AutoFilter.Sort(1);
+        ws.AutoFilter.Sort();
 
         #endregion Single Column Mixed
 
@@ -206,7 +206,7 @@ public class RegularAutoFilter : IXLExample
         table.Field(0).TotalsRowFunction = XLTotalsRowFunction.Sum;
         table.AutoFilter.Column(1).AddFilter(3).AddFilter(4);
 
-        table.AutoFilter.Sort(1);
+        table.AutoFilter.Sort();
 
         #endregion Table
 

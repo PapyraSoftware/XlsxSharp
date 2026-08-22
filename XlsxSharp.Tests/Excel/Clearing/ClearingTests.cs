@@ -80,7 +80,7 @@ public class ClearingTests
         {
             IXLWorksheet ws = wb.Worksheets.First();
 
-            ws.Clear(XLClearOptions.All);
+            ws.Clear();
 
             foreach (IXLCell c in ws.Range("A1:A10").Cells())
             {

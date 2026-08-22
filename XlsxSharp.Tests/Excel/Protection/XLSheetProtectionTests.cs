@@ -112,7 +112,7 @@ public class XLSheetProtectionTests
             using (XLWorkbook wb = new())
             {
                 IXLWorksheet ws = wb.AddWorksheet();
-                ws.Protect("123", Algorithm.SimpleHash);
+                ws.Protect("123");
 
                 wb.SaveAs(ms);
             }

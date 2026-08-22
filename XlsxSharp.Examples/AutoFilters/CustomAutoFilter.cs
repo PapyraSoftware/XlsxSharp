@@ -35,7 +35,7 @@ public class CustomAutoFilter : IXLExample
         ws.RangeUsed().SetAutoFilter().Column(1).EqualTo(3).Or.GreaterThan(4);
 
         // Sort the filtered list
-        ws.AutoFilter.Sort(1);
+        ws.AutoFilter.Sort();
         #endregion
 
         #region Single Column Strings
@@ -62,7 +62,7 @@ public class CustomAutoFilter : IXLExample
         ws.RangeUsed().SetAutoFilter().Column(1).Between("B", "D");
 
         // Sort the filtered list
-        ws.AutoFilter.Sort(1);
+        ws.AutoFilter.Sort();
         #endregion
 
         #region Single Column Mixed
@@ -89,7 +89,7 @@ public class CustomAutoFilter : IXLExample
         ws.RangeUsed().SetAutoFilter().Column(1).EqualTo(3).Or.EqualTo("C");
 
         // Sort the filtered list
-        ws.AutoFilter.Sort(1);
+        ws.AutoFilter.Sort();
         #endregion
 
         #region Multi Column

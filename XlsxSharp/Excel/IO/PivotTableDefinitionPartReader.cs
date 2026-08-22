@@ -52,7 +52,7 @@ internal class PivotTableDefinitionPartReader
         XLCell target = ws.FirstCell();
         if (pivotTableDefinition?.Location?.Reference?.HasValue ?? false)
         {
-            ws.Range(pivotTableDefinition.Location.Reference.Value).Clear(XLClearOptions.All);
+            ws.Range(pivotTableDefinition.Location.Reference.Value).Clear();
             target = ws.Range(pivotTableDefinition.Location.Reference.Value).FirstCell();
         }
 

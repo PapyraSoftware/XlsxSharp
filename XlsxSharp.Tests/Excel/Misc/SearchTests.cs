@@ -57,7 +57,7 @@ public class SearchTests
                 string.Join(",", foundCells.Select(c => c.Address.ToString()).ToArray())
             );
 
-            foundCells = ws.Search("test case", CompareOptions.Ordinal);
+            foundCells = ws.Search("test case");
             Assert.AreEqual(0, foundCells.Count());
 
             foundCells = ws.Search("test case", CompareOptions.OrdinalIgnoreCase);
@@ -79,7 +79,7 @@ public class SearchTests
 
             IXLCells foundCells;
 
-            foundCells = ws.Search("3", CompareOptions.Ordinal);
+            foundCells = ws.Search("3");
             Assert.AreEqual(10, foundCells.Count());
             Assert.AreEqual("C2", foundCells.First().Address.ToString());
 

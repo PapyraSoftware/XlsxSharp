@@ -39,7 +39,7 @@ public class Sorting : IXLExample
             }
 
             table = wsTable.RangeUsed().AsTable();
-            table.Sort("Column2", XLSortOrder.Descending, false, true);
+            table.Sort("Column2", XLSortOrder.Descending);
 
             #endregion Sort Table
 

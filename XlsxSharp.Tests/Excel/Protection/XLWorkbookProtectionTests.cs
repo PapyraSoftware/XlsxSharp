@@ -24,7 +24,7 @@ public class XLWorkbookProtectionTests
             {
                 Assert.AreEqual(Algorithm.SHA512, wb.Protection.Algorithm);
                 wb.Unprotect("12345");
-                wb.Protect("12345", Algorithm.SimpleHash);
+                wb.Protect("12345");
 
                 wb.SaveAs(ms);
             }
