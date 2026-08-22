@@ -1,5 +1,3 @@
-// Keep this file CodeMaid organised and cleaned
-
 namespace XlsxSharp.Excel;
 
 internal class XLFileSharing : IXLFileSharing

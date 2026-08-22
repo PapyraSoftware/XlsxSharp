@@ -1,5 +1,3 @@
-// Keep this file CodeMaid organised and cleaned
-
 using System.Globalization;
 using System.IO;
 using System.Xml;

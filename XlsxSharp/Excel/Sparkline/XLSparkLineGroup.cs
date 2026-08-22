@@ -1,7 +1,6 @@
 #nullable disable
 #nullable enable annotations
 
-// Keep this file CodeMaid organised and cleaned
 using System;
 using System.Collections;
 using System.Collections.Generic;

@@ -1,7 +1,5 @@
 #nullable disable
 
-// Keep this file CodeMaid organised and cleaned
-
 using System.Diagnostics;
 using System.Numerics;
 

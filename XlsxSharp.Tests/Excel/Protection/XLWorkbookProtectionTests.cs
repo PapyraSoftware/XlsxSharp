@@ -1,6 +1,4 @@
-﻿// Keep this file CodeMaid organised and cleaned
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;

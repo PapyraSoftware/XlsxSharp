@@ -1,6 +1,5 @@
 #nullable disable
 
-// Keep this file CodeMaid organised and cleaned
 using System.Collections.Generic;
 
 namespace XlsxSharp.Excel.PivotValues;
