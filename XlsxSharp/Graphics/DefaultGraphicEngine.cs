@@ -1,4 +1,4 @@
-#nullable disable
+﻿#nullable disable
 
 using System;
 using System.Collections.Concurrent;
@@ -232,20 +232,17 @@ public class DefaultGraphicEngine : IXLGraphicEngine
                 TextDecorations.None,
                 LayoutMode.HorizontalTopBottom,
                 ColorFontSupport.None,
-                out IReadOnlyList<GlyphMetrics> glyphs
+                null, // No palette, color fonts are not requested.
+                out FontGlyphMetrics glyph
             );
 
-            // As of SixLabors.Fonts 1.0.0, the TryGetGlyphMetrics method never fails. It returns .notdef glyph 0
             // as a fallback glyph, but it might change in the future.
             if (!containsMetrics)
             {
                 continue;
             }
 
-            foreach (GlyphMetrics glyph in glyphs)
-            {
-                advanceFu += glyph.AdvanceWidth;
-            }
+            advanceFu += glyph.AdvanceWidth;
         }
 
         double emInPx = font.FontSize / 72d * dpi.X;
@@ -328,20 +325,15 @@ public class DefaultGraphicEngine : IXLGraphicEngine
                 TextDecorations.None,
                 LayoutMode.HorizontalTopBottom,
                 ColorFontSupport.None,
-                out IReadOnlyList<GlyphMetrics> glyphMetrics
+                null, // No palette, color fonts are not requested.
+                out FontGlyphMetrics glyphMetric
             );
             if (!containsMetrics)
             {
                 continue;
             }
 
-            int glyphAdvance = 0;
-            foreach (GlyphMetrics glyphMetric in glyphMetrics)
-            {
-                glyphAdvance += glyphMetric.AdvanceWidth;
-            }
-
-            maxWidth = Math.Max(maxWidth, glyphAdvance);
+            maxWidth = Math.Max(maxWidth, glyphMetric.AdvanceWidth);
         }
         return maxWidth / (double)metrics.UnitsPerEm;
     }

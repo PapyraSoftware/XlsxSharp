@@ -48,6 +48,13 @@
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
 
+  <!-- SixLabors.Fonts 3.x validates a license before CoreCompile. On CI the key comes from the
+       SIXLABORS_LICENSE_KEY environment variable (a repository secret). Locally the property stays
+       unset, so the build falls back to a sixlabors.lic file if one is present. -->
+  <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+    <SixLaborsLicenseKey>$(SIXLABORS_LICENSE_KEY)</SixLaborsLicenseKey>
+  </PropertyGroup>
+
   <ItemGroup>
     <InternalsVisibleTo Include="XlsxSharp.Tests" />
   </ItemGroup>
