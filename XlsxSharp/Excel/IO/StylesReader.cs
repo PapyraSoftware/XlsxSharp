@@ -750,7 +750,7 @@ internal partial class StylesReader
         // of this attribute to enumerations present in the list")
         if (
             builtinId is not null
-            && !Enum.IsDefined(typeof(BuiltInStyleValues), checked((int)builtinId.Value))
+            && !Enum.IsDefined((BuiltInStyleValues)checked((int)builtinId.Value))
         )
         {
             throw PartStructureException.InvalidAttributeFormat();

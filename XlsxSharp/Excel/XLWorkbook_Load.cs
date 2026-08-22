@@ -1120,8 +1120,9 @@ public partial class XLWorkbook
             .FirstOrDefault(e => e.Name.LocalName == "TextHAlign");
         if (textHAlign != null)
         {
-            drawing.Style.Alignment.Horizontal = (XLDrawingHorizontalAlignment)
-                Enum.Parse(typeof(XLDrawingHorizontalAlignment), textHAlign.Value.ToProper());
+            drawing.Style.Alignment.Horizontal = Enum.Parse<XLDrawingHorizontalAlignment>(
+                textHAlign.Value.ToProper()
+            );
         }
     }
 
@@ -1132,8 +1133,9 @@ public partial class XLWorkbook
             .FirstOrDefault(e => e.Name.LocalName == "TextVAlign");
         if (textVAlign != null)
         {
-            drawing.Style.Alignment.Vertical = (XLDrawingVerticalAlignment)
-                Enum.Parse(typeof(XLDrawingVerticalAlignment), textVAlign.Value.ToProper());
+            drawing.Style.Alignment.Vertical = Enum.Parse<XLDrawingVerticalAlignment>(
+                textVAlign.Value.ToProper()
+            );
         }
     }
 
