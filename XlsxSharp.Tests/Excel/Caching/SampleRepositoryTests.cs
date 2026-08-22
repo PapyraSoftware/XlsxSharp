@@ -35,7 +35,7 @@ public class BaseRepositoryTests
 #if !DEBUG
         // Arrange
         var key = 12345;
-        var sampleRepository = this.CreateSampleRepository();
+        var sampleRepository = CreateSampleRepository();
 
         // Act
         // In net8, JIT could make a hidden temporary variable for created object that would prevent
@@ -84,7 +84,7 @@ public class BaseRepositoryTests
             }
         }
 
-        var sampleRepository = this.CreateSampleRepository();
+        var sampleRepository = CreateSampleRepository();
 
         // Act
         Parallel.ForEach(

@@ -19,9 +19,9 @@ Do not randomly delete sections. They are here for a reason.
 
 If you answered `No`, please test with [the latest development build](https://ci.appveyor.com/project/ClosedXML/ClosedXML/branch/develop/artifacts) first.
 
-**Version of ClosedXML**
+**Version of XlsxSharp**
 
-e.g. 0.95.3
+e.g. 1.0.0
 
 **What is the current behavior?**
 

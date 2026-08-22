@@ -1,6 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net8.0;net462</TargetFrameworks>
     <OutputType>Exe</OutputType>
     <Nullable>annotations</Nullable>
   </PropertyGroup>
