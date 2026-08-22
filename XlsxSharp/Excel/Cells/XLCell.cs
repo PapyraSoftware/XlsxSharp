@@ -1552,7 +1552,7 @@ internal sealed partial class XLCell : IXLCell, IXLFormatContainer
                                         "$"
                                         + (
                                             XlsxSharp.XLHelper.TrimRowNumber(
-                                                int.Parse(row1String.Substring(1)) + rowsShifted
+                                                int.Parse(row1String.AsSpan(1)) + rowsShifted
                                             )
                                         ).ToInvariantString();
                                 }
@@ -1572,7 +1572,7 @@ internal sealed partial class XLCell : IXLCell, IXLFormatContainer
                                         "$"
                                         + (
                                             XlsxSharp.XLHelper.TrimRowNumber(
-                                                int.Parse(row2String.Substring(1)) + rowsShifted
+                                                int.Parse(row2String.AsSpan(1)) + rowsShifted
                                             )
                                         ).ToInvariantString();
                                 }
