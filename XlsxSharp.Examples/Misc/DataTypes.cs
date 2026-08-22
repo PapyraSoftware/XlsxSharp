@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.CalcEngine;
 
@@ -42,11 +43,21 @@ public class DataTypes : IXLExample
         ws.Cell(++ro, co).Value = "Explicit Text:";
         ws.Cell(ro, co + 1).Value = "'Hello World.";
 
+        // The format is spelled out rather than left to the current culture, whose date and time
+        // patterns change with the ICU version shipped by the runtime.
+        const string dateTimePattern = "M/d/yyyy h:mm:ss tt";
+
         ws.Cell(++ro, co).Value = "Date as Text:";
-        ws.Cell(ro, co + 1).Value = "'" + new DateTime(2010, 9, 2);
+        ws.Cell(ro, co + 1).Value =
+            "'" + new DateTime(2010, 9, 2).ToString(dateTimePattern, CultureInfo.InvariantCulture);
 
         ws.Cell(++ro, co).Value = "DateTime as Text:";
-        ws.Cell(ro, co + 1).Value = "'" + new DateTime(2010, 9, 2, 13, 45, 22);
+        ws.Cell(ro, co + 1).Value =
+            "'"
+            + new DateTime(2010, 9, 2, 13, 45, 22).ToString(
+                dateTimePattern,
+                CultureInfo.InvariantCulture
+            );
 
         ws.Cell(++ro, co).Value = "Boolean as Text:";
         ws.Cell(ro, co + 1).Value = "'TRUE";
