@@ -217,7 +217,7 @@ public class ColorTests
     }
 
     [TestCaseSource(nameof(ToStringTestCases))]
-    public void ToString_works_for_all_color_types(XLColor colorType, string expectedString)
+    public void ToStringWorksForAllColorTypes(XLColor colorType, string expectedString)
     {
         Assert.AreEqual(expectedString, colorType.ToString());
     }

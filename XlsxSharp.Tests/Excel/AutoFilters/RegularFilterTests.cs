@@ -11,7 +11,7 @@ namespace XlsxSharp.Tests.Excel.AutoFilters;
 public class RegularFilterTests
 {
     [Test]
-    public void DateTimeGrouping_and_regular_values_can_be_used_together()
+    public void DateTimeGroupingAndRegularValuesCanBeUsedTogether()
     {
         // OpenXML SDK validator considers filter and dateTimeGroup filter elements together to
         // be an error, but it isn't (XSD allows and Excel reads). Therefore, disable
@@ -48,7 +48,7 @@ public class RegularFilterTests
 
     [Test]
     [SetCulture("cs-CZ")]
-    public void Regular_number_value_is_compared_as_text_against_formatted_text()
+    public void RegularNumberValueIsComparedAsTextAgainstFormattedText()
     {
         new AutoFilterTester(f => f.AddFilter(1.5))
             .Add(1.5, true)
@@ -66,7 +66,7 @@ public class RegularFilterTests
 
     [Test]
     [SetCulture("cs-CZ")]
-    public void Regular_logical_value_is_compared_as_text_against_formatted_text()
+    public void RegularLogicalValueIsComparedAsTextAgainstFormattedText()
     {
         new AutoFilterTester(f => f.AddFilter(false))
             .Add(false, true)
@@ -80,7 +80,7 @@ public class RegularFilterTests
 
     [Test]
     [SetCulture("cs-CZ")]
-    public void Regular_error_value_is_compared_as_text_against_formatted_text()
+    public void RegularErrorValueIsComparedAsTextAgainstFormattedText()
     {
         new AutoFilterTester(f => f.AddFilter("#VALUE!"))
             .Add(XLError.IncompatibleValue, true)
@@ -90,7 +90,7 @@ public class RegularFilterTests
     }
 
     [Test]
-    public void Pattern_is_not_interpreted_as_wildcard()
+    public void PatternIsNotInterpretedAsWildcard()
     {
         new AutoFilterTester(f => f.AddFilter("A*"))
             .Add("A*", true)

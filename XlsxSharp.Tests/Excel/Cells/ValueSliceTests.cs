@@ -7,7 +7,7 @@ namespace XlsxSharp.Tests.Excel.Cells;
 public class ValueSliceTests
 {
     [Test]
-    public void Deleting_worksheet_dereferences_all_texts_in_its_value_slice()
+    public void DeletingWorksheetDereferencesAllTextsInItsValueSlice()
     {
         using XLWorkbook wb = new();
         SharedStringTable sst = wb.SharedStringTable;
@@ -26,7 +26,7 @@ public class ValueSliceTests
     }
 
     [Test]
-    public void Clear_dereferences_texts_in_the_range()
+    public void ClearDereferencesTextsInTheRange()
     {
         using XLWorkbook wb = new();
         SharedStringTable sst = wb.SharedStringTable;
@@ -42,7 +42,7 @@ public class ValueSliceTests
     }
 
     [Test]
-    public void DeleteAreaAndShiftLeft_dereferences_all_texts_deleted_area()
+    public void DeleteAreaAndShiftLeftDereferencesAllTextsDeletedArea()
     {
         using XLWorkbook wb = new();
         SharedStringTable sst = wb.SharedStringTable;
@@ -62,7 +62,7 @@ public class ValueSliceTests
     }
 
     [Test]
-    public void DeleteAreaAndShiftUp_dereferences_all_texts_deleted_area()
+    public void DeleteAreaAndShiftUpDereferencesAllTextsDeletedArea()
     {
         using XLWorkbook wb = new();
         SharedStringTable sst = wb.SharedStringTable;
@@ -82,7 +82,7 @@ public class ValueSliceTests
     }
 
     [Test]
-    public void InsertAreaAndShiftDown_dereferences_all_texts_in_pushed_out_range()
+    public void InsertAreaAndShiftDownDereferencesAllTextsInPushedOutRange()
     {
         using XLWorkbook wb = new();
         SharedStringTable sst = wb.SharedStringTable;
@@ -102,7 +102,7 @@ public class ValueSliceTests
     }
 
     [Test]
-    public void InsertAreaAndShiftRight_dereferences_all_texts_in_pushed_out_range()
+    public void InsertAreaAndShiftRightDereferencesAllTextsInPushedOutRange()
     {
         using XLWorkbook wb = new();
         SharedStringTable sst = wb.SharedStringTable;

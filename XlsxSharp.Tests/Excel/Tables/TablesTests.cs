@@ -99,7 +99,7 @@ public class TablesTests
     }
 
     [Test]
-    public void Inserting_Column_Sets_Header()
+    public void InsertingColumnSetsHeader()
     {
         using (XLWorkbook wb = new())
         {
@@ -120,7 +120,7 @@ public class TablesTests
     }
 
     [Test]
-    public void DataRange_returns_null_if_empty()
+    public void DataRangeReturnsNullIfEmpty()
     {
         using (XLWorkbook wb = new())
         {
@@ -442,7 +442,7 @@ public class TablesTests
     [TestCase("Amount")]
     [TestCase("AMOUNT")]
     [TestCase("amount")]
-    public void FieldNames_of_XLTable_are_case_insensitive(string fieldName)
+    public void FieldNamesOfXLTableAreCaseInsensitive(string fieldName)
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -1362,7 +1362,7 @@ public class TablesTests
     }
 
     [Test]
-    public void Save_totals_row_label_cell_with_sst_id_matching_the_label()
+    public void SaveTotalsRowLabelCellWithSstIdMatchingTheLabel()
     {
         // Issue #2602 test. The totals row wasn't saved with compact SST ID from file, but with a memory SST that has holes.
         TestHelper.CreateAndCompare(

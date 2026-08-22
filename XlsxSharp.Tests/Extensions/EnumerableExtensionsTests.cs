@@ -51,7 +51,7 @@ public class EnumerableExtensionsTests
     }
 
     [Test]
-    public void SkipLast_skips_last_element_of_enumerable()
+    public void SkipLastSkipsLastElementOfEnumerable()
     {
         IEnumerable<int> empty = Array.Empty<int>().SkipLast();
         CollectionAssert.IsEmpty(empty);
@@ -64,7 +64,7 @@ public class EnumerableExtensionsTests
     }
 
     [Test]
-    public void WhereNotNull_removes_null_elements()
+    public void WhereNotNullRemovesNullElements()
     {
         int?[] source = [1, null, 2];
 

@@ -96,7 +96,7 @@ public class ConditionalFormatTests
     [TestCase("en-US")]
     [TestCase("fr-FR")]
     [TestCase("ru-RU")]
-    public void SaveConditionalFormat_CultureIndependent(string culture)
+    public void SaveConditionalFormatCultureIndependent(string culture)
     {
         using (MemoryStream ms = new())
         {
@@ -158,7 +158,7 @@ public class ConditionalFormatTests
     }
 
     [Test]
-    public void CellIs_type_reads_only_required_formula_arguments()
+    public void CellIsTypeReadsOnlyRequiredFormulaArguments()
     {
         // The CellIs uses formula tags as arguments. Some producers generate extra empty
         // formula tags and ClosedXml should be able to load CellIs conditional formatting
@@ -192,7 +192,7 @@ public class ConditionalFormatTests
     }
 
     [Test]
-    public void Expression_type_skips_empty_formula_tags()
+    public void ExpressionTypeSkipsEmptyFormulaTags()
     {
         // The Expression uses formula tag as arguments. Some producers generate extra empty
         // formula tags and ClosedXml should be able to load Expression conditional formatting
@@ -219,7 +219,7 @@ public class ConditionalFormatTests
     }
 
     [Test]
-    public void Range_setter_throws_on_range_from_different_worksheet()
+    public void RangeSetterThrowsOnRangeFromDifferentWorksheet()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws1 = wb.AddWorksheet();
@@ -231,7 +231,7 @@ public class ConditionalFormatTests
     }
 
     [Test]
-    public void Ranges_setter_throws_on_range_from_different_worksheet()
+    public void RangesSetterThrowsOnRangeFromDifferentWorksheet()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws1 = wb.AddWorksheet();
@@ -248,7 +248,7 @@ public class ConditionalFormatTests
     }
 
     [Test]
-    public void Ranges_setter_throws_on_empty_ranges()
+    public void RangesSetterThrowsOnEmptyRanges()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws1 = wb.AddWorksheet();
@@ -263,7 +263,7 @@ public class ConditionalFormatTests
     }
 
     [Test]
-    public void Text_formats_are_loaded_as_value()
+    public void TextFormatsAreLoadedAsValue()
     {
         // Issue #2690: Ensure that CF for text are loaded as a value and not as a formula.
         TestHelper.CreateSaveLoadAssert(

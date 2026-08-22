@@ -529,7 +529,7 @@ public class XLWorksheetTests
     }
 
     [Test]
-    public void Copy_sheet_across_workbooks_preserves_defined_names()
+    public void CopySheetAcrossWorkbooksPreservesDefinedNames()
     {
         using (XLWorkbook wb1 = new())
         using (XLWorkbook wb2 = new())
@@ -556,7 +556,7 @@ public class XLWorksheetTests
     }
 
     [Test]
-    public void Copying_sheet_inside_workbook_makes_copies_of_sheet_scoped_defined_names()
+    public void CopyingSheetInsideWorkbookMakesCopiesOfSheetScopedDefinedNames()
     {
         using (XLWorkbook wb1 = new())
         {
@@ -1094,7 +1094,7 @@ public class XLWorksheetTests
     }
 
     [Test]
-    public void Rename_sheets_changes_sheet_references_in_formulas()
+    public void RenameSheetsChangesSheetReferencesInFormulas()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.Worksheets.Add("Original");
@@ -1334,7 +1334,7 @@ public class XLWorksheetTests
     }
 
     [Test]
-    public void SelectedTabIsActive_WhenInsertBefore()
+    public void SelectedTabIsActiveWhenInsertBefore()
     {
         using (MemoryStream ms = new())
         {
@@ -1362,7 +1362,7 @@ public class XLWorksheetTests
     [TestCase("noactive_noselected.xlsx")]
     [TestCase("noactive_twoselected.xlsx")]
     [TestCase("noactive_negativeId.xlsx")]
-    public void FirstSheetIsActive_WhenNotSpecified(string fileName)
+    public void FirstSheetIsActiveWhenNotSpecified(string fileName)
     {
         using (
             Stream stream = TestHelper.GetStreamFromResource(
@@ -1378,7 +1378,7 @@ public class XLWorksheetTests
 
     [TestCase(XLCellsUsedOptions.NormalFormats, 42)]
     [TestCase(XLCellsUsedOptions.Contents, 100)]
-    public void FirstColumnUsed_ReturnsFirstColumnWithUsedCell(
+    public void FirstColumnUsedReturnsFirstColumnWithUsedCell(
         XLCellsUsedOptions options,
         int expectedColumn
     )
@@ -1393,7 +1393,7 @@ public class XLWorksheetTests
     }
 
     [Test]
-    public void RecalculateAllFormulas_recalculates_all_formulas_in_sheet_and_leaves_rest_dirty()
+    public void RecalculateAllFormulasRecalculatesAllFormulasInSheetAndLeavesRestDirty()
     {
         using XLWorkbook wb = new();
         IXLWorksheet sut = wb.AddWorksheet("sut");
@@ -1432,7 +1432,7 @@ public class XLWorksheetTests
     }
 
     [Test]
-    public void Cell_returns_cell_at_address_or_workbook_scoped_named_range()
+    public void CellReturnsCellAtAddressOrWorkbookScopedNamedRange()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -1446,7 +1446,7 @@ public class XLWorksheetTests
     }
 
     [Test]
-    public void Cell_throws_exception_when_address_is_not_A1_address_or_workbook_scoped_range()
+    public void CellThrowsExceptionWhenAddressIsNotA1AddressOrWorkbookScopedRange()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -1456,7 +1456,7 @@ public class XLWorksheetTests
     }
 
     [Test]
-    public void Range_returns_range_from_a1_address_or_named_range()
+    public void RangeReturnsRangeFromA1AddressOrNamedRange()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -1475,7 +1475,7 @@ public class XLWorksheetTests
     }
 
     [Test]
-    public void Range_throws_exception_when_address_is_not_A1_address_or_named_range()
+    public void RangeThrowsExceptionWhenAddressIsNotA1AddressOrNamedRange()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -1489,7 +1489,7 @@ public class XLWorksheetTests
     [TestCase("Sheet1", "SHEET1")]
     [TestCase("Baker's Paradise", "BAKER'S PARADISE")]
     [TestCase("XXX''XXX", "XXX''XXX")]
-    public void Worksheet_by_name_returns_worksheet_with_the_same_case_insensitive_name(
+    public void WorksheetByNameReturnsWorksheetWithTheSameCaseInsensitiveName(
         string sheetName,
         string searchedSheetName
     )
@@ -1501,7 +1501,7 @@ public class XLWorksheetTests
     }
 
     [Test]
-    public void Worksheet_by_name_throws_exception_when_no_sheet_with_name_found()
+    public void WorksheetByNameThrowsExceptionWhenNoSheetWithNameFound()
     {
         using XLWorkbook wb = new();
         wb.AddWorksheet("Sheet");
@@ -1518,7 +1518,7 @@ public class XLWorksheetTests
     [TestCase("Sheet1", " Sheet1", false)]
     [TestCase("Baker's Paradise", "BAKER'S PARADISE", true)]
     [TestCase("XXX''XXX", "XXX''XXX", true)]
-    public void TryGetWorksheet_finds_worksheet_with_the_same_case_insensitive_name(
+    public void TryGetWorksheetFindsWorksheetWithTheSameCaseInsensitiveName(
         string sheetName,
         string searchedSheetName,
         bool expectedFound

@@ -58,7 +58,7 @@ public class XlHelperTests
     }
 
     [Test]
-    public void PlusAA1_Is_Not_an_address()
+    public void PlusAA1IsNotAnAddress()
     {
         Assert.IsFalse(XLHelper.IsValidA1Address("+AA1"));
     }

@@ -6,7 +6,7 @@ namespace XlsxSharp.Tests.Excel.PageSetup;
 public class PageLayoutTests
 {
     [Test]
-    public void FirstPageNumber_can_be_negative()
+    public void FirstPageNumberCanBeNegative()
     {
         TestHelper.CreateSaveLoadAssert(
             (_, ws) => ws.PageSetup.FirstPageNumber = -3,

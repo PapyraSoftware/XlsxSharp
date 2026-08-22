@@ -9,7 +9,7 @@ public class WildcardTests
 {
     [TestCase("")]
     [TestCase("abc")]
-    public void Empty_Pattern_Matches_Any_String(string text)
+    public void EmptyPatternMatchesAnyString(string text)
     {
         Assert.AreEqual(0, SearchWildcard(text, string.Empty));
     }
@@ -20,29 +20,25 @@ public class WildcardTests
     [TestCase("abc", "abc", 0)]
     [TestCase("bc", "abc", 1)]
     [TestCase("c", "abc", 2)]
-    public void Substring_Of_Text_Matches_Text(
-        string substringPattern,
-        string text,
-        int expectedIndex
-    )
+    public void SubstringOfTextMatchesText(string substringPattern, string text, int expectedIndex)
     {
         Assert.AreEqual(expectedIndex, SearchWildcard(text, substringPattern));
     }
 
     [TestCase("abcd", "abc")]
-    public void Pattern_Not_In_Text_Returns_Negative_One(string pattern, string text)
+    public void PatternNotInTextReturnsNegativeOne(string pattern, string text)
     {
         Assert.AreEqual(-1, SearchWildcard(text, pattern));
     }
 
     [Test]
-    public void Pattern_Comparison_Is_Case_Insensitive()
+    public void PatternComparisonIsCaseInsensitive()
     {
         Assert.AreEqual(1, SearchWildcard("zabcd", "AbCd"));
     }
 
     [Test]
-    public void Tilde_Is_Escape_Char()
+    public void TildeIsEscapeChar()
     {
         Assert.AreEqual(1, SearchWildcard("_abc_", "~a~B~c"));
     }
@@ -52,17 +48,13 @@ public class WildcardTests
     [TestCase("~?", "?", 0)]
     [TestCase("~?", "a", -1)]
     [TestCase("~a~b~", "ab", 0)]
-    public void Escaped_Wildcards_Are_Matched_As_Chars(
-        string pattern,
-        string text,
-        int expectedPosition
-    )
+    public void EscapedWildcardsAreMatchedAsChars(string pattern, string text, int expectedPosition)
     {
         Assert.AreEqual(expectedPosition, SearchWildcard(text, pattern));
     }
 
     [Test]
-    public void Question_Mark_Wildcard_Matches_Any_Char()
+    public void QuestionMarkWildcardMatchesAnyChar()
     {
         Assert.AreEqual(0, SearchWildcard("abc", "a?c"));
     }
@@ -70,25 +62,25 @@ public class WildcardTests
     [TestCase("abcd", "ab*cd", 0)]
     [TestCase(@"aaab_____cd", "ab*cd", 2)]
     [TestCase("*abc*", "***a*b*c***", 0)]
-    public void Star_Wildcard_Matches_Any_Number_Of_Chars(string text, string pattern, int index)
+    public void StarWildcardMatchesAnyNumberOfChars(string text, string pattern, int index)
     {
         Assert.AreEqual(index, SearchWildcard(text, pattern));
     }
 
     [Test]
-    public void Unpaired_Escape_Char_At_The_End_Of_Pattern_Is_Not_Char()
+    public void UnpairedEscapeCharAtTheEndOfPatternIsNotChar()
     {
         Assert.AreEqual(0, SearchWildcard("a", "a~"));
     }
 
     [Test]
-    public void Star_Wildcard_At_The_Beginning_Matches_First_Char()
+    public void StarWildcardAtTheBeginningMatchesFirstChar()
     {
         Assert.AreEqual(0, SearchWildcard("abcccd", "*ccd"));
     }
 
     [Test]
-    public void Pattern_Size_Is_Limited_To_255_Chars()
+    public void PatternSizeIsLimitedTo255Chars()
     {
         Assert.AreEqual(0, SearchWildcard(new string('a', 1000), new string('a', 255)));
 

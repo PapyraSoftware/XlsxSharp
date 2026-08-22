@@ -16,7 +16,12 @@ public class FontTests
     {
         DummyFont textFont = new("Calibri", 20);
         double textWidthPt = this._engine.GetTextWidth("Lorem ipsum dolor sit amet", textFont, 96);
-        Assert.That(textWidthPt, Is.EqualTo(300));
+
+        // SixLabors.Fonts 1.x rounded the total advance up to a whole pixel at the engine's
+        // FontMetricSize of 16 (180 instead of 179.0625), which is where the previous 300 came from.
+        // 3.x reports it subpixel-accurate. The value below is what the metric-compatible Carlito
+        // measures; real Calibri is expected to match, but that was not verified on a Windows box.
+        Assert.That(textWidthPt, Is.EqualTo(298.43747456868488d).Within(0.0001));
     }
 
     [TestCase]
@@ -80,7 +85,10 @@ public class FontTests
         DummyFont nonExistentFont = new("Nonexistent Font", 20);
         double widthOfLetterA = engine.GetTextWidth("A", nonExistentFont, 120);
 
-        const double expectedWidthOfLetterA = 31.25d;
+        // The advance of 'A' in TestFontA is 1886/2048 em. SixLabors.Fonts 1.x rounded advances up to
+        // whole pixels at the engine's FontMetricSize of 16 (giving 15/16 em); 3.x reports them
+        // subpixel-accurate, so the expected value now matches the raw hmtx advance.
+        const double expectedWidthOfLetterA = 30.696614583333336d;
         Assert.AreEqual(expectedWidthOfLetterA, widthOfLetterA, 0.0001);
     }
 
@@ -96,12 +104,13 @@ public class FontTests
 
         double widthOfLetterB = engine.GetTextWidth("B", new DummyFont("TestFontB", 30), 96);
 
-        const double expectedWidthOfLetterB = 25d;
+        // Likewise: the advance of 'B' in TestFontB is 602/1000 em, which 1.x rounded up to 10/16 em.
+        const double expectedWidthOfLetterB = 24.08d;
         Assert.AreEqual(expectedWidthOfLetterB, widthOfLetterB, 0.0001);
     }
 
     [TestCase]
-    public void Issue_1916_CanMeasureSpecificArabicText()
+    public void Issue1916CanMeasureSpecificArabicText()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();

@@ -136,7 +136,7 @@ public class StyleTests
     }
 
     [Test]
-    public void Style_for_cells_without_explicitly_set_style_uses_combination_of_row_and_columns_styles()
+    public void StyleForCellsWithoutExplicitlySetStyleUsesCombinationOfRowAndColumnsStyles()
     {
         // If a style for a cell hasn't been explicitly set (e.g. though `cell.Style.Font
         // .SetBold(true)`), it is not yet instantiated to save memory and the actual value
@@ -179,7 +179,7 @@ public class StyleTests
     }
 
     [Test]
-    public void Style_has_equality_comparison()
+    public void StyleHasEqualityComparison()
     {
         Action<IXLStyle>[] changePropertyToNonDefault =
         [
@@ -206,7 +206,7 @@ public class StyleTests
     }
 
     [Test]
-    public void Style_can_be_copied()
+    public void StyleCanBeCopied()
     {
         Action<IXLStyle>[] changePropertyToNonDefault =
         [

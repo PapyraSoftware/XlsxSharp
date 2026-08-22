@@ -998,7 +998,7 @@ public class LoadingTests
     }
 
     [Test]
-    public void Can_load_workbook_with_invalid_attributes_when_strict_parsing_is_disabled()
+    public void CanLoadWorkbookWithInvalidAttributesWhenStrictParsingIsDisabled()
     {
         TestHelper.LoadAndAssert(
             (_, ws) =>

@@ -25,7 +25,7 @@ public class ReferenceShiftRefModTests
     // Reference with sheet is modified to a reference with a sheet
     [TestCase("Sheet1!A1", "Sheet1!A1", "Sheet1!A2")]
     [TestCase("'Joe''s Bakery'!C2", "'Joe''s Bakery'!C2", "'Joe''s Bakery'!C3")]
-    public void Insert_area_and_shift_down_reference(
+    public void InsertAreaAndShiftDownReference(
         string formula,
         string insertedArea,
         string expected
@@ -73,7 +73,7 @@ public class ReferenceShiftRefModTests
     // Reference with sheet is modified to a reference with a sheet
     [TestCase("Sheet1!C2:F2", "Sheet1!D2", "Sheet1!C2:G2")]
     [TestCase("'Joe''s Bakery'!C5:D5", "'Joe''s Bakery'!B5:C5", "'Joe''s Bakery'!E5:F5")]
-    public void Insert_area_and_shift_right_reference(
+    public void InsertAreaAndShiftRightReference(
         string formula,
         string insertedArea,
         string expected
@@ -141,11 +141,7 @@ public class ReferenceShiftRefModTests
     [TestCase("C5:E10", "Sheet!D5:F9", "C5:E10")]
     [TestCase("C5:E10", "Sheet!D1:E4", "C5:E10")]
     [TestCase("C5:E10", "Sheet!D11:E14", "C5:E10")]
-    public void Delete_area_and_shift_up_reference(
-        string formula,
-        string deletedArea,
-        string expected
-    )
+    public void DeleteAreaAndShiftUpReference(string formula, string deletedArea, string expected)
     {
         // TODO: Once incorporated into cell deletion, replace with a public API test case through SUM(reference) in a cell.
         Assert.True(
@@ -209,11 +205,7 @@ public class ReferenceShiftRefModTests
     [TestCase("C5:E12", "Sheet!C8:D13", "C5:E12")]
     [TestCase("C5:E12", "Sheet!A8:B12", "C5:E12")]
     [TestCase("C5:E12", "Sheet!F8:F12", "C5:E12")]
-    public void Delete_area_and_shift_left_reference(
-        string formula,
-        string deletedArea,
-        string expected
-    )
+    public void DeleteAreaAndShiftLeftReference(string formula, string deletedArea, string expected)
     {
         // TODO: Once incorporated into cell deletion, replace with a public API test case through SUM(reference) in a cell.
         Assert.True(

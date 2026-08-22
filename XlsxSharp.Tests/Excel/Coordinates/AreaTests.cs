@@ -90,7 +90,7 @@ public class AreaTests
     [TestCase("A1:A3", "B2:C2", false)]
     [TestCase("A1:D6", "B2:C3", true)]
     [TestCase("A1:C6", "B4:E10", true)]
-    public void Intersects_checks_whether_the_range_has_intersection_with_another(
+    public void IntersectsChecksWhetherTheRangeHasIntersectionWithAnother(
         string leftOperand,
         string rightOperand,
         bool expected
@@ -107,7 +107,7 @@ public class AreaTests
     [TestCase("A1:D4", "B2:C3", true)]
     [TestCase("B3:C3", "B2:C3", false)]
     [TestCase("A2:C2", "B2:C3", false)]
-    public void Overlaps_checks_whether_left_fully_overlaps_right(
+    public void OverlapsChecksWhetherLeftFullyOverlapsRight(
         string leftOperand,
         string rightOperand,
         bool expected
@@ -130,7 +130,7 @@ public class AreaTests
     [TestCase("XFD1", "XFB1", null)] // Completely pushed out of the range
     [TestCase("XFA1:XFD1", "XEZ1:XFA1", "XFC1:XFD1")] // Partially pushed out of the range
     [TestCase("XFA1:XFD1", "XFB1:XFC1", "XFA1:XFD1")] // Extend below last row
-    public void TryInsertAreaAndShiftRight_without_partial_cover(
+    public void TryInsertAreaAndShiftRightWithoutPartialCover(
         string original,
         string inserted,
         string? repositioned
@@ -149,7 +149,7 @@ public class AreaTests
     [TestCase("C4:F8", "B3:B4")] // Partially above
     [TestCase("C4:F8", "B5:C7")] // In the middle
     [TestCase("C4:F8", "A5:B9")] // Partially below
-    public void TryInsertAreaAndShiftRight_with_partial_cover(string original, string inserted)
+    public void TryInsertAreaAndShiftRightWithPartialCover(string original, string inserted)
     {
         Area originalArea = Area.Parse(original);
         Area insertedArea = Area.Parse(inserted);
@@ -168,7 +168,7 @@ public class AreaTests
     [TestCase("A1048576", "A1048575", null)] // Completely pushed out of the range
     [TestCase("A1048574:A1048576", "A1048570:A1048571", "A1048576")] // Partially pushed out of the range
     [TestCase("A1048570:A1048572", "A1048571:A1048576", "A1048570:A1048576")] // Extend below last row
-    public void TryInsertAreaAndShiftDown_without_partial_cover(
+    public void TryInsertAreaAndShiftDownWithoutPartialCover(
         string original,
         string inserted,
         string? repositioned
@@ -187,7 +187,7 @@ public class AreaTests
     [TestCase("D6:G10", "A6:E6")] // Left
     [TestCase("D6:G10", "D5:D5")] // Above
     [TestCase("D6:G10", "E7:H15")] // Right
-    public void TryInsertAreaAndShiftDown_with_partial_cover(string original, string inserted)
+    public void TryInsertAreaAndShiftDownWithPartialCover(string original, string inserted)
     {
         Area originalArea = Area.Parse(original);
         Area insertedArea = Area.Parse(inserted);
@@ -209,7 +209,7 @@ public class AreaTests
     [TestCase("D4:F8", "B1:H6", "D7:F8")] // Delete top slice
     [TestCase("D4:F8", "D6:F8", "D4:F5")] // Delete bottom slice
     [TestCase("D4:F8", "B6:I15", "D4:F5")] // Delete bottom slice
-    public void TryDeleteAreaAndShiftLeft_without_partial_cover(
+    public void TryDeleteAreaAndShiftLeftWithoutPartialCover(
         string original,
         string deleted,
         string? repositioned
@@ -228,7 +228,7 @@ public class AreaTests
     [TestCase("D4:E8", "A1:B5")] // Partial left
     [TestCase("D4:E8", "D6:E7")] // Partial inside
     [TestCase("D4:E8", "C4:D6")] // Partial left and inside
-    public void TryDeleteAreaAndShiftLeft_with_partial_cover(string original, string deleted)
+    public void TryDeleteAreaAndShiftLeftWithPartialCover(string original, string deleted)
     {
         Area originalArea = Area.Parse(original);
         Area deletedArea = Area.Parse(deleted);
@@ -252,7 +252,7 @@ public class AreaTests
     [TestCase("D4:H8", "C1:F9", "G4:H8")] // Delete left slice
     [TestCase("D4:H8", "G4:H8", "D4:F8")] // Delete right slice
     [TestCase("D4:H8", "G1:I9", "D4:F8")] // Delete right slice
-    public void TryDeleteAreaAndShiftUp_without_partial_cover(
+    public void TryDeleteAreaAndShiftUpWithoutPartialCover(
         string leftOperand,
         string deleted,
         string? expected
@@ -271,7 +271,7 @@ public class AreaTests
     [TestCase("B5:D8", "A1:B3")] // Partial above
     [TestCase("B5:D8", "C6:D8")] // Partial inside
     [TestCase("B5:D8", "B1:B6")] // Partial above and inside
-    public void TryDeleteAreaAndShiftUp_with_partial_cover(string leftOperand, string deleted)
+    public void TryDeleteAreaAndShiftUpWithPartialCover(string leftOperand, string deleted)
     {
         Area originalArea = Area.Parse(leftOperand);
         Area deletedArea = Area.Parse(deleted);
@@ -302,7 +302,7 @@ public class AreaTests
     [TestCase("B2:D4", "A3:E3", "B3:D3", ExpectedResult = "B2:D2 B4:D4")]
     [TestCase("B2:D4", "C2:C4", "C2:C4", ExpectedResult = "B2:B4 D2:D4")]
     [TestCase("B2:D4", "C1:C5", "C2:C4", ExpectedResult = "B2:B4 D2:D4")]
-    public string Exclude_splits_original_area_when_excluded_area_intersects(
+    public string ExcludeSplitsOriginalAreaWhenExcludedAreaIntersects(
         string originalAreaText,
         string excludingAreaText,
         string excludedAreaText
@@ -319,7 +319,7 @@ public class AreaTests
     [TestCase("B2:C3", "A1")]
     [TestCase("B2:C3", "D1:G20")]
     [TestCase("A1", "A2:C5")]
-    public void Exclude_keeps_original_area_when_excluded_area_doesnt_intersects(
+    public void ExcludeKeepsOriginalAreaWhenExcludedAreaDoesntIntersects(
         string originalAreaText,
         string excludedAreaText
     )
@@ -340,11 +340,7 @@ public class AreaTests
     [TestCase("B2:D3", 2, 3, ExpectedResult = "E4:G5")]
     [TestCase("B2:D3", -2, -3, ExpectedResult = "A1")]
     [TestCase("XFA1048574:XFC1048575", 2, 3, ExpectedResult = "XFD1048576")]
-    public string? ShiftAndClip_shifts_and_clips_area(
-        string areaText,
-        int rowShift,
-        int columnShift
-    )
+    public string? ShiftAndClipShiftsAndClipsArea(string areaText, int rowShift, int columnShift)
     {
         Area area = Area.Parse(areaText);
         Area? shifted = area.ShiftAndClip(rowShift, columnShift);
@@ -354,7 +350,7 @@ public class AreaTests
     [TestCase("A1:A2", 2, true, "A1", "A2")]
     [TestCase("A1", 2, true, "A1", null)]
     [TestCase("A1", 1, false, null, "A1")]
-    public void SplitAbove_splits_area_into_area_above_and_below_the_row(
+    public void SplitAboveSplitsAreaIntoAreaAboveAndBelowTheRow(
         string areaText,
         int row,
         bool isAbove,
@@ -371,7 +367,7 @@ public class AreaTests
     [TestCase("A1:A2", 1, true, "A2", "A1")]
     [TestCase("A1", 2, false, null, "A1")]
     [TestCase("A2", 1, true, "A2", null)]
-    public void SplitBelow_splits_area_into_area_below_and_above_the_row(
+    public void SplitBelowSplitsAreaIntoAreaBelowAndAboveTheRow(
         string areaText,
         int row,
         bool isBelow,
@@ -388,7 +384,7 @@ public class AreaTests
     [TestCase("A1:B1", 2, true, "A1", "B1")]
     [TestCase("A1", 2, true, "A1", null)]
     [TestCase("A1:C3", 1, false, null, "A1:C3")]
-    public void SplitBefore_splits_area_into_area_to_left_and_right_of_column(
+    public void SplitBeforeSplitsAreaIntoAreaToLeftAndRightOfColumn(
         string areaText,
         int column,
         bool isToLeft,
@@ -405,7 +401,7 @@ public class AreaTests
     [TestCase("A1:B1", 1, true, "B1", "A1")]
     [TestCase("B2:C3", 1, true, "B2:C3", null)]
     [TestCase("A1", 1, false, null, "A1")]
-    public void SplitAfter_splits_area_into_area_to_right_and_left_of_column(
+    public void SplitAfterSplitsAreaIntoAreaToRightAndLeftOfColumn(
         string areaText,
         int column,
         bool isToRight,

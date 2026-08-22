@@ -9,7 +9,7 @@ namespace XlsxSharp.Tests.Excel.PivotTables;
 public class XLPivotCacheTests
 {
     [Test]
-    public void FieldNames_KeepNamesEvenWhenSourceChange()
+    public void FieldNamesKeepNamesEvenWhenSourceChange()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -22,7 +22,7 @@ public class XLPivotCacheTests
     }
 
     [Test]
-    public void Refresh_UpdatesFieldNames()
+    public void RefreshUpdatesFieldNames()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -36,7 +36,7 @@ public class XLPivotCacheTests
     }
 
     [Test]
-    public void Refresh_RetainsSetOptions()
+    public void RefreshRetainsSetOptions()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -56,7 +56,7 @@ public class XLPivotCacheTests
     }
 
     [Test]
-    public void Refresh_RenamedFieldIsRemovedFromPivotTable()
+    public void RefreshRenamedFieldIsRemovedFromPivotTable()
     {
         // Pivot table has only field for Pastry, the dough is no longer in the pivot table after refresh
         TestHelper.CreateAndCompare(
@@ -81,7 +81,7 @@ public class XLPivotCacheTests
     }
 
     [Test]
-    public void Preserve_field_statistics_even_without_source_data()
+    public void PreserveFieldStatisticsEvenWithoutSourceData()
     {
         // Even though pivot table cache has no records in the workbook, it does contain
         // statistics about each field (e.g. types and min/max values). These are preserved

@@ -42,7 +42,7 @@ public class XLCellTests
     }
 
     [Test]
-    public void CellsUsed_include_format_different_from_inherited_format1()
+    public void CellsUsedIncludeFormatDifferentFromInheritedFormat1()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.Worksheets.Add("Sheet1");
@@ -54,7 +54,7 @@ public class XLCellTests
     }
 
     [Test]
-    public void CellsUsed_include_format_different_from_inherited_format2()
+    public void CellsUsedIncludeFormatDifferentFromInheritedFormat2()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.Worksheets.Add("Sheet1");
@@ -86,7 +86,7 @@ public class XLCellTests
     }
 
     [Test]
-    public void GetValue_Nullable()
+    public void GetValueNullable()
     {
         IXLCell cell = new XLWorkbook().AddWorksheet().FirstCell();
 
@@ -106,7 +106,7 @@ public class XLCellTests
     }
 
     [Test]
-    public void InsertData_DoesntTransposeDataOnFalseFlag()
+    public void InsertDataDoesntTransposeDataOnFalseFlag()
     {
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         IXLRange range = ws.Cell(2, 2).InsertData(new[] { "a", "b", "c" }, false);
@@ -114,7 +114,7 @@ public class XLCellTests
     }
 
     [Test]
-    public void InsertData_TransposesDataOnTrueFlag()
+    public void InsertDataTransposesDataOnTrueFlag()
     {
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         IXLRange range = ws.Cell(2, 2).InsertData(new[] { "a", "b", "c" }, true);
@@ -122,7 +122,7 @@ public class XLCellTests
     }
 
     [Test]
-    public void InsertData_DifferentTypes()
+    public void InsertDataDifferentTypes()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -139,7 +139,7 @@ public class XLCellTests
     }
 
     [Test]
-    public void InsertData_with_Guids()
+    public void InsertDataWithGuids()
     {
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         ws.FirstCell()
@@ -150,7 +150,7 @@ public class XLCellTests
     }
 
     [Test]
-    public void InsertData_with_Nulls()
+    public void InsertDataWithNulls()
     {
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
 
@@ -175,7 +175,7 @@ public class XLCellTests
     }
 
     [Test]
-    public void InsertData_with_Nulls_IEnumerable()
+    public void InsertDataWithNullsIEnumerable()
     {
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
 
@@ -195,7 +195,7 @@ public class XLCellTests
     }
 
     [Test]
-    public void InsertData_AllNumberTypes_AreInsertedAsNumbers()
+    public void InsertDataAllNumberTypesAreInsertedAsNumbers()
     {
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add();
 
@@ -210,7 +210,7 @@ public class XLCellTests
     }
 
     [Test]
-    public void InsertTable_AllNumberTypes_AreInsertedAsNumbers()
+    public void InsertTableAllNumberTypesAreInsertedAsNumbers()
     {
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add();
 
@@ -298,7 +298,7 @@ public class XLCellTests
     }
 
     [Test]
-    public void NaN_is_not_a_number()
+    public void NaNIsNotANumber()
     {
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         IXLCell cell = ws.Cell("A1");
@@ -308,7 +308,7 @@ public class XLCellTests
     }
 
     [Test]
-    public void Nan_is_not_a_number()
+    public void NanIsNotANumber()
     {
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         IXLCell cell = ws.Cell("A1");
@@ -318,7 +318,7 @@ public class XLCellTests
     }
 
     [Test]
-    public void TryGetValue_Boolean_Bad()
+    public void TryGetValueBooleanBad()
     {
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         IXLCell cell = ws.Cell("A1").SetValue("ABC");
@@ -327,7 +327,7 @@ public class XLCellTests
     }
 
     [Test]
-    public void TryGetValue_Boolean_False()
+    public void TryGetValueBooleanFalse()
     {
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         IXLCell cell = ws.Cell("A1").SetValue(false);
@@ -337,7 +337,7 @@ public class XLCellTests
     }
 
     [Test]
-    public void TryGetValue_Boolean_FalseText()
+    public void TryGetValueBooleanFalseText()
     {
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         IXLCell cell = ws.Cell("A1").SetValue("False");
@@ -347,7 +347,7 @@ public class XLCellTests
     }
 
     [Test]
-    public void TryGetValue_Boolean_True()
+    public void TryGetValueBooleanTrue()
     {
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         IXLCell cell = ws.Cell("A1").SetValue(true);
@@ -357,7 +357,7 @@ public class XLCellTests
     }
 
     [Test]
-    public void TryGetValue_Boolean_TrueText()
+    public void TryGetValueBooleanTrueText()
     {
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         IXLCell cell = ws.Cell("A1").SetValue("True");
@@ -367,7 +367,7 @@ public class XLCellTests
     }
 
     [Test]
-    public void TryGetValue_DateTime_Good2()
+    public void TryGetValueDateTimeGood2()
     {
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         bool success = ws.Cell("A1")
@@ -378,7 +378,7 @@ public class XLCellTests
     }
 
     [Test]
-    public void TryGetValue_DateTime_BadButFormulaGood()
+    public void TryGetValueDateTimeBadButFormulaGood()
     {
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         bool success = ws.Cell("A1")
@@ -394,7 +394,7 @@ public class XLCellTests
     }
 
     [Test]
-    public void TryGetValue_DateTime_BadString()
+    public void TryGetValueDateTimeBadString()
     {
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         string date = "ABC";
@@ -403,7 +403,7 @@ public class XLCellTests
     }
 
     [Test]
-    public void TryGetValue_DateTime_SerialDateTimeOutsideRange()
+    public void TryGetValueDateTimeSerialDateTimeOutsideRange()
     {
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         int serialDateTimeOutsideRange = 5545454;
@@ -413,7 +413,7 @@ public class XLCellTests
     }
 
     [Test]
-    public void TryGetValue_Enum_Good()
+    public void TryGetValueEnumGood()
     {
         IXLWorksheet ws = new XLWorkbook().AddWorksheet();
         Assert.IsTrue(
@@ -433,7 +433,7 @@ public class XLCellTests
     }
 
     [Test]
-    public void TryGetValue_Enum_BadString()
+    public void TryGetValueEnumBadString()
     {
         IXLWorksheet ws = new XLWorkbook().AddWorksheet();
         Assert.IsFalse(ws.FirstCell().SetValue("ABC").TryGetValue(out NumberStyles value));
@@ -441,7 +441,7 @@ public class XLCellTests
     }
 
     [Test]
-    public void TryGetValue_TimeSpan_BadString()
+    public void TryGetValueTimeSpanBadString()
     {
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         string timeSpan = "ABC";
@@ -450,7 +450,7 @@ public class XLCellTests
     }
 
     [Test]
-    public void TryGetValue_TimeSpan_Good()
+    public void TryGetValueTimeSpanGood()
     {
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         TimeSpan timeSpan = new(1, 1, 1);
@@ -460,7 +460,7 @@ public class XLCellTests
     }
 
     [Test]
-    public void TryGetValue_TimeSpan_Good2()
+    public void TryGetValueTimeSpanGood2()
     {
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         bool success = ws.Cell("A1")
@@ -471,7 +471,7 @@ public class XLCellTests
     }
 
     [Test]
-    public void TryGetValue_TimeSpan_Good_Large()
+    public void TryGetValueTimeSpanGoodLarge()
     {
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         TimeSpan timeSpan = TimeSpan.FromMilliseconds((double)int.MaxValue + 1);
@@ -482,7 +482,7 @@ public class XLCellTests
 
     [Test]
     [SetCulture("en-US")]
-    public void TryGetValue_TimeSpan_Good_FromText()
+    public void TryGetValueTimeSpanGoodFromText()
     {
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         bool success = ws.Cell("A1").SetValue("300:14:50.453").TryGetValue(out TimeSpan outValue);
@@ -491,7 +491,7 @@ public class XLCellTests
     }
 
     [Test]
-    public void TryGetValue_sbyte_Bad2()
+    public void TryGetValueSbyteBad2()
     {
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         IXLCell cell = ws.Cell("A1").SetValue("255");
@@ -500,7 +500,7 @@ public class XLCellTests
     }
 
     [Test]
-    public void TryGetValue_sbyte_Good()
+    public void TryGetValueSbyteGood()
     {
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         IXLCell cell = ws.Cell("A1").SetValue(5);
@@ -510,7 +510,7 @@ public class XLCellTests
     }
 
     [Test]
-    public void TryGetValue_Unicode_String()
+    public void TryGetValueUnicodeString()
     {
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
 
@@ -530,7 +530,7 @@ public class XLCellTests
     }
 
     [Test]
-    public void TryGetValue_Nullable()
+    public void TryGetValueNullable()
     {
         XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -911,10 +911,7 @@ public class XLCellTests
     }
 
     [TestCase(" = 1 + SUM({ 1; 7})  - A8  ", "1 + SUM({ 1; 7})  - A8")]
-    public void FormulaA1_setter_trims_and_removes_equal_if_present(
-        string formula,
-        string expectedResult
-    )
+    public void FormulaA1SetterTrimsAndRemovesEqualIfPresent(string formula, string expectedResult)
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -923,7 +920,7 @@ public class XLCellTests
     }
 
     [TestCase(" =  1 +   R[1]C[7]  ", "1 +   R[1]C[7]")]
-    public void FormulaR1C1_setter_trims_and_removes_equal_if_present(
+    public void FormulaR1C1SetterTrimsAndRemovesEqualIfPresent(
         string formula,
         string expectedResult
     )
@@ -998,7 +995,7 @@ public class XLCellTests
     }
 
     [Test]
-    public void TryGetValueFormula_EvaluationFail_ReturnFalse()
+    public void TryGetValueFormulaEvaluationFailReturnFalse()
     {
         using (XLWorkbook wb = new())
         {
@@ -1065,7 +1062,7 @@ public class XLCellTests
     }
 
     [Test]
-    public void Property_Active_is_true_when_cell_has_same_address_as_active_cell_in_worksheet()
+    public void PropertyActiveIsTrueWhenCellHasSameAddressAsActiveCellInWorksheet()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -1081,7 +1078,7 @@ public class XLCellTests
     }
 
     [Test]
-    public void Property_Active_deactivates_cell_only_when_the_cell_is_active()
+    public void PropertyActiveDeactivatesCellOnlyWhenTheCellIsActive()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -1095,7 +1092,7 @@ public class XLCellTests
     }
 
     [Test]
-    public void Property_Active_sets_cell_as_active_cell_of_worksheet()
+    public void PropertyActiveSetsCellAsActiveCellOfWorksheet()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -1109,7 +1106,7 @@ public class XLCellTests
     [TestCase("5 + py(abs(4) )", "5 + _xlfn._xlws.PY(abs(4) )")]
     [TestCase("COT(COTH(A5 + 2 * SIN(B7)))", "_xlfn.COT(_xlfn.COTH(A5 + 2 * SIN(B7)))")]
     [TestCase("_xlfn.COT(_xlfn.COTH(A5 + 2 * SIN(B7)))", "_xlfn.COT(_xlfn.COTH(A5 + 2 * SIN(B7)))")]
-    public void FormulaA1_adds_prefix_to_future_functions(string formula, string expected)
+    public void FormulaA1AddsPrefixToFutureFunctions(string formula, string expected)
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -1129,7 +1126,7 @@ public class XLCellTests
         "_xlfn.COT(_xlfn.COTH(R[3]C[5] + 2 * SIN(R[7]C[2])))",
         "_xlfn.COT(_xlfn.COTH(R[3]C[5] + 2 * SIN(R[7]C[2])))"
     )]
-    public void FormulaR1C1_adds_prefix_to_future_functions(string formula, string expected)
+    public void FormulaR1C1AddsPrefixToFutureFunctions(string formula, string expected)
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -1140,7 +1137,7 @@ public class XLCellTests
     }
 
     [Test]
-    public void FormulaA1_adds_prefix_to_all_future_functions()
+    public void FormulaA1AddsPrefixToAllFutureFunctions()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();

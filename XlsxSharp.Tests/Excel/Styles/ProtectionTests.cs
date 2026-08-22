@@ -9,7 +9,7 @@ public class ProtectionTests
 {
     [Test]
     [TestCaseSource(nameof(ProtectionApiSetters))]
-    public void Protection_property_can_be_individually_set(FormatTestCase<IXLProtection> testCase)
+    public void ProtectionPropertyCanBeIndividuallySet(FormatTestCase<IXLProtection> testCase)
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -24,7 +24,7 @@ public class ProtectionTests
     }
 
     [Test]
-    public void Protection_can_be_copied()
+    public void ProtectionCanBeCopied()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -42,7 +42,7 @@ public class ProtectionTests
     }
 
     [Test]
-    public void Protection_has_equality_comparison()
+    public void ProtectionHasEqualityComparison()
     {
         Action<IXLProtection>[] changePropertyToNonDefault =
         [

@@ -30,16 +30,13 @@ public class TextTests
         @"[\]^_`abcdefghijklmnopqrstuvwxyz{|}~"
     )]
     [TestCase(@"―‘’”、。「」゛゜・ー￥", @"ｰ`'""､｡｢｣ﾞﾟ･ｰ\")]
-    public void Asc_converts_fullwidth_characters_to_halfwidth_characters(
-        string input,
-        string expected
-    )
+    public void AscConvertsFullwidthCharactersToHalfwidthCharacters(string input, string expected)
     {
         Assert.AreEqual(expected, XLWorkbook.EvaluateExpr($"ASC(\"{input}\")"));
     }
 
     [Test]
-    public void Char_returns_error_on_empty_string()
+    public void CharReturnsErrorOnEmptyString()
     {
         // Calc engine tries to coerce it to number and fails. It never even reaches the functions.
         Assert.AreEqual(XLError.IncompatibleValue, XLWorkbook.EvaluateExpr(@"CHAR("""")"));
@@ -48,7 +45,7 @@ public class TextTests
     [TestCase(0)]
     [TestCase(256)]
     [TestCase(9797)]
-    public void Char_number_must_be_between_1_and_255(int number)
+    public void CharNumberMustBeBetween1And255(int number)
     {
         Assert.AreEqual(XLError.IncompatibleValue, XLWorkbook.EvaluateExpr($"CHAR({number})"));
     }
@@ -62,20 +59,20 @@ public class TextTests
     [TestCase(230, 'æ')]
     [TestCase(255, 'ÿ')]
     [TestCase(255.9, 'ÿ')]
-    public void Char_interprets_number_as_win1252(double number, char expected)
+    public void CharInterpretsNumberAsWin1252(double number, char expected)
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr($"CHAR({number})");
         Assert.AreEqual(expected.ToString(), actual);
     }
 
     [Test]
-    public void Clean_empty_string_is_empty_string()
+    public void CleanEmptyStringIsEmptyString()
     {
         Assert.AreEqual("", XLWorkbook.EvaluateExpr(@"CLEAN("""")"));
     }
 
     [Test]
-    public void Clean_removes_control_characters()
+    public void CleanRemovesControlCharacters()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr(@"CLEAN(CHAR(9)&""Monthly report""&CHAR(10))");
         Assert.AreEqual("Monthly report", actual);
@@ -85,7 +82,7 @@ public class TextTests
     }
 
     [Test]
-    public void Code_returns_error_on_empty_string()
+    public void CodeReturnsErrorOnEmptyString()
     {
         Assert.AreEqual(XLError.IncompatibleValue, XLWorkbook.EvaluateExpr(@"CODE("""")"));
     }
@@ -94,14 +91,14 @@ public class TextTests
     [TestCase("BCD", 66)]
     [TestCase("€", 128)]
     [TestCase("ÿ", 255)]
-    public void Code_returns_win1252_codepoint_of_first_character(string text, int expected)
+    public void CodeReturnsWin1252CodepointOfFirstCharacter(string text, int expected)
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr($"CODE(\"{text}\")");
         Assert.AreEqual(expected, actual);
     }
 
     [Test]
-    public void Code_is_inverse_to_char()
+    public void CodeIsInverseToChar()
     {
         for (int i = 1; i < 256; ++i)
         {
@@ -114,7 +111,7 @@ public class TextTests
     [TestCase("😃")]
     [TestCase("♫")]
     [TestCase("ひ")]
-    public void Code_returns_question_mark_code_on_non_win1252_chars(string text)
+    public void CodeReturnsQuestionMarkCodeOnNonWin1252Chars(string text)
     {
         XLCellValue expected = XLWorkbook.EvaluateExpr("CODE(\"?\")");
         XLCellValue actual = XLWorkbook.EvaluateExpr($"CODE(\"{text}\")");
@@ -124,7 +121,7 @@ public class TextTests
 
     [Test]
     [SetCulture("cs-CZ")]
-    public void Concat_concatenates_scalar_values()
+    public void ConcatConcatenatesScalarValues()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -148,7 +145,7 @@ public class TextTests
     }
 
     [Test]
-    public void Concat_concatenates_array_values()
+    public void ConcatConcatenatesArrayValues()
     {
         Assert.AreEqual(
             "ABC0123456789Z",
@@ -157,7 +154,7 @@ public class TextTests
     }
 
     [Test]
-    public void Concat_concatenates_references()
+    public void ConcatConcatenatesReferences()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -166,7 +163,7 @@ public class TextTests
     }
 
     [Test]
-    public void Concat_has_limit_of_32767_characters()
+    public void ConcatHasLimitOf32767Characters()
     {
         Assert.AreEqual(
             XLError.IncompatibleValue,
@@ -175,7 +172,7 @@ public class TextTests
     }
 
     [Test]
-    public void Concat_accepts_only_area_references()
+    public void ConcatAcceptsOnlyAreaReferences()
     {
         // Only areas are accepted, not unions
         using XLWorkbook wb = new();
@@ -184,7 +181,7 @@ public class TextTests
     }
 
     [Test]
-    public void Concat_propagates_error_values()
+    public void ConcatPropagatesErrorValues()
     {
         Assert.AreEqual(
             XLError.DivisionByZero,
@@ -202,14 +199,14 @@ public class TextTests
     }
 
     [Test]
-    public void Concat_treats_blanks_as_empty_string()
+    public void ConcatTreatsBlanksAsEmptyString()
     {
         Assert.AreEqual("ABC123", XLWorkbook.EvaluateExpr(@"CONCAT(""ABC"",,""123"",)"));
     }
 
     [Test]
     [SetCulture("cs-CZ")]
-    public void Concatenate_concatenates_scalar_values()
+    public void ConcatenateConcatenatesScalarValues()
     {
         using XLWorkbook wb = new();
         XLCellValue actual = wb.Evaluate(@"CONCATENATE(""ABC"",123,4.56,IF(TRUE,),TRUE)");
@@ -220,7 +217,7 @@ public class TextTests
     }
 
     [Test]
-    public void Concatenate_with_references()
+    public void ConcatenateWithReferences()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -240,7 +237,7 @@ public class TextTests
     }
 
     [Test]
-    public void Concatenate_has_limit_of_32767_characters()
+    public void ConcatenateHasLimitOf32767Characters()
     {
         Assert.AreNotEqual(
             XLError.IncompatibleValue,
@@ -253,7 +250,7 @@ public class TextTests
     }
 
     [Test]
-    public void Concatenate_uses_implicit_intersection_on_references()
+    public void ConcatenateUsesImplicitIntersectionOnReferences()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -282,7 +279,7 @@ public class TextTests
     }
 
     [Test]
-    public void Dollar_coercion()
+    public void DollarCoercion()
     {
         // Empty string is not coercible to number
         Assert.AreEqual(XLError.IncompatibleValue, XLWorkbook.EvaluateExpr("DOLLAR(\"\", 3)"));
@@ -294,7 +291,7 @@ public class TextTests
     [TestCase(1234.567, 2, ExpectedResult = "$1,234.57")]
     [TestCase(1250, -2, ExpectedResult = "$1,300")]
     [TestCase(1, -1E+100, ExpectedResult = "$0")]
-    public string Dollar_en(double number, double decimals)
+    public string DollarEn(double number, double decimals)
     {
         using XLWorkbook wb = new();
         return wb.Evaluate($"DOLLAR({number},{decimals})").GetText();
@@ -304,7 +301,7 @@ public class TextTests
     [TestCase(123.54, 3, ExpectedResult = "123,540 Kč")]
     [TestCase(-1234.567, 4, ExpectedResult = "-1 234,5670 Kč")]
     [TestCase(-1250, -2, ExpectedResult = "-1 300 Kč")]
-    public string Dollar_cs(double number, double decimals)
+    public string DollarCs(double number, double decimals)
     {
         using XLWorkbook wb = new();
         string formula =
@@ -316,7 +313,7 @@ public class TextTests
     [TestCase(1234.567, 2, ExpectedResult = "1.234,57 €")]
     [TestCase(1234.567, -2, ExpectedResult = "1.200 €")]
     [TestCase(-1234.567, 4, ExpectedResult = "-1.234,5670 €")]
-    public string Dollar_de(double number, double decimals)
+    public string DollarDe(double number, double decimals)
     {
         using XLWorkbook wb = new();
         string formula =
@@ -325,7 +322,7 @@ public class TextTests
     }
 
     [Test]
-    public void Dollar_uses_two_decimal_places_by_default()
+    public void DollarUsesTwoDecimalPlacesByDefault()
     {
         using XLWorkbook wb = new();
         XLCellValue actual = wb.Evaluate("DOLLAR(123.543)");
@@ -333,7 +330,7 @@ public class TextTests
     }
 
     [Test]
-    public void Dollar_can_have_at_most_127_decimal_places()
+    public void DollarCanHaveAtMost127DecimalPlaces()
     {
         using XLWorkbook wb = new();
         Assert.AreEqual("$1." + new string('0', 99), wb.Evaluate("DOLLAR(1,99)"));
@@ -341,14 +338,14 @@ public class TextTests
     }
 
     [Test]
-    public void Exact_Empty_Input_String()
+    public void ExactEmptyInputString()
     {
         Object actual = XLWorkbook.EvaluateExpr(@"Exact("""", """")");
         Assert.AreEqual(true, actual);
     }
 
     [Test]
-    public void Exact_Value()
+    public void ExactValue()
     {
         Object actual = XLWorkbook.EvaluateExpr(@"Exact(""asdf"", ""asdf"")");
         Assert.AreEqual(true, actual);
@@ -364,7 +361,7 @@ public class TextTests
     }
 
     [Test]
-    public void Find_Empty_Pattern_And_Empty_Text()
+    public void FindEmptyPatternAndEmptyText()
     {
         // Different behavior from SEARCH
         Assert.AreEqual(1, XLWorkbook.EvaluateExpr(@"FIND("""", """")"));
@@ -373,13 +370,13 @@ public class TextTests
     }
 
     [Test]
-    public void Find_Empty_Search_Pattern_Returns_Start_Of_Text()
+    public void FindEmptySearchPatternReturnsStartOfText()
     {
         Assert.AreEqual(1, XLWorkbook.EvaluateExpr(@"FIND("""", ""asdf"")"));
     }
 
     [Test]
-    public void Find_Looks_Only_From_Start_Position_Onward()
+    public void FindLooksOnlyFromStartPositionOnward()
     {
         Assert.AreEqual(
             XLError.IncompatibleValue,
@@ -388,7 +385,7 @@ public class TextTests
     }
 
     [Test]
-    public void Find_Start_Position_Too_Large()
+    public void FindStartPositionTooLarge()
     {
         Assert.AreEqual(
             XLError.IncompatibleValue,
@@ -397,7 +394,7 @@ public class TextTests
     }
 
     [Test]
-    public void Find_Start_Position_Too_Small()
+    public void FindStartPositionTooSmall()
     {
         Assert.AreEqual(
             XLError.IncompatibleValue,
@@ -406,13 +403,13 @@ public class TextTests
     }
 
     [Test]
-    public void Find_Empty_Searched_Text_Returns_Error()
+    public void FindEmptySearchedTextReturnsError()
     {
         Assert.AreEqual(XLError.IncompatibleValue, XLWorkbook.EvaluateExpr(@"FIND(""abc"", """")"));
     }
 
     [Test]
-    public void Find_String_Not_Found()
+    public void FindStringNotFound()
     {
         Assert.AreEqual(
             XLError.IncompatibleValue,
@@ -421,7 +418,7 @@ public class TextTests
     }
 
     [Test]
-    public void Find_Case_Sensitive_String_Not_Found()
+    public void FindCaseSensitiveStringNotFound()
     {
         // Find is case-sensitive
         Assert.AreEqual(
@@ -431,7 +428,7 @@ public class TextTests
     }
 
     [Test]
-    public void Find_Value()
+    public void FindValue()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr(@"FIND(""Tuesday"", ""Today is Tuesday"")");
         Assert.AreEqual(10, actual);
@@ -442,7 +439,7 @@ public class TextTests
     }
 
     [Test]
-    public void Find_Arguments_Are_Converted_To_Expected_Types()
+    public void FindArgumentsAreConvertedToExpectedTypes()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr(@"FIND(1.2, ""A1.2B"")");
         Assert.AreEqual(2, actual);
@@ -458,7 +455,7 @@ public class TextTests
     }
 
     [Test]
-    public void Find_Error_Arguments_Return_The_Error()
+    public void FindErrorArgumentsReturnTheError()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr(@"FIND(#N/A, ""a"")");
         Assert.AreEqual(XLError.NoValueAvailable, actual);
@@ -471,7 +468,7 @@ public class TextTests
     }
 
     [Test]
-    public void Fixed_coercion()
+    public void FixedCoercion()
     {
         using XLWorkbook wb = new();
         Assert.AreEqual(XLError.IncompatibleValue, wb.Evaluate("""FIXED("asdf")"""));
@@ -481,7 +478,7 @@ public class TextTests
     }
 
     [Test]
-    public void Fixed_examples()
+    public void FixedExamples()
     {
         using XLWorkbook wb = new();
         Assert.AreEqual("1,234,567.00", wb.Evaluate("FIXED(1234567)"));
@@ -491,7 +488,7 @@ public class TextTests
     }
 
     [Test]
-    public void Fixed_en()
+    public void FixedEn()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr("FIXED(17300.67,4)");
         Assert.AreEqual("17,300.6700", actual);
@@ -508,7 +505,7 @@ public class TextTests
 
     [Test]
     [SetCulture("cs-CZ")]
-    public void Fixed_cs()
+    public void FixedCs()
     {
         using XLWorkbook wb = new();
         XLCellValue actual = wb.Evaluate("FIXED(17300.67,4)");
@@ -522,7 +519,7 @@ public class TextTests
     }
 
     [Test]
-    public void Fixed_can_have_at_most_127_decimal_places()
+    public void FixedCanHaveAtMost127DecimalPlaces()
     {
         using XLWorkbook wb = new();
         Assert.AreEqual("1." + new string('0', 99), wb.Evaluate("FIXED(1,99)"));
@@ -530,27 +527,27 @@ public class TextTests
     }
 
     [Test]
-    public void Left_returns_whole_text_when_requested_length_is_greater_than_text_length()
+    public void LeftReturnsWholeTextWhenRequestedLengthIsGreaterThanTextLength()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr(@"LEFT(""ABC"", 5)");
         Assert.AreEqual("ABC", actual);
     }
 
     [Test]
-    public void Left_takes_one_character_by_default()
+    public void LeftTakesOneCharacterByDefault()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr("""LEFT("ABC")""");
         Assert.AreEqual("A", actual);
     }
 
     [Test]
-    public void Left_returns_error_on_negative_number_of_chars()
+    public void LeftReturnsErrorOnNegativeNumberOfChars()
     {
         Assert.AreEqual(XLError.IncompatibleValue, XLWorkbook.EvaluateExpr("""LEFT("ABC", -1)"""));
     }
 
     [Test]
-    public void Left_returns_empty_string_on_empty_input()
+    public void LeftReturnsEmptyStringOnEmptyInput()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr("""LEFT("")""");
         Assert.AreEqual("", actual);
@@ -561,7 +558,7 @@ public class TextTests
     [TestCase("ABC", 3, ExpectedResult = "ABC")]
     [TestCase("\uD83D\uDC69Z", 1, ExpectedResult = "\uD83D\uDC69")] // Paired surrogate
     [TestCase("\uD83D\uDC69Z", 2, ExpectedResult = "\uD83D\uDC69Z")] // Paired surrogate
-    public string Left_takes_specified_number_of_characters(string text, double numChars)
+    public string LeftTakesSpecifiedNumberOfCharacters(string text, double numChars)
     {
         return XLWorkbook.EvaluateExpr($"""LEFT("{text}", {numChars})""").GetText();
     }
@@ -572,7 +569,7 @@ public class TextTests
     [TestCase("H", ExpectedResult = 1)]
     [TestCase("\ud83d\ude0a", ExpectedResult = 2)] // Smile emoji
     [TestCase("Smile: \ud83d\ude0a!", ExpectedResult = 10)] // Smile emoji
-    public double Len_returns_number_of_code_units(string text)
+    public double LenReturnsNumberOfCodeUnits(string text)
     {
         return XLWorkbook.EvaluateExpr($"""LEN("{text}")""").GetNumber();
     }
@@ -583,7 +580,7 @@ public class TextTests
     [TestCase("Intelligence 2.0!", ExpectedResult = "intelligence 2.0!")]
     [TestCase("ͶꝎＫǢ", ExpectedResult = "ͷꝏｋǣ")] // Converts even non-latin chars
     [TestCase("Σ SUM Σ end Σ", ExpectedResult = "σ sum σ end ς")] // Bug for bug behavior of Excel. Σ at the end is turned to ς
-    public string Lower_en(string text)
+    public string LowerEn(string text)
     {
         using XLWorkbook wb = new();
         return wb.Evaluate($"""LOWER("{text}")""").GetText();
@@ -592,21 +589,21 @@ public class TextTests
     [SetCulture("tr-TR")]
     [TestCase("INTELLIGENCE 2.0!", ExpectedResult = "ıntellıgence 2.0!")] // Turkey converts I to i without dot
     [TestCase("ΣΣΣΣ", ExpectedResult = "σσσς")]
-    public string Lower_tr(string text)
+    public string LowerTr(string text)
     {
         using XLWorkbook wb = new();
         return wb.Evaluate($"""LOWER("{text}")""").GetText();
     }
 
     [Test]
-    public void Mid_returns_rest_of_text_when_end_is_out_of_text_bounds()
+    public void MidReturnsRestOfTextWhenEndIsOutOfTextBounds()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr("""MID("ABC",1,5)""");
         Assert.AreEqual("ABC", actual);
     }
 
     [Test]
-    public void Mid_when_start_is_after_end_of_text_return_empty_string()
+    public void MidWhenStartIsAfterEndOfTextReturnEmptyString()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr("""MID("ABC",5,5)""");
         Assert.AreEqual("", actual);
@@ -617,7 +614,7 @@ public class TextTests
     [TestCase(-5)]
     [TestCase(int.MaxValue + 1d)]
     [TestCase(int.MaxValue + 5d)]
-    public void Mid_start_must_be_at_least_one_and_at_most_max_int(double start)
+    public void MidStartMustBeAtLeastOneAndAtMostMaxInt(double start)
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr($"""MID("ABC",{start},1)""");
         Assert.AreEqual(XLError.IncompatibleValue, actual);
@@ -627,7 +624,7 @@ public class TextTests
     [TestCase(-5)]
     [TestCase(int.MaxValue + 1d)]
     [TestCase(int.MaxValue + 5d)]
-    public void Mid_length_must_be_at_least_zero_and_at_most_max_int(double length)
+    public void MidLengthMustBeAtLeastZeroAndAtMostMaxInt(double length)
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr($"""MID("ABC",1,{length})""");
         Assert.AreEqual(XLError.IncompatibleValue, actual);
@@ -639,13 +636,13 @@ public class TextTests
     [TestCase("ABC", 3, 5, ExpectedResult = "")]
     [TestCase(@"abcdef", 3, 2, ExpectedResult = "cd")]
     [TestCase(@"abcdef", 4, 5, ExpectedResult = "def")]
-    public string Mid_returns_substring(string text, double start, double length)
+    public string MidReturnsSubstring(string text, double start, double length)
     {
         return XLWorkbook.EvaluateExpr($"""MID("{text}",{start},{length})""").GetText();
     }
 
     [Test]
-    public void Mid_uses_code_units()
+    public void MidUsesCodeUnits()
     {
         // MID returns unpaired surrogates
         Assert.AreEqual("😊\uD83D", XLWorkbook.EvaluateExpr("""MID("😊😊😊",1,3)"""));
@@ -676,7 +673,7 @@ public class TextTests
     [TestCase("75825%%", 7.5825)]
     [TestCase("(56.4)", -56.4)]
     [TestCase("(128)%", -1.28)]
-    public void NumberValue_converts_text_to_number(string text, double expectedResult)
+    public void NumberValueConvertsTextToNumber(string text, double expectedResult)
     {
         double actual = (double)XLWorkbook.EvaluateExprCurrent($"NUMBERVALUE(\"{text}\")");
         Assert.AreEqual(expectedResult, actual);
@@ -684,7 +681,7 @@ public class TextTests
 
     [Test]
     [SetCulture("de-DE")]
-    public void NumberValue_takes_separators_from_current_culture()
+    public void NumberValueTakesSeparatorsFromCurrentCulture()
     {
         double actual = (double)XLWorkbook.EvaluateExprCurrent("NUMBERVALUE(\"10.0.00.0,25\")");
         Assert.AreEqual(100000.25, actual);
@@ -693,7 +690,7 @@ public class TextTests
     [TestCase("1,234.56", ".", ",", 1234.56d)]
     [TestCase("1.234,56", ",", ".", 1234.56d)]
     [TestCase("1.234,56", ",ABC", ".DEF", 1234.56d)] // Only first char of separators is used
-    public void NumberValue_optional_parameters_can_set_decimal_and_group_separators(
+    public void NumberValueOptionalParametersCanSetDecimalAndGroupSeparators(
         string text,
         string @decimal,
         string group,
@@ -716,7 +713,7 @@ public class TextTests
     [TestCase("NUMBERVALUE(\"-1.234567890E-310\")")] // Too tiny (negative)
     [TestCase("NUMBERVALUE(\"1\",\".\",\"\")")] // Empty group separator
     [TestCase("NUMBERVALUE(\"1\",\"\",\",\")")] // Empty decimal separators
-    public void NumberValue_returns_error_on_unparsable_texts_out_of_range(string expression)
+    public void NumberValueReturnsErrorOnUnparsableTextsOutOfRange(string expression)
     {
         Assert.AreEqual(XLError.IncompatibleValue, XLWorkbook.EvaluateExpr(expression));
     }
@@ -728,7 +725,7 @@ public class TextTests
     [TestCase("76BudGet", ExpectedResult = "76Budget")]
     [TestCase("my name is francois botha", ExpectedResult = "My Name Is Francois Botha")]
     [TestCase("\ud83a\udd32", ExpectedResult = "\ud83a\udd32")] // U+1E932 has uppercase variant, but nothing changes, because PROPER uses code units
-    public string Proper_upper_cases_first_letter_and_lower_cases_next_letters(string text)
+    public string ProperUpperCasesFirstLetterAndLowerCasesNextLetters(string text)
     {
         return XLWorkbook.EvaluateExpr($"""PROPER("{text}")""").GetText();
     }
@@ -738,7 +735,7 @@ public class TextTests
     [TestCase(1, 10)]
     [TestCase(10, 1)]
     [TestCase(10, 10)]
-    public void Replace_beyond_limit_appends_replacement(int startPos, int length)
+    public void ReplaceBeyondLimitAppendsReplacement(int startPos, int length)
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr(
             $"""REPLACE("",{startPos},{length},"new text")"""
@@ -765,12 +762,7 @@ public class TextTests
     [TestCase(@"abcdefghijk", 3, 4, "XY", ExpectedResult = @"abXYghijk")]
     [TestCase(@"abcdefghijk", 3, 1, "12345", ExpectedResult = @"ab12345defghijk")]
     [TestCase(@"abcdefghijk", 15, 4, "XY", ExpectedResult = @"abcdefghijkXY")]
-    public string Replace_replaces_value(
-        string text,
-        double startPos,
-        int length,
-        string replacement
-    )
+    public string ReplaceReplacesValue(string text, double startPos, int length, string replacement)
     {
         return XLWorkbook
             .EvaluateExpr($"""REPLACE("{text}",{startPos},{length},"{replacement}")""")
@@ -778,7 +770,7 @@ public class TextTests
     }
 
     [Test]
-    public void Replace_start_position_must_be_from_1_to_32767()
+    public void ReplaceStartPositionMustBeFrom1To32767()
     {
         Assert.AreEqual(@"DABC", XLWorkbook.EvaluateExpr("""REPLACE("ABC",1,0,"D")"""));
         Assert.AreEqual(
@@ -797,7 +789,7 @@ public class TextTests
     }
 
     [Test]
-    public void Replace_length_must_be_from_0_to_32767()
+    public void ReplaceLengthMustBeFrom0To32767()
     {
         Assert.AreEqual("ABC", XLWorkbook.EvaluateExpr("""REPLACE("ABC",1,0,"")"""));
         Assert.AreEqual(
@@ -812,7 +804,7 @@ public class TextTests
     }
 
     [Test]
-    public void Rept_returns_empty_string_when_text_is_empty_string()
+    public void ReptReturnsEmptyStringWhenTextIsEmptyString()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr("""REPT("",3)""");
         Assert.AreEqual("", actual);
@@ -821,7 +813,7 @@ public class TextTests
     [TestCase(-1)]
     [TestCase(-0.1)]
     [TestCase(2147483648)]
-    public void Rept_returns_error_when_count_is_negative_or_greater_than_max_int(double count)
+    public void ReptReturnsErrorWhenCountIsNegativeOrGreaterThanMaxInt(double count)
     {
         Assert.AreEqual(
             XLError.IncompatibleValue,
@@ -830,7 +822,7 @@ public class TextTests
     }
 
     [Test]
-    public void Rept_limits_output_text_length_to_32767()
+    public void ReptLimitsOutputTextLengthTo32767()
     {
         Assert.AreEqual(new string('A', 32767), XLWorkbook.EvaluateExpr("""REPT("A",32767)"""));
         Assert.AreEqual(XLError.IncompatibleValue, XLWorkbook.EvaluateExpr("""REPT("A",32768)"""));
@@ -844,36 +836,34 @@ public class TextTests
         3,
         ExpectedResult = "Francois Botha,Francois Botha,Francois Botha,"
     )]
-    public string Rept_Value(string text, double count)
+    public string ReptValue(string text, double count)
     {
         return XLWorkbook.EvaluateExpr($"""REPT("{text}",{count})""").GetText();
     }
 
     [TestCase(5)]
     [TestCase(3)]
-    public void Right_returns_whole_text_when_requested_length_is_greater_than_text_length(
-        int length
-    )
+    public void RightReturnsWholeTextWhenRequestedLengthIsGreaterThanTextLength(int length)
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr($"""RIGHT("ABC",{length})""");
         Assert.AreEqual("ABC", actual);
     }
 
     [Test]
-    public void Right_takes_one_character_by_default()
+    public void RightTakesOneCharacterByDefault()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr("""RIGHT("ABC")""");
         Assert.AreEqual("C", actual);
     }
 
     [Test]
-    public void Right_returns_error_on_negative_number_of_chars()
+    public void RightReturnsErrorOnNegativeNumberOfChars()
     {
         Assert.AreEqual(XLError.IncompatibleValue, XLWorkbook.EvaluateExpr("""RIGHT("ABC",-1)"""));
     }
 
     [Test]
-    public void Right_returns_empty_string_on_empty_input()
+    public void RightReturnsEmptyStringOnEmptyInput()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr("""RIGHT("")""");
         Assert.AreEqual("", actual);
@@ -888,26 +878,26 @@ public class TextTests
     [TestCase("Z\uD83D\uDC69", 1, ExpectedResult = "\uD83D\uDC69")] // Smiley emoji
     [TestCase("\uD83D\uDC69Z", 2, ExpectedResult = "\uD83D\uDC69Z")]
     [TestCase("\uD83D\uDC69Z", 3, ExpectedResult = "\uD83D\uDC69Z")]
-    public string Right_takes_specified_number_of_characters(string text, double numChars)
+    public string RightTakesSpecifiedNumberOfCharacters(string text, double numChars)
     {
         return XLWorkbook.EvaluateExpr($"""RIGHT("{text}",{numChars})""").GetText();
     }
 
     [Test]
-    public void Search_Empty_Pattern_And_Empty_Text()
+    public void SearchEmptyPatternAndEmptyText()
     {
         Assert.AreEqual(XLError.IncompatibleValue, XLWorkbook.EvaluateExpr(@"SEARCH("""", """")"));
     }
 
     [Test]
-    public void Search_Empty_Search_Pattern_Returns_Start_Of_Text()
+    public void SearchEmptySearchPatternReturnsStartOfText()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr(@"SEARCH("""", ""asdf"")");
         Assert.AreEqual(1, actual);
     }
 
     [Test]
-    public void Search_Looks_Only_From_Start_Position_Onward()
+    public void SearchLooksOnlyFromStartPositionOnward()
     {
         Assert.AreEqual(
             XLError.IncompatibleValue,
@@ -916,7 +906,7 @@ public class TextTests
     }
 
     [Test]
-    public void Search_Start_Position_Too_Large()
+    public void SearchStartPositionTooLarge()
     {
         Assert.AreEqual(
             XLError.IncompatibleValue,
@@ -925,7 +915,7 @@ public class TextTests
     }
 
     [Test]
-    public void Search_Start_Position_Too_Small()
+    public void SearchStartPositionTooSmall()
     {
         Assert.AreEqual(
             XLError.IncompatibleValue,
@@ -934,7 +924,7 @@ public class TextTests
     }
 
     [Test]
-    public void Search_Empty_Searched_Text_Returns_Error()
+    public void SearchEmptySearchedTextReturnsError()
     {
         Assert.AreEqual(
             XLError.IncompatibleValue,
@@ -943,7 +933,7 @@ public class TextTests
     }
 
     [Test]
-    public void Search_Text_Not_Found()
+    public void SearchTextNotFound()
     {
         Assert.AreEqual(
             XLError.IncompatibleValue,
@@ -952,7 +942,7 @@ public class TextTests
     }
 
     [Test]
-    public void Search_Wildcard_String_Not_Found()
+    public void SearchWildcardStringNotFound()
     {
         Assert.AreEqual(
             XLError.IncompatibleValue,
@@ -962,7 +952,7 @@ public class TextTests
 
     // http://www.excel-easy.com/examples/find-vs-search.html
     [Test]
-    public void Search_Value()
+    public void SearchValue()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr(@"SEARCH(""Tuesday"", ""Today is Tuesday"")");
         Assert.AreEqual(10, actual);
@@ -982,7 +972,7 @@ public class TextTests
     }
 
     [Test]
-    public void Search_Tilde_Escapes_Next_Char()
+    public void SearchTildeEscapesNextChar()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr(@"SEARCH(""~a~b~"", ""ab"")");
         Assert.AreEqual(1, actual);
@@ -1001,7 +991,7 @@ public class TextTests
     }
 
     [Test]
-    public void Search_Arguments_Are_Converted_To_Expected_Types()
+    public void SearchArgumentsAreConvertedToExpectedTypes()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr(@"SEARCH(1.2, ""A1.2B"")");
         Assert.AreEqual(2, actual);
@@ -1017,7 +1007,7 @@ public class TextTests
     }
 
     [Test]
-    public void Search_Error_Arguments_Return_The_Error()
+    public void SearchErrorArgumentsReturnTheError()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr(@"SEARCH(#N/A, ""a"")");
         Assert.AreEqual(XLError.NoValueAvailable, actual);
@@ -1030,7 +1020,7 @@ public class TextTests
     }
 
     [Test]
-    public void Substitute_replaces_n_th_occurence()
+    public void SubstituteReplacesNThOccurence()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr(
             @"SUBSTITUTE(""This is a Tuesday."", ""Tuesday"", ""Monday"")"
@@ -1059,28 +1049,28 @@ public class TextTests
     }
 
     [Test]
-    public void Substitute_on_empty_string_returns_empty_string()
+    public void SubstituteOnEmptyStringReturnsEmptyString()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr(@"SUBSTITUTE("""","""",""Monday"")");
         Assert.AreEqual("", actual);
     }
 
     [Test]
-    public void Substitute_is_case_sensitive()
+    public void SubstituteIsCaseSensitive()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr("""SUBSTITUTE("A","a","Z")""");
         Assert.AreEqual("A", actual);
     }
 
     [Test]
-    public void Substitute_returns_original_string_when_occurrence_is_not_found()
+    public void SubstituteReturnsOriginalStringWhenOccurrenceIsNotFound()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr(@"SUBSTITUTE(""ABCABC"",""A"",""Z"",3)");
         Assert.AreEqual(@"ABCABC", actual);
     }
 
     [Test]
-    public void Substitute_searches_for_every_occurence()
+    public void SubstituteSearchesForEveryOccurence()
     {
         // AA is matches at every character, it doesn't skip
         XLCellValue actual = XLWorkbook.EvaluateExpr("""SUBSTITUTE("AAAAAAAA","AA","ZZ",3)""");
@@ -1088,7 +1078,7 @@ public class TextTests
     }
 
     [Test]
-    public void Substitute_occurence_must_be_between_one_and_max_int()
+    public void SubstituteOccurenceMustBeBetweenOneAndMaxInt()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr(@"SUBSTITUTE(""ABC"",""B"",""ZZ"",0.9)");
         Assert.AreEqual(XLError.IncompatibleValue, actual);
@@ -1101,7 +1091,7 @@ public class TextTests
     }
 
     [Test]
-    public void T_returns_empty_string_on_non_text()
+    public void TReturnsEmptyStringOnNonText()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr("T(TODAY())");
         Assert.AreEqual("", actual);
@@ -1117,13 +1107,13 @@ public class TextTests
     }
 
     [Test]
-    public void T_propagates_error()
+    public void TPropagatesError()
     {
         Assert.AreEqual(XLError.DivisionByZero, XLWorkbook.EvaluateExpr("T(#DIV/0!)"));
     }
 
     [Test]
-    public void T_returns_text_when_value_is_text()
+    public void TReturnsTextWhenValueIsText()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr("""T("asdf")""");
         Assert.AreEqual("asdf", actual);
@@ -1133,7 +1123,7 @@ public class TextTests
     }
 
     [Test]
-    public void T_returns_array_of_results_when_argument_is_array()
+    public void TReturnsArrayOfResultsWhenArgumentIsArray()
     {
         const string formula = """T({"A",5,"B"})""";
         Assert.AreEqual(3, XLWorkbook.EvaluateExpr($"""COLUMNS({formula})"""));
@@ -1151,7 +1141,7 @@ public class TextTests
     }
 
     [Test]
-    public void T_returns_text_of_first_cell_in_reference()
+    public void TReturnsTextOfFirstCellInReference()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -1168,7 +1158,7 @@ public class TextTests
     }
 
     [Test]
-    public void Text_returns_empty_string_on_empty_string()
+    public void TextReturnsEmptyStringOnEmptyString()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr(@"TEXT(1913415.93,"""")");
         Assert.AreEqual(string.Empty, actual);
@@ -1185,14 +1175,14 @@ public class TextTests
     [TestCase(".125", "$0.0%", ExpectedResult = "$12.5%")]
     [TestCase("1234.567", "YYYY-MM-DD HH:MM:SS", ExpectedResult = "1903-05-18 13:36:28")] // Excel is one second off (29), but that is in the library
     [TestCase("\"0.0245\"", "00%", ExpectedResult = "02%")]
-    public string Text_formats_number(string numberArg, string format)
+    public string TextFormatsNumber(string numberArg, string format)
     {
         return XLWorkbook.EvaluateExpr($"TEXT({numberArg},\"{format}\")").GetText();
     }
 
     [TestCase("\"211x\"", ExpectedResult = "211x")]
     [TestCase("true", ExpectedResult = "TRUE")]
-    public string Text_returns_string_representation_of_non_numbers(string valueArg)
+    public string TextReturnsStringRepresentationOfNonNumbers(string valueArg)
     {
         return XLWorkbook.EvaluateExpr($@"TEXT({valueArg},""#00"")").GetText();
     }
@@ -1204,7 +1194,7 @@ public class TextTests
     [TestCase(2025, 12, 19, 19, 43, 58, "m/d/yyyy h:mm:ss", "12/19/2025 19:43:58")]
     [TestCase(2034, 11, 16, 1, 48, 9, "m/d/yyyy h:mm:ss", "11/16/2034 1:48:09")]
     [TestCase(2018, 12, 10, 11, 22, 42, "m/d/yyyy h:mm:ss", "12/10/2018 11:22:42")]
-    public void Text_formats_serial_dates(
+    public void TextFormatsSerialDates(
         int year,
         int months,
         int days,
@@ -1224,7 +1214,7 @@ public class TextTests
     }
 
     [Test]
-    public void Text_propagates_errors()
+    public void TextPropagatesErrors()
     {
         Assert.AreEqual(XLError.CellReference, XLWorkbook.EvaluateExpr(@"TEXT(#REF!,""#00"")"));
     }
@@ -1247,10 +1237,7 @@ public class TextTests
     [TestCase("TEXTJOIN(B2, FALSE, A1:B2)", @"ADDBDD")]
     [TestCase("TEXTJOIN(\",\", FALSE, 12345.67, DATE(2018, 10, 30))", "12345.67,43403")]
     [TestCase("TEXTJOIN(\",\", \"FALSE\", A1:B2)", "A,,B,D")]
-    public void TextJoin_joins_arguments_with_specified_delimiter(
-        string formula,
-        string expectedOutput
-    )
+    public void TextJoinJoinsArgumentsWithSpecifiedDelimiter(string formula, string expectedOutput)
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -1266,7 +1253,7 @@ public class TextTests
     }
 
     [TestCase("TEXTJOIN(\",\", FALSE, D1:D32769)")]
-    public void TextJoin_output_can_be_at_most_32767(string formula)
+    public void TextJoinOutputCanBeAtMost32767(string formula)
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -1279,7 +1266,7 @@ public class TextTests
     }
 
     [TestCase("TEXTJOIN(\",\", \"Invalid\", \"Hello\", \"World\")")]
-    public void TextJoin_coercion(string formula)
+    public void TextJoinCoercion(string formula)
     {
         Assert.AreEqual(XLError.IncompatibleValue, XLWorkbook.EvaluateExpr(formula));
     }
@@ -1292,19 +1279,19 @@ public class TextTests
     [TestCase("white space text", ExpectedResult = "white space text")]
     [TestCase(" some text with padding   ", ExpectedResult = "some text with padding")]
     [TestCase(" \t  A  \t ", ExpectedResult = "\t A \t")]
-    public string Trim_trims_spaces_and_removes_multi_spaces_from_inside_text(string text)
+    public string TrimTrimsSpacesAndRemovesMultiSpacesFromInsideText(string text)
     {
         return XLWorkbook.EvaluateExpr($"""TRIM("{text}")""").GetText();
     }
 
     [Test]
-    public void Upper_empty_string_returns_empty_string()
+    public void UpperEmptyStringReturnsEmptyString()
     {
         Assert.AreEqual("", XLWorkbook.EvaluateExpr("""UPPER("")"""));
     }
 
     [Test]
-    public void Upper_converts_text_to_upper_case()
+    public void UpperConvertsTextToUpperCase()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr("""UPPER("AbCdEfG")""");
         Assert.AreEqual(@"ABCDEFG", actual);
@@ -1312,7 +1299,7 @@ public class TextTests
 
     [SetCulture("tr-TR")]
     [Test]
-    public void Upper_uses_workbook_culture()
+    public void UpperUsesWorkbookCulture()
     {
         // Türkiye converts i to İ, not I.
         using XLWorkbook wb = new();
@@ -1320,13 +1307,13 @@ public class TextTests
     }
 
     [Test]
-    public void Value_Input_String_Is_Not_A_Number()
+    public void ValueInputStringIsNotANumber()
     {
         Assert.AreEqual(XLError.IncompatibleValue, XLWorkbook.EvaluateExpr(@"VALUE(""asdf"")"));
     }
 
     [Test]
-    public void Value_FromBlankIsZero()
+    public void ValueFromBlankIsZero()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -1334,13 +1321,13 @@ public class TextTests
     }
 
     [Test]
-    public void Value_FromEmptyStringIsError()
+    public void ValueFromEmptyStringIsError()
     {
         Assert.AreEqual(XLError.IncompatibleValue, XLWorkbook.EvaluateExpr("VALUE(\"\")"));
     }
 
     [Test]
-    public void Value_PassingUnexpectedTypes()
+    public void ValuePassingUnexpectedTypes()
     {
         Assert.AreEqual(14d, XLWorkbook.EvaluateExpr(@"VALUE(14)"));
         Assert.AreEqual(XLError.IncompatibleValue, XLWorkbook.EvaluateExpr(@"VALUE(TRUE)"));
@@ -1349,7 +1336,7 @@ public class TextTests
     }
 
     [Test]
-    public void Value_Value()
+    public void ValueValue()
     {
         using XLWorkbook wb = new();
 
@@ -1369,7 +1356,7 @@ public class TextTests
 
     [Test]
     [SetCulture("cs-CZ")]
-    public void Value_NonEnglish()
+    public void ValueNonEnglish()
     {
         using XLWorkbook wb = new();
 

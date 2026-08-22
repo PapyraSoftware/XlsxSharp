@@ -52,7 +52,7 @@ public class NumberFormatTests
 
     [Test]
     [SetCulture("en-US")]
-    public void Cell_value_is_formatted_by_current_culture_unless_specified_otherwise()
+    public void CellValueIsFormattedByCurrentCultureUnlessSpecifiedOtherwise()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -89,7 +89,7 @@ public class NumberFormatTests
     }
 
     [Test]
-    public void XLNumberFormat_GetHashCode_IsCaseSensitive()
+    public void XLNumberFormatGetHashCodeIsCaseSensitive()
     {
         XLNumberFormat numberFormatKey1 = new("MM");
         XLNumberFormat numberFormatKey2 = new("mm");
@@ -98,7 +98,7 @@ public class NumberFormatTests
     }
 
     [Test]
-    public void XLNumberFormat_Equals_IsCaseSensitive()
+    public void XLNumberFormatEqualsIsCaseSensitive()
     {
         XLNumberFormat numberFormatKey1 = new("MM");
         XLNumberFormat numberFormatKey2 = new("mm");
@@ -126,7 +126,7 @@ public class NumberFormatTests
     }
 
     [Test]
-    public void NumberFormatId_sets_format_to_predefined_format()
+    public void NumberFormatIdSetsFormatToPredefinedFormat()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -140,7 +140,7 @@ public class NumberFormatTests
     }
 
     [Test]
-    public void NumberFormatId_throws_on_non_predefined_formats()
+    public void NumberFormatIdThrowsOnNonPredefinedFormats()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -152,7 +152,7 @@ public class NumberFormatTests
 
     [TestCase("0.000000 Cute", -1)]
     [TestCase("0.00", XLPredefinedFormat.Number.Precision2)]
-    public void Format_sets_number_format(string numberFormat, int numFmtId)
+    public void FormatSetsNumberFormat(string numberFormat, int numFmtId)
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -164,7 +164,7 @@ public class NumberFormatTests
     }
 
     [Test]
-    public void Number_format_can_be_set_by_assigning()
+    public void NumberFormatCanBeSetByAssigning()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -176,7 +176,7 @@ public class NumberFormatTests
     }
 
     [Test]
-    public void Equal_compares_formats()
+    public void EqualComparesFormats()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();

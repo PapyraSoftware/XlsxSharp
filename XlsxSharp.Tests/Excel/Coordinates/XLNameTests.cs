@@ -7,7 +7,7 @@ namespace XlsxSharp.Tests.Excel.Coordinates;
 public class XLNameTests
 {
     [Test]
-    public void Workbook_scoped_name_is_compared_case_insensitive()
+    public void WorkbookScopedNameIsComparedCaseInsensitive()
     {
         XLName lowerCase = new("name");
         XLName upperCase = new("NAME");
@@ -19,7 +19,7 @@ public class XLNameTests
     }
 
     [Test]
-    public void Sheet_scoped_name_is_compared_case_insensitive()
+    public void SheetScopedNameIsComparedCaseInsensitive()
     {
         XLName lowerCase = new("sheet", "name");
         XLName upperCase = new("SHEET", "NAME");

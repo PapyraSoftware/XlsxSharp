@@ -11,7 +11,7 @@ namespace XlsxSharp.Tests.Excel.CalcEngine;
 public class XLCalculationChainTests
 {
     [Test]
-    public void Enumerating_empty_chain()
+    public void EnumeratingEmptyChain()
     {
         XLCalculationChain chain = new();
         CollectionAssert.IsEmpty(GetPoints(chain));
@@ -22,7 +22,7 @@ public class XLCalculationChainTests
     [TestCase(2)]
     [TestCase(3)]
     [TestCase(40)]
-    public void Enumerating_whole_chain(int chainLength)
+    public void EnumeratingWholeChain(int chainLength)
     {
         XLCalculationChain chain = new();
         List<SheetPoint> expectedPoints = [];
@@ -37,7 +37,7 @@ public class XLCalculationChainTests
     }
 
     [Test]
-    public void Remove_throws_on_missing_point()
+    public void RemoveThrowsOnMissingPoint()
     {
         XLCalculationChain chain = new();
 
@@ -47,7 +47,7 @@ public class XLCalculationChainTests
     }
 
     [Test]
-    public void Remove_link_from_chain()
+    public void RemoveLinkFromChain()
     {
         XLCalculationChain chain = new();
         SheetPoint a1 = new("sheet", new Point(1, 1));
@@ -78,7 +78,7 @@ public class XLCalculationChainTests
     }
 
     [Test]
-    public void AddAfter_adds_point()
+    public void AddAfterAddsPoint()
     {
         XLCalculationChain chain = new();
         SheetPoint a1 = new("sheet", new Point(1, 1));
@@ -101,7 +101,7 @@ public class XLCalculationChainTests
     }
 
     [Test]
-    public void MoveToFront_moves_the_point_to_the_front()
+    public void MoveToFrontMovesThePointToTheFront()
     {
         XLCalculationChain chain = new();
         SheetPoint a1 = new("sheet", new Point(1, 1));
@@ -168,7 +168,7 @@ public class XLCalculationChainTests
     }
 
     [Test]
-    public void Traversal_detects_cycles()
+    public void TraversalDetectsCycles()
     {
         XLCalculationChain chain = new();
         // `=C1+B1`
@@ -239,7 +239,7 @@ public class XLCalculationChainTests
     }
 
     [Test]
-    public void Reset_clears_positions_ahead_of_current()
+    public void ResetClearsPositionsAheadOfCurrent()
     {
         XLCalculationChain chain = new();
         SheetPoint a1 = new("sheet", new Point(1, 1));

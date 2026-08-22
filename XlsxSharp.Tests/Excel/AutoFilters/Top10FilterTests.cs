@@ -11,7 +11,7 @@ namespace XlsxSharp.Tests.Excel.AutoFilters;
 public class Top10FilterTests
 {
     [Test]
-    public void Top10_filter_is_initialized_after_load()
+    public void Top10FilterIsInitializedAfterLoad()
     {
         TestHelper.CreateSaveLoadAssert(
             (_, ws) =>
@@ -34,7 +34,7 @@ public class Top10FilterTests
     }
 
     [Test]
-    public void Top_items_filter_excludes_non_unified_numbers()
+    public void TopItemsFilterExcludesNonUnifiedNumbers()
     {
         // Sort and then use cutoff value, it's 4 here and then take all values >= cutoff.
         new AutoFilterTester(f => f.Top(1))
@@ -45,7 +45,7 @@ public class Top10FilterTests
     }
 
     [Test]
-    public void Bottom_items_filter_excludes_non_unified_numbers()
+    public void BottomItemsFilterExcludesNonUnifiedNumbers()
     {
         new AutoFilterTester(f => f.Bottom(1))
             .AddTrue(new DateTime(1900, 1, 1))
@@ -55,7 +55,7 @@ public class Top10FilterTests
     }
 
     [Test]
-    public void Top_items_filter_determines_top_items_by_determining_cut_off_value()
+    public void TopItemsFilterDeterminesTopItemsByDeterminingCutOffValue()
     {
         // Sort and then use cutoff value, it's 4 here and then take all values <= cutoff.
         new AutoFilterTester(f => f.Top(2))
@@ -71,7 +71,7 @@ public class Top10FilterTests
     }
 
     [Test]
-    public void Bottom_items_filter_determines_top_items_by_determining_cut_off_value()
+    public void BottomItemsFilterDeterminesTopItemsByDeterminingCutOffValue()
     {
         // Cutoff is 2
         new AutoFilterTester(f => f.Bottom(2))
@@ -87,7 +87,7 @@ public class Top10FilterTests
     }
 
     [Test]
-    public void Top_percents_uses_inclusive_percent_value()
+    public void TopPercentsUsesInclusivePercentValue()
     {
         // Autofilter doesn't include value 750, which is at 75%, i.e. right at the border.
         new AutoFilterTester(f => f.Top(25, XLTopBottomType.Percent))
@@ -97,7 +97,7 @@ public class Top10FilterTests
     }
 
     [Test]
-    public void Bottom_percents_uses_inclusive_percent_value()
+    public void BottomPercentsUsesInclusivePercentValue()
     {
         new AutoFilterTester(f => f.Bottom(25, XLTopBottomType.Percent))
             .AddTrue([.. Enumerable.Range(1, 250).Select<int, XLCellValue>(x => x)])
@@ -106,7 +106,7 @@ public class Top10FilterTests
     }
 
     [Test]
-    public void Top_percents_always_has_at_least_one_item()
+    public void TopPercentsAlwaysHasAtLeastOneItem()
     {
         // Top 1% takes one item that is 33% of all items.
         new AutoFilterTester(f => f.Top(1, XLTopBottomType.Percent))
@@ -116,7 +116,7 @@ public class Top10FilterTests
     }
 
     [Test]
-    public void Bottom_percents_always_has_at_least_one_item()
+    public void BottomPercentsAlwaysHasAtLeastOneItem()
     {
         new AutoFilterTester(f => f.Bottom(1, XLTopBottomType.Percent))
             .AddTrue(1)
@@ -128,7 +128,7 @@ public class Top10FilterTests
     [TestCase(501, true)]
     [TestCase(0, false)]
     [TestCase(501, false)]
-    public void Top_and_bottom_filter_value_must_be_between_1_and_500(int value, bool top)
+    public void TopAndBottomFilterValueMustBeBetween1And500(int value, bool top)
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();

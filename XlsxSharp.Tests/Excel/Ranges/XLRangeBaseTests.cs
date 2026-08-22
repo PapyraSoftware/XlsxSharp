@@ -574,7 +574,7 @@ public class XLRangeBaseTests
     }
 
     [Test]
-    public void Sorting_moves_values_and_fixes_formula_references()
+    public void SortingMovesValuesAndFixesFormulaReferences()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -620,7 +620,7 @@ public class XLRangeBaseTests
     [TestCase("PY(4)", "_xlfn._xlws.PY(4)")]
     [TestCase("2 + CHISQ.INV(0.6,2)", "2 + _xlfn.CHISQ.INV(0.6,2)")]
     [TestCase("2 + _xlfn.CHISQ.INV(0.6,2)", "2 + _xlfn.CHISQ.INV(0.6,2)")]
-    public void FormulaArrayA1_adds_prefix_to_future_functions(string formula, string expected)
+    public void FormulaArrayA1AddsPrefixToFutureFunctions(string formula, string expected)
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();

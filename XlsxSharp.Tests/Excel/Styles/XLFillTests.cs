@@ -11,7 +11,7 @@ public class XLFillTests
 {
     [Test]
     [TestCaseSource(nameof(FillApiSetters))]
-    public void Fill_property_can_be_individually_set(FormatTestCase<IXLFill> testCase)
+    public void FillPropertyCanBeIndividuallySet(FormatTestCase<IXLFill> testCase)
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -69,7 +69,7 @@ public class XLFillTests
     }
 
     [Test]
-    public void BackgroundColor_keeps_pattern_on_two_color_patterns()
+    public void BackgroundColorKeepsPatternOnTwoColorPatterns()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -83,7 +83,7 @@ public class XLFillTests
     }
 
     [Test]
-    public void BackgroundColor_sets_pattern_to_solid_when_original_pattern_was_none()
+    public void BackgroundColorSetsPatternToSolidWhenOriginalPatternWasNone()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -96,7 +96,7 @@ public class XLFillTests
     }
 
     [Test]
-    public void BackgroundColor_set_to_transparent_color_sets_pattern_to_none()
+    public void BackgroundColorSetToTransparentColorSetsPatternToNone()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -219,7 +219,7 @@ public class XLFillTests
     }
 
     [Test]
-    public void ReservedFills_ReplaceWithPredefinedValues()
+    public void ReservedFillsReplaceWithPredefinedValues()
     {
         // If attribute or whole predefined fill is missing from the file, save predefined values
         TestHelper.LoadSaveAndCompare(
@@ -229,7 +229,7 @@ public class XLFillTests
     }
 
     [Test]
-    public void ReservedFills_MoveFillsFromReservedPositions()
+    public void ReservedFillsMoveFillsFromReservedPositions()
     {
         // If the input doesn't have expected fill values at the reserved position s0 and 1 (can only happen
         // for non-excel sources, excel always has correct values), put expected fill at 0 and 1, but save original

@@ -11,7 +11,7 @@ namespace XlsxSharp.Tests.Excel.Hyperlinks;
 public class XLHyperlinksTests
 {
     [TestCaseSource(nameof(StructuralChangeCases))]
-    public void Hyperlink_is_moved_on_sheet_structure_change(
+    public void HyperlinkIsMovedOnSheetStructureChange(
         string hyperlinkPosition,
         Action<IXLWorksheet> structuralChange,
         string expectedPosition
@@ -43,7 +43,7 @@ public class XLHyperlinksTests
     }
 
     [Test]
-    public void Shift_doesnt_collide_hyperlinks()
+    public void ShiftDoesntCollideHyperlinks()
     {
         // In former original data structures, there could be only one hyperlink per area
         // and when links were shifted, one link could shift to a position of another that
@@ -68,7 +68,7 @@ public class XLHyperlinksTests
     }
 
     [Test]
-    public void Delete_link_removes_link_from_cell()
+    public void DeleteLinkRemovesLinkFromCell()
     {
         // Arrange
         using XLWorkbook wb = new();
@@ -88,7 +88,7 @@ public class XLHyperlinksTests
     }
 
     [Test]
-    public void Delete_link_for_address_deletes_the_link()
+    public void DeleteLinkForAddressDeletesTheLink()
     {
         // Arrange
         using XLWorkbook wb = new();
@@ -108,7 +108,7 @@ public class XLHyperlinksTests
     }
 
     [Test]
-    public void Delete_links_for_cell_address_without_link_doesnt_throw()
+    public void DeleteLinksForCellAddressWithoutLinkDoesntThrow()
     {
         // Arrange
         using XLWorkbook wb = new();
@@ -122,7 +122,7 @@ public class XLHyperlinksTests
     }
 
     [Test]
-    public void Delete_link_for_address_of_wrong_sheet_doesnt_delete_the_link()
+    public void DeleteLinkForAddressOfWrongSheetDoesntDeleteTheLink()
     {
         // Arrange
         using XLWorkbook wb = new();
@@ -139,7 +139,7 @@ public class XLHyperlinksTests
     }
 
     [Test]
-    public void Get_returns_hyperlink_for_address()
+    public void GetReturnsHyperlinkForAddress()
     {
         // Arrange
         using XLWorkbook wb = new();
@@ -155,7 +155,7 @@ public class XLHyperlinksTests
     }
 
     [Test]
-    public void Get_throws_exception_when_address_doesnt_have_link()
+    public void GetThrowsExceptionWhenAddressDoesntHaveLink()
     {
         // Arrange
         using XLWorkbook wb = new();
@@ -178,7 +178,7 @@ public class XLHyperlinksTests
     }
 
     [Test]
-    public void Get_only_returns_links_from_correct_sheet()
+    public void GetOnlyReturnsLinksFromCorrectSheet()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws1 = wb.AddWorksheet();
@@ -191,7 +191,7 @@ public class XLHyperlinksTests
     }
 
     [Test]
-    public void TryGet_returns_hyperlink_for_address()
+    public void TryGetReturnsHyperlinkForAddress()
     {
         // Arrange
         using XLWorkbook wb = new();
@@ -208,7 +208,7 @@ public class XLHyperlinksTests
     }
 
     [Test]
-    public void TryGet_doesnt_return_link_for_wrong_address()
+    public void TryGetDoesntReturnLinkForWrongAddress()
     {
         // Arrange
         using XLWorkbook wb = new();

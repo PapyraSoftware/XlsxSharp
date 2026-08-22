@@ -11,7 +11,7 @@ namespace XlsxSharp.Tests.Excel.Cells;
 public class XLCellValueTests
 {
     [Test]
-    public void Creation_Blank()
+    public void CreationBlank()
     {
         XLCellValue blank = Blank.Value;
         Assert.AreEqual(XLDataType.Blank, blank.Type);
@@ -19,7 +19,7 @@ public class XLCellValueTests
     }
 
     [Test]
-    public void Creation_Boolean()
+    public void CreationBoolean()
     {
         XLCellValue logical = true;
         Assert.AreEqual(XLDataType.Boolean, logical.Type);
@@ -28,7 +28,7 @@ public class XLCellValueTests
     }
 
     [Test]
-    public void Creation_Number()
+    public void CreationNumber()
     {
         XLCellValue number = 14.0;
         Assert.AreEqual(XLDataType.Number, number.Type);
@@ -39,7 +39,7 @@ public class XLCellValueTests
     [TestCase(Double.NaN)]
     [TestCase(Double.PositiveInfinity)]
     [TestCase(Double.NegativeInfinity)]
-    public void Creation_Number_CantBeNonNumber(Double nonNumber)
+    public void CreationNumberCantBeNonNumber(Double nonNumber)
     {
         Assert.Throws<ArgumentException>(() => _ = (XLCellValue)nonNumber);
     }
@@ -53,7 +53,7 @@ public class XLCellValueTests
     ];
 
     [TestCaseSource(nameof(DecimalTestCases))]
-    public void Creation_Decimal(Decimal decimalNumber, Double expectedNumber)
+    public void CreationDecimal(Decimal decimalNumber, Double expectedNumber)
     {
         XLCellValue cellValue = decimalNumber;
         Assert.True(cellValue.IsNumber);
@@ -61,7 +61,7 @@ public class XLCellValueTests
     }
 
     [Test]
-    public void Creation_Text()
+    public void CreationText()
     {
         XLCellValue text = "Hello World";
         Assert.AreEqual(XLDataType.Text, text.Type);
@@ -69,7 +69,7 @@ public class XLCellValueTests
     }
 
     [Test]
-    public void NullString_IsConvertedToBlank()
+    public void NullStringIsConvertedToBlank()
     {
         XLCellValue value = (string)null;
         Assert.IsTrue(value.IsBlank);
@@ -77,14 +77,14 @@ public class XLCellValueTests
     }
 
     [Test]
-    public void Creation_Text_HasLimitedLength()
+    public void CreationTextHasLimitedLength()
     {
         string longText = new('A', 32768);
         Assert.Throws<ArgumentOutOfRangeException>(() => _ = (XLCellValue)longText);
     }
 
     [Test]
-    public void Creation_Error()
+    public void CreationError()
     {
         XLCellValue error = XLError.NumberInvalid;
         Assert.AreEqual(XLDataType.Error, error.Type);
@@ -93,7 +93,7 @@ public class XLCellValueTests
     }
 
     [Test]
-    public void Creation_DateTime()
+    public void CreationDateTime()
     {
         XLCellValue dateTime = new DateTime(2021, 1, 1);
         Assert.AreEqual(XLDataType.DateTime, dateTime.Type);
@@ -102,7 +102,7 @@ public class XLCellValueTests
     }
 
     [Test]
-    public void Creation_TimeSpan()
+    public void CreationTimeSpan()
     {
         XLCellValue dateTime = new TimeSpan(10, 1, 2, 3, 456);
         Assert.AreEqual(XLDataType.TimeSpan, dateTime.Type);
@@ -111,7 +111,7 @@ public class XLCellValueTests
     }
 
     [Test]
-    public void Creation_FromObject()
+    public void CreationFromObject()
     {
         Assert.AreEqual(XLDataType.Blank, XLCellValue.FromObject(null).Type);
         Assert.AreEqual(XLDataType.Blank, XLCellValue.FromObject(Blank.Value).Type);
@@ -138,7 +138,7 @@ public class XLCellValueTests
     }
 
     [Test]
-    public void NumberTypes_HaveUnambiguousConversion()
+    public void NumberTypesHaveUnambiguousConversion()
     {
         {
             sbyte sbyteNumber = 5;
@@ -210,7 +210,7 @@ public class XLCellValueTests
 
     [Test]
     [SuppressMessage("ReSharper", "ExpressionIsAlwaysNull")]
-    public void NullableNumber_WithNullValue_AreConvertedToBlank()
+    public void NullableNumberWithNullValueAreConvertedToBlank()
     {
         {
             sbyte? sbyteNull = null;
@@ -281,7 +281,7 @@ public class XLCellValueTests
     }
 
     [Test]
-    public void NullableNumber_WithNumberValue_AreConvertedToNumber()
+    public void NullableNumberWithNumberValueAreConvertedToNumber()
     {
         {
             sbyte? sbyteNumber = 5;
@@ -353,7 +353,7 @@ public class XLCellValueTests
 
     [Test]
     [SuppressMessage("ReSharper", "ExpressionIsAlwaysNull")]
-    public void NullableDateTime_WithNullValue_IsConvertedToBlank()
+    public void NullableDateTimeWithNullValueIsConvertedToBlank()
     {
         DateTime? dateTimeNull = null;
         XLCellValue dateTimeCellValue = dateTimeNull;
@@ -362,7 +362,7 @@ public class XLCellValueTests
     }
 
     [Test]
-    public void NullableDateTime_WithDateValue_IsConvertedToDateTime()
+    public void NullableDateTimeWithDateValueIsConvertedToDateTime()
     {
         DateTime? dateTime = new DateTime(2020, 5, 14, 8, 14, 30);
         XLCellValue dateTimeCellValue = dateTime;
@@ -372,7 +372,7 @@ public class XLCellValueTests
 
     [Test]
     [SuppressMessage("ReSharper", "ExpressionIsAlwaysNull")]
-    public void NullableTimeSpan_WithNullValue_IsConvertedToBlank()
+    public void NullableTimeSpanWithNullValueIsConvertedToBlank()
     {
         TimeSpan? timeSpanNull = null;
         XLCellValue timeSpanCellValue = timeSpanNull;
@@ -381,7 +381,7 @@ public class XLCellValueTests
     }
 
     [Test]
-    public void NullableTimeSpan_WithTimeSpanValue_IsConvertedToTimeSpan()
+    public void NullableTimeSpanWithTimeSpanValueIsConvertedToTimeSpan()
     {
         TimeSpan? timeSpan = new TimeSpan(48, 12, 45, 30);
         XLCellValue timeSpanCellValue = timeSpan;
@@ -390,7 +390,7 @@ public class XLCellValueTests
     }
 
     [Test]
-    public void UnifiedNumber_IsFormOf_Number_DateTime_And_TimeSpan()
+    public void UnifiedNumberIsFormOfNumberDateTimeAndTimeSpan()
     {
         XLCellValue value = Blank.Value;
         Assert.False(value.IsUnifiedNumber);
@@ -431,7 +431,7 @@ public class XLCellValueTests
 
     [Test]
     [SetCulture("cs-CZ")]
-    public void ToString_RespectsCulture()
+    public void ToStringRespectsCulture()
     {
         XLCellValue v = Blank.Value;
         Assert.AreEqual(String.Empty, v.ToString());
@@ -459,7 +459,7 @@ public class XLCellValueTests
     }
 
     [Test]
-    public void TryConvert_Blank()
+    public void TryConvertBlank()
     {
         XLCellValue value = Blank.Value;
         Assert.True(value.TryConvert(out Blank blank));
@@ -471,7 +471,7 @@ public class XLCellValueTests
     }
 
     [Test]
-    public void TryConvert_Boolean()
+    public void TryConvertBoolean()
     {
         XLCellValue value = true;
         Assert.True(value.TryConvert(out Boolean boolean));
@@ -495,7 +495,7 @@ public class XLCellValueTests
     }
 
     [Test]
-    public void TryConvert_Number()
+    public void TryConvertNumber()
     {
         CultureInfo c = CultureInfo.GetCultureInfo("cs-CZ");
         XLCellValue value = 5;
@@ -532,7 +532,7 @@ public class XLCellValueTests
     }
 
     [Test]
-    public void TryConvert_DateTime()
+    public void TryConvertDateTime()
     {
         XLCellValue v = new DateTime(2020, 1, 1);
         Assert.True(v.TryConvert(out DateTime dt));
@@ -552,7 +552,7 @@ public class XLCellValueTests
     }
 
     [Test]
-    public void TryConvert_TimeSpan()
+    public void TryConvertTimeSpan()
     {
         CultureInfo c = CultureInfo.GetCultureInfo("cs-CZ");
         XLCellValue v = new TimeSpan(10, 15, 30);
@@ -571,7 +571,7 @@ public class XLCellValueTests
     [TestCase(1)]
     [TestCase(10)] // microsecond
     [TestCase(3000000001)] // 5 min 1 tick
-    public void TimeSpan_can_have_sub_millisecond_precision(long ticks)
+    public void TimeSpanCanHaveSubMillisecondPrecision(long ticks)
     {
         TimeSpan subMsTimeSpan = TimeSpan.FromTicks(ticks);
         XLCellValue value = subMsTimeSpan;
@@ -581,7 +581,7 @@ public class XLCellValueTests
     [TestCase(1)]
     [TestCase(10)] // microsecond
     [TestCase(3000000001)] // 5 min 1 tick
-    public void TimeSpan_with_sub_millisecond_precision_is_written_and_loaded_correctly(long ticks)
+    public void TimeSpanWithSubMillisecondPrecisionIsWrittenAndLoadedCorrectly(long ticks)
     {
         // NetFx converts double to string using G15. Core changed it to G17, but XlsxSharp still use G15.
         TimeSpan subMsTimeSpan = TimeSpan.FromTicks(ticks);
@@ -600,7 +600,7 @@ public class XLCellValueTests
 
     [TestCase(long.MaxValue / (double)TimeSpan.TicksPerDay + 0.01)]
     [TestCase(long.MinValue / (double)TimeSpan.TicksPerDay - 0.01)]
-    public void TimeSpan_throws_when_not_representable(double serialDateTime)
+    public void TimeSpanThrowsWhenNotRepresentable(double serialDateTime)
     {
         XLCellValue value = XLCellValue.FromSerialTimeSpan(serialDateTime);
         OverflowException ex = Assert.Throws<OverflowException>(() => value.GetTimeSpan())!;

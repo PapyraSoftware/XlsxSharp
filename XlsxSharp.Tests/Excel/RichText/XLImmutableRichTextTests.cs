@@ -9,7 +9,7 @@ namespace XlsxSharp.Tests.Excel.RichText;
 public class XLImmutableRichTextTests
 {
     [Test]
-    public void Equals_compares_text_runs_phonetic_runs_and_properties()
+    public void EqualsComparesTextRunsPhoneticRunsAndProperties()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();

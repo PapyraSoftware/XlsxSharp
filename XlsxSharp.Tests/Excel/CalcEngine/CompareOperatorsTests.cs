@@ -19,7 +19,7 @@ public class CompareOperatorsTests
     [TestCase("\"\"=\"\"", true)]
     [TestCase("#VALUE!=#VALUE!", XLError.IncompatibleValue)]
     [TestCase("A1=B1", true)] // blanks are equal
-    public void EqualTo_WithSameType(string formula, object expectedValue)
+    public void EqualToWithSameType(string formula, object expectedValue)
     {
         Assert.AreEqual(expectedValue, Evaluate(formula));
     }
@@ -36,7 +36,7 @@ public class CompareOperatorsTests
     [TestCase("\"\"<>\"\"", false)]
     [TestCase("#VALUE!<>#VALUE!", XLError.IncompatibleValue)]
     [TestCase("A1<>B1", false)] // blanks are equal
-    public void NotEqualTo_WithSameType(string formula, object expectedValue)
+    public void NotEqualToWithSameType(string formula, object expectedValue)
     {
         Assert.AreEqual(expectedValue, Evaluate(formula));
     }
@@ -51,7 +51,7 @@ public class CompareOperatorsTests
     [TestCase("\"texu\">\"text\"", true)]
     [TestCase("#VALUE!>#REF!", XLError.IncompatibleValue)]
     [TestCase("A1>A2", false)]
-    public void GreaterThen_WithSameType(string formula, object expectedValue)
+    public void GreaterThenWithSameType(string formula, object expectedValue)
     {
         Assert.AreEqual(expectedValue, Evaluate(formula));
     }
@@ -66,7 +66,7 @@ public class CompareOperatorsTests
     [TestCase("\"texu\">=\"text\"", true)]
     [TestCase("#VALUE!>=#REF!", XLError.IncompatibleValue)]
     [TestCase("A1>=A2", true)]
-    public void GreaterThenOrEqual_WithSameType(string formula, object expectedValue)
+    public void GreaterThenOrEqualWithSameType(string formula, object expectedValue)
     {
         Assert.AreEqual(expectedValue, Evaluate(formula));
     }
@@ -83,7 +83,7 @@ public class CompareOperatorsTests
     [TestCase("\"text\"<\"texu\"", true)]
     [TestCase("#VALUE!<#REF!", XLError.IncompatibleValue)]
     [TestCase("A1<A2", false)]
-    public void LessThen_WithSameType(string formula, object expectedValue)
+    public void LessThenWithSameType(string formula, object expectedValue)
     {
         Assert.AreEqual(expectedValue, Evaluate(formula));
     }
@@ -100,7 +100,7 @@ public class CompareOperatorsTests
     [TestCase("\"text\"<=\"texu\"", true)]
     [TestCase("#VALUE!<=#REF!", XLError.IncompatibleValue)]
     [TestCase("A1<=A2", true)]
-    public void LessThenOrEqual_WithSameType(string formula, object expectedValue)
+    public void LessThenOrEqualWithSameType(string formula, object expectedValue)
     {
         Assert.AreEqual(expectedValue, Evaluate(formula));
     }
@@ -129,7 +129,7 @@ public class CompareOperatorsTests
     [TestCase("FALSE<\"\"", false)]
     [TestCase("FALSE<10", false)]
     [TestCase("TRUE<10", false)]
-    public void Comparison_LogicalIsAlwaysGreaterThanAnyTextOrNumber(
+    public void ComparisonLogicalIsAlwaysGreaterThanAnyTextOrNumber(
         string formula,
         bool expectedResult
     )
@@ -141,7 +141,7 @@ public class CompareOperatorsTests
     [TestCase("\"1\">10", true)]
     [TestCase("10<\"\"", true)]
     [TestCase("10<\"1\"", true)]
-    public void Comparison_TextIsAlwaysGreaterThanAnyNumber(string formula, bool expectedResult)
+    public void ComparisonTextIsAlwaysGreaterThanAnyNumber(string formula, bool expectedResult)
     {
         Assert.AreEqual(expectedResult, XLWorkbook.EvaluateExpr(formula));
     }
@@ -152,7 +152,7 @@ public class CompareOperatorsTests
     [TestCase("0=A1")]
     [TestCase("\"\"=A1")]
     [TestCase("A1=\"\"")]
-    public void Comparison_BlankIsEqualToFalseOrZeroOrEmptyString(string formula)
+    public void ComparisonBlankIsEqualToFalseOrZeroOrEmptyString(string formula)
     {
         Assert.AreEqual(true, Evaluate(formula));
     }

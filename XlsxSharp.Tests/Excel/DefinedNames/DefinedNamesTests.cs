@@ -16,7 +16,7 @@ namespace XlsxSharp.Tests.Excel.DefinedNames;
 public class DefinedNamesTests
 {
     [Test]
-    public void Formula_must_be_valid()
+    public void FormulaMustBeValid()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -137,7 +137,7 @@ public class DefinedNamesTests
     }
 
     [Test]
-    public void Can_save_and_load_defined_names()
+    public void CanSaveAndLoadDefinedNames()
     {
         using (MemoryStream ms = new())
         {
@@ -226,7 +226,7 @@ public class DefinedNamesTests
     }
 
     [Test]
-    public void Copy_table_references_to_different_worksheet()
+    public void CopyTableReferencesToDifferentWorksheet()
     {
         // When sheet-scoped name references a table and there is a table with same area in the
         // copied sheet, the copied defined name changes table reference to a new table. If
@@ -251,7 +251,7 @@ public class DefinedNamesTests
     }
 
     [Test]
-    public void Copy_workbook_scoped_defined()
+    public void CopyWorkbookScopedDefined()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet("Sheet");
@@ -265,7 +265,7 @@ public class DefinedNamesTests
     }
 
     [Test]
-    public void Copy_defined_name_to_same_sheet()
+    public void CopyDefinedNameToSameSheet()
     {
         XLWorkbook wb = new();
         IXLWorksheet ws1 = wb.Worksheets.Add("Sheet1");
@@ -297,7 +297,7 @@ public class DefinedNamesTests
     }
 
     [Test]
-    public void Formula_is_updated_on_sheet_rename()
+    public void FormulaIsUpdatedOnSheetRename()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet("Old name");
@@ -465,7 +465,7 @@ public class DefinedNamesTests
     }
 
     [Test]
-    public void Defined_names_referencing_sheet_range_become_invalid_when_sheet_is_deleted()
+    public void DefinedNamesReferencingSheetRangeBecomeInvalidWhenSheetIsDeleted()
     {
         using (XLWorkbook wb = new())
         {
@@ -552,7 +552,7 @@ public class DefinedNamesTests
     }
 
     [Test]
-    public void Only_worksheet_scoped_defined_names_are_copied_when_sheet_is_copied()
+    public void OnlyWorksheetScopedDefinedNamesAreCopiedWhenSheetIsCopied()
     {
         using (XLWorkbook wb = new())
         {
@@ -600,7 +600,7 @@ public class DefinedNamesTests
     }
 
     [Test]
-    public void Saved_defined_names_become_invalid_on_sheet_deleting()
+    public void SavedDefinedNamesBecomeInvalidOnSheetDeleting()
     {
         using (MemoryStream ms = new())
         {
@@ -777,7 +777,7 @@ public class DefinedNamesTests
     }
 
     [Test]
-    public void RefersTo_throws_on_null()
+    public void RefersToThrowsOnNull()
     {
         using XLWorkbook wb = new();
         IXLDefinedName name = wb.DefinedNames.Add("name", "1+2");
@@ -787,7 +787,7 @@ public class DefinedNamesTests
     [TestCase("")]
     [TestCase("=  ")]
     [TestCase("  ")]
-    public void RefersTo_cant_be_empty(string formula)
+    public void RefersToCantBeEmpty(string formula)
     {
         // Excel will try to repair a workbook that contains a defined name with a formula that is an empty string.
         using XLWorkbook wb = new();

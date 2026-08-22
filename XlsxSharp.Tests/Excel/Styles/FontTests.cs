@@ -13,7 +13,7 @@ public class FontTests
     private readonly XLFontFormatValue _defaultFormat = XLFontFormatValue.Default;
 
     [Test]
-    public void XLFontFormatValue_GetHashCode_IsCaseInsensitive()
+    public void XLFontFormatValueGetHashCodeIsCaseInsensitive()
     {
         XLFontFormatValue fontKey1 = this._defaultFormat with { Name = "Arial" };
         XLFontFormatValue fontKey2 = this._defaultFormat with { Name = "Times New Roman" };
@@ -24,7 +24,7 @@ public class FontTests
     }
 
     [Test]
-    public void XLFontFormatValue_Equals_IsCaseInsensitive()
+    public void XLFontFormatValueEqualsIsCaseInsensitive()
     {
         XLFontFormatValue fontKey1 = this._defaultFormat with { Name = "Arial" };
         XLFontFormatValue fontKey2 = this._defaultFormat with { Name = "Times New Roman" };
@@ -36,7 +36,7 @@ public class FontTests
 
     [Test]
     [TestCaseSource(nameof(FontApiSetters))]
-    public void Font_property_can_be_individually_set(FormatTestCase<IXLFont> testCase)
+    public void FontPropertyCanBeIndividuallySet(FormatTestCase<IXLFont> testCase)
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -53,7 +53,7 @@ public class FontTests
 
     [Test]
     [TestCaseSource(nameof(FontApiSetters))]
-    public void Dxf_font_property_can_be_individually_set(FormatTestCase<IXLFont> testCase)
+    public void DxfFontPropertyCanBeIndividuallySet(FormatTestCase<IXLFont> testCase)
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -68,7 +68,7 @@ public class FontTests
     }
 
     [Test]
-    public void Font_can_be_set_by_assigning_font()
+    public void FontCanBeSetByAssigningFont()
     {
         // Arrange
         using XLWorkbook wb = new();
@@ -110,7 +110,7 @@ public class FontTests
     }
 
     [Test]
-    public void Font_can_be_checked_for_equality()
+    public void FontCanBeCheckedForEquality()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();

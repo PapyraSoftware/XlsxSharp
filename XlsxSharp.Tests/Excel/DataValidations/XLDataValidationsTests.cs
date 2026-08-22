@@ -34,7 +34,7 @@ public class XLDataValidationsTests
 
     [Test]
     [Description("Ensure one-dv-per-cell invariant")]
-    public void AddRange_replaces_intersecting_areas_of_validation()
+    public void AddRangeReplacesIntersectingAreasOfValidation()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -48,7 +48,7 @@ public class XLDataValidationsTests
     }
 
     [Test]
-    public void AddRange_keeps_validation_settings_even_when_it_completely_covers_original()
+    public void AddRangeKeepsValidationSettingsEvenWhenItCompletelyCoversOriginal()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -63,7 +63,7 @@ public class XLDataValidationsTests
 
     [Test]
     [Description("Ensure one-dv-per-cell invariant")]
-    public void AddRange_replaces_area_of_other_validations()
+    public void AddRangeReplacesAreaOfOtherValidations()
     {
         // Arrange
         using XLWorkbook wb = new();
@@ -84,7 +84,7 @@ public class XLDataValidationsTests
     }
 
     [Test]
-    public void AddRange_deletes_other_validations_that_are_not_used_by_any_cell()
+    public void AddRangeDeletesOtherValidationsThatAreNotUsedByAnyCell()
     {
         // Arrange
         using XLWorkbook wb = new();

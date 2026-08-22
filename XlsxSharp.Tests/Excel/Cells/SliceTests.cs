@@ -7,7 +7,7 @@ namespace XlsxSharp.Tests.Excel.Cells;
 public class SliceTests
 {
     [Test]
-    public void Stores_Values()
+    public void StoresValues()
     {
         Slice<int> slice = new();
         Point point = new(574, 241);
@@ -16,7 +16,7 @@ public class SliceTests
     }
 
     [Test]
-    public void Setting_Value_To_Default_Clears_Element()
+    public void SettingValueToDefaultClearsElement()
     {
         Slice<int> slice = new();
         Point point = new(574, 241);
@@ -31,7 +31,7 @@ public class SliceTests
     }
 
     [Test]
-    public void Keeps_Track_Of_Max_Used_Coordinates()
+    public void KeepsTrackOfMaxUsedCoordinates()
     {
         Slice<int> slice = new();
         slice.Set(54, 32, 1);
@@ -58,7 +58,7 @@ public class SliceTests
     }
 
     [Test]
-    public void Keeps_Track_Of_Used_Rows()
+    public void KeepsTrackOfUsedRows()
     {
         Slice<int> slice = new();
         Assert.IsEmpty(slice.UsedRows);
@@ -89,7 +89,7 @@ public class SliceTests
     }
 
     [Test]
-    public void Keeps_Track_Of_Used_Columns()
+    public void KeepsTrackOfUsedColumns()
     {
         Slice<int> slice = new();
         Assert.IsEmpty(slice.UsedColumns);
@@ -120,7 +120,7 @@ public class SliceTests
     }
 
     [Test]
-    public void Clear_Range_Sets_Values_To_Default()
+    public void ClearRangeSetsValuesToDefault()
     {
         Slice<int> slice = new();
         Point outsideAddress = new(1, 1);
@@ -140,7 +140,7 @@ public class SliceTests
     }
 
     [Test]
-    public void InsertAreaAndShiftDown_Moves_Area_Cells_Down_And_Purges_Values_Outside_Worksheet()
+    public void InsertAreaAndShiftDownMovesAreaCellsDownAndPurgesValuesOutsideWorksheet()
     {
         Slice<int> slice = new();
         slice.Set(1, 1, 1);
@@ -160,7 +160,7 @@ public class SliceTests
     }
 
     [Test]
-    public void InsertAreaAndShiftRight_Moves_Area_Cells_Down_And_Purges_Values_Outside_Worksheet()
+    public void InsertAreaAndShiftRightMovesAreaCellsDownAndPurgesValuesOutsideWorksheet()
     {
         Slice<int> slice = new();
         slice.Set(1, 1, 1);
@@ -180,7 +180,7 @@ public class SliceTests
     }
 
     [Test]
-    public void DeleteAreaAndShiftUp_Moves_Area_Cells_Up()
+    public void DeleteAreaAndShiftUpMovesAreaCellsUp()
     {
         Slice<int> slice = new();
         Point aboveAddress = new(1, 3);
@@ -207,7 +207,7 @@ public class SliceTests
     }
 
     [Test]
-    public void DeleteAreaAndShiftLeft_Moves_Area_Cells_Left()
+    public void DeleteAreaAndShiftLeftMovesAreaCellsLeft()
     {
         Slice<int> slice = new();
         Point leftAddress = new(3, 1);
@@ -234,7 +234,7 @@ public class SliceTests
     }
 
     [Test]
-    public void DeleteAreaAndShiftUp_for_full_row_deletion_deletes_the_row_and_updates_column_usage()
+    public void DeleteAreaAndShiftUpForFullRowDeletionDeletesTheRowAndUpdatesColumnUsage()
     {
         // Test that a fast path for deletion of a area with full sheet width works the same
         // way as deletion of any area.

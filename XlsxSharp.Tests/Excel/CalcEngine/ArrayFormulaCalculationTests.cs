@@ -120,7 +120,7 @@ public class ArrayFormulaCalculationTests
     }
 
     [Test]
-    public void Array_argument_for_scalar_function_in_array_formula_uses_only_first_value_of_array()
+    public void ArrayArgumentForScalarFunctionInArrayFormulaUsesOnlyFirstValueOfArray()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();

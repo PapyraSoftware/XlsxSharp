@@ -73,7 +73,7 @@ public class SavingTests
     }
 
     [Test]
-    public void CanEscape_xHHHH_Correctly()
+    public void CanEscapeXHHHHCorrectly()
     {
         using (MemoryStream ms = new())
         {
@@ -705,7 +705,7 @@ public class SavingTests
     }
 
     [Test]
-    public void Pivot_table_cf_dxf_is_saved()
+    public void PivotTableCfDxfIsSaved()
     {
         // Issue #2075: Pivot table conditional format wasn't saved.
         TestHelper.LoadSaveAndAssert(
@@ -761,7 +761,7 @@ public class SavingTests
     }
 
     [Test]
-    public void CanSaveFileWithVml_NoComments()
+    public void CanSaveFileWithVmlNoComments()
     {
         //See #1285
         using (

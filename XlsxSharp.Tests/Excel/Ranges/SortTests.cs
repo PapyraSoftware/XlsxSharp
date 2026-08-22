@@ -9,7 +9,7 @@ namespace XlsxSharp.Tests.Excel.Ranges;
 public class SortTests
 {
     [Test]
-    public void Values_are_sorted_by_type_first()
+    public void ValuesAreSortedByTypeFirst()
     {
         // The values in asc order are number, text, logical, error, blanks.
         using XLWorkbook wb = new();
@@ -44,7 +44,7 @@ public class SortTests
 
     [TestCase(XLSortOrder.Ascending)]
     [TestCase(XLSortOrder.Descending)]
-    public void Blanks_are_always_last(XLSortOrder sortOrder)
+    public void BlanksAreAlwaysLast(XLSortOrder sortOrder)
     {
         // When range contains blank, it is always last, no matter
         // if the sort order is ascending or descending
@@ -62,7 +62,7 @@ public class SortTests
     }
 
     [Test]
-    public void IgnoreBlanks_set_to_false_treats_blanks_as_empty_strings()
+    public void IgnoreBlanksSetToFalseTreatsBlanksAsEmptyStrings()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -82,7 +82,7 @@ public class SortTests
     [TestCase(true, "a", "A")]
     [TestCase(false, "A", "a")]
     [Culture("en-US")]
-    public void MatchCase_flag_determines_if_texts_are_compared_case_sensitive(
+    public void MatchCaseFlagDeterminesIfTextsAreComparedCaseSensitive(
         bool matchCase,
         string expectedFirst,
         string expectedSecond
@@ -102,7 +102,7 @@ public class SortTests
     }
 
     [Test]
-    public void Sort_can_use_multiple_columns()
+    public void SortCanUseMultipleColumns()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -119,7 +119,7 @@ public class SortTests
     }
 
     [Test]
-    public void Sort_columns_in_range_by_rows()
+    public void SortColumnsInRangeByRows()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();

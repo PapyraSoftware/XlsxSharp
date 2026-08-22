@@ -14,7 +14,7 @@ public class ArithmeticOperatorsTests
     [TestCase("\"\" & \"B\"", "B")]
     [TestCase("\"A\" & \"\"", "A")]
     [TestCase("\"\" & \"\"", "")]
-    public void Concat_ConcatenateText(string formula, object expectedResult)
+    public void ConcatConcatenateText(string formula, object expectedResult)
     {
         Assert.AreEqual(expectedResult, XLWorkbook.EvaluateExpr(formula));
     }
@@ -22,7 +22,7 @@ public class ArithmeticOperatorsTests
     [TestCase("A1 & \"\"", "")]
     [TestCase("\"\" & A1", "")]
     [TestCase("A1 & A1", "")]
-    public void Concat_ConcatenateBlank(string formula, object expectedResult)
+    public void ConcatConcatenateBlank(string formula, object expectedResult)
     {
         Assert.AreEqual(expectedResult, Evaluate(formula));
     }
@@ -32,7 +32,7 @@ public class ArithmeticOperatorsTests
     [TestCase("true & \" to text\"", "TRUE to text")]
     [TestCase("false & \" to text\"", "FALSE to text")]
     [TestCase("TRUE & FALSE", @"TRUEFALSE")]
-    public void Concat_ConvertsLogicalToString(string formula, object expectedResult)
+    public void ConcatConvertsLogicalToString(string formula, object expectedResult)
     {
         Assert.AreEqual(expectedResult, XLWorkbook.EvaluateExpr(formula));
     }
@@ -41,7 +41,7 @@ public class ArithmeticOperatorsTests
     [TestCase("1 & \" to text\"", "1 to text")]
     [TestCase("1 & 0", "10")]
     [TestCase("1.5 & 0.78", "1,50,78")]
-    public void Concat_ConvertsNumberToStringUsingCulture(string formula, object expectedResult)
+    public void ConcatConvertsNumberToStringUsingCulture(string formula, object expectedResult)
     {
         XLWorkbook wb = new();
         Assert.AreEqual(expectedResult, wb.Evaluate(formula));
@@ -51,7 +51,7 @@ public class ArithmeticOperatorsTests
     [TestCase("#DIV/0! & \"1\"", XLError.DivisionByZero)]
     [TestCase("#REF! & #DIV/0!", XLError.CellReference)]
     [TestCase("1 & #NAME?", XLError.NameNotRecognized)]
-    public void Concat_WithErrorAsOperandReturnsTheError(string formula, XLError expectedError)
+    public void ConcatWithErrorAsOperandReturnsTheError(string formula, XLError expectedError)
     {
         Assert.AreEqual(expectedError, XLWorkbook.EvaluateExpr(formula));
     }
@@ -66,7 +66,7 @@ public class ArithmeticOperatorsTests
     [TestCase("+FALSE", false)]
     [TestCase("+#DIV/0!", XLError.DivisionByZero)]
     [TestCase("ISBLANK(+A1)", true)]
-    public void UnaryPlus_IsNonOpThatKeepsValueAndType(string formula, object expectedValue)
+    public void UnaryPlusIsNonOpThatKeepsValueAndType(string formula, object expectedValue)
     {
         Assert.AreEqual(expectedValue, Evaluate(formula));
     }
@@ -82,7 +82,7 @@ public class ArithmeticOperatorsTests
     [TestCase("-FALSE", 0)]
     [TestCase("-#DIV/0!", XLError.DivisionByZero)]
     [TestCase("-A1", 0.0)]
-    public void UnaryMinus_ConvertsArgumentBeforeNegating(string formula, object expectedValue)
+    public void UnaryMinusConvertsArgumentBeforeNegating(string formula, object expectedValue)
     {
         Assert.AreEqual(expectedValue, Evaluate(formula));
     }
@@ -101,7 +101,7 @@ public class ArithmeticOperatorsTests
     [TestCase("#NAME?%", XLError.NameNotRecognized)]
     [TestCase("(1/0)%", XLError.DivisionByZero)]
     [TestCase("A1%", 0.0)]
-    public void UnaryPercent_ConvertsArgumentBeforePercentOperator(
+    public void UnaryPercentConvertsArgumentBeforePercentOperator(
         string formula,
         object expectedValue
     )
@@ -127,7 +127,7 @@ public class ArithmeticOperatorsTests
     [TestCase("#DIV/0!^#REF!", XLError.DivisionByZero)]
     [TestCase("5^A1", 1.0)]
     [TestCase("A1^4", 0.0)]
-    public void Exponentiation_CanWorkWithScalars(string formula, object expectedValue)
+    public void ExponentiationCanWorkWithScalars(string formula, object expectedValue)
     {
         Assert.That(Evaluate(formula), Is.EqualTo(expectedValue));
     }
@@ -150,7 +150,7 @@ public class ArithmeticOperatorsTests
     [TestCase("#DIV/0!*#REF!", XLError.DivisionByZero)]
     [TestCase("10*A1", 0.0)]
     [TestCase("A1*10", 0.0)]
-    public void Multiplication_CanWorkWithScalars(string formula, object expectedValue)
+    public void MultiplicationCanWorkWithScalars(string formula, object expectedValue)
     {
         Assert.That(Evaluate(formula), Is.EqualTo(expectedValue));
     }
@@ -173,7 +173,7 @@ public class ArithmeticOperatorsTests
     [TestCase("#DIV/0!/#REF!", XLError.DivisionByZero)]
     [TestCase("A1/5", 0.0)]
     [TestCase("5/A1", XLError.DivisionByZero)]
-    public void Division_CanWorkWithScalars(string formula, object expectedValue)
+    public void DivisionCanWorkWithScalars(string formula, object expectedValue)
     {
         Assert.AreEqual(expectedValue, Evaluate(formula));
     }
@@ -192,7 +192,7 @@ public class ArithmeticOperatorsTests
     [TestCase("1 + #REF!", XLError.CellReference)]
     [TestCase("#DIV/0! + #REF!", XLError.DivisionByZero)]
     [TestCase("A1 + 7", 7)]
-    public void Addition_CanWorkWithScalars(string formula, object expectedValue)
+    public void AdditionCanWorkWithScalars(string formula, object expectedValue)
     {
         Assert.AreEqual(expectedValue, Evaluate(formula));
     }
@@ -211,7 +211,7 @@ public class ArithmeticOperatorsTests
     [TestCase("1 - #REF!", XLError.CellReference)]
     [TestCase("#DIV/0! - #REF!", XLError.DivisionByZero)]
     [TestCase("A1 - 5", -5)]
-    public void Subtraction_CanWorkWithScalars(string formula, object expectedValue)
+    public void SubtractionCanWorkWithScalars(string formula, object expectedValue)
     {
         Assert.AreEqual(expectedValue, Evaluate(formula));
     }
@@ -221,7 +221,7 @@ public class ArithmeticOperatorsTests
     #region Array Operations
 
     [Test]
-    public void ArraysOperation_BinaryOperationBetweenAreaReferenceAndSingleCellReferenceShouldWork()
+    public void ArraysOperationBinaryOperationBetweenAreaReferenceAndSingleCellReferenceShouldWork()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet("Test1");
@@ -232,7 +232,7 @@ public class ArithmeticOperatorsTests
     }
 
     [Test]
-    public void ArraysOperation_MultiAreaReferencesArgumentResultsInScalarError()
+    public void ArraysOperationMultiAreaReferencesArgumentResultsInScalarError()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -242,21 +242,21 @@ public class ArithmeticOperatorsTests
     }
 
     [Test]
-    public void ArrayOperation_SameSizeArrayPerformsOperationIndividually()
+    public void ArrayOperationSameSizeArrayPerformsOperationIndividually()
     {
         Assert.AreEqual(6 * 7, XLWorkbook.EvaluateExpr("SUM({1,2,3;4,5,6} + {6,5,4;3,2,1})"));
         Assert.AreEqual(2, XLWorkbook.EvaluateExpr("COLUMNS({1,2} + \"A\")"));
     }
 
     [Test]
-    public void ArrayOperation_ArrayPlusScalarUpscalesScalarToSizeOfArray()
+    public void ArrayOperationArrayPlusScalarUpscalesScalarToSizeOfArray()
     {
         Assert.AreEqual(18, XLWorkbook.EvaluateExpr("SUM({1,1,1;1,1,1} * 3)"));
         Assert.AreEqual(15, XLWorkbook.EvaluateExpr("SUM(6 / {2,2,2;3,3,3})"));
     }
 
     [Test]
-    public void ArrayOperation_RowOnlyArrayIsRepeatedToHaveSameNumberOfRowsAsOtherArray()
+    public void ArrayOperationRowOnlyArrayIsRepeatedToHaveSameNumberOfRowsAsOtherArray()
     {
         // {3,2} is scaled to {3,2;3,2} of second array
         Assert.AreEqual(14, XLWorkbook.EvaluateExpr("SUM({3,2}+{1,1;1,1})"));
@@ -264,7 +264,7 @@ public class ArithmeticOperatorsTests
     }
 
     [Test]
-    public void ArrayOperation_ColumnOnlyArrayIsRepeatedToHaveSameNumberOfColumnsAsOtherArray()
+    public void ArrayOperationColumnOnlyArrayIsRepeatedToHaveSameNumberOfColumnsAsOtherArray()
     {
         // {3;2} is scaled to {3,3;2,2} of second array
         Assert.AreEqual(16, XLWorkbook.EvaluateExpr("SUM({3;2}*{1,1;2,3})"));
@@ -272,14 +272,14 @@ public class ArithmeticOperatorsTests
     }
 
     [Test]
-    public void ArrayOperation_1x1ArrayIsScaledToOtherArray()
+    public void ArrayOperation1x1ArrayIsScaledToOtherArray()
     {
         Assert.AreEqual(20, XLWorkbook.EvaluateExpr("SUM({2}*{1,2;3,4})"));
         Assert.AreEqual(20, XLWorkbook.EvaluateExpr("SUM({1,2;3,4}*{2})"));
     }
 
     [Test]
-    public void ArrayOperation_DifferentSizedArraysAreUpscaledToContainingSize()
+    public void ArrayOperationDifferentSizedArraysAreUpscaledToContainingSize()
     {
         // The extra value are #N/A + value, i.e. #N/A, thus the whole sum is #N/A
         Assert.AreEqual(

@@ -7,7 +7,7 @@ namespace XlsxSharp.Tests.Excel.PivotTables;
 public class XLPivotTableFiltersTests
 {
     [Test]
-    public void Adding_and_removing_filters_shifts_pivot_table_area()
+    public void AddingAndRemovingFiltersShiftsPivotTableArea()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();

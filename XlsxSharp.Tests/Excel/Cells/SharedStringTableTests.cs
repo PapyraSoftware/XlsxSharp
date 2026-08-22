@@ -102,7 +102,7 @@ public class SharedStringTableTests
     }
 
     [Test]
-    public void StringItem_without_text_is_loaded_as_empty_text()
+    public void StringItemWithoutTextIsLoadedAsEmptyText()
     {
         // PR#2218: A text cell that references self-closed <si/> tag in SST is loaded without
         // an error and is loaded as type TEXT. Although it's not very common, empty string is
@@ -119,7 +119,7 @@ public class SharedStringTableTests
     }
 
     [Test]
-    public void Empty_text_is_written_and_loaded_to_sst()
+    public void EmptyTextIsWrittenAndLoadedToSst()
     {
         TestHelper.CreateSaveLoadAssert(
             (_, ws) =>

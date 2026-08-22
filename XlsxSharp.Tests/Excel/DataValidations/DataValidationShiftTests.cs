@@ -103,7 +103,7 @@ public class DataValidationShiftTests
     [TestCase(new[] { "A10:A11" }, "1-2", new[] { "A8:A9" })]
     [TestCase(new[] { "A10,A11" }, "1-2", new[] { "A8:A8 A9:A9" })]
     [TestCase(new[] { "A10", "A11" }, "1-2", new[] { "A8:A8", "A9:A9" })]
-    public void Data_validations_are_shifted_when_rows_above_are_deleted(
+    public void DataValidationsAreShiftedWhenRowsAboveAreDeleted(
         string[] initialDvs,
         string rowsToDelete,
         string[] shiftedDvs
@@ -123,7 +123,7 @@ public class DataValidationShiftTests
     }
 
     [Test]
-    public void Data_validations_is_removed_when_its_area_is_deleted()
+    public void DataValidationsIsRemovedWhenItsAreaIsDeleted()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -135,7 +135,7 @@ public class DataValidationShiftTests
     }
 
     [Test]
-    public void Data_validations_can_split_its_area_when_inserted_or_deleted_area_intersects_its_area()
+    public void DataValidationsCanSplitItsAreaWhenInsertedOrDeletedAreaIntersectsItsArea()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();

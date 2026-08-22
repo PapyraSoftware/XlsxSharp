@@ -88,7 +88,7 @@ public class StatisticalTests
     [TestCase(1, 1, 1, 1)]
     [TestCase(2, 4, 0.5, 0.375)]
     [TestCase(2.9, 4.9, 0.5, 0.375)] // Attempts are floored
-    public void BinomDist_calculates_non_cumulative_binomial_distribution(
+    public void BinomDistCalculatesNonCumulativeBinomialDistribution(
         double k,
         double n,
         double p,
@@ -110,7 +110,7 @@ public class StatisticalTests
     [TestCase(0, 0, 1, 1)]
     [TestCase(2, 4, 0.5, 0.6875)]
     [TestCase(2.9, 4.9, 0.5, 0.6875)] // Values are floored
-    public void BinomDist_calculates_cumulative_binomial_distribution(
+    public void BinomDistCalculatesCumulativeBinomialDistribution(
         double k,
         double n,
         double p,
@@ -131,7 +131,7 @@ public class StatisticalTests
     [TestCase(2, 4, -0.1)] // p < 0
     [TestCase(2, 4, 1.1)] // p > 1
     [TestCase(1E+300, 2E+300, 0.5)] // Too large values
-    public void BinomDist_returns_num_error_on_invalid_calculations(double k, double n, double p)
+    public void BinomDistReturnsNumErrorOnInvalidCalculations(double k, double n, double p)
     {
         string kString = k.ToInvariantString();
         string nString = n.ToInvariantString();
@@ -201,7 +201,7 @@ public class StatisticalTests
     }
 
     [Test]
-    public void CountA_counts_non_blank_values()
+    public void CountACountsNonBlankValues()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -218,7 +218,7 @@ public class StatisticalTests
     }
 
     [Test]
-    public void CountA_on_examples_from_spec()
+    public void CountAOnExamplesFromSpec()
     {
         Assert.AreEqual(5, XLWorkbook.EvaluateExpr("COUNTA(1,2,3,4,5)"));
         Assert.AreEqual(5, XLWorkbook.EvaluateExpr("COUNTA(1,2,3,4,5)"));
@@ -232,7 +232,7 @@ public class StatisticalTests
     }
 
     [Test]
-    public void CountA_accepts_union_references()
+    public void CountAAcceptsUnionReferences()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -242,7 +242,7 @@ public class StatisticalTests
     }
 
     [Test]
-    public void CountA_doesnt_count_single_blank_cell_reference()
+    public void CountADoesntCountSingleBlankCellReference()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -250,13 +250,13 @@ public class StatisticalTests
     }
 
     [Test]
-    public void CountA_counts_blank_argument()
+    public void CountACountsBlankArgument()
     {
         Assert.AreEqual(1, XLWorkbook.EvaluateExpr("COUNTA(IF(TRUE,,))"));
     }
 
     [Test]
-    public void CountA_counts_error_arguments()
+    public void CountACountsErrorArguments()
     {
         Assert.AreEqual(
             7,
@@ -265,7 +265,7 @@ public class StatisticalTests
     }
 
     [Test]
-    public void CountA_counts_empty_string()
+    public void CountACountsEmptyString()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -330,7 +330,7 @@ public class StatisticalTests
     [TestCase(@"=COUNTIF(Data!E:E, ""*o??s*"")", 10)]
     [TestCase(@"=COUNTIF(Data!X1:X1000, """")", 1000)]
     [TestCase(@"=COUNTIF(Data!E1:E44, """")", 1)]
-    public void CountIf_ConditionWithWildcards(string formula, int expectedResult)
+    public void CountIfConditionWithWildcards(string formula, int expectedResult)
     {
         IXLWorksheet ws = this.workbook.Worksheets.First();
 
@@ -345,7 +345,7 @@ public class StatisticalTests
     [TestCase(@"=COUNTIF(A1:A10, 43831)", 1)]
     [TestCase(@"=COUNTIF(A1:A10, DATE(2020, 1, 1))", 1)]
     [TestCase(@"=COUNTIF(A1:A10, TRUE)", 1)]
-    public void CountIf_MixedData(string formula, int expected)
+    public void CountIfMixedData(string formula, int expected)
     {
         // We follow to Excel's convention.
         // Excel treats 1 and TRUE as unequal, but 3 and "3" as equal
@@ -369,7 +369,7 @@ public class StatisticalTests
     [TestCase("~*", @"=COUNTIF(A1:A1, ""~~*"")", 1)]
     [TestCase("~x", @"=COUNTIF(A1:A1, ""~~*"")", 1)]
     [TestCase("~xyz", @"=COUNTIF(A1:A1, ""~~*"")", 1)]
-    public void CountIf_MoreWildcards(string cellContent, string formula, int expectedResult)
+    public void CountIfMoreWildcards(string cellContent, string formula, int expectedResult)
     {
         using (XLWorkbook wb = new())
         {
@@ -384,7 +384,7 @@ public class StatisticalTests
     [TestCase("=COUNTIFS(B1:D1, \"=Yes\")", 1)]
     [TestCase("=COUNTIFS(B1:B4, \"=Yes\", C1:C4, \"=Yes\")", 2)]
     [TestCase("=COUNTIFS(B4:D4, \"=Yes\", B2:D2, \"=Yes\")", 1)]
-    public void CountIfs_ReferenceExample1FromExcelDocumentations(
+    public void CountIfsReferenceExample1FromExcelDocumentations(
         string formula,
         int expectedOutcome
     )
@@ -418,7 +418,7 @@ public class StatisticalTests
     }
 
     [Test]
-    public void CountIfs_SingleCondition()
+    public void CountIfsSingleCondition()
     {
         IXLWorksheet ws = this.workbook.Worksheets.First();
         XLCellValue value;
@@ -440,7 +440,7 @@ public class StatisticalTests
     [TestCase(@"=COUNTIFS(Data!E:E, ""*o??s*"")", 10)]
     [TestCase(@"=COUNTIFS(Data!X1:X1000, """")", 1000)]
     [TestCase(@"=COUNTIFS(Data!E1:E44, """")", 1)]
-    public void CountIfs_SingleConditionWithWildcards(string formula, int expectedResult)
+    public void CountIfsSingleConditionWithWildcards(string formula, int expectedResult)
     {
         IXLWorksheet ws = this.workbook.Worksheets.First();
 
@@ -450,7 +450,7 @@ public class StatisticalTests
 
     [TestCase("COUNTIFS(H1:I3, 1, D1:F2, 2)")]
     [TestCase("COUNTIFS(A:B, \"A*\", C:C, \">2\")")]
-    public void CountIfs_returns_error_when_areas_dimensions_are_different(string formula)
+    public void CountIfsReturnsErrorWhenAreasDimensionsAreDifferent(string formula)
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -474,7 +474,7 @@ public class StatisticalTests
     [TestCase("H15:H20", ExpectedResult = 15.8927310267677)]
     [TestCase("H20:H30", ExpectedResult = 7.14321227391814)]
     [DefaultFloatingPointTolerance(1e-12)]
-    public double Geomean_calculation(string sourceValue)
+    public double GeomeanCalculation(string sourceValue)
     {
         return (double)this.workbook.Worksheets.First().Evaluate($"GEOMEAN({sourceValue})");
     }
@@ -482,7 +482,7 @@ public class StatisticalTests
     [TestCase("D3:D45", ExpectedResult = XLError.NumberInvalid)]
     [TestCase("-1, 0, 3", ExpectedResult = XLError.NumberInvalid)]
     [TestCase("0", ExpectedResult = XLError.NumberInvalid)]
-    public XLError Geomean_IncorrectCases(string sourceValue)
+    public XLError GeomeanIncorrectCases(string sourceValue)
     {
         IXLWorksheet ws = this.workbook.Worksheets.First();
 
@@ -564,7 +564,7 @@ public class StatisticalTests
     }
 
     [TestCase("D3:D45", ExpectedResult = XLError.NumberInvalid)]
-    public XLError Devsq_IncorrectCases(string sourceValue)
+    public XLError DevsqIncorrectCases(string sourceValue)
     {
         IXLWorksheet ws = this.workbook.Worksheets.First();
 
@@ -573,7 +573,7 @@ public class StatisticalTests
 
     [Test]
     [DefaultFloatingPointTolerance(1e-10)]
-    public void Devsq_is_calculated_from_numbers()
+    public void DevsqIsCalculatedFromNumbers()
     {
         Assert.AreEqual(6.90666666666666, (double)XLWorkbook.EvaluateExpr("DEVSQ(5.6, 8.2, 9.2)"));
         Assert.AreEqual(
@@ -623,7 +623,7 @@ public class StatisticalTests
     [TestCase("5", ExpectedResult = XLError.NumberInvalid)]
     [TestCase("-1", ExpectedResult = XLError.NumberInvalid)]
     [TestCase("1", ExpectedResult = XLError.NumberInvalid)]
-    public XLError Fisher_IncorrectCases(string sourceValue)
+    public XLError FisherIncorrectCases(string sourceValue)
     {
         return (XLError)XLWorkbook.EvaluateExpr($"FISHER({sourceValue})");
     }
@@ -704,7 +704,7 @@ public class StatisticalTests
     }
 
     [Test]
-    public void Median_with_area_without_numeric_values_returns_error()
+    public void MedianWithAreaWithoutNumericValuesReturnsError()
     {
         IXLWorksheet ws = this.workbook.Worksheets.First();
 
@@ -713,7 +713,7 @@ public class StatisticalTests
     }
 
     [Test]
-    public void Median_EvenCountOfCellRange_ReturnsAverageOfTwoElementsInMiddleOfSortedList()
+    public void MedianEvenCountOfCellRangeReturnsAverageOfTwoElementsInMiddleOfSortedList()
     {
         //Arrange
         IXLWorksheet ws = this.workbook.Worksheets.First();
@@ -726,7 +726,7 @@ public class StatisticalTests
     }
 
     [Test]
-    public void Median_EvenCountOfManualNumbers_ReturnsAverageOfTwoElementsInMiddleOfSortedList()
+    public void MedianEvenCountOfManualNumbersReturnsAverageOfTwoElementsInMiddleOfSortedList()
     {
         //Act
         double value = (double)this.workbook.Evaluate("MEDIAN(-27.5,93.93,64.51,-70.56)");
@@ -736,7 +736,7 @@ public class StatisticalTests
     }
 
     [Test]
-    public void Median_OddCountOfCellRange_ReturnsElementInMiddleOfSortedList()
+    public void MedianOddCountOfCellRangeReturnsElementInMiddleOfSortedList()
     {
         //Arrange
         IXLWorksheet ws = this.workbook.Worksheets.First();
@@ -749,7 +749,7 @@ public class StatisticalTests
     }
 
     [Test]
-    public void Median_OddCountOfManualNumbers_ReturnsElementInMiddleOfSortedList()
+    public void MedianOddCountOfManualNumbersReturnsElementInMiddleOfSortedList()
     {
         //Act
         double value = (double)this.workbook.Evaluate("MEDIAN(-27.5,93.93,64.51,-70.56,101.65)");
@@ -759,7 +759,7 @@ public class StatisticalTests
     }
 
     [Test]
-    public void Median_uses_only_numbers()
+    public void MedianUsesOnlyNumbers()
     {
         XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -1014,7 +1014,7 @@ public class StatisticalTests
     [TestCase(@"=SUMIF(A1:A10, 43831, A1:A10)", 43831)]
     [TestCase(@"=SUMIF(A1:A10, DATE(2020, 1, 1), A1:A10)", 43831)]
     [TestCase(@"=SUMIF(A1:A10, TRUE, A1:A10)", 0)]
-    public void SumIf_MixedData(string formula, double expected)
+    public void SumIfMixedData(string formula, double expected)
     {
         // We follow to Excel's convention.
         // Excel treats 1 and TRUE as unequal, but 3 and "3" as equal
@@ -1024,7 +1024,7 @@ public class StatisticalTests
     }
 
     [Test]
-    public void SumIf_specification_examples()
+    public void SumIfSpecificationExamples()
     {
         // Test examples from specification.
         using XLWorkbook wb = new();

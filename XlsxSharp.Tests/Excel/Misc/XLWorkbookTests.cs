@@ -160,7 +160,7 @@ public class XLWorkbookTests
     }
 
     [Test]
-    public void Non_existent_defined_name_returns_null()
+    public void NonExistentDefinedNameReturnsNull()
     {
         XLWorkbook wb = new();
         IXLDefinedName? definedName = wb.DefinedName("ABC");
@@ -168,7 +168,7 @@ public class XLWorkbookTests
     }
 
     [Test]
-    public void Sheet_specified_defined_name_is_retrieved_from_sheet_if_defined_there()
+    public void SheetSpecifiedDefinedNameIsRetrievedFromSheetIfDefinedThere()
     {
         XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet("Sheet1");
@@ -181,7 +181,7 @@ public class XLWorkbookTests
     }
 
     [Test]
-    public void Sheet_specified_defined_name_returns_null_if_not_defined_in_sheet_nor_workbook()
+    public void SheetSpecifiedDefinedNameReturnsNullIfNotDefinedInSheetNorWorkbook()
     {
         XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet("Sheet1");
@@ -190,7 +190,7 @@ public class XLWorkbookTests
     }
 
     [Test]
-    public void Sheet_specified_defined_name_falls_back_to_workbook_scoped_defined_name_if_not_defined_in_sheet()
+    public void SheetSpecifiedDefinedNameFallsBackToWorkbookScopedDefinedNameIfNotDefinedInSheet()
     {
         XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet("Sheet1");

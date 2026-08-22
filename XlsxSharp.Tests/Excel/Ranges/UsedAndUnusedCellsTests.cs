@@ -407,7 +407,7 @@ public class UsedAndUnusedCellsTests
     }
 
     [Test]
-    public void Normal_format_considers_cell_used_when_it_has_format_different_from_inherited_format()
+    public void NormalFormatConsidersCellUsedWhenItHasFormatDifferentFromInheritedFormat()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();

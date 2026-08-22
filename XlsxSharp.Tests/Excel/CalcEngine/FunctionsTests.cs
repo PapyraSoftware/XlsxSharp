@@ -49,7 +49,7 @@ public class FunctionsTests
     }
 
     [Test]
-    public void Exact_converts_values_to_text()
+    public void ExactConvertsValuesToText()
     {
         Assert.AreEqual(false, XLWorkbook.EvaluateExpr("EXACT(TRUE, \"true\")"));
         Assert.AreEqual(true, XLWorkbook.EvaluateExpr("EXACT(TRUE, \"TRUE\")"));
@@ -63,7 +63,7 @@ public class FunctionsTests
     }
 
     [Test]
-    public void Exact_propagates_errors()
+    public void ExactPropagatesErrors()
     {
         Assert.AreEqual(XLError.DivisionByZero, XLWorkbook.EvaluateExpr("EXACT(#DIV/0!, \"A\")"));
         Assert.AreEqual(XLError.DivisionByZero, XLWorkbook.EvaluateExpr("EXACT(\"A\", #DIV/0!)"));
@@ -85,7 +85,7 @@ public class FunctionsTests
     }
 
     [Test]
-    public void Formula_from_another_sheet()
+    public void FormulaFromAnotherSheet()
     {
         XLWorkbook wb = new();
         IXLWorksheet ws1 = wb.AddWorksheet("ws1");
@@ -203,7 +203,7 @@ public class FunctionsTests
     }
 
     [Test]
-    public void Cell_function_is_evaluated_to_reference_error()
+    public void CellFunctionIsEvaluatedToReferenceError()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -281,7 +281,7 @@ public class FunctionsTests
     [TestCase("T({100})", "Text.T")]
     [TestCase("TEXTJOIN(\"-\",TRUE,\"A\",\"B\")", "Text.TextJoin")]
     [TestCase("TRIM(\"ABC\")", "Text.Trim")]
-    public void Can_cancel_function_execution(string formula, string expectedStackTrace)
+    public void CanCancelFunctionExecution(string formula, string expectedStackTrace)
     {
         CancellationTokenSource cts = new();
         using XLWorkbook wb = new(new LoadOptions { CancellationToken = cts.Token });

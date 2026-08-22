@@ -7,7 +7,7 @@ namespace XlsxSharp.Tests.Excel.Coordinates;
 public class XLSheetAreaTests
 {
     [Test]
-    public void Sheet_name_is_compared_case_insensitive()
+    public void SheetNameIsComparedCaseInsensitive()
     {
         SheetArea upperCase = new("NAME", new Area(1, 2, 3, 4));
         SheetArea lowerCase = new("name", new Area(1, 2, 3, 4));
@@ -16,7 +16,7 @@ public class XLSheetAreaTests
     }
 
     [Test]
-    public void Intersection_produces_range_intersection_in_same_sheet()
+    public void IntersectionProducesRangeIntersectionInSameSheet()
     {
         SheetArea sheetArea1 = new("SHEET", Area.Parse("A1:C3"));
         SheetArea sheetArea2 = new("sheet", Area.Parse("B2:D4"));

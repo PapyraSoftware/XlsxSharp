@@ -13,7 +13,7 @@ namespace XlsxSharp.Tests.Excel.AutoFilters;
 public class CustomFilterTests
 {
     [Test]
-    public void EqualOrLessThan_with_logical_compares_against_values_of_same_type()
+    public void EqualOrLessThanWithLogicalComparesAgainstValuesOfSameType()
     {
         new AutoFilterTester(f => f.EqualOrLessThan(true))
             .AddTrue(false, true)
@@ -22,7 +22,7 @@ public class CustomFilterTests
     }
 
     [Test]
-    public void EqualOrLessThan_with_number_compares_against_values_of_same_type()
+    public void EqualOrLessThanWithNumberComparesAgainstValuesOfSameType()
     {
         WithOneAndOtherTypes(f => f.EqualOrLessThan(1))
             .Add(0.9, true)
@@ -31,7 +31,7 @@ public class CustomFilterTests
     }
 
     [Test]
-    public void EqualOrLessThan_with_text_compares_against_values_of_same_type()
+    public void EqualOrLessThanWithTextComparesAgainstValuesOfSameType()
     {
         new AutoFilterTester(f => f.EqualOrLessThan("b"))
             .AddTrue("", "A", "b", "B")
@@ -40,7 +40,7 @@ public class CustomFilterTests
     }
 
     [Test]
-    public void EqualOrLessThan_with_error_compares_against_numeric_types_of_error()
+    public void EqualOrLessThanWithErrorComparesAgainstNumericTypesOfError()
     {
         new AutoFilterTester(f => f.EqualOrLessThan(XLError.CellReference))
             .AddTrue(XLError.NullValue, XLError.IncompatibleValue, XLError.CellReference)
@@ -49,7 +49,7 @@ public class CustomFilterTests
     }
 
     [Test]
-    public void LessThan_with_logical_compares_against_values_of_same_type()
+    public void LessThanWithLogicalComparesAgainstValuesOfSameType()
     {
         new AutoFilterTester(f => f.LessThan(true))
             .AddTrue(false)
@@ -58,13 +58,13 @@ public class CustomFilterTests
     }
 
     [Test]
-    public void LessThan_with_number_compares_against_values_of_same_type()
+    public void LessThanWithNumberComparesAgainstValuesOfSameType()
     {
         WithOneAndOtherTypes(f => f.LessThan(2)).Add(1.1, true).Add(2, false).AssertVisibility();
     }
 
     [Test]
-    public void LessThan_with_text_compares_against_values_of_same_type()
+    public void LessThanWithTextComparesAgainstValuesOfSameType()
     {
         new AutoFilterTester(f => f.LessThan("b"))
             .AddTrue("", "A")
@@ -73,7 +73,7 @@ public class CustomFilterTests
     }
 
     [Test]
-    public void LessThan_with_error_compares_against_numeric_types_of_error()
+    public void LessThanWithErrorComparesAgainstNumericTypesOfError()
     {
         new AutoFilterTester(f => f.LessThan(XLError.CellReference))
             .AddTrue(XLError.NullValue, XLError.IncompatibleValue)
@@ -92,7 +92,7 @@ public class CustomFilterTests
     }
 
     [Test]
-    public void GreaterThan_with_logical_compares_against_values_of_same_type()
+    public void GreaterThanWithLogicalComparesAgainstValuesOfSameType()
     {
         new AutoFilterTester(f => f.GreaterThan(false))
             .AddTrue(true)
@@ -101,7 +101,7 @@ public class CustomFilterTests
     }
 
     [Test]
-    public void GreaterThan_with_number_compares_against_values_of_same_type()
+    public void GreaterThanWithNumberComparesAgainstValuesOfSameType()
     {
         WithOneAndOtherTypes(f => f.GreaterThan(0))
             .Add(0.1, true)
@@ -110,7 +110,7 @@ public class CustomFilterTests
     }
 
     [Test]
-    public void GreaterThan_with_text_compares_against_values_of_same_type()
+    public void GreaterThanWithTextComparesAgainstValuesOfSameType()
     {
         new AutoFilterTester(f => f.GreaterThan("b"))
             .AddTrue("C", "c")
@@ -119,7 +119,7 @@ public class CustomFilterTests
     }
 
     [Test]
-    public void GreaterThan_with_error_compares_against_numeric_types_of_error()
+    public void GreaterThanWithErrorComparesAgainstNumericTypesOfError()
     {
         new AutoFilterTester(f => f.GreaterThan(XLError.CellReference))
             .AddTrue(XLError.NameNotRecognized, XLError.NumberInvalid, XLError.NoValueAvailable)
@@ -139,7 +139,7 @@ public class CustomFilterTests
     }
 
     [Test]
-    public void EqualOrGreaterThan_with_logical_compares_against_values_of_same_type()
+    public void EqualOrGreaterThanWithLogicalComparesAgainstValuesOfSameType()
     {
         new AutoFilterTester(f => f.EqualOrGreaterThan(false))
             .AddTrue(false, true)
@@ -148,7 +148,7 @@ public class CustomFilterTests
     }
 
     [Test]
-    public void EqualOrGreaterThan_with_number_compares_against_values_of_same_type()
+    public void EqualOrGreaterThanWithNumberComparesAgainstValuesOfSameType()
     {
         WithOneAndOtherTypes(f => f.EqualOrGreaterThan(1))
             .Add(0.9, false)
@@ -157,7 +157,7 @@ public class CustomFilterTests
     }
 
     [Test]
-    public void EqualOrGreaterThan_with_text_compares_against_values_of_same_type()
+    public void EqualOrGreaterThanWithTextComparesAgainstValuesOfSameType()
     {
         new AutoFilterTester(f => f.EqualOrGreaterThan("b"))
             .AddTrue("b", "B", "Ba", "C", "c")
@@ -166,7 +166,7 @@ public class CustomFilterTests
     }
 
     [Test]
-    public void EqualOrGreaterThan_with_error_compares_against_numeric_types_of_error()
+    public void EqualOrGreaterThanWithErrorComparesAgainstNumericTypesOfError()
     {
         new AutoFilterTester(f => f.EqualOrGreaterThan(XLError.CellReference))
             .AddTrue(
@@ -190,7 +190,7 @@ public class CustomFilterTests
     }
 
     [Test]
-    public void Equal_uses_wildcard_matching_for_patterns_against_text_only()
+    public void EqualUsesWildcardMatchingForPatternsAgainstTextOnly()
     {
         new AutoFilterTester(f => f.EqualTo("1*0"))
             .AddTrue("1.0", "1 and 0")
@@ -202,7 +202,7 @@ public class CustomFilterTests
 
     [Test]
     [SetCulture("cs-CZ")]
-    public void Equal_uses_format_string_matching_for_filter_values_that_look_like_non_patterns()
+    public void EqualUsesFormatStringMatchingForFilterValuesThatLookLikeNonPatterns()
     {
         // Note the ',' separator that is used detect number. Excel doesn't use invariant culture.
         new AutoFilterTester(f => f.EqualTo("1,00"))
@@ -215,7 +215,7 @@ public class CustomFilterTests
 
     [Test]
     [SetCulture("cs-CZ")]
-    public void NotEqual_matches_detected_type_and_value_of_filter_value_for_non_text_data_types()
+    public void NotEqualMatchesDetectedTypeAndValueOfFilterValueForNonTextDataTypes()
     {
         // 1,00 is detected as a type number with value 1.
         new AutoFilterTester(f => f.NotEqualTo("1,00"))
@@ -229,7 +229,7 @@ public class CustomFilterTests
 
     [Test]
     [SetCulture("cs-CZ")]
-    public void NotEqual_for_detected_wildcard_matches_only_texts()
+    public void NotEqualForDetectedWildcardMatchesOnlyTexts()
     {
         // NotEqual with text pattern must have text type.
         new AutoFilterTester(f => f.NotEqualTo("1*0"))

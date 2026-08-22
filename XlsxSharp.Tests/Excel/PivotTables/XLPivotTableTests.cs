@@ -909,7 +909,7 @@ public class XLPivotTableTests
     }
 
     [Test]
-    public void Add_all_pivot_tables_for_same_range_use_same_pivot_cache()
+    public void AddAllPivotTablesForSameRangeUseSamePivotCache()
     {
         // Two different pivot tables created from same range use same pivot cache
         // and don't create a separate pivot cache for each pivot table.
@@ -925,7 +925,7 @@ public class XLPivotTableTests
     }
 
     [Test]
-    public void Add_all_pivot_tables_for_same_table_use_same_pivot_cache()
+    public void AddAllPivotTablesForSameTableUseSamePivotCache()
     {
         // Two different pivot tables created from same table use same pivot cache
         // and don't create a separate pivot cache for each pivot table.
@@ -942,7 +942,7 @@ public class XLPivotTableTests
     }
 
     [Test]
-    public void Add_pivot_tables_will_use_table_as_source_if_range_matches_table_area()
+    public void AddPivotTablesWillUseTableAsSourceIfRangeMatchesTableArea()
     {
         // When a pivot table is created, the `Add` method tries to first
         // find a table with same area as the requested range. If it finds one,
@@ -964,7 +964,7 @@ public class XLPivotTableTests
     }
 
     [Test]
-    public void Load_and_save_pivot_table_with_cache_records_but_missing_source_data()
+    public void LoadAndSavePivotTableWithCacheRecordsButMissingSourceData()
     {
         // Test file contains a pivot table created from a normal table in
         // a sheet that was already deleted. The file contains cache records,
@@ -983,7 +983,7 @@ public class XLPivotTableTests
     }
 
     [Test]
-    public void Skips_chartsheets_during_pivot_table_loading()
+    public void SkipsChartsheetsDuringPivotTableLoading()
     {
         // Pivot table loading code looks for pivot tables on each sheet, but it shouldn't
         // crash when sheet is a chartsheet or other type of sheet. The referenced test file
@@ -1003,7 +1003,7 @@ public class XLPivotTableTests
     #region TargetCell
 
     [Test]
-    public void Property_TargetCell_sets_value_of_the_top_left_corner_of_pivot_table()
+    public void PropertyTargetCellSetsValueOfTheTopLeftCornerOfPivotTable()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -1033,7 +1033,7 @@ public class XLPivotTableTests
 
     [TestCase(XLFilterAreaOrder.DownThenOver, "E5")]
     [TestCase(XLFilterAreaOrder.OverThenDown, "E3")]
-    public void Property_FilterAreaOrder_determines_direction_in_which_are_filter_fields_laid_out(
+    public void PropertyFilterAreaOrderDeterminesDirectionInWhichAreFilterFieldsLaidOut(
         XLFilterAreaOrder order,
         string tableAddress
     )
@@ -1077,7 +1077,7 @@ public class XLPivotTableTests
         XLPivotLayout.Compact,
         "Property_layout_sets_layout_of_pivot_table_and_all_fields-compact.xlsx"
     )]
-    public void Property_layout_sets_layout_of_pivot_table_and_all_fields(
+    public void PropertyLayoutSetsLayoutOfPivotTableAndAllFields(
         XLPivotLayout layout,
         string testFile
     )

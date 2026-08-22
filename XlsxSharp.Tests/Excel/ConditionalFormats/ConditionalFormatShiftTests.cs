@@ -179,7 +179,7 @@ public class ConditionalFormatShiftTests
     }
 
     [TestCaseSource(nameof(GetSplitTestCases))]
-    public void Conditional_formats_can_split_when_inserted_or_deleted_doesnt_shift_whole_cf_area(
+    public void ConditionalFormatsCanSplitWhenInsertedOrDeletedDoesntShiftWholeCfArea(
         string initialCfArea,
         Action<IXLWorksheet> shiftAction,
         string shiftedCfArea
@@ -198,7 +198,7 @@ public class ConditionalFormatShiftTests
     }
 
     [TestCaseSource(nameof(GetFormulaShiftTestCases))]
-    public void Conditional_format_shifts_formulas(
+    public void ConditionalFormatShiftsFormulas(
         string cfArea,
         string formula,
         Action<IXLWorksheet> shiftAction,
@@ -218,7 +218,7 @@ public class ConditionalFormatShiftTests
     }
 
     [Test]
-    public void Conditional_format_shifts_formula_only_if_formula_cells_are_affected_by_shift()
+    public void ConditionalFormatShiftsFormulaOnlyIfFormulaCellsAreAffectedByShift()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -234,9 +234,7 @@ public class ConditionalFormatShiftTests
 
     [TestCase("A1")]
     [TestCase("Sheet!A1")]
-    public void Conditional_format_does_not_shift_values_that_look_like_formulas(
-        string formulaLookAlike
-    )
+    public void ConditionalFormatDoesNotShiftValuesThatLookLikeFormulas(string formulaLookAlike)
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet("Sheet");
@@ -254,7 +252,7 @@ public class ConditionalFormatShiftTests
     }
 
     [Test]
-    public void Conditional_format_formula_referencing_another_sheet_is_updated_when_another_sheet_is_modified()
+    public void ConditionalFormatFormulaReferencingAnotherSheetIsUpdatedWhenAnotherSheetIsModified()
     {
         using XLWorkbook wb = new();
         IXLWorksheet sheet = wb.AddWorksheet("Sheet");

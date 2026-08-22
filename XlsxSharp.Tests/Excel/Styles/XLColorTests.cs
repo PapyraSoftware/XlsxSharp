@@ -27,7 +27,7 @@ public class XLColorTests
     }
 
     [TestCaseSource(nameof(VmlColors))]
-    public void FromVmlColor_converts_hexadecimal_colors(string colorText, Color expectedColor)
+    public void FromVmlColorConvertsHexadecimalColors(string colorText, Color expectedColor)
     {
         XLColor color = XLColor.FromVmlColor(colorText);
 

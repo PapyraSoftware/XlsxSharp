@@ -175,7 +175,7 @@ public class CopyingRangesTests
     }
 
     [Test]
-    public void Copy_cell_format_with_some_components_already_used_in_target_workbook()
+    public void CopyCellFormatWithSomeComponentsAlreadyUsedInTargetWorkbook()
     {
         // Each workbook contains all used formats and their components. Each format in a workbook
         // must reference only registered instances from the workbook. When a format is copied

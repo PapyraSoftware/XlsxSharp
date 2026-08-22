@@ -211,7 +211,7 @@ public class CommentsTests
     }
 
     [Test]
-    public void Margins_are_converted_to_physical_length()
+    public void MarginsAreConvertedToPhysicalLength()
     {
         // Technically, it's insets on a textbox. Each comment uses a different unit, but all
         // should have same final dimension at left and top margin (easily visible in the

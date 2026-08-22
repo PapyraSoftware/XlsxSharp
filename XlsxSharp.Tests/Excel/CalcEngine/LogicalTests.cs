@@ -9,7 +9,7 @@ namespace XlsxSharp.Tests.Excel.CalcEngine;
 public class LogicalTests
 {
     [Test]
-    public void And_IsLogicalConjunction()
+    public void AndIsLogicalConjunction()
     {
         Assert.AreEqual(true, XLWorkbook.EvaluateExpr("AND(TRUE)"));
         Assert.AreEqual(true, XLWorkbook.EvaluateExpr("AND(TRUE, TRUE)"));
@@ -25,7 +25,7 @@ public class LogicalTests
     [TestCase("A1")]
     [TestCase("A1:A5")]
     [TestCase("(A1:A5,B1:B5)")]
-    public void And_NoCollectionValues_Error(string range)
+    public void AndNoCollectionValuesError(string range)
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -33,7 +33,7 @@ public class LogicalTests
     }
 
     [Test]
-    public void And_ScalarArgumentsCoercedFromBlankOrTextOrNumber()
+    public void AndScalarArgumentsCoercedFromBlankOrTextOrNumber()
     {
         // Blank evaluated to false
         Assert.AreEqual(false, XLWorkbook.EvaluateExpr("AND(IF(TRUE,,))"));
@@ -48,13 +48,13 @@ public class LogicalTests
     }
 
     [Test]
-    public void And_UnconvertableScalarArgumentsSkipped()
+    public void AndUnconvertableScalarArgumentsSkipped()
     {
         Assert.AreEqual(true, XLWorkbook.EvaluateExpr("AND(TRUE,\"z\")"));
     }
 
     [Test]
-    public void And_OnlyLogicalOrNumberElementsOfCollectionUsed()
+    public void AndOnlyLogicalOrNumberElementsOfCollectionUsed()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -76,35 +76,35 @@ public class LogicalTests
     }
 
     [Test]
-    public void If_2_Params_true()
+    public void If2ParamsTrue()
     {
         Object actual = XLWorkbook.EvaluateExpr(@"if(1 = 1, ""T"")");
         Assert.AreEqual("T", actual);
     }
 
     [Test]
-    public void If_2_Params_false()
+    public void If2ParamsFalse()
     {
         Object actual = XLWorkbook.EvaluateExpr(@"if(1 = 2, ""T"")");
         Assert.AreEqual(false, actual);
     }
 
     [Test]
-    public void If_3_Params_true()
+    public void If3ParamsTrue()
     {
         Object actual = XLWorkbook.EvaluateExpr(@"if(1 = 1, ""T"", ""F"")");
         Assert.AreEqual("T", actual);
     }
 
     [Test]
-    public void If_3_Params_false()
+    public void If3ParamsFalse()
     {
         Object actual = XLWorkbook.EvaluateExpr(@"if(1 = 2, ""T"", ""F"")");
         Assert.AreEqual("F", actual);
     }
 
     [Test]
-    public void If_Comparing_Against_Empty_String()
+    public void IfComparingAgainstEmptyString()
     {
         Object actual;
         actual = XLWorkbook.EvaluateExpr(@"if(date(2016, 1, 1) = """", ""A"",""B"")");
@@ -121,7 +121,7 @@ public class LogicalTests
     }
 
     [Test]
-    public void If_Case_Insensitivity()
+    public void IfCaseInsensitivity()
     {
         Object actual;
         actual = XLWorkbook.EvaluateExpr(@"IF(""text""=""TEXT"", 1, 2)");
@@ -129,7 +129,7 @@ public class LogicalTests
     }
 
     [Test]
-    public void If_CanReturnReference()
+    public void IfCanReturnReference()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -138,7 +138,7 @@ public class LogicalTests
     }
 
     [Test]
-    public void If_has_scalar_condition_and_range_values()
+    public void IfHasScalarConditionAndRangeValues()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -158,13 +158,13 @@ public class LogicalTests
     }
 
     [Test]
-    public void If_ConditionError_ReturnError()
+    public void IfConditionErrorReturnError()
     {
         Assert.AreEqual(XLError.DivisionByZero, XLWorkbook.EvaluateExpr(@"IF(1/0, ""T"", ""F"")"));
     }
 
     [Test]
-    public void If_ConditionCoercedToLogical()
+    public void IfConditionCoercedToLogical()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -179,14 +179,14 @@ public class LogicalTests
     }
 
     [Test]
-    public void If_MissingValues_ReturnBlank()
+    public void IfMissingValuesReturnBlank()
     {
         Assert.AreEqual(true, XLWorkbook.EvaluateExpr(@"ISBLANK(IF(TRUE,,))"));
         Assert.AreEqual(true, XLWorkbook.EvaluateExpr(@"ISBLANK(IF(FALSE,,))"));
     }
 
     [Test]
-    public void IfError_FirstArgumentNonError_ReturnFirstArgument()
+    public void IfErrorFirstArgumentNonErrorReturnFirstArgument()
     {
         Assert.AreEqual(true, XLWorkbook.EvaluateExpr("ISBLANK(IFERROR(IF(TRUE,), 5))"));
 
@@ -201,7 +201,7 @@ public class LogicalTests
     }
 
     [Test]
-    public void IfError_FirstArgumentError_ReturnSecondArgument()
+    public void IfErrorFirstArgumentErrorReturnSecondArgument()
     {
         Assert.AreEqual("text", XLWorkbook.EvaluateExpr("IFERROR(1/0, \"text\")"));
 
@@ -214,7 +214,7 @@ public class LogicalTests
     }
 
     [Test]
-    public void IfError_ReferenceNeverReturned()
+    public void IfErrorReferenceNeverReturned()
     {
         // Unlike IF, IFERROR doesn't return reference
         using XLWorkbook wb = new();
@@ -236,7 +236,7 @@ public class LogicalTests
     }
 
     [Test]
-    public void Or_IsLogicalDisjunction()
+    public void OrIsLogicalDisjunction()
     {
         Assert.AreEqual(true, XLWorkbook.EvaluateExpr("OR(TRUE)"));
         Assert.AreEqual(true, XLWorkbook.EvaluateExpr("OR(TRUE, TRUE)"));
@@ -252,7 +252,7 @@ public class LogicalTests
     [TestCase("A1")]
     [TestCase("A1:A5")]
     [TestCase("(A1:A5,B1:B5)")]
-    public void Or_NoCollectionValues_Error(string range)
+    public void OrNoCollectionValuesError(string range)
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -260,7 +260,7 @@ public class LogicalTests
     }
 
     [Test]
-    public void Or_ScalarArgumentsCoercedFromBlankOrTextOrNumber()
+    public void OrScalarArgumentsCoercedFromBlankOrTextOrNumber()
     {
         // Blank evaluated to false
         Assert.AreEqual(false, XLWorkbook.EvaluateExpr("OR(IF(TRUE,,))"));
@@ -275,13 +275,13 @@ public class LogicalTests
     }
 
     [Test]
-    public void Or_UnconvertableScalarArgumentsSkipped()
+    public void OrUnconvertableScalarArgumentsSkipped()
     {
         Assert.AreEqual(true, XLWorkbook.EvaluateExpr("OR(TRUE,\"z\")"));
     }
 
     [Test]
-    public void Or_OnlyLogicalOrNumberElementsOfCollectionUsed()
+    public void OrOnlyLogicalOrNumberElementsOfCollectionUsed()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();

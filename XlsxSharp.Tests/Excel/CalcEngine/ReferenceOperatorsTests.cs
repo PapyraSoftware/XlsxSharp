@@ -10,7 +10,7 @@ public class ReferenceOperatorsTests
     #region Implicit intersection
 
     [Test]
-    public void ImplicitIntersection_DoesNotAffectSingleCellReference()
+    public void ImplicitIntersectionDoesNotAffectSingleCellReference()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -21,7 +21,7 @@ public class ReferenceOperatorsTests
     }
 
     [Test]
-    public void ImplicitIntersection_TakesReferenceFromHorizontalLine()
+    public void ImplicitIntersectionTakesReferenceFromHorizontalLine()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -32,7 +32,7 @@ public class ReferenceOperatorsTests
     }
 
     [Test]
-    public void ImplicitIntersection_TakesReferenceFromVerticalLine()
+    public void ImplicitIntersectionTakesReferenceFromVerticalLine()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -43,7 +43,7 @@ public class ReferenceOperatorsTests
     }
 
     [Test]
-    public void ImplicitIntersection_TakesReferenceEvenFromIntersectionEvenFromDifferentSheet()
+    public void ImplicitIntersectionTakesReferenceEvenFromIntersectionEvenFromDifferentSheet()
     {
         using XLWorkbook wb = new();
         IXLWorksheet sheet1 = wb.AddWorksheet("Sheet1");
@@ -56,7 +56,7 @@ public class ReferenceOperatorsTests
     }
 
     [Test]
-    public void ImplicitIntersection_WithoutIntersectionResultsInValueError()
+    public void ImplicitIntersectionWithoutIntersectionResultsInValueError()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -67,7 +67,7 @@ public class ReferenceOperatorsTests
     }
 
     [Test]
-    public void ImplicitIntersection_CanWorkOnlyWithOneArea()
+    public void ImplicitIntersectionCanWorkOnlyWithOneArea()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -78,7 +78,7 @@ public class ReferenceOperatorsTests
     }
 
     [Test]
-    public void ImplicitIntersection_IntersectionMustHaveSpanOfOneCell()
+    public void ImplicitIntersectionIntersectionMustHaveSpanOfOneCell()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -107,7 +107,7 @@ public class ReferenceOperatorsTests
     [TestCase("Sheet1!B2:C5:Sheet1!D3", 12)]
     [TestCase("(Sheet1!A1,A5):B5", 10)]
     [TestCase("B5:(Sheet1!A1,A5)", 10)]
-    public void Range_UnifiesReferencesIntoSingleAreas(
+    public void RangeUnifiesReferencesIntoSingleAreas(
         string referenceFormula,
         int expectedCellCount
     )
@@ -123,7 +123,7 @@ public class ReferenceOperatorsTests
     [TestCase("Sheet1!A1:C5")]
     [TestCase("Sheet1!A1:B3:C5")]
     [TestCase("Sheet1!A1:B3:C4:Sheet1!B5:C5")]
-    public void Range_LeftSideDeterminesSheetIfRightOmitted(string formula)
+    public void RangeLeftSideDeterminesSheetIfRightOmitted(string formula)
     {
         using XLWorkbook wb = new();
         IXLWorksheet firstSheet = wb.AddWorksheet("Sheet1");
@@ -141,7 +141,7 @@ public class ReferenceOperatorsTests
     [TestCase("(Other!A1,A5):Other!B2")] // A5 is taken from current worksheet since multiple areas on lhs
     [TestCase("(Current!A1):Other!B2")]
     // [TestCase("Other!A5:(B5)")] This causes #VALUE! in Excel, but it shouldn't. It's likely there is a "Fast parser for simple sheet areas" and "Full path" for complicated operands and they behave inconsistenly
-    public void Range_UnificationAcrossSheetsResultsInValueError(string referenceFormula)
+    public void RangeUnificationAcrossSheetsResultsInValueError(string referenceFormula)
     {
         using XLWorkbook wb = new();
         IXLWorksheet formulaSheet = wb.AddWorksheet("Current");
@@ -157,7 +157,7 @@ public class ReferenceOperatorsTests
     [TestCase("IF(TRUE,1,):A1")]
     [TestCase("IF(TRUE,\"text\"):A1")]
     [TestCase("IF(TRUE,FALSE):A1")]
-    public void Range_OnlyReferencesCanBeRange(string referenceFormula)
+    public void RangeOnlyReferencesCanBeRange(string referenceFormula)
     {
         using XLWorkbook wb = new();
         IXLWorksheet sheet = wb.AddWorksheet();
@@ -179,7 +179,7 @@ public class ReferenceOperatorsTests
     [TestCase("Current!A1:B3,Other!B1:C3", 66)]
     [TestCase("A1,Other!A1,Current!A1", 10 + 1 + 1)]
     [TestCase("A1:B2,Other!A1:B2,B2:C3,Other!E5:Other!F6", 4 + 40 + 4 + 40)]
-    public void Union_CanJoinAnyTwoRanges(string formula, int expectedSum)
+    public void UnionCanJoinAnyTwoRanges(string formula, int expectedSum)
     {
         using XLWorkbook wb = new();
         IXLWorksheet currentSheet = wb.AddWorksheet("Current");

@@ -21,14 +21,14 @@ public class DateAndTimeTests
     [TestCase(1900, 1, 1, ExpectedResult = 1)]
     [TestCase(1900, 1, 0, ExpectedResult = 0)] // Excel formats it as 1900-01-00, but more like 1899-12-31
     [TestCase(1899, 1, 1, ExpectedResult = 693598)] // If year < 1900, add 1900 to it
-    public double Date_returns_serial_date(int year, int month, int day)
+    public double DateReturnsSerialDate(int year, int month, int day)
     {
         return XLWorkbook.EvaluateExpr($"DATE({year},{month},{day})").GetNumber();
     }
 
     [TestCase(1900, 1, -1)] // Serial date -1, below 0
     [TestCase(9999, 12, 32)]
-    public void Date_returns_error_when_result_outside_base_date_to_max_date_of_calendar_system(
+    public void DateReturnsErrorWhenResultOutsideBaseDateToMaxDateOfCalendarSystem(
         int year,
         int month,
         int day
@@ -47,7 +47,7 @@ public class DateAndTimeTests
     [TestCase(2000, 2, -10, ExpectedResult = 36546)] // Day -10.1 behaves as -11
     [TestCase(2000, 2, -10.1, ExpectedResult = 36545)]
     [TestCase(2000, 2, -11, ExpectedResult = 36545)]
-    public double Date_floors_arguments(double year, double month, double day)
+    public double DateFloorsArguments(double year, double month, double day)
     {
         return XLWorkbook.EvaluateExpr($"DATE({year},{month},{day})").GetNumber();
     }
@@ -66,7 +66,7 @@ public class DateAndTimeTests
     [TestCase(10001, -32000, 1, "7333-04-01")]
     [TestCase(1E+100, -32000, 1, "7333-04-01")]
     [TestCase(-1E+100, 1, 1, XLError.NumberInvalid)] // Even if year is less than int.MinValue, there is no error
-    public void Date_matches_excel_behavior_for_out_of_range_arguments(
+    public void DateMatchesExcelBehaviorForOutOfRangeArguments(
         double year,
         double month,
         double day,
@@ -125,7 +125,7 @@ public class DateAndTimeTests
     }
 
     [TestCase("N")]
-    public void DateDif_returns_number_error_on_unexpected_unit(string unit)
+    public void DateDifReturnsNumberErrorOnUnexpectedUnit(string unit)
     {
         Assert.AreEqual(
             XLError.NumberInvalid,
@@ -134,7 +134,7 @@ public class DateAndTimeTests
     }
 
     [Test]
-    public void DateDif_end_date_cant_be_after_start_date()
+    public void DateDifEndDateCantBeAfterStartDate()
     {
         Assert.AreEqual(
             XLError.NumberInvalid,
@@ -144,10 +144,7 @@ public class DateAndTimeTests
 
     [TestCase(-0.1, 100)]
     [TestCase(1, 2958466)]
-    public void DateDif_returns_number_error_on_date_out_of_date_system(
-        decimal startDate,
-        decimal endDate
-    )
+    public void DateDifReturnsNumberErrorOnDateOutOfDateSystem(decimal startDate, decimal endDate)
     {
         Assert.AreEqual(
             XLError.NumberInvalid,
@@ -160,13 +157,13 @@ public class DateAndTimeTests
     [TestCase("2006-2-1", ExpectedResult = 38749)]
     [TestCase("22-MAY-2011", ExpectedResult = 40685)]
     [TestCase("February 1, 2006 17:45", ExpectedResult = 38749)]
-    public double DateValue_returns_truncated_serial_date_extracted_from_text(string date)
+    public double DateValueReturnsTruncatedSerialDateExtractedFromText(string date)
     {
         return (double)XLWorkbook.EvaluateExprCurrent($"DATEVALUE(\"{date}\")");
     }
 
     [Test]
-    public void DateValue_returns_truncated_serial_date_using_current_year()
+    public void DateValueReturnsTruncatedSerialDateUsingCurrentYear()
     {
         // If year isn't provided in string, it should parse as "current year"
         double actual = (double)XLWorkbook.EvaluateExpr("DATEVALUE(\"5-JUL\")");
@@ -176,7 +173,7 @@ public class DateAndTimeTests
 
     [TestCase("\"100\"")]
     [TestCase("\"0\"")]
-    public void DateValue_doesnt_coerce_number_in_a_text_to_a_date(string arg)
+    public void DateValueDoesntCoerceNumberInATextToADate(string arg)
     {
         Assert.AreEqual(
             XLError.IncompatibleValue,
@@ -188,7 +185,7 @@ public class DateAndTimeTests
     [TestCase("FALSE")]
     [TestCase("1000")]
     [TestCase("DATE(2006,1,5)")]
-    public void DateValue_returns_coercion_error_on_non_text(string arg)
+    public void DateValueReturnsCoercionErrorOnNonText(string arg)
     {
         Assert.AreEqual(
             XLError.IncompatibleValue,
@@ -197,7 +194,7 @@ public class DateAndTimeTests
     }
 
     [Test]
-    public void DateValue_propagates_error()
+    public void DateValuePropagatesError()
     {
         Assert.AreEqual(
             XLError.DivisionByZero,
@@ -215,7 +212,7 @@ public class DateAndTimeTests
     [TestCase(61, ExpectedResult = 1)]
     [TestCase(30000, ExpectedResult = 18)]
     [TestCase(45718, ExpectedResult = 2)]
-    public double Day_returns_day_of_a_month_for_serial_culture(double serialDate)
+    public double DayReturnsDayOfAMonthForSerialCulture(double serialDate)
     {
         return XLWorkbook.EvaluateExpr($"DAY({serialDate})").GetNumber();
     }
@@ -226,14 +223,14 @@ public class DateAndTimeTests
     [TestCase("IF(TRUE,)", ExpectedResult = 0)] // Blank
     [TestCase("TRUE", ExpectedResult = 1)]
     [TestCase("FALSE", ExpectedResult = 0)]
-    public double Day_accepts_non_number_values(string value)
+    public double DayAcceptsNonNumberValues(string value)
     {
         return XLWorkbook.EvaluateExpr($"DAY({value})").GetNumber();
     }
 
     [Test]
     [Ignore("Excel accepts this but XlsxSharp does not yet")]
-    public void Day_accepts_missing_year_and_substitutes_current_year()
+    public void DayAcceptsMissingYearAndSubstitutesCurrentYear()
     {
         // Test providing just month and day, which should fill the year as "current year"
         double actual = XLWorkbook.EvaluateExpr("DAY(\"8/22\")").GetNumber();
@@ -241,7 +238,7 @@ public class DateAndTimeTests
     }
 
     [Test]
-    public void Day_only_accepts_serial_date_from_0_to_upper_limit_of_calendar_system()
+    public void DayOnlyAcceptsSerialDateFrom0ToUpperLimitOfCalendarSystem()
     {
         Assert.AreEqual(XLError.NumberInvalid, XLWorkbook.EvaluateExpr("DAY(-0.1)"));
         Assert.AreEqual(XLError.NumberInvalid, XLWorkbook.EvaluateExpr("DAY(DATE(9999,12,31)+1)"));
@@ -252,14 +249,14 @@ public class DateAndTimeTests
     [TestCase("DATE(2006,1,2)", ExpectedResult = 2)]
     [TestCase("DATE(2006,0,2)", ExpectedResult = 2)]
     [TestCase("DATE(2013,9,0)", ExpectedResult = 31)]
-    public double Day_examples(string date)
+    public double DayExamples(string date)
     {
         return XLWorkbook.EvaluateExprCurrent($"DAY({date})").GetNumber();
     }
 
     [TestCase(2016, 10, 1, 1992, 2, 29, ExpectedResult = 8981)]
     [TestCase(1901, 3, 10, 1900, 1, 26, ExpectedResult = 409)]
-    public double Days_calculate_difference_between_two_dates(
+    public double DaysCalculateDifferenceBetweenTwoDates(
         double endYear,
         double endMonth,
         double endDay,
@@ -277,19 +274,19 @@ public class DateAndTimeTests
     [TestCase("2016-10-01", "1992-02-29", ExpectedResult = 8981)]
     [TestCase("1901-03-10", "1900-01-26", ExpectedResult = 409)]
     [TestCase("1900-01-26", "1901-03-10", ExpectedResult = -409)]
-    public double Days_coerces_dates_to_number(string endDate, string startDate)
+    public double DaysCoercesDatesToNumber(string endDate, string startDate)
     {
         return (double)XLWorkbook.EvaluateExpr($"DAYS(\"{endDate}\",\"{startDate}\")");
     }
 
     [Test]
-    public void Days_truncates_passed_arguments()
+    public void DaysTruncatesPassedArguments()
     {
         Assert.AreEqual(9, XLWorkbook.EvaluateExpr("DAYS(10.6,1.9)"));
     }
 
     [Test]
-    public void Days_arguments_must_be_in_date_range()
+    public void DaysArgumentsMustBeInDateRange()
     {
         Assert.AreEqual(XLError.NumberInvalid, XLWorkbook.EvaluateExpr("DAYS(-0.1,1)"));
         Assert.AreEqual(XLError.NumberInvalid, XLWorkbook.EvaluateExpr("DAYS(2958466,1)"));
@@ -298,7 +295,7 @@ public class DateAndTimeTests
     }
 
     [Test]
-    public void Days360_uses_US_method_by_default()
+    public void Days360UsesUSMethodByDefault()
     {
         const string formulaFormat = "DAYS360(DATE(2002,2,3),DATE(2005,5,31){0})";
         XLCellValue defaultResult = XLWorkbook.EvaluateExpr(
@@ -312,14 +309,14 @@ public class DateAndTimeTests
     }
 
     [Test]
-    public void Days360_Europe1()
+    public void Days360Europe1()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr("DAYS360(\"1/1/2008\", \"3/31/2008\",TRUE)");
         Assert.AreEqual(89, actual);
     }
 
     [Test]
-    public void Days360_Europe2()
+    public void Days360Europe2()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr("DAYS360(\"3/31/2008\", \"1/1/2008\",TRUE)");
         Assert.AreEqual(-89, actual);
@@ -335,7 +332,7 @@ public class DateAndTimeTests
     [TestCase(2020, 5, 30, 2020, 4, 1, ExpectedResult = -59)]
     [TestCase(2020, 5, 30, 2020, 3, 31, ExpectedResult = -60)]
     [TestCase(2020, 5, 30, 2020, 3, 30, ExpectedResult = -60)]
-    public double Days360_US_method(
+    public double Days360USMethod(
         int startYear,
         int startMonth,
         int startDay,
@@ -366,7 +363,7 @@ public class DateAndTimeTests
     [TestCase(1900, 3, 1, 1900, 2, 28, ExpectedResult = -3)]
     [TestCase(1900, 3, 1, 1900, 2, 29, ExpectedResult = -2)]
     [TestCase(1900, 3, 1, 1900, 3, 1, ExpectedResult = 0)]
-    public double Days360_US_method_for_feb_29_1900(
+    public double Days360USMethodForFeb291900(
         int startYear,
         int startMonth,
         int startDay,
@@ -391,7 +388,7 @@ public class DateAndTimeTests
     [TestCase("1900-01-31", 2, "1900-03-31")]
     [TestCase("1983-07-31", -77, "1977-02-28")]
     [TestCase("2021-05-14", 35, "2024-04-14")]
-    public void EDate_returns_end_date_from_start_date_and_month_offset(
+    public void EDateReturnsEndDateFromStartDateAndMonthOffset(
         string startDate,
         double monthOffset,
         string expectedEndDate
@@ -402,7 +399,7 @@ public class DateAndTimeTests
     }
 
     [Test]
-    public void EDate_returns_number_error_for_non_date_values()
+    public void EDateReturnsNumberErrorForNonDateValues()
     {
         Assert.AreEqual(XLError.NumberInvalid, XLWorkbook.EvaluateExpr("EDATE(-0.1,0)"));
         Assert.AreEqual(XLError.NumberInvalid, XLWorkbook.EvaluateExpr("EDATE(2958466,0)"));
@@ -411,7 +408,7 @@ public class DateAndTimeTests
     [TestCase("1900-01-01", -1)]
     [TestCase("9999-07-10", 6)]
     [TestCase("9999-07-10", 1E+100)]
-    public void EDate_returns_number_error_when_end_date_is_out_of_date_system(
+    public void EDateReturnsNumberErrorWhenEndDateIsOutOfDateSystem(
         string startDate,
         double monthOffset
     )
@@ -435,7 +432,7 @@ public class DateAndTimeTests
     [TestCase(2004, 2, 29, 12, ExpectedResult = 38411)]
     [TestCase(2004, 2, 28, 12, ExpectedResult = 38411)]
     [TestCase(2004, 1, 15, -23, ExpectedResult = 37315)]
-    public double Eomonth_returns_end_of_month_from_start_date_plus_month_offset(
+    public double EomonthReturnsEndOfMonthFromStartDatePlusMonthOffset(
         int year,
         int month,
         int day,
@@ -446,13 +443,13 @@ public class DateAndTimeTests
     }
 
     [Test]
-    public void Eomonth_truncates_arguments()
+    public void EomonthTruncatesArguments()
     {
         Assert.AreEqual(59, XLWorkbook.EvaluateExpr("EOMONTH(60.1,0.9)"));
     }
 
     [Test]
-    public void Eomonth_start_date_must_be_in_date_values()
+    public void EomonthStartDateMustBeInDateValues()
     {
         Assert.AreEqual(XLError.NumberInvalid, XLWorkbook.EvaluateExpr("EOMONTH(-0.1,0)"));
         Assert.AreEqual(
@@ -463,7 +460,7 @@ public class DateAndTimeTests
 
     [TestCase("1900-01-01", -1)]
     [TestCase("9999-12-10", 1)]
-    public void Eomonth_returns_number_error_when_end_date_is_out_of_date_system(
+    public void EomonthReturnsNumberErrorWhenEndDateIsOutOfDateSystem(
         string startDate,
         double monthOffset
     )
@@ -499,13 +496,13 @@ public class DateAndTimeTests
     [TestCase("IF(TRUE,)", ExpectedResult = 0)] // Blank
     [TestCase("TRUE", ExpectedResult = 0)]
     [TestCase("FALSE", ExpectedResult = 0)]
-    public double Hour_returns_hour_of_serial_date(string dateArg)
+    public double HourReturnsHourOfSerialDate(string dateArg)
     {
         return XLWorkbook.EvaluateExprCurrent($"HOUR({dateArg})").GetNumber();
     }
 
     [Test]
-    public void Hour_accepts_only_serial_time_between_zero_and_upper_limit_of_date_system()
+    public void HourAcceptsOnlySerialTimeBetweenZeroAndUpperLimitOfDateSystem()
     {
         Assert.AreEqual(0, XLWorkbook.EvaluateExprCurrent("HOUR(0)"));
         Assert.AreEqual(XLError.NumberInvalid, XLWorkbook.EvaluateExprCurrent("HOUR(-0.1)"));
@@ -529,13 +526,13 @@ public class DateAndTimeTests
     [TestCase("IF(TRUE,)", ExpectedResult = 0)] // Blank
     [TestCase("TRUE", ExpectedResult = 0)]
     [TestCase("FALSE", ExpectedResult = 0)]
-    public double Minute_returns_minute_of_serial_date(string dateArg)
+    public double MinuteReturnsMinuteOfSerialDate(string dateArg)
     {
         return XLWorkbook.EvaluateExprCurrent($"MINUTE({dateArg})").GetNumber();
     }
 
     [Test]
-    public void Minute_accepts_only_serial_time_between_zero_and_upper_limit_of_date_system()
+    public void MinuteAcceptsOnlySerialTimeBetweenZeroAndUpperLimitOfDateSystem()
     {
         Assert.AreEqual(0, XLWorkbook.EvaluateExprCurrent("MINUTE(0)"));
         Assert.AreEqual(XLError.NumberInvalid, XLWorkbook.EvaluateExprCurrent("MINUTE(-0.1)"));
@@ -565,14 +562,14 @@ public class DateAndTimeTests
     [TestCase("IF(TRUE,)", ExpectedResult = 1)] // Blank
     [TestCase("TRUE", ExpectedResult = 1)]
     [TestCase("FALSE", ExpectedResult = 1)]
-    public double Month_returns_month_of_serial_date(object argument)
+    public double MonthReturnsMonthOfSerialDate(object argument)
     {
         return XLWorkbook.EvaluateExprCurrent($"MONTH({argument})").GetNumber();
     }
 
     [Test]
     [Ignore("Excel accepts this but XlsxSharp does not yet")]
-    public void Month_accepts_missing_year_and_substitutes_current_year()
+    public void MonthAcceptsMissingYearAndSubstitutesCurrentYear()
     {
         // Test providing just month and day, which should fill the year as "current year"
         double actual = XLWorkbook.EvaluateExpr("MONTH(\"8/22\")").GetNumber();
@@ -580,7 +577,7 @@ public class DateAndTimeTests
     }
 
     [Test]
-    public void Month_serial_date_must_be_between_zero_and_upper_limit_of_date_system()
+    public void MonthSerialDateMustBeBetweenZeroAndUpperLimitOfDateSystem()
     {
         Assert.AreEqual(XLError.NumberInvalid, XLWorkbook.EvaluateExpr("MONTH(-0.1)"));
         Assert.AreEqual(12, XLWorkbook.EvaluateExpr("MONTH(DATE(9999,12,31) + 0.9)"));
@@ -607,7 +604,7 @@ public class DateAndTimeTests
     }
 
     [Test]
-    public void NetWorkDays_with_holidays()
+    public void NetWorkDaysWithHolidays()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -655,7 +652,7 @@ public class DateAndTimeTests
     [TestCase("2024-09-29", "2024-10-17", 14)] // Sun-Thu
     [TestCase("2024-09-29", "2024-10-18", 15)] // Sun-Fri
     [TestCase("2024-09-29", "2024-10-19", 15)] // Sun-Sat
-    public void NetWorkDays_non_full_weeks_are_counted_correctly(
+    public void NetWorkDaysNonFullWeeksAreCountedCorrectly(
         string startDate,
         string endDate,
         int expected
@@ -669,7 +666,7 @@ public class DateAndTimeTests
 
     [Test]
     [Culture("en-US")]
-    public void NetWorkDays_with_end_date_earlier_than_start_date()
+    public void NetWorkDaysWithEndDateEarlierThanStartDate()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr("NETWORKDAYS(\"3/01/2009\", \"10/01/2008\")");
         Assert.AreEqual(-108, actual);
@@ -680,7 +677,7 @@ public class DateAndTimeTests
 
     [Test]
     [Culture("en-US")]
-    public void NetWorkDays_behavior()
+    public void NetWorkDaysBehavior()
     {
         using XLWorkbook wb = new();
         XLCellValue actual = wb.Evaluate(
@@ -756,13 +753,13 @@ public class DateAndTimeTests
     [TestCase("IF(TRUE,)", ExpectedResult = 0)] // Blank
     [TestCase("TRUE", ExpectedResult = 0)]
     [TestCase("FALSE", ExpectedResult = 0)]
-    public double Second_returns_second_of_serial_date(string dateArg)
+    public double SecondReturnsSecondOfSerialDate(string dateArg)
     {
         return XLWorkbook.EvaluateExprCurrent($"SECOND({dateArg})").GetNumber();
     }
 
     [Test]
-    public void Second_accepts_only_serial_time_between_zero_and_upper_limit_of_date_system()
+    public void SecondAcceptsOnlySerialTimeBetweenZeroAndUpperLimitOfDateSystem()
     {
         Assert.AreEqual(0, XLWorkbook.EvaluateExprCurrent("SECOND(0)"));
         Assert.AreEqual(XLError.NumberInvalid, XLWorkbook.EvaluateExprCurrent("SECOND(-0.1)"));
@@ -789,7 +786,7 @@ public class DateAndTimeTests
     [TestCase(0, 0, 60 * 60 * 3, ExpectedResult = 0.125)]
     [TestCase(120, 240, 347, ExpectedResult = 0.170682870370)]
     [DefaultFloatingPointTolerance(XLHelper.Epsilon)]
-    public double Time_returns_serial_date_time(double hour, double minute, double second)
+    public double TimeReturnsSerialDateTime(double hour, double minute, double second)
     {
         return (double)XLWorkbook.EvaluateExpr($"TIME({hour},{minute},{second})");
     }
@@ -800,11 +797,7 @@ public class DateAndTimeTests
     [TestCase(0, 32768, 0)]
     [TestCase(0, 0, -0.1)]
     [TestCase(0, 0, 32768)]
-    public void Time_components_must_be_in_zero_to_32767_interval(
-        double hour,
-        double minute,
-        double second
-    )
+    public void TimeComponentsMustBeInZeroTo32767Interval(double hour, double minute, double second)
     {
         Assert.AreEqual(
             XLError.NumberInvalid,
@@ -815,14 +808,14 @@ public class DateAndTimeTests
     [TestCase("2:24 AM", ExpectedResult = 0.1)]
     [TestCase("August 22, 2008 6:35 AM", ExpectedResult = 0.27430555555555558)]
     [DefaultFloatingPointTolerance(XLHelper.Epsilon)]
-    public double TimeValue_returns_time_component_of_serial_date_extracted_from_text(string time)
+    public double TimeValueReturnsTimeComponentOfSerialDateExtractedFromText(string time)
     {
         return (double)XLWorkbook.EvaluateExprCurrent($"TIMEVALUE(\"{time}\")");
     }
 
     [TestCase("\"10.5\"")]
     [TestCase("\"0\"")]
-    public void TimeValue_doesnt_coerce_number_in_a_text_to_a_time(string numberText)
+    public void TimeValueDoesntCoerceNumberInATextToATime(string numberText)
     {
         Assert.AreEqual(
             XLError.IncompatibleValue,
@@ -834,7 +827,7 @@ public class DateAndTimeTests
     [TestCase("FALSE")]
     [TestCase("0.25")]
     [TestCase("TIME(18,25,48)")]
-    public void TimeValue_returns_coercion_error_on_non_text(string nonText)
+    public void TimeValueReturnsCoercionErrorOnNonText(string nonText)
     {
         Assert.AreEqual(
             XLError.IncompatibleValue,
@@ -843,7 +836,7 @@ public class DateAndTimeTests
     }
 
     [Test]
-    public void TimeValue_propagates_error()
+    public void TimeValuePropagatesError()
     {
         Assert.AreEqual(
             XLError.DivisionByZero,
@@ -868,21 +861,21 @@ public class DateAndTimeTests
     [TestCase("\"2/14/2008\"", 15, 7)]
     [TestCase("\"2/14/2008\"", 16, 6)]
     [TestCase("\"2/14/2008\"", 17, 5)]
-    public void Weekday_calculates_week_day(string value, int flag, int expected)
+    public void WeekdayCalculatesWeekDay(string value, int flag, int expected)
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr($"WEEKDAY({value}, {flag})");
         Assert.AreEqual(expected, actual);
     }
 
     [Test]
-    public void Weekday_without_flag()
+    public void WeekdayWithoutFlag()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr("WEEKDAY(\"2/14/2008\")");
         Assert.AreEqual(5, actual);
     }
 
     [Test]
-    public void Weekday_behavior()
+    public void WeekdayBehavior()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -1008,7 +1001,7 @@ public class DateAndTimeTests
     [TestCase(21, 1969, 1, 1, ExpectedResult = 1)]
     [TestCase(21, 1969, 1, 5, ExpectedResult = 1)]
     [TestCase(21, 1969, 1, 6, ExpectedResult = 2)]
-    public double Weeknum_returns_week_number_for_date(
+    public double WeeknumReturnsWeekNumberForDate(
         double weekStartFlag,
         double year,
         double month,
@@ -1021,7 +1014,7 @@ public class DateAndTimeTests
     }
 
     [Test]
-    public void Weeknum_default_week_starts_on_sunday()
+    public void WeeknumDefaultWeekStartsOnSunday()
     {
         for (int day = 14; day <= 20; day++)
         {
@@ -1032,14 +1025,14 @@ public class DateAndTimeTests
     }
 
     [TestCase]
-    public void Weeknum_match_excel_behavior_and_returns_zero_for_serial_date_zero_when_week_starts_on_sunday()
+    public void WeeknumMatchExcelBehaviorAndReturnsZeroForSerialDateZeroWhenWeekStartsOnSunday()
     {
         Assert.AreEqual(0, XLWorkbook.EvaluateExpr("WEEKNUM(0,1)"));
         Assert.AreEqual(0, XLWorkbook.EvaluateExpr("WEEKNUM(0,17)"));
     }
 
     [TestCase]
-    public void Weeknum_returns_number_invalid_error_on_non_serial_dates()
+    public void WeeknumReturnsNumberInvalidErrorOnNonSerialDates()
     {
         Assert.AreEqual(XLError.NumberInvalid, XLWorkbook.EvaluateExpr("WEEKNUM(-0.1)"));
         Assert.AreEqual(
@@ -1056,7 +1049,7 @@ public class DateAndTimeTests
     [TestCase(20)]
     [TestCase(22)]
     [TestCase(100)]
-    public void Weeknum_returns_number_invalid_error_on_non_specified_flags(double flag)
+    public void WeeknumReturnsNumberInvalidErrorOnNonSpecifiedFlags(double flag)
     {
         Assert.AreEqual(
             XLError.NumberInvalid,
@@ -1065,7 +1058,7 @@ public class DateAndTimeTests
     }
 
     [Test]
-    public void Workdays_MultipleHolidaysGiven()
+    public void WorkdaysMultipleHolidaysGiven()
     {
         XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet("Sheet1");
@@ -1086,7 +1079,7 @@ public class DateAndTimeTests
     }
 
     [Test]
-    public void Workdays_NoHolidaysGiven()
+    public void WorkdaysNoHolidaysGiven()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr("Workday(\"10/01/2008\", 151)");
         Assert.AreEqual(new DateTime(2009, 4, 30).ToSerialDateTime(), actual);
@@ -1096,7 +1089,7 @@ public class DateAndTimeTests
     }
 
     [Test]
-    public void Workdays_OneHolidaysGiven()
+    public void WorkdaysOneHolidaysGiven()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr(
             "Workday(\"10/01/2008\", 152, \"11/26/2008\")"
@@ -1136,7 +1129,7 @@ public class DateAndTimeTests
     [TestCase(15, -1, new[] { 13 }, 12)] // 15 = Sunday
     [TestCase(100, -5, new[] { 82, 93, 94, 95, 94, 100 }, 88)]
     [TestCase(98, -2, new[] { 97 }, 95)]
-    public void Workdays_with_holiday(int startDate, int dayOffset, int[] holidays, int expected)
+    public void WorkdaysWithHoliday(int startDate, int dayOffset, int[] holidays, int expected)
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr(
             $"WORKDAY({startDate}, {dayOffset}, {{{string.Join(",", holidays)}}})"
@@ -1170,7 +1163,7 @@ public class DateAndTimeTests
     }
 
     [Test]
-    public void Year_BlankValue()
+    public void YearBlankValue()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -1182,7 +1175,7 @@ public class DateAndTimeTests
 
     [Test]
     [Ignore("Excel accepts this but XlsxSharp does not yet")]
-    public void Year_accepts_missing_year_and_substitutes_current_year()
+    public void YearAcceptsMissingYearAndSubstitutesCurrentYear()
     {
         // Test providing just month and day, which should fill the year as "current year"
         double actual = XLWorkbook.EvaluateExpr("YEAR(\"8/22\")").GetNumber();
@@ -1211,7 +1204,7 @@ public class DateAndTimeTests
     [TestCase(3, 2006, 1, 1, 2006, 7, 1, ExpectedResult = 0.495890411)]
     [TestCase(4, 2006, 1, 1, 2006, 7, 1, ExpectedResult = 0.5)]
     [TestCase(1, 2004, 3, 1, 2006, 3, 1, ExpectedResult = 1.9981751825)]
-    public double YearFrac_calculates_fraction_of_a_year(
+    public double YearFracCalculatesFractionOfAYear(
         double basis,
         double startYear,
         double startMonth,
@@ -1228,14 +1221,14 @@ public class DateAndTimeTests
     }
 
     [Test]
-    public void YearFrac_dates_must_fit_in_date_system_range()
+    public void YearFracDatesMustFitInDateSystemRange()
     {
         Assert.AreEqual(XLError.NumberInvalid, XLWorkbook.EvaluateExpr("YEARFRAC(-0.1,10)"));
         Assert.AreEqual(XLError.NumberInvalid, XLWorkbook.EvaluateExpr("YEARFRAC(0,-0.1)"));
     }
 
     [Test]
-    public void YearFrac_basis_must_be_between_0_and_4()
+    public void YearFracBasisMustBeBetween0And4()
     {
         Assert.AreEqual(XLError.NumberInvalid, XLWorkbook.EvaluateExpr("YEARFRAC(0,10,-0.1)"));
         Assert.AreEqual(XLError.NumberInvalid, XLWorkbook.EvaluateExpr("YEARFRAC(0,10,5)"));

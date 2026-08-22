@@ -571,7 +571,7 @@ public class LookupTests
     }
 
     [Test]
-    public void Columns_Blank_ReturnsValueError()
+    public void ColumnsBlankReturnsValueError()
     {
         Assert.AreEqual(XLError.IncompatibleValue, XLWorkbook.EvaluateExpr("COLUMNS(IF(TRUE,,))"));
     }
@@ -585,13 +585,13 @@ public class LookupTests
     [TestCase("\"\"")]
     [TestCase("\"A\"")]
     [TestCase("\"Hello World\"")]
-    public void Columns_ScalarValues_ReturnsOne(string value)
+    public void ColumnsScalarValuesReturnsOne(string value)
     {
         Assert.AreEqual(1, XLWorkbook.EvaluateExpr($"COLUMNS({value})"));
     }
 
     [Test]
-    public void Columns_Error_ReturnsError()
+    public void ColumnsErrorReturnsError()
     {
         Assert.AreEqual(XLError.DivisionByZero, XLWorkbook.EvaluateExpr("COLUMNS(#DIV/0!)"));
     }
@@ -600,7 +600,7 @@ public class LookupTests
     [TestCase("{1;2;3}", 1)]
     [TestCase("{1,2,3,4;5,6,7,8}", 4)]
     [TestCase("{TRUE,\"Z\";#DIV/0!,4}", 2)]
-    public void Columns_Arrays_ReturnsNumberOfColumns(string array, int expectedColumnCount)
+    public void ColumnsArraysReturnsNumberOfColumns(string array, int expectedColumnCount)
     {
         Assert.AreEqual(expectedColumnCount, XLWorkbook.EvaluateExpr($"COLUMNS({array})"));
     }
@@ -609,7 +609,7 @@ public class LookupTests
     [TestCase("A1:A6", 1)]
     [TestCase("B2:D6", 3)]
     [TestCase("E7:AA14", 23)]
-    public void Columns_References_ReturnsNumberOfColumns(string range, int expectedColumnCount)
+    public void ColumnsReferencesReturnsNumberOfColumns(string range, int expectedColumnCount)
     {
         using XLWorkbook wb = new();
         IXLWorksheet sheet = wb.AddWorksheet();
@@ -617,7 +617,7 @@ public class LookupTests
     }
 
     [Test]
-    public void Columns_NonContiguousReferences_ReturnsReferenceError()
+    public void ColumnsNonContiguousReferencesReturnsReferenceError()
     {
         // Spec says #NULL!, but Excel says #REF!
         Assert.AreEqual(XLError.CellReference, XLWorkbook.EvaluateExpr("COLUMNS((A1,C3))"));
@@ -653,7 +653,7 @@ public class LookupTests
     }
 
     [Test]
-    public void Hlookup_UnexpectedArguments()
+    public void HlookupUnexpectedArguments()
     {
         // Lookup value can't be an error
         Assert.AreEqual(
@@ -697,14 +697,14 @@ public class LookupTests
     }
 
     [Test]
-    public void Hlookup_truncates_row_index_number_parameter()
+    public void HlookupTruncatesRowIndexNumberParameter()
     {
         // If row index number is not a whole number, it is truncated, so here 1.9 is truncated to 1
         Assert.AreEqual(7, this.ws.Evaluate(@"HLOOKUP(7,{5,7,9},1.9)"));
     }
 
     [Test]
-    public void Hlookup_converts_blank_lookup_value_to_number_zero()
+    public void HlookupConvertsBlankLookupValueToNumberZero()
     {
         using XLWorkbook wb = new();
         IXLWorksheet worksheet = wb.AddWorksheet();
@@ -720,7 +720,7 @@ public class LookupTests
     }
 
     [Test]
-    public void Hlookup_approximate_search_omits_values_with_different_type()
+    public void HlookupApproximateSearchOmitsValuesWithDifferentType()
     {
         using XLWorkbook wb = new();
         IXLWorksheet worksheet = wb.AddWorksheet();
@@ -738,7 +738,7 @@ public class LookupTests
     }
 
     [Test]
-    public void Hlookup_with_range_containing_only_cells_with_different_type_returns_NA_error()
+    public void HlookupWithRangeContainingOnlyCellsWithDifferentTypeReturnsNAError()
     {
         using XLWorkbook wb = new();
         IXLWorksheet sheet = wb.AddWorksheet();
@@ -747,7 +747,7 @@ public class LookupTests
     }
 
     [Test]
-    public void Hlookup_approximate_search_returns_last_column_for_multiple_equal_values()
+    public void HlookupApproximateSearchReturnsLastColumnForMultipleEqualValues()
     {
         XLWorkbook wb = new();
         IXLWorksheet sheet = wb.AddWorksheet();
@@ -793,7 +793,7 @@ public class LookupTests
     }
 
     [Test]
-    public void Index_reference()
+    public void IndexReference()
     {
         using XLWorkbook wb = new();
         IXLWorksheet sheet = wb.AddWorksheet();
@@ -837,7 +837,7 @@ public class LookupTests
     }
 
     [Test]
-    public void Index_reference_errors()
+    public void IndexReferenceErrors()
     {
         using XLWorkbook wb = new();
         IXLWorksheet sheet = wb.AddWorksheet();
@@ -856,7 +856,7 @@ public class LookupTests
     }
 
     [Test]
-    public void Index_array()
+    public void IndexArray()
     {
         // A single element
         AssertIndex("INDEX({1,2,3;4,5,6}, 2, 3)", 1, 1, 6);
@@ -890,7 +890,7 @@ public class LookupTests
     }
 
     [Test]
-    public void Index_array_errors()
+    public void IndexArrayErrors()
     {
         // Row bounds
         Assert.AreEqual(XLError.IncompatibleValue, XLWorkbook.EvaluateExpr("INDEX({1}, -1, 1)"));
@@ -912,7 +912,7 @@ public class LookupTests
     }
 
     [Test]
-    public void Index_scalar()
+    public void IndexScalar()
     {
         Assert.AreEqual("Text", XLWorkbook.EvaluateExpr("INDEX(\"Text\", 1, 1)"));
         Assert.AreEqual("Text", XLWorkbook.EvaluateExpr("INDEX(\"Text\", 0, 0)"));
@@ -957,14 +957,14 @@ public class LookupTests
     [TestCase(@"MATCH(""Rep"", B2:I5)", XLError.NoValueAvailable)]
     [TestCase(@"MATCH(""Dummy"", B2:I2, 0)", XLError.NoValueAvailable)]
     [TestCase(@"MATCH(4.5,B3:B45,-1)", XLError.NoValueAvailable)]
-    public void Match_demo_sheet(string formula, object result)
+    public void MatchDemoSheet(string formula, object result)
     {
         XLCellValue actual = this.ws.Evaluate(formula);
         Assert.AreEqual(result, actual);
     }
 
     [Test]
-    public void Match_examples()
+    public void MatchExamples()
     {
         // Examples from specification
         Assert.AreEqual(2, XLWorkbook.EvaluateExpr("MATCH(39,{25,38,40,41},1)"));
@@ -1001,7 +1001,7 @@ public class LookupTests
     [TestCase("MATCH(5, {TRUE}, -1)", XLError.NoValueAvailable)]
     [TestCase("MATCH(\"c\", {\"E\",4,\"D\",\"B\"}, -1)", 3)]
     [TestCase("MATCH(FALSE, {TRUE,TRUE,\"FALSE\",0,FALSE,FALSE}, -1)", 5)]
-    public void Match_from_descending(string formula, object result)
+    public void MatchFromDescending(string formula, object result)
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr(formula);
         Assert.AreEqual(result, actual);
@@ -1013,7 +1013,7 @@ public class LookupTests
     [TestCase("MATCH(\"35\",{35,38,24,\"35\",70},0)", 4)] // String target is not converted, must match type
     [TestCase("MATCH(\"c*\",{\"a\",\"cd\"},0)", 2)] // Consider string targets wildcards
     [TestCase("MATCH(TRUE, {0,\"TRUE\",FALSE,TRUE,1},0)", 4)]
-    public void Match_from_unsorted(string formula, object result)
+    public void MatchFromUnsorted(string formula, object result)
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr(formula);
         Assert.AreEqual(result, actual);
@@ -1024,7 +1024,7 @@ public class LookupTests
     [TestCase("MATCH(25,{20,TRUE,FALSE,38,40},1)", 1)] // If found value is <= target, return position of value, not subsequent types that are ignored
     [TestCase("MATCH(8, {FALSE;FALSE}, 1)", XLError.NoValueAvailable)] // Not even one value of target type
     [TestCase("MATCH(5, {1,2,3}, 1)", 3)] // If target value is greater than the last element of same type, return the position of the last element
-    public void Match_from_ascending(string formula, object result)
+    public void MatchFromAscending(string formula, object result)
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr(formula);
         Assert.AreEqual(result, actual);
@@ -1034,7 +1034,7 @@ public class LookupTests
     [TestCase("MATCH(12, {5;15;18;18;11;1;15;17})", 1)]
     [TestCase("MATCH(4, {10,3,FALSE, FALSE,FALSE})", XLError.NoValueAvailable)]
     [TestCase("MATCH(8, {14;0;17;FALSE;8})", XLError.NoValueAvailable)]
-    public void Match_from_ascending_matches_excel(string formula, object result)
+    public void MatchFromAscendingMatchesExcel(string formula, object result)
     {
         // The bisection algorithm should match Excel. That is checked by supplying
         // non-ascending data and checking the result against Excel result. Use random
@@ -1052,14 +1052,14 @@ public class LookupTests
     [TestCase("MATCH(2,{1,2,3}, 2)", 2)] // Match returns position from start both in row or column
     [TestCase("MATCH(3,{1,2,3,4,5})", 3)] // Default match type is 1 (ascending bisection)
     [TestCase("MATCH(3,3)", XLError.NoValueAvailable)] // Scalar values are not converted to 1x1 array
-    public void Match_edge_conditions(string formula, object result)
+    public void MatchEdgeConditions(string formula, object result)
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr(formula);
         Assert.AreEqual(result, actual);
     }
 
     [Test]
-    public void Match_accepts_single_cell_as_values()
+    public void MatchAcceptsSingleCellAsValues()
     {
         using XLWorkbook wb = new();
         IXLWorksheet sheet = wb.AddWorksheet();
@@ -1124,7 +1124,7 @@ public class LookupTests
     }
 
     [Test]
-    public void Rows_Blank_ReturnsValueError()
+    public void RowsBlankReturnsValueError()
     {
         Assert.AreEqual(XLError.IncompatibleValue, XLWorkbook.EvaluateExpr("ROWS(IF(TRUE,,))"));
     }
@@ -1138,13 +1138,13 @@ public class LookupTests
     [TestCase("\"\"")]
     [TestCase("\"A\"")]
     [TestCase("\"Hello World\"")]
-    public void Rows_ScalarValues_ReturnsOne(string value)
+    public void RowsScalarValuesReturnsOne(string value)
     {
         Assert.AreEqual(1, XLWorkbook.EvaluateExpr($"ROWS({value})"));
     }
 
     [Test]
-    public void Rows_Error_ReturnsError()
+    public void RowsErrorReturnsError()
     {
         Assert.AreEqual(XLError.DivisionByZero, XLWorkbook.EvaluateExpr("ROWS(#DIV/0!)"));
     }
@@ -1153,7 +1153,7 @@ public class LookupTests
     [TestCase("{1;2;3}", 3)]
     [TestCase("{1,2,3,4;5,6,7,8;9,10,11,12}", 3)]
     [TestCase("{TRUE;#DIV/0!}", 2)]
-    public void Rows_Arrays_ReturnsNumberOfRows(string array, int expectedColumnCount)
+    public void RowsArraysReturnsNumberOfRows(string array, int expectedColumnCount)
     {
         Assert.AreEqual(expectedColumnCount, XLWorkbook.EvaluateExpr($"ROWS({array})"));
     }
@@ -1161,7 +1161,7 @@ public class LookupTests
     [TestCase("C3", 1)]
     [TestCase("B3:E12", 10)]
     [TestCase("AA21:AC400", 380)]
-    public void Rows_References_ReturnsNumberOfColumns(string range, int expectedColumnCount)
+    public void RowsReferencesReturnsNumberOfColumns(string range, int expectedColumnCount)
     {
         using XLWorkbook wb = new();
         IXLWorksheet sheet = wb.AddWorksheet();
@@ -1169,7 +1169,7 @@ public class LookupTests
     }
 
     [Test]
-    public void Rows_NonContiguousReferences_ReturnsReferenceError()
+    public void RowsNonContiguousReferencesReturnsReferenceError()
     {
         // Spec says #NULL!, but Excel says #REF!
         Assert.AreEqual(XLError.CellReference, XLWorkbook.EvaluateExpr("ROWS((A1,C3))"));
@@ -1210,7 +1210,7 @@ public class LookupTests
     }
 
     [Test]
-    public void Vlookup_ElementNotFound_ReturnsNotAvailableError()
+    public void VlookupElementNotFoundReturnsNotAvailableError()
     {
         // Value not present in the range for exact search
         Assert.AreEqual(
@@ -1230,7 +1230,7 @@ public class LookupTests
     }
 
     [Test]
-    public void Vlookup_UnexpectedArguments()
+    public void VlookupUnexpectedArguments()
     {
         // Lookup value can't be an error
         Assert.AreEqual(XLError.DivisionByZero, this.ws.Evaluate("=VLOOKUP(#DIV/0!,B2:I71,1)"));
@@ -1255,7 +1255,7 @@ public class LookupTests
     }
 
     [Test]
-    public void Vlookup_ColumnIndexParameter_UsesValueSemantic()
+    public void VlookupColumnIndexParameterUsesValueSemantic()
     {
         // If column index is not a whole number, it is truncated, so here 1.9 is truncated to 1
         Assert.AreEqual(14.0, this.ws.Evaluate("=VLOOKUP(14,B2:I71,1.9)"));
@@ -1267,13 +1267,13 @@ public class LookupTests
     [TestCase("\"TRUE\"")]
     [TestCase("1")]
     [TestCase("TRUE")]
-    public void Vlookup_FlagParameter_CoercedToBoolean(string flagValue)
+    public void VlookupFlagParameterCoercedToBoolean(string flagValue)
     {
         Assert.AreEqual(5.0, this.ws.Evaluate($"VLOOKUP(5,B2:I71,1,{flagValue})"));
     }
 
     [Test]
-    public void Vlookup_BlankLookupValue_BehavesAsZero()
+    public void VlookupBlankLookupValueBehavesAsZero()
     {
         using XLWorkbook wb = new();
         IXLWorksheet worksheet = wb.AddWorksheet();
@@ -1289,7 +1289,7 @@ public class LookupTests
     }
 
     [Test]
-    public void Vlookup_ApproximateSearch_OmitsValuesWithDifferentType()
+    public void VlookupApproximateSearchOmitsValuesWithDifferentType()
     {
         using XLWorkbook wb = new();
         IXLWorksheet worksheet = wb.AddWorksheet();
@@ -1307,7 +1307,7 @@ public class LookupTests
     }
 
     [Test]
-    public void Vlookup_OnlyCellsWithDifferentType_ReturnsNotAvailable()
+    public void VlookupOnlyCellsWithDifferentTypeReturnsNotAvailable()
     {
         using XLWorkbook wb = new();
         IXLWorksheet worksheet = wb.AddWorksheet();
@@ -1315,7 +1315,7 @@ public class LookupTests
     }
 
     [Test]
-    public void Vlookup_OnlyOneValueSurroundedByIgnoredTypes()
+    public void VlookupOnlyOneValueSurroundedByIgnoredTypes()
     {
         using XLWorkbook wb = new();
         IXLWorksheet worksheet = wb.AddWorksheet();
@@ -1325,7 +1325,7 @@ public class LookupTests
     }
 
     [Test]
-    public void Vlookup_ResultAtTheHighestCellWithTrailingDifferentTypeAtTheEnd()
+    public void VlookupResultAtTheHighestCellWithTrailingDifferentTypeAtTheEnd()
     {
         using XLWorkbook wb = new();
         IXLWorksheet worksheet = wb.AddWorksheet();
@@ -1338,7 +1338,7 @@ public class LookupTests
     }
 
     [Test]
-    public void Vlookup_ApproximateSearch_ReturnsLastRowForMultipleEqualValues()
+    public void VlookupApproximateSearchReturnsLastRowForMultipleEqualValues()
     {
         XLWorkbook wb = new();
         IXLWorksheet sheet = wb.AddWorksheet();
@@ -1362,7 +1362,7 @@ public class LookupTests
     }
 
     [Test]
-    public void Vlookup_CanSearchArrays()
+    public void VlookupCanSearchArrays()
     {
         Assert.AreEqual(2, XLWorkbook.EvaluateExpr("VLOOKUP(4, {1,2; 3,2; 5,3; 7,4}, 2)"));
     }

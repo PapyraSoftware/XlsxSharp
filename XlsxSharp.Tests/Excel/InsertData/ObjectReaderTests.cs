@@ -126,7 +126,7 @@ public class ObjectReaderTests
     }
 
     [Test]
-    public void CanReadValues_FromObject()
+    public void CanReadValuesFromObject()
     {
         IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(
             ObjectWithAttributes
@@ -148,7 +148,7 @@ public class ObjectReaderTests
     }
 
     [Test]
-    public void CanReadValues_FromStruct()
+    public void CanReadValuesFromStruct()
     {
         IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(Structs);
         IEnumerable<IEnumerable<XLCellValue>> result = reader.GetRecords();
@@ -166,7 +166,7 @@ public class ObjectReaderTests
     }
 
     [Test]
-    public void CanReadValues_FromNullableStruct()
+    public void CanReadValuesFromNullableStruct()
     {
         IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(NullableStructs);
         IEnumerable<IEnumerable<XLCellValue>> result = reader.GetRecords();

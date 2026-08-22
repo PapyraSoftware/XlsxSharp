@@ -11,7 +11,7 @@ namespace XlsxSharp.Tests.Excel.DataValidations;
 public class DataValidationTests
 {
     [Test]
-    public void Validation_Reference_List_Values_From_Separate_Sheet()
+    public void ValidationReferenceListValuesFromSeparateSheet()
     {
         XLWorkbook wb = new();
         IXLWorksheet valuesSheet = wb.Worksheets.Add("ValuesSheet");
@@ -36,7 +36,7 @@ public class DataValidationTests
     }
 
     [Test]
-    public void Validation_1()
+    public void Validation1()
     {
         XLWorkbook wb = new();
         IXLWorksheet ws = wb.Worksheets.Add("Data Validation Issue");
@@ -84,7 +84,7 @@ public class DataValidationTests
     }
 
     [Test]
-    public void Validation_2()
+    public void Validation2()
     {
         XLWorkbook wb = new();
         IXLWorksheet ws = wb.Worksheets.Add("Sheet1");
@@ -99,7 +99,7 @@ public class DataValidationTests
     }
 
     [Test, Ignore("Wait for proper formula shifting (#686)")]
-    public void Validation_3()
+    public void Validation3()
     {
         XLWorkbook wb = new();
         IXLWorksheet ws = wb.Worksheets.Add("Sheet1");
@@ -111,7 +111,7 @@ public class DataValidationTests
     }
 
     [Test]
-    public void Validation_4()
+    public void Validation4()
     {
         XLWorkbook wb = new();
         IXLWorksheet ws = wb.Worksheets.Add("Sheet1");
@@ -122,7 +122,7 @@ public class DataValidationTests
     }
 
     [Test, Ignore("Wait for proper formula shifting (#686)")]
-    public void Validation_5()
+    public void Validation5()
     {
         XLWorkbook wb = new();
         IXLWorksheet ws = wb.Worksheets.Add("Sheet1");
@@ -134,7 +134,7 @@ public class DataValidationTests
     }
 
     [Test]
-    public void Validation_6()
+    public void Validation6()
     {
         XLWorkbook wb = new();
         IXLWorksheet ws = wb.Worksheets.Add("Sheet1");
@@ -145,7 +145,7 @@ public class DataValidationTests
     }
 
     [Test]
-    public void Validation_persists_on_Cell_DataValidation()
+    public void ValidationPersistsOnCellDataValidation()
     {
         XLWorkbook wb = new();
         IXLWorksheet ws = wb.Worksheets.Add("People");
@@ -161,7 +161,7 @@ public class DataValidationTests
     }
 
     [Test]
-    public void Validation_persists_on_Worksheet_DataValidations()
+    public void ValidationPersistsOnWorksheetDataValidations()
     {
         XLWorkbook wb = new();
         IXLWorksheet ws = wb.Worksheets.Add("People");

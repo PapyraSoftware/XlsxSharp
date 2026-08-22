@@ -66,7 +66,7 @@ public class AlignmentTests
 
     [Test]
     [TestCaseSource(nameof(AlignmentApiSetters))]
-    public void Alignment_property_can_be_individually_set(FormatTestCase<IXLAlignment> testCase)
+    public void AlignmentPropertyCanBeIndividuallySet(FormatTestCase<IXLAlignment> testCase)
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -82,7 +82,7 @@ public class AlignmentTests
 
     [Test]
     [TestCaseSource(nameof(AlignmentApiSettersLimits))]
-    public void Alignment_property_limits_throw_exception<T>(
+    public void AlignmentPropertyLimitsThrowException<T>(
         Action<IXLAlignment, T> setter,
         params T[] invalidValues
     )
@@ -101,7 +101,7 @@ public class AlignmentTests
     }
 
     [Test]
-    public void TextRotation_is_connected_with_TopToBottom()
+    public void TextRotationIsConnectedWithTopToBottom()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -124,7 +124,7 @@ public class AlignmentTests
     }
 
     [Test]
-    public void Alignment_can_be_copied()
+    public void AlignmentCanBeCopied()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -154,7 +154,7 @@ public class AlignmentTests
     }
 
     [Test]
-    public void Alignment_has_equality_comparison()
+    public void AlignmentHasEqualityComparison()
     {
         Action<IXLAlignment>[] changePropertyToNonDefault =
         [

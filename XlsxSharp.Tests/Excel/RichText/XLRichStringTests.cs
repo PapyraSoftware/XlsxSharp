@@ -175,7 +175,7 @@ public class XLRichStringTests
     ///     A test for Characters
     /// </summary>
     [Test]
-    public void Substring_All_From_OneString()
+    public void SubstringAllFromOneString()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -195,7 +195,7 @@ public class XLRichStringTests
     }
 
     [Test]
-    public void Substring_All_From_ThreeStrings()
+    public void SubstringAllFromThreeStrings()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -222,7 +222,7 @@ public class XLRichStringTests
     }
 
     [Test]
-    public void Substring_From_OneString_End()
+    public void SubstringFromOneStringEnd()
     {
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         IXLRichText richString = ws.Cell(1, 1).GetRichText();
@@ -261,7 +261,7 @@ public class XLRichStringTests
     }
 
     [Test]
-    public void Substring_From_OneString_Middle()
+    public void SubstringFromOneStringMiddle()
     {
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         IXLRichText richString = ws.Cell(1, 1).GetRichText();
@@ -304,7 +304,7 @@ public class XLRichStringTests
     }
 
     [Test]
-    public void Substring_From_OneString_Start()
+    public void SubstringFromOneStringStart()
     {
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         IXLRichText richString = ws.Cell(1, 1).GetRichText();
@@ -343,7 +343,7 @@ public class XLRichStringTests
     }
 
     [Test]
-    public void Substring_From_ThreeStrings_End1()
+    public void SubstringFromThreeStringsEnd1()
     {
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         IXLRichText richString = ws.Cell(1, 1).GetRichText();
@@ -392,7 +392,7 @@ public class XLRichStringTests
     }
 
     [Test]
-    public void Substring_From_ThreeStrings_End2()
+    public void SubstringFromThreeStringsEnd2()
     {
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         IXLRichText richString = ws.Cell(1, 1).GetRichText();
@@ -444,7 +444,7 @@ public class XLRichStringTests
     }
 
     [Test]
-    public void Substring_From_ThreeStrings_Mid1()
+    public void SubstringFromThreeStringsMid1()
     {
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         IXLRichText richString = ws.Cell(1, 1).GetRichText();
@@ -470,7 +470,7 @@ public class XLRichStringTests
     }
 
     [Test]
-    public void Substring_From_ThreeStrings_Mid2()
+    public void SubstringFromThreeStringsMid2()
     {
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         IXLRichText richString = ws.Cell(1, 1).GetRichText();
@@ -497,7 +497,7 @@ public class XLRichStringTests
     }
 
     [Test]
-    public void Substring_From_ThreeStrings_Start1()
+    public void SubstringFromThreeStringsStart1()
     {
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         IXLRichText richString = ws.Cell(1, 1).GetRichText();
@@ -546,7 +546,7 @@ public class XLRichStringTests
     }
 
     [Test]
-    public void Substring_From_ThreeStrings_Start2()
+    public void SubstringFromThreeStringsStart2()
     {
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         IXLRichText richString = ws.Cell(1, 1).GetRichText();
@@ -598,7 +598,7 @@ public class XLRichStringTests
     }
 
     [Test]
-    public void Substring_IndexOutsideRange1()
+    public void SubstringIndexOutsideRange1()
     {
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         IXLRichText richString = ws.Cell(1, 1).GetRichText();
@@ -609,7 +609,7 @@ public class XLRichStringTests
     }
 
     [Test]
-    public void Substring_IndexOutsideRange2()
+    public void SubstringIndexOutsideRange2()
     {
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         IXLRichText richString = ws.Cell(1, 1).GetRichText();
@@ -621,7 +621,7 @@ public class XLRichStringTests
     }
 
     [Test]
-    public void Substring_IndexOutsideRange3()
+    public void SubstringIndexOutsideRange3()
     {
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         IXLRichText richString = ws.Cell(1, 1).GetRichText();
@@ -632,7 +632,7 @@ public class XLRichStringTests
     }
 
     [Test]
-    public void Substring_IndexOutsideRange4()
+    public void SubstringIndexOutsideRange4()
     {
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         IXLRichText richString = ws.Cell(1, 1).GetRichText();
@@ -644,7 +644,7 @@ public class XLRichStringTests
     }
 
     [Test]
-    public void CopyFrom_DoesCopy()
+    public void CopyFromDoesCopy()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -863,7 +863,7 @@ public class XLRichStringTests
     }
 
     [Test]
-    public void Preserve_end_of_line_in_xml()
+    public void PreserveEndOfLineInXml()
     {
         // When text run in a rich text contains end of line (regardless if CR, LF or CRLF),
         // the written element must be marked with xml:space="preserve". Excel would process
