@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.IO.Packaging;
 using System.Linq;
@@ -19,6 +20,13 @@ internal static class TestHelper
 {
     public static string CurrencySymbol =>
         Thread.CurrentThread.CurrentCulture.NumberFormat.CurrencySymbol;
+
+    // Culture data is not identical on all platforms, because it depends on the version of
+    // ICU (or NLS on Windows) used by the runtime. The en-US date/time patterns of ICU 72+
+    // (Linux, macOS) separate the AM/PM designator by a narrow no-break space (U+202F),
+    // while older ICU/NLS on Windows uses an ordinary space. That made the generated files
+    // differ from the reference ones depending on the OS, so normalize such spaces.
+    public static CultureInfo DeterministicCulture { get; } = CreateDeterministicCulture();
 
     //Note: Run example tests parameters
     public static string TestsOutputDirectory =>
@@ -65,11 +73,37 @@ internal static class TestHelper
         }
     }
 
+    private static CultureInfo CreateDeterministicCulture()
+    {
+        CultureInfo culture = (CultureInfo)CultureInfo.GetCultureInfo("en-US").Clone();
+        DateTimeFormatInfo dateTimeFormat = culture.DateTimeFormat;
+
+        dateTimeFormat.AMDesignator = NormalizeSpaces(dateTimeFormat.AMDesignator);
+        dateTimeFormat.PMDesignator = NormalizeSpaces(dateTimeFormat.PMDesignator);
+        dateTimeFormat.ShortDatePattern = NormalizeSpaces(dateTimeFormat.ShortDatePattern);
+        dateTimeFormat.LongDatePattern = NormalizeSpaces(dateTimeFormat.LongDatePattern);
+        dateTimeFormat.ShortTimePattern = NormalizeSpaces(dateTimeFormat.ShortTimePattern);
+        dateTimeFormat.LongTimePattern = NormalizeSpaces(dateTimeFormat.LongTimePattern);
+        dateTimeFormat.FullDateTimePattern = NormalizeSpaces(dateTimeFormat.FullDateTimePattern);
+        dateTimeFormat.MonthDayPattern = NormalizeSpaces(dateTimeFormat.MonthDayPattern);
+        dateTimeFormat.YearMonthPattern = NormalizeSpaces(dateTimeFormat.YearMonthPattern);
+
+        NumberFormatInfo numberFormat = culture.NumberFormat;
+        numberFormat.NumberGroupSeparator = NormalizeSpaces(numberFormat.NumberGroupSeparator);
+        numberFormat.CurrencyGroupSeparator = NormalizeSpaces(numberFormat.CurrencyGroupSeparator);
+        numberFormat.PercentGroupSeparator = NormalizeSpaces(numberFormat.PercentGroupSeparator);
+
+        return CultureInfo.ReadOnly(culture);
+    }
+
+    private static string NormalizeSpaces(string text) =>
+        text.Replace('\u202f', ' ').Replace('\u00a0', ' ');
+
     public static void RunTestExample<T>(string filePartName, bool evaluateFormulae = false)
         where T : IXLExample, new()
     {
         // Make sure tests run on a deterministic culture
-        Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("en-US");
+        Thread.CurrentThread.CurrentCulture = DeterministicCulture;
 
         T example = new();
         string[] pathParts = filePartName.Split(new char[] { '\\' });
@@ -159,7 +193,7 @@ internal static class TestHelper
         bool validate = true
     )
     {
-        Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("en-US");
+        Thread.CurrentThread.CurrentCulture = DeterministicCulture;
 
         string[] pathParts = referenceResource.Split(new char[] { '\\' });
         string filePath1 = Path.Combine(
