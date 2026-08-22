@@ -42,7 +42,7 @@ file.
 Available API
 *************
 
-ClosedXML doesn't respect locked elements. All operations and modifications
+XlsxSharp doesn't respect locked elements. All operations and modifications
 are allowed no matter the workbook protection settings.
 
 Each ``Protect`` method has an overload that accepts a password and a hash
@@ -67,7 +67,7 @@ passwords.
 Workbook protection
 ===================
 
-ClosedXML can protect workbook through structure through 
+XlsxSharp can protect workbook through structure through 
 ``IXLWorkbook.Protect(XLWorkbookProtectionElements)``.
 The ``XLWorkbookProtectionElements`` enum is a flag enum and it is possible to
 combine individual elements using bit-wise operation. It is recommended to
@@ -131,7 +131,7 @@ Excel allows change of a format, but disallowed elements, like delete row are no
 Allow edit ranges
 =================
 
-ClosedXML doesn't support this feature yet.
+XlsxSharp doesn't support this feature yet.
 
 Unprotect worksheet or workbook
 ===============================

@@ -10,7 +10,7 @@ Graphic Engine
 Background
 **********
 
-ClosedXML used to use a library *System.Drawing.Common* in order to read
+XlsxSharp used to use a library *System.Drawing.Common* in order to read
 pictures and measure text. When .NET Standard and .NET Core arrived, Microsoft
 split off a pieced of part of from .NET Framework and it worked by calling Win32
 GDI API+ on Windows and by calling *libgdiplus* library on Linux.
@@ -24,7 +24,7 @@ For more info, see the `Make System.Drawing.Common only supported on Windows <ht
 design document.
 
 Since System.Drawing.Common has become Windows-only, it had to be replaced in
-ClosedXML with an alternative that would work on multiple platforms (Windows,
+XlsxSharp with an alternative that would work on multiple platforms (Windows,
 Linux, AWS, Azure Function, Android, Blazor...). To isolate ourselves from
 other potential library changes, the required functionality has been hidden
 behind new ``IXLGraphicEngine`` interface.
@@ -44,7 +44,7 @@ Graphic Engine
 Graphic Engine is an pluggable component (since `0.97.0`) hidden behind
 ``IXLGraphicEngine`` interface that is responsible for working with image
 formats and fonts. Both image reading and rendered size measurement is a
-non-trivial problem that is out of scope of ClosedXML.
+non-trivial problem that is out of scope of XlsxSharp.
 
 The font measurements is mostly used by ``AdjustToContent``. Image reading
 detects size and format of images added to workbook.
@@ -52,7 +52,7 @@ detects size and format of images added to workbook.
 Engine Creation
 ===============
 
-ClosedXML contains a ``DefaultGraphicEngine`` that implements the
+XlsxSharp contains a ``DefaultGraphicEngine`` that implements the
 ``IXLGraphicEngine``. It is able to read information about png, jpeg, gif,
 baseline tiff, bmp, tiff, emf, wmf, webp and pcx file formats. It uses
 ``SixLabor.Fonts`` library to measure size of text rendered in a specified
@@ -66,11 +66,11 @@ There are several ways to get the engine that differ by where they get fonts.
 Default engine
 --------------
 
-There is an default instance ``ClosedXML.Graphic.DefaultGraphicEngine.Instance``
-used by ClosedXML by default. It uses "Microsoft Sans Serif" as a fallback font
+There is an default instance ``XlsxSharp.Graphics.DefaultGraphicEngine.Instance``
+used by XlsxSharp by default. It uses "Microsoft Sans Serif" as a fallback font
 and uses any system font available to *SixLabor.Fonts*.
 
-ClosedXML uses this engine, if no other is specified.
+XlsxSharp uses this engine, if no other is specified.
 
 .. flat-table:: Methods to get graphic engine
    :header-rows: 1
@@ -81,7 +81,7 @@ ClosedXML uses this engine, if no other is specified.
      - Loads system fonts
 	 - Usage
 
-   * - ``ClosedXML.Graphic.DefaultGraphicEngine.Instance``
+   * - ``XlsxSharp.Graphics.DefaultGraphicEngine.Instance``
      - *Microsoft Sans Serif*
      - No
      - Yes

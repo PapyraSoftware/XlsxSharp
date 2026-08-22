@@ -1,5 +1,5 @@
 API Index
 =============
 
-.. doxygennamespace:: ClosedXML::Excel
+.. doxygennamespace:: XlsxSharp::Excel
    :members:

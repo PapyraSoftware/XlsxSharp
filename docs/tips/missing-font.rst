@@ -22,13 +22,13 @@ Explanation of the problem
 
 Graphic engine is responsible for extracting information about images and
 measuring size of a text in a workbook. The exception indicates that
-ClosedXML (more precisely *SixLabors.Fonts* that is used by the default
+XlsxSharp (more precisely *SixLabors.Fonts* that is used by the default
 engine) wasn't enable to find a font that could be used to measure size
 of a text.
 
 Calculating a correct size of a text rendered by a font is a nontrivial task
 and there is a dearth of maintained open source .NET font libraries. That is
-why ClosedXML depends on prerelease version of *SixLabors.Fonts*.
+why XlsxSharp depends on prerelease version of *SixLabors.Fonts*.
 
 ``DefaultGraphicEngine`` tries to use a requested font (e.g. font of a cell)
 and if the requested font isn't present on the machine, it will use fallback
@@ -37,7 +37,7 @@ the aforementioned exception.
 
 .. note::
    It is  responsibility of developer to ensure that required font/s are
-   present. ClosedXML needs font metrics and substitution tables to calculate
+   present. XlsxSharp needs font metrics and substitution tables to calculate
    text bounds in the font. It can't pull them out of thin air.
 
 SixLabors.Fonts library looks for fonts in the following folders
@@ -92,7 +92,7 @@ Use already installed font
 ==========================
 
 If you don't care much about accuracy, pick already installed font and instruct
-ClosedXML to use that one as a fallback font. That is basically the advice from
+XlsxSharp to use that one as a fallback font. That is basically the advice from
 the exception message.
 
 First, get a list of fonts that are available on the target environment
@@ -163,7 +163,7 @@ Install Calibri/Microsofot Sans Serif font to the target environment.
 
 * Upside
 
-  * ClosedXML will use correct font metrics
+  * XlsxSharp will use correct font metrics
 
 * Downside
 

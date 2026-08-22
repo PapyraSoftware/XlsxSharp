@@ -1,5 +1,5 @@
 Cell
 ====
 
-.. doxygeninterface:: ClosedXML::Excel::IXLCell
+.. doxygeninterface:: XlsxSharp::Excel::IXLCell
    :members:

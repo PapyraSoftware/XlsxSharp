@@ -4,7 +4,7 @@ Bulk insert data
 
 Inserting a larger amount of data can be done using `IXLCell.InsertData` methods. Methods will insert data to cells staring from the referenced cell.
 
-There are several possible inputs. ClosedXML doesn't add header for bulk data insert.
+There are several possible inputs. XlsxSharp doesn't add header for bulk data insert.
 
 *********
 DataTable
@@ -105,7 +105,7 @@ Simple type items always inserts only one column.
 DataRow
 #######
 
-Items of `IEnumerable<>` are a `DataRow`. ClosedXMl behaves like when inserting data from `DataTable`.
+Items of `IEnumerable<>` are a `DataRow`. XlsxSharp behaves like when inserting data from `DataTable`.
 
 *******************
 Untyped Enumerable
@@ -115,7 +115,7 @@ Mostly used for untyped collections, like `ArrayList`.
 
 Types of items behave same way as for the generic enumerable.
 
-ClosedXML can handle a case where each item is of different type.
+XlsxSharp can handle a case where each item is of different type.
 
 .. code-block:: csharp
 

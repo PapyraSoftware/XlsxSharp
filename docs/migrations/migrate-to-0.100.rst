@@ -112,7 +112,7 @@ were converted to string, leading to "saving number, getting text" situations.
 ``XLCellValue`` now throws an ``ArgumentException`` on initialization from such
 values.
 
-ClosedXML also previously sometimes incorrectly detected string as a date time
+XlsxSharp also previously sometimes incorrectly detected string as a date time
 (e.g. for *"Z12.31"* interpreted as *2022-12-31*). Whole detection has been
 removed, developer is now in control of the type in a cell through
 ``XLCellValue``.
@@ -215,7 +215,7 @@ will now return ``XLError.NameNotRecognized`` error.
    Assert.AreEqual(XLError.NameNotRecognized, value.GetError());
 
 
-This causes a differences, if ClosedXML saves formula values (by default it
+This causes a differences, if XlsxSharp saves formula values (by default it
 doesn't, but can be enabled by ``SaveOptions.EvaluateFormulasBeforeSaving``).
 The original behavior kept the values blank for cells with formulas containing
 unimplemented functions, new behavior will set values of cells to ``#NAME?``
@@ -228,8 +228,8 @@ see the ``#NAME?`` values instead of blanks in some formulas.
 XLError enum moved and order changed
 ************************************
 
-Enum XLError has been moved from ``ClosedXML.Excel.CalcEngine`` namespace
-to ``ClosedXML.Excel`` namespace. XLError's members have been reordered, so
+Enum XLError has been moved from ``XlsxSharp.Excel.CalcEngine`` namespace
+to ``XlsxSharp.Excel`` namespace. XLError's members have been reordered, so
 the order is same as values returned by ERROR.TYPE function (the values
 are actually used sometimes during sorting).
 
@@ -255,7 +255,7 @@ Methods for manipulating the ``IXLPivotFields`` still use source names.
 XLEventTracking removed
 ***********************
 
-ClosedXML used to track various events and call registered event handlers.
+XlsxSharp used to track various events and call registered event handlers.
 That functionality was removed long ago and now even enum
 ``XLEventTracking``, ``LoadOptions.EventTracking`` property
 and ``XLWorkbook`` constructors that accepted the enum were removed.

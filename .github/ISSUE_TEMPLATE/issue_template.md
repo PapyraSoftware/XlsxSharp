@@ -17,7 +17,7 @@ Do not randomly delete sections. They are here for a reason.
 - [ ] Yes
 - [ ] No
 
-If you answered `No`, please test with [the latest development build](https://ci.appveyor.com/project/ClosedXML/ClosedXML/branch/develop/artifacts) first.
+If you answered `No`, please test against the latest [`develop` branch](https://github.com/PapyraSoftware/XlsxSharp/tree/develop) first.
 
 **Version of XlsxSharp**
 

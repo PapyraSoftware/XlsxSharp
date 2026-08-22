@@ -256,7 +256,7 @@ Options
   in the future. Default is *true*.
 * `IXLPivotCache.RefreshDataOnOpen` - Should Excel refresh pivot caches and
   tables when it opens the workbook? Default is *false*, though Excel refreshes
-  them anyway, because ClosedXML doesn't save content of a pivot table properly
+  them anyway, because XlsxSharp doesn't save content of a pivot table properly
   at the moment.
 * `IXLPivotCache.ItemsToRetainPerField` - This option influences, whether
   field values should be shown in various filters of pivot tables, even after

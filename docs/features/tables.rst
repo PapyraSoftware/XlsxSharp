@@ -18,7 +18,7 @@ Table can be created during data insertion or from existing data.
 .. code-block:: csharp
    :caption: Sample to create a tables
 
-   using ClosedXML.Excel;
+   using XlsxSharp.Excel;
 
    using var wb = new XLWorkbook();
    var ws = wb.AddWorksheet();
@@ -52,7 +52,7 @@ filled with a auto-generated column name.
 .. code-block:: csharp
    :caption: Sample to resize a table
 
-   using ClosedXML.Excel;
+   using XlsxSharp.Excel;
 
    using var wb = new XLWorkbook();
    var ws = wb.AddWorksheet();
@@ -84,7 +84,7 @@ is displayed over the theme in the Excel.
 .. code-block:: csharp
    :caption: Sample showing the table structure modification.
 
-   using ClosedXML.Excel;
+   using XlsxSharp.Excel;
 
    using var wb = new XLWorkbook();
    var ws = wb.AddWorksheet();
@@ -121,7 +121,7 @@ displayed.
 .. code-block:: csharp
    :caption: Sample showing the table structure modification.
 
-   using ClosedXML.Excel;
+   using XlsxSharp.Excel;
 
    using var wb = new XLWorkbook();
    var ws = wb.AddWorksheet();
@@ -163,7 +163,7 @@ instead of referencing column cells directly.
 .. code-block:: csharp
    :caption: How to use table name in structural reference.
 
-   using ClosedXML.Excel;
+   using XlsxSharp.Excel;
 
    using var wb = new XLWorkbook();
    var ws = wb.AddWorksheet();
@@ -197,7 +197,7 @@ fields. Table field consists of data cells in a single column of the table.
 Whether the header row is displayed or not is determined by the
 `IXLTable.ShowHeaderRow` property.
 
-ClosedXML table creation methods will use first values to deterine field names
+XlsxSharp table creation methods will use first values to deterine field names
 and will always display header by default (though it can be hidden).
 
 Field names must be of type `string`. Field name can be changed either through
@@ -213,7 +213,7 @@ row or not, as demonstrated by the sample.
 
 .. code-block:: csharp
 
-   using ClosedXML.Excel;
+   using XlsxSharp.Excel;
 
    using var wb = new XLWorkbook();
    var ws = wb.AddWorksheet();
@@ -247,7 +247,7 @@ show totals row.
 
 .. code-block:: csharp
 
-   using ClosedXML.Excel;
+   using XlsxSharp.Excel;
 
    using var wb = new XLWorkbook();
    var ws = wb.AddWorksheet();
@@ -283,7 +283,7 @@ autofilter documentation.
 
 .. code-block:: csharp
 
-   using ClosedXML.Excel;
+   using XlsxSharp.Excel;
 
    using var wb = new XLWorkbook();
    var ws = wb.AddWorksheet();

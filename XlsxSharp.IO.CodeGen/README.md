@@ -1,6 +1,6 @@
 # Overview
 
-The goal is to create a generator that will use XSD of OOXML and it will generate parsing logic that includes data extraction and to load extracted data into ClosedXML internal structures.
+The goal is to create a generator that will use XSD of OOXML and it will generate parsing logic that includes data extraction and to load extracted data into XlsxSharp internal structures.
 
 The data loading part might need to do custom logic that has to be incorporated into the generated parser. There might also be some validation, not just data combination logic.
 
@@ -17,7 +17,7 @@ Generator must
 
 ## Rationale
 
-Current OpenXML SDK is an intermediate representation that loads each part into memory. That has several problems, the major one is performance, both cpu and memory consumption. OpenXML SDK loads whole part into memory and ClosedXML then reads it and sets internal structures and then the whole parsed XML tree is disposed of. That is slow and memory intensive.
+Current OpenXML SDK is an intermediate representation that loads each part into memory. That has several problems, the major one is performance, both cpu and memory consumption. OpenXML SDK loads whole part into memory and XlsxSharp then reads it and sets internal structures and then the whole parsed XML tree is disposed of. That is slow and memory intensive.
 
 To solve it, we will use our custom parser that is
 * forward only

@@ -13,14 +13,14 @@
 import os
 import sys
 import sphinx_rtd_theme
-sys.path.insert(0, os.path.abspath('../ClosedXML'))
+sys.path.insert(0, os.path.abspath('../XlsxSharp'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'ClosedXML'
+project = 'XlsxSharp'
 
 # The full version, including alpha/beta/rc tags
-release = '0.102.0'
+release = '0.106.0'
 
 # -- General configuration ---------------------------------------------------
 
@@ -71,5 +71,5 @@ html_theme_options = {
 }
 
 # Breathe Configuration
-breathe_projects = { "ClosedXML" : "./xml" }
-breathe_default_project = "ClosedXML"
+breathe_projects = { "XlsxSharp" : "./xml" }
+breathe_default_project = "XlsxSharp"
