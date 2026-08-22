@@ -37,19 +37,16 @@ internal class XLCellValueComparer : IEqualityComparer<XLCellValue>
 
     public int GetHashCode(XLCellValue obj)
     {
-        unchecked
+        // The text hash has to come from the configured comparer, so it is combined as an already
+        // computed value rather than letting HashCode hash the string itself.
+        int valueHashCode = obj.Type switch
         {
-            int hashCode = obj.Type.GetHashCode();
-            int valueHashCode = obj.Type switch
-            {
-                XLDataType.Blank => 0,
-                XLDataType.Boolean => obj.GetBoolean().GetHashCode(),
-                XLDataType.Text => this._textComparer.GetHashCode(obj.GetText()),
-                XLDataType.Error => obj.GetError().GetHashCode(),
-                _ => obj.GetUnifiedNumber().GetHashCode(),
-            };
-            hashCode = (hashCode * 397) ^ valueHashCode;
-            return hashCode;
-        }
+            XLDataType.Blank => 0,
+            XLDataType.Boolean => obj.GetBoolean().GetHashCode(),
+            XLDataType.Text => this._textComparer.GetHashCode(obj.GetText()),
+            XLDataType.Error => obj.GetError().GetHashCode(),
+            _ => obj.GetUnifiedNumber().GetHashCode(),
+        };
+        return HashCode.Combine(obj.Type, valueHashCode);
     }
 }

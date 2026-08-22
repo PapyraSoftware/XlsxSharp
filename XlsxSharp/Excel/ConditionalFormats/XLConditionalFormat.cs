@@ -88,29 +88,23 @@ internal class XLConditionalFormat : IXLDxfContainer, IXLConditionalFormat
                         .Select(f => ((XLCell)obj.Range.FirstCell()).GetFormulaR1C1(f.Value))
                 );
             }
-            unchecked
-            {
-                int hashCode = xStyle.GetHashCode();
-                hashCode = (hashCode * 397) ^ xValues.GetHashCode();
-                hashCode = (hashCode * 397) ^ (xx.Colors != null ? xx.Colors.GetHashCode() : 0);
-                hashCode =
-                    (hashCode * 397)
-                    ^ (xx.ContentTypes != null ? xx.ContentTypes.GetHashCode() : 0);
-                hashCode =
-                    (hashCode * 397)
-                    ^ (xx.IconSetOperators != null ? xx.IconSetOperators.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (int)xx.ConditionalFormatType;
-                hashCode = (hashCode * 397) ^ (int)xx.TimePeriod;
-                hashCode = (hashCode * 397) ^ (int)xx.IconSetStyle;
-                hashCode = (hashCode * 397) ^ (int)xx.Operator;
-                hashCode = (hashCode * 397) ^ xx.Bottom.GetHashCode();
-                hashCode = (hashCode * 397) ^ xx.Percent.GetHashCode();
-                hashCode = (hashCode * 397) ^ xx.ReverseIconOrder.GetHashCode();
-                hashCode = (hashCode * 397) ^ xx.ShowIconOnly.GetHashCode();
-                hashCode = (hashCode * 397) ^ xx.ShowBarOnly.GetHashCode();
-                hashCode = (hashCode * 397) ^ xx.StopIfTrue.GetHashCode();
-                return hashCode;
-            }
+            HashCode hashCode = new();
+            hashCode.Add(xStyle);
+            hashCode.Add(xValues);
+            hashCode.Add(xx.Colors);
+            hashCode.Add(xx.ContentTypes);
+            hashCode.Add(xx.IconSetOperators);
+            hashCode.Add(xx.ConditionalFormatType);
+            hashCode.Add(xx.TimePeriod);
+            hashCode.Add(xx.IconSetStyle);
+            hashCode.Add(xx.Operator);
+            hashCode.Add(xx.Bottom);
+            hashCode.Add(xx.Percent);
+            hashCode.Add(xx.ReverseIconOrder);
+            hashCode.Add(xx.ShowIconOnly);
+            hashCode.Add(xx.ShowBarOnly);
+            hashCode.Add(xx.StopIfTrue);
+            return hashCode.ToHashCode();
         }
 
         private static bool SetEquals<T>(IEnumerable<T> first, IEnumerable<T> second) =>

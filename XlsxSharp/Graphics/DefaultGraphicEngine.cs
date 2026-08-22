@@ -489,7 +489,7 @@ public class DefaultGraphicEngine : IXLGraphicEngine
 
         public override bool Equals(object obj) => obj is MetricId other && this.Equals(other);
 
-        public override int GetHashCode() => (this.Name.GetHashCode() * 397) ^ (int)this._style;
+        public override int GetHashCode() => HashCode.Combine(this.Name, this._style);
 
         internal static FontStyle GetFontStyle(IXLFontBase fontBase) =>
             fontBase switch

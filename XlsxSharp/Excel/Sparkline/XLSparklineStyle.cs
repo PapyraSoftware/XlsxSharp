@@ -147,20 +147,16 @@ internal class XLSparklineStyle : IXLSparklineStyle, IEquatable<XLSparklineStyle
 
     /// <summary>Serves as the default hash function.</summary>
     /// <returns>A hash code for the current object.</returns>
-    public override int GetHashCode()
-    {
-        unchecked
-        {
-            int hashCode = this.FirstMarkerColor.GetHashCode();
-            hashCode = (hashCode * 397) ^ this.HighMarkerColor.GetHashCode();
-            hashCode = (hashCode * 397) ^ this.LastMarkerColor.GetHashCode();
-            hashCode = (hashCode * 397) ^ this.LowMarkerColor.GetHashCode();
-            hashCode = (hashCode * 397) ^ this.MarkersColor.GetHashCode();
-            hashCode = (hashCode * 397) ^ this.NegativeColor.GetHashCode();
-            hashCode = (hashCode * 397) ^ this.SeriesColor.GetHashCode();
-            return hashCode;
-        }
-    }
+    public override int GetHashCode() =>
+        HashCode.Combine(
+            this.FirstMarkerColor,
+            this.HighMarkerColor,
+            this.LastMarkerColor,
+            this.LowMarkerColor,
+            this.MarkersColor,
+            this.NegativeColor,
+            this.SeriesColor
+        );
 
     #endregion IEquatable implementation
 }

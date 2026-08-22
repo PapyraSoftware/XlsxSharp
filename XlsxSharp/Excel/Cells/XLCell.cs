@@ -2191,13 +2191,7 @@ internal sealed partial class XLCell : IXLCell, IXLFormatContainer
         }
     }
 
-    public override int GetHashCode()
-    {
-        unchecked
-        {
-            return (this.Point.GetHashCode() * 397) ^ this.Worksheet.GetHashCode();
-        }
-    }
+    public override int GetHashCode() => HashCode.Combine(this.Point, this.Worksheet);
 
     public override bool Equals(object obj) =>
         obj is XLCell cell && cell.Worksheet == this.Worksheet && cell.Point == this.Point;
