@@ -4,6 +4,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Globalization;
 using System.Reflection;
 using SixLabors.Fonts;
 using SixLabors.Fonts.Unicode;
@@ -51,6 +52,22 @@ public class DefaultGraphicEngine : IXLGraphicEngine
     private readonly Func<MetricId, double> _calculateMaxDigitWidth;
 
     /// <summary>
+    /// A system font that supplies glyphs the requested font is missing, per code point and style.
+    /// A null value records that no usable font was found, so the lookup isn't repeated.
+    /// </summary>
+    private readonly ConcurrentDictionary<
+        (int CodePoint, FontStyle Style),
+        FontFamily?
+    > _substitutes = new();
+    private readonly Func<(int CodePoint, FontStyle Style), FontFamily?> _loadSubstitute =
+        LoadSubstitute;
+
+    /// <summary>
+    /// Supplies the same substitute fonts to text shaping that <see cref="GetGlyphBox"/> uses.
+    /// </summary>
+    private readonly IFontFallbackResolver _fallbackResolver;
+
+    /// <summary>
     /// Get a singleton instance of the engine that uses <c>Microsoft Sans Serif</c> as a fallback font.
     /// </summary>
     public static Lazy<DefaultGraphicEngine> Instance { get; } =
@@ -76,6 +93,7 @@ public class DefaultGraphicEngine : IXLGraphicEngine
         this._fallbackFont = fallbackFont;
         this._loadFont = this.LoadFont;
         this._calculateMaxDigitWidth = this.CalculateMaxDigitWidth;
+        this._fallbackResolver = new SubstituteFontResolver(this);
     }
 
     /// <summary>
@@ -109,6 +127,7 @@ public class DefaultGraphicEngine : IXLGraphicEngine
         this._fallbackFont = fallbackFamily.Name;
         this._loadFont = this.LoadFont;
         this._calculateMaxDigitWidth = this.CalculateMaxDigitWidth;
+        this._fallbackResolver = new SubstituteFontResolver(this);
     }
 
     /// <summary>
@@ -204,6 +223,10 @@ public class DefaultGraphicEngine : IXLGraphicEngine
             {
                 Dpi = 72, // Normalize DPI, so 1px is 1pt
                 KerningMode = KerningMode.None,
+                // The embedded font covers Latin, Greek and Cyrillic, but not e.g. Arabic, Hebrew or
+                // CJK. Those code points are resolved from system fonts, which is why a measurement
+                // of such a text is not reproducible across machines the way a Latin one is.
+                FontFallbackResolver = this._fallbackResolver,
             }
         );
         return PointsToPixels(dimensionsPx.Width / FontMetricSize * fontBase.FontSize, dpiX);
@@ -215,36 +238,116 @@ public class DefaultGraphicEngine : IXLGraphicEngine
         // SixLabors.Fonts don't have a way to get a glyph representation of a cluster
         // without a TextRenderer that has unacceptable performance.
         FontMetrics metric = this.GetMetrics(font);
-        int advanceFu = 0;
+        double advanceEm = 0;
         for (int i = 0; i < graphemeCluster.Length; ++i)
         {
-            bool containsMetrics = metric.TryGetGlyphMetrics(
-                new CodePoint(graphemeCluster[i]),
-                TextAttributes.None,
-                TextDecorations.None,
-                LayoutMode.HorizontalTopBottom,
-                ColorFontSupport.None,
-                null, // No palette, color fonts are not requested.
-                out FontGlyphMetrics glyph
-            );
+            CodePoint codePoint = new(graphemeCluster[i]);
 
-            // as a fallback glyph, but it might change in the future.
-            if (!containsMetrics)
+            // TryGetGlyphMetrics never returns false: a code point the font can't shape yields the
+            // .notdef glyph, which has id 0 and the width of the missing-glyph box. Detecting that
+            // is the only way to tell a real glyph from a missing one.
+            FontMetrics glyphMetric = metric;
+            if (
+                !TryGetGlyph(metric, codePoint, out FontGlyphMetrics glyph)
+                && TryGetSubstituteMetrics(font, codePoint, out FontMetrics substitute)
+                && TryGetGlyph(substitute, codePoint, out FontGlyphMetrics substituteGlyph)
+            )
             {
-                continue;
+                // The embedded font doesn't cover this script, so a system font supplies the width.
+                glyphMetric = substitute;
+                glyph = substituteGlyph;
             }
 
-            advanceFu += glyph.AdvanceWidth;
+            // Units per em differ between the fonts involved, so accumulate a font independent value.
+            advanceEm += glyph.AdvanceWidth / (double)glyphMetric.UnitsPerEm;
         }
 
         double emInPx = font.FontSize / 72d * dpi.X;
-        double advancePx = PointsToPixels(advanceFu * font.FontSize / metric.UnitsPerEm, dpi.X);
+        double advancePx = PointsToPixels(advanceEm * font.FontSize, dpi.X);
         double descentPx = GetDescent(font, dpi.Y, metric);
         return new GlyphBox(
             (float)Math.Round(advancePx, MidpointRounding.AwayFromZero),
             (float)Math.Round(emInPx, MidpointRounding.AwayFromZero),
             (float)Math.Round(descentPx, MidpointRounding.AwayFromZero)
         );
+    }
+
+    private static bool TryGetGlyph(
+        FontMetrics metrics,
+        CodePoint codePoint,
+        out FontGlyphMetrics glyph
+    )
+    {
+        // Glyph id 0 is .notdef, i.e. the font has no glyph for the code point.
+        return TryGetGlyphOrNotdef(metrics, codePoint, out glyph) && glyph.GlyphId != 0;
+    }
+
+    private static bool TryGetGlyphOrNotdef(
+        FontMetrics metrics,
+        CodePoint codePoint,
+        out FontGlyphMetrics glyph
+    ) =>
+        metrics.TryGetGlyphMetrics(
+            codePoint,
+            TextAttributes.None,
+            TextDecorations.None,
+            LayoutMode.HorizontalTopBottom,
+            ColorFontSupport.None,
+            null, // No palette, color fonts are not requested.
+            out glyph
+        );
+
+    /// <summary>
+    /// Find a system font that can supply a glyph the current font doesn't have. Unlike everything
+    /// else in the engine the result depends on the fonts installed on the machine.
+    /// </summary>
+    private bool TryGetSubstituteMetrics(
+        IXLFontBase font,
+        CodePoint codePoint,
+        out FontMetrics metrics
+    )
+    {
+        FontFamily? family = this.GetSubstituteFamily(codePoint, MetricId.GetFontStyle(font));
+        metrics = family?.CreateFont(FontMetricSize).FontMetrics;
+        return metrics is not null;
+    }
+
+    private FontFamily? GetSubstituteFamily(CodePoint codePoint, FontStyle style) =>
+        this._substitutes.GetOrAdd((codePoint.Value, style), this._loadSubstitute);
+
+    private static FontFamily? LoadSubstitute((int CodePoint, FontStyle Style) key)
+    {
+        CodePoint codePoint = new(key.CodePoint);
+        try
+        {
+            if (
+                !SystemFonts.TryMatchCharacter(
+                    codePoint,
+                    key.Style,
+                    null,
+                    null,
+                    out FontMatch match
+                )
+            )
+            {
+                return null;
+            }
+
+            FontMetrics metrics = match.Family.CreateFont(FontMetricSize).FontMetrics;
+
+            // A font file is read lazily, on the first glyph access rather than in CreateFont, so the
+            // glyph is fetched here to have both the read and the result covered by this method.
+            return TryGetGlyph(metrics, codePoint, out _) ? match.Family : null;
+        }
+        catch (Exception e) when (e is FontException or InvalidFontFileException)
+        {
+            // A matched system font isn't necessarily one this library can read, e.g. macOS matches
+            // CJK to a font without a 'loca' table. Fall back to the missing glyph rather than
+            // letting a font on the machine break measuring a workbook.
+            // Both types are caught because font loading errors derive from InvalidFontFileException,
+            // which despite the name of FontException is not part of that hierarchy.
+            return null;
+        }
     }
 
     private FontMetrics GetMetrics(IXLFontBase fontBase)
@@ -259,6 +362,15 @@ public class DefaultGraphicEngine : IXLGraphicEngine
 
     private Font LoadFont(MetricId metricId)
     {
+        // The embedded font is metric compatible with Calibri, so it is used for Calibri even when the
+        // machine has the real thing installed. Calibri is the default font of a workbook, so this is
+        // what makes a measurement reproducible instead of depending on what the machine happens to
+        // have. It only holds for the scripts the embedded font covers; see GetTextWidth for the rest.
+        if (SubstitutedByEmbeddedFont(metricId.Name))
+        {
+            return this._fontCollection.Value.Get(EmbeddedFontName).CreateFont(FontMetricSize);
+        }
+
         // First try the specified fallback font. On windows, unknown fonts should use MS Sans Serif
         if (
             !this._fontCollection.Value.TryGet(metricId.Name, out FontFamily fontFamily)
@@ -271,6 +383,14 @@ public class DefaultGraphicEngine : IXLGraphicEngine
 
         return fontFamily.CreateFont(FontMetricSize); // Size is irrelevant for metric
     }
+
+    /// <summary>
+    /// Is the font name one the embedded font is a metric compatible stand-in for? The name comes
+    /// from workbook XML, so it is compared without regard to case.
+    /// </summary>
+    private static bool SubstitutedByEmbeddedFont(string fontName) =>
+        string.Equals(fontName, "Calibri", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(fontName, EmbeddedFontName, StringComparison.OrdinalIgnoreCase);
 
     private static void AddEmbeddedFont(FontCollection fontCollection)
     {
@@ -305,26 +425,47 @@ public class DefaultGraphicEngine : IXLGraphicEngine
         int maxWidth = int.MinValue;
         for (char c = '0'; c <= '9'; ++c)
         {
-            bool containsMetrics = metrics.TryGetGlyphMetrics(
-                new CodePoint(c),
-                TextAttributes.None,
-                TextDecorations.None,
-                LayoutMode.HorizontalTopBottom,
-                ColorFontSupport.None,
-                null, // No palette, color fonts are not requested.
-                out FontGlyphMetrics glyphMetric
-            );
-            if (!containsMetrics)
+            // Skip digits the font has no glyph for, so the width of a missing-glyph box is not
+            // mistaken for a digit width. Every column width in a workbook derives from this number.
+            if (TryGetGlyph(metrics, new CodePoint(c), out FontGlyphMetrics glyphMetric))
             {
-                continue;
+                maxWidth = Math.Max(maxWidth, glyphMetric.AdvanceWidth);
             }
-
-            maxWidth = Math.Max(maxWidth, glyphMetric.AdvanceWidth);
         }
+
+        if (maxWidth == int.MinValue)
+        {
+            // A font without any digit leaves nothing to measure. The missing-glyph box is a poor
+            // width, but it is a defined one and keeps the behaviour of before this check.
+            TryGetGlyphOrNotdef(metrics, new CodePoint('0'), out FontGlyphMetrics notdef);
+            maxWidth = notdef.AdvanceWidth;
+        }
+
         return maxWidth / (double)metrics.UnitsPerEm;
     }
 
     private static double PointsToPixels(double points, double dpi) => points / 72d * dpi;
+
+    /// <summary>
+    /// Hands text shaping the substitute fonts, so a text measured through <see cref="GetTextWidth"/>
+    /// and one measured glyph by glyph agree on which font supplies a missing code point. Unusable
+    /// system fonts are filtered out, which the resolver of the library itself does not do.
+    /// </summary>
+    private sealed class SubstituteFontResolver(DefaultGraphicEngine engine) : IFontFallbackResolver
+    {
+        public bool TryResolve(
+            CodePoint codePoint,
+            FontFamily requestedFamily,
+            FontStyle style,
+            CultureInfo culture,
+            out FontFamily family
+        )
+        {
+            FontFamily? substitute = engine.GetSubstituteFamily(codePoint, style);
+            family = substitute ?? default;
+            return substitute is not null;
+        }
+    }
 
     private readonly struct MetricId : IEquatable<MetricId>
     {
@@ -345,7 +486,7 @@ public class DefaultGraphicEngine : IXLGraphicEngine
 
         public override int GetHashCode() => (this.Name.GetHashCode() * 397) ^ (int)this._style;
 
-        private static FontStyle GetFontStyle(IXLFontBase fontBase) =>
+        internal static FontStyle GetFontStyle(IXLFontBase fontBase) =>
             fontBase switch
             {
                 { Bold: true, Italic: true } => FontStyle.BoldItalic,

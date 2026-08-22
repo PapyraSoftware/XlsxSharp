@@ -114,7 +114,7 @@ public class AppendingAndReplacingTableDataTests
 
     private static Person[] NewData =>
         [
-            new Person
+            new()
             {
                 FirstName = "Michelle",
                 LastName = "de Beer",
@@ -122,7 +122,7 @@ public class AppendingAndReplacingTableDataTests
                 DateOfBirth = new DateTime(1983, 1, 1),
                 IsActive = false,
             },
-            new Person
+            new()
             {
                 FirstName = "Marichen",
                 LastName = "van der Gryp",
