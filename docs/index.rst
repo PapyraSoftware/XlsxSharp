@@ -8,7 +8,7 @@ Install the library through .NET CLI
 
 .. code-block:: batch
 
-   C:\source> dotnet add package XlsxSharp
+   C:\source> dotnet add package XlsxSharp --prerelease
 
 XlsxSharp allows you to create Excel files without the Excel application. The typical example is creating Excel reports on a web server.
 

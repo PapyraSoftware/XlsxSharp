@@ -3,8 +3,8 @@
 
 The brand mark is a rounded tile holding a white grid that reads both as a
 spreadsheet and as a sharp sign (#) - "xlsx" plus "sharp". The wordmark is set
-in Open Sans (Apache-2.0) and converted to outlines, so the SVGs do not depend
-on an installed font.
+in Open Sans (resources/fonts, Apache-2.0) and converted to outlines, so the
+SVGs do not depend on an installed font.
 
 Usage:
     python3 resources/scripts/generate-logos.py
@@ -22,7 +22,7 @@ from fontTools.ttLib import TTFont
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 OUTPUT_DIR = os.path.normpath(os.path.join(SCRIPT_DIR, "..", "logo"))
-FONT_CACHE_DIR = os.path.join(SCRIPT_DIR, ".fonts")
+FONT_DIR = os.path.normpath(os.path.join(SCRIPT_DIR, "..", "fonts"))
 FONT_FILE = "OpenSans-Regular.ttf"
 FONT_URL = (
     "https://github.com/googlefonts/opensans/raw/main/fonts/ttf/OpenSans-Regular.ttf"
@@ -68,9 +68,9 @@ VARIANTS = [
 
 
 def font_path():
-    path = os.path.join(FONT_CACHE_DIR, FONT_FILE)
+    path = os.path.join(FONT_DIR, FONT_FILE)
     if not os.path.exists(path):
-        os.makedirs(FONT_CACHE_DIR, exist_ok=True)
+        os.makedirs(FONT_DIR, exist_ok=True)
         urllib.request.urlretrieve(FONT_URL, path)
     return path
 

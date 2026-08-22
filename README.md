@@ -1,22 +1,21 @@
 ![XlsxSharp](https://github.com/PapyraSoftware/XlsxSharp/blob/develop/resources/logo/readme.png)
 
-[![Release](https://img.shields.io/badge/release-0.95.4-blue.svg)](https://github.com/PapyraSoftware/XlsxSharp/releases/latest) [![NuGet version (XlsxSharp)](https://img.shields.io/nuget/v/XlsxSharp.svg?style=flat)](https://www.nuget.org/packages/XlsxSharp/) [![.NET Framework](https://img.shields.io/badge/.NET%20Framework-%3E%3D%204.0-red.svg)](#) [![.NET Standard](https://img.shields.io/badge/.NET%20Standard-%3E%3D%202.0-red.svg)](#) [![Build status](https://ci.appveyor.com/api/projects/status/wobbmnlbukxejjgb?svg=true)](https://ci.appveyor.com/project/PapyraSoftware/XlsxSharp/branch/develop/artifacts)
-[![Open Source Helpers](https://www.codetriage.com/PapyraSoftware/XlsxSharp/badges/users.svg)](https://www.codetriage.com/PapyraSoftware/XlsxSharp)
+[![Release](https://img.shields.io/badge/release-0.106.0--preview1-blue.svg)](https://github.com/PapyraSoftware/XlsxSharp/releases/latest) [![NuGet version (XlsxSharp)](https://img.shields.io/nuget/v/XlsxSharp.svg?style=flat)](https://www.nuget.org/packages/XlsxSharp/) [![.NET](https://img.shields.io/badge/.NET-10.0-512BD4.svg)](#) [![Build & Test](https://github.com/PapyraSoftware/XlsxSharp/actions/workflows/build.yml/badge.svg?branch=develop)](https://github.com/PapyraSoftware/XlsxSharp/actions/workflows/build.yml)
 
 XlsxSharp is a .NET library for reading, manipulating and writing Excel 2007+ (.xlsx, .xlsm) files. It aims to provide an intuitive and user-friendly interface to dealing with the underlying [OpenXML](https://github.com/OfficeDev/Open-XML-SDK) API.
 
 This is a fork of [ClosedXML](https://github.com/ClosedXML/ClosedXML). With the primary goal to update the library to .NET 10 and to maintain it with the latest .NET versions.
 
-For more information see [the documentation](https://closedxml.readthedocs.io/) or [the wiki](https://github.com/closedxml/closedxml/wiki).
+For more information see [the documentation](https://xlsxsharp.readthedocs.io/).
 
 ### Install XlsxSharp via NuGet
 
 If you want to include XlsxSharp in your project, you can [install it directly from NuGet](https://www.nuget.org/packages/XlsxSharp)
 
-To install XlsxSharp, run the following command in the Package Manager Console
+XlsxSharp is currently published as a prerelease, so the prerelease switch is required. To install XlsxSharp, run the following command in the Package Manager Console
 
 ```
-PM> Install-Package XlsxSharp
+PM> Install-Package XlsxSharp -IncludePrerelease
 ```
 
 ### What can you do with this?

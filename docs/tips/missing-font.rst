@@ -28,7 +28,7 @@ of a text.
 
 Calculating a correct size of a text rendered by a font is a nontrivial task
 and there is a dearth of maintained open source .NET font libraries. That is
-why XlsxSharp depends on prerelease version of *SixLabors.Fonts*.
+why XlsxSharp depends on *SixLabors.Fonts*.
 
 ``DefaultGraphicEngine`` tries to use a requested font (e.g. font of a cell)
 and if the requested font isn't present on the machine, it will use fallback
