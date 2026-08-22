@@ -1,6 +1,5 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
 using System.Linq;
 using NUnit.Framework;
 using XlsxSharp.Excel;
@@ -10,38 +9,30 @@ namespace XlsxSharp.Tests.Excel.InsertData;
 
 public class DataRecordReaderTests
 {
-    private readonly string connectionString =
-        @"Data Source=(localdb)\MSSQLLocalDB;Integrated Security=True;Connect Timeout=1";
+    private readonly DataTable data;
 
+    public DataRecordReaderTests()
+    {
+        this.data = new DataTable();
+        this.data.Columns.Add("StringValue");
+        this.data.Columns.Add("NumericValue", typeof(int));
+
+        this.data.Rows.Add("Value 1", 100);
+        this.data.Rows.Add("Value 2", 200);
+        this.data.Rows.Add("Value 3", 300);
+    }
+
+    /// <summary>
+    /// Yields the very same reader instance for every row, the way an ADO.NET data reader does. The
+    /// reader under test has to materialise each record before advancing, and that is what this
+    /// covers - the source of the records does not matter, only that they are <see cref="IDataRecord"/>.
+    /// </summary>
     private IEnumerable<IDataRecord> GetData()
     {
-        const string queryString =
-            @"
-            select 'Value 1' as StringValue, 100 as NumericValue
-            union all
-            select 'Value 2', 200
-            union all
-            select 'Value 3', 300";
-
-        using (SqlConnection connection = new(this.connectionString))
-        using (SqlCommand command = new(queryString, connection))
+        using IDataReader reader = this.data.CreateDataReader();
+        while (reader.Read())
         {
-            try
-            {
-                connection.Open();
-            }
-            catch
-            {
-                Assert.Ignore("Could not connect to localdb");
-            }
-
-            using (SqlDataReader reader = command.ExecuteReader())
-            {
-                while (reader.Read())
-                {
-                    yield return reader;
-                }
-            }
+            yield return reader;
         }
     }
 
