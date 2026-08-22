@@ -131,17 +131,11 @@ public partial class XLColor : IEquatable<XLColor>
 
     #region IEquatable<XLColor> Members
 
-    public bool Equals(XLColor other)
-    {
-        return this.Key == other.Key;
-    }
+    public bool Equals(XLColor other) => this.Key == other.Key;
 
     #endregion IEquatable<XLColor> Members
 
-    public override bool Equals(object obj)
-    {
-        return this.Equals((XLColor)obj);
-    }
+    public override bool Equals(object obj) => this.Equals((XLColor)obj);
 
     public override int GetHashCode()
     {
@@ -188,8 +182,5 @@ public partial class XLColor : IEquatable<XLColor>
         return left.Equals(right);
     }
 
-    public static Boolean operator !=(XLColor? left, XLColor? right)
-    {
-        return !(left == right);
-    }
+    public static Boolean operator !=(XLColor? left, XLColor? right) => !(left == right);
 }

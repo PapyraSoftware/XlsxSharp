@@ -162,11 +162,8 @@ internal class XLHeaderFooter : IXLHeaderFooter
     private Boolean _changed;
     internal Boolean Changed
     {
-        get
-        {
-            return this._changed || this._initialTexts.Any(it => this.GetText(it.Key) != it.Value);
-        }
-        set { this._changed = value; }
+        get => this._changed || this._initialTexts.Any(it => this.GetText(it.Key) != it.Value);
+        set => this._changed = value;
     }
 
     internal void SetAsInitial()

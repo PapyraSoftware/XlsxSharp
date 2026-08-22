@@ -17,16 +17,12 @@ public class FormulaParserTests
     #region Start.Rule
 
     [TestCase]
-    public void FormulaStringCanStartingWithAnEqualSign()
-    {
+    public void FormulaStringCanStartingWithAnEqualSign() =>
         Assert.AreEqual(1, XLWorkbook.EvaluateExpr("=1"));
-    }
 
     [TestCase]
-    public void FormulaStringCanOmitStartingEqualSign()
-    {
+    public void FormulaStringCanOmitStartingEqualSign() =>
         Assert.AreEqual(1, XLWorkbook.EvaluateExpr("1"));
-    }
 
     [TestCase]
     public void RootFormulaStringCanBeUnionWithoutParenthesis()
@@ -54,33 +50,26 @@ public class FormulaParserTests
     [TestCase("=1", 1)]
     [TestCase("=\"text\"", "text")]
     [TestCase("=TRUE", true)]
-    public void FormulaCanBeConstant(string formula, object expectedValue)
-    {
+    public void FormulaCanBeConstant(string formula, object expectedValue) =>
         Assert.AreEqual(expectedValue, XLWorkbook.EvaluateExpr(formula));
-    }
 
     [TestCase("=SUM(1,2)", 3)]
     [TestCase("=2+3", 5)]
     [TestCase("=-3", -3)]
     [TestCase("=150%", 1.5)]
-    public void FormulaCanBeFunctionCall(string formula, object expectedValue)
-    {
+    public void FormulaCanBeFunctionCall(string formula, object expectedValue) =>
         Assert.AreEqual(expectedValue, XLWorkbook.EvaluateExpr(formula));
-    }
 
     [TestCase]
-    public void FormulaCanBeConstantArray()
-    {
+    public void FormulaCanBeConstantArray() =>
         // 1 is determined through implicit intersection (first element)
         Assert.AreEqual(1, XLWorkbook.EvaluateExpr("={1,2,3;4,5,6}"));
-    }
 
     [TestCase("=(1)", 1)]
     [TestCase("=(\"text\")", "text")]
-    public void FormulaCanBeAnotherFormulaInParenthesis(string formula, object expectedValue)
-    {
+    public void FormulaCanBeAnotherFormulaInParenthesis(string formula, object expectedValue) =>
         Assert.AreEqual(expectedValue, XLWorkbook.EvaluateExpr(formula));
-    }
+
     #endregion
 
     #region Constant.Rule
@@ -91,11 +80,9 @@ public class FormulaParserTests
     [TestCase("=1.23e+3", 1230)]
     [TestCase("=032399977109", 32399977109)] // long
     [TestCase("=9223372036854775808", 9223372036854775808)] // BigInteger (long value + 1)
-    public void ConstantCanBeNumber(string formula, double expectedNumber)
-    {
+    public void ConstantCanBeNumber(string formula, double expectedNumber) =>
         // Irony returns number as an object of various types, e.g. int or double
         Assert.AreEqual(expectedNumber, XLWorkbook.EvaluateExpr(formula));
-    }
 
     [TestCase("=\"text\"", "text")]
     [TestCase("=\"first line\nsecond line\"", "first line\nsecond line")]
@@ -104,18 +91,14 @@ public class FormulaParserTests
         "=\"use two double quote \"\" to nest quotes\"",
         "use two double quote \" to nest quotes"
     )]
-    public void ConstantCanBeText(string formula, string expectedText)
-    {
+    public void ConstantCanBeText(string formula, string expectedText) =>
         Assert.AreEqual(expectedText, XLWorkbook.EvaluateExpr(formula));
-    }
 
     [TestCase("=TRUE", true)]
     [TestCase("=FALSE", false)]
     [TestCase("=tRuE", true)]
-    public void ConstantCanBeBool(string formula, bool expectedBool)
-    {
+    public void ConstantCanBeBool(string formula, bool expectedBool) =>
         Assert.AreEqual(expectedBool, XLWorkbook.EvaluateExpr(formula));
-    }
 
     // #REF! is converted by a different rule, so it is not here.
     [TestCase("#VALUE!", XLError.IncompatibleValue)]
@@ -136,24 +119,18 @@ public class FormulaParserTests
 
     [TestCase("=COS(0)", 1)]
     [TestCase("=SUM(1,2,3)", 6)]
-    public void FunctionCallCanBeExcelPredefinedFunction(string formula, object expectedValue)
-    {
+    public void FunctionCallCanBeExcelPredefinedFunction(string formula, object expectedValue) =>
         Assert.AreEqual(expectedValue, XLWorkbook.EvaluateExpr(formula));
-    }
 
     [TestCase("=+1", 1)]
     [TestCase("=-1", -1)]
     //        [TestCase("=@A1", 1)]
-    public void FunctionCallCanBeUnaryPrefixOperation(string formula, object expectedValue)
-    {
+    public void FunctionCallCanBeUnaryPrefixOperation(string formula, object expectedValue) =>
         Assert.AreEqual(expectedValue, XLWorkbook.EvaluateExpr(formula));
-    }
 
     [TestCase("=75%", 0.75)]
-    public void FunctionCallCanBeUnaryPostfixOperation(string formula, object expectedValue)
-    {
+    public void FunctionCallCanBeUnaryPostfixOperation(string formula, object expectedValue) =>
         Assert.AreEqual(expectedValue, XLWorkbook.EvaluateExpr(formula));
-    }
 
     [TestCase("=2^3", 8)]
     [TestCase("=4^1.5", 8)]
@@ -177,19 +154,16 @@ public class FormulaParserTests
     [TestCase("=1<=2", true)]
     [TestCase("=1<=1", true)]
     [TestCase("=2<=1", false)]
-    public void FunctionCallCanBeBinaryInfixOperation(string formula, object expectedValue)
-    {
+    public void FunctionCallCanBeBinaryInfixOperation(string formula, object expectedValue) =>
         Assert.AreEqual(expectedValue, XLWorkbook.EvaluateExpr(formula));
-    }
+
     #endregion
 
     #region Argument.Rule
 
     [TestCase("=PMT(0,1,1000,,1)", -1000)]
-    public void EmptyArgumentsArePassedToFunction(string formula, object expectedValue)
-    {
+    public void EmptyArgumentsArePassedToFunction(string formula, object expectedValue) =>
         Assert.That(XLWorkbook.EvaluateExpr(formula), Is.EqualTo(expectedValue));
-    }
 
     #endregion
 
@@ -210,11 +184,9 @@ public class FormulaParserTests
     }
 
     [TestCase]
-    public void ReferenceCanBeReferenceFunctionCall()
-    {
+    public void ReferenceCanBeReferenceFunctionCall() =>
         // XLParser considers a limited subset of predefined functions (IF, CHOOSE, INDEX...) to be different from other predefined function because they can return reference.
         Assert.AreEqual(2, XLWorkbook.EvaluateExpr("=IF(FALSE,1,2)"));
-    }
 
     [TestCase]
     public void ReferenceCanBeAnotherReferenceInParenthesis()
@@ -239,13 +211,11 @@ public class FormulaParserTests
 
     [TestCase]
     [Ignore("XLParser issue #57")]
-    public void ReferenceCanBeDynamicDataExchange()
-    {
+    public void ReferenceCanBeDynamicDataExchange() =>
         AssertCanParseButNotEvaluate(
             "=Sdemo123|tik!'id1?req?AAPL_STK_SMART_USD_~/'",
             "Evaluation of dynamic data exchange is not implemented."
         );
-    }
 
     #endregion
 
@@ -260,13 +230,11 @@ public class FormulaParserTests
     }
 
     [TestCase]
-    public void ReferenceFunctionCallCanBeIntersectionOfTwoReferences()
-    {
+    public void ReferenceFunctionCallCanBeIntersectionOfTwoReferences() =>
         AssertCanParseButNotEvaluate(
             "=A1:A3 A2:B2",
             "Evaluation of range intersection operator is not implemented."
         );
-    }
 
     [TestCase]
     public void ReferenceFunctionCallCanBeUnionInParenthesis()
@@ -277,19 +245,15 @@ public class FormulaParserTests
     }
 
     [TestCase]
-    public void ReferenceFunctionCallCanBeReferenceFunction()
-    {
+    public void ReferenceFunctionCallCanBeReferenceFunction() =>
         Assert.AreEqual(1, XLWorkbook.EvaluateExpr("=IF(TRUE,1,2)"));
-    }
 
     [TestCase]
-    public void ReferenceFunctionCallCanBeReferenceWithSpillRangeOperator()
-    {
+    public void ReferenceFunctionCallCanBeReferenceWithSpillRangeOperator() =>
         AssertCanParseButNotEvaluate(
             "=A1#",
             "Evaluation of spill range operator is not implemented."
         );
-    }
 
     #endregion
 
@@ -300,10 +264,7 @@ public class FormulaParserTests
     public void RefFunctionNameCanBeExcelRefConditionalFunction(
         string formula,
         object expectedValue
-    )
-    {
-        Assert.AreEqual(expectedValue, XLWorkbook.EvaluateExpr(formula));
-    }
+    ) => Assert.AreEqual(expectedValue, XLWorkbook.EvaluateExpr(formula));
 
     [TestCase("=INDEX(A1:B2,1,2)", "Lemons")]
     //[TestCase("=OFFSET(C4,-1,-2)", "Pears")] Not implemented
@@ -366,16 +327,12 @@ public class FormulaParserTests
     }
 
     [TestCase]
-    public void ReferenceItemCanBeRefError()
-    {
+    public void ReferenceItemCanBeRefError() =>
         Assert.AreEqual(XLError.CellReference, XLWorkbook.EvaluateExpr("#REF!"));
-    }
 
     [TestCase]
-    public void ReferenceItemCanBeUserDefinedFunctionCall()
-    {
+    public void ReferenceItemCanBeUserDefinedFunctionCall() =>
         Assert.AreEqual(XLError.NameNotRecognized, XLWorkbook.EvaluateExpr("CustomFunction(1)"));
-    }
 
     [TestCase]
     public void ReferenceItemCanBeStructuredReference()
@@ -516,19 +473,15 @@ public class FormulaParserTests
 
     [TestCase("=Sheet1:Sheet5!A1")]
     [TestCase("=Jan:Dec!A1")]
-    public void PrefixCanBeSheetsFor3dReference(string formula)
-    {
+    public void PrefixCanBeSheetsFor3dReference(string formula) =>
         AssertCanParseButNotEvaluate(formula, "3D references are not yet implemented.");
-    }
 
     [TestCase("=[1]Sheet4!A1")]
-    public void PrefixCanBeFileAndSheetToken(string formula)
-    {
+    public void PrefixCanBeFileAndSheetToken(string formula) =>
         AssertCanParseButNotEvaluate(
             formula,
             "References from other files are not yet implemented."
         );
-    }
 
     #endregion
 

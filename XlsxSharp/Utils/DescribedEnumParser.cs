@@ -21,20 +21,12 @@ internal static class DescribedEnumParser<T>
         return ParseEnumDescriptions().ToDictionary(a => a.Item1, a => a.Item2);
     });
 
-    public static T FromDescription(String value)
-    {
-        return fromDescriptions.Value[value];
-    }
+    public static T FromDescription(String value) => fromDescriptions.Value[value];
 
-    public static Boolean IsValidDescription(String value)
-    {
-        return fromDescriptions.Value.ContainsKey(value);
-    }
+    public static Boolean IsValidDescription(String value) =>
+        fromDescriptions.Value.ContainsKey(value);
 
-    public static String ToDescription(T value)
-    {
-        return toDescriptions.Value[value];
-    }
+    public static String ToDescription(T value) => toDescriptions.Value[value];
 
     private static IEnumerable<Tuple<T, String>> ParseEnumDescriptions()
     {

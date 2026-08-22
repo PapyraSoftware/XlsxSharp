@@ -253,8 +253,5 @@ internal class XLPivotTablePageField : IXLPivotField
     public bool IsInFilterList => true;
     public int Offset => this._filterField.Field;
 
-    private XLPivotTableField GetField()
-    {
-        return this._pivotTable.PivotFields[this._filterField.Field];
-    }
+    private XLPivotTableField GetField() => this._pivotTable.PivotFields[this._filterField.Field];
 }

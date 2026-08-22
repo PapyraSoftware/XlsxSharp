@@ -94,11 +94,9 @@ internal class XLSparklineVerticalAxis : IXLSparklineVerticalAxis
 
     public IXLSparklineGroup SparklineGroup { get; }
 
-    public XLSparklineVerticalAxis(IXLSparklineGroup sparklineGroup)
-    {
+    public XLSparklineVerticalAxis(IXLSparklineGroup sparklineGroup) =>
         this.SparklineGroup =
             sparklineGroup ?? throw new ArgumentNullException(nameof(sparklineGroup));
-    }
 
     public static void Copy(IXLSparklineVerticalAxis from, IXLSparklineVerticalAxis to)
     {

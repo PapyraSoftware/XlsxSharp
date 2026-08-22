@@ -104,10 +104,7 @@ public class InsertingData : IXLExample
         public String House { get; set; }
         public String Name { get; set; }
         public Int32 Age { get; set; }
-        public static String ClassType
-        {
-            get { return nameof(Person); }
-        }
+        public static String ClassType => nameof(Person);
     }
 
     private static DataTable GetTable()

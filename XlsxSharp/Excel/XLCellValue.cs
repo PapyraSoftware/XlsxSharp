@@ -34,10 +34,7 @@ public readonly struct XLCellValue
     private readonly string _text;
 
     private XLCellValue(Blank _)
-        : this()
-    {
-        this.Type = XLDataType.Blank;
-    }
+        : this() => this.Type = XLDataType.Blank;
 
     private XLCellValue(bool logical)
         : this()
@@ -260,9 +257,8 @@ public readonly struct XLCellValue
     /// <param name="obj">The object to convert.</param>
     /// <param name="provider">An object that supplies culture-specific formatting information.</param>
     /// <returns>An <see cref="XLCellValue"/> representation of the object.</returns>
-    public static XLCellValue FromObject(object obj, IFormatProvider provider = null)
-    {
-        return obj switch
+    public static XLCellValue FromObject(object obj, IFormatProvider provider = null) =>
+        obj switch
         {
             null => Blank.Value,
             Blank blank => blank,
@@ -284,7 +280,6 @@ public readonly struct XLCellValue
             decimal number => number,
             _ => Convert.ToString(obj, provider),
         };
-    }
 
     /// <summary>
     /// A function used during data insertion to convert an <c>object</c> to <c>XLCellValue</c>.
@@ -451,9 +446,8 @@ public readonly struct XLCellValue
         throw new InvalidCastException("Value is not a number.");
     }
 
-    internal Object ToObject()
-    {
-        return this.Type switch
+    internal Object ToObject() =>
+        this.Type switch
         {
             XLDataType.Blank => null,
             XLDataType.Boolean => this.GetBoolean(),
@@ -464,7 +458,6 @@ public readonly struct XLCellValue
             XLDataType.TimeSpan => this.GetTimeSpan(),
             _ => throw new InvalidCastException(),
         };
-    }
 
     /// <summary>
     /// Return text representation of a value in current culture.
@@ -487,61 +480,30 @@ public readonly struct XLCellValue
             _ => throw new InvalidOperationException(),
         };
 
-    public bool Equals(XLCellValue other)
-    {
-        return this.Type == other.Type
-            && this._value.Equals(other._value)
-            && this._text == other._text;
-    }
+    public bool Equals(XLCellValue other) =>
+        this.Type == other.Type && this._value.Equals(other._value) && this._text == other._text;
 
-    public bool Equals(Blank other)
-    {
-        return this.IsBlank;
-    }
+    public bool Equals(Blank other) => this.IsBlank;
 
-    public bool Equals(bool other)
-    {
-        return this.IsBoolean && this.GetBoolean() == other;
-    }
+    public bool Equals(bool other) => this.IsBoolean && this.GetBoolean() == other;
 
-    public bool Equals(double other)
-    {
-        return this.IsNumber && this._value.Equals(other);
-    }
+    public bool Equals(double other) => this.IsNumber && this._value.Equals(other);
 
     /// <summary>
     /// Is the cell value text and is equal to the <paramref name="other"/>?
     /// Text comparison is case sensitive.
     /// </summary>
-    public bool Equals(string other)
-    {
-        return this.IsText && this._text == other;
-    }
+    public bool Equals(string other) => this.IsText && this._text == other;
 
-    public bool Equals(XLError other)
-    {
-        return this.IsError && this.GetError() == other;
-    }
+    public bool Equals(XLError other) => this.IsError && this.GetError() == other;
 
-    public bool Equals(DateTime other)
-    {
-        return this.IsDateTime && this.GetDateTime() == other;
-    }
+    public bool Equals(DateTime other) => this.IsDateTime && this.GetDateTime() == other;
 
-    public bool Equals(TimeSpan other)
-    {
-        return this.IsTimeSpan && this.GetTimeSpan() == other;
-    }
+    public bool Equals(TimeSpan other) => this.IsTimeSpan && this.GetTimeSpan() == other;
 
-    public bool Equals(int other)
-    {
-        return this.Equals((double)other);
-    }
+    public bool Equals(int other) => this.Equals((double)other);
 
-    public override bool Equals(object obj)
-    {
-        return obj is XLCellValue other && this.Equals(other);
-    }
+    public override bool Equals(object obj) => obj is XLCellValue other && this.Equals(other);
 
     public override int GetHashCode()
     {

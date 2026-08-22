@@ -15,8 +15,7 @@ namespace XlsxSharp.Tests.Excel.PivotTables;
 public class XLPivotTableTests
 {
     [Test]
-    public void PivotTables()
-    {
+    public void PivotTables() =>
         Assert.DoesNotThrow(() =>
         {
             using (
@@ -37,11 +36,9 @@ public class XLPivotTableTests
                 }
             }
         });
-    }
 
     [Test]
-    public void TestPivotTableVersioningAttributes()
-    {
+    public void TestPivotTableVersioningAttributes() =>
         // Pivot cache definitions in input file has created and refreshed version attributes = 3
         TestHelper.LoadModifyAndCompare(
             @"Other\PivotTableReferenceFiles\VersioningAttributes\inputfile.xlsx",
@@ -60,7 +57,6 @@ public class XLPivotTableTests
             },
             @"Other\PivotTableReferenceFiles\VersioningAttributes\outputfile.xlsx"
         );
-    }
 
     [Test]
     public void PivotTableOptionsSaveTest()
@@ -351,8 +347,7 @@ public class XLPivotTableTests
     }
 
     [Test]
-    public void PivotTableStyleFormatsTest()
-    {
+    public void PivotTableStyleFormatsTest() =>
         TestHelper.CreateAndCompare(
             wb =>
             {
@@ -411,7 +406,6 @@ public class XLPivotTableTests
             },
             @"Other\PivotTable\Style\Field_style_formats.xlsx"
         );
-    }
 
     [Test]
     public void CopyPivotTableTests()
@@ -497,8 +491,7 @@ public class XLPivotTableTests
     }
 
     [Test]
-    public void SharedItemsWithVariousDataTypesInTableColumn()
-    {
+    public void SharedItemsWithVariousDataTypesInTableColumn() =>
         // Load an excel that contains a table which has various combinations of types in columns.
         // The pivot cache definition contain various flags in shared items for each field and the
         // test checks the flags in cache are set correctly (they are determined in cache writer).
@@ -506,11 +499,9 @@ public class XLPivotTableTests
             @"Other\PivotTableReferenceFiles\VariousDataTypesInTableColumns\input.xlsx",
             @"Other\PivotTableReferenceFiles\VariousDataTypesInTableColumns\output.xlsx"
         );
-    }
 
     [Test]
-    public void BlankPivotTableField()
-    {
+    public void BlankPivotTableField() =>
         TestHelper.CreateAndCompare(
             wb =>
             {
@@ -590,11 +581,9 @@ public class XLPivotTableTests
             },
             @"Other\PivotTableReferenceFiles\BlankPivotTableField\BlankPivotTableField.xlsx"
         );
-    }
 
     [Test]
-    public void SourceSheetWithWhitespace()
-    {
+    public void SourceSheetWithWhitespace() =>
         // Check that pivot source reference for a sheet name with whitespaces
         // is not saved to the file with escaped quotes, issue #955.
         TestHelper.CreateAndCompare(
@@ -622,16 +611,13 @@ public class XLPivotTableTests
             },
             @"Other\PivotTableReferenceFiles\SourceSheetWithWhitespace\outputfile.xlsx"
         );
-    }
 
     [Test]
-    public void PivotTableWithNoneTheme()
-    {
+    public void PivotTableWithNoneTheme() =>
         TestHelper.LoadSaveAndCompare(
             @"Other\PivotTableReferenceFiles\PivotTableWithNoneTheme\inputfile.xlsx",
             @"Other\PivotTableReferenceFiles\PivotTableWithNoneTheme\outputfile.xlsx"
         );
-    }
 
     [Test]
     public void MaintainPivotTableLabelsOrder()
@@ -844,8 +830,7 @@ public class XLPivotTableTests
     }
 
     [Test]
-    public void TwoPivotWithOneSourceTest()
-    {
+    public void TwoPivotWithOneSourceTest() =>
         TestHelper.LoadModifyAndCompare(
             @"Other\PivotTableReferenceFiles\TwoPivotTablesWithSingleSource\input.xlsx",
             wb =>
@@ -861,18 +846,15 @@ public class XLPivotTableTests
             },
             @"Other\PivotTableReferenceFiles\TwoPivotTablesWithSingleSource\output.xlsx"
         );
-    }
 
     [Test]
-    public void PivotSubtotalsLoadingTest()
-    {
+    public void PivotSubtotalsLoadingTest() =>
         // Make sure that if the original file has *subtotals*, the subtotals are
         // turned on even after loading into XlsxSharp and then saving the document.
         TestHelper.LoadSaveAndCompare(
             @"Other\PivotTableReferenceFiles\PivotSubtotalsSource\input.xlsx",
             @"Other\PivotTableReferenceFiles\PivotSubtotalsSource\output.xlsx"
         );
-    }
 
     [Test]
     public void ClearPivotTableRenderedRange()
@@ -964,8 +946,7 @@ public class XLPivotTableTests
     }
 
     [Test]
-    public void LoadAndSavePivotTableWithCacheRecordsButMissingSourceData()
-    {
+    public void LoadAndSavePivotTableWithCacheRecordsButMissingSourceData() =>
         // Test file contains a pivot table created from a normal table in
         // a sheet that was already deleted. The file contains cache records,
         // but the table and original sheet are gone. It's possible to load
@@ -980,11 +961,9 @@ public class XLPivotTableTests
             @"Other\PivotTableReferenceFiles\PivotTableWithoutSourceData-input.xlsx",
             @"Other\PivotTableReferenceFiles\PivotTableWithoutSourceData-output.xlsx"
         );
-    }
 
     [Test]
-    public void SkipsChartsheetsDuringPivotTableLoading()
-    {
+    public void SkipsChartsheetsDuringPivotTableLoading() =>
         // Pivot table loading code looks for pivot tables on each sheet, but it shouldn't
         // crash when sheet is a chartsheet or other type of sheet. The referenced test file
         // contains chartsheet and a pivot table to ensure that loading code won't crash.
@@ -996,7 +975,6 @@ public class XLPivotTableTests
             },
             @"Other\PivotTableReferenceFiles\ChartsheetAndPivotTable.xlsx"
         );
-    }
 
     #region IXLPivotTable properties
 
@@ -1080,8 +1058,7 @@ public class XLPivotTableTests
     public void PropertyLayoutSetsLayoutOfPivotTableAndAllFields(
         XLPivotLayout layout,
         string testFile
-    )
-    {
+    ) =>
         // The pivot table also contains unused field Currency. It is there, because tabular
         // layout doesn't display header fields properly (i.e. one header per axis field),
         // unless all (even fields that are not on any axis) have the same field layout.
@@ -1116,7 +1093,6 @@ public class XLPivotTableTests
             },
             $@"Other\PivotTable\TableProps\{testFile}"
         );
-    }
 
     #endregion
 

@@ -101,10 +101,7 @@ internal sealed class CalcContext
     /// <summary>
     /// A helper method to check is user cancelled the calculation in function loops.
     /// </summary>
-    internal void ThrowIfCancelled()
-    {
-        this.CancellationToken.ThrowIfCancellationRequested();
-    }
+    internal void ThrowIfCancelled() => this.CancellationToken.ThrowIfCancellationRequested();
 
     internal ScalarValue GetCellValue(XLWorksheet? sheet, int rowNumber, int columnNumber)
     {
@@ -350,10 +347,7 @@ internal sealed class CalcContext
 
     private class FunctionVisitor : CollectVisitor<FunctionVisitor>
     {
-        public FunctionVisitor(string function)
-        {
-            this.FunctionName = function;
-        }
+        public FunctionVisitor(string function) => this.FunctionName = function;
 
         internal string FunctionName { get; }
 

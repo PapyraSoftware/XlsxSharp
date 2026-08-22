@@ -13,10 +13,7 @@ internal class XLCellValueComparer : IEqualityComparer<XLCellValue>
         StringComparer.OrdinalIgnoreCase
     );
 
-    private XLCellValueComparer(StringComparer textComparer)
-    {
-        this._textComparer = textComparer;
-    }
+    private XLCellValueComparer(StringComparer textComparer) => this._textComparer = textComparer;
 
     public bool Equals(XLCellValue x, XLCellValue y)
     {

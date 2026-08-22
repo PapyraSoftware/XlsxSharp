@@ -17,16 +17,10 @@ public class LookupTests
     #region Setup and teardown
 
     [OneTimeTearDown]
-    public void Dispose()
-    {
-        this.ws.Workbook.Dispose();
-    }
+    public void Dispose() => this.ws.Workbook.Dispose();
 
     [SetUp]
-    public void Init()
-    {
-        this.ws = SetupWorkbook();
-    }
+    public void Init() => this.ws = SetupWorkbook();
 
     private static IXLWorksheet SetupWorkbook()
     {
@@ -571,10 +565,8 @@ public class LookupTests
     }
 
     [Test]
-    public void ColumnsBlankReturnsValueError()
-    {
+    public void ColumnsBlankReturnsValueError() =>
         Assert.AreEqual(XLError.IncompatibleValue, XLWorkbook.EvaluateExpr("COLUMNS(IF(TRUE,,))"));
-    }
 
     [TestCase("0")]
     [TestCase("1")]
@@ -585,25 +577,19 @@ public class LookupTests
     [TestCase("\"\"")]
     [TestCase("\"A\"")]
     [TestCase("\"Hello World\"")]
-    public void ColumnsScalarValuesReturnsOne(string value)
-    {
+    public void ColumnsScalarValuesReturnsOne(string value) =>
         Assert.AreEqual(1, XLWorkbook.EvaluateExpr($"COLUMNS({value})"));
-    }
 
     [Test]
-    public void ColumnsErrorReturnsError()
-    {
+    public void ColumnsErrorReturnsError() =>
         Assert.AreEqual(XLError.DivisionByZero, XLWorkbook.EvaluateExpr("COLUMNS(#DIV/0!)"));
-    }
 
     [TestCase("{1}", 1)]
     [TestCase("{1;2;3}", 1)]
     [TestCase("{1,2,3,4;5,6,7,8}", 4)]
     [TestCase("{TRUE,\"Z\";#DIV/0!,4}", 2)]
-    public void ColumnsArraysReturnsNumberOfColumns(string array, int expectedColumnCount)
-    {
+    public void ColumnsArraysReturnsNumberOfColumns(string array, int expectedColumnCount) =>
         Assert.AreEqual(expectedColumnCount, XLWorkbook.EvaluateExpr($"COLUMNS({array})"));
-    }
 
     [TestCase("A1", 1)]
     [TestCase("A1:A6", 1)]
@@ -617,11 +603,9 @@ public class LookupTests
     }
 
     [Test]
-    public void ColumnsNonContiguousReferencesReturnsReferenceError()
-    {
+    public void ColumnsNonContiguousReferencesReturnsReferenceError() =>
         // Spec says #NULL!, but Excel says #REF!
         Assert.AreEqual(XLError.CellReference, XLWorkbook.EvaluateExpr("COLUMNS((A1,C3))"));
-    }
 
     [Test]
     public void Hlookup()
@@ -697,11 +681,9 @@ public class LookupTests
     }
 
     [Test]
-    public void HlookupTruncatesRowIndexNumberParameter()
-    {
+    public void HlookupTruncatesRowIndexNumberParameter() =>
         // If row index number is not a whole number, it is truncated, so here 1.9 is truncated to 1
         Assert.AreEqual(7, this.ws.Evaluate(@"HLOOKUP(7,{5,7,9},1.9)"));
-    }
 
     [Test]
     public void HlookupConvertsBlankLookupValueToNumberZero()
@@ -1124,10 +1106,8 @@ public class LookupTests
     }
 
     [Test]
-    public void RowsBlankReturnsValueError()
-    {
+    public void RowsBlankReturnsValueError() =>
         Assert.AreEqual(XLError.IncompatibleValue, XLWorkbook.EvaluateExpr("ROWS(IF(TRUE,,))"));
-    }
 
     [TestCase("0")]
     [TestCase("1")]
@@ -1138,25 +1118,19 @@ public class LookupTests
     [TestCase("\"\"")]
     [TestCase("\"A\"")]
     [TestCase("\"Hello World\"")]
-    public void RowsScalarValuesReturnsOne(string value)
-    {
+    public void RowsScalarValuesReturnsOne(string value) =>
         Assert.AreEqual(1, XLWorkbook.EvaluateExpr($"ROWS({value})"));
-    }
 
     [Test]
-    public void RowsErrorReturnsError()
-    {
+    public void RowsErrorReturnsError() =>
         Assert.AreEqual(XLError.DivisionByZero, XLWorkbook.EvaluateExpr("ROWS(#DIV/0!)"));
-    }
 
     [TestCase("{1}", 1)]
     [TestCase("{1;2;3}", 3)]
     [TestCase("{1,2,3,4;5,6,7,8;9,10,11,12}", 3)]
     [TestCase("{TRUE;#DIV/0!}", 2)]
-    public void RowsArraysReturnsNumberOfRows(string array, int expectedColumnCount)
-    {
+    public void RowsArraysReturnsNumberOfRows(string array, int expectedColumnCount) =>
         Assert.AreEqual(expectedColumnCount, XLWorkbook.EvaluateExpr($"ROWS({array})"));
-    }
 
     [TestCase("C3", 1)]
     [TestCase("B3:E12", 10)]
@@ -1169,11 +1143,9 @@ public class LookupTests
     }
 
     [Test]
-    public void RowsNonContiguousReferencesReturnsReferenceError()
-    {
+    public void RowsNonContiguousReferencesReturnsReferenceError() =>
         // Spec says #NULL!, but Excel says #REF!
         Assert.AreEqual(XLError.CellReference, XLWorkbook.EvaluateExpr("ROWS((A1,C3))"));
-    }
 
     [Test]
     public void Vlookup()
@@ -1267,10 +1239,8 @@ public class LookupTests
     [TestCase("\"TRUE\"")]
     [TestCase("1")]
     [TestCase("TRUE")]
-    public void VlookupFlagParameterCoercedToBoolean(string flagValue)
-    {
+    public void VlookupFlagParameterCoercedToBoolean(string flagValue) =>
         Assert.AreEqual(5.0, this.ws.Evaluate($"VLOOKUP(5,B2:I71,1,{flagValue})"));
-    }
 
     [Test]
     public void VlookupBlankLookupValueBehavesAsZero()
@@ -1362,8 +1332,6 @@ public class LookupTests
     }
 
     [Test]
-    public void VlookupCanSearchArrays()
-    {
+    public void VlookupCanSearchArrays() =>
         Assert.AreEqual(2, XLWorkbook.EvaluateExpr("VLOOKUP(4, {1,2; 3,2; 5,3; 7,4}, 2)"));
-    }
 }

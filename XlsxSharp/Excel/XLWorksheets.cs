@@ -35,10 +35,8 @@ internal class XLWorksheets : IXLWorksheets, IEnumerable<XLWorksheet>
 
     #region IEnumerable<XLWorksheet> Members
 
-    public IEnumerator<XLWorksheet> GetEnumerator()
-    {
-        return ((IEnumerable<XLWorksheet>)this._worksheets.Values).GetEnumerator();
-    }
+    public IEnumerator<XLWorksheet> GetEnumerator() =>
+        ((IEnumerable<XLWorksheet>)this._worksheets.Values).GetEnumerator();
 
     #endregion IEnumerable<XLWorksheet> Members
 
@@ -47,13 +45,10 @@ internal class XLWorksheets : IXLWorksheets, IEnumerable<XLWorksheet>
     public int Count
     {
         [DebuggerStepThrough]
-        get { return this._worksheets.Count; }
+        get => this._worksheets.Count;
     }
 
-    public Boolean Contains(String sheetName)
-    {
-        return this._worksheets.ContainsKey(sheetName);
-    }
+    public Boolean Contains(String sheetName) => this._worksheets.ContainsKey(sheetName);
 
     bool IXLWorksheets.TryGetWorksheet(
         string sheetName,
@@ -70,10 +65,10 @@ internal class XLWorksheets : IXLWorksheets, IEnumerable<XLWorksheet>
         return false;
     }
 
-    internal bool TryGetWorksheet(string sheetName, [NotNullWhen(true)] out XLWorksheet? worksheet)
-    {
-        return this._worksheets.TryGetValue(sheetName, out worksheet);
-    }
+    internal bool TryGetWorksheet(
+        string sheetName,
+        [NotNullWhen(true)] out XLWorksheet? worksheet
+    ) => this._worksheets.TryGetValue(sheetName, out worksheet);
 
     public IXLWorksheet Worksheet(string sheetName)
     {
@@ -103,15 +98,9 @@ internal class XLWorksheets : IXLWorksheets, IEnumerable<XLWorksheet>
         return this._worksheets.Values.Single(w => w.Position == position);
     }
 
-    public IXLWorksheet Add()
-    {
-        return this.Add(this.GetNextWorksheetName());
-    }
+    public IXLWorksheet Add() => this.Add(this.GetNextWorksheetName());
 
-    public IXLWorksheet Add(Int32 position)
-    {
-        return this.Add(this.GetNextWorksheetName(), position);
-    }
+    public IXLWorksheet Add(Int32 position) => this.Add(this.GetNextWorksheetName(), position);
 
     public IXLWorksheet Add(String sheetName)
     {
@@ -121,10 +110,8 @@ internal class XLWorksheets : IXLWorksheets, IEnumerable<XLWorksheet>
         return sheet;
     }
 
-    public IXLWorksheet Add(String sheetName, Int32 position)
-    {
-        return this.Add(sheetName, position, this.GetNextSheetId());
-    }
+    public IXLWorksheet Add(String sheetName, Int32 position) =>
+        this.Add(sheetName, position, this.GetNextSheetId());
 
     internal XLWorksheet Add(String sheetName, Int32 position, UInt32 sheetId)
     {
@@ -158,10 +145,7 @@ internal class XLWorksheets : IXLWorksheets, IEnumerable<XLWorksheet>
         this._workbook.NotifyWorksheetAdded(sheet);
     }
 
-    public void Delete(String sheetName)
-    {
-        this.Delete(this._worksheets[sheetName].Position);
-    }
+    public void Delete(String sheetName) => this.Delete(this._worksheets[sheetName].Position);
 
     public void Delete(Int32 position)
     {
@@ -192,25 +176,15 @@ internal class XLWorksheets : IXLWorksheets, IEnumerable<XLWorksheet>
         ws.Cleanup();
     }
 
-    IEnumerator<IXLWorksheet> IEnumerable<IXLWorksheet>.GetEnumerator()
-    {
-        return this._worksheets.Values.Cast<IXLWorksheet>().GetEnumerator();
-    }
+    IEnumerator<IXLWorksheet> IEnumerable<IXLWorksheet>.GetEnumerator() =>
+        this._worksheets.Values.Cast<IXLWorksheet>().GetEnumerator();
 
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return this.GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 
-    public IXLWorksheet Add(DataTable dataTable)
-    {
-        return this.Add(dataTable, dataTable.TableName);
-    }
+    public IXLWorksheet Add(DataTable dataTable) => this.Add(dataTable, dataTable.TableName);
 
-    public IXLWorksheet Add(DataTable dataTable, String sheetName)
-    {
-        return this.Add(dataTable, sheetName, TableNameGenerator.GetNewTableName(this._workbook));
-    }
+    public IXLWorksheet Add(DataTable dataTable, String sheetName) =>
+        this.Add(dataTable, sheetName, TableNameGenerator.GetNewTableName(this._workbook));
 
     public IXLWorksheet Add(DataTable dataTable, String sheetName, string tableName)
     {

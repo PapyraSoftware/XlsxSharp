@@ -130,16 +130,12 @@ internal static class XmlWriterExtensions
         w.WriteEndAttribute();
     }
 
-    public static void WriteNumberValue(this XmlWriter w, Double value)
-    {
+    public static void WriteNumberValue(this XmlWriter w, Double value) =>
         // G17 will survive roundtrip to file and back
         w.WriteValue(value.ToInvariantString());
-    }
 
-    public static void WritePreserveSpaceAttr(this XmlWriter w)
-    {
+    public static void WritePreserveSpaceAttr(this XmlWriter w) =>
         w.WriteAttributeString("xml", "space", OpenXmlConst.Xml1998Ns, "preserve");
-    }
 
     public static void WriteEmptyElement(this XmlWriter w, String elName)
     {

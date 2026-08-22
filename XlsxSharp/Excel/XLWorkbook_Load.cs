@@ -34,15 +34,9 @@ namespace XlsxSharp.Excel;
 
 public partial class XLWorkbook
 {
-    private void Load(String file)
-    {
-        this.LoadSheets(file);
-    }
+    private void Load(String file) => this.LoadSheets(file);
 
-    private void Load(Stream stream)
-    {
-        this.LoadSheets(stream);
-    }
+    private void Load(Stream stream) => this.LoadSheets(stream);
 
     private void LoadSheets(String fileName)
     {
@@ -749,10 +743,8 @@ public partial class XLWorkbook
         }
     }
 
-    private static Int32 ConvertFromEnglishMetricUnits(long emu, double resolution)
-    {
-        return Convert.ToInt32(emu * resolution / 914400);
-    }
+    private static Int32 ConvertFromEnglishMetricUnits(long emu, double resolution) =>
+        Convert.ToInt32(emu * resolution / 914400);
 
     private static XLMarker LoadMarker(XLWorksheet ws, Xdr.MarkerType marker)
     {
@@ -825,10 +817,8 @@ public partial class XLWorkbook
 
     #endregion Comment Helpers
 
-    private static String GetTableColumnName(string name)
-    {
-        return name.Replace("_x000a_", Environment.NewLine).Replace("_x005f_x000a_", "_x000a_");
-    }
+    private static String GetTableColumnName(string name) =>
+        name.Replace("_x000a_", Environment.NewLine).Replace("_x005f_x000a_", "_x000a_");
 
     private void LoadColorsAndLines<T>(IXLDrawing<T> drawing, XElement shape)
     {
@@ -1441,15 +1431,11 @@ public partial class XLWorkbook
     }
 
     // either $A:$X => true or $1:$99 => false
-    private static bool IsColReference(string sheetArea)
-    {
-        return sheetArea.All(c => c == ':' || char.IsLetter(c));
-    }
+    private static bool IsColReference(string sheetArea) =>
+        sheetArea.All(c => c == ':' || char.IsLetter(c));
 
-    private static bool IsRowReference(string sheetArea)
-    {
-        return sheetArea.All(c => c == ':' || char.IsNumber(c));
-    }
+    private static bool IsRowReference(string sheetArea) =>
+        sheetArea.All(c => c == ':' || char.IsNumber(c));
 
     private static void ParseReference(string item, out string sheetName, out string sheetArea)
     {

@@ -197,10 +197,8 @@ public class FormulaTests
     }
 
     [Test]
-    public void LegacyFunctionPropagateErrorWithoutException()
-    {
+    public void LegacyFunctionPropagateErrorWithoutException() =>
         Assert.AreEqual(XLError.NameNotRecognized, XLWorkbook.EvaluateExpr("SIN(YEAR(#NAME?))+1"));
-    }
 
     [Test]
     public void UnicodeLetterParsing()

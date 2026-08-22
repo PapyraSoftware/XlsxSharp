@@ -7,15 +7,11 @@ namespace XlsxSharp.Extensions;
 
 internal static class ObjectExtensions
 {
-    public static T CastTo<T>(this Object o)
-    {
-        return (T)Convert.ChangeType(o, typeof(T));
-    }
+    public static T CastTo<T>(this Object o) => (T)Convert.ChangeType(o, typeof(T));
 
     public static string ToInvariantString<T>(this T value)
-        where T : struct
-    {
-        return value switch
+        where T : struct =>
+        value switch
         {
             sbyte v => v.ToString(CultureInfo.InvariantCulture),
             byte v => v.ToString(CultureInfo.InvariantCulture),
@@ -33,5 +29,4 @@ internal static class ObjectExtensions
             bool b => b.ToString().ToLowerInvariant(),
             _ => value.ToString(),
         };
-    }
 }

@@ -46,10 +46,8 @@ public class PointTests
     [TestCase("A01")]
     [TestCase("A0")]
     [TestCase("A-1")]
-    public void InvalidInputsAreNotParsed(string cellRef)
-    {
+    public void InvalidInputsAreNotParsed(string cellRef) =>
         Assert.Throws<FormatException>(() => Point.Parse(cellRef.AsSpan()));
-    }
 
     [TestCase("A1")]
     [TestCase("DE1")]

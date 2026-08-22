@@ -19,10 +19,7 @@ internal partial class XLProtectionCellFormat : IXLProtection
             this.Modify(static (protection, hidden) => protection with { Hidden = hidden }, value);
     }
 
-    IXLStyle IXLProtection.SetLocked()
-    {
-        return (this as IXLProtection).SetLocked(true);
-    }
+    IXLStyle IXLProtection.SetLocked() => (this as IXLProtection).SetLocked(true);
 
     IXLStyle IXLProtection.SetLocked(bool value)
     {
@@ -30,10 +27,7 @@ internal partial class XLProtectionCellFormat : IXLProtection
         return this._parent;
     }
 
-    IXLStyle IXLProtection.SetHidden()
-    {
-        return (this as IXLProtection).SetHidden(true);
-    }
+    IXLStyle IXLProtection.SetHidden() => (this as IXLProtection).SetHidden(true);
 
     IXLStyle IXLProtection.SetHidden(bool value)
     {

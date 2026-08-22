@@ -16,8 +16,7 @@ namespace XlsxSharp.Tests.Excel.IO;
 internal class StylesReaderTests
 {
     [Test]
-    public void Can_parse_number_format()
-    {
+    public void Can_parse_number_format() =>
         AssertNumberFormats(
             """
             <numFmt numFmtId="164" formatCode="&quot;$&quot;#,##0.00"/>
@@ -28,11 +27,9 @@ internal class StylesReaderTests
                 Assert.AreEqual("\"$\"#,##0.00", formatCode);
             }
         );
-    }
 
     [Test]
-    public void Can_read_empty_font()
-    {
+    public void Can_read_empty_font() =>
         // Empty font is valid, it will just use default font values
         AssertFonts(
             "<font/>",
@@ -58,11 +55,9 @@ internal class StylesReaderTests
                 Assert.AreEqual(defaultFont.Scheme, font.Scheme);
             }
         );
-    }
 
     [Test]
-    public void Can_read_font()
-    {
+    public void Can_read_font() =>
         AssertFonts(
             """
             <font>
@@ -106,12 +101,10 @@ internal class StylesReaderTests
                 Assert.AreEqual(XLFontScheme.None, font.Scheme);
             }
         );
-    }
 
     [TestCase(6)]
     [TestCase(14)]
-    public void Interprets_undefined_font_family_values_as_unknown_font_family(int fontFamily)
-    {
+    public void Interprets_undefined_font_family_values_as_unknown_font_family(int fontFamily) =>
         // Deal with serious difference between standard and Excel. Standard only defines range of
         // numerical values, but there is no meaning assigned. Thus it makes sense to take font
         // family values allowed by standard (that have no defined meaning) and convert them
@@ -128,11 +121,9 @@ internal class StylesReaderTests
                 Assert.AreEqual(XLFontFamilyNumberingValues.NotApplicable, font.Family);
             }
         );
-    }
 
     [Test]
-    public void Can_repeat_and_reorder_font_properties()
-    {
+    public void Can_repeat_and_reorder_font_properties() =>
         // Excel requires basically a sequence, but spec allows to repeat properties and mix the order.
         AssertFonts(
             """
@@ -150,11 +141,9 @@ internal class StylesReaderTests
                 Assert.IsFalse(font.Bold);
             }
         );
-    }
 
     [Test]
-    public void Can_read_empty_fill()
-    {
+    public void Can_read_empty_fill() =>
         AssertFills(
             "<fill/>",
             styles =>
@@ -165,11 +154,9 @@ internal class StylesReaderTests
                 Assert.Null(fill.PathGradient);
             }
         );
-    }
 
     [Test]
-    public void Can_read_pattern_fill()
-    {
+    public void Can_read_pattern_fill() =>
         AssertFills(
             """
             <fill>
@@ -187,11 +174,9 @@ internal class StylesReaderTests
                 Assert.AreEqual(XLColor.FromRgb(0x804000), fill.Pattern.BackgroundColor);
             }
         );
-    }
 
     [Test]
-    public void Can_read_linear_gradient_fill()
-    {
+    public void Can_read_linear_gradient_fill() =>
         AssertFills(
             """
             <fill>
@@ -222,11 +207,9 @@ internal class StylesReaderTests
                 );
             }
         );
-    }
 
     [Test]
-    public void Can_read_path_gradient_fill()
-    {
+    public void Can_read_path_gradient_fill() =>
         AssertFills(
             """
             <fill>
@@ -260,11 +243,9 @@ internal class StylesReaderTests
                 );
             }
         );
-    }
 
     [Test]
-    public void Can_read_cell_format_alignment()
-    {
+    public void Can_read_cell_format_alignment() =>
         AssertCellXfs(
             """
             <alignment horizontal="center"
@@ -293,11 +274,9 @@ internal class StylesReaderTests
                 Assert.AreEqual(XLAlignmentReadingOrderValues.RightToLeft, alignment.ReadingOrder);
             }
         );
-    }
 
     [Test]
-    public void Can_read_cell_format_protection()
-    {
+    public void Can_read_cell_format_protection() =>
         AssertCellXfs(
             """
             <protection locked="false" hidden="1"/>
@@ -310,7 +289,6 @@ internal class StylesReaderTests
                 Assert.IsTrue(protection.Hidden);
             }
         );
-    }
 
     [Test]
     public void Can_read_cell_format_properties()
@@ -578,8 +556,7 @@ internal class StylesReaderTests
     }
 
     [Test]
-    public void Can_read_differential_formats()
-    {
+    public void Can_read_differential_formats() =>
         AssertDxf(
             """
             <dxf>
@@ -616,11 +593,9 @@ internal class StylesReaderTests
                 Assert.IsNull(dxf.Border.Bottom);
             }
         );
-    }
 
     [Test]
-    public void Differential_formats_do_not_have_to_specify_any_component()
-    {
+    public void Differential_formats_do_not_have_to_specify_any_component() =>
         AssertDxf(
             "<dxf/>",
             styles =>
@@ -632,11 +607,9 @@ internal class StylesReaderTests
                 Assert.AreSame(XLDifferentialBorderValue.Empty, dxf.Border);
             }
         );
-    }
 
     [Test]
-    public void Default_pattern_type_for_differential_formats_is_solid()
-    {
+    public void Default_pattern_type_for_differential_formats_is_solid() =>
         AssertDxf(
             """
             <dxf>
@@ -651,11 +624,9 @@ internal class StylesReaderTests
                 Assert.AreEqual(XLFillPatternValues.Solid, dxf.Fill?.Pattern?.PatternType);
             }
         );
-    }
 
     [Test]
-    public void Differential_formats_use_foreground_color_for_solid_fill_color()
-    {
+    public void Differential_formats_use_foreground_color_for_solid_fill_color() =>
         AssertDxf(
             """
             <dxf>
@@ -675,7 +646,6 @@ internal class StylesReaderTests
                 Assert.AreEqual(XLColor.FromRgb(0x800000), dxf.Fill?.Pattern?.BackgroundColor);
             }
         );
-    }
 
     [TestCase(true, true)]
     [TestCase(true, false)]

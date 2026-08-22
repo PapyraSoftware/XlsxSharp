@@ -8,10 +8,7 @@ internal class XLDrawingProtection : IXLDrawingProtection
 {
     private readonly IXLDrawingStyle _style;
 
-    public XLDrawingProtection(IXLDrawingStyle style)
-    {
-        this._style = style;
-    }
+    public XLDrawingProtection(IXLDrawingStyle style) => this._style = style;
 
     public Boolean Locked { get; set; }
 

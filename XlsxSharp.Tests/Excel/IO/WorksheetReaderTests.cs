@@ -7,8 +7,7 @@ namespace XlsxSharp.Tests.Excel.IO;
 internal class WorksheetReaderTests
 {
     [Test]
-    public void Keep_track_of_row_number_even_if_omitted_in_row_element()
-    {
+    public void Keep_track_of_row_number_even_if_omitted_in_row_element() =>
         // The test file relies on a tracked row number to position cells and rows. When row:r is
         // not specified, it should be the next row after the last read row.
         TestHelper.LoadAndAssert(
@@ -31,11 +30,9 @@ internal class WorksheetReaderTests
             },
             "Other.IO.Worksheet.OmittedRowNumber.xlsx"
         );
-    }
 
     [Test]
-    public void Keep_track_of_cell_address_even_if_omitted_in_c_element()
-    {
+    public void Keep_track_of_cell_address_even_if_omitted_in_c_element() =>
         // The test file relies on a tracked column number to position cells. If a cell doesn't
         // specify c:r, it should be a cell to the right of the last read cell.
         TestHelper.LoadAndAssert(
@@ -56,5 +53,4 @@ internal class WorksheetReaderTests
             },
             "Other.IO.Worksheet.OmittedCellReference.xlsx"
         );
-    }
 }

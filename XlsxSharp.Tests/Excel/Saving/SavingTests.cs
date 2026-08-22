@@ -26,8 +26,7 @@ namespace XlsxSharp.Tests.Excel.Saving;
 public class SavingTests
 {
     [Test]
-    public void BooleanValueSavesAsZeroOrOne()
-    {
+    public void BooleanValueSavesAsZeroOrOne() =>
         // When a cell evaluates to a boolean value, the text in the XML has to be true/false (lowercase only) or 0/1
         TestHelper.CreateAndCompare(
             wb =>
@@ -38,7 +37,6 @@ public class SavingTests
             @"Other\Formulas\BooleanFormulaValues.xlsx",
             evaluateFormulae: true
         );
-    }
 
     [Test]
     public void CanSaveEmptyFile()
@@ -335,17 +333,14 @@ public class SavingTests
     }
 
     [Test]
-    public void PreserveChartsWhenSaving()
-    {
+    public void PreserveChartsWhenSaving() =>
         TestHelper.LoadSaveAndCompare(
             @"Other\Charts\PreserveCharts\inputfile.xlsx",
             @"Other\Charts\PreserveCharts\outputfile.xlsx"
         );
-    }
 
     [Test]
-    public void DeletingAllPicturesRemovesDrawingPart()
-    {
+    public void DeletingAllPicturesRemovesDrawingPart() =>
         TestHelper.LoadModifyAndCompare(
             @"Examples\ImageHandling\ImageAnchors.xlsx",
             wb =>
@@ -361,7 +356,6 @@ public class SavingTests
             },
             @"Other\Drawings\NoDrawings\outputfile.xlsx"
         );
-    }
 
     [Test]
     [TestCase("xlsx", SpreadsheetDocumentType.Workbook)]
@@ -614,8 +608,7 @@ public class SavingTests
     }
 
     [Test]
-    public void RemoveExistingInlineStringsIfRequired()
-    {
+    public void RemoveExistingInlineStringsIfRequired() =>
         TestHelper.LoadModifyAndCompare(
             @"Other\InlineStrings\inputfile.xlsx",
             wb =>
@@ -643,7 +636,6 @@ public class SavingTests
             },
             @"Other\InlineStrings\outputfile.xlsx"
         );
-    }
 
     [Test]
     public void CanSaveFileWithEmptyFill()
@@ -676,8 +668,7 @@ public class SavingTests
     }
 
     [Test]
-    public void PivotTableWithVeryLongField()
-    {
+    public void PivotTableWithVeryLongField() =>
         TestHelper.CreateAndCompare(
             () =>
             {
@@ -702,11 +693,9 @@ public class SavingTests
             },
             @"Other\PivotTableReferenceFiles\LongText\outputfile.xlsx"
         );
-    }
 
     [Test]
-    public void PivotTableCfDxfIsSaved()
-    {
+    public void PivotTableCfDxfIsSaved() =>
         // Issue #2075: Pivot table conditional format wasn't saved.
         TestHelper.LoadSaveAndAssert(
             @"Other\PivotTable\Save\Pivot_table_conditional_format.xlsx",
@@ -758,7 +747,6 @@ public class SavingTests
                 );
             }
         );
-    }
 
     [Test]
     public void CanSaveFileWithVmlNoComments()
@@ -884,8 +872,7 @@ public class SavingTests
     }
 
     [Test]
-    public void CanAddNewPartsInWorkbookWithDuplicateRelIds()
-    {
+    public void CanAddNewPartsInWorkbookWithDuplicateRelIds() =>
         // Both Sheet1 and drawing have same relIds: rId2
         // We can add a new worksheet even when there are parts with same relId
         TestHelper.LoadModifyAndCompare(
@@ -893,11 +880,9 @@ public class SavingTests
             wb => wb.AddWorksheet(),
             @"Other\Parts\MultiplePartsHaveNonUniqueRelId-output.xlsx"
         );
-    }
 
     [Test]
-    public void WorksheetWithDrawingCanBeModified()
-    {
+    public void WorksheetWithDrawingCanBeModified() =>
         // Issue 2080: Drawing was loading the workbook DOM from the worksheet part and
         // the OpenXML SDK was ignoring worksheet changes saved through streaming, but used
         // the eager loaded DOM instead.
@@ -911,7 +896,6 @@ public class SavingTests
             },
             @"Other\Parts\WorksheetWithDrawingCanBeModified-output.xlsx"
         );
-    }
 
     [Test]
     public void CorrectlySaveValidationWithSheetReference()
@@ -954,8 +938,7 @@ public class SavingTests
     }
 
     [Test]
-    public void FormControlsArePreserved()
-    {
+    public void FormControlsArePreserved() =>
         // The sheet contains three form controls: two radio buttons and group box.
         // Form controls are rather complex and this test ensures that the saved
         // file still has VML part (that is the source of truth), drawing part
@@ -966,5 +949,4 @@ public class SavingTests
             @"Other\Shapes\sheet-with-form-controls-input.xlsx",
             @"Other\Shapes\sheet-with-form-controls-output.xlsx"
         );
-    }
 }

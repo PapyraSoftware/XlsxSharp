@@ -112,18 +112,13 @@ internal sealed class XLCellFormula
     /// </summary>
     internal Boolean Input2Deleted => this._flags.HasFlag(FormulaFlags.Input2Deleted);
 
-    private XLCellFormula(string a1)
-    {
-        this.A1 = a1;
-    }
+    private XLCellFormula(string a1) => this.A1 = a1;
 
     /// <summary>
     /// Get stored formula in R1C1 notation. Returned formula doesn't contain equal sign.
     /// </summary>
-    public string GetFormulaR1C1(Point cellAddress)
-    {
-        return GetFormula(this.A1, FormulaConversionType.A1ToR1C1, cellAddress);
-    }
+    public string GetFormulaR1C1(Point cellAddress) =>
+        GetFormula(this.A1, FormulaConversionType.A1ToR1C1, cellAddress);
 
     internal static string GetFormula(
         string strValue,
@@ -171,14 +166,8 @@ internal sealed class XLCellFormula
     /// A factory method to create a normal A1 formula. Doesn't affect recalculation version.
     /// </summary>
     /// <param name="formulaA1">Formula in A1 form. Shouldn't start with <c>=</c>.</param>
-    internal static XLCellFormula NormalA1(string formulaA1)
-    {
-        return new XLCellFormula(formulaA1)
-        {
-            Type = FormulaType.Normal,
-            _flags = FormulaFlags.None,
-        };
-    }
+    internal static XLCellFormula NormalA1(string formulaA1) =>
+        new(formulaA1) { Type = FormulaType.Normal, _flags = FormulaFlags.None };
 
     /// <summary>
     /// A factory method to create an array formula. Doesn't affect recalculation version.
@@ -186,15 +175,13 @@ internal sealed class XLCellFormula
     /// <param name="arrayFormulaA1">Isn't wrapped in <c>{}</c> and doesn't start with <c>=</c>.</param>
     /// <param name="range">A range of cells that are calculated through the array formula.</param>
     /// <param name="aca">A flag for always calculate array.</param>
-    internal static XLCellFormula Array(string arrayFormulaA1, Area range, bool aca)
-    {
-        return new XLCellFormula(arrayFormulaA1)
+    internal static XLCellFormula Array(string arrayFormulaA1, Area range, bool aca) =>
+        new(arrayFormulaA1)
         {
             Type = FormulaType.Array,
             _flags = aca ? FormulaFlags.AlwaysCalculateArray : FormulaFlags.None,
             Range = range,
         };
-    }
 
     /// <summary>
     /// A factory method to create a cell formula for 1D data table formula. Doesn't affect recalculation version.
@@ -316,10 +303,7 @@ internal sealed class XLCellFormula
         return ast;
     }
 
-    public override string ToString()
-    {
-        return this.A1;
-    }
+    public override string ToString() => this.A1;
 
     public void RenameSheet(Point origin, string oldSheetName, string newSheetName)
     {

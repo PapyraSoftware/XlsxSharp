@@ -15,15 +15,9 @@ internal class XLAreaList : IEnumerable<Area>
     internal static readonly XLAreaList Empty = new(new List<Area>());
     private readonly List<Area> _areas;
 
-    internal XLAreaList(Area area)
-    {
-        this._areas = [area];
-    }
+    internal XLAreaList(Area area) => this._areas = [area];
 
-    internal XLAreaList(List<Area> areas)
-    {
-        this._areas = areas;
-    }
+    internal XLAreaList(List<Area> areas) => this._areas = areas;
 
     internal int Count => this._areas.Count;
 
@@ -396,10 +390,7 @@ internal class XLAreaList : IEnumerable<Area>
         return new XLAreaList(result);
     }
 
-    internal XLAreaList GetConsolidated()
-    {
-        return XLRangeConsolidationEngine.Consolidate(this);
-    }
+    internal XLAreaList GetConsolidated() => XLRangeConsolidationEngine.Consolidate(this);
 
     internal bool IntersectsWith(Area otherArea)
     {
@@ -485,20 +476,11 @@ internal class XLAreaList : IEnumerable<Area>
         return new XLAreaList(list);
     }
 
-    public IEnumerator<Area> GetEnumerator()
-    {
-        return this._areas.GetEnumerator();
-    }
+    public IEnumerator<Area> GetEnumerator() => this._areas.GetEnumerator();
 
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return this.GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 
-    internal string ToSpaceList()
-    {
-        return string.Join(" ", this._areas);
-    }
+    internal string ToSpaceList() => string.Join(" ", this._areas);
 
     private static void ThrowOnDifferentSheet(XLWorksheet worksheet, IXLRange range)
     {

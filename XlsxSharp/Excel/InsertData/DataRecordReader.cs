@@ -20,15 +20,9 @@ internal class DataRecordReader : IInsertDataReader
         this._inMemoryData = [.. this.ReadToEnd(data)];
     }
 
-    public IEnumerable<IEnumerable<XLCellValue>> GetRecords()
-    {
-        return this._inMemoryData;
-    }
+    public IEnumerable<IEnumerable<XLCellValue>> GetRecords() => this._inMemoryData;
 
-    public int GetPropertiesCount()
-    {
-        return this._columns.Length;
-    }
+    public int GetPropertiesCount() => this._columns.Length;
 
     public string GetPropertyName(int propertyIndex)
     {

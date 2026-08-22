@@ -25,40 +25,24 @@ internal class FormulaSlice : ISlice
 
     public IEnumerable<int> UsedRows => this._formulas.UsedRows;
 
-    public void Clear(Area area)
-    {
-        this._formulas.Clear(area);
-    }
+    public void Clear(Area area) => this._formulas.Clear(area);
 
-    public void DeleteAreaAndShiftLeft(Area areaToDelete)
-    {
+    public void DeleteAreaAndShiftLeft(Area areaToDelete) =>
         this._formulas.DeleteAreaAndShiftLeft(areaToDelete);
-    }
 
-    public void DeleteAreaAndShiftUp(Area areaToDelete)
-    {
+    public void DeleteAreaAndShiftUp(Area areaToDelete) =>
         this._formulas.DeleteAreaAndShiftUp(areaToDelete);
-    }
 
-    public IEnumerator<Point> GetEnumerator(Area area, bool reverse = false)
-    {
-        return this._formulas.GetEnumerator(area, reverse);
-    }
+    public IEnumerator<Point> GetEnumerator(Area area, bool reverse = false) =>
+        this._formulas.GetEnumerator(area, reverse);
 
-    public void InsertAreaAndShiftDown(Area areaToInsert)
-    {
+    public void InsertAreaAndShiftDown(Area areaToInsert) =>
         this._formulas.InsertAreaAndShiftDown(areaToInsert);
-    }
 
-    public void InsertAreaAndShiftRight(Area areaToInsert)
-    {
+    public void InsertAreaAndShiftRight(Area areaToInsert) =>
         this._formulas.InsertAreaAndShiftRight(areaToInsert);
-    }
 
-    public bool IsUsed(Point address)
-    {
-        return this._formulas.IsUsed(address);
-    }
+    public bool IsUsed(Point address) => this._formulas.IsUsed(address);
 
     public void Swap(Point sp1, Point sp2)
     {
@@ -72,10 +56,7 @@ internal class FormulaSlice : ISlice
         this.Set(sp2, value1);
     }
 
-    internal XLCellFormula? Get(Point point)
-    {
-        return this._formulas[point];
-    }
+    internal XLCellFormula? Get(Point point) => this._formulas[point];
 
     internal void Set(Point point, XLCellFormula? formula)
     {
@@ -142,10 +123,8 @@ internal class FormulaSlice : ISlice
         }
     }
 
-    internal Slice<XLCellFormula>.Enumerator GetForwardEnumerator(Area range)
-    {
-        return new Slice<XLCellFormula>.Enumerator(this._formulas!, range);
-    }
+    internal Slice<XLCellFormula>.Enumerator GetForwardEnumerator(Area range) =>
+        new(this._formulas!, range);
 
     /// <summary>
     /// Mark all formulas in a range as dirty.

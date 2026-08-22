@@ -9,30 +9,25 @@ internal readonly struct XLRangeAddress : IXLRangeAddress, IEquatable<XLRangeAdd
 {
     #region Static members
 
-    public static XLRangeAddress EntireColumn(XLWorksheet worksheet, int column)
-    {
-        return new XLRangeAddress(
+    public static XLRangeAddress EntireColumn(XLWorksheet worksheet, int column) =>
+        new(
             new XLAddress(worksheet, 1, column, false, false),
             new XLAddress(worksheet, XlsxSharp.XLHelper.MaxRowNumber, column, false, false)
         );
-    }
 
-    public static XLRangeAddress EntireRow(XLWorksheet worksheet, int row)
-    {
-        return new XLRangeAddress(
+    public static XLRangeAddress EntireRow(XLWorksheet worksheet, int row) =>
+        new(
             new XLAddress(worksheet, row, 1, false, false),
             new XLAddress(worksheet, row, XlsxSharp.XLHelper.MaxColumnNumber, false, false)
         );
-    }
 
     public static readonly XLRangeAddress Invalid = new(
         new XLAddress(-1, -1, fixedRow: true, fixedColumn: true),
         new XLAddress(-1, -1, fixedRow: true, fixedColumn: true)
     );
 
-    internal static XLRangeAddress FromSheetRange(XLWorksheet? worksheet, Area range)
-    {
-        return new XLRangeAddress(
+    internal static XLRangeAddress FromSheetRange(XLWorksheet? worksheet, Area range) =>
+        new(
             new XLAddress(
                 worksheet,
                 range.FirstPoint.Row,
@@ -47,7 +42,6 @@ internal readonly struct XLRangeAddress : IXLRangeAddress, IEquatable<XLRangeAdd
                 fixedColumn: false
             )
         );
-    }
 
     #endregion Static members
 
@@ -122,21 +116,18 @@ internal readonly struct XLRangeAddress : IXLRangeAddress, IEquatable<XLRangeAdd
 
     public XLAddress LastAddress { get; }
 
-    IXLWorksheet? IXLRangeAddress.Worksheet
-    {
-        get { return this.Worksheet; }
-    }
+    IXLWorksheet? IXLRangeAddress.Worksheet => this.Worksheet;
 
     IXLAddress IXLRangeAddress.FirstAddress
     {
         [DebuggerStepThrough]
-        get { return this.FirstAddress; }
+        get => this.FirstAddress;
     }
 
     IXLAddress IXLRangeAddress.LastAddress
     {
         [DebuggerStepThrough]
-        get { return this.LastAddress; }
+        get => this.LastAddress;
     }
 
     public bool IsValid => this.FirstAddress.IsValid && this.LastAddress.IsValid;
@@ -258,15 +249,13 @@ internal readonly struct XLRangeAddress : IXLRangeAddress, IEquatable<XLRangeAdd
         return this.Intersects(in xlOtherAddress);
     }
 
-    internal bool Intersects(in XLRangeAddress otherAddress)
-    {
-        return !( // See if the two ranges intersect...
+    internal bool Intersects(in XLRangeAddress otherAddress) =>
+        !( // See if the two ranges intersect...
             otherAddress.FirstAddress.ColumnNumber > this.LastAddress.ColumnNumber
             || otherAddress.LastAddress.ColumnNumber < this.FirstAddress.ColumnNumber
             || otherAddress.FirstAddress.RowNumber > this.LastAddress.RowNumber
             || otherAddress.LastAddress.RowNumber < this.FirstAddress.RowNumber
         );
-    }
 
     public bool Contains(IXLAddress address)
     {
@@ -290,39 +279,24 @@ internal readonly struct XLRangeAddress : IXLRangeAddress, IEquatable<XLRangeAdd
             && range.LastAddress.RowNumber <= this.LastAddress.RowNumber;
     }
 
-    internal IXLRangeAddress WithoutWorksheet()
-    {
-        return new XLRangeAddress(
+    internal IXLRangeAddress WithoutWorksheet() =>
+        new XLRangeAddress(
             this.FirstAddress.WithoutWorksheet(),
             this.LastAddress.WithoutWorksheet()
         );
-    }
 
-    internal XLRangeAddress WithWorksheet(XLWorksheet worksheet)
-    {
-        return new XLRangeAddress(
-            this.FirstAddress.WithWorksheet(worksheet),
-            this.LastAddress.WithWorksheet(worksheet)
-        );
-    }
+    internal XLRangeAddress WithWorksheet(XLWorksheet worksheet) =>
+        new(this.FirstAddress.WithWorksheet(worksheet), this.LastAddress.WithWorksheet(worksheet));
 
-    internal bool Contains(in XLAddress address)
-    {
-        return this.FirstAddress.RowNumber <= address.RowNumber
-            && address.RowNumber <= this.LastAddress.RowNumber
-            && this.FirstAddress.ColumnNumber <= address.ColumnNumber
-            && address.ColumnNumber <= this.LastAddress.ColumnNumber;
-    }
+    internal bool Contains(in XLAddress address) =>
+        this.FirstAddress.RowNumber <= address.RowNumber
+        && address.RowNumber <= this.LastAddress.RowNumber
+        && this.FirstAddress.ColumnNumber <= address.ColumnNumber
+        && address.ColumnNumber <= this.LastAddress.ColumnNumber;
 
-    public String ToStringRelative()
-    {
-        return this.ToStringRelative(false);
-    }
+    public String ToStringRelative() => this.ToStringRelative(false);
 
-    public String ToStringFixed()
-    {
-        return this.ToStringFixed(XLReferenceStyle.A1);
-    }
+    public String ToStringFixed() => this.ToStringFixed(XLReferenceStyle.A1);
 
     public String ToStringRelative(Boolean includeSheet)
     {
@@ -375,10 +349,8 @@ internal readonly struct XLRangeAddress : IXLRangeAddress, IEquatable<XLRangeAdd
         return address;
     }
 
-    public String ToStringFixed(XLReferenceStyle referenceStyle)
-    {
-        return this.ToStringFixed(referenceStyle, false);
-    }
+    public String ToStringFixed(XLReferenceStyle referenceStyle) =>
+        this.ToStringFixed(referenceStyle, false);
 
     public String ToStringFixed(XLReferenceStyle referenceStyle, Boolean includeSheet)
     {
@@ -480,10 +452,7 @@ internal readonly struct XLRangeAddress : IXLRangeAddress, IEquatable<XLRangeAdd
         }
     }
 
-    public string ToString(XLReferenceStyle referenceStyle)
-    {
-        return this.ToString(referenceStyle, false);
-    }
+    public string ToString(XLReferenceStyle referenceStyle) => this.ToString(referenceStyle, false);
 
     public string ToString(XLReferenceStyle referenceStyle, bool includeSheet)
     {
@@ -521,38 +490,27 @@ internal readonly struct XLRangeAddress : IXLRangeAddress, IEquatable<XLRangeAdd
         return hashCode;
     }
 
-    public bool Equals(XLRangeAddress other)
-    {
-        return ReferenceEquals(this.Worksheet, other.Worksheet)
-            && this.FirstAddress == other.FirstAddress
-            && this.LastAddress == other.LastAddress;
-    }
+    public bool Equals(XLRangeAddress other) =>
+        ReferenceEquals(this.Worksheet, other.Worksheet)
+        && this.FirstAddress == other.FirstAddress
+        && this.LastAddress == other.LastAddress;
 
-    public bool IsSingleCell()
-    {
-        return this.IsValid
-            && this.FirstAddress.RowNumber == this.LastAddress.RowNumber
-            && this.FirstAddress.ColumnNumber == this.LastAddress.ColumnNumber;
-    }
+    public bool IsSingleCell() =>
+        this.IsValid
+        && this.FirstAddress.RowNumber == this.LastAddress.RowNumber
+        && this.FirstAddress.ColumnNumber == this.LastAddress.ColumnNumber;
 
-    public bool IsEntireColumn()
-    {
-        return this.IsValid
-            && this.FirstAddress.RowNumber == 1
-            && this.LastAddress.RowNumber == XlsxSharp.XLHelper.MaxRowNumber;
-    }
+    public bool IsEntireColumn() =>
+        this.IsValid
+        && this.FirstAddress.RowNumber == 1
+        && this.LastAddress.RowNumber == XlsxSharp.XLHelper.MaxRowNumber;
 
-    public bool IsEntireRow()
-    {
-        return this.IsValid
-            && this.FirstAddress.ColumnNumber == 1
-            && this.LastAddress.ColumnNumber == XlsxSharp.XLHelper.MaxColumnNumber;
-    }
+    public bool IsEntireRow() =>
+        this.IsValid
+        && this.FirstAddress.ColumnNumber == 1
+        && this.LastAddress.ColumnNumber == XlsxSharp.XLHelper.MaxColumnNumber;
 
-    public bool IsEntireSheet()
-    {
-        return this.IsValid && this.IsEntireColumn() && this.IsEntireRow();
-    }
+    public bool IsEntireSheet() => this.IsValid && this.IsEntireColumn() && this.IsEntireRow();
 
     public IXLRangeAddress Relative(
         IXLRangeAddress sourceRangeAddress,
@@ -674,15 +632,9 @@ internal readonly struct XLRangeAddress : IXLRangeAddress, IEquatable<XLRangeAdd
 
     #region Operators
 
-    public static bool operator ==(XLRangeAddress left, XLRangeAddress right)
-    {
-        return left.Equals(right);
-    }
+    public static bool operator ==(XLRangeAddress left, XLRangeAddress right) => left.Equals(right);
 
-    public static bool operator !=(XLRangeAddress left, XLRangeAddress right)
-    {
-        return !(left == right);
-    }
+    public static bool operator !=(XLRangeAddress left, XLRangeAddress right) => !(left == right);
 
     #endregion Operators
 }

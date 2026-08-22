@@ -108,8 +108,5 @@ internal class XLCFDataBarConverterExtension : IXLCFConverterExtension
 
     private static ConditionalFormattingValueObjectTypeValues GetCFType(
         DocumentFormat.OpenXml.Spreadsheet.ConditionalFormatValueObjectValues value
-    )
-    {
-        return CFValueToTypeMap[value];
-    }
+    ) => CFValueToTypeMap[value];
 }

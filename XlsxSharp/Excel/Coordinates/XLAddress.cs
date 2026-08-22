@@ -13,10 +13,7 @@ internal struct XLAddress : IXLAddress, IEquatable<XLAddress>
     /// Create address without worksheet. For calculation only!
     /// </summary>
     /// <param name="cellAddressString"></param>
-    public static XLAddress Create(string cellAddressString)
-    {
-        return Create(null, cellAddressString);
-    }
+    public static XLAddress Create(string cellAddressString) => Create(null, cellAddressString);
 
     public static XLAddress Create(XLWorksheet worksheet, string cellAddressString)
     {
@@ -176,48 +173,33 @@ internal struct XLAddress : IXLAddress, IEquatable<XLAddress>
     IXLWorksheet IXLAddress.Worksheet
     {
         [DebuggerStepThrough]
-        get { return this.Worksheet; }
+        get => this.Worksheet;
     }
 
     public bool HasWorksheet
     {
         [DebuggerStepThrough]
-        get { return this.Worksheet != null; }
+        get => this.Worksheet != null;
     }
 
-    public bool FixedRow
-    {
-        get { return this._fixedRow; }
-    }
+    public bool FixedRow => this._fixedRow;
 
-    public bool FixedColumn
-    {
-        get { return this._fixedColumn; }
-    }
+    public bool FixedColumn => this._fixedColumn;
 
     /// <summary>
     /// Gets the row number of this address.
     /// </summary>
-    public Int32 RowNumber
-    {
-        get { return this._rowNumber; }
-    }
+    public Int32 RowNumber => this._rowNumber;
 
     /// <summary>
     /// Gets the column number of this address.
     /// </summary>
-    public Int32 ColumnNumber
-    {
-        get { return this._columnNumber; }
-    }
+    public Int32 ColumnNumber => this._columnNumber;
 
     /// <summary>
     /// Gets the column letter(s) of this address.
     /// </summary>
-    public String ColumnLetter
-    {
-        get { return XlsxSharp.XLHelper.GetColumnLetterFromNumber(this._columnNumber); }
-    }
+    public String ColumnLetter => XlsxSharp.XLHelper.GetColumnLetterFromNumber(this._columnNumber);
 
     #endregion Properties
 
@@ -243,10 +225,7 @@ internal struct XLAddress : IXLAddress, IEquatable<XLAddress>
         return retVal;
     }
 
-    public string ToString(XLReferenceStyle referenceStyle)
-    {
-        return this.ToString(referenceStyle, false);
-    }
+    public string ToString(XLReferenceStyle referenceStyle) => this.ToString(referenceStyle, false);
 
     public string ToString(XLReferenceStyle referenceStyle, bool includeSheet)
     {
@@ -291,69 +270,53 @@ internal struct XLAddress : IXLAddress, IEquatable<XLAddress>
 
     #region Methods
 
-    public string GetTrimmedAddress()
-    {
-        return this._trimmedAddress
-            ?? (this._trimmedAddress = this.ColumnLetter + this._rowNumber.ToInvariantString());
-    }
+    public string GetTrimmedAddress() =>
+        this._trimmedAddress
+        ?? (this._trimmedAddress = this.ColumnLetter + this._rowNumber.ToInvariantString());
 
     #endregion Methods
 
     #region Operator Overloads
 
-    public static XLAddress operator +(XLAddress left, XLAddress right)
-    {
-        return new XLAddress(
+    public static XLAddress operator +(XLAddress left, XLAddress right) =>
+        new(
             left.Worksheet,
             left.RowNumber + right.RowNumber,
             left.ColumnNumber + right.ColumnNumber,
             left._fixedRow,
             left._fixedColumn
         );
-    }
 
-    public static XLAddress operator -(XLAddress left, XLAddress right)
-    {
-        return new XLAddress(
+    public static XLAddress operator -(XLAddress left, XLAddress right) =>
+        new(
             left.Worksheet,
             left.RowNumber - right.RowNumber,
             left.ColumnNumber - right.ColumnNumber,
             left._fixedRow,
             left._fixedColumn
         );
-    }
 
-    public static XLAddress operator +(XLAddress left, Int32 right)
-    {
-        return new XLAddress(
+    public static XLAddress operator +(XLAddress left, Int32 right) =>
+        new(
             left.Worksheet,
             left.RowNumber + right,
             left.ColumnNumber + right,
             left._fixedRow,
             left._fixedColumn
         );
-    }
 
-    public static XLAddress operator -(XLAddress left, Int32 right)
-    {
-        return new XLAddress(
+    public static XLAddress operator -(XLAddress left, Int32 right) =>
+        new(
             left.Worksheet,
             left.RowNumber - right,
             left.ColumnNumber - right,
             left._fixedRow,
             left._fixedColumn
         );
-    }
 
-    public static Boolean operator ==(XLAddress left, XLAddress right)
-    {
-        return left.Equals(right);
-    }
+    public static Boolean operator ==(XLAddress left, XLAddress right) => left.Equals(right);
 
-    public static Boolean operator !=(XLAddress left, XLAddress right)
-    {
-        return !(left == right);
-    }
+    public static Boolean operator !=(XLAddress left, XLAddress right) => !(left == right);
 
     #endregion Operator Overloads
 
@@ -361,15 +324,9 @@ internal struct XLAddress : IXLAddress, IEquatable<XLAddress>
 
     #region IEqualityComparer<XLCellAddress> Members
 
-    public Boolean Equals(IXLAddress x, IXLAddress y)
-    {
-        return x == y;
-    }
+    public Boolean Equals(IXLAddress x, IXLAddress y) => x == y;
 
-    public static new Boolean Equals(object x, object y)
-    {
-        return x == y;
-    }
+    public static new Boolean Equals(object x, object y) => x == y;
 
     #endregion IEqualityComparer<XLCellAddress> Members
 
@@ -388,18 +345,13 @@ internal struct XLAddress : IXLAddress, IEquatable<XLAddress>
             && this._fixedColumn == other.FixedColumn;
     }
 
-    public bool Equals(XLAddress other)
-    {
-        return this._rowNumber == other._rowNumber
-            && this._columnNumber == other._columnNumber
-            && this._fixedRow == other._fixedRow
-            && this._fixedColumn == other._fixedColumn;
-    }
+    public bool Equals(XLAddress other) =>
+        this._rowNumber == other._rowNumber
+        && this._columnNumber == other._columnNumber
+        && this._fixedRow == other._fixedRow
+        && this._fixedColumn == other._fixedColumn;
 
-    public override Boolean Equals(Object other)
-    {
-        return this.Equals(other as IXLAddress);
-    }
+    public override Boolean Equals(Object other) => this.Equals(other as IXLAddress);
 
     public override int GetHashCode()
     {
@@ -411,24 +363,15 @@ internal struct XLAddress : IXLAddress, IEquatable<XLAddress>
         return hashCode;
     }
 
-    public int GetHashCode(IXLAddress obj)
-    {
-        return ((XLAddress)obj).GetHashCode();
-    }
+    public int GetHashCode(IXLAddress obj) => ((XLAddress)obj).GetHashCode();
 
     #endregion IEquatable<XLCellAddress> Members
 
     #endregion Interface Requirements
 
-    public String ToStringRelative()
-    {
-        return this.ToStringRelative(false);
-    }
+    public String ToStringRelative() => this.ToStringRelative(false);
 
-    public String ToStringFixed()
-    {
-        return this.ToStringFixed(XLReferenceStyle.Default);
-    }
+    public String ToStringFixed() => this.ToStringFixed(XLReferenceStyle.Default);
 
     public String ToStringRelative(Boolean includeSheet)
     {
@@ -446,26 +389,14 @@ internal struct XLAddress : IXLAddress, IEquatable<XLAddress>
         return address;
     }
 
-    internal XLAddress WithoutWorksheet()
-    {
-        return new XLAddress(this.RowNumber, this.ColumnNumber, this.FixedRow, this.FixedColumn);
-    }
+    internal XLAddress WithoutWorksheet() =>
+        new(this.RowNumber, this.ColumnNumber, this.FixedRow, this.FixedColumn);
 
-    internal XLAddress WithWorksheet(XLWorksheet worksheet)
-    {
-        return new XLAddress(
-            worksheet,
-            this.RowNumber,
-            this.ColumnNumber,
-            this.FixedRow,
-            this.FixedColumn
-        );
-    }
+    internal XLAddress WithWorksheet(XLWorksheet worksheet) =>
+        new(worksheet, this.RowNumber, this.ColumnNumber, this.FixedRow, this.FixedColumn);
 
-    public String ToStringFixed(XLReferenceStyle referenceStyle)
-    {
-        return this.ToStringFixed(referenceStyle, false);
-    }
+    public String ToStringFixed(XLReferenceStyle referenceStyle) =>
+        this.ToStringFixed(referenceStyle, false);
 
     public String ToStringFixed(XLReferenceStyle referenceStyle, Boolean includeSheet)
     {
@@ -526,21 +457,14 @@ internal struct XLAddress : IXLAddress, IEquatable<XLAddress>
         return address;
     }
 
-    public String UniqueId
-    {
-        get { return this.RowNumber.ToString("0000000") + this.ColumnNumber.ToString("00000"); }
-    }
+    public String UniqueId =>
+        this.RowNumber.ToString("0000000") + this.ColumnNumber.ToString("00000");
 
-    public bool IsValid
-    {
-        get
-        {
-            return 0 < this.RowNumber
-                && this.RowNumber <= XlsxSharp.XLHelper.MaxRowNumber
-                && 0 < this.ColumnNumber
-                && this.ColumnNumber <= XlsxSharp.XLHelper.MaxColumnNumber;
-        }
-    }
+    public bool IsValid =>
+        0 < this.RowNumber
+        && this.RowNumber <= XlsxSharp.XLHelper.MaxRowNumber
+        && 0 < this.ColumnNumber
+        && this.ColumnNumber <= XlsxSharp.XLHelper.MaxColumnNumber;
 
     private bool WorksheetIsDeleted => this.Worksheet?.IsDeleted == true;
 }

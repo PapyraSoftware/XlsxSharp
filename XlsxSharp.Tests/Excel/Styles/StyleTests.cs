@@ -85,8 +85,7 @@ public class StyleTests
 
     // https://github.com/XlsxSharp/XlsxSharp/issues/1813
     [Test]
-    public void RowColors()
-    {
+    public void RowColors() =>
         TestHelper.CreateAndCompare(
             () =>
             {
@@ -133,7 +132,6 @@ public class StyleTests
             },
             @"Other\StyleReferenceFiles\RowColors\output.xlsx"
         );
-    }
 
     [Test]
     public void StyleForCellsWithoutExplicitlySetStyleUsesCombinationOfRowAndColumnsStyles()

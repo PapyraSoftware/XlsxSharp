@@ -43,10 +43,8 @@ internal class LoadContext
         return pivotCf;
     }
 
-    private static Exception PivotCfNotFoundException(string sheetName, int priority)
-    {
-        return PartStructureException.ExpectedElementNotFound(
+    private static Exception PivotCfNotFoundException(string sheetName, int priority) =>
+        PartStructureException.ExpectedElementNotFound(
             $"conditional formatting for pivot table in sheet {sheetName} with priority {priority}"
         );
-    }
 }

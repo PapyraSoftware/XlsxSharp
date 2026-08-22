@@ -6,8 +6,6 @@ namespace XlsxSharp.Tests.Excel.Drawings;
 public class PictureTests
 {
     [TestCase("Other.Drawings.picture-webp.xlsx")]
-    public void CanLoadAndSaveWorkbookWithImageType(string resourceWithImageType)
-    {
+    public void CanLoadAndSaveWorkbookWithImageType(string resourceWithImageType) =>
         TestHelper.LoadSaveAndCompare(resourceWithImageType, resourceWithImageType);
-    }
 }

@@ -7,32 +7,22 @@ namespace XlsxSharp.Tests.Examples;
 public class ColumnsTests
 {
     [Test]
-    public void ColumnCells()
-    {
+    public void ColumnCells() =>
         TestHelper.RunTestExample<ColumnCells>(@"Columns\ColumnCells.xlsx");
-    }
 
     [Test]
-    public void ColumnCollections()
-    {
+    public void ColumnCollections() =>
         TestHelper.RunTestExample<ColumnCollection>(@"Columns\ColumnCollection.xlsx");
-    }
 
     [Test]
-    public void ColumnSettings()
-    {
+    public void ColumnSettings() =>
         TestHelper.RunTestExample<ColumnSettings>(@"Columns\ColumnSettings.xlsx");
-    }
 
     [Test]
-    public void DeletingColumns()
-    {
+    public void DeletingColumns() =>
         TestHelper.RunTestExample<DeletingColumns>(@"Columns\DeletingColumns.xlsx");
-    }
 
     //[Test] // Not working yet
-    public static void InsertColumns()
-    {
+    public static void InsertColumns() =>
         TestHelper.RunTestExample<InsertColumns>(@"Columns\InsertColumns.xlsx");
-    }
 }

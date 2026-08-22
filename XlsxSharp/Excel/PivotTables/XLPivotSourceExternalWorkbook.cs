@@ -42,10 +42,8 @@ internal sealed class XLPivotSourceExternalWorkbook : IXLPivotSource
         this.TableOrName = tableOrName;
     }
 
-    public bool TryGetSource(XLWorkbook workbook, out XLWorksheet? sheet, out Area? sheetArea)
-    {
+    public bool TryGetSource(XLWorkbook workbook, out XLWorksheet? sheet, out Area? sheetArea) =>
         throw new NotImplementedException("External workbook source is not supported.");
-    }
 
     public bool Equals(IXLPivotSource otherSource)
     {
@@ -65,13 +63,8 @@ internal sealed class XLPivotSourceExternalWorkbook : IXLPivotSource
         return false;
     }
 
-    public override bool Equals(object? other)
-    {
-        return other is IXLPivotSource source && this.Equals(source);
-    }
+    public override bool Equals(object? other) =>
+        other is IXLPivotSource source && this.Equals(source);
 
-    public override int GetHashCode()
-    {
-        return HashCode.Combine(this.RelId, this.Area).GetHashCode();
-    }
+    public override int GetHashCode() => HashCode.Combine(this.RelId, this.Area).GetHashCode();
 }

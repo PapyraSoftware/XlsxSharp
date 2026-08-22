@@ -8,15 +8,12 @@ internal class XLDrawingSize : IXLDrawingSize
 {
     private readonly IXLDrawingStyle _style;
 
-    public XLDrawingSize(IXLDrawingStyle style)
-    {
-        this._style = style;
-    }
+    public XLDrawingSize(IXLDrawingStyle style) => this._style = style;
 
     public Boolean AutomaticSize
     {
-        get { return this._style.Alignment.AutomaticSize; }
-        set { this._style.Alignment.AutomaticSize = value; }
+        get => this._style.Alignment.AutomaticSize;
+        set => this._style.Alignment.AutomaticSize = value;
     }
 
     public IXLDrawingStyle SetAutomaticSize()

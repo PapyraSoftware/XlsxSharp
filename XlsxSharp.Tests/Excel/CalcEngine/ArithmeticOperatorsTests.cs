@@ -14,28 +14,22 @@ public class ArithmeticOperatorsTests
     [TestCase("\"\" & \"B\"", "B")]
     [TestCase("\"A\" & \"\"", "A")]
     [TestCase("\"\" & \"\"", "")]
-    public void ConcatConcatenateText(string formula, object expectedResult)
-    {
+    public void ConcatConcatenateText(string formula, object expectedResult) =>
         Assert.AreEqual(expectedResult, XLWorkbook.EvaluateExpr(formula));
-    }
 
     [TestCase("A1 & \"\"", "")]
     [TestCase("\"\" & A1", "")]
     [TestCase("A1 & A1", "")]
-    public void ConcatConcatenateBlank(string formula, object expectedResult)
-    {
+    public void ConcatConcatenateBlank(string formula, object expectedResult) =>
         Assert.AreEqual(expectedResult, Evaluate(formula));
-    }
 
     [TestCase("TRUE & \" to text\"", "TRUE to text")]
     [TestCase("FALSE & \" to text\"", "FALSE to text")]
     [TestCase("true & \" to text\"", "TRUE to text")]
     [TestCase("false & \" to text\"", "FALSE to text")]
     [TestCase("TRUE & FALSE", @"TRUEFALSE")]
-    public void ConcatConvertsLogicalToString(string formula, object expectedResult)
-    {
+    public void ConcatConvertsLogicalToString(string formula, object expectedResult) =>
         Assert.AreEqual(expectedResult, XLWorkbook.EvaluateExpr(formula));
-    }
 
     [SetCulture("cs-CZ")]
     [TestCase("1 & \" to text\"", "1 to text")]
@@ -51,10 +45,8 @@ public class ArithmeticOperatorsTests
     [TestCase("#DIV/0! & \"1\"", XLError.DivisionByZero)]
     [TestCase("#REF! & #DIV/0!", XLError.CellReference)]
     [TestCase("1 & #NAME?", XLError.NameNotRecognized)]
-    public void ConcatWithErrorAsOperandReturnsTheError(string formula, XLError expectedError)
-    {
+    public void ConcatWithErrorAsOperandReturnsTheError(string formula, XLError expectedError) =>
         Assert.AreEqual(expectedError, XLWorkbook.EvaluateExpr(formula));
-    }
 
     #endregion
 
@@ -66,10 +58,8 @@ public class ArithmeticOperatorsTests
     [TestCase("+FALSE", false)]
     [TestCase("+#DIV/0!", XLError.DivisionByZero)]
     [TestCase("ISBLANK(+A1)", true)]
-    public void UnaryPlusIsNonOpThatKeepsValueAndType(string formula, object expectedValue)
-    {
+    public void UnaryPlusIsNonOpThatKeepsValueAndType(string formula, object expectedValue) =>
         Assert.AreEqual(expectedValue, Evaluate(formula));
-    }
 
     #endregion
 
@@ -82,10 +72,8 @@ public class ArithmeticOperatorsTests
     [TestCase("-FALSE", 0)]
     [TestCase("-#DIV/0!", XLError.DivisionByZero)]
     [TestCase("-A1", 0.0)]
-    public void UnaryMinusConvertsArgumentBeforeNegating(string formula, object expectedValue)
-    {
+    public void UnaryMinusConvertsArgumentBeforeNegating(string formula, object expectedValue) =>
         Assert.AreEqual(expectedValue, Evaluate(formula));
-    }
 
     #endregion
 
@@ -104,10 +92,7 @@ public class ArithmeticOperatorsTests
     public void UnaryPercentConvertsArgumentBeforePercentOperator(
         string formula,
         object expectedValue
-    )
-    {
-        Assert.AreEqual(expectedValue, Evaluate(formula));
-    }
+    ) => Assert.AreEqual(expectedValue, Evaluate(formula));
 
     #endregion
 
@@ -127,10 +112,8 @@ public class ArithmeticOperatorsTests
     [TestCase("#DIV/0!^#REF!", XLError.DivisionByZero)]
     [TestCase("5^A1", 1.0)]
     [TestCase("A1^4", 0.0)]
-    public void ExponentiationCanWorkWithScalars(string formula, object expectedValue)
-    {
+    public void ExponentiationCanWorkWithScalars(string formula, object expectedValue) =>
         Assert.That(Evaluate(formula), Is.EqualTo(expectedValue));
-    }
 
     #endregion
 
@@ -150,10 +133,8 @@ public class ArithmeticOperatorsTests
     [TestCase("#DIV/0!*#REF!", XLError.DivisionByZero)]
     [TestCase("10*A1", 0.0)]
     [TestCase("A1*10", 0.0)]
-    public void MultiplicationCanWorkWithScalars(string formula, object expectedValue)
-    {
+    public void MultiplicationCanWorkWithScalars(string formula, object expectedValue) =>
         Assert.That(Evaluate(formula), Is.EqualTo(expectedValue));
-    }
 
     #endregion
 
@@ -173,10 +154,8 @@ public class ArithmeticOperatorsTests
     [TestCase("#DIV/0!/#REF!", XLError.DivisionByZero)]
     [TestCase("A1/5", 0.0)]
     [TestCase("5/A1", XLError.DivisionByZero)]
-    public void DivisionCanWorkWithScalars(string formula, object expectedValue)
-    {
+    public void DivisionCanWorkWithScalars(string formula, object expectedValue) =>
         Assert.AreEqual(expectedValue, Evaluate(formula));
-    }
 
     #endregion
 
@@ -192,10 +171,8 @@ public class ArithmeticOperatorsTests
     [TestCase("1 + #REF!", XLError.CellReference)]
     [TestCase("#DIV/0! + #REF!", XLError.DivisionByZero)]
     [TestCase("A1 + 7", 7)]
-    public void AdditionCanWorkWithScalars(string formula, object expectedValue)
-    {
+    public void AdditionCanWorkWithScalars(string formula, object expectedValue) =>
         Assert.AreEqual(expectedValue, Evaluate(formula));
-    }
 
     #endregion
 
@@ -211,10 +188,8 @@ public class ArithmeticOperatorsTests
     [TestCase("1 - #REF!", XLError.CellReference)]
     [TestCase("#DIV/0! - #REF!", XLError.DivisionByZero)]
     [TestCase("A1 - 5", -5)]
-    public void SubtractionCanWorkWithScalars(string formula, object expectedValue)
-    {
+    public void SubtractionCanWorkWithScalars(string formula, object expectedValue) =>
         Assert.AreEqual(expectedValue, Evaluate(formula));
-    }
 
     #endregion
 

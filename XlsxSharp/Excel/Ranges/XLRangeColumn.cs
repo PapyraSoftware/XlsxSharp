@@ -20,10 +20,7 @@ internal class XLRangeColumn : XLRangeBase, IXLRangeColumn
 
     #region IXLRangeColumn Members
 
-    IXLCell IXLRangeColumn.Cell(int rowNumber)
-    {
-        return this.Cell(rowNumber);
-    }
+    IXLCell IXLRangeColumn.Cell(int rowNumber) => this.Cell(rowNumber);
 
     IXLCells IXLRangeColumn.Cells(string cellsInColumn) => this.Cells(cellsInColumn);
 
@@ -39,15 +36,9 @@ internal class XLRangeColumn : XLRangeBase, IXLRangeColumn
         return retVal;
     }
 
-    public IXLCells Cells(int firstRow, int lastRow)
-    {
-        return this.Cells(firstRow + ":" + lastRow);
-    }
+    public IXLCells Cells(int firstRow, int lastRow) => this.Cells(firstRow + ":" + lastRow);
 
-    public void Delete()
-    {
-        this.Delete(true);
-    }
+    public void Delete() => this.Delete(true);
 
     internal void Delete(Boolean deleteTableField)
     {
@@ -73,32 +64,19 @@ internal class XLRangeColumn : XLRangeBase, IXLRangeColumn
         this.Delete(XLShiftDeletedCells.ShiftCellsLeft);
     }
 
-    public IXLCells InsertCellsAbove(int numberOfRows)
-    {
-        return this.InsertCellsAbove(numberOfRows, false);
-    }
+    public IXLCells InsertCellsAbove(int numberOfRows) =>
+        this.InsertCellsAbove(numberOfRows, false);
 
-    public IXLCells InsertCellsAbove(int numberOfRows, bool expandRange)
-    {
-        return this.InsertRowsAbove(numberOfRows, expandRange).Cells();
-    }
+    public IXLCells InsertCellsAbove(int numberOfRows, bool expandRange) =>
+        this.InsertRowsAbove(numberOfRows, expandRange).Cells();
 
-    public IXLCells InsertCellsBelow(int numberOfRows)
-    {
-        return this.InsertCellsBelow(numberOfRows, true);
-    }
+    public IXLCells InsertCellsBelow(int numberOfRows) => this.InsertCellsBelow(numberOfRows, true);
 
-    public IXLCells InsertCellsBelow(int numberOfRows, bool expandRange)
-    {
-        return this.InsertRowsBelow(numberOfRows, expandRange).Cells();
-    }
+    public IXLCells InsertCellsBelow(int numberOfRows, bool expandRange) =>
+        this.InsertRowsBelow(numberOfRows, expandRange).Cells();
 
-    public int CellCount()
-    {
-        return this.RangeAddress.LastAddress.RowNumber
-            - this.RangeAddress.FirstAddress.RowNumber
-            + 1;
-    }
+    public int CellCount() =>
+        this.RangeAddress.LastAddress.RowNumber - this.RangeAddress.FirstAddress.RowNumber + 1;
 
     public IXLRangeColumn Sort(
         XLSortOrder sortOrder = XLSortOrder.Ascending,
@@ -163,15 +141,10 @@ internal class XLRangeColumn : XLRangeBase, IXLRangeColumn
             .Column(1);
     }
 
-    public IXLRangeColumn Column(int start, int end)
-    {
-        return this.Range(start, end).FirstColumn();
-    }
+    public IXLRangeColumn Column(int start, int end) => this.Range(start, end).FirstColumn();
 
-    public IXLRangeColumn Column(IXLCell start, IXLCell end)
-    {
-        return this.Column(start.Address.RowNumber, end.Address.RowNumber);
-    }
+    public IXLRangeColumn Column(IXLCell start, IXLCell end) =>
+        this.Column(start.Address.RowNumber, end.Address.RowNumber);
 
     public IXLRangeColumns Columns(string columns)
     {
@@ -200,38 +173,23 @@ internal class XLRangeColumn : XLRangeBase, IXLRangeColumn
         return retVal;
     }
 
-    public IXLColumn WorksheetColumn()
-    {
-        return this.Worksheet.Column(this.RangeAddress.FirstAddress.ColumnNumber);
-    }
+    public IXLColumn WorksheetColumn() =>
+        this.Worksheet.Column(this.RangeAddress.FirstAddress.ColumnNumber);
 
     #endregion IXLRangeColumn Members
 
-    public override XLRangeType RangeType
-    {
-        get { return XLRangeType.RangeColumn; }
-    }
+    public override XLRangeType RangeType => XLRangeType.RangeColumn;
 
-    public XLCell Cell(int row)
-    {
-        return this.Cell(row, 1);
-    }
+    public XLCell Cell(int row) => this.Cell(row, 1);
 
-    internal override void WorksheetRangeShiftedColumns(XLRange range, int columnsShifted)
-    {
+    internal override void WorksheetRangeShiftedColumns(XLRange range, int columnsShifted) =>
         this.RangeAddress = (XLRangeAddress)
             this.ShiftColumns(this.RangeAddress, range, columnsShifted);
-    }
 
-    internal override void WorksheetRangeShiftedRows(XLRange range, int rowsShifted)
-    {
+    internal override void WorksheetRangeShiftedRows(XLRange range, int rowsShifted) =>
         this.RangeAddress = (XLRangeAddress)this.ShiftRows(this.RangeAddress, range, rowsShifted);
-    }
 
-    public XLRange Range(int firstRow, int lastRow)
-    {
-        return this.Range(firstRow, 1, lastRow, 1);
-    }
+    public XLRange Range(int firstRow, int lastRow) => this.Range(firstRow, 1, lastRow, 1);
 
     public override XLRange Range(string rangeAddressStr)
     {
@@ -348,49 +306,25 @@ internal class XLRangeColumn : XLRangeBase, IXLRangeColumn
 
     #region XLRangeColumn Left
 
-    IXLRangeColumn IXLRangeColumn.ColumnLeft()
-    {
-        return this.ColumnLeft();
-    }
+    IXLRangeColumn IXLRangeColumn.ColumnLeft() => this.ColumnLeft();
 
-    IXLRangeColumn IXLRangeColumn.ColumnLeft(Int32 step)
-    {
-        return this.ColumnLeft(step);
-    }
+    IXLRangeColumn IXLRangeColumn.ColumnLeft(Int32 step) => this.ColumnLeft(step);
 
-    public XLRangeColumn ColumnLeft()
-    {
-        return this.ColumnLeft(1);
-    }
+    public XLRangeColumn ColumnLeft() => this.ColumnLeft(1);
 
-    public XLRangeColumn ColumnLeft(Int32 step)
-    {
-        return this.ColumnShift(step * -1);
-    }
+    public XLRangeColumn ColumnLeft(Int32 step) => this.ColumnShift(step * -1);
 
     #endregion XLRangeColumn Left
 
     #region XLRangeColumn Right
 
-    IXLRangeColumn IXLRangeColumn.ColumnRight()
-    {
-        return this.ColumnRight();
-    }
+    IXLRangeColumn IXLRangeColumn.ColumnRight() => this.ColumnRight();
 
-    IXLRangeColumn IXLRangeColumn.ColumnRight(Int32 step)
-    {
-        return this.ColumnRight(step);
-    }
+    IXLRangeColumn IXLRangeColumn.ColumnRight(Int32 step) => this.ColumnRight(step);
 
-    public XLRangeColumn ColumnRight()
-    {
-        return this.ColumnRight(1);
-    }
+    public XLRangeColumn ColumnRight() => this.ColumnRight(1);
 
-    public XLRangeColumn ColumnRight(Int32 step)
-    {
-        return this.ColumnShift(step);
-    }
+    public XLRangeColumn ColumnRight(Int32 step) => this.ColumnShift(step);
 
     #endregion XLRangeColumn Right
 
@@ -440,18 +374,13 @@ internal class XLRangeColumn : XLRangeBase, IXLRangeColumn
         return this;
     }
 
-    public IXLRangeColumn ColumnUsed(XLCellsUsedOptions options = XLCellsUsedOptions.AllContents)
-    {
-        return this.Column(
+    public IXLRangeColumn ColumnUsed(XLCellsUsedOptions options = XLCellsUsedOptions.AllContents) =>
+        this.Column(
             (this as IXLRangeBase).FirstCellUsed(options),
             (this as IXLRangeBase).LastCellUsed(options)
         );
-    }
 
     internal IXLTable Table { get; set; }
 
-    public Boolean IsTableColumn()
-    {
-        return this.Table != null;
-    }
+    public Boolean IsTableColumn() => this.Table != null;
 }

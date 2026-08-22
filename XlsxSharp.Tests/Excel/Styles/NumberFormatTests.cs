@@ -107,8 +107,7 @@ public class NumberFormatTests
     }
 
     [Test]
-    public void AddCustomNumberFormatsToFileWithNonSequentialNumberFormatIds()
-    {
+    public void AddCustomNumberFormatsToFileWithNonSequentialNumberFormatIds() =>
         TestHelper.LoadModifyAndCompare(
             @"Other\NumberFormats\NonSequentialNumberFormatsIds-Input.xlsx",
             wb =>
@@ -123,7 +122,6 @@ public class NumberFormatTests
             },
             @"Other\NumberFormats\NonSequentialNumberFormatsIds-Output.xlsx"
         );
-    }
 
     [Test]
     public void NumberFormatIdSetsFormatToPredefinedFormat()

@@ -56,16 +56,14 @@ internal class XLWorkbookProtection : IXLWorkbookProtection
         return this;
     }
 
-    public object Clone()
-    {
-        return new XLWorkbookProtection(this.Algorithm, this.AllowedElements)
+    public object Clone() =>
+        new XLWorkbookProtection(this.Algorithm, this.AllowedElements)
         {
             IsProtected = this.IsProtected,
             PasswordHash = this.PasswordHash,
             SpinCount = this.SpinCount,
             Base64EncodedSalt = this.Base64EncodedSalt,
         };
-    }
 
     public IXLWorkbookProtection CopyFrom(
         IXLElementProtection<XLWorkbookProtectionElements> workbookProtection
@@ -83,15 +81,11 @@ internal class XLWorkbookProtection : IXLWorkbookProtection
         return this;
     }
 
-    public IXLWorkbookProtection DisallowElement(XLWorkbookProtectionElements element)
-    {
-        return this.AllowElement(element, allowed: false);
-    }
+    public IXLWorkbookProtection DisallowElement(XLWorkbookProtectionElements element) =>
+        this.AllowElement(element, allowed: false);
 
-    public IXLWorkbookProtection Protect(Algorithm algorithm = DefaultProtectionAlgorithm)
-    {
-        return this.Protect(String.Empty, algorithm);
-    }
+    public IXLWorkbookProtection Protect(Algorithm algorithm = DefaultProtectionAlgorithm) =>
+        this.Protect(String.Empty, algorithm);
 
     public IXLWorkbookProtection Protect(XLWorkbookProtectionElements allowedElements) =>
         this.Protect(string.Empty, DefaultProtectionAlgorithm, allowedElements);
@@ -132,10 +126,7 @@ internal class XLWorkbookProtection : IXLWorkbookProtection
         return this;
     }
 
-    public IXLWorkbookProtection Unprotect()
-    {
-        return this.Unprotect(String.Empty);
-    }
+    public IXLWorkbookProtection Unprotect() => this.Unprotect(String.Empty);
 
     public IXLWorkbookProtection Unprotect(String password)
     {

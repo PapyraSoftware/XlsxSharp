@@ -35,8 +35,5 @@ internal readonly record struct XLFontSize : IEquatable<double>
     /// </summary>
     public double Points => this.Twips / 20.0;
 
-    public bool Equals(double other)
-    {
-        return other.Equals(this.Points);
-    }
+    public bool Equals(double other) => other.Equals(this.Points);
 }

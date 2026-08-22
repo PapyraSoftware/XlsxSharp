@@ -288,9 +288,8 @@ internal readonly struct AnyValue
         Func<XLError, TResult> transformError,
         Func<Array, TResult> transformArray,
         Func<Reference, TResult> transformReference
-    )
-    {
-        return this._index switch
+    ) =>
+        this._index switch
         {
             BlankValue => transformBlank(),
             LogicalValue => transformLogical(this._logical),
@@ -301,7 +300,6 @@ internal readonly struct AnyValue
             ReferenceValue => transformReference(this._reference),
             _ => throw new InvalidOperationException(),
         };
-    }
 
     #region Reference operators
 
@@ -309,9 +307,8 @@ internal readonly struct AnyValue
     /// Implicit intersection for arguments of functions that don't accept range as a parameter (Excel 2016).
     /// </summary>
     /// <returns>Unchanged value for anything other than reference. Reference is changed into a single cell/#VALUE!</returns>
-    public AnyValue ImplicitIntersection(CalcContext context)
-    {
-        return this.Match(
+    public AnyValue ImplicitIntersection(CalcContext context) =>
+        this.Match(
             () => Blank,
             logical => logical,
             number => number,
@@ -330,7 +327,6 @@ internal readonly struct AnyValue
                     .Match<AnyValue>(singleCellReference => singleCellReference, error => error);
             }
         );
-    }
 
     /// <summary>
     /// Create a new reference that has one area that contains both operands or #VALUE! if not possible.
@@ -375,25 +371,21 @@ internal readonly struct AnyValue
         return Reference.UnionOp(leftReference, rightReference);
     }
 
-    private static OneOf<Reference, XLError> ConvertToReference(in AnyValue value)
-    {
-        return value._index switch
+    private static OneOf<Reference, XLError> ConvertToReference(in AnyValue value) =>
+        value._index switch
         {
             ReferenceValue => value._reference,
             ErrorValue => value._error,
             _ => XLError.IncompatibleValue,
         };
-    }
 
     #endregion
 
     #region Arithmetic unary operations
 
-    public AnyValue UnaryPlus()
-    {
+    public AnyValue UnaryPlus() =>
         // Unary plus doesn't even convert to number. Type and value is retained.
-        return this;
-    }
+        this;
 
     public AnyValue UnaryMinus(CalcContext context) => UnaryOperation(this, x => -x, context);
 
@@ -438,9 +430,8 @@ internal readonly struct AnyValue
 
     #region Arithmetic binary operators
 
-    public static AnyValue BinaryPlus(in AnyValue left, in AnyValue right, CalcContext context)
-    {
-        return BinaryOperation(
+    public static AnyValue BinaryPlus(in AnyValue left, in AnyValue right, CalcContext context) =>
+        BinaryOperation(
             in left,
             in right,
             static (in ScalarValue leftItem, in ScalarValue rightItem, CalcContext ctx) =>
@@ -454,11 +445,9 @@ internal readonly struct AnyValue
             },
             context
         );
-    }
 
-    public static AnyValue BinaryMinus(in AnyValue left, in AnyValue right, CalcContext context)
-    {
-        return BinaryOperation(
+    public static AnyValue BinaryMinus(in AnyValue left, in AnyValue right, CalcContext context) =>
+        BinaryOperation(
             in left,
             in right,
             static (in ScalarValue leftItem, in ScalarValue rightItem, CalcContext ctx) =>
@@ -472,11 +461,9 @@ internal readonly struct AnyValue
             },
             context
         );
-    }
 
-    public static AnyValue BinaryMult(in AnyValue left, in AnyValue right, CalcContext context)
-    {
-        return BinaryOperation(
+    public static AnyValue BinaryMult(in AnyValue left, in AnyValue right, CalcContext context) =>
+        BinaryOperation(
             in left,
             in right,
             static (in ScalarValue leftItem, in ScalarValue rightItem, CalcContext ctx) =>
@@ -490,11 +477,9 @@ internal readonly struct AnyValue
             },
             context
         );
-    }
 
-    public static AnyValue BinaryDiv(in AnyValue left, in AnyValue right, CalcContext context)
-    {
-        return BinaryOperation(
+    public static AnyValue BinaryDiv(in AnyValue left, in AnyValue right, CalcContext context) =>
+        BinaryOperation(
             in left,
             in right,
             static (in ScalarValue leftItem, in ScalarValue rightItem, CalcContext ctx) =>
@@ -508,11 +493,9 @@ internal readonly struct AnyValue
             },
             context
         );
-    }
 
-    public static AnyValue BinaryExp(in AnyValue left, in AnyValue right, CalcContext context)
-    {
-        return BinaryOperation(
+    public static AnyValue BinaryExp(in AnyValue left, in AnyValue right, CalcContext context) =>
+        BinaryOperation(
             in left,
             in right,
             static (in ScalarValue leftItem, in ScalarValue rightItem, CalcContext ctx) =>
@@ -527,15 +510,13 @@ internal readonly struct AnyValue
             },
             context
         );
-    }
 
     #endregion
 
     #region Comparison operators
 
-    public static AnyValue IsEqual(in AnyValue left, in AnyValue right, CalcContext context)
-    {
-        return BinaryOperation(
+    public static AnyValue IsEqual(in AnyValue left, in AnyValue right, CalcContext context) =>
+        BinaryOperation(
             in left,
             in right,
             static (in ScalarValue leftItem, in ScalarValue rightItem, CalcContext ctx) =>
@@ -545,11 +526,9 @@ internal readonly struct AnyValue
             },
             context
         );
-    }
 
-    public static AnyValue IsNotEqual(in AnyValue left, in AnyValue right, CalcContext context)
-    {
-        return BinaryOperation(
+    public static AnyValue IsNotEqual(in AnyValue left, in AnyValue right, CalcContext context) =>
+        BinaryOperation(
             in left,
             in right,
             static (in ScalarValue leftItem, in ScalarValue rightItem, CalcContext ctx) =>
@@ -559,11 +538,13 @@ internal readonly struct AnyValue
             },
             context
         );
-    }
 
-    public static AnyValue IsGreaterThan(in AnyValue left, in AnyValue right, CalcContext context)
-    {
-        return BinaryOperation(
+    public static AnyValue IsGreaterThan(
+        in AnyValue left,
+        in AnyValue right,
+        CalcContext context
+    ) =>
+        BinaryOperation(
             in left,
             in right,
             static (in ScalarValue leftItem, in ScalarValue rightItem, CalcContext ctx) =>
@@ -573,15 +554,13 @@ internal readonly struct AnyValue
             },
             context
         );
-    }
 
     public static AnyValue IsGreaterThanOrEqual(
         in AnyValue left,
         in AnyValue right,
         CalcContext context
-    )
-    {
-        return BinaryOperation(
+    ) =>
+        BinaryOperation(
             in left,
             in right,
             static (in ScalarValue leftItem, in ScalarValue rightItem, CalcContext ctx) =>
@@ -591,11 +570,9 @@ internal readonly struct AnyValue
             },
             context
         );
-    }
 
-    public static AnyValue IsLessThan(in AnyValue left, in AnyValue right, CalcContext context)
-    {
-        return BinaryOperation(
+    public static AnyValue IsLessThan(in AnyValue left, in AnyValue right, CalcContext context) =>
+        BinaryOperation(
             in left,
             in right,
             static (in ScalarValue leftItem, in ScalarValue rightItem, CalcContext ctx) =>
@@ -605,15 +582,13 @@ internal readonly struct AnyValue
             },
             context
         );
-    }
 
     public static AnyValue IsLessThanOrEqual(
         in AnyValue left,
         in AnyValue right,
         CalcContext context
-    )
-    {
-        return BinaryOperation(
+    ) =>
+        BinaryOperation(
             in left,
             in right,
             static (in ScalarValue leftItem, in ScalarValue rightItem, CalcContext ctx) =>
@@ -623,13 +598,11 @@ internal readonly struct AnyValue
             },
             context
         );
-    }
 
     #endregion
 
-    public static AnyValue Concat(in AnyValue left, in AnyValue right, CalcContext context)
-    {
-        return BinaryOperation(
+    public static AnyValue Concat(in AnyValue left, in AnyValue right, CalcContext context) =>
+        BinaryOperation(
             in left,
             in right,
             static (in ScalarValue leftItem, in ScalarValue rightItem, CalcContext ctx) =>
@@ -650,7 +623,6 @@ internal readonly struct AnyValue
             },
             context
         );
-    }
 
     private static AnyValue BinaryOperation(
         in AnyValue left,
@@ -745,9 +717,8 @@ internal readonly struct AnyValue
         ScalarValue left,
         ScalarValue right,
         CultureInfo culture
-    )
-    {
-        return left.Match(
+    ) =>
+        left.Match(
             culture,
             _ =>
                 right.Match<OneOf<int, XLError>, CultureInfo>(
@@ -791,11 +762,9 @@ internal readonly struct AnyValue
                 ),
             (leftError, _) => leftError
         );
-    }
 
-    public override string ToString()
-    {
-        return this._index switch
+    public override string ToString() =>
+        this._index switch
         {
             BlankValue => "Blank",
             LogicalValue => $"Logical: {this._logical.ToString().ToUpper()}",
@@ -807,7 +776,6 @@ internal readonly struct AnyValue
                 $"Reference: {string.Join(",", this._reference.Areas.Select(a => $"{a.FirstAddress}:{a.LastAddress}"))}",
             _ => throw new InvalidOperationException(),
         };
-    }
 
     /// <summary>
     /// Get 2d size of the value. For scalars, it's 1x1, for multi-area references,

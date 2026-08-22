@@ -207,33 +207,22 @@ internal class XLCells : IXLCells, IEnumerable<XLCell>
         return candidates.Distinct();
     }
 
-    public IEnumerator<XLCell> GetEnumerator()
-    {
-        return this.GetCells().GetEnumerator();
-    }
+    public IEnumerator<XLCell> GetEnumerator() => this.GetCells().GetEnumerator();
 
-    private IEnumerable<XLCell> GetCells()
-    {
-        return this._usedCellsOnly ? this.GetUsedCells() : this.GetAllCells();
-    }
+    private IEnumerable<XLCell> GetCells() =>
+        this._usedCellsOnly ? this.GetUsedCells() : this.GetAllCells();
 
     #endregion IEnumerable<XLCell> Members
 
     #region IXLCells Members
 
-    IEnumerator<IXLCell> IEnumerable<IXLCell>.GetEnumerator()
-    {
-        return this.GetCells().GetEnumerator();
-    }
+    IEnumerator<IXLCell> IEnumerable<IXLCell>.GetEnumerator() => this.GetCells().GetEnumerator();
 
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return this.GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 
     public XLCellValue Value
     {
-        set { this.ForEach<XLCell>(c => c.Value = value); }
+        set => this.ForEach<XLCell>(c => c.Value = value);
     }
 
     public IXLCells Clear(XLClearOptions clearOptions = XLClearOptions.All)
@@ -242,24 +231,18 @@ internal class XLCells : IXLCells, IEnumerable<XLCell>
         return this;
     }
 
-    public void DeleteComments()
-    {
-        this.ForEach<XLCell>(c => c.DeleteComment());
-    }
+    public void DeleteComments() => this.ForEach<XLCell>(c => c.DeleteComment());
 
-    public void DeleteSparklines()
-    {
-        this.ForEach<XLCell>(c => c.DeleteSparkline());
-    }
+    public void DeleteSparklines() => this.ForEach<XLCell>(c => c.DeleteSparkline());
 
     public String FormulaA1
     {
-        set { this.ForEach<XLCell>(c => c.FormulaA1 = value); }
+        set => this.ForEach<XLCell>(c => c.FormulaA1 = value);
     }
 
     public String FormulaR1C1
     {
-        set { this.ForEach<XLCell>(c => c.FormulaR1C1 = value); }
+        set => this.ForEach<XLCell>(c => c.FormulaR1C1 = value);
     }
 
     public IXLStyle Style
@@ -284,15 +267,9 @@ internal class XLCells : IXLCells, IEnumerable<XLCell>
 
     #endregion IXLCells Members
 
-    public void Add(XLRangeAddress rangeAddress)
-    {
-        this._rangeAddresses.Add(rangeAddress);
-    }
+    public void Add(XLRangeAddress rangeAddress) => this._rangeAddresses.Add(rangeAddress);
 
-    public void Add(XLCell cell)
-    {
-        this.Add(new XLRangeAddress(cell.Address, cell.Address));
-    }
+    public void Add(XLCell cell) => this.Add(new XLRangeAddress(cell.Address, cell.Address));
 
     public void Select()
     {

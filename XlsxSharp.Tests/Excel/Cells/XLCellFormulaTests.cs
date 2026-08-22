@@ -16,11 +16,9 @@ public class XLCellFormulaTests
     }
 
     [Test]
-    public void DataTableMaintainProperties()
-    {
+    public void DataTableMaintainProperties() =>
         TestHelper.LoadSaveAndCompare(
             @"Other\Formulas\DataTableFormula-Excel-Input.xlsx",
             @"Other\Formulas\DataTableFormula-Output.xlsx"
         );
-    }
 }

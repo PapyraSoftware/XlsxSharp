@@ -13,10 +13,8 @@ internal static class StringExtensions
 {
     private static readonly Regex RegexNewLine = new(@"((?<!\r)\n|\r\n)", RegexOptions.Compiled);
 
-    public static Int32 CharCount(this String instance, Char c)
-    {
-        return instance.Length - instance.Replace(c.ToString(), "").Length;
-    }
+    public static Int32 CharCount(this String instance, Char c) =>
+        instance.Length - instance.Replace(c.ToString(), "").Length;
 
     public static String RemoveSpecialCharacters(this String str)
     {
@@ -58,10 +56,8 @@ internal static class StringExtensions
         }
     }
 
-    internal static string AlwaysEscapeSheetName(this string sheetName)
-    {
-        return String.Concat('\'', sheetName.Replace("'", "''"), '\'');
-    }
+    internal static string AlwaysEscapeSheetName(this string sheetName) =>
+        String.Concat('\'', sheetName.Replace("'", "''"), '\'');
 
     internal static string GetSheetDefinedName(this string name, string sheet)
     {
@@ -70,17 +66,13 @@ internal static class StringExtensions
         return escapedSheetName + '!' + name;
     }
 
-    internal static String FixNewLines(this String value)
-    {
-        return value.Contains("\n") ? RegexNewLine.Replace(value, Environment.NewLine) : value;
-    }
+    internal static String FixNewLines(this String value) =>
+        value.Contains("\n") ? RegexNewLine.Replace(value, Environment.NewLine) : value;
 
-    internal static Boolean PreserveSpaces(this String value)
-    {
-        return value.StartsWith(' ')
-            || value.EndsWith(' ')
-            || value.AsSpan().IndexOfAny('\n', '\r', '\t') >= 0;
-    }
+    internal static Boolean PreserveSpaces(this String value) =>
+        value.StartsWith(' ')
+        || value.EndsWith(' ')
+        || value.AsSpan().IndexOfAny('\n', '\r', '\t') >= 0;
 
     internal static String ToCamel(this String value)
     {
@@ -112,10 +104,8 @@ internal static class StringExtensions
         return value.Substring(0, 1).ToUpper() + value.Substring(1);
     }
 
-    internal static string UnescapeSheetName(this String sheetName)
-    {
-        return sheetName.Trim('\'').Replace("''", "'");
-    }
+    internal static string UnescapeSheetName(this String sheetName) =>
+        sheetName.Trim('\'').Replace("''", "'");
 
     /// <summary>
     /// Convert a string (containing code units) into code points.

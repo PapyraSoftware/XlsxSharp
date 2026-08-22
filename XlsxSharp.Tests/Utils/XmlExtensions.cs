@@ -90,9 +90,6 @@ internal static class XmlExtensions
             return lhs.Name == rhs.Name && lhs.Value == rhs.Value;
         }
 
-        public int GetHashCode(XAttribute obj)
-        {
-            return obj.GetHashCode();
-        }
+        public int GetHashCode(XAttribute obj) => obj.GetHashCode();
     }
 }

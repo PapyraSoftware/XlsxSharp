@@ -221,10 +221,8 @@ internal class XLWorkbookStyles
             CustomFormat = CellFormatComponents.None,
         };
 
-    internal void AddNumberFormat(int numFmtId, XLNumberFormat format)
-    {
+    internal void AddNumberFormat(int numFmtId, XLNumberFormat format) =>
         this._numberFormats.Add(numFmtId, format);
-    }
 
     internal void AddUserDefinedNumberFormat(XLNumberFormat numberFormat)
     {
@@ -237,20 +235,14 @@ internal class XLWorkbookStyles
         this._numberFormats.Add(numFmtId, numberFormat);
     }
 
-    internal void AddFontFormat(XLFontFormatValue fontFormat)
-    {
+    internal void AddFontFormat(XLFontFormatValue fontFormat) =>
         this._fontFormats.Add(this._fontFormats.Count, fontFormat);
-    }
 
-    internal void AddFillFormat(XLFillFormatValue fillFormat)
-    {
+    internal void AddFillFormat(XLFillFormatValue fillFormat) =>
         this._fillFormats.Add(this._fillFormats.Count, fillFormat);
-    }
 
-    internal void AddBorderFormat(XLBorderFormatValue borderFormat)
-    {
+    internal void AddBorderFormat(XLBorderFormatValue borderFormat) =>
         this._borderFormats.Add(this._borderFormats.Count, borderFormat);
-    }
 
     internal void AddFormat(XLCellFormatValue cellFormat)
     {
@@ -258,35 +250,22 @@ internal class XLWorkbookStyles
         this._cellFormats.Add(xfId, cellFormat);
     }
 
-    internal void AddCellStyle(int cellStyleXfId, XLCellStyleValue cellStyle)
-    {
+    internal void AddCellStyle(int cellStyleXfId, XLCellStyleValue cellStyle) =>
         this._cellStyles.Add(cellStyleXfId, cellStyle);
-    }
 
-    internal void AddDifferentialFormat(XLDxfValue dxf)
-    {
+    internal void AddDifferentialFormat(XLDxfValue dxf) =>
         this._differentialFormats.Add(this._differentialFormats.Count, dxf);
-    }
 
-    internal void AddTableStyle(XLTableTheme tableStyle)
-    {
+    internal void AddTableStyle(XLTableTheme tableStyle) =>
         this._tableStyles.Add(tableStyle.Name, tableStyle);
-    }
 
-    internal void AddPivotStyle(XLPivotTableStyle pivotStyle)
-    {
+    internal void AddPivotStyle(XLPivotTableStyle pivotStyle) =>
         this._pivotStyles.Add(pivotStyle.Name, pivotStyle);
-    }
 
-    internal void SetIndexedColors(List<uint> indexedColors)
-    {
+    internal void SetIndexedColors(List<uint> indexedColors) =>
         this._indexedColorsArgb = indexedColors;
-    }
 
-    internal void SetMruColors(List<XLColor> mruColors)
-    {
-        this._mruColors = mruColors;
-    }
+    internal void SetMruColors(List<XLColor> mruColors) => this._mruColors = mruColors;
 
     internal XLNumberFormat RegisterNumberFormat(XLNumberFormat numberFormat)
     {
@@ -302,10 +281,7 @@ internal class XLWorkbookStyles
     private XLAlignmentFormatValue GetRegisteredAlignmentFormat(
         XLAlignmentFormatValue original,
         Func<XLAlignmentFormatValue, XLAlignmentFormatValue> modify
-    )
-    {
-        return this.RegisterAlignmentFormat(modify(original));
-    }
+    ) => this.RegisterAlignmentFormat(modify(original));
 
     internal XLAlignmentFormatValue RegisterAlignmentFormat(XLAlignmentFormatValue alignment)
     {

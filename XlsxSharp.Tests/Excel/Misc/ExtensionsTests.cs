@@ -68,16 +68,12 @@ public class ExtensionsTests
     [TestCase("Slovenščina", ExpectedResult = "Slovenščina")]
     [TestCase("", ExpectedResult = "")]
     [TestCase(null, ExpectedResult = null)]
-    public string CanEscapeSheetName(string sheetName)
-    {
-        return StringExtensions.EscapeSheetName(sheetName);
-    }
+    public string CanEscapeSheetName(string sheetName) =>
+        StringExtensions.EscapeSheetName(sheetName);
 
     [TestCase("TestSheet", ExpectedResult = "TestSheet")]
     [TestCase("'Test sheet'", ExpectedResult = "Test sheet")]
     [TestCase("'O''Kelly'", ExpectedResult = "O'Kelly")]
-    public string CanUnescapeSheetName(string sheetName)
-    {
-        return StringExtensions.UnescapeSheetName(sheetName);
-    }
+    public string CanUnescapeSheetName(string sheetName) =>
+        StringExtensions.UnescapeSheetName(sheetName);
 }

@@ -120,16 +120,14 @@ internal class XLFilter
         }
     }
 
-    internal static XLFilter CreateRegularFilter(string filterValue)
-    {
-        return new XLFilter
+    internal static XLFilter CreateRegularFilter(string filterValue) =>
+        new()
         {
             Value = filterValue,
             Operator = XLFilterOperator.Equal,
             Connector = XLConnector.Or,
             Condition = (cell, _) => ContentMatches(cell, filterValue),
         };
-    }
 
     internal static XLFilter CreateDateGroupFilter(
         DateTime date,

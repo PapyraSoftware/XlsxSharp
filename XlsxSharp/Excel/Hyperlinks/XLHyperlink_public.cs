@@ -10,51 +10,27 @@ public partial class XLHyperlink
     private Uri _externalAddress;
     private String _internalAddress;
 
-    public XLHyperlink(String address)
-    {
-        this.SetValues(address, String.Empty);
-    }
+    public XLHyperlink(String address) => this.SetValues(address, String.Empty);
 
-    public XLHyperlink(String address, String tooltip)
-    {
-        this.SetValues(address, tooltip);
-    }
+    public XLHyperlink(String address, String tooltip) => this.SetValues(address, tooltip);
 
-    public XLHyperlink(IXLCell cell)
-    {
-        this.SetValues(cell, String.Empty);
-    }
+    public XLHyperlink(IXLCell cell) => this.SetValues(cell, String.Empty);
 
-    public XLHyperlink(IXLCell cell, String tooltip)
-    {
-        this.SetValues(cell, tooltip);
-    }
+    public XLHyperlink(IXLCell cell, String tooltip) => this.SetValues(cell, tooltip);
 
-    public XLHyperlink(IXLRangeBase range)
-    {
-        this.SetValues(range, String.Empty);
-    }
+    public XLHyperlink(IXLRangeBase range) => this.SetValues(range, String.Empty);
 
-    public XLHyperlink(IXLRangeBase range, String tooltip)
-    {
-        this.SetValues(range, tooltip);
-    }
+    public XLHyperlink(IXLRangeBase range, String tooltip) => this.SetValues(range, tooltip);
 
-    public XLHyperlink(Uri uri)
-    {
-        this.SetValues(uri, String.Empty);
-    }
+    public XLHyperlink(Uri uri) => this.SetValues(uri, String.Empty);
 
-    public XLHyperlink(Uri uri, String tooltip)
-    {
-        this.SetValues(uri, tooltip);
-    }
+    public XLHyperlink(Uri uri, String tooltip) => this.SetValues(uri, tooltip);
 
     public Boolean IsExternal { get; set; }
 
     public Uri ExternalAddress
     {
-        get { return this.IsExternal ? this._externalAddress : null; }
+        get => this.IsExternal ? this._externalAddress : null;
         set
         {
             this._externalAddress = value;
@@ -125,8 +101,5 @@ public partial class XLHyperlink
     public String Tooltip { get; set; }
 
     /// <inheritdoc cref="IXLHyperlinks.Delete(XLHyperlink)"/>
-    public void Delete()
-    {
-        this.Container?.Delete(this);
-    }
+    public void Delete() => this.Container?.Delete(this);
 }

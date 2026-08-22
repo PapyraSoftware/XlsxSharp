@@ -12,10 +12,7 @@ internal class XLRangeRows : IXLRangeRows
     private readonly XLWorksheet _worksheet;
     private readonly List<XLRangeRow> _ranges = [];
 
-    public XLRangeRows(XLWorksheet worksheet)
-    {
-        this._worksheet = worksheet;
-    }
+    public XLRangeRows(XLWorksheet worksheet) => this._worksheet = worksheet;
 
     internal XLCellFormat Format
     {
@@ -46,24 +43,16 @@ internal class XLRangeRows : IXLRangeRows
         this._ranges.Clear();
     }
 
-    public void Add(IXLRangeRow range)
-    {
-        this._ranges.Add((XLRangeRow)range);
-    }
+    public void Add(IXLRangeRow range) => this._ranges.Add((XLRangeRow)range);
 
-    public IEnumerator<IXLRangeRow> GetEnumerator()
-    {
-        return this
+    public IEnumerator<IXLRangeRow> GetEnumerator() =>
+        this
             ._ranges.Cast<IXLRangeRow>()
             .OrderBy(r => r.Worksheet.Position)
             .ThenBy(r => r.RowNumber())
             .GetEnumerator();
-    }
 
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return this.GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 
     public IXLCells Cells()
     {

@@ -47,15 +47,10 @@ internal class XLTables : IXLTables, IEnumerable<XLTable>
         return this;
     }
 
-    public Boolean Contains(String name)
-    {
-        return this._tables.ContainsKey(name);
-    }
+    public Boolean Contains(String name) => this._tables.ContainsKey(name);
 
-    public Dictionary<string, XLTable>.ValueCollection.Enumerator GetEnumerator()
-    {
-        return this._tables.Values.GetEnumerator();
-    }
+    public Dictionary<string, XLTable>.ValueCollection.Enumerator GetEnumerator() =>
+        this._tables.Values.GetEnumerator();
 
     IEnumerator<XLTable> IEnumerable<XLTable>.GetEnumerator() => this.GetEnumerator();
 
@@ -63,10 +58,7 @@ internal class XLTables : IXLTables, IEnumerable<XLTable>
 
     IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 
-    public void Remove(Int32 index)
-    {
-        this.Remove(this._tables.ElementAt(index).Key);
-    }
+    public void Remove(Int32 index) => this.Remove(this._tables.ElementAt(index).Key);
 
     public void Remove(String name)
     {
@@ -88,10 +80,7 @@ internal class XLTables : IXLTables, IEnumerable<XLTable>
         }
     }
 
-    public IXLTable Table(Int32 index)
-    {
-        return this._tables.ElementAt(index).Value;
-    }
+    public IXLTable Table(Int32 index) => this._tables.ElementAt(index).Value;
 
     public IXLTable Table(String name)
     {
@@ -103,10 +92,8 @@ internal class XLTables : IXLTables, IEnumerable<XLTable>
         throw new ArgumentOutOfRangeException(nameof(name), $"Table {name} was not found.");
     }
 
-    internal bool TryGetTable(string tableName, out XLTable table)
-    {
-        return this._tables.TryGetValue(tableName, out table);
-    }
+    internal bool TryGetTable(string tableName, out XLTable table) =>
+        this._tables.TryGetValue(tableName, out table);
 
     #endregion IXLTables Members
 }

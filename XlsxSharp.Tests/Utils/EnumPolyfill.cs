@@ -7,8 +7,5 @@ namespace XlsxSharp.Tests.Utils;
 internal class EnumPolyfill
 {
     public static T[] GetValues<T>()
-        where T : struct, Enum
-    {
-        return [.. Enum.GetValues(typeof(T)).Cast<T>()];
-    }
+        where T : struct, Enum => [.. Enum.GetValues(typeof(T)).Cast<T>()];
 }

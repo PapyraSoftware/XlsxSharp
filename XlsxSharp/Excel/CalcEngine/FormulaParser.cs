@@ -83,10 +83,7 @@ internal class FormulaParser
             string context,
             SymbolRange range,
             ReadOnlySpan<char> errorText
-        )
-        {
-            return GetErrorValue(errorText);
-        }
+        ) => GetErrorValue(errorText);
 
         public ValueNode ArrayNode(
             string context,
@@ -100,15 +97,11 @@ internal class FormulaParser
             return new ArrayNode(array);
         }
 
-        public ValueNode BlankNode(string context, SymbolRange range)
-        {
-            return new ScalarNode(ScalarValue.Blank);
-        }
+        public ValueNode BlankNode(string context, SymbolRange range) =>
+            new ScalarNode(ScalarValue.Blank);
 
-        public ValueNode LogicalNode(string context, SymbolRange range, bool logical)
-        {
-            return new ScalarNode(logical);
-        }
+        public ValueNode LogicalNode(string context, SymbolRange range, bool logical) =>
+            new ScalarNode(logical);
 
         public ValueNode ErrorNode(string context, SymbolRange range, ReadOnlySpan<char> errorText)
         {
@@ -116,20 +109,14 @@ internal class FormulaParser
             return new ScalarNode(error);
         }
 
-        public ValueNode NumberNode(string context, SymbolRange range, double number)
-        {
-            return new ScalarNode(number);
-        }
+        public ValueNode NumberNode(string context, SymbolRange range, double number) =>
+            new ScalarNode(number);
 
-        public ValueNode TextNode(string context, SymbolRange range, string text)
-        {
-            return new ScalarNode(text);
-        }
+        public ValueNode TextNode(string context, SymbolRange range, string text) =>
+            new ScalarNode(text);
 
-        public ValueNode Reference(string context, SymbolRange range, ReferenceArea area)
-        {
-            return new ReferenceNode(null, area, this._isA1);
-        }
+        public ValueNode Reference(string context, SymbolRange range, ReferenceArea area) =>
+            new ReferenceNode(null, area, this._isA1);
 
         public ValueNode SheetReference(
             string context,
@@ -142,10 +129,11 @@ internal class FormulaParser
             return new ReferenceNode(prefixNode, area, this._isA1);
         }
 
-        public ValueNode BangReference(string context, SymbolRange range, ReferenceArea reference)
-        {
-            return new NotSupportedNode("Bang reference");
-        }
+        public ValueNode BangReference(
+            string context,
+            SymbolRange range,
+            ReferenceArea reference
+        ) => new NotSupportedNode("Bang reference");
 
         public ValueNode Reference3D(
             string context,
@@ -264,10 +252,7 @@ internal class FormulaParser
             StructuredReferenceArea area,
             string? firstColumn,
             string? lastColumn
-        )
-        {
-            return new StructuredReferenceNode(null, null, area, firstColumn, lastColumn);
-        }
+        ) => new StructuredReferenceNode(null, null, area, firstColumn, lastColumn);
 
         public ValueNode StructureReference(
             string context,
@@ -276,10 +261,7 @@ internal class FormulaParser
             StructuredReferenceArea area,
             string? firstColumn,
             string? lastColumn
-        )
-        {
-            return new StructuredReferenceNode(null, table, area, firstColumn, lastColumn);
-        }
+        ) => new StructuredReferenceNode(null, table, area, firstColumn, lastColumn);
 
         public ValueNode ExternalStructureReference(
             string context,
@@ -289,21 +271,17 @@ internal class FormulaParser
             StructuredReferenceArea area,
             string? firstColumn,
             string? lastColumn
-        )
-        {
-            return new StructuredReferenceNode(
+        ) =>
+            new StructuredReferenceNode(
                 new PrefixNode(new FileNode(workbookIndex), null, null, null),
                 table,
                 area,
                 firstColumn,
                 lastColumn
             );
-        }
 
-        public ValueNode Name(string context, SymbolRange range, string name)
-        {
-            return new NameNode(null, name);
-        }
+        public ValueNode Name(string context, SymbolRange range, string name) =>
+            new NameNode(null, name);
 
         public ValueNode SheetName(string context, SymbolRange range, string sheet, string name)
         {
@@ -311,10 +289,8 @@ internal class FormulaParser
             return new NameNode(prefixNode, name);
         }
 
-        public ValueNode BangName(string context, SymbolRange range, string name)
-        {
-            return new NotSupportedNode("Bang name");
-        }
+        public ValueNode BangName(string context, SymbolRange range, string name) =>
+            new NotSupportedNode("Bang name");
 
         public ValueNode ExternalName(
             string context,
@@ -389,10 +365,7 @@ internal class FormulaParser
             return new UnaryNode(op, node);
         }
 
-        public ValueNode Nested(string context, SymbolRange range, ValueNode node)
-        {
-            return node;
-        }
+        public ValueNode Nested(string context, SymbolRange range, ValueNode node) => node;
 
         private FunctionNode GetFunctionNode(
             PrefixNode? prefixNode,

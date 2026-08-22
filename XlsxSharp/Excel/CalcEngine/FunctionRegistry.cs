@@ -27,10 +27,8 @@ internal class FunctionRegistry
         StringComparer.InvariantCultureIgnoreCase
     );
 
-    public bool TryGetFunc(string name, out FunctionDefinition func)
-    {
-        return this._func.TryGetValue(name, out func);
-    }
+    public bool TryGetFunc(string name, out FunctionDefinition func) =>
+        this._func.TryGetValue(name, out func);
 
     /// <summary>
     /// Add a function to the registry.
@@ -50,13 +48,11 @@ internal class FunctionRegistry
         FunctionFlags flags,
         AllowRange allowRanges = AllowRange.None,
         params int[] markedParams
-    )
-    {
+    ) =>
         this._func.Add(
             functionName,
             new FunctionDefinition(minParams, maxParams, fn, flags, allowRanges, markedParams)
         );
-    }
 
     public bool TryGetFunc(string name, out int paramMin, out int paramMax)
     {

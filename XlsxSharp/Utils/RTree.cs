@@ -19,20 +19,14 @@ internal sealed class RTree<TData>
     /// </summary>
     internal int Count => this._rBush.Count;
 
-    internal void Insert(Node node)
-    {
-        this._rBush.Insert(new AreaData(node.Area, node.Data));
-    }
+    internal void Insert(Node node) => this._rBush.Insert(new AreaData(node.Area, node.Data));
 
     /// <remarks>
     /// It's not enough to specify only an area. The item also has to be specified, because area
     /// can contain multiple items (e.g. multiple conditional formats can be specified for same
     /// area).
     /// </remarks>
-    internal void Delete(Node node)
-    {
-        this._rBush.Delete(new AreaData(node.Area, node.Data));
-    }
+    internal void Delete(Node node) => this._rBush.Delete(new AreaData(node.Area, node.Data));
 
     internal List<Node> GetNodes(Area area, List<Node> buffer)
     {
@@ -65,16 +59,11 @@ internal sealed class RTree<TData>
 
         internal Area Area => ToArea(in this._area);
 
-        public override int GetHashCode()
-        {
+        public override int GetHashCode() =>
             // Class is never used in a hash table and equals is fast by itself.
-            return 0;
-        }
+            0;
 
-        public override bool Equals(object? obj)
-        {
-            return obj is AreaData other && this.Equals(other);
-        }
+        public override bool Equals(object? obj) => obj is AreaData other && this.Equals(other);
 
         public bool Equals(AreaData? other)
         {
@@ -94,20 +83,11 @@ internal sealed class RTree<TData>
         }
     }
 
-    private static Envelope ToEnvelope(Area range)
-    {
-        return new Envelope(range.LeftColumn, range.TopRow, range.RightColumn, range.BottomRow);
-    }
+    private static Envelope ToEnvelope(Area range) =>
+        new(range.LeftColumn, range.TopRow, range.RightColumn, range.BottomRow);
 
-    private static Area ToArea(in Envelope envelope)
-    {
-        return new Area(
-            (int)envelope.MinX,
-            (int)envelope.MinY,
-            (int)envelope.MaxX,
-            (int)envelope.MaxY
-        );
-    }
+    private static Area ToArea(in Envelope envelope) =>
+        new((int)envelope.MinX, (int)envelope.MinY, (int)envelope.MaxX, (int)envelope.MaxY);
 
     private static void GetNodes(
         RBush<AreaData>.Node node,

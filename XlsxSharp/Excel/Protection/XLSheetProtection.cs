@@ -40,10 +40,8 @@ internal class XLSheetProtection : IXLSheetProtection
         return this;
     }
 
-    public IXLSheetProtection AllowEverything()
-    {
-        return this.AllowElement(XLSheetProtectionElements.Everything);
-    }
+    public IXLSheetProtection AllowEverything() =>
+        this.AllowElement(XLSheetProtectionElements.Everything);
 
     public IXLSheetProtection AllowNone()
     {
@@ -51,9 +49,8 @@ internal class XLSheetProtection : IXLSheetProtection
         return this;
     }
 
-    public object Clone()
-    {
-        return new XLSheetProtection(this.Algorithm)
+    public object Clone() =>
+        new XLSheetProtection(this.Algorithm)
         {
             IsProtected = this.IsProtected,
             PasswordHash = this.PasswordHash,
@@ -61,7 +58,6 @@ internal class XLSheetProtection : IXLSheetProtection
             Base64EncodedSalt = this.Base64EncodedSalt,
             AllowedElements = this.AllowedElements,
         };
-    }
 
     public XLSheetProtection CopyFrom(
         IXLElementProtection<XLSheetProtectionElements> sheetProtection
@@ -85,10 +81,8 @@ internal class XLSheetProtection : IXLSheetProtection
         return this;
     }
 
-    public IXLSheetProtection Protect(Algorithm algorithm = DefaultProtectionAlgorithm)
-    {
-        return this.Protect(String.Empty, algorithm);
-    }
+    public IXLSheetProtection Protect(Algorithm algorithm = DefaultProtectionAlgorithm) =>
+        this.Protect(String.Empty, algorithm);
 
     public IXLSheetProtection Protect(XLSheetProtectionElements allowedElements) =>
         this.Protect(string.Empty, DefaultProtectionAlgorithm, allowedElements);
@@ -129,10 +123,7 @@ internal class XLSheetProtection : IXLSheetProtection
         return this;
     }
 
-    public IXLSheetProtection Unprotect()
-    {
-        return this.Unprotect(String.Empty);
-    }
+    public IXLSheetProtection Unprotect() => this.Unprotect(String.Empty);
 
     public IXLSheetProtection Unprotect(String password)
     {

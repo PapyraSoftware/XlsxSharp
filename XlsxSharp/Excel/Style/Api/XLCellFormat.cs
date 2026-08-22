@@ -92,15 +92,10 @@ internal partial class XLCellFormat
     /// </summary>
     private bool IsCells { get; init; }
 
-    public override bool Equals(object? obj)
-    {
-        return obj is IXLStyle other && (this as IEquatable<IXLStyle>).Equals(other);
-    }
+    public override bool Equals(object? obj) =>
+        obj is IXLStyle other && (this as IEquatable<IXLStyle>).Equals(other);
 
-    public override int GetHashCode()
-    {
-        return 0;
-    }
+    public override int GetHashCode() => 0;
 
     internal static XLCellFormat ForCell(XLCell cell)
     {
@@ -554,9 +549,8 @@ internal partial class XLCellFormat
     private static Func<XLCellFormatValue, XLCellFormatValue> GetModifyBorderFunc(
         Func<XLBorderFormatValue, XLBorderFormatValue> modifyBorder,
         XLWorkbookStyles styles
-    )
-    {
-        return format =>
+    ) =>
+        format =>
         {
             XLBorderFormatValue modifiedBorder = styles.GetRegisteredBorderFormat(
                 format.Border,
@@ -608,7 +602,6 @@ internal partial class XLCellFormat
             );
             return modifiedFormat;
         };
-    }
 
     private void ModifyInsideBordersOfRows<TProperty>(
         XLWorkbookStyles styles,

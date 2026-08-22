@@ -17,10 +17,7 @@ internal interface IColorTypeAdapter
 
 internal class ColorTypeAdapter : IColorTypeAdapter
 {
-    public ColorTypeAdapter(ColorType colorType)
-    {
-        this.ColorType = colorType;
-    }
+    public ColorTypeAdapter(ColorType colorType) => this.ColorType = colorType;
 
     #region ColorType
 
@@ -57,10 +54,7 @@ internal class ColorTypeAdapter : IColorTypeAdapter
 
 internal class X14ColorTypeAdapter : IColorTypeAdapter
 {
-    public X14ColorTypeAdapter(X14.ColorType colorType)
-    {
-        this.ColorType = colorType;
-    }
+    public X14ColorTypeAdapter(X14.ColorType colorType) => this.ColorType = colorType;
 
     #region ColorType
 

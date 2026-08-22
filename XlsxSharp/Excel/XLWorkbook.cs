@@ -87,27 +87,19 @@ public sealed partial class XLWorkbook : IXLWorkbook
         }
     }
 
-    public static IXLOutline DefaultOutline
-    {
-        get
+    public static IXLOutline DefaultOutline =>
+        new XLOutline(null)
         {
-            return new XLOutline(null)
-            {
-                SummaryHLocation = XLOutlineSummaryHLocation.Right,
-                SummaryVLocation = XLOutlineSummaryVLocation.Bottom,
-            };
-        }
-    }
+            SummaryHLocation = XLOutlineSummaryHLocation.Right,
+            SummaryVLocation = XLOutlineSummaryVLocation.Bottom,
+        };
 
     /// <summary>
     ///   Behavior for <see cref = "IXLCell.set_Value" />
     /// </summary>
     public static XLCellSetValueBehavior CellSetValueBehavior { get; set; }
 
-    public static XLWorkbook OpenFromTemplate(String path)
-    {
-        return new XLWorkbook(path, asTemplate: true);
-    }
+    public static XLWorkbook OpenFromTemplate(String path) => new(path, asTemplate: true);
 
     #endregion Static
 
@@ -331,40 +323,19 @@ public sealed partial class XLWorkbook : IXLWorkbook
     public Boolean ShowZeros { get; set; }
     public Boolean RightToLeft { get; set; }
 
-    public Boolean DefaultShowFormulas
-    {
-        get { return false; }
-    }
+    public Boolean DefaultShowFormulas => false;
 
-    public Boolean DefaultShowGridLines
-    {
-        get { return true; }
-    }
+    public Boolean DefaultShowGridLines => true;
 
-    public Boolean DefaultShowOutlineSymbols
-    {
-        get { return true; }
-    }
+    public Boolean DefaultShowOutlineSymbols => true;
 
-    public Boolean DefaultShowRowColHeaders
-    {
-        get { return true; }
-    }
+    public Boolean DefaultShowRowColHeaders => true;
 
-    public Boolean DefaultShowRuler
-    {
-        get { return true; }
-    }
+    public Boolean DefaultShowRuler => true;
 
-    public Boolean DefaultShowWhiteSpace
-    {
-        get { return true; }
-    }
+    public Boolean DefaultShowWhiteSpace => true;
 
-    public Boolean DefaultShowZeros
-    {
-        get { return true; }
-    }
+    public Boolean DefaultShowZeros => true;
 
     public IXLFileSharing FileSharing
     {
@@ -375,13 +346,9 @@ public sealed partial class XLWorkbook : IXLWorkbook
         }
     } = new XLFileSharing();
 
-    public Boolean DefaultRightToLeft
-    {
-        get { return false; }
-    }
+    public Boolean DefaultRightToLeft => false;
 
-    private void InitializeTheme()
-    {
+    private void InitializeTheme() =>
         this.Theme = new XLTheme
         {
             Text1 = XLColor.FromHtml("#FF000000"),
@@ -397,7 +364,6 @@ public sealed partial class XLWorkbook : IXLWorkbook
             Hyperlink = XLColor.FromHtml("#FF0000FF"),
             FollowedHyperlink = XLColor.FromHtml("#FF800080"),
         };
-    }
 
 #nullable enable
     [Obsolete($"Use {nameof(DefinedName)} instead.")]
@@ -1115,10 +1081,7 @@ public sealed partial class XLWorkbook : IXLWorkbook
 
     public Boolean Use1904DateSystem { get; set; }
 
-    public XLWorkbook SetUse1904DateSystem()
-    {
-        return this.SetUse1904DateSystem(true);
-    }
+    public XLWorkbook SetUse1904DateSystem() => this.SetUse1904DateSystem(true);
 
     public XLWorkbook SetUse1904DateSystem(Boolean value)
     {
@@ -1182,10 +1145,8 @@ public sealed partial class XLWorkbook : IXLWorkbook
 
     private XLCalcEngine _calcEngine;
 
-    internal XLCalcEngine CalcEngine
-    {
-        get { return this._calcEngine ??= new XLCalcEngine(CultureInfo.CurrentCulture); }
-    }
+    internal XLCalcEngine CalcEngine =>
+        this._calcEngine ??= new XLCalcEngine(CultureInfo.CurrentCulture);
 
     public XLCellValue Evaluate(String expression)
     {
@@ -1210,28 +1171,20 @@ public sealed partial class XLWorkbook : IXLWorkbook
     private static XLCalcEngine _calcEngineExpr;
     private SpreadsheetDocumentType _spreadsheetDocumentType;
 
-    private static XLCalcEngine CalcEngineExpr
-    {
-        get { return _calcEngineExpr ??= new XLCalcEngine(CultureInfo.InvariantCulture); }
-    }
+    private static XLCalcEngine CalcEngineExpr =>
+        _calcEngineExpr ??= new XLCalcEngine(CultureInfo.InvariantCulture);
 
     /// <summary>
     /// Evaluate a formula and return a value. Formulas with references don't work and culture used for conversion is invariant.
     /// </summary>
-    public static XLCellValue EvaluateExpr(String expression)
-    {
-        return CalcEngineExpr.EvaluateFormula(expression).ToCellValue();
-    }
+    public static XLCellValue EvaluateExpr(String expression) =>
+        CalcEngineExpr.EvaluateFormula(expression).ToCellValue();
 
     /// <summary>
     /// Evaluate a formula and return a value. Use current culture.
     /// </summary>
-    internal static XLCellValue EvaluateExprCurrent(String expression)
-    {
-        return new XLCalcEngine(CultureInfo.CurrentCulture)
-            .EvaluateFormula(expression)
-            .ToCellValue();
-    }
+    internal static XLCellValue EvaluateExprCurrent(String expression) =>
+        new XLCalcEngine(CultureInfo.CurrentCulture).EvaluateFormula(expression).ToCellValue();
 
     public String Author { get; set; }
 

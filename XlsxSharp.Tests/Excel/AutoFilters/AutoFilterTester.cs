@@ -14,15 +14,10 @@ internal class AutoFilterTester
         bool ExpectedVisibility
     )> _values = [];
 
-    internal AutoFilterTester(Action<IXLFilterColumn> setFilter)
-    {
-        this._setFilter = setFilter;
-    }
+    internal AutoFilterTester(Action<IXLFilterColumn> setFilter) => this._setFilter = setFilter;
 
-    internal AutoFilterTester Add(XLCellValue value, bool shouldBeVisible)
-    {
-        return this.Add(value, static (IXLStyle _) => { }, shouldBeVisible);
-    }
+    internal AutoFilterTester Add(XLCellValue value, bool shouldBeVisible) =>
+        this.Add(value, static (IXLStyle _) => { }, shouldBeVisible);
 
     internal AutoFilterTester Add(
         XLCellValue value,

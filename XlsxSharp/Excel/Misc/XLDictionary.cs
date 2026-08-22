@@ -10,10 +10,7 @@ public class XLDictionary<T> : Dictionary<Int32, T>
 {
     public XLDictionary() { }
 
-    public XLDictionary(XLDictionary<T> other)
-    {
-        other.Values.ForEach(this.Add);
-    }
+    public XLDictionary(XLDictionary<T> other) => other.Values.ForEach(this.Add);
 
     public void Initialize(T value)
     {
@@ -25,10 +22,7 @@ public class XLDictionary<T> : Dictionary<Int32, T>
         this.Add(value);
     }
 
-    public void Add(T value)
-    {
-        this.Add(this.Count + 1, value);
-    }
+    public void Add(T value) => this.Add(this.Count + 1, value);
 
     internal XLDictionary<T> CopyDictionary()
     {

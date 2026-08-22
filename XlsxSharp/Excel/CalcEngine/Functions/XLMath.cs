@@ -4,25 +4,13 @@ namespace XlsxSharp.Excel.CalcEngine.Functions;
 
 internal static class XLMath
 {
-    public static double Asinh(double x)
-    {
-        return (Math.Log(x + Math.Sqrt(x * x + 1.0)));
-    }
+    public static double Asinh(double x) => (Math.Log(x + Math.Sqrt(x * x + 1.0)));
 
-    public static double ACosh(double x)
-    {
-        return (Math.Log(x + Math.Sqrt((x * x) - 1.0)));
-    }
+    public static double ACosh(double x) => (Math.Log(x + Math.Sqrt((x * x) - 1.0)));
 
-    public static double ATanh(double x)
-    {
-        return (Math.Log((1.0 + x) / (1.0 - x)) / 2.0);
-    }
+    public static double ATanh(double x) => (Math.Log((1.0 + x) / (1.0 - x)) / 2.0);
 
-    public static double Csch(double x)
-    {
-        return (1.0 / Math.Sinh(x));
-    }
+    public static double Csch(double x) => (1.0 / Math.Sinh(x));
 
     internal static OneOf<double, XLError> CombinChecked(
         CalcContext ctx,
@@ -96,10 +84,7 @@ internal static class XLMath
         return factorial;
     }
 
-    public static Boolean IsEven(Int32 value)
-    {
-        return Math.Abs(value % 2) == 0;
-    }
+    public static Boolean IsEven(Int32 value) => Math.Abs(value % 2) == 0;
 
     public static Boolean IsEven(double value)
     {
@@ -111,10 +96,7 @@ internal static class XLMath
         return hasNoFraction && isEven;
     }
 
-    public static Boolean IsOdd(Int32 value)
-    {
-        return Math.Abs(value % 2) != 0;
-    }
+    public static Boolean IsOdd(Int32 value) => Math.Abs(value % 2) != 0;
 
     public static Boolean IsOdd(double value)
     {

@@ -814,8 +814,7 @@ public class SparklinesTests
     }
 
     [Test]
-    public void CanLoadSparklines()
-    {
+    public void CanLoadSparklines() =>
         TestHelper.LoadAndAssert(
             wb =>
             {
@@ -823,7 +822,6 @@ public class SparklinesTests
             },
             @"Other\Sparklines\SparklineThemes\inputfile.xlsx"
         );
-    }
 
     [TestCase("Accent!B1", nameof(XLSparklineTheme.Accent1))]
     [TestCase("Accent!B2", nameof(XLSparklineTheme.Accent2))]
@@ -920,8 +918,7 @@ public class SparklinesTests
     }
 
     [Test]
-    public void EmptySparklineGroupsSkippedOnSaving()
-    {
+    public void EmptySparklineGroupsSkippedOnSaving() =>
         TestHelper.CreateSaveLoadAssert(
             wb =>
             {
@@ -935,11 +932,9 @@ public class SparklinesTests
                 Assert.AreEqual(0, wb.Worksheets.First().SparklineGroups.Count());
             }
         );
-    }
 
     [Test]
-    public void CanSaveAndLoadSparklineWithInvalidRange()
-    {
+    public void CanSaveAndLoadSparklineWithInvalidRange() =>
         TestHelper.CreateSaveLoadAssert(
             wb =>
             {
@@ -964,18 +959,15 @@ public class SparklinesTests
                 Assert.IsNull(ws.Cell("A5").Sparkline.SparklineGroup.DateRange);
             }
         );
-    }
 
     [Test]
-    public void CanLoadAndSaveExternalReferences()
-    {
+    public void CanLoadAndSaveExternalReferences() =>
         // The workbook has a sparkline with source data that are a reference to an external workbook
         // '[1]Contract Tail YLT'!B46:E46
         TestHelper.LoadSaveAndCompare(
             @"Other\Sparklines\SourceDataFormulas\ExternalReference-input.xlsx",
             @"Other\Sparklines\SourceDataFormulas\ExternalReference-output.xlsx"
         );
-    }
 
     #endregion Load and save sparkline groups
 
@@ -1195,10 +1187,8 @@ public class SparklinesTests
     #region Test Examples
 
     [Test]
-    public void CreateSampleSparklines()
-    {
+    public void CreateSampleSparklines() =>
         TestHelper.RunTestExample<SampleSparklines>(@"Sparklines\SampleSparklines.xlsx");
-    }
 
     #endregion Test Examples
 }

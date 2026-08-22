@@ -24,8 +24,5 @@ internal readonly record struct FractionOfOne : IEquatable<double>
 
     public static implicit operator FractionOfOne(double value) => new(value);
 
-    public bool Equals(double other)
-    {
-        return this.Value.Equals(other);
-    }
+    public bool Equals(double other) => this.Value.Equals(other);
 }

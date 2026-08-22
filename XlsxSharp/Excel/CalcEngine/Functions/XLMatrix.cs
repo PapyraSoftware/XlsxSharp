@@ -39,8 +39,8 @@ internal class XLMatrix
 
     public double this[int iRow, int iCol] // Access this matrix as a 2D array
     {
-        get { return this.mat[iRow, iCol]; }
-        set { this.mat[iRow, iCol] = value; }
+        get => this.mat[iRow, iCol];
+        set => this.mat[iRow, iCol] = value;
     }
 
     public Boolean IsSingular()
@@ -61,10 +61,7 @@ internal class XLMatrix
         return false;
     }
 
-    public Boolean IsSquare()
-    {
-        return (this.rows == this.cols);
-    }
+    public Boolean IsSquare() => (this.rows == this.cols);
 
     public void SetCol(XLMatrix v, int k)
     {

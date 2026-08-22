@@ -22,10 +22,8 @@ internal class DataTableReader : IInsertDataReader
         this._dataTable = this._dataRows.FirstOrDefault()?.Table;
     }
 
-    public IEnumerable<IEnumerable<XLCellValue>> GetRecords()
-    {
-        return this._dataRows.Select(r => r.ItemArray.Select(XLCellValue.FromInsertedObject));
-    }
+    public IEnumerable<IEnumerable<XLCellValue>> GetRecords() =>
+        this._dataRows.Select(r => r.ItemArray.Select(XLCellValue.FromInsertedObject));
 
     public int GetPropertiesCount()
     {

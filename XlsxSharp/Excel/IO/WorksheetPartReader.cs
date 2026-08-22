@@ -1979,10 +1979,7 @@ internal class WorksheetPartReader
         IXLFormatContainer container,
         Int32 styleIndex,
         XLWorkbookStyles styles
-    )
-    {
-        container.FormatValue = styles.CellFormats[styleIndex];
-    }
+    ) => container.FormatValue = styles.CellFormats[styleIndex];
 
     private static void ApplyStyle(XLColumns columns, Int32 styleIndex, XLWorkbookStyles styles)
     {

@@ -8,10 +8,7 @@ namespace XlsxSharp.Excel;
 /// </summary>
 internal sealed class XLPivotSourceConnection : IXLPivotSource
 {
-    public XLPivotSourceConnection(uint connectionId)
-    {
-        this.ConnectionId = connectionId;
-    }
+    public XLPivotSourceConnection(uint connectionId) => this.ConnectionId = connectionId;
 
     public uint ConnectionId { get; }
 
@@ -31,20 +28,12 @@ internal sealed class XLPivotSourceConnection : IXLPivotSource
         return this.ConnectionId == other.ConnectionId;
     }
 
-    public override bool Equals(object? obj)
-    {
-        return obj is IXLPivotSource other && this.Equals(other);
-    }
+    public override bool Equals(object? obj) => obj is IXLPivotSource other && this.Equals(other);
 
-    public override int GetHashCode()
-    {
-        return HashCode.Combine(this.ConnectionId).GetHashCode();
-    }
+    public override int GetHashCode() => HashCode.Combine(this.ConnectionId).GetHashCode();
 
-    public bool TryGetSource(XLWorkbook workbook, out XLWorksheet? sheet, out Area? sheetArea)
-    {
+    public bool TryGetSource(XLWorkbook workbook, out XLWorksheet? sheet, out Area? sheetArea) =>
         throw new NotImplementedException(
             "Pivot cache source using a connection is not supported."
         );
-    }
 }

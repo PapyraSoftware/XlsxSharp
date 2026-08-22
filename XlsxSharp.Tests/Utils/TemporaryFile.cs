@@ -28,8 +28,5 @@ internal class TemporaryFile : IDisposable
         }
     }
 
-    public override string ToString()
-    {
-        return this.Path;
-    }
+    public override string ToString() => this.Path;
 }

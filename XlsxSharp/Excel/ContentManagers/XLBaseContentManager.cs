@@ -27,8 +27,5 @@ internal abstract class XLBaseContentManager<T>
         return previousElement;
     }
 
-    public void SetElement(T content, OpenXmlElement? element)
-    {
-        this.contents[content] = element;
-    }
+    public void SetElement(T content, OpenXmlElement? element) => this.contents[content] = element;
 }

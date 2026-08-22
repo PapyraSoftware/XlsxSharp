@@ -8,9 +8,7 @@ namespace XlsxSharp.IO.CodeGen.Model.TopLevel;
 /// </summary>
 public class ComplexTypeElement : ComplexType
 {
-    internal override List<Variable> GenerateParseMethod(CodeBuilder code)
-    {
+    internal override List<Variable> GenerateParseMethod(CodeBuilder code) =>
         // Attributes are already parsed by the ComplexType.GenerateParseMethod
-        return [];
-    }
+        [];
 }

@@ -5,10 +5,7 @@ public partial class XLColor
     internal XLColorKey Key { get; }
 
     private XLColor()
-        : this(new XLColorKey() { ColorType = XLColorType.Automatic })
-    {
-        this.HasValue = false;
-    }
+        : this(new XLColorKey() { ColorType = XLColorType.Automatic }) => this.HasValue = false;
 
     internal XLColor(XLColorKey key)
     {

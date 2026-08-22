@@ -21,10 +21,7 @@ internal abstract class XLRangeBase : IXLRangeBase
     private XLSortElements _sortRows;
     private XLSortElements _sortColumns;
 
-    protected XLRangeBase(XLRangeAddress rangeAddress)
-    {
-        this._rangeAddress = rangeAddress;
-    }
+    protected XLRangeBase(XLRangeAddress rangeAddress) => this._rangeAddress = rangeAddress;
 
     /// <summary>
     /// Get format API object tailored to the range type.
@@ -34,10 +31,7 @@ internal abstract class XLRangeBase : IXLRangeBase
     protected virtual void OnRangeAddressChanged(
         XLRangeAddress oldAddress,
         XLRangeAddress newAddress
-    )
-    {
-        this.Worksheet.RelocateRange(this.RangeType, oldAddress, newAddress);
-    }
+    ) => this.Worksheet.RelocateRange(this.RangeType, oldAddress, newAddress);
 
     #region Public properties
 
@@ -45,7 +39,7 @@ internal abstract class XLRangeBase : IXLRangeBase
 
     public XLRangeAddress RangeAddress
     {
-        get { return this._rangeAddress; }
+        get => this._rangeAddress;
         protected set
         {
             if (this._rangeAddress != value)
@@ -57,10 +51,7 @@ internal abstract class XLRangeBase : IXLRangeBase
         }
     }
 
-    public XLWorksheet Worksheet
-    {
-        get { return this.RangeAddress.Worksheet; }
-    }
+    public XLWorksheet Worksheet => this.RangeAddress.Worksheet;
 
     internal Area SheetRange
     {
@@ -75,15 +66,10 @@ internal abstract class XLRangeBase : IXLRangeBase
         }
     }
 
-    IXLDataValidation IXLRangeBase.CreateDataValidation()
-    {
-        return this.CreateDataValidation();
-    }
+    IXLDataValidation IXLRangeBase.CreateDataValidation() => this.CreateDataValidation();
 
-    internal XLDataValidation CreateDataValidation()
-    {
-        return this.Worksheet.DataValidations.Create(this.SheetRange);
-    }
+    internal XLDataValidation CreateDataValidation() =>
+        this.Worksheet.DataValidations.Create(this.SheetRange);
 
     public IXLDataValidation GetDataValidation()
     {
@@ -102,27 +88,19 @@ internal abstract class XLRangeBase : IXLRangeBase
         set => this.Format.SetStyle(value);
     }
 
-    IXLRangeAddress IXLAddressable.RangeAddress
-    {
-        get { return this.RangeAddress; }
-    }
+    IXLRangeAddress IXLAddressable.RangeAddress => this.RangeAddress;
 
-    IXLWorksheet IXLRangeBase.Worksheet
-    {
-        get { return this.RangeAddress.Worksheet; }
-    }
+    IXLWorksheet IXLRangeBase.Worksheet => this.RangeAddress.Worksheet;
 
     public String FormulaA1
     {
-        set
-        {
+        set =>
             this.Cells()
                 .ForEach(c =>
                 {
                     c.FormulaA1 = value;
                     c.FormulaReference = this.RangeAddress;
                 });
-        }
     }
 
     public String FormulaArrayA1
@@ -184,25 +162,23 @@ internal abstract class XLRangeBase : IXLRangeBase
 
     public String FormulaR1C1
     {
-        set
-        {
+        set =>
             this.Cells()
                 .ForEach(c =>
                 {
                     c.FormulaR1C1 = value;
                     c.FormulaReference = this.RangeAddress;
                 });
-        }
     }
 
     public Boolean ShareString
     {
-        set { this.Cells().ForEach(c => c.ShareString = value); }
+        set => this.Cells().ForEach(c => c.ShareString = value);
     }
 
     public XLCellValue Value
     {
-        set { this.Cells().ForEach(c => c.Value = value); }
+        set => this.Cells().ForEach(c => c.Value = value);
     }
 
     #endregion IXLRangeBase Members
@@ -220,65 +196,40 @@ internal abstract class XLRangeBase : IXLRangeBase
 
     IXLCells IXLRangeBase.CellsUsed() => this.CellsUsed();
 
-    IXLCell IXLRangeBase.FirstCell()
-    {
-        return this.FirstCell();
-    }
+    IXLCell IXLRangeBase.FirstCell() => this.FirstCell();
 
-    IXLCell IXLRangeBase.LastCell()
-    {
-        return this.LastCell();
-    }
+    IXLCell IXLRangeBase.LastCell() => this.LastCell();
 
-    IXLCell IXLRangeBase.FirstCellUsed()
-    {
-        return this.FirstCellUsed(XLCellsUsedOptions.AllContents);
-    }
+    IXLCell IXLRangeBase.FirstCellUsed() => this.FirstCellUsed(XLCellsUsedOptions.AllContents);
 
-    IXLCell IXLRangeBase.FirstCellUsed(XLCellsUsedOptions options)
-    {
-        return this.FirstCellUsed(options, null);
-    }
+    IXLCell IXLRangeBase.FirstCellUsed(XLCellsUsedOptions options) =>
+        this.FirstCellUsed(options, null);
 
-    IXLCell IXLRangeBase.FirstCellUsed(Func<IXLCell, Boolean> predicate)
-    {
-        return this.FirstCellUsed(predicate);
-    }
+    IXLCell IXLRangeBase.FirstCellUsed(Func<IXLCell, Boolean> predicate) =>
+        this.FirstCellUsed(predicate);
 
-    IXLCell IXLRangeBase.FirstCellUsed(XLCellsUsedOptions options, Func<IXLCell, Boolean> predicate)
-    {
-        return this.FirstCellUsed(options, predicate);
-    }
+    IXLCell IXLRangeBase.FirstCellUsed(
+        XLCellsUsedOptions options,
+        Func<IXLCell, Boolean> predicate
+    ) => this.FirstCellUsed(options, predicate);
 
-    IXLCell IXLRangeBase.LastCellUsed()
-    {
-        return this.LastCellUsed(XLCellsUsedOptions.AllContents);
-    }
+    IXLCell IXLRangeBase.LastCellUsed() => this.LastCellUsed(XLCellsUsedOptions.AllContents);
 
-    IXLCell IXLRangeBase.LastCellUsed(XLCellsUsedOptions options)
-    {
-        return this.LastCellUsed(options, null);
-    }
+    IXLCell IXLRangeBase.LastCellUsed(XLCellsUsedOptions options) =>
+        this.LastCellUsed(options, null);
 
-    IXLCell IXLRangeBase.LastCellUsed(Func<IXLCell, Boolean> predicate)
-    {
-        return this.LastCellUsed(predicate);
-    }
+    IXLCell IXLRangeBase.LastCellUsed(Func<IXLCell, Boolean> predicate) =>
+        this.LastCellUsed(predicate);
 
-    IXLCell IXLRangeBase.LastCellUsed(XLCellsUsedOptions options, Func<IXLCell, Boolean> predicate)
-    {
-        return this.LastCellUsed(options, predicate);
-    }
+    IXLCell IXLRangeBase.LastCellUsed(
+        XLCellsUsedOptions options,
+        Func<IXLCell, Boolean> predicate
+    ) => this.LastCellUsed(options, predicate);
 
-    public virtual IXLCells Cells()
-    {
-        return this.Cells(false);
-    }
+    public virtual IXLCells Cells() => this.Cells(false);
 
-    public virtual XLCells Cells(Boolean usedCellsOnly)
-    {
-        return this.Cells(usedCellsOnly, XLCellsUsedOptions.AllContents);
-    }
+    public virtual XLCells Cells(Boolean usedCellsOnly) =>
+        this.Cells(usedCellsOnly, XLCellsUsedOptions.AllContents);
 
     public XLCells Cells(Boolean usedCellsOnly, XLCellsUsedOptions options)
     {
@@ -286,10 +237,7 @@ internal abstract class XLRangeBase : IXLRangeBase
         return cells;
     }
 
-    public virtual XLCells Cells(String cells)
-    {
-        return this.Ranges(cells).Cells();
-    }
+    public virtual XLCells Cells(String cells) => this.Ranges(cells).Cells();
 
     public IXLCells Cells(Func<IXLCell, Boolean> predicate)
     {
@@ -300,15 +248,9 @@ internal abstract class XLRangeBase : IXLRangeBase
         return cells;
     }
 
-    public XLCells CellsUsed()
-    {
-        return this.Cells(true);
-    }
+    public XLCells CellsUsed() => this.Cells(true);
 
-    public IXLRange Merge()
-    {
-        return this.Merge(true);
-    }
+    public IXLRange Merge() => this.Merge(true);
 
     public IXLRange Merge(Boolean checkIntersect)
     {
@@ -550,17 +492,13 @@ internal abstract class XLRangeBase : IXLRangeBase
         return ((XLRangeBase)targetBaseRange).Range(in xlRangeAddress);
     }
 
-    internal void RemoveSparklines()
-    {
-        this.Worksheet.SparklineGroups.GetSparklines(this)
+    internal void RemoveSparklines() =>
+        this
+            .Worksheet.SparklineGroups.GetSparklines(this)
             .ToList()
             .ForEach(sl => this.Worksheet.SparklineGroups.Remove(sl.Location));
-    }
 
-    public void DeleteComments()
-    {
-        this.Cells().DeleteComments();
-    }
+    public void DeleteComments() => this.Cells().DeleteComments();
 
     public bool Contains(String rangeAddress)
     {
@@ -584,18 +522,14 @@ internal abstract class XLRangeBase : IXLRangeBase
         return this.Contains(firstAddress, lastAddress);
     }
 
-    public bool Contains(IXLRangeBase range)
-    {
-        return this.Contains(
+    public bool Contains(IXLRangeBase range) =>
+        this.Contains(
             (XLAddress)range.RangeAddress.FirstAddress,
             (XLAddress)range.RangeAddress.LastAddress
         );
-    }
 
-    public bool Intersects(string rangeAddress)
-    {
-        return this.Intersects(this.Worksheet.Range(rangeAddress));
-    }
+    public bool Intersects(string rangeAddress) =>
+        this.Intersects(this.Worksheet.Range(rangeAddress));
 
     public bool Intersects(IXLRangeBase range)
     {
@@ -609,25 +543,13 @@ internal abstract class XLRangeBase : IXLRangeBase
         return ra.Intersects(ma);
     }
 
-    IXLRange IXLRangeBase.AsRange()
-    {
-        return this.AsRange();
-    }
+    IXLRange IXLRangeBase.AsRange() => this.AsRange();
 
-    public virtual XLRange AsRange()
-    {
-        return this.Worksheet.Range(this.RangeAddress);
-    }
+    public virtual XLRange AsRange() => this.Worksheet.Range(this.RangeAddress);
 
-    public IXLRange AddToNamed(String name)
-    {
-        return this.AddToNamed(name, XLScope.Workbook);
-    }
+    public IXLRange AddToNamed(String name) => this.AddToNamed(name, XLScope.Workbook);
 
-    public IXLRange AddToNamed(String name, XLScope scope)
-    {
-        return this.AddToNamed(name, scope, null);
-    }
+    public IXLRange AddToNamed(String name, XLScope scope) => this.AddToNamed(name, scope, null);
 
     public IXLRange AddToNamed(String name, XLScope scope, String comment)
     {
@@ -658,15 +580,10 @@ internal abstract class XLRangeBase : IXLRangeBase
         return this;
     }
 
-    public Boolean IsMerged()
-    {
-        return this.Cells().Any(c => c.IsMerged());
-    }
+    public Boolean IsMerged() => this.Cells().Any(c => c.IsMerged());
 
-    public virtual Boolean IsEmpty()
-    {
-        return !this.CellsUsed().Any<XLCell>() || this.CellsUsed().Any<XLCell>(c => c.IsEmpty());
-    }
+    public virtual Boolean IsEmpty() =>
+        !this.CellsUsed().Any<XLCell>() || this.CellsUsed().Any<XLCell>(c => c.IsEmpty());
 
     public virtual Boolean IsEmpty(XLCellsUsedOptions options)
     {
@@ -680,20 +597,11 @@ internal abstract class XLRangeBase : IXLRangeBase
         return true;
     }
 
-    public virtual Boolean IsEntireRow()
-    {
-        return this.RangeAddress.IsEntireRow();
-    }
+    public virtual Boolean IsEntireRow() => this.RangeAddress.IsEntireRow();
 
-    public virtual Boolean IsEntireColumn()
-    {
-        return this.RangeAddress.IsEntireColumn();
-    }
+    public virtual Boolean IsEntireColumn() => this.RangeAddress.IsEntireColumn();
 
-    public Boolean IsEntireSheet()
-    {
-        return this.RangeAddress.IsEntireSheet();
-    }
+    public Boolean IsEntireSheet() => this.RangeAddress.IsEntireSheet();
 
     #endregion IXLRangeBase Members
 
@@ -741,25 +649,15 @@ internal abstract class XLRangeBase : IXLRangeBase
         );
     }
 
-    internal XLCell FirstCell()
-    {
-        return this.Cell(1, 1);
-    }
+    internal XLCell FirstCell() => this.Cell(1, 1);
 
-    internal XLCell LastCell()
-    {
-        return this.Cell(this.RowCount(), this.ColumnCount());
-    }
+    internal XLCell LastCell() => this.Cell(this.RowCount(), this.ColumnCount());
 
-    internal XLCell FirstCellUsed()
-    {
-        return this.FirstCellUsed(XLCellsUsedOptions.AllContents, predicate: null);
-    }
+    internal XLCell FirstCellUsed() =>
+        this.FirstCellUsed(XLCellsUsedOptions.AllContents, predicate: null);
 
-    internal XLCell FirstCellUsed(Func<IXLCell, Boolean> predicate)
-    {
-        return this.FirstCellUsed(XLCellsUsedOptions.AllContents, predicate);
-    }
+    internal XLCell FirstCellUsed(Func<IXLCell, Boolean> predicate) =>
+        this.FirstCellUsed(XLCellsUsedOptions.AllContents, predicate);
 
     internal XLCell FirstCellUsed(
         XLCellsUsedOptions options,
@@ -792,15 +690,11 @@ internal abstract class XLRangeBase : IXLRangeBase
         return this.Worksheet.Cell(firstRow, firstColumn);
     }
 
-    internal XLCell LastCellUsed()
-    {
-        return this.LastCellUsed(XLCellsUsedOptions.AllContents, predicate: null);
-    }
+    internal XLCell LastCellUsed() =>
+        this.LastCellUsed(XLCellsUsedOptions.AllContents, predicate: null);
 
-    internal XLCell LastCellUsed(Func<IXLCell, Boolean> predicate)
-    {
-        return this.LastCellUsed(XLCellsUsedOptions.AllContents, predicate);
-    }
+    internal XLCell LastCellUsed(Func<IXLCell, Boolean> predicate) =>
+        this.LastCellUsed(XLCellsUsedOptions.AllContents, predicate);
 
     internal XLCell LastCellUsed(
         XLCellsUsedOptions options,
@@ -833,15 +727,10 @@ internal abstract class XLRangeBase : IXLRangeBase
         return this.Worksheet.Cell(lastRow, lastColumn);
     }
 
-    internal XLCell Cell(Int32 row, Int32 column)
-    {
-        return this.Cell(new Point(row, column));
-    }
+    internal XLCell Cell(Int32 row, Int32 column) => this.Cell(new Point(row, column));
 
-    internal XLCell Cell(Point point)
-    {
-        return this.Cell(new XLAddress(this.Worksheet, point.Row, point.Column, false, false));
-    }
+    internal XLCell Cell(Point point) =>
+        this.Cell(new XLAddress(this.Worksheet, point.Row, point.Column, false, false));
 
     public virtual XLCell Cell(String cellAddressInRange)
     {
@@ -863,15 +752,11 @@ internal abstract class XLRangeBase : IXLRangeBase
         return null;
     }
 
-    public XLCell Cell(Int32 row, String column)
-    {
-        return this.Cell(new XLAddress(this.Worksheet, row, column, false, false));
-    }
+    public XLCell Cell(Int32 row, String column) =>
+        this.Cell(new XLAddress(this.Worksheet, row, column, false, false));
 
-    public XLCell Cell(IXLAddress cellAddressInRange)
-    {
-        return this.Cell(cellAddressInRange.RowNumber, cellAddressInRange.ColumnNumber);
-    }
+    public XLCell Cell(IXLAddress cellAddressInRange) =>
+        this.Cell(cellAddressInRange.RowNumber, cellAddressInRange.ColumnNumber);
 
     public XLCell Cell(in XLAddress cellAddressInRange)
     {
@@ -907,12 +792,8 @@ internal abstract class XLRangeBase : IXLRangeBase
         return cell;
     }
 
-    public Int32 RowCount()
-    {
-        return this.RangeAddress.LastAddress.RowNumber
-            - this.RangeAddress.FirstAddress.RowNumber
-            + 1;
-    }
+    public Int32 RowCount() =>
+        this.RangeAddress.LastAddress.RowNumber - this.RangeAddress.FirstAddress.RowNumber + 1;
 
     public Int32 RowCount(XLCellsUsedOptions cellsUsedOptions)
     {
@@ -931,17 +812,12 @@ internal abstract class XLRangeBase : IXLRangeBase
         return lcu.Address.RowNumber - fcu.Address.RowNumber + 1;
     }
 
-    public Int32 RowNumber()
-    {
-        return this.RangeAddress.FirstAddress.RowNumber;
-    }
+    public Int32 RowNumber() => this.RangeAddress.FirstAddress.RowNumber;
 
-    public Int32 ColumnCount()
-    {
-        return this.RangeAddress.LastAddress.ColumnNumber
-            - this.RangeAddress.FirstAddress.ColumnNumber
-            + 1;
-    }
+    public Int32 ColumnCount() =>
+        this.RangeAddress.LastAddress.ColumnNumber
+        - this.RangeAddress.FirstAddress.ColumnNumber
+        + 1;
 
     public Int32 ColumnCount(XLCellsUsedOptions cellsUsedOptions)
     {
@@ -960,15 +836,9 @@ internal abstract class XLRangeBase : IXLRangeBase
         return lcu.Address.ColumnNumber - fcu.Address.ColumnNumber + 1;
     }
 
-    public Int32 ColumnNumber()
-    {
-        return this.RangeAddress.FirstAddress.ColumnNumber;
-    }
+    public Int32 ColumnNumber() => this.RangeAddress.FirstAddress.ColumnNumber;
 
-    public String ColumnLetter()
-    {
-        return this.RangeAddress.FirstAddress.ColumnLetter;
-    }
+    public String ColumnLetter() => this.RangeAddress.FirstAddress.ColumnLetter;
 
     public virtual XLRange Range(String rangeAddressStr)
     {
@@ -1051,10 +921,8 @@ internal abstract class XLRangeBase : IXLRangeBase
         return this.Range(rangeAddress);
     }
 
-    internal XLRange Range(Area area)
-    {
-        return this.Range(area.TopRow, area.LeftColumn, area.BottomRow, area.RightColumn);
-    }
+    internal XLRange Range(Area area) =>
+        this.Range(area.TopRow, area.LeftColumn, area.BottomRow, area.RightColumn);
 
     internal XLRange Range(
         Int32 firstCellRow,
@@ -1181,10 +1049,8 @@ internal abstract class XLRangeBase : IXLRangeBase
         return cells;
     }
 
-    public IXLCells CellsUsed(XLCellsUsedOptions options, Func<IXLCell, Boolean> predicate)
-    {
-        return this.CellsUsedInternal(options, predicate);
-    }
+    public IXLCells CellsUsed(XLCellsUsedOptions options, Func<IXLCell, Boolean> predicate) =>
+        this.CellsUsedInternal(options, predicate);
 
     internal XLCells CellsUsedInternal(
         XLCellsUsedOptions options,
@@ -1195,10 +1061,8 @@ internal abstract class XLRangeBase : IXLRangeBase
         return cells;
     }
 
-    public IXLRangeColumns InsertColumnsAfter(Int32 numberOfColumns)
-    {
-        return this.InsertColumnsAfter(numberOfColumns, true);
-    }
+    public IXLRangeColumns InsertColumnsAfter(Int32 numberOfColumns) =>
+        this.InsertColumnsAfter(numberOfColumns, true);
 
     public IXLRangeColumns InsertColumnsAfter(Int32 numberOfColumns, Boolean expandRange)
     {
@@ -1230,24 +1094,19 @@ internal abstract class XLRangeBase : IXLRangeBase
         Boolean onlyUsedCells,
         Int32 numberOfColumns,
         Boolean formatFromLeft = true
-    )
-    {
-        return this.InsertColumnsAfterInternal(onlyUsedCells, numberOfColumns, formatFromLeft);
-    }
+    ) => this.InsertColumnsAfterInternal(onlyUsedCells, numberOfColumns, formatFromLeft);
 
     public void InsertColumnsAfterVoid(
         Boolean onlyUsedCells,
         Int32 numberOfColumns,
         Boolean formatFromLeft = true
-    )
-    {
+    ) =>
         this.InsertColumnsAfterInternal(
             onlyUsedCells,
             numberOfColumns,
             formatFromLeft,
             nullReturn: true
         );
-    }
 
     private IXLRangeColumns InsertColumnsAfterInternal(
         Boolean onlyUsedCells,
@@ -1285,10 +1144,8 @@ internal abstract class XLRangeBase : IXLRangeBase
         );
     }
 
-    public IXLRangeColumns InsertColumnsBefore(Int32 numberOfColumns)
-    {
-        return this.InsertColumnsBefore(numberOfColumns, false);
-    }
+    public IXLRangeColumns InsertColumnsBefore(Int32 numberOfColumns) =>
+        this.InsertColumnsBefore(numberOfColumns, false);
 
     public IXLRangeColumns InsertColumnsBefore(Int32 numberOfColumns, Boolean expandRange)
     {
@@ -1320,24 +1177,19 @@ internal abstract class XLRangeBase : IXLRangeBase
         Boolean onlyUsedCells,
         Int32 numberOfColumns,
         Boolean formatFromLeft = true
-    )
-    {
-        return this.InsertColumnsBeforeInternal(onlyUsedCells, numberOfColumns, formatFromLeft);
-    }
+    ) => this.InsertColumnsBeforeInternal(onlyUsedCells, numberOfColumns, formatFromLeft);
 
     public void InsertColumnsBeforeVoid(
         Boolean onlyUsedCells,
         Int32 numberOfColumns,
         Boolean formatFromLeft = true
-    )
-    {
+    ) =>
         this.InsertColumnsBeforeInternal(
             onlyUsedCells,
             numberOfColumns,
             formatFromLeft,
             nullReturn: true
         );
-    }
 
     private IXLRangeColumns InsertColumnsBeforeInternal(
         Boolean onlyUsedCells,
@@ -1460,10 +1312,8 @@ internal abstract class XLRangeBase : IXLRangeBase
         return rangeToReturn.Columns();
     }
 
-    public IXLRangeRows InsertRowsBelow(Int32 numberOfRows)
-    {
-        return this.InsertRowsBelow(numberOfRows, true);
-    }
+    public IXLRangeRows InsertRowsBelow(Int32 numberOfRows) =>
+        this.InsertRowsBelow(numberOfRows, true);
 
     public IXLRangeRows InsertRowsBelow(Int32 numberOfRows, Boolean expandRange)
     {
@@ -1495,29 +1345,25 @@ internal abstract class XLRangeBase : IXLRangeBase
         Boolean onlyUsedCells,
         Int32 numberOfRows,
         Boolean formatFromAbove = true
-    )
-    {
-        return this.InsertRowsBelowInternal(
+    ) =>
+        this.InsertRowsBelowInternal(
             onlyUsedCells,
             numberOfRows,
             formatFromAbove,
             nullReturn: false
         );
-    }
 
     public void InsertRowsBelowVoid(
         Boolean onlyUsedCells,
         Int32 numberOfRows,
         Boolean formatFromAbove = true
-    )
-    {
+    ) =>
         this.InsertRowsBelowInternal(
             onlyUsedCells,
             numberOfRows,
             formatFromAbove,
             nullReturn: true
         );
-    }
 
     private IXLRangeRows InsertRowsBelowInternal(
         Boolean onlyUsedCells,
@@ -1555,10 +1401,8 @@ internal abstract class XLRangeBase : IXLRangeBase
         );
     }
 
-    public IXLRangeRows InsertRowsAbove(Int32 numberOfRows)
-    {
-        return this.InsertRowsAbove(numberOfRows, false);
-    }
+    public IXLRangeRows InsertRowsAbove(Int32 numberOfRows) =>
+        this.InsertRowsAbove(numberOfRows, false);
 
     public IXLRangeRows InsertRowsAbove(Int32 numberOfRows, Boolean expandRange)
     {
@@ -1590,29 +1434,25 @@ internal abstract class XLRangeBase : IXLRangeBase
         Boolean onlyUsedCells,
         Int32 numberOfRows,
         Boolean formatFromAbove = true
-    )
-    {
+    ) =>
         this.InsertRowsAboveInternal(
             onlyUsedCells,
             numberOfRows,
             formatFromAbove,
             nullReturn: true
         );
-    }
 
     public IXLRangeRows InsertRowsAbove(
         Boolean onlyUsedCells,
         Int32 numberOfRows,
         Boolean formatFromAbove = true
-    )
-    {
-        return this.InsertRowsAboveInternal(
+    ) =>
+        this.InsertRowsAboveInternal(
             onlyUsedCells,
             numberOfRows,
             formatFromAbove,
             nullReturn: false
         );
-    }
 
     private IXLRangeRows InsertRowsAboveInternal(
         Boolean onlyUsedCells,
@@ -1746,20 +1586,12 @@ internal abstract class XLRangeBase : IXLRangeBase
         mergeToDelete.ForEach(m => this.Worksheet.Internals.MergedRanges.Remove(m));
     }
 
-    public Boolean Contains(IXLCell cell)
-    {
-        return this.Contains((XLAddress)cell.Address);
-    }
+    public Boolean Contains(IXLCell cell) => this.Contains((XLAddress)cell.Address);
 
-    public bool Contains(XLAddress first, XLAddress last)
-    {
-        return this.Contains(first) && this.Contains(last);
-    }
+    public bool Contains(XLAddress first, XLAddress last) =>
+        this.Contains(first) && this.Contains(last);
 
-    public bool Contains(XLAddress address)
-    {
-        return this.RangeAddress.Contains(in address);
-    }
+    public bool Contains(XLAddress address) => this.RangeAddress.Contains(in address);
 
     public void Delete(XLShiftDeletedCells shiftDeleteCells)
     {
@@ -1833,16 +1665,14 @@ internal abstract class XLRangeBase : IXLRangeBase
         this.Worksheet.DeleteRange(this.RangeAddress);
     }
 
-    public override string ToString()
-    {
-        return String.Concat(
+    public override string ToString() =>
+        String.Concat(
             this.Worksheet.Name.EscapeSheetName(),
             '!',
             this.RangeAddress.FirstAddress,
             ':',
             this.RangeAddress.LastAddress
         );
-    }
 
     protected IXLRangeAddress ShiftColumns(
         IXLRangeAddress thisRangeAddress,
@@ -2035,10 +1865,7 @@ internal abstract class XLRangeBase : IXLRangeBase
         return new XLRangeAddress(firstAddress, lastAddress);
     }
 
-    public IXLRange RangeUsed()
-    {
-        return this.RangeUsed(XLCellsUsedOptions.AllContents);
-    }
+    public IXLRange RangeUsed() => this.RangeUsed(XLCellsUsedOptions.AllContents);
 
     public IXLRange RangeUsed(XLCellsUsedOptions options)
     {
@@ -2052,15 +1879,9 @@ internal abstract class XLRangeBase : IXLRangeBase
         return this.Worksheet.Range(firstCell, lastCell);
     }
 
-    public virtual void CopyTo(IXLRangeBase target)
-    {
-        this.CopyTo((XLCell)target.FirstCell());
-    }
+    public virtual void CopyTo(IXLRangeBase target) => this.CopyTo((XLCell)target.FirstCell());
 
-    internal void CopyTo(XLCell target)
-    {
-        target.CopyFrom(this);
-    }
+    internal void CopyTo(XLCell target) => target.CopyFrom(this);
 
     //public IXLChart CreateChart(Int32 firstRow, Int32 firstColumn, Int32 lastRow, Int32 lastColumn)
     //{
@@ -2073,20 +1894,13 @@ internal abstract class XLRangeBase : IXLRangeBase
     //    return chart;
     //}
 
-    IXLPivotTable IXLRangeBase.CreatePivotTable(IXLCell targetCell, String name)
-    {
-        return this.CreatePivotTable(targetCell, name);
-    }
+    IXLPivotTable IXLRangeBase.CreatePivotTable(IXLCell targetCell, String name) =>
+        this.CreatePivotTable(targetCell, name);
 
-    public XLPivotTable CreatePivotTable(IXLCell targetCell, String name)
-    {
-        return (XLPivotTable)targetCell.Worksheet.PivotTables.Add(name, targetCell, this.AsRange());
-    }
+    public XLPivotTable CreatePivotTable(IXLCell targetCell, String name) =>
+        (XLPivotTable)targetCell.Worksheet.PivotTables.Add(name, targetCell, this.AsRange());
 
-    public virtual IXLAutoFilter SetAutoFilter()
-    {
-        return this.SetAutoFilter(true);
-    }
+    public virtual IXLAutoFilter SetAutoFilter() => this.SetAutoFilter(true);
 
     public IXLAutoFilter SetAutoFilter(Boolean value)
     {
@@ -2102,15 +1916,10 @@ internal abstract class XLRangeBase : IXLRangeBase
 
     #region Sort
 
-    public IXLSortElements SortRows
-    {
-        get { return this._sortRows ?? (this._sortRows = new XLSortElements()); }
-    }
+    public IXLSortElements SortRows => this._sortRows ?? (this._sortRows = new XLSortElements());
 
-    public IXLSortElements SortColumns
-    {
-        get { return this._sortColumns ?? (this._sortColumns = new XLSortElements()); }
-    }
+    public IXLSortElements SortColumns =>
+        this._sortColumns ?? (this._sortColumns = new XLSortElements());
 
     private String DefaultSortString()
     {
@@ -2172,10 +1981,7 @@ internal abstract class XLRangeBase : IXLRangeBase
         XLSortOrder sortOrder = XLSortOrder.Ascending,
         Boolean matchCase = false,
         Boolean ignoreBlanks = true
-    )
-    {
-        return this.Sort(columnToSortBy.ToString(), sortOrder, matchCase, ignoreBlanks);
-    }
+    ) => this.Sort(columnToSortBy.ToString(), sortOrder, matchCase, ignoreBlanks);
 
     public IXLRangeBase SortLeftToRight(
         XLSortOrder sortOrder = XLSortOrder.Ascending,
@@ -2318,15 +2124,9 @@ internal abstract class XLRangeBase : IXLRangeBase
         return cf;
     }
 
-    public void Select()
-    {
-        this.Worksheet.SelectedRanges.Add(this.AsRange());
-    }
+    public void Select() => this.Worksheet.SelectedRanges.Add(this.AsRange());
 
-    public IXLRangeBase Grow()
-    {
-        return this.Grow(1);
-    }
+    public IXLRangeBase Grow() => this.Grow(1);
 
     public IXLRangeBase Grow(int growCount)
     {
@@ -2345,10 +2145,7 @@ internal abstract class XLRangeBase : IXLRangeBase
         return this.Worksheet.Range(firstRow, firstColumn, lastRow, lastColumn);
     }
 
-    public IXLRangeBase Shrink()
-    {
-        return this.Shrink(1);
-    }
+    public IXLRangeBase Shrink() => this.Shrink(1);
 
     public IXLRangeBase Shrink(int shrinkCount)
     {

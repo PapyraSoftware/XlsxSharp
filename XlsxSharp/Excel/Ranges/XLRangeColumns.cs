@@ -12,10 +12,7 @@ internal class XLRangeColumns : IXLRangeColumns
     private readonly XLWorksheet _worksheet;
     private readonly List<XLRangeColumn> _ranges = [];
 
-    public XLRangeColumns(XLWorksheet worksheet)
-    {
-        this._worksheet = worksheet;
-    }
+    public XLRangeColumns(XLWorksheet worksheet) => this._worksheet = worksheet;
 
     internal XLCellFormat Format
     {
@@ -46,24 +43,16 @@ internal class XLRangeColumns : IXLRangeColumns
         this._ranges.Clear();
     }
 
-    public void Add(IXLRangeColumn range)
-    {
-        this._ranges.Add((XLRangeColumn)range);
-    }
+    public void Add(IXLRangeColumn range) => this._ranges.Add((XLRangeColumn)range);
 
-    public IEnumerator<IXLRangeColumn> GetEnumerator()
-    {
-        return this
+    public IEnumerator<IXLRangeColumn> GetEnumerator() =>
+        this
             ._ranges.Cast<IXLRangeColumn>()
             .OrderBy(r => r.Worksheet.Position)
             .ThenBy(r => r.ColumnNumber())
             .GetEnumerator();
-    }
 
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return this.GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 
     public IXLCells Cells()
     {

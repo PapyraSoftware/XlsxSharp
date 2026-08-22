@@ -13,10 +13,8 @@ internal class ReferenceAreaExtensionsTests
 {
     [Test]
     [TestCaseSource(nameof(A1TestCases))]
-    public void ToArea_converts_a1_reference_to_area(ReferenceArea tokenArea, Area expectedArea)
-    {
+    public void ToArea_converts_a1_reference_to_area(ReferenceArea tokenArea, Area expectedArea) =>
         Assert.AreEqual(expectedArea, tokenArea.ToArea(default));
-    }
 
     [Test]
     [TestCaseSource(nameof(R1C1TestCases))]
@@ -24,10 +22,7 @@ internal class ReferenceAreaExtensionsTests
         Point anchor,
         ReferenceArea tokenArea,
         Area expectedArea
-    )
-    {
-        Assert.AreEqual(expectedArea, tokenArea.ToArea(anchor));
-    }
+    ) => Assert.AreEqual(expectedArea, tokenArea.ToArea(anchor));
 
     [TestCase("C2", "C2", "C3")]
     [TestCase("$C2", "C2", "$C3")]

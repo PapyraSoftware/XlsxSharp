@@ -135,7 +135,7 @@ internal class XLPivotTableAxisField : IXLPivotField
 
     public bool Collapsed
     {
-        get { return this.GetFieldValue(f => !f.Items.Any(i => i.ShowDetails), false); }
+        get => this.GetFieldValue(f => !f.Items.Any(i => i.ShowDetails), false);
         set
         {
             foreach (XLPivotFieldItem item in this.GetField().Items)

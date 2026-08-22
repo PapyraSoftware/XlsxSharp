@@ -7,8 +7,6 @@ namespace XlsxSharp.Tests.Examples;
 public class CommentsTests
 {
     [Test]
-    public void AddingComments()
-    {
+    public void AddingComments() =>
         TestHelper.RunTestExample<AddingComments>(@"Comments\AddingComments.xlsx");
-    }
 }

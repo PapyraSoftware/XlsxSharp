@@ -56,37 +56,27 @@ internal static class OpenXmlHelper
         return (T)adapter.ColorType;
     }
 
-    public static BooleanValue? GetBooleanValue(bool value, bool? defaultValue = null)
-    {
-        return (defaultValue.HasValue && value == defaultValue.Value)
-            ? null
-            : new BooleanValue(value);
-    }
+    public static BooleanValue? GetBooleanValue(bool value, bool? defaultValue = null) =>
+        (defaultValue.HasValue && value == defaultValue.Value) ? null : new BooleanValue(value);
 
-    public static bool GetBooleanValueAsBool(BooleanValue? value, bool defaultValue)
-    {
-        return (value?.HasValue ?? false) ? value.Value : defaultValue;
-    }
+    public static bool GetBooleanValueAsBool(BooleanValue? value, bool defaultValue) =>
+        (value?.HasValue ?? false) ? value.Value : defaultValue;
 
     /// <summary>
     /// Convert color in OpenXML representation to XlsxSharp type.
     /// </summary>
     /// <param name="openXMLColor">Color in OpenXML format.</param>
     /// <returns>The color in XlsxSharp format.</returns>
-    public static XLColor ToClosedXMLColor(this ColorType openXMLColor)
-    {
-        return ConvertToClosedXMLColor(new ColorTypeAdapter(openXMLColor));
-    }
+    public static XLColor ToClosedXMLColor(this ColorType openXMLColor) =>
+        ConvertToClosedXMLColor(new ColorTypeAdapter(openXMLColor));
 
     /// <summary>
     /// Convert color in OpenXML representation to XlsxSharp type.
     /// </summary>
     /// <param name="openXMLColor">Color in OpenXML format.</param>
     /// <returns>The color in XlsxSharp format.</returns>
-    public static XLColor ToClosedXMLColor(this X14.ColorType openXMLColor)
-    {
-        return ConvertToClosedXMLColor(new X14ColorTypeAdapter(openXMLColor));
-    }
+    public static XLColor ToClosedXMLColor(this X14.ColorType openXMLColor) =>
+        ConvertToClosedXMLColor(new X14ColorTypeAdapter(openXMLColor));
 
 #nullable disable
 
@@ -414,16 +404,14 @@ internal static class OpenXmlHelper
         }
     }
 
-    internal static int NormalizeRotation(uint textRotation)
-    {
-        return textRotation switch
+    internal static int NormalizeRotation(uint textRotation) =>
+        textRotation switch
         {
             <= 90 => (int)textRotation,
             <= 180 => 90 - (int)textRotation,
             255 => 255,
             _ => throw new ArgumentOutOfRangeException(),
         };
-    }
 
     #endregion Private Methods
 }

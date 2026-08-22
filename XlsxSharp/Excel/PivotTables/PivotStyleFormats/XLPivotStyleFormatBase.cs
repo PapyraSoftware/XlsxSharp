@@ -13,10 +13,7 @@ internal abstract class XLPivotStyleFormatBase : IXLPivotStyleFormat
 {
     protected readonly XLPivotTable PivotTable;
 
-    protected XLPivotStyleFormatBase(XLPivotTable pivotTable)
-    {
-        this.PivotTable = pivotTable;
-    }
+    protected XLPivotStyleFormatBase(XLPivotTable pivotTable) => this.PivotTable = pivotTable;
 
     #region IXLPivotStyleFormat members
 

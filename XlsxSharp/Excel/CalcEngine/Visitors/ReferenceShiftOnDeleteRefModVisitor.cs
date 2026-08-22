@@ -22,19 +22,13 @@ internal class ReferenceShiftOnDeleteRefModVisitor : CopyVisitor
         SymbolRange range,
         string sheet,
         ReferenceArea reference
-    )
-    {
-        return this.ShiftFormulaReferences(ctx, range, sheet, reference);
-    }
+    ) => this.ShiftFormulaReferences(ctx, range, sheet, reference);
 
     public override TransformedSymbol Reference(
         ModContext ctx,
         SymbolRange range,
         ReferenceArea reference
-    )
-    {
-        return this.ShiftFormulaReferences(ctx, range, null, reference);
-    }
+    ) => this.ShiftFormulaReferences(ctx, range, null, reference);
 
     private TransformedSymbol ShiftFormulaReferences(
         ModContext ctx,

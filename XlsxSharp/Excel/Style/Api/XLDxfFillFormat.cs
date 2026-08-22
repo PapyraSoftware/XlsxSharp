@@ -17,10 +17,7 @@ internal class XLDxfFillFormat : IXLFill
 
     private readonly XLDxFormat _parent;
 
-    internal XLDxfFillFormat(XLDxFormat parent)
-    {
-        this._parent = parent;
-    }
+    internal XLDxfFillFormat(XLDxFormat parent) => this._parent = parent;
 
     XLColor IXLFill.BackgroundColor
     {
@@ -89,13 +86,9 @@ internal class XLDxfFillFormat : IXLFill
         return this._parent;
     }
 
-    bool IEquatable<IXLFill>.Equals(IXLFill other)
-    {
-        throw new NotSupportedException();
-    }
+    bool IEquatable<IXLFill>.Equals(IXLFill other) => throw new NotSupportedException();
 
-    internal void SetValue(IXLFill value)
-    {
+    internal void SetValue(IXLFill value) =>
         // The original should be valid and consistent.
         this.Modify(
             static (_, patternFill) =>
@@ -109,25 +102,17 @@ internal class XLDxfFillFormat : IXLFill
                 ),
             value
         );
-    }
 
     private T Resolve<T>(Func<XLDifferentialFillValue, T?> getProperty, T defaultValue)
-        where T : struct
-    {
-        return this._parent.Resolve(static format => format.Fill, getProperty) ?? defaultValue;
-    }
+        where T : struct =>
+        this._parent.Resolve(static format => format.Fill, getProperty) ?? defaultValue;
 
     private T Resolve<T>(Func<XLDifferentialFillValue, T?> getProperty, T defaultValue)
-        where T : class
-    {
-        return this._parent.Resolve(static format => format.Fill, getProperty) ?? defaultValue;
-    }
+        where T : class =>
+        this._parent.Resolve(static format => format.Fill, getProperty) ?? defaultValue;
 
     private void Modify<T>(
         Func<XLDifferentialFillValue, T, XLDifferentialFillValue> modify,
         T value
-    )
-    {
-        this._parent.ModifyFill(modify, value);
-    }
+    ) => this._parent.ModifyFill(modify, value);
 }

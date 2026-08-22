@@ -9,8 +9,7 @@ namespace XlsxSharp.Tests.Excel.PivotTables.Style;
 internal class XLPivotTableStyleFormatsTests
 {
     [Test]
-    public void Add_grand_row_total_styles()
-    {
+    public void Add_grand_row_total_styles() =>
         TestHelper.CreateAndCompare(
             wb =>
             {
@@ -38,11 +37,9 @@ internal class XLPivotTableStyleFormatsTests
             },
             @"Other\PivotTable\Style\Add_grand_row_total_styles.xlsx"
         );
-    }
 
     [Test]
-    public void Add_grand_column_total_styles()
-    {
+    public void Add_grand_column_total_styles() =>
         TestHelper.CreateAndCompare(
             wb =>
             {
@@ -78,5 +75,4 @@ internal class XLPivotTableStyleFormatsTests
             },
             @"Other\PivotTable\Style\Add_grand_column_total_styles.xlsx"
         );
-    }
 }

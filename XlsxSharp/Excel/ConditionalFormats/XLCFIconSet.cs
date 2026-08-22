@@ -10,10 +10,8 @@ internal class XLCFIconSet : IXLCFIconSet
 {
     private readonly XLConditionalFormat _conditionalFormat;
 
-    public XLCFIconSet(XLConditionalFormat conditionalFormat)
-    {
+    public XLCFIconSet(XLConditionalFormat conditionalFormat) =>
         this._conditionalFormat = conditionalFormat;
-    }
 
     public IXLCFIconSet AddValue(
         XLCFIconSetOperator setOperator,
@@ -31,8 +29,5 @@ internal class XLCFIconSet : IXLCFIconSet
         XLCFIconSetOperator setOperator,
         Double value,
         XLCFContentType type
-    )
-    {
-        return this.AddValue(setOperator, value.ToInvariantString(), type);
-    }
+    ) => this.AddValue(setOperator, value.ToInvariantString(), type);
 }

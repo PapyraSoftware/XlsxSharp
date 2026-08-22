@@ -149,16 +149,12 @@ public class XLHelperTests
         "1234567890123456789012345678901TOOLONG",
         ExpectedResult = "1234567890123456789012345678901"
     )]
-    public string CreateSafeSheetNamesWithUnderscore(string input)
-    {
-        return XLHelper.CreateSafeSheetName(input, replaceChar: '_');
-    }
+    public string CreateSafeSheetNamesWithUnderscore(string input) =>
+        XLHelper.CreateSafeSheetName(input, replaceChar: '_');
 
     [Test]
-    public void CreateSafeSheetNamesInvalidReplacementChar()
-    {
+    public void CreateSafeSheetNamesInvalidReplacementChar() =>
         Assert.Throws<ArgumentException>(() =>
             XLHelper.CreateSafeSheetName("abc\\def", replaceChar: ':')
         );
-    }
 }

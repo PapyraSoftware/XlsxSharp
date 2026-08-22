@@ -8,63 +8,44 @@ namespace XlsxSharp.IO;
 /// </summary>
 public static class XmlTreeReaderExtensions
 {
-    public static bool GetBool(this XmlTreeReader reader, string attributeName)
-    {
-        return reader.GetOptionalBool(attributeName)
-            ?? throw PartStructureException.MissingAttribute(attributeName, reader);
-    }
+    public static bool GetBool(this XmlTreeReader reader, string attributeName) =>
+        reader.GetOptionalBool(attributeName)
+        ?? throw PartStructureException.MissingAttribute(attributeName, reader);
 
-    public static int GetInt(this XmlTreeReader reader, string attributeName)
-    {
-        return reader.GetOptionalInt(attributeName)
-            ?? throw PartStructureException.MissingAttribute(attributeName, reader);
-    }
+    public static int GetInt(this XmlTreeReader reader, string attributeName) =>
+        reader.GetOptionalInt(attributeName)
+        ?? throw PartStructureException.MissingAttribute(attributeName, reader);
 
-    public static uint GetUInt(this XmlTreeReader reader, string attributeName)
-    {
-        return reader.GetOptionalUInt(attributeName)
-            ?? throw PartStructureException.MissingAttribute(attributeName, reader);
-    }
+    public static uint GetUInt(this XmlTreeReader reader, string attributeName) =>
+        reader.GetOptionalUInt(attributeName)
+        ?? throw PartStructureException.MissingAttribute(attributeName, reader);
 
-    public static int? GetOptionalUintAsInt(this XmlTreeReader reader, string attributeName)
-    {
-        return checked((int?)reader.GetOptionalUInt(attributeName));
-    }
+    public static int? GetOptionalUintAsInt(this XmlTreeReader reader, string attributeName) =>
+        checked((int?)reader.GetOptionalUInt(attributeName));
 
-    public static double GetDouble(this XmlTreeReader reader, string attributeName)
-    {
-        return reader.GetOptionalDouble(attributeName)
-            ?? throw PartStructureException.MissingAttribute(attributeName, reader);
-    }
+    public static double GetDouble(this XmlTreeReader reader, string attributeName) =>
+        reader.GetOptionalDouble(attributeName)
+        ?? throw PartStructureException.MissingAttribute(attributeName, reader);
 
-    public static string GetString(this XmlTreeReader reader, string attributeName)
-    {
-        return reader.GetOptionalString(attributeName)
-            ?? throw PartStructureException.MissingAttribute(attributeName, reader);
-    }
+    public static string GetString(this XmlTreeReader reader, string attributeName) =>
+        reader.GetOptionalString(attributeName)
+        ?? throw PartStructureException.MissingAttribute(attributeName, reader);
 
     public static TEnum GetEnum<TEnum>(this XmlTreeReader reader, string attributeName)
-        where TEnum : struct, Enum
-    {
-        return reader.GetOptionalEnum<TEnum>(attributeName)
-            ?? throw PartStructureException.MissingAttribute(attributeName, reader);
-    }
+        where TEnum : struct, Enum =>
+        reader.GetOptionalEnum<TEnum>(attributeName)
+        ?? throw PartStructureException.MissingAttribute(attributeName, reader);
 
     public static TEnum GetOptionalEnum<TEnum>(
         this XmlTreeReader reader,
         string attributeName,
         TEnum defaultValue
     )
-        where TEnum : struct, Enum
-    {
-        return reader.GetOptionalEnum<TEnum>(attributeName) ?? defaultValue;
-    }
+        where TEnum : struct, Enum => reader.GetOptionalEnum<TEnum>(attributeName) ?? defaultValue;
 
-    public static string GetXString(this XmlTreeReader reader, string attributeName)
-    {
-        return GetOptionalXString(reader, attributeName)
-            ?? throw PartStructureException.MissingAttribute(attributeName, reader);
-    }
+    public static string GetXString(this XmlTreeReader reader, string attributeName) =>
+        GetOptionalXString(reader, attributeName)
+        ?? throw PartStructureException.MissingAttribute(attributeName, reader);
 
     public static string? GetOptionalXString(this XmlTreeReader reader, string attributeName)
     {
@@ -108,11 +89,9 @@ public static class XmlTreeReaderExtensions
     /// <summary>
     /// Read <c>xsd:dateTime</c> attribute.
     /// </summary>
-    public static DateTime GetDateTime(this XmlTreeReader reader, string attributeName)
-    {
-        return reader.GetOptionalDateTime(attributeName)
-            ?? throw PartStructureException.MissingAttribute(attributeName, reader);
-    }
+    public static DateTime GetDateTime(this XmlTreeReader reader, string attributeName) =>
+        reader.GetOptionalDateTime(attributeName)
+        ?? throw PartStructureException.MissingAttribute(attributeName, reader);
 
     /// <summary>
     /// Get count for various collections in parts.

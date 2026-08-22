@@ -51,9 +51,7 @@ internal class XLPivotReference
 
     internal HashSet<XLSubtotalFunction> Subtotals { get; init; } = [];
 
-    internal void AddFieldItem(uint fieldItem)
-    {
+    internal void AddFieldItem(uint fieldItem) =>
         // TODO: Check value by area.CacheIndex and ByPosition
         this._fieldItems.Add(fieldItem);
-    }
 }

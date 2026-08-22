@@ -31,10 +31,11 @@ public class TextToNumberCoercionTests
         -1,
         Ignore = ".NET parser doesn't allow whitespace between sign and number."
     )]
-    public void PercentFormat9(string percent, double? expectedValue) // Format 9 '0%'
-    {
-        AssertCoercion(percent, expectedValue);
-    }
+    public void PercentFormat9(
+        string percent,
+        double? expectedValue
+    ) // Format 9 '0%'
+        => AssertCoercion(percent, expectedValue);
 
     [TestCase("100.5%", 1.005)]
     [TestCase("100 . 5%", null)]
@@ -47,10 +48,11 @@ public class TextToNumberCoercionTests
     [TestCase(".5%", 0.005)]
     [TestCase("  -.375 % ", -0.00375)]
     [TestCase("100.%", 1)]
-    public void PercentFormat10(string percent, double? expectedValue) // Format 10 '0.00%'
-    {
-        AssertCoercion(percent, expectedValue);
-    }
+    public void PercentFormat10(
+        string percent,
+        double? expectedValue
+    ) // Format 10 '0.00%'
+        => AssertCoercion(percent, expectedValue);
 
     [TestCase("(100%)", -1, Ignore = ".NET parser doesn't parse percents.")]
     [TestCase("(-100%)", null)] // Can't have minus sign inside the brackets
@@ -58,10 +60,11 @@ public class TextToNumberCoercionTests
     [TestCase("1,000.00%", 10)]
     [TestCase("(1,000.00%)", -10, Ignore = ".NET parser doesn't parse percents.")]
     [TestCase(" % 100", 1)] // Percents can be at start or end, position doesn't matter
-    public void PercentUnlistedFormats(string percent, double? expectedValue) //
-    {
-        AssertCoercion(percent, expectedValue);
-    }
+    public void PercentUnlistedFormats(
+        string percent,
+        double? expectedValue
+    ) //
+        => AssertCoercion(percent, expectedValue);
 
     [TestCase("0 1/2", 0.5)]
     [TestCase("0 /20", null)]
@@ -82,19 +85,21 @@ public class TextToNumberCoercionTests
     [TestCase("1 1/ 2", null)]
     [TestCase("1	1/2", null)] // Tab and other whitespaces aren't allowed
     [TestCase("0 1/0", null)] // Division by zero
-    public void FractionFormat1213(string fraction, double? expectedValue) // Format 12+13 '# ??/??' and  '# ?/?'
-    {
-        AssertCoercion(fraction, expectedValue);
-    }
+    public void FractionFormat1213(
+        string fraction,
+        double? expectedValue
+    ) // Format 12+13 '# ??/??' and  '# ?/?'
+        => AssertCoercion(fraction, expectedValue);
 
     [TestCase("02/28/20", 43889)]
     [TestCase("002/28/20", null)]
     [TestCase("02/028/20", null)]
     [TestCase("02/28/022", null)]
-    public void DateFormat14(string date, double? expectedValue) // Format 14 is taken from region setting, but for en (and MS errata) says 'm/d/yyyy'
-    {
-        AssertCoercion(date, expectedValue);
-    }
+    public void DateFormat14(
+        string date,
+        double? expectedValue
+    ) // Format 14 is taken from region setting, but for en (and MS errata) says 'm/d/yyyy'
+        => AssertCoercion(date, expectedValue);
 
     [TestCase("30-apr-2000", 36646)]
     [TestCase("30-apr-20", 43951)] // 2020-04-30
@@ -110,10 +115,11 @@ public class TextToNumberCoercionTests
     [TestCase("1-jan-1900", 1)]
     [TestCase("28-feb-1900", 59)]
     [TestCase("1-mar-1900", 61)]
-    public void DateFormat15(string date, double? expectedValue) // Format 15 d-mmm-yy
-    {
-        AssertCoercion(date, expectedValue);
-    }
+    public void DateFormat15(
+        string date,
+        double? expectedValue
+    ) // Format 15 d-mmm-yy
+        => AssertCoercion(date, expectedValue);
 
     [TestCase("0-mar", null)] // Zero day not accepted
     [TestCase("1-mar", 44621)]
@@ -174,10 +180,11 @@ public class TextToNumberCoercionTests
     )] // name can be more than three long abbr
     [TestCase("march-55", 20149)]
     [TestCase("ma-2", null)] // Name of month must be at least three chars long
-    public void DateFormat17(string text, double? expectedValue) // Format 17 'mmm-yy'
-    {
-        AssertCoercion(text, expectedValue);
-    }
+    public void DateFormat17(
+        string text,
+        double? expectedValue
+    ) // Format 17 'mmm-yy'
+        => AssertCoercion(text, expectedValue);
 
     [TestCase("1:20 AM", 0.055555555555555552d)]
     [TestCase("1:20 aM", 0.055555555555555552d)]
@@ -186,10 +193,11 @@ public class TextToNumberCoercionTests
     [TestCase("13:00 AM", null)] // AM only allows hours in 0-12 range
     [TestCase("7:30 A", 0.3125)] // only starting letter of AM
     [TestCase("1:9 AM", 0.04791666666666667d)] // Single digit minutes
-    public void DateFormat18(string text, double? expectedValue) // Format 18 'h:mm AM/PM'
-    {
-        AssertCoercion(text, expectedValue);
-    }
+    public void DateFormat18(
+        string text,
+        double? expectedValue
+    ) // Format 18 'h:mm AM/PM'
+        => AssertCoercion(text, expectedValue);
 
     [TestCase("12:0:0 PM", 0.5)]
     [TestCase("12:0:18 aM", 0.00020833333333333335d)] // case insensitive AM designator
@@ -201,10 +209,11 @@ public class TextToNumberCoercionTests
     [TestCase("00:00:59 AM", 0.00068287037037037036d)]
     [TestCase("00:00: AM", null)] // can't omit second part (differs from time span).
     [TestCase("1:2:3 AM", 0.043090277777777776d)]
-    public void DateFormat19(string text, double? expectedValue) // Format 19 'h:mm:ss AM/PM'
-    {
-        AssertCoercion(text, expectedValue);
-    }
+    public void DateFormat19(
+        string text,
+        double? expectedValue
+    ) // Format 19 'h:mm:ss AM/PM'
+        => AssertCoercion(text, expectedValue);
 
     [TestCase("2/5/2022 0:0", 44597)]
     [TestCase("05/5/2022 0:0", 44686)] // Extra zero padding allowed
@@ -235,10 +244,11 @@ public class TextToNumberCoercionTests
         Ignore = "Excel specific parsing of months accepts anything from three letters up to full name, but such pattern is not in any en-US DateTimeFormat pattern."
     )]
     [TestCase("august 10, 2022 14:10", 44783.590277777781d)]
-    public void DateTimeFormat22(string text, double? expectedValue) // Format 22 'm/d/yyyy h:mm'. Specification incorrectly states 'm/d/yy h:mm', but fixed per MS errata.
-    {
-        AssertCoercion(text, expectedValue);
-    }
+    public void DateTimeFormat22(
+        string text,
+        double? expectedValue
+    ) // Format 22 'm/d/yyyy h:mm'. Specification incorrectly states 'm/d/yy h:mm', but fixed per MS errata.
+        => AssertCoercion(text, expectedValue);
 
     [TestCase("00:00", 0)] // Can parse zero
     [TestCase("90:00", 3.75)] // Minutes can be can be over 60
@@ -250,10 +260,11 @@ public class TextToNumberCoercionTests
     [TestCase("24:60", null)] // Only one part can be outside of limit, here are both
     [TestCase("30:59", 1.290972222)] // Hour part can be over 23
     [TestCase("23:300", 1.166666667)] // Minute part over over 59
-    public void TimeSpanFormat20(string timeSpan, double? expectedValue) // 'h:mm'
-    {
-        AssertCoercion(timeSpan, expectedValue, Tolerance);
-    }
+    public void TimeSpanFormat20(
+        string timeSpan,
+        double? expectedValue
+    ) // 'h:mm'
+        => AssertCoercion(timeSpan, expectedValue, Tolerance);
 
     [TestCase("0:01:01", 0.000706019)]
     [TestCase("000:01:01", null)] // Extra zeros.
@@ -267,10 +278,11 @@ public class TextToNumberCoercionTests
     [TestCase("24:0:", 1)] // Last part can be omitted
     [TestCase("0::0", null)] // Parts in the middle can't be omitted
     [TestCase(":0:0", null)] // First part can't be omitted
-    public void TimeSpanFormat21(string timeSpan, double? expectedValue) // 'h:mm:ss'
-    {
-        AssertCoercion(timeSpan, expectedValue, Tolerance);
-    }
+    public void TimeSpanFormat21(
+        string timeSpan,
+        double? expectedValue
+    ) // 'h:mm:ss'
+        => AssertCoercion(timeSpan, expectedValue, Tolerance);
 
     [TestCase("14:30.0", 0.010069444)] // Happy case, can be over 12 (to differ from AM/PM times)
     [TestCase("14:300.0", 0.013194444)] // Seconds part can be outside of normal range
@@ -281,10 +293,11 @@ public class TextToNumberCoercionTests
     [TestCase("59:300.0", 0.044444444)] // Seconds are added to the minutes, the result is 1:04 minutes
     [TestCase("59:300.59", 0.044451273)] // Can specify 2 digit ms
     [TestCase("00:57.180", 0.000661806)] // Can specify 3 digit ms
-    public void TimeSpanFormat47(string timeSpan, double? expectedValue) // 'mm:ss.0'
-    {
-        AssertCoercion(timeSpan, expectedValue, Tolerance);
-    }
+    public void TimeSpanFormat47(
+        string timeSpan,
+        double? expectedValue
+    ) // 'mm:ss.0'
+        => AssertCoercion(timeSpan, expectedValue, Tolerance);
 
     [TestCase("1,000", 1000)]
     [TestCase(
@@ -301,10 +314,11 @@ public class TextToNumberCoercionTests
     [TestCase("(1,000)", -1000)]
     [TestCase("(100)", -100)]
     [TestCase("(-1)", null)]
-    public void NumberFormat3738(string number, double? expectedValue) // Format 37+38 '#,##0 ;(#,##0)' '#,##0 ;[Red](#,##0)'
-    {
-        AssertCoercion(number, expectedValue);
-    }
+    public void NumberFormat3738(
+        string number,
+        double? expectedValue
+    ) // Format 37+38 '#,##0 ;(#,##0)' '#,##0 ;[Red](#,##0)'
+        => AssertCoercion(number, expectedValue);
 
     [TestCase("1,000.15", 1000.15)]
     [TestCase("(1,000.54)", -1000.54)]
@@ -313,10 +327,11 @@ public class TextToNumberCoercionTests
         -1000.54,
         Ignore = "Excel can parse spaces within braces, but .NET parse method can't."
     )]
-    public void NumberFormat3940(string number, double? expectedValue) // Format 39+40 '#,##0.00;(#,##0.00)'  '#,##0.00;[Red](#,##0.00)'
-    {
-        AssertCoercion(number, expectedValue);
-    }
+    public void NumberFormat3940(
+        string number,
+        double? expectedValue
+    ) // Format 39+40 '#,##0.00;(#,##0.00)'  '#,##0.00;[Red](#,##0.00)'
+        => AssertCoercion(number, expectedValue);
 
     [TestCase("1e3", 1000)]
     [TestCase("1e+3", 1000)]
@@ -327,10 +342,11 @@ public class TextToNumberCoercionTests
     [TestCase("1.52e1", 15.2)]
     [TestCase("-1e2", -100)]
     [TestCase("1E2", 100)]
-    public void NumberFormat4811(string number, double? expectedValue) // Format 48+11 '##0.0E+0' '0.00E+00'
-    {
-        AssertCoercion(number, expectedValue);
-    }
+    public void NumberFormat4811(
+        string number,
+        double? expectedValue
+    ) // Format 48+11 '##0.0E+0' '0.00E+00'
+        => AssertCoercion(number, expectedValue);
 
     [TestCase("$1", 1)]
     [TestCase(
@@ -343,10 +359,11 @@ public class TextToNumberCoercionTests
     [TestCase("$100.5", 100.5)]
     [TestCase("$100%", null)]
     [TestCase("($100%)", null)]
-    public void Currency(string currency, double? expectedValue) // Currency doesn't have a format in ECMA-376, Part 1, §18.8.30, but VALUE includes currency formats
-    {
-        AssertCoercion(currency, expectedValue);
-    }
+    public void Currency(
+        string currency,
+        double? expectedValue
+    ) // Currency doesn't have a format in ECMA-376, Part 1, §18.8.30, but VALUE includes currency formats
+        => AssertCoercion(currency, expectedValue);
 
     [SetCulture("cs-CZ")]
     [TestCase("$1", null)] // Fallback currency doesn't work nor it should
@@ -378,10 +395,8 @@ public class TextToNumberCoercionTests
     )]
     [TestCase("11/30/2022 25:59", null)]
     [TestCase("25:70,05", 0.018171875)] // For min:sec fraction timespan, both can be over limit, also note use of decimal separator
-    public void ParsingTokensAndFormatsDependOnCulture(string currency, double? expectedValue)
-    {
+    public void ParsingTokensAndFormatsDependOnCulture(string currency, double? expectedValue) =>
         AssertCoercion(currency, expectedValue);
-    }
 
     private static void AssertCoercion(string text, double? expectedValue, double tolerance = 0)
     {

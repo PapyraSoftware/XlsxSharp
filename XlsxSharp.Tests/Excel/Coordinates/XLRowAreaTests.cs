@@ -9,25 +9,21 @@ internal class XLRowAreaTests
 {
     [TestCase(null)]
     [TestCase("")]
-    public void Ctor_sheet_must_be_valid(string invalidSheetName)
-    {
+    public void Ctor_sheet_must_be_valid(string invalidSheetName) =>
         Assert.That(
             () => new XLRowArea(invalidSheetName, 1),
             Throws.Exception.TypeOf<ArgumentException>()
         );
-    }
 
     [TestCase(-50)]
     [TestCase(0)]
     [TestCase(XLHelper.MaxRowNumber + 1)]
     [TestCase(int.MaxValue)]
-    public void Ctor_row_number_must_be_valid(int invalidRowNumber)
-    {
+    public void Ctor_row_number_must_be_valid(int invalidRowNumber) =>
         Assert.That(
             () => new XLRowArea("some sheet", invalidRowNumber),
             Throws.Exception.TypeOf<ArgumentOutOfRangeException>()
         );
-    }
 
     [TestCase("name", 5, "name", 5, true)]
     [TestCase("NAME", 5, "name", 5, true)]

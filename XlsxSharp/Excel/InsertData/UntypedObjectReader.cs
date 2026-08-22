@@ -72,18 +72,11 @@ internal class UntypedObjectReader : IInsertDataReader
         }
     }
 
-    public int GetPropertiesCount()
-    {
-        return this.GetFirstNonNullReader()?.GetPropertiesCount() ?? 0;
-    }
+    public int GetPropertiesCount() => this.GetFirstNonNullReader()?.GetPropertiesCount() ?? 0;
 
-    public string GetPropertyName(int propertyIndex)
-    {
-        return this.GetFirstNonNullReader()?.GetPropertyName(propertyIndex);
-    }
+    public string GetPropertyName(int propertyIndex) =>
+        this.GetFirstNonNullReader()?.GetPropertyName(propertyIndex);
 
-    private IInsertDataReader GetFirstNonNullReader()
-    {
-        return this._readers.FirstOrDefault(r => !(r is NullDataReader));
-    }
+    private IInsertDataReader GetFirstNonNullReader() =>
+        this._readers.FirstOrDefault(r => !(r is NullDataReader));
 }

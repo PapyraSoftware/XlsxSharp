@@ -546,16 +546,14 @@ internal record MceTestCase(
         Dictionary<string, string>? Attributes = null
     ) : IExpectedXmlNode
     {
-        public Open WithAttribute(string name, string value)
-        {
-            return this with
+        public Open WithAttribute(string name, string value) =>
+            this with
             {
                 Attributes = new Dictionary<string, string>(this.Attributes ?? [])
                 {
                     { name, value },
                 },
             };
-        }
 
         public void AssertMatches(IXmlReader reader)
         {

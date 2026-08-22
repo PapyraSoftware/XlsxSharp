@@ -97,10 +97,7 @@ public class InsertingTables : IXLExample
         public Int32 Age { get; set; }
 
         [XLColumn(Header = "Class Type")]
-        public static String ClassType
-        {
-            get { return nameof(Person); }
-        }
+        public static String ClassType => nameof(Person);
     }
 
     private static DataTable GetTable()

@@ -8,23 +8,12 @@ namespace XlsxSharp.Excel;
 /// </summary>
 internal sealed class XLPivotSourceScenario : IXLPivotSource
 {
-    public bool Equals(IXLPivotSource other)
-    {
-        return other is XLPivotSourceScenario;
-    }
+    public bool Equals(IXLPivotSource other) => other is XLPivotSourceScenario;
 
-    public override bool Equals(object? obj)
-    {
-        return obj is IXLPivotSource other && this.Equals(other);
-    }
+    public override bool Equals(object? obj) => obj is IXLPivotSource other && this.Equals(other);
 
-    public override int GetHashCode()
-    {
-        return 0;
-    }
+    public override int GetHashCode() => 0;
 
-    public bool TryGetSource(XLWorkbook workbook, out XLWorksheet? sheet, out Area? sheetArea)
-    {
+    public bool TryGetSource(XLWorkbook workbook, out XLWorksheet? sheet, out Area? sheetArea) =>
         throw new NotImplementedException("Scenario pivot cache data source is not supported.");
-    }
 }

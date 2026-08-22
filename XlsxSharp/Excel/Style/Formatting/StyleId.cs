@@ -11,13 +11,7 @@ internal readonly record struct StyleId(int Value) : IEquatable<int>, IComparabl
 {
     public static implicit operator StyleId(int v) => new(v);
 
-    bool IEquatable<int>.Equals(int other)
-    {
-        return this.Value == other;
-    }
+    bool IEquatable<int>.Equals(int other) => this.Value == other;
 
-    public int CompareTo(StyleId other)
-    {
-        return this.Value.CompareTo(other.Value);
-    }
+    public int CompareTo(StyleId other) => this.Value.CompareTo(other.Value);
 }

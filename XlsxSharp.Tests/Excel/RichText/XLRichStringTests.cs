@@ -863,8 +863,7 @@ public class XLRichStringTests
     }
 
     [Test]
-    public void PreserveEndOfLineInXml()
-    {
+    public void PreserveEndOfLineInXml() =>
         // When text run in a rich text contains end of line (regardless if CR, LF or CRLF),
         // the written element must be marked with xml:space="preserve". Excel would process
         // text differently (trim ect, see XML spec) and that means there would be a data
@@ -879,5 +878,4 @@ public class XLRichStringTests
             @"Other\RichText\kanji-with-new-line-input.xlsx",
             @"Other\RichText\kanji-with-new-line-output.xlsx"
         );
-    }
 }

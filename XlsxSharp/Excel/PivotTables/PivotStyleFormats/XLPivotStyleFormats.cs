@@ -74,30 +74,26 @@ internal class XLPivotStyleFormats : IXLPivotStyleFormats
         XLPivotArea ElementFactory() => this.CreateGrandArea(element);
     }
 
-    private bool AreaBelongsToGrandTotal(XLPivotArea area, XLPivotStyleFormatElement element)
-    {
-        return area.References.Count == 0
-            && area.Field is null
-            && area.Type == XLPivotAreaType.Normal
-            && area.DataOnly == (element == XLPivotStyleFormatElement.Data)
-            && area.LabelOnly == (element == XLPivotStyleFormatElement.Label)
-            && area.GrandRow == this._isRowGrand
-            && area.GrandCol == !this._isRowGrand
-            && area.CacheIndex == false
-            && area.Offset is null
-            && !area.CollapsedLevelsAreSubtotals
-            && area.Axis is null
-            && area.FieldPosition is null;
-    }
+    private bool AreaBelongsToGrandTotal(XLPivotArea area, XLPivotStyleFormatElement element) =>
+        area.References.Count == 0
+        && area.Field is null
+        && area.Type == XLPivotAreaType.Normal
+        && area.DataOnly == (element == XLPivotStyleFormatElement.Data)
+        && area.LabelOnly == (element == XLPivotStyleFormatElement.Label)
+        && area.GrandRow == this._isRowGrand
+        && area.GrandCol == !this._isRowGrand
+        && area.CacheIndex == false
+        && area.Offset is null
+        && !area.CollapsedLevelsAreSubtotals
+        && area.Axis is null
+        && area.FieldPosition is null;
 
-    private XLPivotArea CreateGrandArea(XLPivotStyleFormatElement element)
-    {
-        return new XLPivotArea
+    private XLPivotArea CreateGrandArea(XLPivotStyleFormatElement element) =>
+        new()
         {
             DataOnly = (element == XLPivotStyleFormatElement.Data),
             LabelOnly = (element == XLPivotStyleFormatElement.Label),
             GrandRow = this._isRowGrand,
             GrandCol = !this._isRowGrand,
         };
-    }
 }

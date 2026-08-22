@@ -107,19 +107,13 @@ internal record XLFontFormatValue
     /// <summary>
     /// Create an adapter to font base. The adapter is not modifiable.
     /// </summary>
-    internal IXLFontBase ToFontBase()
-    {
-        return new FontBaseAdapter(this);
-    }
+    internal IXLFontBase ToFontBase() => new FontBaseAdapter(this);
 
     private class FontBaseAdapter : IXLFontBase
     {
         private readonly XLFontFormatValue _font;
 
-        internal FontBaseAdapter(XLFontFormatValue font)
-        {
-            this._font = font;
-        }
+        internal FontBaseAdapter(XLFontFormatValue font) => this._font = font;
 
         public bool Bold
         {
@@ -192,9 +186,7 @@ internal record XLFontFormatValue
             set => throw Exception();
         }
 
-        private static NotSupportedException Exception()
-        {
-            return new NotSupportedException("This is an adapter for an immutable font format.");
-        }
+        private static NotSupportedException Exception() =>
+            new("This is an adapter for an immutable font format.");
     }
 }

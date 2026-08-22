@@ -12,10 +12,7 @@ internal class XLDxfBorderFormat : IXLBorder
     private static readonly XLBorderLine NoLine = XLBorderLine.None;
     private readonly XLDxFormat _parent;
 
-    internal XLDxfBorderFormat(XLDxFormat parent)
-    {
-        this._parent = parent;
-    }
+    internal XLDxfBorderFormat(XLDxFormat parent) => this._parent = parent;
 
     XLBorderStyleValues IXLBorder.OutsideBorder
     {
@@ -237,8 +234,7 @@ internal class XLDxfBorderFormat : IXLBorder
             );
     }
 
-    internal void SetValue(IXLBorder value)
-    {
+    internal void SetValue(IXLBorder value) =>
         this.Modify(
             (border, other) =>
                 border with
@@ -256,27 +252,19 @@ internal class XLDxfBorderFormat : IXLBorder
                 },
             value
         );
-    }
 
     private T Resolve<T>(Func<XLDifferentialBorderValue, T?> getProperty, T defaultValue)
-        where T : struct
-    {
-        return this._parent.Resolve(static format => format.Border, getProperty) ?? defaultValue;
-    }
+        where T : struct =>
+        this._parent.Resolve(static format => format.Border, getProperty) ?? defaultValue;
 
     private T Resolve<T>(Func<XLDifferentialBorderValue, T?> getProperty, T defaultValue)
-        where T : class
-    {
-        return this._parent.Resolve(static format => format.Border, getProperty) ?? defaultValue;
-    }
+        where T : class =>
+        this._parent.Resolve(static format => format.Border, getProperty) ?? defaultValue;
 
     private void Modify<T>(
         Func<XLDifferentialBorderValue, T, XLDifferentialBorderValue> modify,
         T value
-    )
-    {
-        this._parent.ModifyBorder(modify, value);
-    }
+    ) => this._parent.ModifyBorder(modify, value);
 
     IXLStyle IXLBorder.SetOutsideBorder(XLBorderStyleValues value)
     {
@@ -350,10 +338,7 @@ internal class XLDxfBorderFormat : IXLBorder
         return this._parent;
     }
 
-    IXLStyle IXLBorder.SetDiagonalUp()
-    {
-        return (this as IXLBorder).SetDiagonalUp(true);
-    }
+    IXLStyle IXLBorder.SetDiagonalUp() => (this as IXLBorder).SetDiagonalUp(true);
 
     IXLStyle IXLBorder.SetDiagonalUp(bool value)
     {
@@ -361,10 +346,7 @@ internal class XLDxfBorderFormat : IXLBorder
         return this._parent;
     }
 
-    IXLStyle IXLBorder.SetDiagonalDown()
-    {
-        return (this as IXLBorder).SetDiagonalDown(true);
-    }
+    IXLStyle IXLBorder.SetDiagonalDown() => (this as IXLBorder).SetDiagonalDown(true);
 
     IXLStyle IXLBorder.SetDiagonalDown(bool value)
     {
@@ -384,8 +366,5 @@ internal class XLDxfBorderFormat : IXLBorder
         return this._parent;
     }
 
-    bool IEquatable<IXLBorder>.Equals(IXLBorder other)
-    {
-        throw new NotImplementedException();
-    }
+    bool IEquatable<IXLBorder>.Equals(IXLBorder other) => throw new NotImplementedException();
 }

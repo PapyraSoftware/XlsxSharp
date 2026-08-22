@@ -85,20 +85,12 @@ public partial class XLWorkbook
             return this.NumberFormatMap[numberFormat];
         }
 
-        internal int GetFontId(XLFontFormatValue font)
-        {
-            return this.FontMap[font];
-        }
+        internal int GetFontId(XLFontFormatValue font) => this.FontMap[font];
 
-        internal uint GetDxfId(XLDxfValue dxf)
-        {
-            return this.DxfMap[dxf];
-        }
+        internal uint GetDxfId(XLDxfValue dxf) => this.DxfMap[dxf];
 
-        internal uint GetStyleId(XLCellFormatValue? format)
-        {
-            return format is not null ? this.FormatMap[format] : 0;
-        }
+        internal uint GetStyleId(XLCellFormatValue? format) =>
+            format is not null ? this.FormatMap[format] : 0;
 #nullable disable
     }
 

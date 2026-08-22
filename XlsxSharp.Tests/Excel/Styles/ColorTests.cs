@@ -14,22 +14,13 @@ namespace XlsxSharp.Tests.Excel.Styles;
 public class ColorTests
 {
     [Test]
-    public void ColorEqualOperatorInPlace()
-    {
-        Assert.IsTrue(XLColor.Black == XLColor.Black);
-    }
+    public void ColorEqualOperatorInPlace() => Assert.IsTrue(XLColor.Black == XLColor.Black);
 
     [Test]
-    public void ColorNotEqualOperatorInPlace()
-    {
-        Assert.IsFalse(XLColor.Black != XLColor.Black);
-    }
+    public void ColorNotEqualOperatorInPlace() => Assert.IsFalse(XLColor.Black != XLColor.Black);
 
     [Test]
-    public void ColorNamedVsHTML()
-    {
-        Assert.IsTrue(XLColor.Black == XLColor.FromHtml("#000000"));
-    }
+    public void ColorNamedVsHTML() => Assert.IsTrue(XLColor.Black == XLColor.FromHtml("#000000"));
 
     [Test]
     public void DefaultStyleColorIsAutomatic()
@@ -40,15 +31,13 @@ public class ColorTests
     }
 
     [Test]
-    public void AutomaticColorCantBeResolvedToColor()
-    {
+    public void AutomaticColorCantBeResolvedToColor() =>
         Assert.That(
             () => _ = XLColor.Automatic.Color,
             Throws
                 .TypeOf<InvalidOperationException>()
                 .With.Message.EqualTo("Cannot convert automatic color to Color.")
         );
-    }
 
     [Test]
     public void CanConvertXLColorToColorType()
@@ -217,10 +206,8 @@ public class ColorTests
     }
 
     [TestCaseSource(nameof(ToStringTestCases))]
-    public void ToStringWorksForAllColorTypes(XLColor colorType, string expectedString)
-    {
+    public void ToStringWorksForAllColorTypes(XLColor colorType, string expectedString) =>
         Assert.AreEqual(expectedString, colorType.ToString());
-    }
 
     private static IEnumerable<TestCaseData<XLColor, string>> ToStringTestCases()
     {

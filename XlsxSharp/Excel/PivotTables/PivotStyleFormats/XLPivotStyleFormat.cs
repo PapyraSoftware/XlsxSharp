@@ -18,13 +18,7 @@ internal class XLPivotStyleFormat : XLPivotStyleFormatBase
         this._factory = factory;
     }
 
-    internal override XLPivotArea GetCurrentArea()
-    {
-        return this._factory();
-    }
+    internal override XLPivotArea GetCurrentArea() => this._factory();
 
-    internal override bool Filter(XLPivotArea area)
-    {
-        return this._filter(area);
-    }
+    internal override bool Filter(XLPivotArea area) => this._filter(area);
 }

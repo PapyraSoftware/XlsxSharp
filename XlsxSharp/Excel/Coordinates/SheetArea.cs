@@ -45,10 +45,7 @@ internal readonly struct SheetArea : IEquatable<SheetArea>, IEnumerable<SheetPoi
         }
     }
 
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return this.GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 
     internal static SheetArea From(IXLRange range)
     {
@@ -70,16 +67,10 @@ internal readonly struct SheetArea : IEquatable<SheetArea>, IEnumerable<SheetPoi
         return new SheetArea(address.Worksheet.Name, Area.FromRangeAddress(address));
     }
 
-    public bool Equals(SheetArea other)
-    {
-        return this.Area == other.Area
-            && XlsxSharp.XLHelper.SheetComparer.Equals(this.Name, other.Name);
-    }
+    public bool Equals(SheetArea other) =>
+        this.Area == other.Area && XlsxSharp.XLHelper.SheetComparer.Equals(this.Name, other.Name);
 
-    public override bool Equals(object? obj)
-    {
-        return obj is SheetArea other && this.Equals(other);
-    }
+    public override bool Equals(object? obj) => obj is SheetArea other && this.Equals(other);
 
     public override int GetHashCode()
     {
@@ -117,8 +108,5 @@ internal readonly struct SheetArea : IEquatable<SheetArea>, IEnumerable<SheetPoi
         area = this.Area;
     }
 
-    public override string ToString()
-    {
-        return $"{this.Name}!{this.Area}";
-    }
+    public override string ToString() => $"{this.Name}!{this.Area}";
 }

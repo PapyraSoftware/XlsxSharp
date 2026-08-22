@@ -183,10 +183,7 @@ internal abstract class XLRangeIndex : IXLRangeIndex
         this._rangeList.Clear();
     }
 
-    protected virtual Quadrant CreateQuadTree()
-    {
-        return new Quadrant();
-    }
+    protected virtual Quadrant CreateQuadTree() => new();
 
     #endregion Private Methods
 }
@@ -200,10 +197,7 @@ internal class XLRangeIndex<T> : XLRangeIndex, IXLRangeIndex<T>
     public XLRangeIndex(IXLWorksheet worksheet)
         : base(worksheet) { }
 
-    public bool Add(T range)
-    {
-        return base.Add(range);
-    }
+    public bool Add(T range) => base.Add(range);
 
     public int RemoveAll(Predicate<T>? predicate)
     {
@@ -212,15 +206,11 @@ internal class XLRangeIndex<T> : XLRangeIndex, IXLRangeIndex<T>
         return base.RemoveAll(r => predicate((T)r));
     }
 
-    public new IEnumerable<T> GetIntersectedRanges(XLRangeAddress rangeAddress)
-    {
-        return base.GetIntersectedRanges(rangeAddress).Cast<T>();
-    }
+    public new IEnumerable<T> GetIntersectedRanges(XLRangeAddress rangeAddress) =>
+        base.GetIntersectedRanges(rangeAddress).Cast<T>();
 
-    public new IEnumerable<T> GetIntersectedRanges(XLAddress address)
-    {
-        return base.GetIntersectedRanges(address).Cast<T>();
-    }
+    public new IEnumerable<T> GetIntersectedRanges(XLAddress address) =>
+        base.GetIntersectedRanges(address).Cast<T>();
 
     public override bool MatchesType(XLRangeType rangeType)
     {
@@ -259,13 +249,7 @@ internal class XLRangeIndex<T> : XLRangeIndex, IXLRangeIndex<T>
         }
     }
 
-    public new IEnumerable<T> GetAll()
-    {
-        return base.GetAll().Cast<T>();
-    }
+    public new IEnumerable<T> GetAll() => base.GetAll().Cast<T>();
 
-    protected override Quadrant CreateQuadTree()
-    {
-        return new Quadrant<T>();
-    }
+    protected override Quadrant CreateQuadTree() => new Quadrant<T>();
 }

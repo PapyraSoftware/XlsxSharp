@@ -20,8 +20,6 @@ public class ComplexTypeSimpleContent : ComplexType
 {
     public required string BaseTypeName { get; init; }
 
-    internal override List<Variable> GenerateParseMethod(CodeBuilder code)
-    {
+    internal override List<Variable> GenerateParseMethod(CodeBuilder code) =>
         throw new NotImplementedException();
-    }
 }

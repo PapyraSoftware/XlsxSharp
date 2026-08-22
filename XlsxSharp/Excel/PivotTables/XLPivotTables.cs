@@ -13,10 +13,8 @@ internal class XLPivotTables : IXLPivotTables, IEnumerable<XLPivotTable>
         StringComparer.OrdinalIgnoreCase
     );
 
-    public XLPivotTables(XLWorksheet worksheet)
-    {
+    public XLPivotTables(XLWorksheet worksheet) =>
         this.Worksheet = worksheet ?? throw new ArgumentNullException(nameof(worksheet));
-    }
 
     internal XLWorksheet Worksheet { get; }
 
@@ -52,59 +50,30 @@ internal class XLPivotTables : IXLPivotTables, IEnumerable<XLPivotTable>
         return this.Add(name, targetCell, pivotCache);
     }
 
-    public IXLPivotTable Add(string name, IXLCell targetCell, IXLTable table)
-    {
-        return this.Add(name, targetCell, (IXLRange)table);
-    }
+    public IXLPivotTable Add(string name, IXLCell targetCell, IXLTable table) =>
+        this.Add(name, targetCell, (IXLRange)table);
 
-    public Boolean Contains(String name)
-    {
-        return this._pivotTables.ContainsKey(name);
-    }
+    public Boolean Contains(String name) => this._pivotTables.ContainsKey(name);
 
-    public void Delete(String name)
-    {
-        this._pivotTables.Remove(name);
-    }
+    public void Delete(String name) => this._pivotTables.Remove(name);
 
-    public void DeleteAll()
-    {
-        this._pivotTables.Clear();
-    }
+    public void DeleteAll() => this._pivotTables.Clear();
 
-    IXLPivotTable IXLPivotTables.PivotTable(String name)
-    {
-        return this.PivotTable(name);
-    }
+    IXLPivotTable IXLPivotTables.PivotTable(String name) => this.PivotTable(name);
 
-    IEnumerator<IXLPivotTable> IEnumerable<IXLPivotTable>.GetEnumerator()
-    {
-        return this.GetEnumerator();
-    }
+    IEnumerator<IXLPivotTable> IEnumerable<IXLPivotTable>.GetEnumerator() => this.GetEnumerator();
 
-    IEnumerator<XLPivotTable> IEnumerable<XLPivotTable>.GetEnumerator()
-    {
-        return this.GetEnumerator();
-    }
+    IEnumerator<XLPivotTable> IEnumerable<XLPivotTable>.GetEnumerator() => this.GetEnumerator();
 
-    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-    {
-        return this.GetEnumerator();
-    }
+    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() =>
+        this.GetEnumerator();
 
-    public Dictionary<string, XLPivotTable>.ValueCollection.Enumerator GetEnumerator()
-    {
-        return this._pivotTables.Values.GetEnumerator();
-    }
+    public Dictionary<string, XLPivotTable>.ValueCollection.Enumerator GetEnumerator() =>
+        this._pivotTables.Values.GetEnumerator();
 
-    internal void Add(String name, IXLPivotTable pivotTable)
-    {
+    internal void Add(String name, IXLPivotTable pivotTable) =>
         this._pivotTables.Add(name, (XLPivotTable)pivotTable);
-    }
 
     /// <inheritdoc cref="IXLPivotTables.PivotTable"/>
-    internal XLPivotTable PivotTable(String name)
-    {
-        return this._pivotTables[name];
-    }
+    internal XLPivotTable PivotTable(String name) => this._pivotTables[name];
 }

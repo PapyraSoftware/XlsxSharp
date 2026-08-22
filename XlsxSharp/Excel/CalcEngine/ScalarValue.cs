@@ -80,9 +80,8 @@ internal readonly struct ScalarValue
 
     public static implicit operator ScalarValue(XLError error) => From(error);
 
-    public static implicit operator ScalarValue(XLCellValue cellValue)
-    {
-        return cellValue.Type switch
+    public static implicit operator ScalarValue(XLCellValue cellValue) =>
+        cellValue.Type switch
         {
             XLDataType.Blank => ScalarValue.Blank,
             XLDataType.Boolean => cellValue.GetBoolean(),
@@ -93,7 +92,6 @@ internal readonly struct ScalarValue
             XLDataType.TimeSpan => cellValue.GetTimeSpan().ToSerialDateTime(),
             _ => throw new InvalidOperationException(),
         };
-    }
 
     public Boolean GetLogical() =>
         this.IsLogical ? this._logical : throw new InvalidCastException();
@@ -104,9 +102,8 @@ internal readonly struct ScalarValue
 
     public XLError GetError() => this.IsError ? this._error : throw new InvalidCastException();
 
-    internal XLCellValue ToCellValue()
-    {
-        return this._index switch
+    internal XLCellValue ToCellValue() =>
+        this._index switch
         {
             BlankValue => 0, // The result value of a formula calculation can be blank, but result of formula in a cell value is never blank, but 0.
             LogicalValue => this._logical,
@@ -115,7 +112,6 @@ internal readonly struct ScalarValue
             ErrorValue => this._error,
             _ => throw new InvalidOperationException(),
         };
-    }
 
     public TResult Match<TResult>(
         Func<TResult> transformBlank,
@@ -123,9 +119,8 @@ internal readonly struct ScalarValue
         Func<double, TResult> transformNumber,
         Func<string, TResult> transformText,
         Func<XLError, TResult> transformError
-    )
-    {
-        return this._index switch
+    ) =>
+        this._index switch
         {
             BlankValue => transformBlank(),
             LogicalValue => transformLogical(this._logical),
@@ -134,7 +129,6 @@ internal readonly struct ScalarValue
             ErrorValue => transformError(this._error),
             _ => throw new InvalidOperationException(),
         };
-    }
 
     public TResult Match<TResult, TParam1>(
         TParam1 param,
@@ -143,9 +137,8 @@ internal readonly struct ScalarValue
         Func<double, TParam1, TResult> transformNumber,
         Func<string, TParam1, TResult> transformText,
         Func<XLError, TParam1, TResult> transformError
-    )
-    {
-        return this._index switch
+    ) =>
+        this._index switch
         {
             BlankValue => transformBlank(param),
             LogicalValue => transformLogical(this._logical, param),
@@ -154,7 +147,6 @@ internal readonly struct ScalarValue
             ErrorValue => transformError(this._error, param),
             _ => throw new InvalidOperationException(),
         };
-    }
 
     public TResult Match<TResult, TParam1, TParam2>(
         TParam1 param1,
@@ -164,9 +156,8 @@ internal readonly struct ScalarValue
         Func<double, TParam1, TParam2, TResult> transformNumber,
         Func<string, TParam1, TParam2, TResult> transformText,
         Func<XLError, TParam1, TParam2, TResult> transformError
-    )
-    {
-        return this._index switch
+    ) =>
+        this._index switch
         {
             BlankValue => transformBlank(param1, param2),
             LogicalValue => transformLogical(this._logical, param1, param2),
@@ -175,11 +166,9 @@ internal readonly struct ScalarValue
             ErrorValue => transformError(this._error, param1, param2),
             _ => throw new InvalidOperationException(),
         };
-    }
 
-    public AnyValue ToAnyValue()
-    {
-        return this._index switch
+    public AnyValue ToAnyValue() =>
+        this._index switch
         {
             BlankValue => AnyValue.Blank,
             LogicalValue => this._logical,
@@ -188,14 +177,12 @@ internal readonly struct ScalarValue
             ErrorValue => this._error,
             _ => throw new InvalidOperationException(),
         };
-    }
 
     /// <summary>
     /// Convert value to text. Error is not convertible.
     /// </summary>
-    public OneOf<string, XLError> ToText(CultureInfo culture)
-    {
-        return this._index switch
+    public OneOf<string, XLError> ToText(CultureInfo culture) =>
+        this._index switch
         {
             BlankValue => string.Empty,
             LogicalValue => this._logical ? "TRUE" : "FALSE",
@@ -204,14 +191,12 @@ internal readonly struct ScalarValue
             ErrorValue => this._error,
             _ => throw new InvalidOperationException(),
         };
-    }
 
     /// <summary>
     /// Convert value to number. Error is not convertible.
     /// </summary>
-    public OneOf<double, XLError> ToNumber(CultureInfo culture)
-    {
-        return this._index switch
+    public OneOf<double, XLError> ToNumber(CultureInfo culture) =>
+        this._index switch
         {
             BlankValue => 0,
             LogicalValue => this._logical ? 1.0 : 0.0,
@@ -220,7 +205,6 @@ internal readonly struct ScalarValue
             ErrorValue => this._error,
             _ => throw new InvalidOperationException(),
         };
-    }
 
     /// <summary>
     /// Parse text to a scalar value. Generally used in formulas or autofilter.
@@ -458,10 +442,7 @@ internal readonly struct ScalarValue
         return false;
     }
 
-    public bool TryPickNumber(out double number)
-    {
-        return this.TryPickNumber(out number, out _);
-    }
+    public bool TryPickNumber(out double number) => this.TryPickNumber(out number, out _);
 
     public bool TryPickNumber(out double number, out XLError error)
     {
@@ -573,9 +554,8 @@ internal readonly struct ScalarValue
         }
     }
 
-    public override string ToString()
-    {
-        return this._index switch
+    public override string ToString() =>
+        this._index switch
         {
             BlankValue => "Blank",
             LogicalValue => this._logical.ToString().ToUpper(),
@@ -584,5 +564,4 @@ internal readonly struct ScalarValue
             ErrorValue => this._error.ToDisplayString(),
             _ => throw new InvalidOperationException("Invalid type of scalar value."),
         };
-    }
 }

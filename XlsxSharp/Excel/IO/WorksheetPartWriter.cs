@@ -2203,10 +2203,8 @@ internal class WorksheetPartWriter
         }
     }
 
-    private static double GetColumnWidth(double columnWidth)
-    {
-        return Math.Min(255.0, Math.Max(0.0, columnWidth + XLConstants.ColumnWidthOffset));
-    }
+    private static double GetColumnWidth(double columnWidth) =>
+        Math.Min(255.0, Math.Max(0.0, columnWidth + XLConstants.ColumnWidthOffset));
 
     private static void UpdateColumn(
         Column column,
@@ -2278,57 +2276,49 @@ internal class WorksheetPartWriter
         }
     }
 
-    private static bool ColumnsAreEqual(Column left, Column right)
-    {
-        return (
-                (left.Style == null && right.Style == null)
-                || (
-                    left.Style != null
-                    && right.Style != null
-                    && left.Style.Value == right.Style.Value
-                )
+    private static bool ColumnsAreEqual(Column left, Column right) =>
+        (
+            (left.Style == null && right.Style == null)
+            || (left.Style != null && right.Style != null && left.Style.Value == right.Style.Value)
+        )
+        && (
+            (left.Width == null && right.Width == null)
+            || (
+                left.Width != null
+                && right.Width != null
+                && (Math.Abs(left.Width.Value - right.Width.Value) < XlsxSharp.XLHelper.Epsilon)
             )
-            && (
-                (left.Width == null && right.Width == null)
-                || (
-                    left.Width != null
-                    && right.Width != null
-                    && (Math.Abs(left.Width.Value - right.Width.Value) < XlsxSharp.XLHelper.Epsilon)
-                )
+        )
+        && (
+            (left.Hidden == null && right.Hidden == null)
+            || (
+                left.Hidden != null
+                && right.Hidden != null
+                && left.Hidden.Value == right.Hidden.Value
             )
-            && (
-                (left.Hidden == null && right.Hidden == null)
-                || (
-                    left.Hidden != null
-                    && right.Hidden != null
-                    && left.Hidden.Value == right.Hidden.Value
-                )
+        )
+        && (
+            (left.Collapsed == null && right.Collapsed == null)
+            || (
+                left.Collapsed != null
+                && right.Collapsed != null
+                && left.Collapsed.Value == right.Collapsed.Value
             )
-            && (
-                (left.Collapsed == null && right.Collapsed == null)
-                || (
-                    left.Collapsed != null
-                    && right.Collapsed != null
-                    && left.Collapsed.Value == right.Collapsed.Value
-                )
+        )
+        && (
+            (left.OutlineLevel == null && right.OutlineLevel == null)
+            || (
+                left.OutlineLevel != null
+                && right.OutlineLevel != null
+                && left.OutlineLevel.Value == right.OutlineLevel.Value
             )
-            && (
-                (left.OutlineLevel == null && right.OutlineLevel == null)
-                || (
-                    left.OutlineLevel != null
-                    && right.OutlineLevel != null
-                    && left.OutlineLevel.Value == right.OutlineLevel.Value
-                )
-            );
-    }
+        );
 
     // http://polymathprogrammer.com/2009/10/22/english-metric-units-and-open-xml/
     // http://archive.oreilly.com/pub/post/what_is_an_emu.html
     // https://en.wikipedia.org/wiki/Office_Open_XML_file_formats#DrawingML
-    private static Int64 ConvertToEnglishMetricUnits(Int32 pixels, Double resolution)
-    {
-        return Convert.ToInt64(914400L * pixels / resolution);
-    }
+    private static Int64 ConvertToEnglishMetricUnits(Int32 pixels, Double resolution) =>
+        Convert.ToInt64(914400L * pixels / resolution);
 
     private static void AddPictureAnchor(
         WorksheetPart worksheetPart,

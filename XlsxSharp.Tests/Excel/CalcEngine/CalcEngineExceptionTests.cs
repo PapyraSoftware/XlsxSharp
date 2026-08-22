@@ -10,10 +10,8 @@ namespace XlsxSharp.Tests.Excel.CalcEngine;
 public class CalcEngineExceptionTests
 {
     [OneTimeSetUp]
-    public void SetCultureInfo()
-    {
+    public void SetCultureInfo() =>
         Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("en-US");
-    }
 
     [Test]
     public void InvalidCharNumber()

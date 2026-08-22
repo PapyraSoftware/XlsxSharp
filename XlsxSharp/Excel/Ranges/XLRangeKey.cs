@@ -22,10 +22,8 @@ internal struct XLRangeKey : IEquatable<XLRangeKey>
     /// <summary>Indicates whether the current object is equal to another object of the same type.</summary>
     /// <returns>true if the current object is equal to the <paramref name="other" /> parameter; otherwise, false.</returns>
     /// <param name="other">An object to compare with this object.</param>
-    public bool Equals(XLRangeKey other)
-    {
-        return this.RangeType == other.RangeType && this.RangeAddress.Equals(other.RangeAddress);
-    }
+    public bool Equals(XLRangeKey other) =>
+        this.RangeType == other.RangeType && this.RangeAddress.Equals(other.RangeAddress);
 
     /// <summary>Indicates whether this instance and a specified object are equal.</summary>
     /// <returns>true if <paramref name="obj" /> and this instance are the same type and represent the same value; otherwise, false.</returns>
@@ -50,15 +48,9 @@ internal struct XLRangeKey : IEquatable<XLRangeKey>
         }
     }
 
-    public static bool operator ==(XLRangeKey left, XLRangeKey right)
-    {
-        return left.Equals(right);
-    }
+    public static bool operator ==(XLRangeKey left, XLRangeKey right) => left.Equals(right);
 
-    public static bool operator !=(XLRangeKey left, XLRangeKey right)
-    {
-        return !(left == right);
-    }
+    public static bool operator !=(XLRangeKey left, XLRangeKey right) => !(left == right);
 
     #endregion Overrides
 }

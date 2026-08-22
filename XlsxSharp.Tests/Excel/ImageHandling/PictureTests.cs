@@ -548,14 +548,12 @@ public class PictureTests
     }
 
     [Test]
-    public void KeepOriginalDrawingShapesZOrder()
-    {
+    public void KeepOriginalDrawingShapesZOrder() =>
         // File contains shapes and a picture in a mixed order.
         TestHelper.LoadSaveAndCompare(
             @"Other\Pictures\ImageShapeZOrder-Input.xlsx",
             @"Other\Pictures\ImageShapeZOrder-Output.xlsx"
         );
-    }
 
     [TestCase("@")]
     [TestCase(":")]
@@ -568,12 +566,10 @@ public class PictureTests
     [TestCase("C:\\Images\\pic.jpg")] // Path with multiple forbidden chars
     [TestCase("http://example.com/image.jpg")] // URL with multiple forbidden chars
     [TestCase("Picture@01\\QPosted@")] // A name from a problematic workbook
-    public void PictureCanHaveUnusualCharactersInName(string nameWithUnusualCharacter)
-    {
+    public void PictureCanHaveUnusualCharactersInName(string nameWithUnusualCharacter) =>
         // The name of a picture couldn't contain certain characters in some ancient version of Excel. Verify that
         // it is no longer the case through the whole lifecycle (add picture, change name, save, load).
         AssertPictureNameAllowed(nameWithUnusualCharacter);
-    }
 
     [Test]
     public void PictureNameCanBeLong()
@@ -598,8 +594,7 @@ public class PictureTests
         Assert.Throws<ArgumentException>(() => picture.Name = invalidName);
     }
 
-    private static void AssertPictureNameAllowed(string testedName)
-    {
+    private static void AssertPictureNameAllowed(string testedName) =>
         TestHelper.CreateSaveLoadAssert(
             wb =>
             {
@@ -619,5 +614,4 @@ public class PictureTests
                 Assert.AreEqual(testedName, wb.Worksheet("Setter").Pictures.Single().Name);
             }
         );
-    }
 }

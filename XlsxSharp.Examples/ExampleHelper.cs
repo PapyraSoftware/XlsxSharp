@@ -4,10 +4,7 @@ namespace XlsxSharp.Examples;
 
 public static class ExampleHelper
 {
-    public static string GetTempFilePath()
-    {
-        return Path.GetTempFileName();
-    }
+    public static string GetTempFilePath() => Path.GetTempFileName();
 
     public static string GetTempFilePath(string filePath)
     {

@@ -8,10 +8,7 @@ internal class XLDrawingMargins : IXLDrawingMargins
 {
     private readonly IXLDrawingStyle _style;
 
-    public XLDrawingMargins(IXLDrawingStyle style)
-    {
-        this._style = style;
-    }
+    public XLDrawingMargins(IXLDrawingStyle style) => this._style = style;
 
     public Boolean Automatic { get; set; }
 
@@ -30,7 +27,7 @@ internal class XLDrawingMargins : IXLDrawingMargins
     Double _left;
     public Double Left
     {
-        get { return this._left; }
+        get => this._left;
         set
         {
             this._left = value;
@@ -47,7 +44,7 @@ internal class XLDrawingMargins : IXLDrawingMargins
     Double _right;
     public Double Right
     {
-        get { return this._right; }
+        get => this._right;
         set
         {
             this._right = value;
@@ -64,7 +61,7 @@ internal class XLDrawingMargins : IXLDrawingMargins
     Double _top;
     public Double Top
     {
-        get { return this._top; }
+        get => this._top;
         set
         {
             this._top = value;
@@ -81,7 +78,7 @@ internal class XLDrawingMargins : IXLDrawingMargins
     Double _bottom;
     public Double Bottom
     {
-        get { return this._bottom; }
+        get => this._bottom;
         set
         {
             this._bottom = value;

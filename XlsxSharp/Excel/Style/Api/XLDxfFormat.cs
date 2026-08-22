@@ -48,16 +48,13 @@ internal partial class XLDxFormat
         return getProperty(component);
     }
 
-    internal void ModifyNumberFormat(XLNumberFormat numberFormat)
-    {
+    internal void ModifyNumberFormat(XLNumberFormat numberFormat) =>
         this._container.FormatValue = this._styles.RegisterDxFormat(
             this.Dxf with
             {
                 NumberFormat = numberFormat,
             }
         );
-        ;
-    }
 
     internal void ModifyFont<T>(
         Func<XLDifferentialFontValue, T, XLDifferentialFontValue> modify,

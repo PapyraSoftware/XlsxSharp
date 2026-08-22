@@ -19,10 +19,7 @@ internal class XLPivotValueStyleFormat : XLPivotStyleFormatBase, IXLPivotValueSt
     private readonly List<FieldReference> _fieldReferences = [];
 
     public XLPivotValueStyleFormat(XLPivotTable pivotTable, FieldIndex fieldIndex)
-        : base(pivotTable)
-    {
-        this._fieldReferences.Add(new FieldReference(fieldIndex));
-    }
+        : base(pivotTable) => this._fieldReferences.Add(new FieldReference(fieldIndex));
 
     #region IXLPivotValueStyleFormat members
 

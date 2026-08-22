@@ -36,15 +36,9 @@ public readonly record struct ParsletName
 
     public static implicit operator ParsletName(string name) => new(name);
 
-    public string WithoutPrefix()
-    {
-        return this.Value[3..];
-    }
+    public string WithoutPrefix() => this.Value[3..];
 
-    public override string ToString()
-    {
-        return this.Value;
-    }
+    public override string ToString() => this.Value;
 
     private static bool IsValidName(string name)
     {

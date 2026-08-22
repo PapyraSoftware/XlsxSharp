@@ -11,17 +11,11 @@ internal class ArrayReader : IInsertDataReader
 {
     private readonly IEnumerable<IEnumerable> _data;
 
-    public ArrayReader(IEnumerable<IEnumerable> data)
-    {
+    public ArrayReader(IEnumerable<IEnumerable> data) =>
         this._data = data ?? throw new ArgumentNullException(nameof(data));
-    }
 
-    public IEnumerable<IEnumerable<XLCellValue>> GetRecords()
-    {
-        return this._data.Select(item =>
-            item.Cast<object>().Select(XLCellValue.FromInsertedObject)
-        );
-    }
+    public IEnumerable<IEnumerable<XLCellValue>> GetRecords() =>
+        this._data.Select(item => item.Cast<object>().Select(XLCellValue.FromInsertedObject));
 
     public int GetPropertiesCount()
     {
@@ -33,8 +27,5 @@ internal class ArrayReader : IInsertDataReader
         return this._data.First().Cast<object>().Count();
     }
 
-    public string? GetPropertyName(int propertyIndex)
-    {
-        return null;
-    }
+    public string? GetPropertyName(int propertyIndex) => null;
 }

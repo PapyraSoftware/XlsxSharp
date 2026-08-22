@@ -13,10 +13,7 @@ internal class ValueSlice : ISlice
     private readonly Slice<XLValueSliceContent> _values = new();
     private readonly SharedStringTable _sst;
 
-    internal ValueSlice(SharedStringTable sst)
-    {
-        this._sst = sst;
-    }
+    internal ValueSlice(SharedStringTable sst) => this._sst = sst;
 
     public bool IsEmpty => this._values.IsEmpty;
 
@@ -182,10 +179,7 @@ internal class ValueSlice : ISlice
         this._values.Set(point, modified);
     }
 
-    internal bool GetShareString(Point point)
-    {
-        return !this._values[point].Inline;
-    }
+    internal bool GetShareString(Point point) => !this._values[point].Inline;
 
     internal void SetShareString(Point point, bool shareString)
     {

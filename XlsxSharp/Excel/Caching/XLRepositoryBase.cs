@@ -113,22 +113,15 @@ internal abstract class XLRepositoryBase<Tkey, Tvalue>
         return null;
     }
 
-    public void Remove(ref Tkey key)
-    {
-        this._storage.TryRemove(key, out WeakReference _);
-    }
+    public void Remove(ref Tkey key) => this._storage.TryRemove(key, out WeakReference _);
 
-    public override void Clear()
-    {
-        this._storage.Clear();
-    }
+    public override void Clear() => this._storage.Clear();
 
     /// <summary>
     /// Enumerate items in repository removing "dead" entries.
     /// </summary>
-    public IEnumerator<Tvalue> GetEnumerator()
-    {
-        return this
+    public IEnumerator<Tvalue> GetEnumerator() =>
+        this
             ._storage.Select(pair =>
             {
                 Tvalue? val = pair.Value.Target as Tvalue;
@@ -140,10 +133,6 @@ internal abstract class XLRepositoryBase<Tkey, Tvalue>
             })
             .Where(val => val != null)
             .GetEnumerator()!;
-    }
 
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return this.GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 }

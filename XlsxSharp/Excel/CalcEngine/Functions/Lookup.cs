@@ -116,10 +116,7 @@ internal static class Lookup
         return new ConstArray(array);
     }
 
-    private static AnyValue Columns(CalcContext _, AnyValue value)
-    {
-        return RowsOrColumns(value, false);
-    }
+    private static AnyValue Columns(CalcContext _, AnyValue value) => RowsOrColumns(value, false);
 
     private static AnyValue Hlookup(
         CalcContext ctx,
@@ -210,10 +207,7 @@ internal static class Lookup
         CalcContext ctx,
         string linkLocation,
         ScalarValue? friendlyName
-    )
-    {
-        return friendlyName?.ToAnyValue() ?? linkLocation;
-    }
+    ) => friendlyName?.ToAnyValue() ?? linkLocation;
 
     public static AnyValue Index(CalcContext ctx, AnyValue value, List<int> p)
     {
@@ -622,10 +616,7 @@ internal static class Lookup
         return new ConstArray(array);
     }
 
-    private static AnyValue Rows(CalcContext _, AnyValue value)
-    {
-        return RowsOrColumns(value, true);
-    }
+    private static AnyValue Rows(CalcContext _, AnyValue value) => RowsOrColumns(value, true);
 
     private static AnyValue Transpose(CalcContext ctx, AnyValue value)
     {

@@ -11,8 +11,7 @@ namespace XlsxSharp.Tests.Excel.AutoFilters;
 public class Top10FilterTests
 {
     [Test]
-    public void Top10FilterIsInitializedAfterLoad()
-    {
+    public void Top10FilterIsInitializedAfterLoad() =>
         TestHelper.CreateSaveLoadAssert(
             (_, ws) =>
             {
@@ -31,28 +30,23 @@ public class Top10FilterTests
                 );
             }
         );
-    }
 
     [Test]
-    public void TopItemsFilterExcludesNonUnifiedNumbers()
-    {
+    public void TopItemsFilterExcludesNonUnifiedNumbers() =>
         // Sort and then use cutoff value, it's 4 here and then take all values >= cutoff.
         new AutoFilterTester(f => f.Top(1))
             .AddTrue(new DateTime(1900, 2, 10))
             .AddFalse(11, 10)
             .AddFalse("-1000", "Text", Blank.Value, true, false, XLError.IncompatibleValue)
             .AssertVisibility();
-    }
 
     [Test]
-    public void BottomItemsFilterExcludesNonUnifiedNumbers()
-    {
+    public void BottomItemsFilterExcludesNonUnifiedNumbers() =>
         new AutoFilterTester(f => f.Bottom(1))
             .AddTrue(new DateTime(1900, 1, 1))
             .AddFalse(2, 3)
             .AddFalse("-1000", "Text", Blank.Value, true, false, XLError.IncompatibleValue)
             .AssertVisibility();
-    }
 
     [Test]
     public void TopItemsFilterDeterminesTopItemsByDeterminingCutOffValue()
@@ -87,42 +81,34 @@ public class Top10FilterTests
     }
 
     [Test]
-    public void TopPercentsUsesInclusivePercentValue()
-    {
+    public void TopPercentsUsesInclusivePercentValue() =>
         // Autofilter doesn't include value 750, which is at 75%, i.e. right at the border.
         new AutoFilterTester(f => f.Top(25, XLTopBottomType.Percent))
             .AddFalse([.. Enumerable.Range(1, 750).Select<int, XLCellValue>(x => x)])
             .AddTrue([.. Enumerable.Range(751, 250).Select<int, XLCellValue>(x => x)])
             .AssertVisibility();
-    }
 
     [Test]
-    public void BottomPercentsUsesInclusivePercentValue()
-    {
+    public void BottomPercentsUsesInclusivePercentValue() =>
         new AutoFilterTester(f => f.Bottom(25, XLTopBottomType.Percent))
             .AddTrue([.. Enumerable.Range(1, 250).Select<int, XLCellValue>(x => x)])
             .AddFalse([.. Enumerable.Range(251, 750).Select<int, XLCellValue>(x => x)])
             .AssertVisibility();
-    }
 
     [Test]
-    public void TopPercentsAlwaysHasAtLeastOneItem()
-    {
+    public void TopPercentsAlwaysHasAtLeastOneItem() =>
         // Top 1% takes one item that is 33% of all items.
         new AutoFilterTester(f => f.Top(1, XLTopBottomType.Percent))
             .AddTrue(3)
             .AddFalse(2, 1)
             .AssertVisibility();
-    }
 
     [Test]
-    public void BottomPercentsAlwaysHasAtLeastOneItem()
-    {
+    public void BottomPercentsAlwaysHasAtLeastOneItem() =>
         new AutoFilterTester(f => f.Bottom(1, XLTopBottomType.Percent))
             .AddTrue(1)
             .AddFalse(2, 3)
             .AssertVisibility();
-    }
 
     [TestCase(0, true)]
     [TestCase(501, true)]

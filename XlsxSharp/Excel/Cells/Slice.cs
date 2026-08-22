@@ -34,10 +34,7 @@ internal partial class Slice<TElement> : ISlice
     /// </summary>
     private readonly Dictionary<int, int> _columnUsage = new();
 
-    internal Slice()
-    {
-        this._data = new Lut<Lut<TElement>>();
-    }
+    internal Slice() => this._data = new Lut<Lut<TElement>>();
 
     /// <summary>
     /// Get the slice value at the specified point of the sheet.
@@ -175,10 +172,8 @@ internal partial class Slice<TElement> : ISlice
     /// <summary>
     /// Get enumerator over used values of the range.
     /// </summary>
-    public IEnumerator<Point> GetEnumerator(Area area, bool reverse = false)
-    {
-        return !reverse ? new Enumerator(this, area) : new ReverseEnumerator(this, area);
-    }
+    public IEnumerator<Point> GetEnumerator(Area area, bool reverse = false) =>
+        !reverse ? new Enumerator(this, area) : new ReverseEnumerator(this, area);
 
     /// <inheritdoc />
     public void InsertAreaAndShiftDown(Area areaToInsert)

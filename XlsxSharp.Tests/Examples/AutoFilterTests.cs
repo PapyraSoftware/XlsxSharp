@@ -7,34 +7,24 @@ namespace XlsxSharp.Tests.Examples;
 public class AutoFilterTests
 {
     [Test]
-    public void CustomAutoFilter()
-    {
+    public void CustomAutoFilter() =>
         TestHelper.RunTestExample<CustomAutoFilter>(@"AutoFilter\CustomAutoFilter.xlsx");
-    }
 
     [Test]
-    public void DynamicAutoFilter()
-    {
+    public void DynamicAutoFilter() =>
         TestHelper.RunTestExample<DynamicAutoFilter>(@"AutoFilter\DynamicAutoFilter.xlsx");
-    }
 
     [Test]
-    public void RegularAutoFilter()
-    {
+    public void RegularAutoFilter() =>
         TestHelper.RunTestExample<RegularAutoFilter>(@"AutoFilter\RegularAutoFilter.xlsx");
-    }
 
     [Test]
-    public void TopBottomAutoFilter()
-    {
+    public void TopBottomAutoFilter() =>
         TestHelper.RunTestExample<TopBottomAutoFilter>(@"AutoFilter\TopBottomAutoFilter.xlsx");
-    }
 
     [Test]
-    public void DateTimeGroupAutoFilter()
-    {
+    public void DateTimeGroupAutoFilter() =>
         TestHelper.RunTestExample<DateTimeGroupAutoFilter>(
             @"AutoFilter\DateTimeGroupAutoFilter.xlsx"
         );
-    }
 }

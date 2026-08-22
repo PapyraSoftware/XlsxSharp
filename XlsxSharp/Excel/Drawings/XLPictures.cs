@@ -21,7 +21,7 @@ internal class XLPictures : IXLPictures, IEnumerable<XLPicture>
     public int Count
     {
         [DebuggerStepThrough]
-        get { return this._pictures.Count; }
+        get => this._pictures.Count;
     }
 
     internal ICollection<String> Deleted { get; private set; }
@@ -74,17 +74,12 @@ internal class XLPictures : IXLPictures, IEnumerable<XLPicture>
         return picture;
     }
 
-    public bool Contains(string pictureName)
-    {
-        return this._pictures.Any(p =>
+    public bool Contains(string pictureName) =>
+        this._pictures.Any(p =>
             string.Equals(p.Name, pictureName, StringComparison.OrdinalIgnoreCase)
         );
-    }
 
-    public void Delete(IXLPicture picture)
-    {
-        this.Delete(picture.Name);
-    }
+    public void Delete(IXLPicture picture) => this.Delete(picture.Name);
 
     public void Delete(string pictureName)
     {
@@ -114,20 +109,13 @@ internal class XLPictures : IXLPictures, IEnumerable<XLPicture>
         }
     }
 
-    IEnumerator<IXLPicture> IEnumerable<IXLPicture>.GetEnumerator()
-    {
-        return this._pictures.Cast<IXLPicture>().GetEnumerator();
-    }
+    IEnumerator<IXLPicture> IEnumerable<IXLPicture>.GetEnumerator() =>
+        this._pictures.Cast<IXLPicture>().GetEnumerator();
 
-    public IEnumerator<XLPicture> GetEnumerator()
-    {
-        return ((IEnumerable<XLPicture>)this._pictures).GetEnumerator();
-    }
+    public IEnumerator<XLPicture> GetEnumerator() =>
+        ((IEnumerable<XLPicture>)this._pictures).GetEnumerator();
 
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return this.GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 
     public IXLPicture Picture(string pictureName)
     {

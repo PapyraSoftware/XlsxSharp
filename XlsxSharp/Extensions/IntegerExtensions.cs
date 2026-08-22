@@ -8,10 +8,7 @@ namespace XlsxSharp.Extensions;
 
 internal static class IntegerExtensions
 {
-    public static bool Between(this int val, int from, int to)
-    {
-        return val >= from && val <= to;
-    }
+    public static bool Between(this int val, int from, int to) => val >= from && val <= to;
 
     /// <summary>
     /// Get index of highest set bit &lt;= to <paramref name="maximalIndex"/> or -1 if no such bit.

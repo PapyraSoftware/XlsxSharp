@@ -261,15 +261,10 @@ internal class XLPhonetics : IXLPhonetics
         return this;
     }
 
-    public IEnumerator<IXLPhonetic> GetEnumerator()
-    {
-        return this._phonetics.GetEnumerator();
-    }
+    public IEnumerator<IXLPhonetic> GetEnumerator() => this._phonetics.GetEnumerator();
 
-    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-    {
-        return this.GetEnumerator();
-    }
+    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() =>
+        this.GetEnumerator();
 
     public bool Equals(IXLPhonetics? other) => this.Equals(other as XLPhonetics);
 

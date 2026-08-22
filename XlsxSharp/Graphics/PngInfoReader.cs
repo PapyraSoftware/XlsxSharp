@@ -81,9 +81,7 @@ internal class PngInfoReader : ImageInfoReader
     private static ArgumentException CorruptedException(string text) =>
         new($"PNG is corrupted. {text}");
 
-    private static double PixelsPerMeterToDpi(uint ppm)
-    {
+    private static double PixelsPerMeterToDpi(uint ppm) =>
         // Conversion from the common integer dots-per-inch to pixels-per-meter is lossy, so instead of 96 we get 95.9866
-        return ppm * 0.0254d;
-    }
+        ppm * 0.0254d;
 }

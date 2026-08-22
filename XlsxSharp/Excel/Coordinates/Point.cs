@@ -26,43 +26,23 @@ internal readonly struct Point : IEquatable<Point>, IComparable<Point>
     /// </summary>
     public readonly Int32 Column;
 
-    public static implicit operator Area(Point point)
-    {
-        return new Area(point);
-    }
+    public static implicit operator Area(Point point) => new(point);
 
-    public override bool Equals(object? obj)
-    {
-        return obj is Point point && this.Equals(point);
-    }
+    public override bool Equals(object? obj) => obj is Point point && this.Equals(point);
 
-    public bool Equals(Point other)
-    {
-        return this.Row == other.Row && this.Column == other.Column;
-    }
+    public bool Equals(Point other) => this.Row == other.Row && this.Column == other.Column;
 
-    public override int GetHashCode()
-    {
-        return (this.Row * -1) ^ this.Column;
-    }
+    public override int GetHashCode() => (this.Row * -1) ^ this.Column;
 
-    public static bool operator ==(Point a, Point b)
-    {
-        return a.Row == b.Row && a.Column == b.Column;
-    }
+    public static bool operator ==(Point a, Point b) => a.Row == b.Row && a.Column == b.Column;
 
-    public static bool operator !=(Point a, Point b)
-    {
-        return a.Row != b.Row || a.Column != b.Column;
-    }
+    public static bool operator !=(Point a, Point b) => a.Row != b.Row || a.Column != b.Column;
 
     /// <summary>
     /// Get offset that must be added to <paramref name="origin"/> so we can get <paramref name="target"/>.
     /// </summary>
-    public static XLSheetOffset operator -(Point target, Point origin)
-    {
-        return new XLSheetOffset(target.Row - origin.Row, target.Column - origin.Column);
-    }
+    public static XLSheetOffset operator -(Point target, Point origin) =>
+        new(target.Row - origin.Row, target.Column - origin.Column);
 
     /// <inheritdoc cref="Parse(ReadOnlySpan{char})"/>
     public static Point Parse(String text) => Parse(text.AsSpan());
@@ -233,10 +213,7 @@ internal readonly struct Point : IEquatable<Point>, IComparable<Point>
     internal static Point FromAddress(IXLAddress address) =>
         new(address.RowNumber, address.ColumnNumber);
 
-    internal static Point FromCell(IXLCell cell)
-    {
-        return ((XLCell)cell).Point;
-    }
+    internal static Point FromCell(IXLCell cell) => ((XLCell)cell).Point;
 
     public int CompareTo(Point other)
     {
@@ -252,22 +229,18 @@ internal readonly struct Point : IEquatable<Point>, IComparable<Point>
     /// <summary>
     /// Is the point within the range or below the range?
     /// </summary>
-    internal bool InRangeOrBelow(in Area range)
-    {
-        return this.Row >= range.FirstPoint.Row
-            && this.Column >= range.FirstPoint.Column
-            && this.Column <= range.LastPoint.Column;
-    }
+    internal bool InRangeOrBelow(in Area range) =>
+        this.Row >= range.FirstPoint.Row
+        && this.Column >= range.FirstPoint.Column
+        && this.Column <= range.LastPoint.Column;
 
     /// <summary>
     /// Is the point within the range or to the right of the range?
     /// </summary>
-    internal bool InRangeOrToRight(in Area range)
-    {
-        return this.Column >= range.FirstPoint.Column
-            && this.Row >= range.FirstPoint.Row
-            && this.Row <= range.LastPoint.Row;
-    }
+    internal bool InRangeOrToRight(in Area range) =>
+        this.Column >= range.FirstPoint.Column
+        && this.Row >= range.FirstPoint.Row
+        && this.Row <= range.LastPoint.Row;
 
     /// <summary>
     /// Return a new point that has its row coordinate shifted by <paramref name="rowShift"/>.
@@ -275,10 +248,7 @@ internal readonly struct Point : IEquatable<Point>, IComparable<Point>
     /// <param name="rowShift">How many rows will new point be shifted. Positive - new point
     ///     is downwards, negative - new point is upwards relative to the current point.</param>
     /// <returns>Shifted point.</returns>
-    internal Point ShiftRow(int rowShift)
-    {
-        return new Point(this.Row + rowShift, this.Column);
-    }
+    internal Point ShiftRow(int rowShift) => new(this.Row + rowShift, this.Column);
 
     /// <summary>
     /// Return a new point that has its column coordinate shifted by <paramref name="columnShift"/>.
@@ -286,8 +256,5 @@ internal readonly struct Point : IEquatable<Point>, IComparable<Point>
     /// <param name="columnShift">How many columns will new point be shifted. Positive - new
     ///     point is to the right, negative - new point is to the left.</param>
     /// <returns>Shifted point.</returns>
-    internal Point ShiftColumn(int columnShift)
-    {
-        return new Point(this.Row, this.Column + columnShift);
-    }
+    internal Point ShiftColumn(int columnShift) => new(this.Row, this.Column + columnShift);
 }

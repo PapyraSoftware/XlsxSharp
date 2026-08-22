@@ -175,8 +175,7 @@ public class CopyingRangesTests
     }
 
     [Test]
-    public void CopyCellFormatWithSomeComponentsAlreadyUsedInTargetWorkbook()
-    {
+    public void CopyCellFormatWithSomeComponentsAlreadyUsedInTargetWorkbook() =>
         // Each workbook contains all used formats and their components. Each format in a workbook
         // must reference only registered instances from the workbook. When a format is copied
         // from another workbook, it must reuse components already existing (=equal to the copied
@@ -205,7 +204,6 @@ public class CopyingRangesTests
                 Assert.That(ws.Cell("B1").Style.NumberFormat.Format, Is.EqualTo("Value[@]"));
             }
         );
-    }
 
     private static void FillRow(IXLRow row1)
     {

@@ -38,10 +38,7 @@ internal class XLCalcEngine : ISheetListener, IWorkbookListener
     /// </summary>
     /// <param name="expression">String to parse.</param>
     /// <returns>An formula that can be evaluated.</returns>
-    public Formula Parse(string expression)
-    {
-        return this._parser.GetAst(expression, isA1: true);
-    }
+    public Formula Parse(string expression) => this._parser.GetAst(expression, isA1: true);
 
     /// <summary>
     /// Add an array formula to the calc engine to manage dirty tracking and evaluation.
@@ -90,35 +87,22 @@ internal class XLCalcEngine : ISheetListener, IWorkbookListener
         }
     }
 
-    internal void OnAddedSheet(XLWorksheet sheet)
-    {
-        this.Purge(sheet.Workbook.WorksheetsInternal);
-    }
+    internal void OnAddedSheet(XLWorksheet sheet) => this.Purge(sheet.Workbook.WorksheetsInternal);
 
-    internal void OnDeletingSheet(XLWorksheet sheet)
-    {
+    internal void OnDeletingSheet(XLWorksheet sheet) =>
         this.Purge(sheet.Workbook.WorksheetsInternal);
-    }
 
-    public void OnInsertAreaAndShiftDown(XLWorksheet sheet, Area area)
-    {
+    public void OnInsertAreaAndShiftDown(XLWorksheet sheet, Area area) =>
         this.Purge(sheet.Workbook.WorksheetsInternal);
-    }
 
-    public void OnInsertAreaAndShiftRight(XLWorksheet sheet, Area area)
-    {
+    public void OnInsertAreaAndShiftRight(XLWorksheet sheet, Area area) =>
         this.Purge(sheet.Workbook.WorksheetsInternal);
-    }
 
-    public void OnDeleteAreaAndShiftLeft(XLWorksheet sheet, Area deletedArea)
-    {
+    public void OnDeleteAreaAndShiftLeft(XLWorksheet sheet, Area deletedArea) =>
         this.Purge(sheet.Workbook.WorksheetsInternal);
-    }
 
-    public void OnDeleteAreaAndShiftUp(XLWorksheet sheet, Area deletedArea)
-    {
+    public void OnDeleteAreaAndShiftUp(XLWorksheet sheet, Area deletedArea) =>
         this.Purge(sheet.Workbook.WorksheetsInternal);
-    }
 
     private void Purge(XLWorksheets sheets)
     {
@@ -132,10 +116,8 @@ internal class XLCalcEngine : ISheetListener, IWorkbookListener
         }
     }
 
-    internal void MarkDirty(XLWorksheet sheet, Point point)
-    {
+    internal void MarkDirty(XLWorksheet sheet, Point point) =>
         this.MarkDirty(sheet, new Area(point, point));
-    }
 
     internal void MarkDirty(XLWorksheet sheet, Area area)
     {

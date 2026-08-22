@@ -113,10 +113,8 @@ internal class XLConditionalFormat : IXLDxfContainer, IXLConditionalFormat
             }
         }
 
-        private static bool SetEquals<T>(IEnumerable<T> first, IEnumerable<T> second)
-        {
-            return new HashSet<T>(second, EqualityComparer<T>.Default).SetEquals(first);
-        }
+        private static bool SetEquals<T>(IEnumerable<T> first, IEnumerable<T> second) =>
+            new HashSet<T>(second, EqualityComparer<T>.Default).SetEquals(first);
 
         private static bool Equals<TValue>(Dictionary<int, TValue> x, Dictionary<int, TValue> y)
         {
@@ -272,10 +270,7 @@ internal class XLConditionalFormat : IXLDxfContainer, IXLConditionalFormat
 
     internal XLAreaList Areas { get; set; }
 
-    public IXLConditionalFormat SetStopIfTrue()
-    {
-        return this.SetStopIfTrue(true);
-    }
+    public IXLConditionalFormat SetStopIfTrue() => this.SetStopIfTrue(true);
 
     public IXLConditionalFormat SetStopIfTrue(bool value)
     {

@@ -8,10 +8,7 @@ internal class XLDxfAlignmentFormat : IXLAlignment
     private readonly XLAlignmentFormatValue _default = XLAlignmentFormatValue.Default;
     private readonly XLDxFormat _parent;
 
-    internal XLDxfAlignmentFormat(XLDxFormat parent)
-    {
-        this._parent = parent;
-    }
+    internal XLDxfAlignmentFormat(XLDxFormat parent) => this._parent = parent;
 
     XLAlignmentHorizontalValues IXLAlignment.Horizontal
     {
@@ -141,10 +138,7 @@ internal class XLDxfAlignmentFormat : IXLAlignment
             );
     }
 
-    bool IEquatable<IXLAlignment>.Equals(IXLAlignment other)
-    {
-        throw new NotSupportedException();
-    }
+    bool IEquatable<IXLAlignment>.Equals(IXLAlignment other) => throw new NotSupportedException();
 
     IXLStyle IXLAlignment.SetHorizontal(XLAlignmentHorizontalValues value)
     {
@@ -158,10 +152,7 @@ internal class XLDxfAlignmentFormat : IXLAlignment
         return this._parent;
     }
 
-    IXLStyle IXLAlignment.SetJustifyLastLine()
-    {
-        return (this as IXLAlignment).SetJustifyLastLine(true);
-    }
+    IXLStyle IXLAlignment.SetJustifyLastLine() => (this as IXLAlignment).SetJustifyLastLine(true);
 
     IXLStyle IXLAlignment.SetJustifyLastLine(bool value)
     {
@@ -181,10 +172,7 @@ internal class XLDxfAlignmentFormat : IXLAlignment
         return this._parent;
     }
 
-    IXLStyle IXLAlignment.SetShrinkToFit()
-    {
-        return (this as IXLAlignment).SetShrinkToFit(true);
-    }
+    IXLStyle IXLAlignment.SetShrinkToFit() => (this as IXLAlignment).SetShrinkToFit(true);
 
     IXLStyle IXLAlignment.SetShrinkToFit(bool value)
     {
@@ -198,10 +186,7 @@ internal class XLDxfAlignmentFormat : IXLAlignment
         return this._parent;
     }
 
-    IXLStyle IXLAlignment.SetTopToBottom()
-    {
-        return (this as IXLAlignment).SetTopToBottom(true);
-    }
+    IXLStyle IXLAlignment.SetTopToBottom() => (this as IXLAlignment).SetTopToBottom(true);
 
     IXLStyle IXLAlignment.SetTopToBottom(bool value)
     {
@@ -215,10 +200,7 @@ internal class XLDxfAlignmentFormat : IXLAlignment
         return this._parent;
     }
 
-    IXLStyle IXLAlignment.SetWrapText()
-    {
-        return (this as IXLAlignment).SetWrapText(true);
-    }
+    IXLStyle IXLAlignment.SetWrapText() => (this as IXLAlignment).SetWrapText(true);
 
     IXLStyle IXLAlignment.SetWrapText(bool value)
     {
@@ -226,8 +208,7 @@ internal class XLDxfAlignmentFormat : IXLAlignment
         return this._parent;
     }
 
-    internal void SetValue(IXLAlignment value)
-    {
+    internal void SetValue(IXLAlignment value) =>
         this._parent.ModifyAlignment(
             static (alignment, value) =>
                 alignment with
@@ -244,19 +225,13 @@ internal class XLDxfAlignmentFormat : IXLAlignment
                 },
             value
         );
-    }
 
     private T Resolve<T>(Func<XLDifferentialAlignmentValue, T?> getProperty, T defaultValue)
-        where T : struct
-    {
-        return this._parent.Resolve(static format => format.Alignment, getProperty) ?? defaultValue;
-    }
+        where T : struct =>
+        this._parent.Resolve(static format => format.Alignment, getProperty) ?? defaultValue;
 
     private void Modify<T>(
         Func<XLDifferentialAlignmentValue, T, XLDifferentialAlignmentValue> modify,
         T value
-    )
-    {
-        this._parent.ModifyAlignment(modify, value);
-    }
+    ) => this._parent.ModifyAlignment(modify, value);
 }

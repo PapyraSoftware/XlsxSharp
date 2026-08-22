@@ -212,17 +212,13 @@ public class ConditionalFormatsConsolidateTests
         }
     }
 
-    private static void SetFormat1(IXLConditionalFormat format)
-    {
+    private static void SetFormat1(IXLConditionalFormat format) =>
         format
             .WhenEquals("=" + format.Range.FirstCell().CellRight(4).Address.ToStringRelative())
             .Fill.SetBackgroundColor(XLColor.Blue);
-    }
 
-    private static void SetFormat2(IXLConditionalFormat format)
-    {
+    private static void SetFormat2(IXLConditionalFormat format) =>
         format.WhenEquals(5).Fill.SetBackgroundColor(XLColor.AliceBlue);
-    }
 
     private class CfFormatComaparer : IEqualityComparer<IXLConditionalFormat>
     {
@@ -233,9 +229,7 @@ public class ConditionalFormatsConsolidateTests
             return lhs.FormatValue == rhs.FormatValue;
         }
 
-        public int GetHashCode([DisallowNull] IXLConditionalFormat obj)
-        {
-            return HashCode.Combine(((XLConditionalFormat)obj).FormatValue);
-        }
+        public int GetHashCode([DisallowNull] IXLConditionalFormat obj) =>
+            HashCode.Combine(((XLConditionalFormat)obj).FormatValue);
     }
 }

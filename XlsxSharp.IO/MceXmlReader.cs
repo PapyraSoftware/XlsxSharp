@@ -184,17 +184,12 @@ public class MceXmlReader : IXmlReader
     }
 
     /// <inheritdoc/>
-    public string? GetAttribute(string attributeName, string? namespaceUri)
-    {
+    public string? GetAttribute(string attributeName, string? namespaceUri) =>
         // XmlReader returns to the element node once it reads the attribute value
-        return this._reader.GetAttribute(attributeName, namespaceUri ?? string.Empty);
-    }
+        this._reader.GetAttribute(attributeName, namespaceUri ?? string.Empty);
 
     /// <inheritdoc/>
-    public void Dispose()
-    {
-        this._reader.Dispose();
-    }
+    public void Dispose() => this._reader.Dispose();
 
     private bool IsIgnored()
     {
@@ -397,15 +392,11 @@ public class MceXmlReader : IXmlReader
         return true;
     }
 
-    private bool IsOpenElement(XmlName name)
-    {
-        return this.NodeType == XmlTreeNodeType.OpenElement && this.IsElement(name);
-    }
+    private bool IsOpenElement(XmlName name) =>
+        this.NodeType == XmlTreeNodeType.OpenElement && this.IsElement(name);
 
-    private bool IsCloseElement(XmlName name)
-    {
-        return this.NodeType == XmlTreeNodeType.CloseElement && this.IsElement(name);
-    }
+    private bool IsCloseElement(XmlName name) =>
+        this.NodeType == XmlTreeNodeType.CloseElement && this.IsElement(name);
 
     private bool IsElement(XmlName name)
     {
@@ -603,15 +594,13 @@ public class MceXmlReader : IXmlReader
         }
     }
 
-    private Exception UnpairedXml()
-    {
+    private Exception UnpairedXml() =>
         // An exception to throw when input is invalid XML (unpaired elements, ends without being
         // at the end of XML tree). That should never happen, because XmlReader should throw when
         // it detects an invalid XML.
-        return new UnreachableException(
+        new UnreachableException(
             $"Not a valid XML stream (unpaired elements) at {this._reader.GetLineInfo()}."
         );
-    }
 
     /// <summary>
     /// A fully qualified XML name of element or an attribute.
@@ -624,10 +613,7 @@ public class MceXmlReader : IXmlReader
             string localName,
             string namespaceUri,
             XmlNameTable nameTable
-        )
-        {
-            return new XmlName(nameTable.Add(localName), nameTable.Add(namespaceUri));
-        }
+        ) => new(nameTable.Add(localName), nameTable.Add(namespaceUri));
     };
 
     /// <summary>
@@ -665,10 +651,7 @@ public class MceXmlReader : IXmlReader
         /// <summary>
         /// Was the matching value declared on the current element or an ancestor element?
         /// </summary>
-        internal bool Declared(T value)
-        {
-            return this._matches(this._state, value);
-        }
+        internal bool Declared(T value) => this._matches(this._state, value);
 
         /// <summary>
         /// Clear items from current item at depth.
@@ -739,10 +722,8 @@ public class MceXmlReader : IXmlReader
             return new NamePair(ns, atomizedName);
         }
 
-        private static bool IsValidName(string nameToken)
-        {
-            return (nameToken.Length > 0 && nameToken.All(XmlConvert.IsNCNameChar));
-        }
+        private static bool IsValidName(string nameToken) =>
+            (nameToken.Length > 0 && nameToken.All(XmlConvert.IsNCNameChar));
 
         internal bool Matches(NamePair other)
         {

@@ -250,19 +250,15 @@ public class StatisticalTests
     }
 
     [Test]
-    public void CountACountsBlankArgument()
-    {
+    public void CountACountsBlankArgument() =>
         Assert.AreEqual(1, XLWorkbook.EvaluateExpr("COUNTA(IF(TRUE,,))"));
-    }
 
     [Test]
-    public void CountACountsErrorArguments()
-    {
+    public void CountACountsErrorArguments() =>
         Assert.AreEqual(
             7,
             XLWorkbook.EvaluateExpr("COUNTA(#NULL!, #DIV/0!, #VALUE!, #REF!, #NAME?, #NUM!, #N/A)")
         );
-    }
 
     [Test]
     public void CountACountsEmptyString()
@@ -458,10 +454,7 @@ public class StatisticalTests
     }
 
     [OneTimeTearDown]
-    public void Dispose()
-    {
-        this.workbook.Dispose();
-    }
+    public void Dispose() => this.workbook.Dispose();
 
     [TestCase("H3:H45", ExpectedResult = 7.51126069234216)]
     [TestCase("H:H", ExpectedResult = 7.51126069234216)]
@@ -474,10 +467,8 @@ public class StatisticalTests
     [TestCase("H15:H20", ExpectedResult = 15.8927310267677)]
     [TestCase("H20:H30", ExpectedResult = 7.14321227391814)]
     [DefaultFloatingPointTolerance(1e-12)]
-    public double GeomeanCalculation(string sourceValue)
-    {
-        return (double)this.workbook.Worksheets.First().Evaluate($"GEOMEAN({sourceValue})");
-    }
+    public double GeomeanCalculation(string sourceValue) =>
+        (double)this.workbook.Worksheets.First().Evaluate($"GEOMEAN({sourceValue})");
 
     [TestCase("D3:D45", ExpectedResult = XLError.NumberInvalid)]
     [TestCase("-1, 0, 3", ExpectedResult = XLError.NumberInvalid)]
@@ -558,10 +549,8 @@ public class StatisticalTests
     [TestCase(@"H15:H20", ExpectedResult = 10827.2200833333)]
     [TestCase(@"H20:H30", ExpectedResult = 477.132272727273)]
     [DefaultFloatingPointTolerance(1e-10)]
-    public double DevSq(string sourceValue)
-    {
-        return (double)this.workbook.Worksheets.First().Evaluate($"DEVSQ({sourceValue})");
-    }
+    public double DevSq(string sourceValue) =>
+        (double)this.workbook.Worksheets.First().Evaluate($"DEVSQ({sourceValue})");
 
     [TestCase("D3:D45", ExpectedResult = XLError.NumberInvalid)]
     public XLError DevsqIncorrectCases(string sourceValue)
@@ -614,19 +603,15 @@ public class StatisticalTests
     [TestCase(0.2691496, ExpectedResult = 0.275946780611959)]
     [TestCase(-0.10674142, ExpectedResult = -0.107149608461448)]
     [DefaultFloatingPointTolerance(1e-12)]
-    public double Fisher(double sourceValue)
-    {
-        return (double)XLWorkbook.EvaluateExpr($"FISHER({sourceValue})");
-    }
+    public double Fisher(double sourceValue) =>
+        (double)XLWorkbook.EvaluateExpr($"FISHER({sourceValue})");
 
     [TestCase("\"asdf\"", ExpectedResult = XLError.IncompatibleValue)]
     [TestCase("5", ExpectedResult = XLError.NumberInvalid)]
     [TestCase("-1", ExpectedResult = XLError.NumberInvalid)]
     [TestCase("1", ExpectedResult = XLError.NumberInvalid)]
-    public XLError FisherIncorrectCases(string sourceValue)
-    {
-        return (XLError)XLWorkbook.EvaluateExpr($"FISHER({sourceValue})");
-    }
+    public XLError FisherIncorrectCases(string sourceValue) =>
+        (XLError)XLWorkbook.EvaluateExpr($"FISHER({sourceValue})");
 
     [Test]
     public void Max()

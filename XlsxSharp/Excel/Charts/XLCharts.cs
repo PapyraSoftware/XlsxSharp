@@ -8,18 +8,10 @@ internal class XLCharts : IXLCharts
 {
     private List<IXLChart> charts = [];
 
-    public IEnumerator<IXLChart> GetEnumerator()
-    {
-        return this.charts.GetEnumerator();
-    }
+    public IEnumerator<IXLChart> GetEnumerator() => this.charts.GetEnumerator();
 
-    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-    {
-        return this.GetEnumerator();
-    }
+    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() =>
+        this.GetEnumerator();
 
-    public void Add(IXLChart chart)
-    {
-        this.charts.Add(chart);
-    }
+    public void Add(IXLChart chart) => this.charts.Add(chart);
 }

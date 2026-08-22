@@ -8,10 +8,7 @@ internal class XLDrawingAlignment : IXLDrawingAlignment
 {
     private readonly IXLDrawingStyle _style;
 
-    public XLDrawingAlignment(IXLDrawingStyle style)
-    {
-        this._style = style;
-    }
+    public XLDrawingAlignment(IXLDrawingStyle style) => this._style = style;
 
     public XLDrawingHorizontalAlignment Horizontal { get; set; }
 

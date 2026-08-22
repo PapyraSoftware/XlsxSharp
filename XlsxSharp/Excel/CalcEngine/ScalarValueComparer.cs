@@ -28,10 +28,8 @@ internal class ScalarValueComparer : IComparer<ScalarValue>
     public static ScalarValueComparer SortIgnoreCase { get; } =
         new(StringComparer.OrdinalIgnoreCase);
 
-    private ScalarValueComparer(StringComparer stringComparer)
-    {
+    private ScalarValueComparer(StringComparer stringComparer) =>
         this._stringComparer = stringComparer;
-    }
 
     public int Compare(ScalarValue x, ScalarValue y)
     {

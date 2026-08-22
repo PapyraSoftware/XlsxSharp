@@ -10,10 +10,8 @@ internal readonly record struct XLNumberFormat : IEquatable<string>
 {
     private readonly string _format;
 
-    internal XLNumberFormat(string format)
-    {
+    internal XLNumberFormat(string format) =>
         this._format = format ?? throw new ArgumentNullException(nameof(format));
-    }
 
     public string Format => this._format;
 
@@ -22,22 +20,15 @@ internal readonly record struct XLNumberFormat : IEquatable<string>
     /// <summary>
     /// Is a number format a general number format?
     /// </summary>
-    internal bool IsGeneralFormat()
-    {
+    internal bool IsGeneralFormat() =>
         // General format is an empty string.
-        return this._format.Length == 0;
-    }
+        this._format.Length == 0;
 
-    internal static XLNumberFormat Parse(string formatCode)
-    {
+    internal static XLNumberFormat Parse(string formatCode) =>
         // Format code was originally just a string and not checked, so keep the same semantic for now.
-        return new XLNumberFormat(formatCode);
-    }
+        new(formatCode);
 
-    public bool Equals(string other)
-    {
-        return other == this._format;
-    }
+    public bool Equals(string other) => other == this._format;
 
     internal XLDataType GetNumberDataType()
     {
@@ -65,18 +56,15 @@ internal readonly record struct XLNumberFormat : IEquatable<string>
         return XLDataType.Number;
     }
 
-    private static bool IsDateTimeFormat(int numberFormatId)
-    {
-        return (XLPredefinedFormat.DateTime)numberFormatId
+    private static bool IsDateTimeFormat(int numberFormatId) =>
+        (XLPredefinedFormat.DateTime)numberFormatId
             is DayMonthYear4WithSlashes
                 or DayMonthAbbrYear2WithDashes
                 or DayMonthAbbrWithDash
                 or MonthDayYear4WithDashesHour24Minutes;
-    }
 
-    private static bool IsTimeOnlyFormat(int numberFormatId)
-    {
-        return (XLPredefinedFormat.DateTime)numberFormatId
+    private static bool IsTimeOnlyFormat(int numberFormatId) =>
+        (XLPredefinedFormat.DateTime)numberFormatId
             is Hour12MinutesAmPm
                 or Hour12MinutesSecondsAmPm
                 or Hour24Minutes
@@ -84,7 +72,6 @@ internal readonly record struct XLNumberFormat : IEquatable<string>
                 or MinutesSeconds
                 or Hour12MinutesSeconds
                 or MinutesSecondsMillis1;
-    }
 
     private XLDataType? GetDataTypeFromFormat()
     {

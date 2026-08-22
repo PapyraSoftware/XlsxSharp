@@ -42,9 +42,8 @@ internal readonly record struct Emu
         return new Emu((int)emus, srcUnit);
     }
 
-    private static int GetUnitCoefficient(AbsLengthUnit srcUnit)
-    {
-        return srcUnit switch
+    private static int GetUnitCoefficient(AbsLengthUnit srcUnit) =>
+        srcUnit switch
         {
             AbsLengthUnit.Inch => PerInch,
             AbsLengthUnit.Centimeter => PerCm,
@@ -54,7 +53,6 @@ internal readonly record struct Emu
             AbsLengthUnit.Emu => 1,
             _ => throw new ArgumentOutOfRangeException(),
         };
-    }
 
     /// <summary>
     /// Return length in specified unit.
@@ -65,10 +63,7 @@ internal readonly record struct Emu
         return this.Value / (double)coef;
     }
 
-    public override string ToString()
-    {
-        return this.ToString(this._preferredUnit);
-    }
+    public override string ToString() => this.ToString(this._preferredUnit);
 
     public string ToString(AbsLengthUnit unit)
     {

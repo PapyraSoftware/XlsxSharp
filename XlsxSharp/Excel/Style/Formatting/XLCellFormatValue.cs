@@ -47,9 +47,8 @@ internal record XLCellFormatValue
     /// </summary>
     public required CellFormatComponents CustomFormat { get; init; }
 
-    internal static XLCellFormatValue FromStyle(StyleId styleId, XLCellStyleValue style)
-    {
-        return new XLCellFormatValue
+    internal static XLCellFormatValue FromStyle(StyleId styleId, XLCellStyleValue style) =>
+        new()
         {
             NumberFormat = style.NumberFormat,
             Alignment = style.Alignment,
@@ -62,14 +61,11 @@ internal record XLCellFormatValue
             PivotButton = false,
             CustomFormat = CellFormatComponents.None,
         };
-    }
 
     /// <summary>
     /// Cell formats in <see cref="XLWorkbookStyles"/> should have only one instance per different cell format.
     /// That means we can check sameness of two formats much easier and faster than comparing them by value.
     /// </summary>
-    internal static bool AreSame(XLCellFormatValue lhs, XLCellFormatValue rhs)
-    {
-        return ReferenceEquals(lhs, rhs);
-    }
+    internal static bool AreSame(XLCellFormatValue lhs, XLCellFormatValue rhs) =>
+        ReferenceEquals(lhs, rhs);
 }

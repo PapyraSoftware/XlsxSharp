@@ -19,10 +19,7 @@ internal class XLDataValidation : IXLDataValidation
 
     internal XLAreaList Areas { get; set; } = XLAreaList.Empty;
 
-    public void Clear()
-    {
-        this.Initialize();
-    }
+    public void Clear() => this.Initialize();
 
     internal void CopyFrom(IXLDataValidation dataValidation)
     {
@@ -51,24 +48,22 @@ internal class XLDataValidation : IXLDataValidation
         this.MaxValue = dataValidation.MaxValue;
     }
 
-    public Boolean IsDirty()
-    {
-        return this.AllowedValues != XLAllowedValues.AnyValue
-            || (
-                this.ShowInputMessage
-                && (
-                    !String.IsNullOrWhiteSpace(this.InputTitle)
-                    || !String.IsNullOrWhiteSpace(this.InputMessage)
-                )
+    public Boolean IsDirty() =>
+        this.AllowedValues != XLAllowedValues.AnyValue
+        || (
+            this.ShowInputMessage
+            && (
+                !String.IsNullOrWhiteSpace(this.InputTitle)
+                || !String.IsNullOrWhiteSpace(this.InputMessage)
             )
-            || (
-                this.ShowErrorMessage
-                && (
-                    !String.IsNullOrWhiteSpace(this.ErrorTitle)
-                    || !String.IsNullOrWhiteSpace(this.ErrorMessage)
-                )
-            );
-    }
+        )
+        || (
+            this.ShowErrorMessage
+            && (
+                !String.IsNullOrWhiteSpace(this.ErrorTitle)
+                || !String.IsNullOrWhiteSpace(this.ErrorMessage)
+            )
+        );
 
     [MemberNotNull(
         nameof(minValue),
@@ -188,8 +183,8 @@ internal class XLDataValidation : IXLDataValidation
 
     public String Value
     {
-        get { return this.MinValue; }
-        set { this.MinValue = value; }
+        get => this.MinValue;
+        set => this.MinValue = value;
     }
 
     public XLWholeNumberCriteria WholeNumber
@@ -242,10 +237,7 @@ internal class XLDataValidation : IXLDataValidation
     /// <summary>
     /// Detach data validation rule of all ranges it applies to.
     /// </summary>
-    public void ClearRanges()
-    {
-        this.Areas = XLAreaList.Empty;
-    }
+    public void ClearRanges() => this.Areas = XLAreaList.Empty;
 
     public void Custom(String customValidation)
     {
@@ -253,10 +245,7 @@ internal class XLDataValidation : IXLDataValidation
         this.Value = customValidation;
     }
 
-    public void List(String list)
-    {
-        this.List(list, true);
-    }
+    public void List(String list) => this.List(list, true);
 
     public void List(String list, Boolean inCellDropdown)
     {
@@ -265,15 +254,10 @@ internal class XLDataValidation : IXLDataValidation
         this.Value = list;
     }
 
-    public void List(IXLRange range)
-    {
-        this.List(range, true);
-    }
+    public void List(IXLRange range) => this.List(range, true);
 
-    public void List(IXLRange range, Boolean inCellDropdown)
-    {
+    public void List(IXLRange range, Boolean inCellDropdown) =>
         this.List(range.RangeAddress.ToStringFixed(XLReferenceStyle.A1, true));
-    }
 
     /// <summary>
     /// Remove the specified range from the collection of range this rule applies to.

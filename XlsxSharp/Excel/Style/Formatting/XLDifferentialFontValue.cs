@@ -57,22 +57,20 @@ internal record XLDifferentialFontValue
 
     internal required XLFontScheme? Scheme { get; init; }
 
-    internal bool IsEmpty()
-    {
-        return this.Name is null
-            && this.Charset is null
-            && this.Family is null
-            && this.Bold is null
-            && this.Italic is null
-            && this.Strikethrough is null
-            && this.Outline is null
-            && this.Shadow is null
-            && this.Condense is null
-            && this.Extend is null
-            && this.Color is null
-            && this.Size is null
-            && this.Underline is null
-            && this.VerticalAlignment is null
-            && this.Scheme is null;
-    }
+    internal bool IsEmpty() =>
+        this.Name is null
+        && this.Charset is null
+        && this.Family is null
+        && this.Bold is null
+        && this.Italic is null
+        && this.Strikethrough is null
+        && this.Outline is null
+        && this.Shadow is null
+        && this.Condense is null
+        && this.Extend is null
+        && this.Color is null
+        && this.Size is null
+        && this.Underline is null
+        && this.VerticalAlignment is null
+        && this.Scheme is null;
 }

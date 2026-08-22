@@ -11,10 +11,7 @@ internal sealed partial class XLNumberCellFormat
 {
     private readonly XLCellFormat _parent;
 
-    internal XLNumberCellFormat(XLCellFormat parent)
-    {
-        this._parent = parent;
-    }
+    internal XLNumberCellFormat(XLCellFormat parent) => this._parent = parent;
 
     private int NumberFormatId
     {
@@ -42,19 +39,11 @@ internal sealed partial class XLNumberCellFormat
         set => this._parent.ModifyNumberFormat(value);
     }
 
-    public override bool Equals(object? obj)
-    {
-        return obj is IXLNumberFormatBase other
-            && (this as IEquatable<IXLNumberFormatBase>).Equals(other);
-    }
+    public override bool Equals(object? obj) =>
+        obj is IXLNumberFormatBase other && (this as IEquatable<IXLNumberFormatBase>).Equals(other);
 
-    public override int GetHashCode()
-    {
-        return 0;
-    }
+    public override int GetHashCode() => 0;
 
-    internal void SetNumberFormat(string numberFormat)
-    {
+    internal void SetNumberFormat(string numberFormat) =>
         this.Format = XLNumberFormat.Parse(numberFormat);
-    }
 }

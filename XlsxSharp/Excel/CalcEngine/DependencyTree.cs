@@ -47,10 +47,7 @@ internal class DependencyTree
         XlsxSharp.XLHelper.SheetComparer
     );
 
-    public DependencyTree()
-    {
-        this._visitor = new DependenciesVisitor();
-    }
+    public DependencyTree() => this._visitor = new DependenciesVisitor();
 
     internal bool IsEmpty =>
         this._sheetTrees.All(sheetTree => sheetTree.Value.IsEmpty) && this._dependencies.Count == 0;
@@ -164,10 +161,8 @@ internal class DependencyTree
         }
     }
 
-    internal void AddSheetTree(IXLWorksheet sheet)
-    {
+    internal void AddSheetTree(IXLWorksheet sheet) =>
         this._sheetTrees.Add(sheet.Name, new SheetDependencyTree());
-    }
 
     internal void RenameSheet(string oldSheetName, string newSheetName)
     {
@@ -268,10 +263,7 @@ internal class DependencyTree
         /// </summary>
         internal IReadOnlyList<Dependent> Dependents => this._dependents;
 
-        internal void AddDependent(Dependent dependent)
-        {
-            this._dependents.Add(dependent);
-        }
+        internal void AddDependent(Dependent dependent) => this._dependents.Add(dependent);
 
         internal void RemoveDependent(XLCellFormula formula)
         {
@@ -387,10 +379,8 @@ internal class DependencyTree
             }
         }
 
-        internal IReadOnlyList<AreaDependents> FindDependentsAreas(Area dirtyRange)
-        {
-            return this._tree.Search(ToEnvelope(dirtyRange));
-        }
+        internal IReadOnlyList<AreaDependents> FindDependentsAreas(Area dirtyRange) =>
+            this._tree.Search(ToEnvelope(dirtyRange));
 
         /// <summary>
         /// Remove a dependency of <paramref name="formula"/> on a
@@ -425,9 +415,7 @@ internal class DependencyTree
             }
         }
 
-        private static Envelope ToEnvelope(Area range)
-        {
-            return new Envelope(range.LeftColumn, range.TopRow, range.RightColumn, range.BottomRow);
-        }
+        private static Envelope ToEnvelope(Area range) =>
+            new(range.LeftColumn, range.TopRow, range.RightColumn, range.BottomRow);
     }
 }

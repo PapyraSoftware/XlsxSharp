@@ -14,14 +14,12 @@ namespace XlsxSharp.Tests.Excel.ConditionalFormats;
 public class ConditionalFormatTests
 {
     [Test]
-    public void MaintainConditionalFormattingOrder()
-    {
+    public void MaintainConditionalFormattingOrder() =>
         // The input file contains duplicates of same dxf and thus the output also contains some duplicate dxf.
         TestHelper.LoadSaveAndCompare(
             @"Other\StyleReferenceFiles\ConditionalFormattingOrder\inputfile.xlsx",
             @"Other\StyleReferenceFiles\ConditionalFormattingOrder\ConditionalFormattingOrder.xlsx"
         );
-    }
 
     [TestCase(true, 7)]
     [TestCase(false, 8)]

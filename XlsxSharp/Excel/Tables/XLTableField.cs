@@ -34,29 +34,24 @@ internal class XLTableField : IXLTableField
             }
             return this._column;
         }
-        internal set { this._column = value; }
+        internal set => this._column = value;
     }
 
-    public IXLCells DataCells
-    {
-        get
+    public IXLCells DataCells =>
+        this.Column.Cells(c =>
         {
-            return this.Column.Cells(c =>
+            if (this.table.ShowHeaderRow && c.Equals(this.HeaderCell))
             {
-                if (this.table.ShowHeaderRow && c.Equals(this.HeaderCell))
-                {
-                    return false;
-                }
+                return false;
+            }
 
-                if (this.table.ShowTotalsRow && c.Equals(this.TotalsCell))
-                {
-                    return false;
-                }
+            if (this.table.ShowTotalsRow && c.Equals(this.TotalsCell))
+            {
+                return false;
+            }
 
-                return true;
-            });
-        }
-    }
+            return true;
+        });
 
     public IXLCell? HeaderCell
     {
@@ -73,7 +68,7 @@ internal class XLTableField : IXLTableField
 
     public Int32 Index
     {
-        get { return this.index; }
+        get => this.index;
         internal set
         {
             if (this.index == value)
@@ -88,7 +83,7 @@ internal class XLTableField : IXLTableField
 
     public String Name
     {
-        get { return this.name; }
+        get => this.name;
         set
         {
             if (this.name == value)
@@ -110,10 +105,7 @@ internal class XLTableField : IXLTableField
         }
     }
 
-    public IXLTable Table
-    {
-        get { return this.table; }
-    }
+    public IXLTable Table => this.table;
 
     public IXLCell? TotalsCell
     {
@@ -130,7 +122,7 @@ internal class XLTableField : IXLTableField
 
     public String TotalsRowFormulaA1
     {
-        get { return this.table.TotalsRow().Cell(this.Index + 1).FormulaA1; }
+        get => this.table.TotalsRow().Cell(this.Index + 1).FormulaA1;
         set
         {
             this.totalsRowFunction = XLTotalsRowFunction.Custom;
@@ -140,7 +132,7 @@ internal class XLTableField : IXLTableField
 
     public String TotalsRowFormulaR1C1
     {
-        get { return this.table.TotalsRow().Cell(this.Index + 1).FormulaR1C1; }
+        get => this.table.TotalsRow().Cell(this.Index + 1).FormulaR1C1;
         set
         {
             this.totalsRowFunction = XLTotalsRowFunction.Custom;
@@ -150,7 +142,7 @@ internal class XLTableField : IXLTableField
 
     public XLTotalsRowFunction TotalsRowFunction
     {
-        get { return this.totalsRowFunction; }
+        get => this.totalsRowFunction;
         set
         {
             this.totalsRowFunction = value;
@@ -160,7 +152,7 @@ internal class XLTableField : IXLTableField
 
     public String? TotalsRowLabel
     {
-        get { return this.totalsRowLabel; }
+        get => this.totalsRowLabel;
         set
         {
             this.totalsRowFunction = XLTotalsRowFunction.None;
@@ -188,10 +180,7 @@ internal class XLTableField : IXLTableField
     /// </summary>
     internal XLDxfValue? TotalFormatValue { get; set; }
 
-    public void Delete()
-    {
-        this.Delete(true);
-    }
+    public void Delete() => this.Delete(true);
 
     internal void Delete(Boolean deleteUnderlyingRangeColumn)
     {

@@ -15,11 +15,9 @@ namespace XlsxSharp.Excel;
 /// </param>
 internal readonly record struct XLSheetReference(string Sheet, XLReference Reference)
 {
-    public bool Equals(XLSheetReference other)
-    {
-        return XlsxSharp.XLHelper.SheetComparer.Equals(this.Sheet, other.Sheet)
-            && this.Reference.Equals(other.Reference);
-    }
+    public bool Equals(XLSheetReference other) =>
+        XlsxSharp.XLHelper.SheetComparer.Equals(this.Sheet, other.Sheet)
+        && this.Reference.Equals(other.Reference);
 
     public override int GetHashCode()
     {
@@ -33,8 +31,5 @@ internal readonly record struct XLSheetReference(string Sheet, XLReference Refer
         }
     }
 
-    internal string GetA1()
-    {
-        return this.Sheet.EscapeSheetName() + '!' + this.Reference.GetA1();
-    }
+    internal string GetA1() => this.Sheet.EscapeSheetName() + '!' + this.Reference.GetA1();
 }

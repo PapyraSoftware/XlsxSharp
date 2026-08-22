@@ -9,8 +9,7 @@ namespace XlsxSharp.Tests.Excel.PivotTables;
 internal class XLPivotSourceTests
 {
     [Test]
-    public void Can_load_and_save_all_source_types()
-    {
+    public void Can_load_and_save_all_source_types() =>
         // The test files contains all possible pivot cache sources. The output is mangled, but
         // Excel can open it and use refresh on each pivot table. External workbook is in the same
         // directory: PivotTable-AllSources-external-data.xlsx.
@@ -26,5 +25,4 @@ internal class XLPivotSourceTests
             @"Other\PivotTable\Sources\PivotTable-AllSources-input.xlsx",
             @"Other\PivotTable\Sources\PivotTable-AllSources-output.xlsx"
         );
-    }
 }

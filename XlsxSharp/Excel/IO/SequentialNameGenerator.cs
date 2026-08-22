@@ -36,8 +36,5 @@ internal class SequentialNameGenerator
         this._nextNumber = Math.Max(styleNumber + 1, this._nextNumber);
     }
 
-    internal string NextUnusedStyleName()
-    {
-        return $"{this._prefix}{this._nextNumber++}";
-    }
+    internal string NextUnusedStyleName() => $"{this._prefix}{this._nextNumber++}";
 }

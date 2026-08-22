@@ -65,10 +65,7 @@ internal readonly struct XLName : IEquatable<XLName>
             && XlsxSharp.XLHelper.SheetComparer.Equals(this.SheetName, other.SheetName);
     }
 
-    public override bool Equals(object? obj)
-    {
-        return obj is XLName other && this.Equals(other);
-    }
+    public override bool Equals(object? obj) => obj is XLName other && this.Equals(other);
 
     public override int GetHashCode()
     {

@@ -26,10 +26,7 @@ internal readonly struct XLPivotCacheValue
 
     internal XLPivotCacheValueType Type { get; }
 
-    internal static XLPivotCacheValue ForMissing()
-    {
-        return new XLPivotCacheValue(XLPivotCacheValueType.Missing, 0);
-    }
+    internal static XLPivotCacheValue ForMissing() => new(XLPivotCacheValueType.Missing, 0);
 
     internal static XLPivotCacheValue ForNumber(double number)
     {
@@ -41,15 +38,11 @@ internal readonly struct XLPivotCacheValue
         return new XLPivotCacheValue(XLPivotCacheValueType.Number, number);
     }
 
-    internal static XLPivotCacheValue ForBoolean(bool boolean)
-    {
-        return new XLPivotCacheValue(XLPivotCacheValueType.Boolean, boolean ? 1 : 0);
-    }
+    internal static XLPivotCacheValue ForBoolean(bool boolean) =>
+        new(XLPivotCacheValueType.Boolean, boolean ? 1 : 0);
 
-    internal static XLPivotCacheValue ForError(XLError error)
-    {
-        return new XLPivotCacheValue(XLPivotCacheValueType.Error, (int)error);
-    }
+    internal static XLPivotCacheValue ForError(XLError error) =>
+        new(XLPivotCacheValueType.Error, (int)error);
 
     internal static XLPivotCacheValue ForText(string text, List<string> storage)
     {
@@ -84,21 +77,11 @@ internal readonly struct XLPivotCacheValue
         );
     }
 
-    internal static XLPivotCacheValue ForDateTime(DateTime dateTime)
-    {
-        return new XLPivotCacheValue(
-            XLPivotCacheValueType.DateTime,
-            BitConverter.Int64BitsToDouble(dateTime.Ticks)
-        );
-    }
+    internal static XLPivotCacheValue ForDateTime(DateTime dateTime) =>
+        new(XLPivotCacheValueType.DateTime, BitConverter.Int64BitsToDouble(dateTime.Ticks));
 
-    internal static XLPivotCacheValue ForIndex(uint index)
-    {
-        return new XLPivotCacheValue(
-            XLPivotCacheValueType.Index,
-            BitConverter.Int64BitsToDouble(index)
-        );
-    }
+    internal static XLPivotCacheValue ForIndex(uint index) =>
+        new(XLPivotCacheValueType.Index, BitConverter.Int64BitsToDouble(index));
 
     internal XLCellValue GetCellValue(
         List<string> stringStorage,
@@ -136,15 +119,9 @@ internal readonly struct XLPivotCacheValue
 
     internal double GetNumber() => this._value;
 
-    internal Boolean GetBoolean()
-    {
-        return this._value != 0;
-    }
+    internal Boolean GetBoolean() => this._value != 0;
 
-    internal XLError GetError()
-    {
-        return (XLError)this._value;
-    }
+    internal XLError GetError() => (XLError)this._value;
 
     internal string GetText(IReadOnlyList<string> stringStorage)
     {
@@ -158,8 +135,5 @@ internal readonly struct XLPivotCacheValue
         return new DateTime(ticks);
     }
 
-    internal uint GetIndex()
-    {
-        return unchecked((uint)BitConverter.DoubleToInt64Bits(this._value));
-    }
+    internal uint GetIndex() => unchecked((uint)BitConverter.DoubleToInt64Bits(this._value));
 }

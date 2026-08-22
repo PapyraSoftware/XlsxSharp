@@ -55,10 +55,8 @@ internal class XLSparklineGroup : IXLSparklineGroup, ISheetListener
     /// <summary>
     /// A collection of sparkline locations and their formulas.
     /// </summary>
-    internal IEnumerable<(Point Location, string? SourceDataFormula)> Sparklines
-    {
-        get => this._sparklines.Select(static sl => (sl.Key, sl.Value?.Text));
-    }
+    internal IEnumerable<(Point Location, string? SourceDataFormula)> Sparklines =>
+        this._sparklines.Select(static sl => (sl.Key, sl.Value?.Text));
 
     #region Public Constructors
 
@@ -69,10 +67,7 @@ internal class XLSparklineGroup : IXLSparklineGroup, ISheetListener
     /// <param name="copyFrom">The sparkline group to copy from</param>
     /// <returns>The new sparkline group added</returns>
     public XLSparklineGroup(IXLWorksheet targetWorksheet, IXLSparklineGroup copyFrom)
-        : this(targetWorksheet)
-    {
-        this.CopyFrom(copyFrom);
-    }
+        : this(targetWorksheet) => this.CopyFrom(copyFrom);
 
     /// <summary>
     /// Add a new sparkline group copied from an existing sparkline group to the specified worksheet
@@ -83,30 +78,21 @@ internal class XLSparklineGroup : IXLSparklineGroup, ISheetListener
         string locationAddress,
         string sourceDataAddress
     )
-        : this(targetWorksheet)
-    {
-        this.Add(locationAddress, sourceDataAddress);
-    }
+        : this(targetWorksheet) => this.Add(locationAddress, sourceDataAddress);
 
     /// <summary>
     /// Add a new sparkline group copied from an existing sparkline group to the specified worksheet
     /// </summary>
     /// <returns>The new sparkline group added</returns>
     public XLSparklineGroup(IXLCell location, IXLRange sourceData)
-        : this(location.Worksheet)
-    {
-        this.Add(location, sourceData);
-    }
+        : this(location.Worksheet) => this.Add(location, sourceData);
 
     /// <summary>
     /// Add a new sparkline group copied from an existing sparkline group to the specified worksheet
     /// </summary>
     /// <returns>The new sparkline group added</returns>
     public XLSparklineGroup(IXLRange locationRange, IXLRange sourceDataRange)
-        : this(locationRange.Worksheet)
-    {
-        this.Add(locationRange, sourceDataRange);
-    }
+        : this(locationRange.Worksheet) => this.Add(locationRange, sourceDataRange);
 
     #endregion Public Constructors
 
@@ -221,10 +207,8 @@ internal class XLSparklineGroup : IXLSparklineGroup, ISheetListener
     }
 
     /// <inheritdoc cref="IXLSparklineGroup.CopyTo(IXLWorksheet)"/>
-    IXLSparklineGroup IXLSparklineGroup.CopyTo(IXLWorksheet targetSheet)
-    {
-        return this.CopyTo((XLWorksheet)targetSheet);
-    }
+    IXLSparklineGroup IXLSparklineGroup.CopyTo(IXLWorksheet targetSheet) =>
+        this.CopyTo((XLWorksheet)targetSheet);
 
     internal XLSparklineGroup CopyTo(XLWorksheet targetSheet)
     {
@@ -257,15 +241,9 @@ internal class XLSparklineGroup : IXLSparklineGroup, ISheetListener
         }
     }
 
-    IEnumerator<IXLSparkline> IEnumerable<IXLSparkline>.GetEnumerator()
-    {
-        return this.GetEnumerator();
-    }
+    IEnumerator<IXLSparkline> IEnumerable<IXLSparkline>.GetEnumerator() => this.GetEnumerator();
 
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return this.GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 
     public IXLSparkline? GetSparkline(IXLCell cell)
     {
@@ -315,18 +293,12 @@ internal class XLSparklineGroup : IXLSparklineGroup, ISheetListener
     /// Remove the sparkline from this group
     /// </summary>
     /// <param name="sparkline"></param>
-    public void Remove(IXLSparkline sparkline)
-    {
-        this.Remove(sparkline.Location);
-    }
+    public void Remove(IXLSparkline sparkline) => this.Remove(sparkline.Location);
 
     /// <summary>
     /// Remove all sparklines from this group
     /// </summary>
-    public void RemoveAll()
-    {
-        this._sparklines.Clear();
-    }
+    public void RemoveAll() => this._sparklines.Clear();
 
     public IXLSparklineGroup SetDateRange(IXLRange value)
     {
@@ -385,17 +357,12 @@ internal class XLSparklineGroup : IXLSparklineGroup, ISheetListener
     /// <summary>
     /// Set sparkline at the location to the specified formula.
     /// </summary>
-    internal void SetSparkline(Point location, string? sourceDataFormula)
-    {
+    internal void SetSparkline(Point location, string? sourceDataFormula) =>
         this._sparklines[location] = !string.IsNullOrWhiteSpace(sourceDataFormula)
             ? new SparklineFormula(sourceDataFormula)
             : null;
-    }
 
-    internal void Remove(Point location)
-    {
-        this._sparklines.Remove(location);
-    }
+    internal void Remove(Point location) => this._sparklines.Remove(location);
 
     internal void MoveSparkline(Point originalLocation, Point sparklineDestination)
     {

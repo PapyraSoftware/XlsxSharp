@@ -31,10 +31,7 @@ internal class XLConditionalFormats
         XLConditionalFormatType.IsUnique,
     ];
 
-    public XLConditionalFormats(XLWorksheet worksheet)
-    {
-        this._worksheet = worksheet;
-    }
+    public XLConditionalFormats(XLWorksheet worksheet) => this._worksheet = worksheet;
 
     public void Add(IXLConditionalFormat conditionalFormat)
     {
@@ -46,30 +43,19 @@ internal class XLConditionalFormats
         }
     }
 
-    public IEnumerator<XLConditionalFormat> GetEnumerator()
-    {
-        return this._conditionalFormats.GetEnumerator();
-    }
+    public IEnumerator<XLConditionalFormat> GetEnumerator() =>
+        this._conditionalFormats.GetEnumerator();
 
-    IEnumerator<IXLConditionalFormat> IEnumerable<IXLConditionalFormat>.GetEnumerator()
-    {
-        return this.GetEnumerator();
-    }
+    IEnumerator<IXLConditionalFormat> IEnumerable<IXLConditionalFormat>.GetEnumerator() =>
+        this.GetEnumerator();
 
-    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-    {
-        return this.GetEnumerator();
-    }
+    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() =>
+        this.GetEnumerator();
 
-    public void Remove(Predicate<IXLConditionalFormat> predicate)
-    {
+    public void Remove(Predicate<IXLConditionalFormat> predicate) =>
         this._conditionalFormats.RemoveAll(predicate);
-    }
 
-    public void RemoveAll()
-    {
-        this._conditionalFormats.Clear();
-    }
+    public void RemoveAll() => this._conditionalFormats.Clear();
 
     /// <summary>
     /// Reorders the according to original priority. Done during load process

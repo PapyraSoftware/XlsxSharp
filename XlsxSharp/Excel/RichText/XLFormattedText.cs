@@ -75,10 +75,7 @@ internal class XLFormattedText<T> : IXLFormattedText<T>
         return richText;
     }
 
-    public IXLRichString AddNewLine()
-    {
-        return this.AddText(Environment.NewLine);
-    }
+    public IXLRichString AddNewLine() => this.AddText(Environment.NewLine);
 
     public IXLFormattedText<T> ClearText()
     {
@@ -102,10 +99,7 @@ internal class XLFormattedText<T> : IXLFormattedText<T>
         return sb.ToString();
     }
 
-    public IXLFormattedText<T> Substring(Int32 index)
-    {
-        return this.Substring(index, this.Length - index);
-    }
+    public IXLFormattedText<T> Substring(Int32 index) => this.Substring(index, this.Length - index);
 
     public IXLFormattedText<T> Substring(Int32 index, Int32 length)
     {
@@ -218,43 +212,43 @@ internal class XLFormattedText<T> : IXLFormattedText<T>
 
     public Boolean Bold
     {
-        set { this._richTexts.ForEach(rt => rt.Bold = value); }
+        set => this._richTexts.ForEach(rt => rt.Bold = value);
     }
     public Boolean Italic
     {
-        set { this._richTexts.ForEach(rt => rt.Italic = value); }
+        set => this._richTexts.ForEach(rt => rt.Italic = value);
     }
     public XLFontUnderlineValues Underline
     {
-        set { this._richTexts.ForEach(rt => rt.Underline = value); }
+        set => this._richTexts.ForEach(rt => rt.Underline = value);
     }
     public Boolean Strikethrough
     {
-        set { this._richTexts.ForEach(rt => rt.Strikethrough = value); }
+        set => this._richTexts.ForEach(rt => rt.Strikethrough = value);
     }
     public XLFontVerticalTextAlignmentValues VerticalAlignment
     {
-        set { this._richTexts.ForEach(rt => rt.VerticalAlignment = value); }
+        set => this._richTexts.ForEach(rt => rt.VerticalAlignment = value);
     }
     public Boolean Shadow
     {
-        set { this._richTexts.ForEach(rt => rt.Shadow = value); }
+        set => this._richTexts.ForEach(rt => rt.Shadow = value);
     }
     public Double FontSize
     {
-        set { this._richTexts.ForEach(rt => rt.FontSize = value); }
+        set => this._richTexts.ForEach(rt => rt.FontSize = value);
     }
     public XLColor FontColor
     {
-        set { this._richTexts.ForEach(rt => rt.FontColor = value); }
+        set => this._richTexts.ForEach(rt => rt.FontColor = value);
     }
     public String FontName
     {
-        set { this._richTexts.ForEach(rt => rt.FontName = value); }
+        set => this._richTexts.ForEach(rt => rt.FontName = value);
     }
     public XLFontFamilyNumberingValues FontFamilyNumbering
     {
-        set { this._richTexts.ForEach(rt => rt.FontFamilyNumbering = value); }
+        set => this._richTexts.ForEach(rt => rt.FontFamilyNumbering = value);
     }
 
     public IXLFormattedText<T> SetBold()

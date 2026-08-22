@@ -16,7 +16,7 @@ public class BorderTests
     private const int All = Left | Top | Right | Bottom;
 
     [Test]
-    public void InsideBorders_preserve_outside_borders()
+    public void InsideBordersPreserveOutsideBorders()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -56,7 +56,7 @@ public class BorderTests
     }
 
     [Test]
-    public void InsideBorder_sets_border_that_is_not_on_edge()
+    public void InsideBorderSetsBorderThatIsNotOnEdge()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -76,7 +76,7 @@ public class BorderTests
     }
 
     [Test]
-    public void OutsideBorder_sets_only_borders_on_edge()
+    public void OutsideBorderSetsOnlyBordersOnEdge()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -96,7 +96,7 @@ public class BorderTests
     }
 
     [Test]
-    public void OutsideBorder_used_for_cells_will_make_outside_border_around_each_cell()
+    public void OutsideBorderUsedForCellsWillMakeOutsideBorderAroundEachCell()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -112,7 +112,7 @@ public class BorderTests
     }
 
     [Test]
-    public void InsideBorder_used_for_cells_is_ignored_because_individual_cells_have_no_inside()
+    public void InsideBorderUsedForCellsIsIgnoredBecauseIndividualCellsHaveNoInside()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -129,7 +129,7 @@ public class BorderTests
 
     [Test]
     [MaxTime(100)]
-    public void OutsideBorder_for_column()
+    public void OutsideBorderForColumn()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -159,7 +159,7 @@ public class BorderTests
 
     [Test]
     [MaxTime(100)]
-    public void InsideBorder_for_one_column()
+    public void InsideBorderForOneColumn()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -188,7 +188,7 @@ public class BorderTests
     }
 
     [Test]
-    public void InsideBorder_for_multicolumn_colspans()
+    public void InsideBorderForMulticolumnColspans()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -219,7 +219,7 @@ public class BorderTests
     }
 
     [Test]
-    public void OutsideBorder_for_rows()
+    public void OutsideBorderForRows()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -249,7 +249,7 @@ public class BorderTests
     }
 
     [Test]
-    public void InsideBorder_for_one_row()
+    public void InsideBorderForOneRow()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -279,7 +279,7 @@ public class BorderTests
     }
 
     [Test]
-    public void InsideBorder_for_multirow_rowspans()
+    public void InsideBorderForMultirowRowspans()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -309,7 +309,7 @@ public class BorderTests
 
     [Test]
     [TestCaseSource(nameof(BorderApiSetters))]
-    public void Border_property_can_be_individually_set(FormatTestCase<IXLBorder> testCase)
+    public void BorderPropertyCanBeIndividuallySet(FormatTestCase<IXLBorder> testCase)
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -325,7 +325,7 @@ public class BorderTests
     }
 
     [TestCaseSource(nameof(BorderColorSetters))]
-    public void Color_is_set_only_when_border_is_visible(
+    public void ColorIsSetOnlyWhenBorderIsVisible(
         Func<IXLBorder, XLColor> getColor,
         Action<IXLBorder, XLColor> setColor,
         Action<IXLBorder, XLBorderStyleValues> setStyle
@@ -350,7 +350,7 @@ public class BorderTests
     }
 
     [TestCaseSource(nameof(BorderColorSetters))]
-    public void Making_border_hidden_resets_the_color_to_default(
+    public void MakingBorderHiddenResetsTheColorToDefault(
         Func<IXLBorder, XLColor> getColor,
         Action<IXLBorder, XLColor> setColor,
         Action<IXLBorder, XLBorderStyleValues> setStyle

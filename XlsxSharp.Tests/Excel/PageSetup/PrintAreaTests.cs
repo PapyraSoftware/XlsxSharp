@@ -10,8 +10,7 @@ public class PrintAreaTests
     [Test]
     [TestCase("A1:B2")]
     [TestCase("A1:B2", "D3:D5")]
-    public void CanLoadWorksheetWithMultiplePrintAreas(params string[] printAreaRangeAddresses)
-    {
+    public void CanLoadWorksheetWithMultiplePrintAreas(params string[] printAreaRangeAddresses) =>
         TestHelper.CreateSaveLoadAssert(
             (_, ws) =>
             {
@@ -28,5 +27,4 @@ public class PrintAreaTests
                 CollectionAssert.AreEqual(printAreaRangeAddresses, actualPrintAddresses);
             }
         );
-    }
 }

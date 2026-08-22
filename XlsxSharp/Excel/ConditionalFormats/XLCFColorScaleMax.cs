@@ -10,10 +10,8 @@ internal class XLCFColorScaleMax : IXLCFColorScaleMax
 {
     private readonly XLConditionalFormat _conditionalFormat;
 
-    public XLCFColorScaleMax(XLConditionalFormat conditionalFormat)
-    {
+    public XLCFColorScaleMax(XLConditionalFormat conditionalFormat) =>
         this._conditionalFormat = conditionalFormat;
-    }
 
     public void Maximum(XLCFContentType type, String value, XLColor color)
     {
@@ -22,10 +20,8 @@ internal class XLCFColorScaleMax : IXLCFColorScaleMax
         this._conditionalFormat.ContentTypes.Add(type);
     }
 
-    public void Maximum(XLCFContentType type, Double value, XLColor color)
-    {
+    public void Maximum(XLCFContentType type, Double value, XLColor color) =>
         this.Maximum(type, value.ToInvariantString(), color);
-    }
 
     public void HighestValue(XLColor color)
     {

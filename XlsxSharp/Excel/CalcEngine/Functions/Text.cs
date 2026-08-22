@@ -348,13 +348,11 @@ internal static class Text
         return text[..i];
     }
 
-    private static ScalarValue Len(CalcContext ctx, string text)
-    {
+    private static ScalarValue Len(CalcContext ctx, string text) =>
         // Excel counts code units, not codepoints, e.g. it returns 2 for emoji in astral
         // plane. LibreOffice returns 1 and most other functions (e.g. LEFT) use codepoints,
         // not code units. Sanity says count codepoints, but compatibility says code units.
-        return text.Length;
-    }
+        text.Length;
 
     private static ScalarValue Lower(CalcContext ctx, string text)
     {
@@ -755,10 +753,7 @@ internal static class Text
         return sb.ToString();
     }
 
-    private static ScalarValue Upper(CalcContext ctx, string text)
-    {
-        return text.ToUpper(ctx.Culture);
-    }
+    private static ScalarValue Upper(CalcContext ctx, string text) => text.ToUpper(ctx.Culture);
 
     private static AnyValue Value(CalcContext ctx, ScalarValue arg)
     {
@@ -970,8 +965,5 @@ internal static class Text
         return rounded.ToString("C0", ctx.Culture);
     }
 
-    private static ScalarValue Exact(string lhs, string rhs)
-    {
-        return lhs == rhs;
-    }
+    private static ScalarValue Exact(string lhs, string rhs) => lhs == rhs;
 }

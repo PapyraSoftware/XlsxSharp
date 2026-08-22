@@ -31,8 +31,6 @@ internal readonly struct OneOf<T0, T1>
 
     public static implicit operator OneOf<T0, T1>(T1 t1) => FromT1(t1);
 
-    public TResult Match<TResult>(Func<T0?, TResult> transformT0, Func<T1?, TResult> transformT1)
-    {
-        return this._isT0 ? transformT0(this._t0) : transformT1(this._t1);
-    }
+    public TResult Match<TResult>(Func<T0?, TResult> transformT0, Func<T1?, TResult> transformT1) =>
+        this._isT0 ? transformT0(this._t0) : transformT1(this._t1);
 }

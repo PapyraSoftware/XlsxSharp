@@ -6,10 +6,7 @@ namespace XlsxSharp.Excel.IO;
 /// </summary>
 internal readonly struct Xpr
 {
-    private Xpr(bool success)
-    {
-        this.IsSuccess = success;
-    }
+    private Xpr(bool success) => this.IsSuccess = success;
 
     /// <summary>
     /// The implicit casting operator doesn't work for interfaces. Therefore the codegen will use
@@ -17,10 +14,7 @@ internal readonly struct Xpr
     /// </summary>
     /// <typeparam name="T">Type of value retrieved from an element.</typeparam>
     /// <param name="value">Value to store.</param>
-    public static Xpr<T> From<T>(T value)
-    {
-        return new Xpr<T>(value);
-    }
+    public static Xpr<T> From<T>(T value) => new(value);
 
     /// <summary>
     /// Was element successfully parsed.
@@ -32,24 +26,15 @@ internal readonly struct Xpr
     /// <summary>
     /// <c>Parse*</c> method wasn't able to match this element.
     /// </summary>
-    public static Xpr Fail()
-    {
-        return new Xpr(false);
-    }
+    public static Xpr Fail() => new(false);
 
     /// <summary>
     /// A factory method to create failed <see cref="Xpr{T}"/>.
     /// </summary>
-    public static Xpr<T> Fail<T>()
-    {
-        return new Xpr<T>();
-    }
+    public static Xpr<T> Fail<T>() => new();
 
     /// <summary>
     /// A factory method to create successful <see cref="Xpr"/>, indicating element was parsed.
     /// </summary>
-    public static Xpr Success()
-    {
-        return new Xpr(true);
-    }
+    public static Xpr Success() => new(true);
 }

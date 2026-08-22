@@ -231,15 +231,10 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
 
     internal XLCellFormat Format => XLCellFormat.ForCell(this);
 
-    internal XLComment GetComment()
-    {
-        return this.SliceComment ?? this.CreateComment();
-    }
+    internal XLComment GetComment() => this.SliceComment ?? this.CreateComment();
 
-    internal XLComment CreateComment(int? shapeId = null)
-    {
-        return this.SliceComment = XLComment.Create(this, shapeId: shapeId);
-    }
+    internal XLComment CreateComment(int? shapeId = null) =>
+        this.SliceComment = XLComment.Create(this, shapeId: shapeId);
 
     public XLRichText GetRichText()
     {
@@ -274,20 +269,11 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
         set => this.Format.SetStyle(value);
     }
 
-    IXLWorksheet IXLCell.Worksheet
-    {
-        get { return this.Worksheet; }
-    }
+    IXLWorksheet IXLCell.Worksheet => this.Worksheet;
 
-    IXLAddress IXLCell.Address
-    {
-        get { return this.Address; }
-    }
+    IXLAddress IXLCell.Address => this.Address;
 
-    IXLRange IXLCell.AsRange()
-    {
-        return this.AsRange();
-    }
+    IXLRange IXLCell.AsRange() => this.AsRange();
 
     internal IXLCell SetValue(XLCellValue value, bool setTableHeader, bool checkMergedRanges)
     {
@@ -612,21 +598,14 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
     /// Set only value, don't clear formula, don't set format.
     /// Sets the value even for merged cells.
     /// </summary>
-    internal void SetOnlyValue(XLCellValue value)
-    {
-        this.SliceCellValue = value;
-    }
+    internal void SetOnlyValue(XLCellValue value) => this.SliceCellValue = value;
 
-    public IXLCell SetValue(XLCellValue value)
-    {
-        return this.SetValue(value, true, true);
-    }
+    public IXLCell SetValue(XLCellValue value) => this.SetValue(value, true, true);
 
     public override string ToString() => this.ToString("A");
 
-    public string ToString(string format)
-    {
-        return (format.ToUpper()) switch
+    public string ToString(string format) =>
+        (format.ToUpper()) switch
         {
             "A" => this.Address.ToString(),
             "F" => this.HasFormula ? this.FormulaA1 : string.Empty,
@@ -636,7 +615,6 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
             "V" => this.GetFormattedString(),
             _ => throw new FormatException($"Format {format} was not recognised."),
         };
-    }
 
     public XLCellValue Value
     {
@@ -652,25 +630,16 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
         set => this.SetValue(value);
     }
 
-    public IXLTable InsertTable<T>(IEnumerable<T> data)
-    {
-        return this.InsertTable(data, null, true);
-    }
+    public IXLTable InsertTable<T>(IEnumerable<T> data) => this.InsertTable(data, null, true);
 
-    public IXLTable InsertTable<T>(IEnumerable<T> data, bool createTable)
-    {
-        return this.InsertTable(data, null, createTable);
-    }
+    public IXLTable InsertTable<T>(IEnumerable<T> data, bool createTable) =>
+        this.InsertTable(data, null, createTable);
 
-    public IXLTable InsertTable<T>(IEnumerable<T> data, string tableName)
-    {
-        return this.InsertTable(data, tableName, true);
-    }
+    public IXLTable InsertTable<T>(IEnumerable<T> data, string tableName) =>
+        this.InsertTable(data, tableName, true);
 
-    public IXLTable InsertTable<T>(IEnumerable<T> data, String tableName, Boolean createTable)
-    {
-        return this.InsertTable(data, tableName, createTable, addHeadings: true, transpose: false);
-    }
+    public IXLTable InsertTable<T>(IEnumerable<T> data, String tableName, Boolean createTable) =>
+        this.InsertTable(data, tableName, createTable, addHeadings: true, transpose: false);
 
     public IXLTable InsertTable<T>(
         IEnumerable<T> data,
@@ -691,20 +660,13 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
         );
     }
 
-    public IXLTable InsertTable(DataTable data)
-    {
-        return this.InsertTable(data, null, true);
-    }
+    public IXLTable InsertTable(DataTable data) => this.InsertTable(data, null, true);
 
-    public IXLTable InsertTable(DataTable data, Boolean createTable)
-    {
-        return this.InsertTable(data, null, createTable);
-    }
+    public IXLTable InsertTable(DataTable data, Boolean createTable) =>
+        this.InsertTable(data, null, createTable);
 
-    public IXLTable InsertTable(DataTable data, String tableName)
-    {
-        return this.InsertTable(data, tableName, true);
-    }
+    public IXLTable InsertTable(DataTable data, String tableName) =>
+        this.InsertTable(data, tableName, true);
 
     public IXLTable InsertTable(DataTable data, String tableName, Boolean createTable)
     {
@@ -803,10 +765,8 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
 
     public XLDataType DataType => this.SliceCellValue.Type;
 
-    public IXLCell Clear(XLClearOptions clearOptions = XLClearOptions.All)
-    {
-        return this.Clear(clearOptions, false);
-    }
+    public IXLCell Clear(XLClearOptions clearOptions = XLClearOptions.All) =>
+        this.Clear(clearOptions, false);
 
     internal IXLCell Clear(XLClearOptions clearOptions, bool calledFromRange)
     {
@@ -866,10 +826,8 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
         return this;
     }
 
-    public void Delete(XLShiftDeletedCells shiftDeleteCells)
-    {
+    public void Delete(XLShiftDeletedCells shiftDeleteCells) =>
         this.Worksheet.Range(this.Address, this.Address).Delete(shiftDeleteCells);
-    }
 
     public string FormulaA1
     {
@@ -970,10 +928,8 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
         }
     }
 
-    internal void SetCellHyperlink(XLHyperlink hyperlink)
-    {
+    internal void SetCellHyperlink(XLHyperlink hyperlink) =>
         this.Worksheet.Hyperlinks.SetCellHyperlink(this.Point, hyperlink);
-    }
 
 #nullable disable
 
@@ -984,25 +940,17 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
         return link;
     }
 
-    public IXLCells InsertCellsAbove(int numberOfRows)
-    {
-        return this.AsRange().InsertRowsAbove(numberOfRows).Cells();
-    }
+    public IXLCells InsertCellsAbove(int numberOfRows) =>
+        this.AsRange().InsertRowsAbove(numberOfRows).Cells();
 
-    public IXLCells InsertCellsBelow(int numberOfRows)
-    {
-        return this.AsRange().InsertRowsBelow(numberOfRows).Cells();
-    }
+    public IXLCells InsertCellsBelow(int numberOfRows) =>
+        this.AsRange().InsertRowsBelow(numberOfRows).Cells();
 
-    public IXLCells InsertCellsAfter(int numberOfColumns)
-    {
-        return this.AsRange().InsertColumnsAfter(numberOfColumns).Cells();
-    }
+    public IXLCells InsertCellsAfter(int numberOfColumns) =>
+        this.AsRange().InsertColumnsAfter(numberOfColumns).Cells();
 
-    public IXLCells InsertCellsBefore(int numberOfColumns)
-    {
-        return this.AsRange().InsertColumnsBefore(numberOfColumns).Cells();
-    }
+    public IXLCells InsertCellsBefore(int numberOfColumns) =>
+        this.AsRange().InsertColumnsBefore(numberOfColumns).Cells();
 
     public IXLCell AddToNamed(string rangeName)
     {
@@ -1037,30 +985,16 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
 
     IXLComment IXLCell.GetComment() => this.GetComment();
 
-    public bool HasComment
-    {
-        get { return this.SliceComment != null; }
-    }
+    public bool HasComment => this.SliceComment != null;
 
-    IXLComment IXLCell.CreateComment()
-    {
-        return this.CreateComment(shapeId: null);
-    }
+    IXLComment IXLCell.CreateComment() => this.CreateComment(shapeId: null);
 
-    public Boolean IsMerged()
-    {
-        return this.Worksheet.Internals.MergedRanges.Contains(this);
-    }
+    public Boolean IsMerged() => this.Worksheet.Internals.MergedRanges.Contains(this);
 
-    public IXLRange MergedRange()
-    {
-        return this.Worksheet.Internals.MergedRanges.GetIntersectedRanges(this).FirstOrDefault();
-    }
+    public IXLRange MergedRange() =>
+        this.Worksheet.Internals.MergedRanges.GetIntersectedRanges(this).FirstOrDefault();
 
-    public Boolean IsEmpty()
-    {
-        return this.IsEmpty(XLCellsUsedOptions.AllContents);
-    }
+    public Boolean IsEmpty() => this.IsEmpty(XLCellsUsedOptions.AllContents);
 
     public Boolean IsEmpty(XLCellsUsedOptions options)
     {
@@ -1122,15 +1056,9 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
         return true;
     }
 
-    public IXLColumn WorksheetColumn()
-    {
-        return this.Worksheet.Column(this._columnNumber);
-    }
+    public IXLColumn WorksheetColumn() => this.Worksheet.Column(this._columnNumber);
 
-    public IXLRow WorksheetRow()
-    {
-        return this.Worksheet.Row(this._rowNumber);
-    }
+    public IXLRow WorksheetRow() => this.Worksheet.Row(this._rowNumber);
 
     public IXLCell CopyTo(IXLCell target)
     {
@@ -1138,20 +1066,13 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
         return target;
     }
 
-    public IXLCell CopyTo(String target)
-    {
-        return this.CopyTo(GetTargetCell(target, this.Worksheet));
-    }
+    public IXLCell CopyTo(String target) => this.CopyTo(GetTargetCell(target, this.Worksheet));
 
-    public IXLCell CopyFrom(IXLCell otherCell)
-    {
-        return this.CopyFrom(otherCell as XLCell, XLCellCopyOptions.All);
-    }
+    public IXLCell CopyFrom(IXLCell otherCell) =>
+        this.CopyFrom(otherCell as XLCell, XLCellCopyOptions.All);
 
-    public IXLCell CopyFrom(String otherCell)
-    {
-        return this.CopyFrom(GetTargetCell(otherCell, this.Worksheet));
-    }
+    public IXLCell CopyFrom(String otherCell) =>
+        this.CopyFrom(GetTargetCell(otherCell, this.Worksheet));
 
     public IXLCell SetFormulaA1(String formula)
     {
@@ -1170,15 +1091,10 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
     /// <summary> The sparkline assigned to the cell </summary>
     public IXLSparkline Sparkline => this.Worksheet.SparklineGroups.GetSparkline(this);
 
-    public IXLDataValidation GetDataValidation()
-    {
-        return this.FindDataValidation() ?? this.CreateDataValidation();
-    }
+    public IXLDataValidation GetDataValidation() =>
+        this.FindDataValidation() ?? this.CreateDataValidation();
 
-    public Boolean HasDataValidation
-    {
-        get { return this.FindDataValidation() != null; }
-    }
+    public Boolean HasDataValidation => this.FindDataValidation() != null;
 
     /// <summary>
     /// Get the data validation rule containing current cell.
@@ -1195,20 +1111,12 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
 
     IXLDataValidation IXLCell.CreateDataValidation() => this.CreateDataValidation();
 
-    internal XLDataValidation CreateDataValidation()
-    {
-        return this.Worksheet.DataValidations.Create(new Area(this.Point));
-    }
+    internal XLDataValidation CreateDataValidation() =>
+        this.Worksheet.DataValidations.Create(new Area(this.Point));
 
-    public void Select()
-    {
-        this.AsRange().Select();
-    }
+    public void Select() => this.AsRange().Select();
 
-    public IXLConditionalFormat AddConditionalFormat()
-    {
-        return this.AsRange().AddConditionalFormat();
-    }
+    public IXLConditionalFormat AddConditionalFormat() => this.AsRange().AddConditionalFormat();
 
     public Boolean Active
     {
@@ -1262,37 +1170,22 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
     /// <summary>
     /// Ensure the cell has style set directly on the cell, not inherited from column/row/worksheet styles.
     /// </summary>
-    internal void PingStyle()
-    {
-        this.FormatValue = this.GetFormat();
-    }
+    internal void PingStyle() => this.FormatValue = this.GetFormat();
 
-    public XLRange AsRange()
-    {
-        return this.Worksheet.Range(this.Address, this.Address);
-    }
+    public XLRange AsRange() => this.Worksheet.Range(this.Address, this.Address);
 
     #region Styles
 
     /// <summary>
     /// Get format of a cell that should be used to render it.
     /// </summary>
-    internal XLCellFormatValue GetFormat()
-    {
-        return this.Worksheet.GetStyleValue(this.Point);
-    }
+    internal XLCellFormatValue GetFormat() => this.Worksheet.GetStyleValue(this.Point);
 
     #endregion Styles
 
-    public void DeleteComment()
-    {
-        this.Clear(XLClearOptions.Comments);
-    }
+    public void DeleteComment() => this.Clear(XLClearOptions.Comments);
 
-    public void DeleteSparkline()
-    {
-        this.Clear(XLClearOptions.Sparklines);
-    }
+    public void DeleteSparkline() => this.Clear(XLClearOptions.Sparklines);
 
     public IXLCell CopyFrom(IXLRangeBase rangeObject)
     {
@@ -1417,23 +1310,19 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
         mergeToDelete.ForEach(m => this.Worksheet.Internals.MergedRanges.Remove(m));
     }
 
-    internal string GetFormulaR1C1(string value)
-    {
-        return XLCellFormula.GetFormula(
+    internal string GetFormulaR1C1(string value) =>
+        XLCellFormula.GetFormula(
             value,
             FormulaConversionType.A1ToR1C1,
             new Point(this._rowNumber, this._columnNumber)
         );
-    }
 
-    internal string GetFormulaA1(string value)
-    {
-        return XLCellFormula.GetFormula(
+    internal string GetFormulaA1(string value) =>
+        XLCellFormula.GetFormula(
             value,
             FormulaConversionType.R1C1ToA1,
             new Point(this._rowNumber, this._columnNumber)
         );
-    }
 
     internal void CopyValuesFrom(XLCell source)
     {
@@ -1585,15 +1474,13 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
         thisDv.MaxValue = this.GetFormulaA1(otherCell.GetFormulaR1C1(otherDv.MaxValue));
     }
 
-    internal void ShiftFormulaRows(XLRange shiftedRange, int rowsShifted)
-    {
+    internal void ShiftFormulaRows(XLRange shiftedRange, int rowsShifted) =>
         this.FormulaA1 = ShiftFormulaRows(
             this.FormulaA1,
             this.Worksheet,
             shiftedRange,
             rowsShifted
         );
-    }
 
     internal static String ShiftFormulaRows(
         String formulaA1,
@@ -1810,15 +1697,13 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
         return sb.ToString();
     }
 
-    internal void ShiftFormulaColumns(XLRange shiftedRange, int columnsShifted)
-    {
+    internal void ShiftFormulaColumns(XLRange shiftedRange, int columnsShifted) =>
         this.FormulaA1 = ShiftFormulaColumns(
             this.FormulaA1,
             this.Worksheet,
             shiftedRange,
             columnsShifted
         );
-    }
 
     internal static String ShiftFormulaColumns(
         String formulaA1,
@@ -2037,107 +1922,54 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
         return sb.ToString();
     }
 
-    private XLCell CellShift(Int32 rowsToShift, Int32 columnsToShift)
-    {
-        return this.Worksheet.Cell(
-            this._rowNumber + rowsToShift,
-            this._columnNumber + columnsToShift
-        );
-    }
+    private XLCell CellShift(Int32 rowsToShift, Int32 columnsToShift) =>
+        this.Worksheet.Cell(this._rowNumber + rowsToShift, this._columnNumber + columnsToShift);
 
     #region XLCell Above
 
-    IXLCell IXLCell.CellAbove()
-    {
-        return this.CellAbove();
-    }
+    IXLCell IXLCell.CellAbove() => this.CellAbove();
 
-    IXLCell IXLCell.CellAbove(Int32 step)
-    {
-        return this.CellAbove(step);
-    }
+    IXLCell IXLCell.CellAbove(Int32 step) => this.CellAbove(step);
 
-    public XLCell CellAbove()
-    {
-        return this.CellAbove(1);
-    }
+    public XLCell CellAbove() => this.CellAbove(1);
 
-    public XLCell CellAbove(Int32 step)
-    {
-        return this.CellShift(step * -1, 0);
-    }
+    public XLCell CellAbove(Int32 step) => this.CellShift(step * -1, 0);
 
     #endregion XLCell Above
 
     #region XLCell Below
 
-    IXLCell IXLCell.CellBelow()
-    {
-        return this.CellBelow();
-    }
+    IXLCell IXLCell.CellBelow() => this.CellBelow();
 
-    IXLCell IXLCell.CellBelow(Int32 step)
-    {
-        return this.CellBelow(step);
-    }
+    IXLCell IXLCell.CellBelow(Int32 step) => this.CellBelow(step);
 
-    public XLCell CellBelow()
-    {
-        return this.CellBelow(1);
-    }
+    public XLCell CellBelow() => this.CellBelow(1);
 
-    public XLCell CellBelow(Int32 step)
-    {
-        return this.CellShift(step, 0);
-    }
+    public XLCell CellBelow(Int32 step) => this.CellShift(step, 0);
 
     #endregion XLCell Below
 
     #region XLCell Left
 
-    IXLCell IXLCell.CellLeft()
-    {
-        return this.CellLeft();
-    }
+    IXLCell IXLCell.CellLeft() => this.CellLeft();
 
-    IXLCell IXLCell.CellLeft(Int32 step)
-    {
-        return this.CellLeft(step);
-    }
+    IXLCell IXLCell.CellLeft(Int32 step) => this.CellLeft(step);
 
-    public XLCell CellLeft()
-    {
-        return this.CellLeft(1);
-    }
+    public XLCell CellLeft() => this.CellLeft(1);
 
-    public XLCell CellLeft(Int32 step)
-    {
-        return this.CellShift(0, step * -1);
-    }
+    public XLCell CellLeft(Int32 step) => this.CellShift(0, step * -1);
 
     #endregion XLCell Left
 
     #region XLCell Right
 
-    IXLCell IXLCell.CellRight()
-    {
-        return this.CellRight();
-    }
+    IXLCell IXLCell.CellRight() => this.CellRight();
 
-    IXLCell IXLCell.CellRight(Int32 step)
-    {
-        return this.CellRight(step);
-    }
+    IXLCell IXLCell.CellRight(Int32 step) => this.CellRight(step);
 
-    public XLCell CellRight()
-    {
-        return this.CellRight(1);
-    }
+    public XLCell CellRight() => this.CellRight(1);
 
-    public XLCell CellRight(Int32 step)
-    {
-        return this.CellShift(0, step);
-    }
+    public XLCell CellRight(Int32 step) => this.CellShift(0, step);
 
     #endregion XLCell Right
 
@@ -2289,11 +2121,8 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
         }
     }
 
-    internal bool IsInferiorMergedCell()
-    {
-        return this.IsMerged()
-            && !this.Address.Equals(this.MergedRange().RangeAddress.FirstAddress);
-    }
+    internal bool IsInferiorMergedCell() =>
+        this.IsMerged() && !this.Address.Equals(this.MergedRange().RangeAddress.FirstAddress);
 
     /// <summary>
     /// Get glyph bounding boxes for each grapheme in the text. Box size is determined according to
@@ -2380,8 +2209,6 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
         }
     }
 
-    public override bool Equals(object obj)
-    {
-        return obj is XLCell cell && cell.Worksheet == this.Worksheet && cell.Point == this.Point;
-    }
+    public override bool Equals(object obj) =>
+        obj is XLCell cell && cell.Worksheet == this.Worksheet && cell.Point == this.Point;
 }

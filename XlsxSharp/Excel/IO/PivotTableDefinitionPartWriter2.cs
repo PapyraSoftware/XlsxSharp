@@ -732,9 +732,8 @@ internal class PivotTableDefinitionPartWriter2
         return itemTypeAttr;
     }
 
-    private static string GetAxisAttr(XLPivotAxis axis)
-    {
-        return axis switch
+    private static string GetAxisAttr(XLPivotAxis axis) =>
+        axis switch
         {
             XLPivotAxis.AxisRow => "axisRow",
             XLPivotAxis.AxisCol => "axisCol",
@@ -742,5 +741,4 @@ internal class PivotTableDefinitionPartWriter2
             XLPivotAxis.AxisValues => "axisValues",
             _ => throw new UnreachableException(),
         };
-    }
 }

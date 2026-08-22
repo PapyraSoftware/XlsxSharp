@@ -7,26 +7,16 @@ namespace XlsxSharp.Tests.Examples;
 public class RowsTests
 {
     [Test]
-    public void RowCells()
-    {
-        TestHelper.RunTestExample<RowCells>(@"Rows\RowCells.xlsx");
-    }
+    public void RowCells() => TestHelper.RunTestExample<RowCells>(@"Rows\RowCells.xlsx");
 
     [Test]
-    public void RowCollection()
-    {
+    public void RowCollection() =>
         TestHelper.RunTestExample<RowCollection>(@"Rows\RowCollection.xlsx");
-    }
 
     [Test]
-    public void RowSettings()
-    {
-        TestHelper.RunTestExample<RowSettings>(@"Rows\RowSettings.xlsx");
-    }
+    public void RowSettings() => TestHelper.RunTestExample<RowSettings>(@"Rows\RowSettings.xlsx");
 
     //[Test] // Not working yet
-    public static void InsertRows()
-    {
+    public static void InsertRows() =>
         TestHelper.RunTestExample<InsertRows>(@"Rows\InsertRows.xlsx");
-    }
 }

@@ -92,8 +92,5 @@ internal class PivotTableComparer : IEqualityComparer<XLPivotTable>
             && x.Theme.Equals(y.Theme);
     }
 
-    public int GetHashCode(XLPivotTable obj)
-    {
-        throw new NotImplementedException();
-    }
+    public int GetHashCode(XLPivotTable obj) => throw new NotImplementedException();
 }

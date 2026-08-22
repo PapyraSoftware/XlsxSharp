@@ -86,9 +86,8 @@ public sealed class XLTableTheme
 
     private static IEnumerable<XLTableTheme>? allThemes;
 
-    public static IEnumerable<XLTableTheme> GetAllThemes()
-    {
-        return (
+    public static IEnumerable<XLTableTheme> GetAllThemes() =>
+        (
             allThemes
             ?? (
                 allThemes = typeof(XLTableTheme)
@@ -98,12 +97,9 @@ public sealed class XLTableTheme
                     .ToArray()
             )
         );
-    }
 
-    public static XLTableTheme? FromName(string name)
-    {
-        return GetAllThemes().FirstOrDefault(s => s.Name == name);
-    }
+    public static XLTableTheme? FromName(string name) =>
+        GetAllThemes().FirstOrDefault(s => s.Name == name);
 
     internal IReadOnlyDictionary<XLTableStyleRegionValues, XLDxfValue> RegionFormats =>
         this._regionFormats;
@@ -136,15 +132,9 @@ public sealed class XLTableTheme
         return theme is not null && this.Name.Equals(theme.Name);
     }
 
-    public override int GetHashCode()
-    {
-        return this.Name.GetHashCode();
-    }
+    public override int GetHashCode() => this.Name.GetHashCode();
 
-    public override string ToString()
-    {
-        return this.Name;
-    }
+    public override string ToString() => this.Name;
 
     #endregion Overrides
 

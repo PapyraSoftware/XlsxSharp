@@ -11,10 +11,7 @@ internal class XLTableRows : IXLTableRows
     private readonly XLWorksheet _worksheet;
     private readonly List<XLTableRow> _ranges = [];
 
-    public XLTableRows(XLWorksheet worksheet)
-    {
-        this._worksheet = worksheet;
-    }
+    public XLTableRows(XLWorksheet worksheet) => this._worksheet = worksheet;
 
     #region IXLTableRows Members
 
@@ -36,10 +33,7 @@ internal class XLTableRows : IXLTableRows
         this._ranges.Clear();
     }
 
-    public void Add(IXLTableRow tableRow)
-    {
-        this._ranges.Add((XLTableRow)tableRow);
-    }
+    public void Add(IXLTableRow tableRow) => this._ranges.Add((XLTableRow)tableRow);
 
     public IEnumerator<IXLTableRow> GetEnumerator()
     {
@@ -48,10 +42,7 @@ internal class XLTableRows : IXLTableRows
         return retList.GetEnumerator();
     }
 
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return this.GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 
     public IXLCells Cells()
     {
@@ -75,12 +66,8 @@ internal class XLTableRows : IXLTableRows
         return cells;
     }
 
-    public IXLCells CellsUsed(Boolean includeFormats)
-    {
-        return this.CellsUsed(
-            includeFormats ? XLCellsUsedOptions.All : XLCellsUsedOptions.AllContents
-        );
-    }
+    public IXLCells CellsUsed(Boolean includeFormats) =>
+        this.CellsUsed(includeFormats ? XLCellsUsedOptions.All : XLCellsUsedOptions.AllContents);
 
     public IXLCells CellsUsed(XLCellsUsedOptions options)
     {

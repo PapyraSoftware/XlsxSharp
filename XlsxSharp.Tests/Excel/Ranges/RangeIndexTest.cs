@@ -274,10 +274,8 @@ public class RangeIndexTest
         }
     }
 
-    private static IXLRangeIndex CreateRangeIndex(IXLWorksheet worksheet)
-    {
-        return new XLRangeIndex<IXLRangeBase>((XLWorksheet)worksheet);
-    }
+    private static IXLRangeIndex CreateRangeIndex(IXLWorksheet worksheet) =>
+        new XLRangeIndex<IXLRangeBase>((XLWorksheet)worksheet);
 
     private IXLRangeIndex FillIndexWithTestData(IXLWorksheet worksheet)
     {

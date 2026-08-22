@@ -77,10 +77,8 @@ public static class PackageHelper
         return part.GetStream();
     }
 
-    public static void CopyPart(Uri uri, Package source, Package dest)
-    {
+    public static void CopyPart(Uri uri, Package source, Package dest) =>
         CopyPart(uri, source, dest, true);
-    }
 
     public static void CopyPart(Uri uri, Package source, Package dest, bool overwrite)
     {
@@ -306,10 +304,7 @@ public static class PackageHelper
         Package right,
         bool compareToFirstDifference,
         out string message
-    )
-    {
-        return Compare(left, right, compareToFirstDifference, null, out message);
-    }
+    ) => Compare(left, right, compareToFirstDifference, null, out message);
 
     /// <summary>
     ///     Compare to packages by parts like streams
@@ -489,34 +484,32 @@ public static class PackageHelper
         public Uri Uri
         {
             [DebuggerStepThrough]
-            get { return this._uri; }
+            get => this._uri;
         }
 
         public string ContentType
         {
             [DebuggerStepThrough]
-            get { return this._contentType; }
+            get => this._contentType;
         }
 
         public CompressionOption CompressOption
         {
             [DebuggerStepThrough]
-            get { return this._compressOption; }
+            get => this._compressOption;
         }
 
         #endregion Public properties
 
         #region Public methods
 
-        public override string ToString()
-        {
-            return string.Format(
+        public override string ToString() =>
+            string.Format(
                 "Uri:{0} ContentType: {1}, Compression: {2}",
                 this._uri,
                 this._contentType,
                 this._compressOption
             );
-        }
 
         #endregion Public methods
     }
@@ -564,15 +557,15 @@ public static class PackageHelper
         public Uri Uri
         {
             [DebuggerStepThrough]
-            get { return this._uri; }
+            get => this._uri;
         }
 
         public CompareStatus Status
         {
             [DebuggerStepThrough]
-            get { return this._status; }
+            get => this._status;
             [DebuggerStepThrough]
-            set { this._status = value; }
+            set => this._status = value;
         }
 
         #endregion Public properties

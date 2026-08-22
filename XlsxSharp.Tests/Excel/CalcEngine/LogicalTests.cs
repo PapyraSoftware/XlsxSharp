@@ -48,10 +48,8 @@ public class LogicalTests
     }
 
     [Test]
-    public void AndUnconvertableScalarArgumentsSkipped()
-    {
+    public void AndUnconvertableScalarArgumentsSkipped() =>
         Assert.AreEqual(true, XLWorkbook.EvaluateExpr("AND(TRUE,\"z\")"));
-    }
 
     [Test]
     public void AndOnlyLogicalOrNumberElementsOfCollectionUsed()
@@ -158,10 +156,8 @@ public class LogicalTests
     }
 
     [Test]
-    public void IfConditionErrorReturnError()
-    {
+    public void IfConditionErrorReturnError() =>
         Assert.AreEqual(XLError.DivisionByZero, XLWorkbook.EvaluateExpr(@"IF(1/0, ""T"", ""F"")"));
-    }
 
     [Test]
     public void IfConditionCoercedToLogical()
@@ -230,10 +226,8 @@ public class LogicalTests
     [TestCase("\"true\"", false)]
     [TestCase("\"false\"", true)]
     [TestCase("1/0", XLError.DivisionByZero)]
-    public void Not(string valueFormula, object expectedResult)
-    {
+    public void Not(string valueFormula, object expectedResult) =>
         Assert.AreEqual(expectedResult, XLWorkbook.EvaluateExpr($"NOT({valueFormula})"));
-    }
 
     [Test]
     public void OrIsLogicalDisjunction()
@@ -275,10 +269,8 @@ public class LogicalTests
     }
 
     [Test]
-    public void OrUnconvertableScalarArgumentsSkipped()
-    {
+    public void OrUnconvertableScalarArgumentsSkipped() =>
         Assert.AreEqual(true, XLWorkbook.EvaluateExpr("OR(TRUE,\"z\")"));
-    }
 
     [Test]
     public void OrOnlyLogicalOrNumberElementsOfCollectionUsed()

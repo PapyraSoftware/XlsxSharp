@@ -39,10 +39,8 @@ public class AreaTests
     [TestCase("A1:A1 ")]
     [TestCase("B1:A1")]
     [TestCase("A2:A1")]
-    public void InvalidInputsAreNotParsed(string invalidRef)
-    {
+    public void InvalidInputsAreNotParsed(string invalidRef) =>
         Assert.Throws<FormatException>(() => Area.Parse(invalidRef));
-    }
 
     [TestCase("A1:A1", "A1")]
     [TestCase("DO974:LAR2487", "DO974:LAR2487")]

@@ -142,22 +142,15 @@ internal class XLPivotCache : IXLPivotCache
     /// <param name="fieldName">Name of the field.</param>
     /// <param name="index">The found index, start at 0.</param>
     /// <returns>True if source contains the field.</returns>
-    internal bool TryGetFieldIndex(String fieldName, out int index)
-    {
-        return this._fieldIndexes.TryGetValue(fieldName, out index);
-    }
+    internal bool TryGetFieldIndex(String fieldName, out int index) =>
+        this._fieldIndexes.TryGetValue(fieldName, out index);
 
     internal bool ContainsField(String fieldName) => this._fieldIndexes.ContainsKey(fieldName);
 
-    internal XLPivotCacheValues GetFieldValues(int fieldIndex)
-    {
-        return this._values[fieldIndex];
-    }
+    internal XLPivotCacheValues GetFieldValues(int fieldIndex) => this._values[fieldIndex];
 
-    internal XLPivotCacheSharedItems GetFieldSharedItems(int fieldIndex)
-    {
-        return this._values[fieldIndex].SharedItems;
-    }
+    internal XLPivotCacheSharedItems GetFieldSharedItems(int fieldIndex) =>
+        this._values[fieldIndex].SharedItems;
 
     internal void AllocateRecordCapacity(int recordCount)
     {
@@ -187,8 +180,5 @@ internal class XLPivotCache : IXLPivotCache
         this._values.Add(fieldValues);
     }
 
-    private void SetExcelDefaults()
-    {
-        this.SaveSourceData = true;
-    }
+    private void SetExcelDefaults() => this.SaveSourceData = true;
 }

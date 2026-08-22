@@ -39,24 +39,16 @@ internal static class Information
         return (int)error + 1;
     }
 
-    private static AnyValue IsBlank(CalcContext ctx, ScalarValue value)
-    {
-        return value.IsBlank;
-    }
+    private static AnyValue IsBlank(CalcContext ctx, ScalarValue value) => value.IsBlank;
 
-    private static AnyValue IsErr(CalcContext ctx, ScalarValue value)
-    {
-        return value.TryPickError(out XLError error) && error != XLError.NoValueAvailable;
-    }
+    private static AnyValue IsErr(CalcContext ctx, ScalarValue value) =>
+        value.TryPickError(out XLError error) && error != XLError.NoValueAvailable;
 
-    private static AnyValue IsError(CalcContext ctx, ScalarValue value)
-    {
-        return value.TryPickError(out _);
-    }
+    private static AnyValue IsError(CalcContext ctx, ScalarValue value) =>
+        value.TryPickError(out _);
 
-    private static AnyValue IsEven(CalcContext ctx, AnyValue value)
-    {
-        return GetParity(
+    private static AnyValue IsEven(CalcContext ctx, AnyValue value) =>
+        GetParity(
             ctx,
             value,
             static (scalar, ctx) =>
@@ -74,31 +66,18 @@ internal static class Information
                 return Math.Truncate(number) % 2 == 0;
             }
         );
-    }
 
-    private static AnyValue IsLogical(CalcContext ctx, ScalarValue value)
-    {
-        return value.IsLogical;
-    }
+    private static AnyValue IsLogical(CalcContext ctx, ScalarValue value) => value.IsLogical;
 
-    private static AnyValue IsNa(CalcContext ctx, ScalarValue value)
-    {
-        return value.TryPickError(out XLError error) && error == XLError.NoValueAvailable;
-    }
+    private static AnyValue IsNa(CalcContext ctx, ScalarValue value) =>
+        value.TryPickError(out XLError error) && error == XLError.NoValueAvailable;
 
-    private static AnyValue IsNonText(CalcContext ctx, ScalarValue value)
-    {
-        return !value.IsText;
-    }
+    private static AnyValue IsNonText(CalcContext ctx, ScalarValue value) => !value.IsText;
 
-    private static AnyValue IsNumber(CalcContext ctx, ScalarValue value)
-    {
-        return value.IsNumber;
-    }
+    private static AnyValue IsNumber(CalcContext ctx, ScalarValue value) => value.IsNumber;
 
-    private static AnyValue IsOdd(CalcContext ctx, AnyValue value)
-    {
-        return GetParity(
+    private static AnyValue IsOdd(CalcContext ctx, AnyValue value) =>
+        GetParity(
             ctx,
             value,
             static (scalar, ctx) =>
@@ -116,17 +95,10 @@ internal static class Information
                 return Math.Truncate(number) % 2 != 0;
             }
         );
-    }
 
-    private static AnyValue IsRef(CalcContext ctx, AnyValue value)
-    {
-        return value.IsReference;
-    }
+    private static AnyValue IsRef(CalcContext ctx, AnyValue value) => value.IsReference;
 
-    private static AnyValue IsText(CalcContext ctx, ScalarValue value)
-    {
-        return value.IsText;
-    }
+    private static AnyValue IsText(CalcContext ctx, ScalarValue value) => value.IsText;
 
     private static AnyValue N(CalcContext ctx, AnyValue value)
     {
@@ -169,10 +141,7 @@ internal static class Information
         }
     }
 
-    private static AnyValue NA(CalcContext ctx, Span<AnyValue> value)
-    {
-        return XLError.NoValueAvailable;
-    }
+    private static AnyValue NA(CalcContext ctx, Span<AnyValue> value) => XLError.NoValueAvailable;
 
     private static AnyValue Type(CalcContext ctx, AnyValue value)
     {

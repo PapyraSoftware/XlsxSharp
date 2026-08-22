@@ -202,10 +202,7 @@ public class BaseRepositoryTests
         Assert.AreSame(entity, all.First());
     }
 
-    private static SampleRepository CreateSampleRepository()
-    {
-        return new SampleRepository();
-    }
+    private static SampleRepository CreateSampleRepository() => new();
 
     /// <summary>
     /// Class under testing
@@ -220,10 +217,7 @@ public class BaseRepositoryTests
     {
         public int Key { get; private set; }
 
-        public SampleEntity(int key)
-        {
-            this.Key = key;
-        }
+        public SampleEntity(int key) => this.Key = key;
     }
 
     /// <summary>
@@ -239,9 +233,6 @@ public class BaseRepositoryTests
     {
         public int Key { get; set; }
 
-        public EditableEntity(int key)
-        {
-            this.Key = key;
-        }
+        public EditableEntity(int key) => this.Key = key;
     }
 }

@@ -10,8 +10,7 @@ namespace XlsxSharp.Tests.Excel.CalcEngine;
 public class ArrayFormulaTests
 {
     [Test]
-    public void ArrayFormulaIsSaved()
-    {
+    public void ArrayFormulaIsSaved() =>
         TestHelper.CreateAndCompare(
             wb =>
             {
@@ -20,11 +19,9 @@ public class ArrayFormulaTests
             },
             @"Other\Formulas\ArrayFormula.xlsx"
         );
-    }
 
     [Test]
-    public void ArrayFormulaCanBeLoaded()
-    {
+    public void ArrayFormulaCanBeLoaded() =>
         TestHelper.LoadAndAssert(
             wb =>
             {
@@ -42,7 +39,6 @@ public class ArrayFormulaTests
             },
             @"Other\Formulas\ArrayFormula.xlsx"
         );
-    }
 
     [Test]
     public void CanBeOnlyForOneCell()

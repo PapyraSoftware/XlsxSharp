@@ -170,10 +170,7 @@ internal sealed partial class XLAlignmentCellFormat : IXLAlignment
         return this._parent;
     }
 
-    IXLStyle IXLAlignment.SetJustifyLastLine()
-    {
-        return (this as IXLAlignment).SetJustifyLastLine(true);
-    }
+    IXLStyle IXLAlignment.SetJustifyLastLine() => (this as IXLAlignment).SetJustifyLastLine(true);
 
     IXLStyle IXLAlignment.SetJustifyLastLine(bool value)
     {
@@ -193,10 +190,7 @@ internal sealed partial class XLAlignmentCellFormat : IXLAlignment
         return this._parent;
     }
 
-    IXLStyle IXLAlignment.SetShrinkToFit()
-    {
-        return (this as IXLAlignment).SetShrinkToFit(true);
-    }
+    IXLStyle IXLAlignment.SetShrinkToFit() => (this as IXLAlignment).SetShrinkToFit(true);
 
     IXLStyle IXLAlignment.SetShrinkToFit(bool value)
     {
@@ -210,10 +204,7 @@ internal sealed partial class XLAlignmentCellFormat : IXLAlignment
         return this._parent;
     }
 
-    IXLStyle IXLAlignment.SetWrapText()
-    {
-        return (this as IXLAlignment).SetWrapText(true);
-    }
+    IXLStyle IXLAlignment.SetWrapText() => (this as IXLAlignment).SetWrapText(true);
 
     IXLStyle IXLAlignment.SetWrapText(bool value)
     {
@@ -221,10 +212,7 @@ internal sealed partial class XLAlignmentCellFormat : IXLAlignment
         return this._parent;
     }
 
-    IXLStyle IXLAlignment.SetTopToBottom()
-    {
-        return (this as IXLAlignment).SetTopToBottom(true);
-    }
+    IXLStyle IXLAlignment.SetTopToBottom() => (this as IXLAlignment).SetTopToBottom(true);
 
     IXLStyle IXLAlignment.SetTopToBottom(bool value)
     {

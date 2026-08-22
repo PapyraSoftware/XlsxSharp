@@ -29,10 +29,8 @@ public class InformationTests
     [TestCase("#NUM!", 6)]
     [TestCase("#N/A", 7)]
     //[TestCase("#GETTING_DATA", 8)] OLAP Cube not supported
-    public void ErrorTypeReturnsNumberForError(string error, int expectedNumber)
-    {
+    public void ErrorTypeReturnsNumberForError(string error, int expectedNumber) =>
         Assert.AreEqual(expectedNumber, XLWorkbook.EvaluateExpr($"ERROR.TYPE({error})"));
-    }
 
     #region IsBlank Tests
 
@@ -168,10 +166,8 @@ public class InformationTests
 
     [Test]
     [Ignore("Arrays not yet implemented.")]
-    public void IsEvenArrayReturnsArray()
-    {
+    public void IsEvenArrayReturnsArray() =>
         Assert.AreEqual(2.0, XLWorkbook.EvaluateExpr("SUM(N(IsEven({\"2.9\";2;1})))"));
-    }
 
     [Test]
     public void IsEvenReferenceToMoreThanOneCellError()
@@ -188,10 +184,8 @@ public class InformationTests
     [TestCase("\"test\"", XLError.IncompatibleValue)]
     [TestCase("#DIV/0!", XLError.DivisionByZero)]
     [TestCase("IF(TRUE,,)", XLError.NoValueAvailable)] // Behaves differently from a reference to a blank cell
-    public void IsEvenNonNumberValuesError(string valueFormula, XLError expectedError)
-    {
+    public void IsEvenNonNumberValuesError(string valueFormula, XLError expectedError) =>
         Assert.AreEqual(expectedError, XLWorkbook.EvaluateExpr($"IsEven({valueFormula})"));
-    }
 
     #endregion IsEven Tests
 
@@ -386,10 +380,8 @@ public class InformationTests
     [SetCulture("en-US")]
     [Test]
     [Ignore("Arrays not yet implemented.")]
-    public void IsOddArrayReturnsArray()
-    {
+    public void IsOddArrayReturnsArray() =>
         Assert.AreEqual(2.0, XLWorkbook.EvaluateExpr("SUM(N(IsOdd({\"3.2\",7,2})))"));
-    }
 
     [Test]
     public void IsOddReferenceToMoreThanOneCellError()
@@ -406,10 +398,8 @@ public class InformationTests
     [TestCase("\"test\"", XLError.IncompatibleValue)]
     [TestCase("#DIV/0!", XLError.DivisionByZero)]
     [TestCase("IF(TRUE,,)", XLError.NoValueAvailable)] // Behaves differently from a reference to a blank cell
-    public void IsOddNonNumberValuesError(string valueFormula, XLError expectedError)
-    {
+    public void IsOddNonNumberValuesError(string valueFormula, XLError expectedError) =>
         Assert.AreEqual(expectedError, XLWorkbook.EvaluateExpr($"IsOdd({valueFormula})"));
-    }
 
     #endregion IsOdd Test
 

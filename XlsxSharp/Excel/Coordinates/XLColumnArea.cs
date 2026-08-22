@@ -51,11 +51,9 @@ internal readonly record struct XLColumnArea
             )
         );
 
-    public bool Equals(XLColumnArea other)
-    {
-        return this.ColumNumber == other.ColumNumber
-            && XlsxSharp.XLHelper.SheetComparer.Equals(this.Name, other.Name);
-    }
+    public bool Equals(XLColumnArea other) =>
+        this.ColumNumber == other.ColumNumber
+        && XlsxSharp.XLHelper.SheetComparer.Equals(this.Name, other.Name);
 
     public override int GetHashCode()
     {

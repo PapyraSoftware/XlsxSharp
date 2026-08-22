@@ -17,10 +17,8 @@ internal class XLTableRange : XLRange, IXLTableRange
         this._range = range;
     }
 
-    IXLTableRow IXLTableRange.FirstRow(Func<IXLTableRow, Boolean> predicate)
-    {
-        return this.FirstRow(predicate);
-    }
+    IXLTableRow IXLTableRange.FirstRow(Func<IXLTableRow, Boolean> predicate) =>
+        this.FirstRow(predicate);
 
     public XLTableRow FirstRow(Func<IXLTableRow, Boolean> predicate = null)
     {
@@ -43,23 +41,16 @@ internal class XLTableRange : XLRange, IXLTableRange
         return null;
     }
 
-    IXLTableRow IXLTableRange.FirstRowUsed(Func<IXLTableRow, Boolean> predicate)
-    {
-        return this.FirstRowUsed(XLCellsUsedOptions.AllContents, predicate);
-    }
+    IXLTableRow IXLTableRange.FirstRowUsed(Func<IXLTableRow, Boolean> predicate) =>
+        this.FirstRowUsed(XLCellsUsedOptions.AllContents, predicate);
 
-    public XLTableRow FirstRowUsed(Func<IXLTableRow, Boolean> predicate = null)
-    {
-        return this.FirstRowUsed(XLCellsUsedOptions.AllContents, predicate);
-    }
+    public XLTableRow FirstRowUsed(Func<IXLTableRow, Boolean> predicate = null) =>
+        this.FirstRowUsed(XLCellsUsedOptions.AllContents, predicate);
 
     IXLTableRow IXLTableRange.FirstRowUsed(
         XLCellsUsedOptions options,
         Func<IXLTableRow, Boolean> predicate
-    )
-    {
-        return this.FirstRowUsed(options, predicate);
-    }
+    ) => this.FirstRowUsed(options, predicate);
 
     internal XLTableRow FirstRowUsed(
         XLCellsUsedOptions options,
@@ -86,10 +77,8 @@ internal class XLTableRange : XLRange, IXLTableRange
         return null;
     }
 
-    IXLTableRow IXLTableRange.LastRow(Func<IXLTableRow, Boolean> predicate)
-    {
-        return this.LastRow(predicate);
-    }
+    IXLTableRow IXLTableRange.LastRow(Func<IXLTableRow, Boolean> predicate) =>
+        this.LastRow(predicate);
 
     public XLTableRow LastRow(Func<IXLTableRow, Boolean> predicate = null)
     {
@@ -111,23 +100,16 @@ internal class XLTableRange : XLRange, IXLTableRange
         return null;
     }
 
-    IXLTableRow IXLTableRange.LastRowUsed(Func<IXLTableRow, Boolean> predicate)
-    {
-        return this.LastRowUsed(XLCellsUsedOptions.AllContents, predicate);
-    }
+    IXLTableRow IXLTableRange.LastRowUsed(Func<IXLTableRow, Boolean> predicate) =>
+        this.LastRowUsed(XLCellsUsedOptions.AllContents, predicate);
 
-    public XLTableRow LastRowUsed(Func<IXLTableRow, Boolean> predicate = null)
-    {
-        return this.LastRowUsed(XLCellsUsedOptions.AllContents, predicate);
-    }
+    public XLTableRow LastRowUsed(Func<IXLTableRow, Boolean> predicate = null) =>
+        this.LastRowUsed(XLCellsUsedOptions.AllContents, predicate);
 
     IXLTableRow IXLTableRange.LastRowUsed(
         XLCellsUsedOptions options,
         Func<IXLTableRow, Boolean> predicate
-    )
-    {
-        return this.LastRowUsed(options, predicate);
-    }
+    ) => this.LastRowUsed(options, predicate);
 
     internal XLTableRow LastRowUsed(
         XLCellsUsedOptions options,
@@ -154,10 +136,7 @@ internal class XLTableRange : XLRange, IXLTableRange
         return null;
     }
 
-    IXLTableRow IXLTableRange.Row(int row)
-    {
-        return this.Row(row);
-    }
+    IXLTableRow IXLTableRange.Row(int row) => this.Row(row);
 
     public new XLTableRow Row(int row)
     {
@@ -237,10 +216,7 @@ internal class XLTableRange : XLRange, IXLTableRange
     IXLTableRows IXLTableRange.RowsUsed(
         XLCellsUsedOptions options,
         Func<IXLTableRow, Boolean> predicate
-    )
-    {
-        return this.RowsUsed(options, predicate);
-    }
+    ) => this.RowsUsed(options, predicate);
 
     internal XLTableRows RowsUsed(
         XLCellsUsedOptions options,
@@ -262,45 +238,31 @@ internal class XLTableRange : XLRange, IXLTableRange
         return rows;
     }
 
-    IXLTableRows IXLTableRange.RowsUsed(Func<IXLTableRow, Boolean> predicate)
-    {
-        return this.RowsUsed(predicate);
-    }
+    IXLTableRows IXLTableRange.RowsUsed(Func<IXLTableRow, Boolean> predicate) =>
+        this.RowsUsed(predicate);
 
-    public IXLTableRows RowsUsed(Func<IXLTableRow, Boolean> predicate = null)
-    {
-        return this.RowsUsed(XLCellsUsedOptions.AllContents, predicate);
-    }
+    public IXLTableRows RowsUsed(Func<IXLTableRow, Boolean> predicate = null) =>
+        this.RowsUsed(XLCellsUsedOptions.AllContents, predicate);
 
-    IXLTable IXLTableRange.Table
-    {
-        get { return this._table; }
-    }
+    IXLTable IXLTableRange.Table => this._table;
 
-    public XLTable Table
-    {
-        get { return this._table; }
-    }
+    public XLTable Table => this._table;
 
-    public new IXLTableRows InsertRowsAbove(int numberOfRows)
-    {
-        return XlsxSharp.XLHelper.InsertRowsWithoutEvents(
+    public new IXLTableRows InsertRowsAbove(int numberOfRows) =>
+        XlsxSharp.XLHelper.InsertRowsWithoutEvents(
             base.InsertRowsAbove,
             this,
             numberOfRows,
             !this.Table.ShowTotalsRow
         );
-    }
 
-    public new IXLTableRows InsertRowsBelow(int numberOfRows)
-    {
-        return XlsxSharp.XLHelper.InsertRowsWithoutEvents(
+    public new IXLTableRows InsertRowsBelow(int numberOfRows) =>
+        XlsxSharp.XLHelper.InsertRowsWithoutEvents(
             base.InsertRowsBelow,
             this,
             numberOfRows,
             !this.Table.ShowTotalsRow
         );
-    }
 
     public new IXLRangeColumn Column(String column)
     {

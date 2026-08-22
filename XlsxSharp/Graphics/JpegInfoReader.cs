@@ -128,15 +128,13 @@ internal class JpegInfoReader : ImageInfoReader
         return true;
     }
 
-    private static double ConvertToDpi(int density, byte units)
-    {
-        return units switch
+    private static double ConvertToDpi(int density, byte units) =>
+        units switch
         {
             DensityUnits.DotsPerInch => density,
             DensityUnits.DotsPerCm => density * 2.54d,
             _ => 0d,
         };
-    }
 
     private static class Marker
     {

@@ -32,28 +32,22 @@ public class FinancialTests
     }
 
     [Test]
-    public void FvDefaultFutureValueIsZero()
-    {
+    public void FvDefaultFutureValueIsZero() =>
         Assert.AreEqual(
             XLWorkbook.EvaluateExpr("FV(0.1,2,1000)"),
             XLWorkbook.EvaluateExpr("FV(0.1,2,1000,0)")
         );
-    }
 
     [Test]
-    public void FvDefaultTypeIsZero()
-    {
+    public void FvDefaultTypeIsZero() =>
         Assert.AreEqual(
             XLWorkbook.EvaluateExpr("FV(0.1,5,1000)"),
             XLWorkbook.EvaluateExpr("FV(0.1,5,1000,0,0)")
         );
-    }
 
     [Test]
-    public void FvZeroPeriodsReturnsPresentValue()
-    {
+    public void FvZeroPeriodsReturnsPresentValue() =>
         Assert.AreEqual(-100, XLWorkbook.EvaluateExpr("FV(0.1,0,1000, 100)"));
-    }
 
     [TestCase("IPMT(0.1/12,1,3*12,8000)", -66.666666666666686)]
     [TestCase("IPMT(0.1,3,3,8000)", -292.4471299093658)]
@@ -78,22 +72,18 @@ public class FinancialTests
     }
 
     [Test]
-    public void IpmtDefaultFutureValueIsZero()
-    {
+    public void IpmtDefaultFutureValueIsZero() =>
         Assert.AreEqual(
             XLWorkbook.EvaluateExpr("IPMT(0.1,1,2,1000)"),
             XLWorkbook.EvaluateExpr("IPMT(0.1,1,2,1000,0)")
         );
-    }
 
     [Test]
-    public void IpmtDefaultTypeIsZero()
-    {
+    public void IpmtDefaultTypeIsZero() =>
         Assert.AreEqual(
             XLWorkbook.EvaluateExpr("IPMT(0.1,1,5,1000)"),
             XLWorkbook.EvaluateExpr("IPMT(0.1,1,5,1000,0,0)")
         );
-    }
 
     [Test]
     public void IpmtZeroOrNegativePeriodsReturnsNumError()
@@ -105,13 +95,11 @@ public class FinancialTests
     [TestCase(-1)]
     [TestCase(-1.5)]
     [TestCase(-100)]
-    public void IpmtRateLessOrEqualMinusOneReturnsNumError(double rate)
-    {
+    public void IpmtRateLessOrEqualMinusOneReturnsNumError(double rate) =>
         Assert.AreEqual(
             XLError.NumberInvalid,
             XLWorkbook.EvaluateExpr($"IPMT({rate},2,3,1000,10000,1)")
         );
-    }
 
     [Test]
     public void IpmtPeriodOutOfRangeReturnsNumError()
@@ -164,37 +152,29 @@ public class FinancialTests
     }
 
     [Test]
-    public void PmtDefaultFutureValueIsZero()
-    {
+    public void PmtDefaultFutureValueIsZero() =>
         Assert.AreEqual(
             XLWorkbook.EvaluateExpr("PMT(0.1,2,1000)"),
             XLWorkbook.EvaluateExpr("PMT(0.1,2,1000,0)")
         );
-    }
 
     [Test]
-    public void PmtDefaultTypeIsZero()
-    {
+    public void PmtDefaultTypeIsZero() =>
         Assert.AreEqual(
             XLWorkbook.EvaluateExpr("PMT(0.1,5,1000)"),
             XLWorkbook.EvaluateExpr("PMT(0.1,5,1000,0,0)")
         );
-    }
 
     [Test]
-    public void PmtZeroPeriodsReturnsNumError()
-    {
+    public void PmtZeroPeriodsReturnsNumError() =>
         Assert.AreEqual(XLError.NumberInvalid, XLWorkbook.EvaluateExpr("PMT(0.1,0,1000)"));
-    }
 
     [TestCase(-1)]
     [TestCase(-1.5)]
     [TestCase(-100)]
-    public void PmtRateLessOrEqualMinusOneReturnsNumError(double rate)
-    {
+    public void PmtRateLessOrEqualMinusOneReturnsNumError(double rate) =>
         Assert.AreEqual(
             XLError.NumberInvalid,
             XLWorkbook.EvaluateExpr($"PMT({rate},1,1000,5000,1)")
         );
-    }
 }

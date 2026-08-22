@@ -9,10 +9,7 @@ internal class XLPivotCaches : IXLPivotCaches, IEnumerable<XLPivotCache>
     private readonly XLWorkbook _workbook;
     private readonly List<XLPivotCache> _caches = [];
 
-    public XLPivotCaches(XLWorkbook workbook)
-    {
-        this._workbook = workbook;
-    }
+    public XLPivotCaches(XLWorkbook workbook) => this._workbook = workbook;
 
     IXLPivotCache IXLPivotCaches.Add(IXLRange range) => this.Add(SheetArea.From(range));
 

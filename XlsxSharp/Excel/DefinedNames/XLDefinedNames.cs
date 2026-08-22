@@ -54,31 +54,15 @@ internal class XLDefinedNames : IXLDefinedNames, IEnumerable<XLDefinedName>, ISh
         throw new KeyNotFoundException($"Name {name} not found.");
     }
 
-    public IXLDefinedName Add(String name, String rangeAddress)
-    {
-        return this.Add(name, rangeAddress, null);
-    }
+    public IXLDefinedName Add(String name, String rangeAddress) =>
+        this.Add(name, rangeAddress, null);
 
-    public IXLDefinedName Add(String name, IXLRange range)
-    {
-        return this.Add(name, range, null);
-    }
+    public IXLDefinedName Add(String name, IXLRange range) => this.Add(name, range, null);
 
-    public IXLDefinedName Add(String name, IXLRanges ranges)
-    {
-        return this.Add(name, ranges, null);
-    }
+    public IXLDefinedName Add(String name, IXLRanges ranges) => this.Add(name, ranges, null);
 
-    public IXLDefinedName Add(String name, String rangeAddress, String? comment)
-    {
-        return this.Add(
-            name,
-            rangeAddress,
-            comment,
-            validateName: true,
-            validateRangeAddress: true
-        );
-    }
+    public IXLDefinedName Add(String name, String rangeAddress, String? comment) =>
+        this.Add(name, rangeAddress, comment, validateName: true, validateRangeAddress: true);
 
     /// <summary>
     /// Adds the specified range name.
@@ -179,36 +163,24 @@ internal class XLDefinedNames : IXLDefinedNames, IEnumerable<XLDefinedName>, ISh
         return namedRange;
     }
 
-    public void Delete(String rangeName)
-    {
-        this._namedRanges.Remove(rangeName);
-    }
+    public void Delete(String rangeName) => this._namedRanges.Remove(rangeName);
 
-    public void Delete(Int32 rangeIndex)
-    {
+    public void Delete(Int32 rangeIndex) =>
         this._namedRanges.Remove(this._namedRanges.ElementAt(rangeIndex).Key);
-    }
 
-    public void DeleteAll()
-    {
-        this._namedRanges.Clear();
-    }
+    public void DeleteAll() => this._namedRanges.Clear();
 
     /// <summary>
     /// Returns a subset of named ranges that do not have invalid references.
     /// </summary>
-    public IEnumerable<IXLDefinedName> ValidNamedRanges()
-    {
-        return this._namedRanges.Values.Where(nr => nr.IsValid);
-    }
+    public IEnumerable<IXLDefinedName> ValidNamedRanges() =>
+        this._namedRanges.Values.Where(nr => nr.IsValid);
 
     /// <summary>
     /// Returns a subset of named ranges that do have invalid references.
     /// </summary>
-    public IEnumerable<IXLDefinedName> InvalidNamedRanges()
-    {
-        return this._namedRanges.Values.Where(nr => !nr.IsValid);
-    }
+    public IEnumerable<IXLDefinedName> InvalidNamedRanges() =>
+        this._namedRanges.Values.Where(nr => !nr.IsValid);
 
     #endregion IXLNamedRanges Members
 
@@ -216,17 +188,13 @@ internal class XLDefinedNames : IXLDefinedNames, IEnumerable<XLDefinedName>, ISh
 
     IEnumerator<IXLDefinedName> IEnumerable<IXLDefinedName>.GetEnumerator() => this.GetEnumerator();
 
-    public Dictionary<string, XLDefinedName>.ValueCollection.Enumerator GetEnumerator()
-    {
-        return this._namedRanges.Values.GetEnumerator();
-    }
+    public Dictionary<string, XLDefinedName>.ValueCollection.Enumerator GetEnumerator() =>
+        this._namedRanges.Values.GetEnumerator();
 
     #region IEnumerable Members
 
-    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-    {
-        return this.GetEnumerator();
-    }
+    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() =>
+        this.GetEnumerator();
 
     #endregion IEnumerable Members
 
@@ -274,10 +242,8 @@ internal class XLDefinedNames : IXLDefinedNames, IEnumerable<XLDefinedName>, ISh
         }
     }
 
-    internal void OnWorksheetDeleted(string worksheetName)
-    {
+    internal void OnWorksheetDeleted(string worksheetName) =>
         this._namedRanges.Values.ForEach(nr => nr.OnWorksheetDeleted(worksheetName));
-    }
 
     #region ISheetListner
 

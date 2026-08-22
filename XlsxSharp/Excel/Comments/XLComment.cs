@@ -66,10 +66,7 @@ internal class XLComment : XLFormattedText<IXLComment>, IXLComment
         return this.AddText(Environment.NewLine);
     }
 
-    public void Delete()
-    {
-        this._cell.DeleteComment();
-    }
+    public void Delete() => this._cell.DeleteComment();
 
     #endregion IXLComment Members
 

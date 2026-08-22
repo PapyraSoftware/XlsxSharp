@@ -15,14 +15,10 @@ internal static class SignatureAdapter
     // We have many functions with same signature and the adapters should be reusable. Convert parameters
     // through value converters below. We can hopefully generate them at a later date, so try to keep them similar.
 
-    public static CalcEngineFunction Adapt(Func<ScalarValue> f)
-    {
-        return (_, _) => f().ToAnyValue();
-    }
+    public static CalcEngineFunction Adapt(Func<ScalarValue> f) => (_, _) => f().ToAnyValue();
 
-    public static CalcEngineFunction AdaptCoerced(Func<Boolean, AnyValue> f)
-    {
-        return (ctx, args) =>
+    public static CalcEngineFunction AdaptCoerced(Func<Boolean, AnyValue> f) =>
+        (ctx, args) =>
         {
             OneOf<bool, XLError> arg0Converted = CoerceToLogical(args[0], ctx);
             if (!arg0Converted.TryPickT0(out bool arg0, out XLError err0))
@@ -32,11 +28,9 @@ internal static class SignatureAdapter
 
             return f(arg0);
         };
-    }
 
-    public static CalcEngineFunction Adapt(Func<double, ScalarValue> f)
-    {
-        return (ctx, args) =>
+    public static CalcEngineFunction Adapt(Func<double, ScalarValue> f) =>
+        (ctx, args) =>
         {
             OneOf<double, XLError> arg0Converted = ToNumber(args[0], ctx);
             if (!arg0Converted.TryPickT0(out double arg0, out XLError err0))
@@ -46,11 +40,9 @@ internal static class SignatureAdapter
 
             return f(arg0).ToAnyValue();
         };
-    }
 
-    public static CalcEngineFunction Adapt(Func<CalcContext, double, ScalarValue> f)
-    {
-        return (ctx, args) =>
+    public static CalcEngineFunction Adapt(Func<CalcContext, double, ScalarValue> f) =>
+        (ctx, args) =>
         {
             OneOf<double, XLError> arg0Converted = ToNumber(args[0], ctx);
             if (!arg0Converted.TryPickT0(out double arg0, out XLError err0))
@@ -60,11 +52,9 @@ internal static class SignatureAdapter
 
             return f(ctx, arg0).ToAnyValue();
         };
-    }
 
-    public static CalcEngineFunction Adapt(Func<CalcContext, ScalarValue, ScalarValue> f)
-    {
-        return (ctx, args) =>
+    public static CalcEngineFunction Adapt(Func<CalcContext, ScalarValue, ScalarValue> f) =>
+        (ctx, args) =>
         {
             OneOf<ScalarValue, XLError> arg0Converted = ToScalarValue(args[0], ctx);
             if (!arg0Converted.TryPickT0(out ScalarValue arg0, out XLError err0))
@@ -74,11 +64,9 @@ internal static class SignatureAdapter
 
             return f(ctx, arg0).ToAnyValue();
         };
-    }
 
-    public static CalcEngineFunction Adapt(Func<CalcContext, double, double, ScalarValue> f)
-    {
-        return (ctx, args) =>
+    public static CalcEngineFunction Adapt(Func<CalcContext, double, double, ScalarValue> f) =>
+        (ctx, args) =>
         {
             OneOf<double, XLError> arg0Converted = ToNumber(args[0], ctx);
             if (!arg0Converted.TryPickT0(out double arg0, out XLError err0))
@@ -94,11 +82,11 @@ internal static class SignatureAdapter
 
             return f(ctx, arg0, arg1).ToAnyValue();
         };
-    }
 
-    public static CalcEngineFunction Adapt(Func<CalcContext, double, double, double, ScalarValue> f)
-    {
-        return (ctx, args) =>
+    public static CalcEngineFunction Adapt(
+        Func<CalcContext, double, double, double, ScalarValue> f
+    ) =>
+        (ctx, args) =>
         {
             OneOf<double, XLError> arg0Converted = ToNumber(args[0], ctx);
             if (!arg0Converted.TryPickT0(out double arg0, out XLError err0))
@@ -120,11 +108,11 @@ internal static class SignatureAdapter
 
             return f(ctx, arg0, arg1, arg2).ToAnyValue();
         };
-    }
 
-    public static CalcEngineFunction Adapt(Func<CalcContext, double, double, string, ScalarValue> f)
-    {
-        return (ctx, args) =>
+    public static CalcEngineFunction Adapt(
+        Func<CalcContext, double, double, string, ScalarValue> f
+    ) =>
+        (ctx, args) =>
         {
             OneOf<double, XLError> arg0Converted = ToNumber(args[0], ctx);
             if (!arg0Converted.TryPickT0(out double arg0, out XLError err0))
@@ -146,13 +134,11 @@ internal static class SignatureAdapter
 
             return f(ctx, arg0, arg1, arg2).ToAnyValue();
         };
-    }
 
     public static CalcEngineFunction Adapt(
         Func<CalcContext, double, double, double, bool, AnyValue> f
-    )
-    {
-        return (ctx, args) =>
+    ) =>
+        (ctx, args) =>
         {
             OneOf<double, XLError> arg0Converted = ToNumber(args[0], ctx);
             if (!arg0Converted.TryPickT0(out double arg0, out XLError err0))
@@ -180,11 +166,9 @@ internal static class SignatureAdapter
 
             return f(ctx, arg0, arg1, arg2, arg3);
         };
-    }
 
-    public static CalcEngineFunction Adapt(Func<CalcContext, string, ScalarValue> f)
-    {
-        return (ctx, args) =>
+    public static CalcEngineFunction Adapt(Func<CalcContext, string, ScalarValue> f) =>
+        (ctx, args) =>
         {
             OneOf<string, XLError> arg0Converted = ToText(args[0], ctx);
             if (!arg0Converted.TryPickT0(out string arg0, out XLError err0))
@@ -194,11 +178,9 @@ internal static class SignatureAdapter
 
             return f(ctx, arg0).ToAnyValue();
         };
-    }
 
-    public static CalcEngineFunction Adapt(Func<string, string, ScalarValue> f)
-    {
-        return (ctx, args) =>
+    public static CalcEngineFunction Adapt(Func<string, string, ScalarValue> f) =>
+        (ctx, args) =>
         {
             OneOf<string, XLError> arg0Converted = ToText(args[0], ctx);
             if (!arg0Converted.TryPickT0(out string arg0, out XLError err0))
@@ -214,11 +196,9 @@ internal static class SignatureAdapter
 
             return f(arg0, arg1).ToAnyValue();
         };
-    }
 
-    public static CalcEngineFunction Adapt(Func<CalcContext, string, double, ScalarValue> f)
-    {
-        return (ctx, args) =>
+    public static CalcEngineFunction Adapt(Func<CalcContext, string, double, ScalarValue> f) =>
+        (ctx, args) =>
         {
             OneOf<string, XLError> arg0Converted = ToText(args[0], ctx);
             if (!arg0Converted.TryPickT0(out string arg0, out XLError err0))
@@ -234,13 +214,11 @@ internal static class SignatureAdapter
 
             return f(ctx, arg0, arg1).ToAnyValue();
         };
-    }
 
     public static CalcEngineFunction Adapt(
         Func<CalcContext, string, double, double, string, ScalarValue> f
-    )
-    {
-        return (ctx, args) =>
+    ) =>
+        (ctx, args) =>
         {
             OneOf<string, XLError> arg0Converted = ToText(args[0], ctx);
             if (!arg0Converted.TryPickT0(out string arg0, out XLError err0))
@@ -268,11 +246,11 @@ internal static class SignatureAdapter
 
             return f(ctx, arg0, arg1, arg2, arg3).ToAnyValue();
         };
-    }
 
-    public static CalcEngineFunction Adapt(Func<CalcContext, string, double, double, ScalarValue> f)
-    {
-        return (ctx, args) =>
+    public static CalcEngineFunction Adapt(
+        Func<CalcContext, string, double, double, ScalarValue> f
+    ) =>
+        (ctx, args) =>
         {
             OneOf<string, XLError> arg0Converted = ToText(args[0], ctx);
             if (!arg0Converted.TryPickT0(out string arg0, out XLError err0))
@@ -294,11 +272,9 @@ internal static class SignatureAdapter
 
             return f(ctx, arg0, arg1, arg2).ToAnyValue();
         };
-    }
 
-    public static CalcEngineFunction Adapt(Func<CalcContext, AnyValue, double, AnyValue> f)
-    {
-        return (ctx, args) =>
+    public static CalcEngineFunction Adapt(Func<CalcContext, AnyValue, double, AnyValue> f) =>
+        (ctx, args) =>
         {
             AnyValue arg0 = args[0];
 
@@ -310,11 +286,9 @@ internal static class SignatureAdapter
 
             return f(ctx, arg0, arg1);
         };
-    }
 
-    public static CalcEngineFunction Adapt(Func<CalcContext, string, ScalarValue?, AnyValue> f)
-    {
-        return (ctx, args) =>
+    public static CalcEngineFunction Adapt(Func<CalcContext, string, ScalarValue?, AnyValue> f) =>
+        (ctx, args) =>
         {
             OneOf<string, XLError> arg0Converted = ToText(args[0], ctx);
             if (!arg0Converted.TryPickT0(out string arg0, out XLError err0))
@@ -336,11 +310,9 @@ internal static class SignatureAdapter
 
             return f(ctx, arg0, arg1);
         };
-    }
 
-    public static CalcEngineFunction Adapt(Func<CalcContext, List<string>, ScalarValue> f)
-    {
-        return (ctx, args) =>
+    public static CalcEngineFunction Adapt(Func<CalcContext, List<string>, ScalarValue> f) =>
+        (ctx, args) =>
         {
             List<string> texts = new(args.Length);
             foreach (AnyValue arg in args)
@@ -356,16 +328,12 @@ internal static class SignatureAdapter
 
             return f(ctx, texts).ToAnyValue();
         };
-    }
 
-    public static CalcEngineFunction Adapt(Func<CalcContext, AnyValue, AnyValue> f)
-    {
-        return (ctx, args) => f(ctx, args[0]);
-    }
+    public static CalcEngineFunction Adapt(Func<CalcContext, AnyValue, AnyValue> f) =>
+        (ctx, args) => f(ctx, args[0]);
 
-    public static CalcEngineFunction Adapt(Func<CalcContext, ScalarValue, AnyValue> f)
-    {
-        return (ctx, args) =>
+    public static CalcEngineFunction Adapt(Func<CalcContext, ScalarValue, AnyValue> f) =>
+        (ctx, args) =>
         {
             OneOf<ScalarValue, XLError> arg0Converted = ToScalarValue(args[0], ctx);
             if (!arg0Converted.TryPickT0(out ScalarValue arg0, out XLError err0))
@@ -375,11 +343,9 @@ internal static class SignatureAdapter
 
             return f(ctx, arg0);
         };
-    }
 
-    public static CalcEngineFunction Adapt(Func<CalcContext, ScalarValue, string, ScalarValue> f)
-    {
-        return (ctx, args) =>
+    public static CalcEngineFunction Adapt(Func<CalcContext, ScalarValue, string, ScalarValue> f) =>
+        (ctx, args) =>
         {
             OneOf<ScalarValue, XLError> arg0Converted = ToScalarValue(args[0], ctx);
             if (!arg0Converted.TryPickT0(out ScalarValue arg0, out XLError err0))
@@ -395,11 +361,9 @@ internal static class SignatureAdapter
 
             return f(ctx, arg0, arg1).ToAnyValue();
         };
-    }
 
-    public static CalcEngineFunction Adapt(Func<ScalarValue, ScalarValue, AnyValue> f)
-    {
-        return (ctx, args) =>
+    public static CalcEngineFunction Adapt(Func<ScalarValue, ScalarValue, AnyValue> f) =>
+        (ctx, args) =>
         {
             OneOf<ScalarValue, XLError> arg0Converted = ToScalarValue(args[0], ctx);
             if (!arg0Converted.TryPickT0(out ScalarValue arg0, out XLError err0))
@@ -415,11 +379,9 @@ internal static class SignatureAdapter
 
             return f(arg0, arg1);
         };
-    }
 
-    public static CalcEngineFunction Adapt(Func<CalcContext, AnyValue, ScalarValue, AnyValue> f)
-    {
-        return (ctx, args) =>
+    public static CalcEngineFunction Adapt(Func<CalcContext, AnyValue, ScalarValue, AnyValue> f) =>
+        (ctx, args) =>
         {
             AnyValue arg0 = args[0];
 
@@ -431,11 +393,9 @@ internal static class SignatureAdapter
 
             return f(ctx, arg0, arg1);
         };
-    }
 
-    public static CalcEngineFunction Adapt(Func<CalcContext, List<Array>, ScalarValue> f)
-    {
-        return (ctx, args) =>
+    public static CalcEngineFunction Adapt(Func<CalcContext, List<Array>, ScalarValue> f) =>
+        (ctx, args) =>
         {
             List<Array> arrays = [];
             foreach (AnyValue arg in args)
@@ -450,13 +410,11 @@ internal static class SignatureAdapter
 
             return f(ctx, arrays).ToAnyValue();
         };
-    }
 
     public static CalcEngineFunction Adapt(
         Func<CalcContext, string, bool, List<AnyValue>, ScalarValue> f
-    )
-    {
-        return (ctx, args) =>
+    ) =>
+        (ctx, args) =>
         {
             OneOf<string, XLError> arg0Converted = ToText(args[0], ctx);
             if (!arg0Converted.TryPickT0(out string arg0, out XLError err0))
@@ -478,14 +436,12 @@ internal static class SignatureAdapter
 
             return f(ctx, arg0, arg1, remainingArgs).ToAnyValue();
         };
-    }
 
     public static CalcEngineFunction AdaptLastOptional(
         Func<ScalarValue, AnyValue, AnyValue, AnyValue> f,
         AnyValue lastDefault
-    )
-    {
-        return (ctx, args) =>
+    ) =>
+        (ctx, args) =>
         {
             OneOf<ScalarValue, XLError> arg0Converted = ToScalarValue(args[0], ctx);
             if (!arg0Converted.TryPickT0(out ScalarValue arg0, out XLError err0))
@@ -497,14 +453,12 @@ internal static class SignatureAdapter
             AnyValue arg2 = args.Length > 2 ? args[2] : lastDefault;
             return f(arg0, arg1, arg2);
         };
-    }
 
     public static CalcEngineFunction AdaptLastOptional(
         Func<CalcContext, double, double, ScalarValue> f,
         double lastDefault
-    )
-    {
-        return (ctx, args) =>
+    ) =>
+        (ctx, args) =>
         {
             OneOf<double, XLError> arg0Converted = ToNumber(args[0], ctx);
             if (!arg0Converted.TryPickT0(out double arg0, out XLError err0))
@@ -523,14 +477,12 @@ internal static class SignatureAdapter
 
             return f(ctx, arg0, arg1).ToAnyValue();
         };
-    }
 
     public static CalcEngineFunction AdaptLastOptional(
         Func<CalcContext, double, double, double, ScalarValue> f,
         double lastDefault
-    )
-    {
-        return (ctx, args) =>
+    ) =>
+        (ctx, args) =>
         {
             OneOf<double, XLError> arg0Converted = ToNumber(args[0], ctx);
             if (!arg0Converted.TryPickT0(out double arg0, out XLError err0))
@@ -555,14 +507,12 @@ internal static class SignatureAdapter
 
             return f(ctx, arg0, arg1, arg2).ToAnyValue();
         };
-    }
 
     public static CalcEngineFunction AdaptLastOptional(
         Func<CalcContext, double, double, bool, ScalarValue> f,
         bool lastDefault
-    )
-    {
-        return (ctx, args) =>
+    ) =>
+        (ctx, args) =>
         {
             OneOf<double, XLError> arg0Converted = ToNumber(args[0], ctx);
             if (!arg0Converted.TryPickT0(out double arg0, out XLError err0))
@@ -587,14 +537,12 @@ internal static class SignatureAdapter
 
             return f(ctx, arg0, arg1, arg2).ToAnyValue();
         };
-    }
 
     public static CalcEngineFunction AdaptLastOptional(
         Func<CalcContext, string, double, ScalarValue> f,
         double lastDefault
-    )
-    {
-        return (ctx, args) =>
+    ) =>
+        (ctx, args) =>
         {
             OneOf<string, XLError> arg0Converted = ToText(args[0], ctx);
             if (!arg0Converted.TryPickT0(out string arg0, out XLError err0))
@@ -613,14 +561,12 @@ internal static class SignatureAdapter
 
             return f(ctx, arg0, arg1).ToAnyValue();
         };
-    }
 
     public static CalcEngineFunction AdaptLastOptional(
         Func<double, double, double, ScalarValue> f,
         double lastDefault
-    )
-    {
-        return (ctx, args) =>
+    ) =>
+        (ctx, args) =>
         {
             OneOf<double, XLError> arg0Converted = ToNumber(args[0], ctx);
             if (!arg0Converted.TryPickT0(out double arg0, out XLError err0))
@@ -645,11 +591,9 @@ internal static class SignatureAdapter
 
             return f(arg0, arg1, arg2).ToAnyValue();
         };
-    }
 
-    public static CalcEngineFunction Adapt(Func<CalcContext, double, AnyValue[], AnyValue> f)
-    {
-        return (ctx, args) =>
+    public static CalcEngineFunction Adapt(Func<CalcContext, double, AnyValue[], AnyValue> f) =>
+        (ctx, args) =>
         {
             OneOf<double, XLError> arg0Converted = ToNumber(args[0], ctx);
             if (!arg0Converted.TryPickT0(out double arg0, out XLError err0))
@@ -660,13 +604,11 @@ internal static class SignatureAdapter
             AnyValue[] argsLoop = [.. args[1..]];
             return f(ctx, arg0, argsLoop);
         };
-    }
 
     public static CalcEngineFunction AdaptLastOptional(
         Func<CalcContext, string, string, OneOf<double, Blank>, AnyValue> f
-    )
-    {
-        return (ctx, args) =>
+    ) =>
+        (ctx, args) =>
         {
             OneOf<string, XLError> arg0Converted = ToText(args[0], ctx);
             if (!arg0Converted.TryPickT0(out string arg0, out XLError err0))
@@ -694,13 +636,11 @@ internal static class SignatureAdapter
 
             return f(ctx, arg0, arg1, arg2Optional);
         };
-    }
 
     public static CalcEngineFunction AdaptLastOptional(
         Func<CalcContext, ScalarValue, ScalarValue, ScalarValue> f
-    )
-    {
-        return (ctx, args) =>
+    ) =>
+        (ctx, args) =>
         {
             OneOf<ScalarValue, XLError> arg0Converted = ToScalarValue(args[0], ctx);
             if (!arg0Converted.TryPickT0(out ScalarValue arg0, out XLError err0))
@@ -717,13 +657,11 @@ internal static class SignatureAdapter
 
             return f(ctx, arg0, arg1).ToAnyValue();
         };
-    }
 
     public static CalcEngineFunction AdaptLastOptional(
         Func<CalcContext, ScalarValue, ScalarValue, AnyValue, ScalarValue> f
-    )
-    {
-        return (ctx, args) =>
+    ) =>
+        (ctx, args) =>
         {
             OneOf<ScalarValue, XLError> arg0Converted = ToScalarValue(args[0], ctx);
             if (!arg0Converted.TryPickT0(out ScalarValue arg0, out XLError err0))
@@ -741,13 +679,11 @@ internal static class SignatureAdapter
 
             return f(ctx, arg0, arg1, arg2).ToAnyValue();
         };
-    }
 
     public static CalcEngineFunction AdaptLastOptional(
         Func<CalcContext, AnyValue, ScalarValue, AnyValue, AnyValue> f
-    )
-    {
-        return (ctx, args) =>
+    ) =>
+        (ctx, args) =>
         {
             AnyValue arg0 = args[0];
 
@@ -761,16 +697,14 @@ internal static class SignatureAdapter
 
             return f(ctx, arg0, arg1, arg2);
         };
-    }
 
     /// <summary>
     /// An adapter for <c>{SUM,AVERAGE}IFS</c> functions.
     /// </summary>
     public static CalcEngineFunction AdaptIfs(
         Func<CalcContext, AnyValue, List<(AnyValue Range, ScalarValue Criteria)>, AnyValue> f
-    )
-    {
-        return (ctx, args) =>
+    ) =>
+        (ctx, args) =>
         {
             AnyValue tallyRange = args[0];
             if (
@@ -786,16 +720,14 @@ internal static class SignatureAdapter
 
             return f(ctx, tallyRange, criteria);
         };
-    }
 
     /// <summary>
     /// An adapter for <c>COUNTIFS</c> function.
     /// </summary>
     public static CalcEngineFunction AdaptIfs(
         Func<CalcContext, List<(AnyValue Range, ScalarValue Criteria)>, AnyValue> f
-    )
-    {
-        return (ctx, args) =>
+    ) =>
+        (ctx, args) =>
         {
             if (
                 !ToCriteria(ctx, args)
@@ -810,11 +742,11 @@ internal static class SignatureAdapter
 
             return f(ctx, criteria);
         };
-    }
 
-    public static CalcEngineFunction AdaptIndex(Func<CalcContext, AnyValue, List<int>, AnyValue> f)
-    {
-        return (ctx, args) =>
+    public static CalcEngineFunction AdaptIndex(
+        Func<CalcContext, AnyValue, List<int>, AnyValue> f
+    ) =>
+        (ctx, args) =>
         {
             AnyValue arg0 = args[0];
             List<int> numbers = new(args.Length - 1);
@@ -830,13 +762,11 @@ internal static class SignatureAdapter
 
             return f(ctx, arg0, numbers);
         };
-    }
 
     public static CalcEngineFunction AdaptMatch(
         Func<CalcContext, ScalarValue, AnyValue, int, ScalarValue> f
-    )
-    {
-        return (ctx, args) =>
+    ) =>
+        (ctx, args) =>
         {
             OneOf<ScalarValue, XLError> arg0Converted = ToScalarValue(args[0], ctx);
             if (!arg0Converted.TryPickT0(out ScalarValue arg0, out XLError err0))
@@ -853,13 +783,11 @@ internal static class SignatureAdapter
 
             return f(ctx, arg0, arg1, (int)arg2).ToAnyValue();
         };
-    }
 
     public static CalcEngineFunction AdaptSeriesSum(
         Func<CalcContext, double, double, double, Array, ScalarValue> f
-    )
-    {
-        return (ctx, args) =>
+    ) =>
+        (ctx, args) =>
         {
             // SERIESSUM doesn't convert logical values to number...
             if (args[0].IsLogical)
@@ -912,13 +840,11 @@ internal static class SignatureAdapter
 
             return f(ctx, arg0, arg1, arg2, arg3).ToAnyValue();
         };
-    }
 
     public static CalcEngineFunction AdaptNumberValue(
         Func<CalcContext, string, string, string, ScalarValue> f
-    )
-    {
-        return (ctx, args) =>
+    ) =>
+        (ctx, args) =>
         {
             OneOf<string, XLError> arg0Converted = ToText(args[0], ctx);
             if (!arg0Converted.TryPickT0(out string arg0, out XLError err0))
@@ -948,13 +874,11 @@ internal static class SignatureAdapter
 
             return f(ctx, arg0, arg1, arg2).ToAnyValue();
         };
-    }
 
     public static CalcEngineFunction AdaptSubstitute(
         Func<CalcContext, string, string, string, double?, ScalarValue> f
-    )
-    {
-        return (ctx, args) =>
+    ) =>
+        (ctx, args) =>
         {
             OneOf<string, XLError> arg0Converted = ToText(args[0], ctx);
             if (!arg0Converted.TryPickT0(out string arg0, out XLError err0))
@@ -989,7 +913,6 @@ internal static class SignatureAdapter
 
             return f(ctx, arg0, arg1, arg2, arg3).ToAnyValue();
         };
-    }
 
     public static CalcEngineFunction AdaptMultinomial(
         Func<CalcContext, List<IEnumerable<ScalarValue>>, ScalarValue> f
@@ -1048,9 +971,8 @@ internal static class SignatureAdapter
     /// on its own (potential performance problem). The signature uses an array instead of
     /// IReadOnlyList interface for performance reasons (can't JIT access props through interface).
     /// </summary>
-    public static CalcEngineFunction Adapt(Func<CalcContext, Array[], AnyValue> f)
-    {
-        return (ctx, args) =>
+    public static CalcEngineFunction Adapt(Func<CalcContext, Array[], AnyValue> f) =>
+        (ctx, args) =>
         {
             Array[] areas = new Array[args.Length];
             for (int i = 0; i < args.Length; ++i)
@@ -1063,14 +985,12 @@ internal static class SignatureAdapter
 
             return f(ctx, areas);
         };
-    }
 
     public static CalcEngineFunction AdaptLastOptional(
         Func<CalcContext, ScalarValue, AnyValue, double, bool, AnyValue> f,
         bool defaultValue0
-    )
-    {
-        return (ctx, args) =>
+    ) =>
+        (ctx, args) =>
         {
             OneOf<ScalarValue, XLError> arg0Converted = ToScalarValue(args[0], ctx);
             if (!arg0Converted.TryPickT0(out ScalarValue arg0, out XLError err0))
@@ -1095,15 +1015,13 @@ internal static class SignatureAdapter
 
             return f(ctx, arg0, arg1, arg2, arg3);
         };
-    }
 
     public static CalcEngineFunction AdaptLastTwoOptional(
         Func<double, double, double, ScalarValue> f,
         double defaultValue1,
         double defaultValue2
-    )
-    {
-        return (ctx, args) =>
+    ) =>
+        (ctx, args) =>
         {
             OneOf<double, XLError> arg0Converted = ToNumber(args[0], ctx);
             if (!arg0Converted.TryPickT0(out double arg0, out XLError err0))
@@ -1127,15 +1045,13 @@ internal static class SignatureAdapter
 
             return f(arg0, arg1, arg2).ToAnyValue();
         };
-    }
 
     public static CalcEngineFunction AdaptLastTwoOptional(
         Func<CalcContext, double, double, bool, ScalarValue> f,
         double defaultValue1,
         bool defaultValue2
-    )
-    {
-        return (ctx, args) =>
+    ) =>
+        (ctx, args) =>
         {
             OneOf<double, XLError> arg0Converted = ToNumber(args[0], ctx);
             if (!arg0Converted.TryPickT0(out double arg0, out XLError err0))
@@ -1159,15 +1075,13 @@ internal static class SignatureAdapter
 
             return f(ctx, arg0, arg1, arg2).ToAnyValue();
         };
-    }
 
     public static CalcEngineFunction AdaptLastTwoOptional(
         Func<double, double, double, double, double, AnyValue> f,
         double defaultValue0,
         double defaultValue1
-    )
-    {
-        return (ctx, args) =>
+    ) =>
+        (ctx, args) =>
         {
             OneOf<double, XLError> arg0Converted = ToNumber(args[0], ctx);
             if (!arg0Converted.TryPickT0(out double arg0, out XLError err0))
@@ -1213,15 +1127,13 @@ internal static class SignatureAdapter
 
             return f(arg0, arg1, arg2, arg3Optional, arg4Optional);
         };
-    }
 
     public static CalcEngineFunction AdaptLastTwoOptional(
         Func<double, double, double, double, double, double, AnyValue> f,
         double defaultValue0,
         double defaultValue1
-    )
-    {
-        return (ctx, args) =>
+    ) =>
+        (ctx, args) =>
         {
             OneOf<double, XLError> arg0Converted = ToNumber(args[0], ctx);
             if (!arg0Converted.TryPickT0(out double arg0, out XLError err0))
@@ -1273,7 +1185,6 @@ internal static class SignatureAdapter
 
             return f(arg0, arg1, arg2, arg3, arg4Optional, arg5Optional);
         };
-    }
 
     #endregion
 

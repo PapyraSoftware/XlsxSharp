@@ -16,25 +16,16 @@ public class XLFormula
         this.IsFormula = defaultFormula.IsFormula;
     }
 
-    public XLFormula(String value)
-    {
-        this.Value = value;
-    }
+    public XLFormula(String value) => this.Value = value;
 
-    public XLFormula(double value)
-    {
-        this.Value = value.ToInvariantString();
-    }
+    public XLFormula(double value) => this.Value = value.ToInvariantString();
 
-    public XLFormula(int value)
-    {
-        this.Value = value.ToInvariantString();
-    }
+    public XLFormula(int value) => this.Value = value.ToInvariantString();
 
     internal String _value;
     public String Value
     {
-        get { return this._value; }
+        get => this._value;
         set
         {
             if (value == null)

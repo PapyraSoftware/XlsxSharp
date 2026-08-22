@@ -180,10 +180,7 @@ internal class XLPivotCacheValues
         }
     }
 
-    internal XLPivotCacheValue GetValue(int recordIdx)
-    {
-        return this._values[recordIdx];
-    }
+    internal XLPivotCacheValue GetValue(int recordIdx) => this._values[recordIdx];
 
     internal string GetText(XLPivotCacheValue value)
     {
@@ -191,10 +188,7 @@ internal class XLPivotCacheValues
         return value.GetText(this._stringStorage);
     }
 
-    internal void AllocateCapacity(int recordCount)
-    {
-        this._values.Capacity = recordCount;
-    }
+    internal void AllocateCapacity(int recordCount) => this._values.Capacity = recordCount;
 
     internal IEnumerable<XLCellValue> GetCellValues()
     {

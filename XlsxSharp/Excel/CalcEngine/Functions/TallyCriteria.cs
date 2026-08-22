@@ -25,18 +25,13 @@ internal class TallyCriteria : ITally
     internal TallyCriteria()
         : this(static cellValue => cellValue.TryPickNumber(out double number) ? number : null) { }
 
-    internal TallyCriteria(Func<ScalarValue, double?> toNumber)
-    {
-        this._toNumber = toNumber;
-    }
+    internal TallyCriteria(Func<ScalarValue, double?> toNumber) => this._toNumber = toNumber;
 
     /// <summary>
     /// Add criteria to the tally that limit which values should be tallied.
     /// </summary>
-    internal void Add(XLRangeAddress area, Criteria criteria)
-    {
+    internal void Add(XLRangeAddress area, Criteria criteria) =>
         this._criteriaRanges.Add((area, criteria));
-    }
 
     public OneOf<T, XLError> Tally<T>(CalcContext ctx, Span<AnyValue> args, T initialState)
         where T : ITallyState<T>

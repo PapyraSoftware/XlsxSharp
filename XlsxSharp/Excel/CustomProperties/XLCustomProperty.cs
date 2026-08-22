@@ -11,16 +11,13 @@ internal class XLCustomProperty : IXLCustomProperty
 
     private String name;
 
-    public XLCustomProperty(XLWorkbook workbook)
-    {
-        this._workbook = workbook;
-    }
+    public XLCustomProperty(XLWorkbook workbook) => this._workbook = workbook;
 
     #region IXLCustomProperty Members
 
     public String Name
     {
-        get { return this.name; }
+        get => this.name;
         set
         {
             if (this.name == value)
@@ -67,10 +64,7 @@ internal class XLCustomProperty : IXLCustomProperty
 
     public Object Value { get; set; }
 
-    public T GetValue<T>()
-    {
-        return (T)Convert.ChangeType(this.Value, typeof(T));
-    }
+    public T GetValue<T>() => (T)Convert.ChangeType(this.Value, typeof(T));
 
     #endregion
 }

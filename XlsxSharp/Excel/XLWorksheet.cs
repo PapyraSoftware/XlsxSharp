@@ -145,10 +145,7 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
 
     internal XLDefinedNames DefinedNames { get; }
 
-    public override XLRangeType RangeType
-    {
-        get { return XLRangeType.Worksheet; }
-    }
+    public override XLRangeType RangeType => XLRangeType.Worksheet;
 
     /// <summary>
     /// Reference to a VML that contains notes, forms controls and so on. All such things are generally unified into
@@ -162,10 +159,7 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
 
     internal XLSparklineGroups SparklineGroupsInternal { get; }
 
-    public XLRangeFactory RangeFactory
-    {
-        get { return this._rangeFactory; }
-    }
+    public XLRangeFactory RangeFactory => this._rangeFactory;
 
     internal Boolean RowHeightChanged { get; set; }
 
@@ -219,10 +213,8 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
 
     internal override XLCellFormat Format => XLCellFormat.ForWorksheet(this);
 
-    internal XLCellFormatValue GetFormat()
-    {
-        return this.FormatValue ?? this.Workbook.Styles.DefaultCellFormat;
-    }
+    internal XLCellFormatValue GetFormat() =>
+        this.FormatValue ?? this.Workbook.Styles.DefaultCellFormat;
 
     #endregion
 
@@ -232,7 +224,7 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
 
     public Double ColumnWidth
     {
-        get { return this._columnWidth; }
+        get => this._columnWidth;
         set
         {
             this.ColumnWidthChanged = true;
@@ -242,7 +234,7 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
 
     public Double RowHeight
     {
-        get { return this._rowHeight; }
+        get => this._rowHeight;
         set
         {
             this.RowHeightChanged = true;
@@ -252,7 +244,7 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
 
     public String Name
     {
-        get { return this._name; }
+        get => this._name;
         set
         {
             if (this._name == value)
@@ -269,7 +261,7 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
 
     public Int32 Position
     {
-        get { return this._position; }
+        get => this._position;
         set
         {
             if (
@@ -307,65 +299,31 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
 
     public IXLOutline Outline { get; private set; }
 
-    IXLRow? IXLWorksheet.FirstRowUsed()
-    {
-        return this.FirstRowUsed();
-    }
+    IXLRow? IXLWorksheet.FirstRowUsed() => this.FirstRowUsed();
 
-    IXLRow? IXLWorksheet.FirstRowUsed(XLCellsUsedOptions options)
-    {
-        return this.FirstRowUsed(options);
-    }
+    IXLRow? IXLWorksheet.FirstRowUsed(XLCellsUsedOptions options) => this.FirstRowUsed(options);
 
-    IXLRow? IXLWorksheet.LastRowUsed()
-    {
-        return this.LastRowUsed();
-    }
+    IXLRow? IXLWorksheet.LastRowUsed() => this.LastRowUsed();
 
-    IXLRow? IXLWorksheet.LastRowUsed(XLCellsUsedOptions options)
-    {
-        return this.LastRowUsed(options);
-    }
+    IXLRow? IXLWorksheet.LastRowUsed(XLCellsUsedOptions options) => this.LastRowUsed(options);
 
-    IXLColumn IXLWorksheet.LastColumn()
-    {
-        return this.LastColumn();
-    }
+    IXLColumn IXLWorksheet.LastColumn() => this.LastColumn();
 
-    IXLColumn IXLWorksheet.FirstColumn()
-    {
-        return this.FirstColumn();
-    }
+    IXLColumn IXLWorksheet.FirstColumn() => this.FirstColumn();
 
-    IXLRow IXLWorksheet.FirstRow()
-    {
-        return this.FirstRow();
-    }
+    IXLRow IXLWorksheet.FirstRow() => this.FirstRow();
 
-    IXLRow IXLWorksheet.LastRow()
-    {
-        return this.LastRow();
-    }
+    IXLRow IXLWorksheet.LastRow() => this.LastRow();
 
-    IXLColumn? IXLWorksheet.FirstColumnUsed()
-    {
-        return this.FirstColumnUsed();
-    }
+    IXLColumn? IXLWorksheet.FirstColumnUsed() => this.FirstColumnUsed();
 
-    IXLColumn? IXLWorksheet.FirstColumnUsed(XLCellsUsedOptions options)
-    {
-        return this.FirstColumnUsed(options);
-    }
+    IXLColumn? IXLWorksheet.FirstColumnUsed(XLCellsUsedOptions options) =>
+        this.FirstColumnUsed(options);
 
-    IXLColumn? IXLWorksheet.LastColumnUsed()
-    {
-        return this.LastColumnUsed();
-    }
+    IXLColumn? IXLWorksheet.LastColumnUsed() => this.LastColumnUsed();
 
-    IXLColumn? IXLWorksheet.LastColumnUsed(XLCellsUsedOptions options)
-    {
-        return this.LastColumnUsed(options);
-    }
+    IXLColumn? IXLWorksheet.LastColumnUsed(XLCellsUsedOptions options) =>
+        this.LastColumnUsed(options);
 
     public IXLColumns Columns()
     {
@@ -418,13 +376,11 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
         return retVal;
     }
 
-    public IXLColumns Columns(String firstColumn, String lastColumn)
-    {
-        return this.Columns(
+    public IXLColumns Columns(String firstColumn, String lastColumn) =>
+        this.Columns(
             XlsxSharp.XLHelper.GetColumnNumberFromLetter(firstColumn),
             XlsxSharp.XLHelper.GetColumnNumberFromLetter(lastColumn)
         );
-    }
 
     public IXLColumns Columns(Int32 firstColumn, Int32 lastColumn)
     {
@@ -487,79 +443,45 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
         return retVal;
     }
 
-    IXLRow IXLWorksheet.Row(Int32 row)
-    {
-        return this.Row(row);
-    }
+    IXLRow IXLWorksheet.Row(Int32 row) => this.Row(row);
 
-    IXLColumn IXLWorksheet.Column(Int32 column)
-    {
-        return this.Column(column);
-    }
+    IXLColumn IXLWorksheet.Column(Int32 column) => this.Column(column);
 
-    IXLColumn IXLWorksheet.Column(String column)
-    {
-        return this.Column(column);
-    }
+    IXLColumn IXLWorksheet.Column(String column) => this.Column(column);
 
-    IXLCell IXLWorksheet.Cell(int row, int column)
-    {
-        return this.Cell(row, column);
-    }
+    IXLCell IXLWorksheet.Cell(int row, int column) => this.Cell(row, column);
 
-    IXLCell IXLWorksheet.Cell(string cellAddressInRange)
-    {
-        return this.Cell(cellAddressInRange)
-            ?? throw new ArgumentException(
-                $"'{cellAddressInRange}' is not A1 address or workbook named range."
-            );
-    }
+    IXLCell IXLWorksheet.Cell(string cellAddressInRange) =>
+        this.Cell(cellAddressInRange)
+        ?? throw new ArgumentException(
+            $"'{cellAddressInRange}' is not A1 address or workbook named range."
+        );
 
-    IXLCell IXLWorksheet.Cell(int row, string column)
-    {
-        return this.Cell(row, column);
-    }
+    IXLCell IXLWorksheet.Cell(int row, string column) => this.Cell(row, column);
 
-    IXLCell IXLWorksheet.Cell(IXLAddress cellAddressInRange)
-    {
-        return this.Cell(cellAddressInRange);
-    }
+    IXLCell IXLWorksheet.Cell(IXLAddress cellAddressInRange) => this.Cell(cellAddressInRange);
 
-    IXLRange IXLWorksheet.Range(IXLRangeAddress rangeAddress)
-    {
-        return this.Range(rangeAddress);
-    }
+    IXLRange IXLWorksheet.Range(IXLRangeAddress rangeAddress) => this.Range(rangeAddress);
 
-    IXLRange IXLWorksheet.Range(string rangeAddress)
-    {
-        return this.Range(rangeAddress)
-            ?? throw new ArgumentException($"'{rangeAddress}' is not A1 address or named range.");
-    }
+    IXLRange IXLWorksheet.Range(string rangeAddress) =>
+        this.Range(rangeAddress)
+        ?? throw new ArgumentException($"'{rangeAddress}' is not A1 address or named range.");
 
-    IXLRange IXLWorksheet.Range(IXLCell firstCell, IXLCell lastCell)
-    {
-        return this.Range(firstCell, lastCell);
-    }
+    IXLRange IXLWorksheet.Range(IXLCell firstCell, IXLCell lastCell) =>
+        this.Range(firstCell, lastCell);
 
-    IXLRange IXLWorksheet.Range(string firstCellAddress, string lastCellAddress)
-    {
-        return this.Range(firstCellAddress, lastCellAddress);
-    }
+    IXLRange IXLWorksheet.Range(string firstCellAddress, string lastCellAddress) =>
+        this.Range(firstCellAddress, lastCellAddress);
 
-    IXLRange IXLWorksheet.Range(IXLAddress firstCellAddress, IXLAddress lastCellAddress)
-    {
-        return this.Range(firstCellAddress, lastCellAddress);
-    }
+    IXLRange IXLWorksheet.Range(IXLAddress firstCellAddress, IXLAddress lastCellAddress) =>
+        this.Range(firstCellAddress, lastCellAddress);
 
     IXLRange IXLWorksheet.Range(
         int firstCellRow,
         int firstCellColumn,
         int lastCellRow,
         int lastCellColumn
-    )
-    {
-        return this.Range(firstCellRow, firstCellColumn, lastCellRow, lastCellColumn);
-    }
+    ) => this.Range(firstCellRow, firstCellColumn, lastCellRow, lastCellColumn);
 
     IXLRanges IXLWorksheet.Ranges(String ranges) => this.Ranges(ranges);
 
@@ -660,15 +582,9 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
 
     IXLDefinedName IXLWorksheet.DefinedName(String name) => this.DefinedName(name);
 
-    internal XLDefinedName DefinedName(String name)
-    {
-        return this.DefinedNames.DefinedName(name);
-    }
+    internal XLDefinedName DefinedName(String name) => this.DefinedNames.DefinedName(name);
 
-    IXLSheetView IXLWorksheet.SheetView
-    {
-        get => this.SheetView;
-    }
+    IXLSheetView IXLWorksheet.SheetView => this.SheetView;
 
     public XLSheetView SheetView { get; private set; }
 
@@ -676,35 +592,21 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
 
     internal XLTables Tables { get; }
 
-    public IXLTable Table(Int32 index)
-    {
-        return this.Tables.Table(index);
-    }
+    public IXLTable Table(Int32 index) => this.Tables.Table(index);
 
-    public IXLTable Table(String name)
-    {
-        return this.Tables.Table(name);
-    }
+    public IXLTable Table(String name) => this.Tables.Table(name);
 
-    public IXLWorksheet CopyTo(String newSheetName)
-    {
-        return this.CopyTo(this.Workbook, newSheetName, this.Workbook.WorksheetsInternal.Count + 1);
-    }
+    public IXLWorksheet CopyTo(String newSheetName) =>
+        this.CopyTo(this.Workbook, newSheetName, this.Workbook.WorksheetsInternal.Count + 1);
 
-    public IXLWorksheet CopyTo(String newSheetName, Int32 position)
-    {
-        return this.CopyTo(this.Workbook, newSheetName, position);
-    }
+    public IXLWorksheet CopyTo(String newSheetName, Int32 position) =>
+        this.CopyTo(this.Workbook, newSheetName, position);
 
-    public IXLWorksheet CopyTo(XLWorkbook workbook)
-    {
-        return this.CopyTo(workbook, this.Name, workbook.WorksheetsInternal.Count + 1);
-    }
+    public IXLWorksheet CopyTo(XLWorkbook workbook) =>
+        this.CopyTo(workbook, this.Name, workbook.WorksheetsInternal.Count + 1);
 
-    public IXLWorksheet CopyTo(XLWorkbook workbook, String newSheetName)
-    {
-        return this.CopyTo(workbook, newSheetName, workbook.WorksheetsInternal.Count + 1);
-    }
+    public IXLWorksheet CopyTo(XLWorkbook workbook, String newSheetName) =>
+        this.CopyTo(workbook, newSheetName, workbook.WorksheetsInternal.Count + 1);
 
     public IXLWorksheet CopyTo(XLWorkbook workbook, String newSheetName, Int32 position)
     {
@@ -793,16 +695,13 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
 
     IXLHyperlinks IXLWorksheet.Hyperlinks => this.Hyperlinks;
 
-    IXLDataValidations IXLWorksheet.DataValidations
-    {
-        get { return this.DataValidations; }
-    }
+    IXLDataValidations IXLWorksheet.DataValidations => this.DataValidations;
 
     private XLWorksheetVisibility _visibility;
 
     public XLWorksheetVisibility Visibility
     {
-        get { return this._visibility; }
+        get => this._visibility;
         set
         {
             if (value != XLWorksheetVisibility.Visible)
@@ -832,10 +731,8 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
         set => this.Protection = (XLSheetProtection)value;
     }
 
-    public IXLSheetProtection Protect(Algorithm algorithm = DefaultProtectionAlgorithm)
-    {
-        return this.Protection.Protect(algorithm);
-    }
+    public IXLSheetProtection Protect(Algorithm algorithm = DefaultProtectionAlgorithm) =>
+        this.Protection.Protect(algorithm);
 
     public IXLSheetProtection Protect(XLSheetProtectionElements allowedElements) =>
         this.Protection.Protect(allowedElements);
@@ -848,87 +745,48 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
     public IXLSheetProtection Protect(
         String password,
         Algorithm algorithm = DefaultProtectionAlgorithm
-    )
-    {
-        return this.Protection.Protect(
-            password,
-            algorithm,
-            XLSheetProtectionElements.SelectEverything
-        );
-    }
+    ) => this.Protection.Protect(password, algorithm, XLSheetProtectionElements.SelectEverything);
 
     public IXLSheetProtection Protect(
         String password,
         Algorithm algorithm,
         XLSheetProtectionElements allowedElements
-    )
-    {
-        return this.Protection.Protect(password, algorithm, allowedElements);
-    }
+    ) => this.Protection.Protect(password, algorithm, allowedElements);
 
-    IXLElementProtection IXLProtectable.Protect(Algorithm algorithm)
-    {
-        return this.Protect(algorithm);
-    }
+    IXLElementProtection IXLProtectable.Protect(Algorithm algorithm) => this.Protect(algorithm);
 
-    IXLElementProtection IXLProtectable.Protect(String password, Algorithm algorithm)
-    {
-        return this.Protect(password, algorithm);
-    }
+    IXLElementProtection IXLProtectable.Protect(String password, Algorithm algorithm) =>
+        this.Protect(password, algorithm);
 
-    public IXLSheetProtection Unprotect()
-    {
-        return this.Protection.Unprotect();
-    }
+    public IXLSheetProtection Unprotect() => this.Protection.Unprotect();
 
-    public IXLSheetProtection Unprotect(String password)
-    {
-        return this.Protection.Unprotect(password);
-    }
+    public IXLSheetProtection Unprotect(String password) => this.Protection.Unprotect(password);
 
-    IXLElementProtection IXLProtectable.Unprotect()
-    {
-        return this.Unprotect();
-    }
+    IXLElementProtection IXLProtectable.Unprotect() => this.Unprotect();
 
-    IXLElementProtection IXLProtectable.Unprotect(String password)
-    {
-        return this.Unprotect(password);
-    }
+    IXLElementProtection IXLProtectable.Unprotect(String password) => this.Unprotect(password);
 
-    public new IXLRange Sort()
-    {
-        return this.GetRangeForSort().Sort();
-    }
+    public new IXLRange Sort() => this.GetRangeForSort().Sort();
 
     public new IXLRange Sort(
         String columnsToSortBy,
         XLSortOrder sortOrder = XLSortOrder.Ascending,
         Boolean matchCase = false,
         Boolean ignoreBlanks = true
-    )
-    {
-        return this.GetRangeForSort().Sort(columnsToSortBy, sortOrder, matchCase, ignoreBlanks);
-    }
+    ) => this.GetRangeForSort().Sort(columnsToSortBy, sortOrder, matchCase, ignoreBlanks);
 
     public new IXLRange Sort(
         Int32 columnToSortBy,
         XLSortOrder sortOrder = XLSortOrder.Ascending,
         Boolean matchCase = false,
         Boolean ignoreBlanks = true
-    )
-    {
-        return this.GetRangeForSort().Sort(columnToSortBy, sortOrder, matchCase, ignoreBlanks);
-    }
+    ) => this.GetRangeForSort().Sort(columnToSortBy, sortOrder, matchCase, ignoreBlanks);
 
     public new IXLRange SortLeftToRight(
         XLSortOrder sortOrder = XLSortOrder.Ascending,
         Boolean matchCase = false,
         Boolean ignoreBlanks = true
-    )
-    {
-        return this.GetRangeForSort().SortLeftToRight(sortOrder, matchCase, ignoreBlanks);
-    }
+    ) => this.GetRangeForSort().SortLeftToRight(sortOrder, matchCase, ignoreBlanks);
 
     public Boolean ShowFormulas { get; set; }
 
@@ -1040,7 +898,7 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
 
     public Boolean TabActive
     {
-        get { return this._tabActive; }
+        get => this._tabActive;
         set
         {
             if (value && !this._tabActive)
@@ -1078,10 +936,7 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
         return this;
     }
 
-    IXLPivotTable IXLWorksheet.PivotTable(String name)
-    {
-        return this.PivotTable(name);
-    }
+    IXLPivotTable IXLWorksheet.PivotTable(String name) => this.PivotTable(name);
 
     IXLPivotTables IXLWorksheet.PivotTables => this.PivotTables;
 
@@ -1137,10 +992,7 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
         return retVal;
     }
 
-    IXLAutoFilter IXLWorksheet.AutoFilter
-    {
-        get { return this.AutoFilter; }
-    }
+    IXLAutoFilter IXLWorksheet.AutoFilter => this.AutoFilter;
 
     public IXLRows RowsUsed(
         XLCellsUsedOptions options = XLCellsUsedOptions.AllContents,
@@ -1168,10 +1020,8 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
         return rows;
     }
 
-    public IXLRows RowsUsed(Func<IXLRow, Boolean>? predicate = null)
-    {
-        return this.RowsUsed(XLCellsUsedOptions.AllContents, predicate);
-    }
+    public IXLRows RowsUsed(Func<IXLRow, Boolean>? predicate = null) =>
+        this.RowsUsed(XLCellsUsedOptions.AllContents, predicate);
 
     public IXLColumns ColumnsUsed(
         XLCellsUsedOptions options = XLCellsUsedOptions.AllContents,
@@ -1193,15 +1043,11 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
         return columns;
     }
 
-    public IXLColumns ColumnsUsed(Func<IXLColumn, Boolean>? predicate = null)
-    {
-        return this.ColumnsUsed(XLCellsUsedOptions.AllContents, predicate);
-    }
+    public IXLColumns ColumnsUsed(Func<IXLColumn, Boolean>? predicate = null) =>
+        this.ColumnsUsed(XLCellsUsedOptions.AllContents, predicate);
 
-    internal void RegisterRangeIndex(IXLRangeIndex rangeIndex)
-    {
+    internal void RegisterRangeIndex(IXLRangeIndex rangeIndex) =>
         this._rangeIndices.Add(rangeIndex);
-    }
 
     internal void Cleanup()
     {
@@ -1299,19 +1145,14 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
         }
     }
 
-    public Int32 GetMaxRowOutline()
-    {
-        return this._rowOutlineCount.Count == 0
+    public Int32 GetMaxRowOutline() =>
+        this._rowOutlineCount.Count == 0
             ? 0
             : this._rowOutlineCount.Where(kp => kp.Value > 0).Max(kp => kp.Key);
-    }
 
     #endregion Outlines
 
-    public XLRow? FirstRowUsed()
-    {
-        return this.FirstRowUsed(XLCellsUsedOptions.AllContents);
-    }
+    public XLRow? FirstRowUsed() => this.FirstRowUsed(XLCellsUsedOptions.AllContents);
 
     public XLRow? FirstRowUsed(XLCellsUsedOptions options)
     {
@@ -1319,10 +1160,7 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
         return rngRow != null ? this.Row(rngRow.RangeAddress.FirstAddress.RowNumber) : null;
     }
 
-    public XLRow? LastRowUsed()
-    {
-        return this.LastRowUsed(XLCellsUsedOptions.AllContents);
-    }
+    public XLRow? LastRowUsed() => this.LastRowUsed(XLCellsUsedOptions.AllContents);
 
     public XLRow? LastRowUsed(XLCellsUsedOptions options)
     {
@@ -1330,30 +1168,15 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
         return rngRow != null ? this.Row(rngRow.RangeAddress.LastAddress.RowNumber) : null;
     }
 
-    public XLColumn LastColumn()
-    {
-        return this.Column(XlsxSharp.XLHelper.MaxColumnNumber);
-    }
+    public XLColumn LastColumn() => this.Column(XlsxSharp.XLHelper.MaxColumnNumber);
 
-    public XLColumn FirstColumn()
-    {
-        return this.Column(1);
-    }
+    public XLColumn FirstColumn() => this.Column(1);
 
-    public XLRow FirstRow()
-    {
-        return this.Row(1);
-    }
+    public XLRow FirstRow() => this.Row(1);
 
-    public XLRow LastRow()
-    {
-        return this.Row(XlsxSharp.XLHelper.MaxRowNumber);
-    }
+    public XLRow LastRow() => this.Row(XlsxSharp.XLHelper.MaxRowNumber);
 
-    public XLColumn? FirstColumnUsed()
-    {
-        return this.FirstColumnUsed(XLCellsUsedOptions.AllContents);
-    }
+    public XLColumn? FirstColumnUsed() => this.FirstColumnUsed(XLCellsUsedOptions.AllContents);
 
     public XLColumn? FirstColumnUsed(XLCellsUsedOptions options)
     {
@@ -1363,10 +1186,7 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
             : null;
     }
 
-    public XLColumn? LastColumnUsed()
-    {
-        return this.LastColumnUsed(XLCellsUsedOptions.AllContents);
-    }
+    public XLColumn? LastColumnUsed() => this.LastColumnUsed(XLCellsUsedOptions.AllContents);
 
     public XLColumn? LastColumnUsed(XLCellsUsedOptions options)
     {
@@ -1376,10 +1196,7 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
             : null;
     }
 
-    public XLRow Row(Int32 row)
-    {
-        return this.Row(row, true);
-    }
+    public XLRow Row(Int32 row) => this.Row(row, true);
 
     public XLColumn Column(Int32 columnNumber)
     {
@@ -1408,20 +1225,11 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
         return column;
     }
 
-    public IXLColumn Column(String column)
-    {
-        return this.Column(XlsxSharp.XLHelper.GetColumnNumberFromLetter(column));
-    }
+    public IXLColumn Column(String column) =>
+        this.Column(XlsxSharp.XLHelper.GetColumnNumberFromLetter(column));
 
-    public override XLRange AsRange()
-    {
-        return this.Range(
-            1,
-            1,
-            XlsxSharp.XLHelper.MaxRowNumber,
-            XlsxSharp.XLHelper.MaxColumnNumber
-        );
-    }
+    public override XLRange AsRange() =>
+        this.Range(1, 1, XlsxSharp.XLHelper.MaxRowNumber, XlsxSharp.XLHelper.MaxColumnNumber);
 
     internal override void WorksheetRangeShiftedColumns(XLRange range, int columnsShifted)
     {
@@ -1688,15 +1496,13 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
         return row;
     }
 
-    public IXLTable Table(XLRange range, Boolean addToTables, Boolean setAutofilter = true)
-    {
-        return this.Table(
+    public IXLTable Table(XLRange range, Boolean addToTables, Boolean setAutofilter = true) =>
+        this.Table(
             range,
             TableNameGenerator.GetNewTableName(this.Workbook),
             addToTables,
             setAutofilter
         );
-    }
 
     public IXLTable Table(
         XLRange range,
@@ -1775,15 +1581,9 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
         return range;
     }
 
-    public XLPivotTable PivotTable(String name)
-    {
-        return (XLPivotTable)this.PivotTables.PivotTable(name);
-    }
+    public XLPivotTable PivotTable(String name) => (XLPivotTable)this.PivotTables.PivotTable(name);
 
-    public override IXLCells Cells()
-    {
-        return this.Cells(true, XLCellsUsedOptions.All);
-    }
+    public override IXLCells Cells() => this.Cells(true, XLCellsUsedOptions.All);
 
     public override XLCells Cells(Boolean usedCellsOnly)
     {
@@ -1863,10 +1663,7 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
         return null;
     }
 
-    public IXLRanges MergedRanges
-    {
-        get { return this.Internals.MergedRanges; }
-    }
+    public IXLRanges MergedRanges => this.Internals.MergedRanges;
 
     IXLConditionalFormats IXLWorksheet.ConditionalFormats => this.ConditionalFormats;
 
@@ -1912,10 +1709,7 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
 
     public String Author { get; set; }
 
-    public override string ToString()
-    {
-        return this.Name;
-    }
+    public override string ToString() => this.Name;
 
     IXLPictures IXLWorksheet.Pictures => this.Pictures;
 
@@ -1925,55 +1719,29 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
 
     internal XLPictures Pictures { get; }
 
-    public IXLPicture Picture(string pictureName)
-    {
-        return this.Pictures.Picture(pictureName);
-    }
+    public IXLPicture Picture(string pictureName) => this.Pictures.Picture(pictureName);
 
-    public IXLPicture AddPicture(Stream stream)
-    {
-        return this.Pictures.Add(stream);
-    }
+    public IXLPicture AddPicture(Stream stream) => this.Pictures.Add(stream);
 
-    public IXLPicture AddPicture(Stream stream, string name)
-    {
-        return this.Pictures.Add(stream, name);
-    }
+    public IXLPicture AddPicture(Stream stream, string name) => this.Pictures.Add(stream, name);
 
-    internal IXLPicture AddPicture(Stream stream, string name, int Id)
-    {
-        return ((XLPictures)this.Pictures).Add(stream, name, Id);
-    }
+    internal IXLPicture AddPicture(Stream stream, string name, int Id) =>
+        ((XLPictures)this.Pictures).Add(stream, name, Id);
 
-    public IXLPicture AddPicture(Stream stream, XLPictureFormat format)
-    {
-        return this.Pictures.Add(stream, format);
-    }
+    public IXLPicture AddPicture(Stream stream, XLPictureFormat format) =>
+        this.Pictures.Add(stream, format);
 
-    public IXLPicture AddPicture(Stream stream, XLPictureFormat format, string name)
-    {
-        return this.Pictures.Add(stream, format, name);
-    }
+    public IXLPicture AddPicture(Stream stream, XLPictureFormat format, string name) =>
+        this.Pictures.Add(stream, format, name);
 
-    public IXLPicture AddPicture(string imageFile)
-    {
-        return this.Pictures.Add(imageFile);
-    }
+    public IXLPicture AddPicture(string imageFile) => this.Pictures.Add(imageFile);
 
-    public IXLPicture AddPicture(string imageFile, string name)
-    {
-        return this.Pictures.Add(imageFile, name);
-    }
+    public IXLPicture AddPicture(string imageFile, string name) =>
+        this.Pictures.Add(imageFile, name);
 
-    public override Boolean IsEntireRow()
-    {
-        return true;
-    }
+    public override Boolean IsEntireRow() => true;
 
-    public override Boolean IsEntireColumn()
-    {
-        return true;
-    }
+    public override Boolean IsEntireColumn() => true;
 
     internal IXLTable InsertTable(
         Point origin,
@@ -2150,10 +1918,8 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
     /// <summary>
     /// Get cell or null, if cell doesn't exist.
     /// </summary>
-    internal XLCell? GetCell(Point point)
-    {
-        return this.Worksheet.Internals.CellsCollection.GetUsedCell(point);
-    }
+    internal XLCell? GetCell(Point point) =>
+        this.Worksheet.Internals.CellsCollection.GetUsedCell(point);
 
     public XLRange GetOrCreateRange(XLRangeAddress rangeAddress)
     {

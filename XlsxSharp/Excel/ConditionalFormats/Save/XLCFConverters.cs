@@ -10,8 +10,7 @@ internal class XLCFConverters
 {
     private static readonly Dictionary<XLConditionalFormatType, IXLCFConverter> Converters;
 
-    static XLCFConverters()
-    {
+    static XLCFConverters() =>
         Converters = new Dictionary<XLConditionalFormatType, IXLCFConverter>
         {
             { XLConditionalFormatType.ColorScale, new XLCFColorScaleConverter() },
@@ -32,7 +31,6 @@ internal class XLCFConverters
             { XLConditionalFormatType.IconSet, new XLCFIconSetConverter() },
             { XLConditionalFormatType.TimePeriod, new XLCFDatesOccurringConverter() },
         };
-    }
 
     public static ConditionalFormattingRule Convert(
         XLConditionalFormat conditionalFormat,

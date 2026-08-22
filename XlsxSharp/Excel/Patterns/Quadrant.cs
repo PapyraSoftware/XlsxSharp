@@ -51,10 +51,7 @@ internal class Quadrant
     /// <summary>
     /// Collection of ranges belonging to this quadrant (does not include ranges from child quadrants).
     /// </summary>
-    public IEnumerable<IXLAddressable> Ranges
-    {
-        get => this._ranges?.Values.AsEnumerable();
-    }
+    public IEnumerable<IXLAddressable> Ranges => this._ranges?.Values.AsEnumerable();
 
     /// <summary>
     /// The number of current quadrant by horizontal axis.
@@ -333,51 +330,45 @@ internal class Quadrant
     /// <summary>
     /// Check if the current quadrant fully covers the specified address.
     /// </summary>
-    private bool Covers(in IXLRangeAddress rangeAddress)
-    {
-        return this.MinimumColumn <= rangeAddress.FirstAddress.ColumnNumber
-            && this.MaximumColumn >= rangeAddress.LastAddress.ColumnNumber
-            && this.MinimumRow <= rangeAddress.FirstAddress.RowNumber
-            && this.MaximumRow >= rangeAddress.LastAddress.RowNumber;
-    }
+    private bool Covers(in IXLRangeAddress rangeAddress) =>
+        this.MinimumColumn <= rangeAddress.FirstAddress.ColumnNumber
+        && this.MaximumColumn >= rangeAddress.LastAddress.ColumnNumber
+        && this.MinimumRow <= rangeAddress.FirstAddress.RowNumber
+        && this.MaximumRow >= rangeAddress.LastAddress.RowNumber;
 
     /// <summary>
     /// Check if the current quadrant covers the specified address.
     /// </summary>
-    private bool Covers(in IXLAddress address)
-    {
-        return this.MinimumColumn <= address.ColumnNumber
-            && this.MaximumColumn >= address.ColumnNumber
-            && this.MinimumRow <= address.RowNumber
-            && this.MaximumRow >= address.RowNumber;
-    }
+    private bool Covers(in IXLAddress address) =>
+        this.MinimumColumn <= address.ColumnNumber
+        && this.MaximumColumn >= address.ColumnNumber
+        && this.MinimumRow <= address.RowNumber
+        && this.MaximumRow >= address.RowNumber;
 
     /// <summary>
     /// Check if the current quadrant intersects the specified address.
     /// </summary>
-    private bool Intersects(in IXLRangeAddress rangeAddress)
-    {
-        return (
-                (
-                    this.MinimumRow <= rangeAddress.FirstAddress.RowNumber
-                    && rangeAddress.FirstAddress.RowNumber <= this.MaximumRow
-                )
-                || (
-                    rangeAddress.FirstAddress.RowNumber <= this.MinimumRow
-                    && this.MinimumRow <= rangeAddress.LastAddress.RowNumber
-                )
+    private bool Intersects(in IXLRangeAddress rangeAddress) =>
+        (
+            (
+                this.MinimumRow <= rangeAddress.FirstAddress.RowNumber
+                && rangeAddress.FirstAddress.RowNumber <= this.MaximumRow
             )
-            && (
-                (
-                    this.MinimumColumn <= rangeAddress.FirstAddress.ColumnNumber
-                    && rangeAddress.FirstAddress.ColumnNumber <= this.MaximumColumn
-                )
-                || (
-                    rangeAddress.FirstAddress.ColumnNumber <= this.MinimumColumn
-                    && this.MinimumColumn <= rangeAddress.LastAddress.ColumnNumber
-                )
-            );
-    }
+            || (
+                rangeAddress.FirstAddress.RowNumber <= this.MinimumRow
+                && this.MinimumRow <= rangeAddress.LastAddress.RowNumber
+            )
+        )
+        && (
+            (
+                this.MinimumColumn <= rangeAddress.FirstAddress.ColumnNumber
+                && rangeAddress.FirstAddress.ColumnNumber <= this.MaximumColumn
+            )
+            || (
+                rangeAddress.FirstAddress.ColumnNumber <= this.MinimumColumn
+                && this.MinimumColumn <= rangeAddress.LastAddress.ColumnNumber
+            )
+        );
 
     /// <summary>
     /// Create a collection of child quadrants dividing the current one.
@@ -421,33 +412,18 @@ internal class Quadrant<T> : Quadrant
 {
     public new IEnumerable<T> Ranges => base.Ranges.Cast<T>();
 
-    public bool Add(T range)
-    {
-        return base.Add(range);
-    }
+    public bool Add(T range) => base.Add(range);
 
-    public new IEnumerable<T> GetAll()
-    {
-        return base.GetAll().Cast<T>();
-    }
+    public new IEnumerable<T> GetAll() => base.GetAll().Cast<T>();
 
-    public new IEnumerable<T> GetIntersectedRanges(IXLRangeAddress rangeAddress)
-    {
-        return base.GetIntersectedRanges(rangeAddress).Cast<T>();
-    }
+    public new IEnumerable<T> GetIntersectedRanges(IXLRangeAddress rangeAddress) =>
+        base.GetIntersectedRanges(rangeAddress).Cast<T>();
 
-    public new IEnumerable<T> GetIntersectedRanges(IXLAddress address)
-    {
-        return base.GetIntersectedRanges(address).Cast<T>();
-    }
+    public new IEnumerable<T> GetIntersectedRanges(IXLAddress address) =>
+        base.GetIntersectedRanges(address).Cast<T>();
 
-    public bool Remove(T range)
-    {
-        return this.Remove(range.RangeAddress);
-    }
+    public bool Remove(T range) => this.Remove(range.RangeAddress);
 
-    public IEnumerable<T> RemoveAll(Predicate<T> predicate)
-    {
-        return base.RemoveAll(r => predicate((T)r)).Cast<T>();
-    }
+    public IEnumerable<T> RemoveAll(Predicate<T> predicate) =>
+        base.RemoveAll(r => predicate((T)r)).Cast<T>();
 }

@@ -47,95 +47,57 @@ internal class XLFilterColumn : IXLFilterColumn, IXLFilteredColumn, IEnumerable<
         return this;
     }
 
-    public void Top(Int32 value, XLTopBottomType type, bool reapply)
-    {
+    public void Top(Int32 value, XLTopBottomType type, bool reapply) =>
         this.SetTopBottom(value, type, takeTop: true, reapply);
-    }
 
-    public void Bottom(Int32 value, XLTopBottomType type, bool reapply)
-    {
+    public void Bottom(Int32 value, XLTopBottomType type, bool reapply) =>
         this.SetTopBottom(value, type, takeTop: false, reapply);
-    }
 
-    public void AboveAverage(bool reapply)
-    {
-        this.SetAverage(aboveAverage: true, reapply);
-    }
+    public void AboveAverage(bool reapply) => this.SetAverage(aboveAverage: true, reapply);
 
-    public void BelowAverage(bool reapply)
-    {
-        this.SetAverage(aboveAverage: false, reapply);
-    }
+    public void BelowAverage(bool reapply) => this.SetAverage(aboveAverage: false, reapply);
 
-    public IXLFilterConnector EqualTo(XLCellValue value, Boolean reapply)
-    {
-        return this.AddCustomFilter(value.ToString(), true, reapply);
-    }
+    public IXLFilterConnector EqualTo(XLCellValue value, Boolean reapply) =>
+        this.AddCustomFilter(value.ToString(), true, reapply);
 
-    public IXLFilterConnector NotEqualTo(XLCellValue value, Boolean reapply)
-    {
-        return this.AddCustomFilter(value.ToString(), false, reapply);
-    }
+    public IXLFilterConnector NotEqualTo(XLCellValue value, Boolean reapply) =>
+        this.AddCustomFilter(value.ToString(), false, reapply);
 
-    public IXLFilterConnector GreaterThan(XLCellValue value, Boolean reapply)
-    {
-        return this.AddCustomFilter(value, XLFilterOperator.GreaterThan, reapply);
-    }
+    public IXLFilterConnector GreaterThan(XLCellValue value, Boolean reapply) =>
+        this.AddCustomFilter(value, XLFilterOperator.GreaterThan, reapply);
 
-    public IXLFilterConnector LessThan(XLCellValue value, Boolean reapply)
-    {
-        return this.AddCustomFilter(value, XLFilterOperator.LessThan, reapply);
-    }
+    public IXLFilterConnector LessThan(XLCellValue value, Boolean reapply) =>
+        this.AddCustomFilter(value, XLFilterOperator.LessThan, reapply);
 
-    public IXLFilterConnector EqualOrGreaterThan(XLCellValue value, Boolean reapply)
-    {
-        return this.AddCustomFilter(value, XLFilterOperator.EqualOrGreaterThan, reapply);
-    }
+    public IXLFilterConnector EqualOrGreaterThan(XLCellValue value, Boolean reapply) =>
+        this.AddCustomFilter(value, XLFilterOperator.EqualOrGreaterThan, reapply);
 
-    public IXLFilterConnector EqualOrLessThan(XLCellValue value, Boolean reapply)
-    {
-        return this.AddCustomFilter(value, XLFilterOperator.EqualOrLessThan, reapply);
-    }
+    public IXLFilterConnector EqualOrLessThan(XLCellValue value, Boolean reapply) =>
+        this.AddCustomFilter(value, XLFilterOperator.EqualOrLessThan, reapply);
 
-    public void Between(XLCellValue minValue, XLCellValue maxValue, Boolean reapply)
-    {
+    public void Between(XLCellValue minValue, XLCellValue maxValue, Boolean reapply) =>
         this.EqualOrGreaterThan(minValue, false).And.EqualOrLessThan(maxValue, reapply);
-    }
 
-    public void NotBetween(XLCellValue minValue, XLCellValue maxValue, Boolean reapply)
-    {
+    public void NotBetween(XLCellValue minValue, XLCellValue maxValue, Boolean reapply) =>
         this.LessThan(minValue, false).Or.GreaterThan(maxValue, reapply);
-    }
 
-    public IXLFilterConnector BeginsWith(String value, Boolean reapply)
-    {
-        return this.AddCustomFilter(value + "*", true, reapply);
-    }
+    public IXLFilterConnector BeginsWith(String value, Boolean reapply) =>
+        this.AddCustomFilter(value + "*", true, reapply);
 
-    public IXLFilterConnector NotBeginsWith(String value, Boolean reapply)
-    {
-        return this.AddCustomFilter(value + "*", false, reapply);
-    }
+    public IXLFilterConnector NotBeginsWith(String value, Boolean reapply) =>
+        this.AddCustomFilter(value + "*", false, reapply);
 
-    public IXLFilterConnector EndsWith(String value, Boolean reapply)
-    {
-        return this.AddCustomFilter("*" + value, true, reapply);
-    }
+    public IXLFilterConnector EndsWith(String value, Boolean reapply) =>
+        this.AddCustomFilter("*" + value, true, reapply);
 
-    public IXLFilterConnector NotEndsWith(String value, Boolean reapply)
-    {
-        return this.AddCustomFilter("*" + value, false, reapply);
-    }
+    public IXLFilterConnector NotEndsWith(String value, Boolean reapply) =>
+        this.AddCustomFilter("*" + value, false, reapply);
 
-    public IXLFilterConnector Contains(String value, Boolean reapply)
-    {
-        return this.AddCustomFilter("*" + value + "*", true, reapply);
-    }
+    public IXLFilterConnector Contains(String value, Boolean reapply) =>
+        this.AddCustomFilter("*" + value + "*", true, reapply);
 
-    public IXLFilterConnector NotContains(String value, Boolean reapply)
-    {
-        return this.AddCustomFilter("*" + value + "*", false, reapply);
-    }
+    public IXLFilterConnector NotContains(String value, Boolean reapply) =>
+        this.AddCustomFilter("*" + value + "*", false, reapply);
 
     public XLFilterType FilterType { get; set; }
 

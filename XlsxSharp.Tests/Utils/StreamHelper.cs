@@ -60,10 +60,8 @@ public static class StreamHelper
                 ),
             ];
 
-    public static void StreamToStreamAppend(Stream streamIn, Stream streamToWrite)
-    {
+    public static void StreamToStreamAppend(Stream streamIn, Stream streamToWrite) =>
         StreamToStreamAppend(streamIn, streamToWrite, 0);
-    }
 
     public static void StreamToStreamAppend(Stream streamIn, Stream streamToWrite, long dataLength)
     {

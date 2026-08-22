@@ -58,10 +58,7 @@ internal static class Logical
         return value;
     }
 
-    private static ScalarValue False()
-    {
-        return false;
-    }
+    private static ScalarValue False() => false;
 
     private static AnyValue If(ScalarValue condition, AnyValue valueIfTrue, AnyValue valueIfFalse)
     {
@@ -83,10 +80,7 @@ internal static class Logical
         return alternative.ToAnyValue();
     }
 
-    private static AnyValue Not(Boolean value)
-    {
-        return !value;
-    }
+    private static AnyValue Not(Boolean value) => !value;
 
     private static AnyValue Or(CalcContext ctx, Span<AnyValue> args)
     {
@@ -121,8 +115,5 @@ internal static class Logical
         return value;
     }
 
-    private static ScalarValue True()
-    {
-        return true;
-    }
+    private static ScalarValue True() => true;
 }

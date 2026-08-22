@@ -30,13 +30,11 @@ internal readonly record struct TextRotation
     /// <summary>
     /// Get value that is stored in ISO-29500 (unsigned int)
     /// </summary>
-    internal uint GetIso()
-    {
-        return this.Value switch
+    internal uint GetIso() =>
+        this.Value switch
         {
             >= 0 and <= 90 => (uint)this.Value,
             >= -90 and <= 0 => (uint)(90 - this.Value),
             _ => (uint)this.Value,
         };
-    }
 }

@@ -136,10 +136,7 @@ public class DefaultGraphicEngine : IXLGraphicEngine
     public static IXLGraphicEngine CreateOnlyWithFonts(
         Stream fallbackFontStream,
         params Stream[] fontStreams
-    )
-    {
-        return new DefaultGraphicEngine(fallbackFontStream, false, fontStreams);
-    }
+    ) => new DefaultGraphicEngine(fallbackFontStream, false, fontStreams);
 
     /// <summary>
     /// Create a default graphic engine that uses only fallback font and additional fonts passed as streams.
@@ -150,10 +147,7 @@ public class DefaultGraphicEngine : IXLGraphicEngine
     public static IXLGraphicEngine CreateWithFontsAndSystemFonts(
         Stream fallbackFontStream,
         params Stream[] fontStreams
-    )
-    {
-        return new DefaultGraphicEngine(fallbackFontStream, true, fontStreams);
-    }
+    ) => new DefaultGraphicEngine(fallbackFontStream, true, fontStreams);
 
     public XLPictureInfo GetPictureInfo(Stream stream, XLPictureFormat expectedFormat)
     {
@@ -174,13 +168,11 @@ public class DefaultGraphicEngine : IXLGraphicEngine
         return GetDescent(font, dpiY, metrics);
     }
 
-    private static double GetDescent(IXLFontBase font, double dpiY, FontMetrics metrics)
-    {
-        return PointsToPixels(
+    private static double GetDescent(IXLFontBase font, double dpiY, FontMetrics metrics) =>
+        PointsToPixels(
             -metrics.VerticalMetrics.Descender * font.FontSize / metrics.UnitsPerEm,
             dpiY
         );
-    }
 
     public double GetMaxDigitWidth(IXLFontBase fontBase, double dpiX)
     {
@@ -261,15 +253,9 @@ public class DefaultGraphicEngine : IXLGraphicEngine
         return font.FontMetrics;
     }
 
-    private Font GetFont(IXLFontBase fontBase)
-    {
-        return this.GetFont(new MetricId(fontBase));
-    }
+    private Font GetFont(IXLFontBase fontBase) => this.GetFont(new MetricId(fontBase));
 
-    private Font GetFont(MetricId metricId)
-    {
-        return this._fonts.GetOrAdd(metricId, this._loadFont);
-    }
+    private Font GetFont(MetricId metricId) => this._fonts.GetOrAdd(metricId, this._loadFont);
 
     private Font LoadFont(MetricId metricId)
     {
@@ -359,15 +345,13 @@ public class DefaultGraphicEngine : IXLGraphicEngine
 
         public override int GetHashCode() => (this.Name.GetHashCode() * 397) ^ (int)this._style;
 
-        private static FontStyle GetFontStyle(IXLFontBase fontBase)
-        {
-            return fontBase switch
+        private static FontStyle GetFontStyle(IXLFontBase fontBase) =>
+            fontBase switch
             {
                 { Bold: true, Italic: true } => FontStyle.BoldItalic,
                 { Bold: true } => FontStyle.Bold,
                 { Italic: true } => FontStyle.Italic,
                 _ => FontStyle.Regular,
             };
-        }
     }
 }

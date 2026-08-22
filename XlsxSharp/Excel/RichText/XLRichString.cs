@@ -41,15 +41,9 @@ internal class XLRichString : IXLRichString
         }
     }
 
-    public IXLRichString AddText(String text)
-    {
-        return this._withRichString.AddText(text);
-    }
+    public IXLRichString AddText(String text) => this._withRichString.AddText(text);
 
-    public IXLRichString AddNewLine()
-    {
-        return this.AddText(Environment.NewLine);
-    }
+    public IXLRichString AddNewLine() => this.AddText(Environment.NewLine);
 
     public Boolean Bold
     {
@@ -246,12 +240,10 @@ internal class XLRichString : IXLRichString
         return this.Text == other.Text && this._font.Equals(other._font);
     }
 
-    public override int GetHashCode()
-    {
+    public override int GetHashCode() =>
         // Since all properties of type are mutable, can't have different hashcode for any instance.
         // Don't ever use this class in a dictionary, e.g. SST.
-        return 4; // Chosen by fair dice roll. Guaranteed to be random.
-    }
+        4; // Chosen by fair dice roll. Guaranteed to be random.
 
     private void ChangeFont(Func<XLFontFormatValue, XLFontFormatValue> modifyFont)
     {

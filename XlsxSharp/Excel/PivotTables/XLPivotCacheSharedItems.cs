@@ -69,25 +69,14 @@ internal class XLPivotCacheSharedItems
         }
     }
 
-    internal void AddMissing()
-    {
-        this._values.Add(XLPivotCacheValue.ForMissing());
-    }
+    internal void AddMissing() => this._values.Add(XLPivotCacheValue.ForMissing());
 
-    internal void AddNumber(double number)
-    {
-        this._values.Add(XLPivotCacheValue.ForNumber(number));
-    }
+    internal void AddNumber(double number) => this._values.Add(XLPivotCacheValue.ForNumber(number));
 
-    internal void AddBoolean(bool boolean)
-    {
+    internal void AddBoolean(bool boolean) =>
         this._values.Add(XLPivotCacheValue.ForBoolean(boolean));
-    }
 
-    internal void AddError(XLError error)
-    {
-        this._values.Add(XLPivotCacheValue.ForError(error));
-    }
+    internal void AddError(XLError error) => this._values.Add(XLPivotCacheValue.ForError(error));
 
     internal void AddString(string text)
     {
@@ -100,10 +89,8 @@ internal class XLPivotCacheSharedItems
         }
     }
 
-    internal void AddDateTime(DateTime dateTime)
-    {
+    internal void AddDateTime(DateTime dateTime) =>
         this._values.Add(XLPivotCacheValue.ForDateTime(dateTime));
-    }
 
     internal IEnumerable<XLCellValue> GetCellValues()
     {
@@ -113,10 +100,7 @@ internal class XLPivotCacheSharedItems
         }
     }
 
-    internal XLPivotCacheValue GetValue(uint index)
-    {
-        return this._values[checked((int)index)];
-    }
+    internal XLPivotCacheValue GetValue(uint index) => this._values[checked((int)index)];
 
     internal string GetStringValue(uint index)
     {

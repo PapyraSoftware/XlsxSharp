@@ -78,10 +78,8 @@ internal class XLRichText : XLFormattedText<IXLRichText>, IXLRichText
     }
 
     internal XLRichText(XLCell cell, XLFontFormatValue defaultFont, String text)
-        : this(cell, defaultFont)
-    {
+        : this(cell, defaultFont) =>
         this.AddText(new XLRichString(text, defaultFont, this, this.Styles, this.OnContentChanged));
-    }
 
     internal XLRichText(XLCell cell, XLFontFormatValue defaultFont)
         : base(defaultFont, cell.Worksheet.Workbook.Styles)

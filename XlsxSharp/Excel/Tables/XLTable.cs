@@ -26,15 +26,9 @@ internal class XLTable : XLRange, IXLTable
     /// The direct constructor should only be used in <see cref="XLWorksheet.RangeFactory"/>.
     /// </summary>
     public XLTable(XLRangeAddress tableArea, IXLStyle defaultStyle)
-        : base(tableArea, defaultStyle)
-    {
-        this.InitializeValues(false);
-    }
+        : base(tableArea, defaultStyle) => this.InitializeValues(false);
 
-    public override XLRangeType RangeType
-    {
-        get { return XLRangeType.Table; }
-    }
+    public override XLRangeType RangeType => XLRangeType.Table;
 
     private IXLRangeAddress _lastRangeAddress;
     private Dictionary<String, XLTableField> _fieldNames = CreateFieldNames();
@@ -192,10 +186,7 @@ internal class XLTable : XLRange, IXLTable
         }
     }
 
-    public override IXLAutoFilter SetAutoFilter()
-    {
-        return this.AutoFilter;
-    }
+    public override IXLAutoFilter SetAutoFilter() => this.AutoFilter;
 
     protected override void OnRangeAddressChanged(
         XLRangeAddress oldAddress,
@@ -216,15 +207,15 @@ internal class XLTable : XLRange, IXLTable
 
     public Boolean ShowAutoFilter
     {
-        get { return this._showHeaderRow && this._showAutoFilter; }
-        set { this._showAutoFilter = value; }
+        get => this._showHeaderRow && this._showAutoFilter;
+        set => this._showAutoFilter = value;
     }
 
     public XLTableTheme Theme { get; set; }
 
     public String Name
     {
-        get { return this._name; }
+        get => this._name;
         set
         {
             if (this._name == value)
@@ -274,7 +265,7 @@ internal class XLTable : XLRange, IXLTable
 
     public Boolean ShowTotalsRow
     {
-        get { return this._showTotalsRow; }
+        get => this._showTotalsRow;
         set
         {
             if (value && !this._showTotalsRow)
@@ -307,10 +298,7 @@ internal class XLTable : XLRange, IXLTable
         }
     }
 
-    public IXLRangeRow HeadersRow()
-    {
-        return this.HeadersRow(true);
-    }
+    public IXLRangeRow HeadersRow() => this.HeadersRow(true);
 
     internal XLRangeRow HeadersRow(Boolean scanForNewFieldsNames)
     {
@@ -327,25 +315,14 @@ internal class XLTable : XLRange, IXLTable
         return this.FirstRow();
     }
 
-    public IXLRangeRow TotalsRow()
-    {
-        return this.ShowTotalsRow ? this.LastRow() : null;
-    }
+    public IXLRangeRow TotalsRow() => this.ShowTotalsRow ? this.LastRow() : null;
 
-    public IXLTableField Field(String fieldName)
-    {
-        return this.Field(this.GetFieldIndex(fieldName));
-    }
+    public IXLTableField Field(String fieldName) => this.Field(this.GetFieldIndex(fieldName));
 
-    IXLTableField IXLTable.Field(Int32 fieldIndex)
-    {
-        return this.Field(fieldIndex);
-    }
+    IXLTableField IXLTable.Field(Int32 fieldIndex) => this.Field(fieldIndex);
 
-    internal XLTableField Field(Int32 fieldIndex)
-    {
-        return this.FieldNames.Values.First(f => f.Index == fieldIndex);
-    }
+    internal XLTableField Field(Int32 fieldIndex) =>
+        this.FieldNames.Values.First(f => f.Index == fieldIndex);
 
     IEnumerable<IXLTableField> IXLTable.Fields => this.Fields;
 
@@ -361,42 +338,29 @@ internal class XLTable : XLRange, IXLTable
         }
     }
 
-    public IXLTable Resize(IXLRangeAddress rangeAddress)
-    {
-        return this.Resize(this.Worksheet.Range(this.RangeAddress));
-    }
+    public IXLTable Resize(IXLRangeAddress rangeAddress) =>
+        this.Resize(this.Worksheet.Range(this.RangeAddress));
 
-    public IXLTable Resize(string rangeAddress)
-    {
-        return this.Resize(this.Worksheet.Range(rangeAddress));
-    }
+    public IXLTable Resize(string rangeAddress) => this.Resize(this.Worksheet.Range(rangeAddress));
 
-    public IXLTable Resize(IXLCell firstCell, IXLCell lastCell)
-    {
-        return this.Resize(this.Worksheet.Range(firstCell, lastCell));
-    }
+    public IXLTable Resize(IXLCell firstCell, IXLCell lastCell) =>
+        this.Resize(this.Worksheet.Range(firstCell, lastCell));
 
-    public IXLTable Resize(string firstCellAddress, string lastCellAddress)
-    {
-        return this.Resize(this.Worksheet.Range(firstCellAddress, lastCellAddress));
-    }
+    public IXLTable Resize(string firstCellAddress, string lastCellAddress) =>
+        this.Resize(this.Worksheet.Range(firstCellAddress, lastCellAddress));
 
-    public IXLTable Resize(IXLAddress firstCellAddress, IXLAddress lastCellAddress)
-    {
-        return this.Resize(this.Worksheet.Range(firstCellAddress, lastCellAddress));
-    }
+    public IXLTable Resize(IXLAddress firstCellAddress, IXLAddress lastCellAddress) =>
+        this.Resize(this.Worksheet.Range(firstCellAddress, lastCellAddress));
 
     public IXLTable Resize(
         int firstCellRow,
         int firstCellColumn,
         int lastCellRow,
         int lastCellColumn
-    )
-    {
-        return this.Resize(
+    ) =>
+        this.Resize(
             this.Worksheet.Range(firstCellRow, firstCellColumn, lastCellRow, lastCellColumn)
         );
-    }
 
     public IXLTable Resize(IXLRange range)
     {
@@ -632,10 +596,7 @@ internal class XLTable : XLRange, IXLTable
         return this;
     }
 
-    IXLAutoFilter IXLTable.AutoFilter
-    {
-        get { return this.AutoFilter; }
-    }
+    IXLAutoFilter IXLTable.AutoFilter => this.AutoFilter;
 
     #endregion IXLTable Members
 
@@ -655,10 +616,7 @@ internal class XLTable : XLRange, IXLTable
         }
     }
 
-    public void InitializeAutoFilter()
-    {
-        this.ShowAutoFilter = true;
-    }
+    public void InitializeAutoFilter() => this.ShowAutoFilter = true;
 
     internal void OnAddedToTables()
     {
@@ -677,10 +635,8 @@ internal class XLTable : XLRange, IXLTable
         }
     }
 
-    private static Dictionary<string, XLTableField> CreateFieldNames()
-    {
-        return new Dictionary<string, XLTableField>(StringComparer.CurrentCultureIgnoreCase);
-    }
+    private static Dictionary<string, XLTableField> CreateFieldNames() =>
+        new(StringComparer.CurrentCultureIgnoreCase);
 
     private String GetUniqueName(String originalName, Int32 initialOffset, Boolean enforceOffset)
     {
@@ -722,7 +678,7 @@ internal class XLTable : XLRange, IXLTable
 
     public Boolean ShowHeaderRow
     {
-        get { return this._showHeaderRow; }
+        get => this._showHeaderRow;
         set
         {
             if (this._showHeaderRow == value)
@@ -807,10 +763,7 @@ internal class XLTable : XLRange, IXLTable
         }
     }
 
-    public IXLTable SetShowHeaderRow()
-    {
-        return this.SetShowHeaderRow(true);
-    }
+    public IXLTable SetShowHeaderRow() => this.SetShowHeaderRow(true);
 
     public IXLTable SetShowHeaderRow(Boolean value)
     {
@@ -818,8 +771,7 @@ internal class XLTable : XLRange, IXLTable
         return this;
     }
 
-    public void ExpandTableRows(Int32 rows)
-    {
+    public void ExpandTableRows(Int32 rows) =>
         this.RangeAddress = new XLRangeAddress(
             this.RangeAddress.FirstAddress,
             new XLAddress(
@@ -830,7 +782,6 @@ internal class XLTable : XLRange, IXLTable
                 this.RangeAddress.LastAddress.FixedColumn
             )
         );
-    }
 
     public override XLRangeColumn Column(int columnNumber)
     {
@@ -891,15 +842,11 @@ internal class XLTable : XLRange, IXLTable
         return columns;
     }
 
-    IXLPivotTable IXLRangeBase.CreatePivotTable(IXLCell targetCell, String name)
-    {
-        return this.CreatePivotTable(targetCell, name);
-    }
+    IXLPivotTable IXLRangeBase.CreatePivotTable(IXLCell targetCell, String name) =>
+        this.CreatePivotTable(targetCell, name);
 
-    internal new XLPivotTable CreatePivotTable(IXLCell targetCell, String name)
-    {
-        return (XLPivotTable)targetCell.Worksheet.PivotTables.Add(name, targetCell, this);
-    }
+    internal new XLPivotTable CreatePivotTable(IXLCell targetCell, String name) =>
+        (XLPivotTable)targetCell.Worksheet.PivotTables.Add(name, targetCell, this);
 
     public IEnumerable<dynamic> AsDynamicEnumerable()
     {
@@ -970,10 +917,7 @@ internal class XLTable : XLRange, IXLTable
         return table;
     }
 
-    public IXLTable CopyTo(IXLWorksheet targetSheet)
-    {
-        return this.CopyTo((XLWorksheet)targetSheet);
-    }
+    public IXLTable CopyTo(IXLWorksheet targetSheet) => this.CopyTo((XLWorksheet)targetSheet);
 
     internal IXLTable CopyTo(XLWorksheet targetSheet, bool copyData = true)
     {
@@ -1021,14 +965,8 @@ internal class XLTable : XLRange, IXLTable
 
     #region Append and replace data
 
-    public IXLRange AppendData(IEnumerable data, Boolean propagateExtraColumns = false)
-    {
-        return this.AppendData(
-            data,
-            transpose: false,
-            propagateExtraColumns: propagateExtraColumns
-        );
-    }
+    public IXLRange AppendData(IEnumerable data, Boolean propagateExtraColumns = false) =>
+        this.AppendData(data, transpose: false, propagateExtraColumns: propagateExtraColumns);
 
     public IXLRange AppendData(
         IEnumerable data,
@@ -1058,13 +996,11 @@ internal class XLTable : XLRange, IXLTable
         return insertedRange;
     }
 
-    public IXLRange AppendData(DataTable dataTable, Boolean propagateExtraColumns = false)
-    {
-        return this.AppendData(
+    public IXLRange AppendData(DataTable dataTable, Boolean propagateExtraColumns = false) =>
+        this.AppendData(
             dataTable.Rows.Cast<DataRow>(),
             propagateExtraColumns: propagateExtraColumns
         );
-    }
 
     public IXLRange AppendData<T>(IEnumerable<T> data, Boolean propagateExtraColumns = false)
     {
@@ -1095,14 +1031,8 @@ internal class XLTable : XLRange, IXLTable
         return insertedRange;
     }
 
-    public IXLRange ReplaceData(IEnumerable data, Boolean propagateExtraColumns = false)
-    {
-        return this.ReplaceData(
-            data,
-            transpose: false,
-            propagateExtraColumns: propagateExtraColumns
-        );
-    }
+    public IXLRange ReplaceData(IEnumerable data, Boolean propagateExtraColumns = false) =>
+        this.ReplaceData(data, transpose: false, propagateExtraColumns: propagateExtraColumns);
 
     public IXLRange ReplaceData(
         IEnumerable data,
@@ -1153,13 +1083,11 @@ internal class XLTable : XLRange, IXLTable
         return replacedRange;
     }
 
-    public IXLRange ReplaceData(DataTable dataTable, Boolean propagateExtraColumns = false)
-    {
-        return this.ReplaceData(
+    public IXLRange ReplaceData(DataTable dataTable, Boolean propagateExtraColumns = false) =>
+        this.ReplaceData(
             dataTable.Rows.Cast<DataRow>(),
             propagateExtraColumns: propagateExtraColumns
         );
-    }
 
     public IXLRange ReplaceData<T>(IEnumerable<T> data, Boolean propagateExtraColumns = false)
     {

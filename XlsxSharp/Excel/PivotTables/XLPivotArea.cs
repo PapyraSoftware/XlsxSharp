@@ -83,8 +83,5 @@ internal class XLPivotArea
     /// </summary>
     internal uint? FieldPosition { get; init; }
 
-    internal void AddReference(XLPivotReference reference)
-    {
-        this._references.Add(reference);
-    }
+    internal void AddReference(XLPivotReference reference) => this._references.Add(reference);
 }

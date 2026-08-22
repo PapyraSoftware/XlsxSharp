@@ -10,10 +10,7 @@ internal class XLPivotConditionalFormat
 {
     private readonly List<XLPivotArea> _area = [];
 
-    internal XLPivotConditionalFormat(XLConditionalFormat format)
-    {
-        this.Format = format;
-    }
+    internal XLPivotConditionalFormat(XLConditionalFormat format) => this.Format = format;
 
     /// <summary>
     /// An option to display in GUI on how to update <see cref="Areas"/>.
@@ -44,8 +41,5 @@ internal class XLPivotConditionalFormat
     /// </remarks>
     internal XLConditionalFormat Format { get; }
 
-    internal void AddArea(XLPivotArea pivotArea)
-    {
-        this._area.Add(pivotArea);
-    }
+    internal void AddArea(XLPivotArea pivotArea) => this._area.Add(pivotArea);
 }

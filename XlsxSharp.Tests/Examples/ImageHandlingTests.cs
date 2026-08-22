@@ -7,14 +7,10 @@ namespace XlsxSharp.Tests.Examples;
 public class ImageHandlingTests
 {
     [Test]
-    public void ImageAnchors()
-    {
+    public void ImageAnchors() =>
         TestHelper.RunTestExample<ImageAnchors>(@"ImageHandling\ImageAnchors.xlsx");
-    }
 
     [Test]
-    public void ImageFormats()
-    {
+    public void ImageFormats() =>
         TestHelper.RunTestExample<ImageFormats>(@"ImageHandling\ImageFormats.xlsx");
-    }
 }

@@ -21,10 +21,7 @@ internal class SequentialMap<TKey, T>
     /// </summary>
     private List<(int SaveId, T Actual)>? _saveTable;
 
-    public SequentialMap(IReadOnlyBiDictionary<TKey, T> fullMap)
-    {
-        this._fullMap = fullMap;
-    }
+    public SequentialMap(IReadOnlyBiDictionary<TKey, T> fullMap) => this._fullMap = fullMap;
 
     /// <summary>
     /// How many entries to save are in the map.
@@ -69,30 +66,19 @@ internal class SequentialMap<TKey, T>
         return map;
     }
 
-    public void Add(TKey actualId)
-    {
+    public void Add(TKey actualId) =>
         this._savedIdToActualId.Add(this._savedIdToActualId.Count, actualId);
-    }
 
-    private void Add(TKey actualId, int saveId)
-    {
-        this._savedIdToActualId.Add(saveId, actualId);
-    }
+    private void Add(TKey actualId, int saveId) => this._savedIdToActualId.Add(saveId, actualId);
 
-    public void Sort()
-    {
-        this._saveTable =
-        [
+    public void Sort() =>
+        this._saveTable = [
             .. this
                 ._savedIdToActualId.Select(x => (x.Key, this._fullMap[x.Value]))
                 .OrderBy(x => x.Item1),
         ];
-    }
 
-    public IEnumerable<(int SaveId, T Actual)> GetActual()
-    {
-        return this._saveTable!;
-    }
+    public IEnumerable<(int SaveId, T Actual)> GetActual() => this._saveTable!;
 
     public int GetSavedId(T item)
     {

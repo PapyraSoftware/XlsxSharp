@@ -10,10 +10,8 @@ internal class XLCFDataBarMax : IXLCFDataBarMax
 {
     private readonly XLConditionalFormat _conditionalFormat;
 
-    public XLCFDataBarMax(XLConditionalFormat conditionalFormat)
-    {
+    public XLCFDataBarMax(XLConditionalFormat conditionalFormat) =>
         this._conditionalFormat = conditionalFormat;
-    }
 
     public void Maximum(XLCFContentType type, String value)
     {
@@ -21,13 +19,8 @@ internal class XLCFDataBarMax : IXLCFDataBarMax
         this._conditionalFormat.Values.Add(new XLFormula { Value = value });
     }
 
-    public void Maximum(XLCFContentType type, Double value)
-    {
+    public void Maximum(XLCFContentType type, Double value) =>
         this.Maximum(type, value.ToInvariantString());
-    }
 
-    public void HighestValue()
-    {
-        this.Maximum(XLCFContentType.Maximum, "0");
-    }
+    public void HighestValue() => this.Maximum(XLCFContentType.Maximum, "0");
 }

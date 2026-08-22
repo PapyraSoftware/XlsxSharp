@@ -11,23 +11,12 @@ internal class NullDataReader : IInsertDataReader
     private readonly XLCellValue[] _row = [Blank.Value];
     private readonly int _count;
 
-    public NullDataReader(IEnumerable<object> nulls)
-    {
-        this._count = nulls.Count();
-    }
+    public NullDataReader(IEnumerable<object> nulls) => this._count = nulls.Count();
 
-    public IEnumerable<IEnumerable<XLCellValue>> GetRecords()
-    {
-        return Enumerable.Repeat(this._row, this._count);
-    }
+    public IEnumerable<IEnumerable<XLCellValue>> GetRecords() =>
+        Enumerable.Repeat(this._row, this._count);
 
-    public int GetPropertiesCount()
-    {
-        return 0;
-    }
+    public int GetPropertiesCount() => 0;
 
-    public string? GetPropertyName(int propertyIndex)
-    {
-        return null;
-    }
+    public string? GetPropertyName(int propertyIndex) => null;
 }

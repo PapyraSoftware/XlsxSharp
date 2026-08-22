@@ -29,8 +29,6 @@ public enum XLClearOptions
 
 internal static class XLClearOptionsExtensions
 {
-    public static XLCellsUsedOptions ToCellsUsedOptions(this XLClearOptions options)
-    {
-        return (XLCellsUsedOptions)options;
-    }
+    public static XLCellsUsedOptions ToCellsUsedOptions(this XLClearOptions options) =>
+        (XLCellsUsedOptions)options;
 }

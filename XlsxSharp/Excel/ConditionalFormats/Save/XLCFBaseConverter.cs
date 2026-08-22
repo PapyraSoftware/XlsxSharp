@@ -5,15 +5,13 @@ namespace XlsxSharp.Excel.ConditionalFormats.Save;
 
 internal static class XLCFBaseConverter
 {
-    public static ConditionalFormattingRule Convert(XLConditionalFormat cf, int priority)
-    {
-        return new ConditionalFormattingRule
+    public static ConditionalFormattingRule Convert(XLConditionalFormat cf, int priority) =>
+        new()
         {
             Type = cf.ConditionalFormatType.ToOpenXml(),
             Priority = priority,
             StopIfTrue = OpenXmlHelper.GetBooleanValue(cf.StopIfTrue, false),
         };
-    }
 
     public static ConditionalFormattingRule ConvertWithDxf(
         XLConditionalFormat cf,

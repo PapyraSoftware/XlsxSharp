@@ -11,10 +11,7 @@ internal class XLDxfNumberFormat : IXLNumberFormat
 {
     private readonly XLDxFormat _parent;
 
-    internal XLDxfNumberFormat(XLDxFormat parent)
-    {
-        this._parent = parent;
-    }
+    internal XLDxfNumberFormat(XLDxFormat parent) => this._parent = parent;
 
     /// <inheritdoc />
     int IXLNumberFormatBase.NumberFormatId
@@ -85,13 +82,8 @@ internal class XLDxfNumberFormat : IXLNumberFormat
         return this._parent;
     }
 
-    bool IEquatable<IXLNumberFormatBase>.Equals(IXLNumberFormatBase other)
-    {
-        return this.Format == other.Format;
-    }
+    bool IEquatable<IXLNumberFormatBase>.Equals(IXLNumberFormatBase other) =>
+        this.Format == other.Format;
 
-    internal void SetValue(IXLNumberFormat value)
-    {
-        this.Format = value.Format;
-    }
+    internal void SetValue(IXLNumberFormat value) => this.Format = value.Format;
 }

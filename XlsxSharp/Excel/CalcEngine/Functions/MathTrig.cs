@@ -239,45 +239,21 @@ internal static class MathTrig
 
     #endregion Register
 
-    public static double ASinh(double x)
-    {
-        return Math.Log(x + Math.Sqrt(x * x + 1.0));
-    }
+    public static double ASinh(double x) => Math.Log(x + Math.Sqrt(x * x + 1.0));
 
-    public static double DegreesToGrads(double degrees)
-    {
-        return degrees / 9.0 * 10.0;
-    }
+    public static double DegreesToGrads(double degrees) => degrees / 9.0 * 10.0;
 
-    public static double DegreesToRadians(double degrees)
-    {
-        return Math.PI / 180.0 * degrees;
-    }
+    public static double DegreesToRadians(double degrees) => Math.PI / 180.0 * degrees;
 
-    public static double GradsToDegrees(double grads)
-    {
-        return grads / 10.0 * 9.0;
-    }
+    public static double GradsToDegrees(double grads) => grads / 10.0 * 9.0;
 
-    public static double GradsToRadians(double grads)
-    {
-        return grads / 200.0 * Math.PI;
-    }
+    public static double GradsToRadians(double grads) => grads / 200.0 * Math.PI;
 
-    public static double RadiansToDegrees(double radians)
-    {
-        return 180.0 / Math.PI * radians;
-    }
+    public static double RadiansToDegrees(double radians) => 180.0 / Math.PI * radians;
 
-    public static double RadiansToGrads(double radians)
-    {
-        return radians / Math.PI * 200.0;
-    }
+    public static double RadiansToGrads(double radians) => radians / Math.PI * 200.0;
 
-    private static ScalarValue Abs(double number)
-    {
-        return Math.Abs(number);
-    }
+    private static ScalarValue Abs(double number) => Math.Abs(number);
 
     private static ScalarValue Acos(double number)
     {
@@ -392,15 +368,9 @@ internal static class MathTrig
         return Math.Asin(number);
     }
 
-    private static ScalarValue Asinh(double number)
-    {
-        return XLMath.Asinh(number);
-    }
+    private static ScalarValue Asinh(double number) => XLMath.Asinh(number);
 
-    private static ScalarValue Atan(double number)
-    {
-        return Math.Atan(number);
-    }
+    private static ScalarValue Atan(double number) => Math.Atan(number);
 
     private static ScalarValue Atan2(CalcContext ctx, double x, double y)
     {
@@ -522,10 +492,7 @@ internal static class MathTrig
         return chosen == 0 || k == 0 ? 1 : XLMath.Combin(ctx, n, k);
     }
 
-    private static ScalarValue Cos(double number)
-    {
-        return Math.Cos(number);
-    }
+    private static ScalarValue Cos(double number) => Math.Cos(number);
 
     private static ScalarValue Cosh(double number)
     {
@@ -620,10 +587,7 @@ internal static class MathTrig
         return result;
     }
 
-    private static ScalarValue Degrees(double number)
-    {
-        return number * (180.0 / Math.PI);
-    }
+    private static ScalarValue Degrees(double number) => number * (180.0 / Math.PI);
 
     private static ScalarValue Even(double number)
     {
@@ -797,10 +761,7 @@ internal static class MathTrig
         return arr;
     }
 
-    private static ScalarValue Int(double number)
-    {
-        return Math.Floor(number);
-    }
+    private static ScalarValue Int(double number) => Math.Floor(number);
 
     private static ScalarValue Lcm(CalcContext ctx, List<Array> arrays)
     {
@@ -1033,10 +994,7 @@ internal static class MathTrig
         return XLMath.IsOdd(num) ? num : num + addValue;
     }
 
-    private static ScalarValue Pi()
-    {
-        return Math.PI;
-    }
+    private static ScalarValue Pi() => Math.PI;
 
     private static ScalarValue Power(CalcContext ctx, double x, double y)
     {
@@ -1066,10 +1024,8 @@ internal static class MathTrig
         return power;
     }
 
-    private static AnyValue Product(CalcContext ctx, Span<AnyValue> args)
-    {
-        return Product(ctx, args, TallyNumbers.WithoutScalarBlank);
-    }
+    private static AnyValue Product(CalcContext ctx, Span<AnyValue> args) =>
+        Product(ctx, args, TallyNumbers.WithoutScalarBlank);
 
     private static AnyValue Product(CalcContext ctx, Span<AnyValue> args, ITally tally)
     {
@@ -1092,15 +1048,9 @@ internal static class MathTrig
         return Math.Truncate(dividend / divisor);
     }
 
-    private static ScalarValue Radians(double angle)
-    {
-        return angle * Math.PI / 180.0;
-    }
+    private static ScalarValue Radians(double angle) => angle * Math.PI / 180.0;
 
-    private static ScalarValue Rand()
-    {
-        return _rnd.NextDouble();
-    }
+    private static ScalarValue Rand() => _rnd.NextDouble();
 
     private static ScalarValue RandBetween(CalcContext ctx, double lowerBound, double upperBound)
     {
@@ -1150,10 +1100,8 @@ internal static class MathTrig
         return result.ToString();
     }
 
-    private static ScalarValue Round(CalcContext ctx, double value, double digits)
-    {
-        return XLMath.Round(value, digits);
-    }
+    private static ScalarValue Round(CalcContext ctx, double value, double digits) =>
+        XLMath.Round(value, digits);
 
     private static ScalarValue RoundDown(CalcContext ctx, double value, double digits)
     {
@@ -1172,18 +1120,13 @@ internal static class MathTrig
         return Math.Floor(value * coef) / coef;
     }
 
-    private static ScalarValue Sec(double angle)
-    {
+    private static ScalarValue Sec(double angle) =>
         // Cos is actually never 0, because PI/2 can't be represented
         // as a double. It's just a really small number and the result
         // is thus never infinity.
-        return 1.0 / Math.Cos(angle);
-    }
+        1.0 / Math.Cos(angle);
 
-    private static ScalarValue Sech(double angle)
-    {
-        return 1.0 / Math.Cosh(angle);
-    }
+    private static ScalarValue Sech(double angle) => 1.0 / Math.Cosh(angle);
 
     private static ScalarValue SeriesSum(
         CalcContext ctx,
@@ -1215,15 +1158,9 @@ internal static class MathTrig
         return total;
     }
 
-    private static ScalarValue Sign(double number)
-    {
-        return Math.Sign(number);
-    }
+    private static ScalarValue Sign(double number) => Math.Sign(number);
 
-    private static ScalarValue Sin(double radians)
-    {
-        return Math.Sin(radians);
-    }
+    private static ScalarValue Sin(double radians) => Math.Sin(radians);
 
     private static ScalarValue Sinh(double number)
     {
@@ -1299,10 +1236,8 @@ internal static class MathTrig
         };
     }
 
-    private static AnyValue Sum(CalcContext ctx, Span<AnyValue> args)
-    {
-        return Sum(ctx, args, TallyNumbers.Default);
-    }
+    private static AnyValue Sum(CalcContext ctx, Span<AnyValue> args) =>
+        Sum(ctx, args, TallyNumbers.Default);
 
     private static AnyValue Sum(CalcContext ctx, Span<AnyValue> args, ITally tally)
     {
@@ -1488,10 +1423,7 @@ internal static class MathTrig
         return Math.Tan(radians);
     }
 
-    private static ScalarValue Tanh(double number)
-    {
-        return Math.Tanh(number);
-    }
+    private static ScalarValue Tanh(double number) => Math.Tanh(number);
 
     private static ScalarValue Trunc(CalcContext ctx, double number, double digits)
     {
@@ -1571,10 +1503,7 @@ internal static class MathTrig
 
     private readonly record struct SumSqState(double Sum) : ITallyState<SumSqState>
     {
-        public SumSqState Tally(double number)
-        {
-            return new SumSqState(this.Sum + number * number);
-        }
+        public SumSqState Tally(double number) => new(this.Sum + number * number);
     }
 
     private readonly record struct ProductState(double Product, bool HasValues)

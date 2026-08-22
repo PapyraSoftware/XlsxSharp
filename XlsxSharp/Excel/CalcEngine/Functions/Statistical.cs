@@ -121,10 +121,8 @@ internal static class Statistical
         //ZTEST	Returns the one-tailed probability-value of a z-test
     }
 
-    private static AnyValue Average(CalcContext ctx, Span<AnyValue> args)
-    {
-        return Average(ctx, args, TallyNumbers.Default);
-    }
+    private static AnyValue Average(CalcContext ctx, Span<AnyValue> args) =>
+        Average(ctx, args, TallyNumbers.Default);
 
     internal static AnyValue Average(CalcContext ctx, Span<AnyValue> args, ITally tally)
     {
@@ -148,10 +146,8 @@ internal static class Statistical
         return state.Sum / state.Count;
     }
 
-    private static AnyValue AverageA(CalcContext ctx, Span<AnyValue> args)
-    {
-        return Average(ctx, args, TallyAll.WithArrayText);
-    }
+    private static AnyValue AverageA(CalcContext ctx, Span<AnyValue> args) =>
+        Average(ctx, args, TallyAll.WithArrayText);
 
     private static AnyValue BinomDist(
         CalcContext ctx,
@@ -222,10 +218,8 @@ internal static class Statistical
         return binomDist;
     }
 
-    private static AnyValue Count(CalcContext ctx, Span<AnyValue> args)
-    {
-        return Count(ctx, args, TallyNumbers.IgnoreErrors);
-    }
+    private static AnyValue Count(CalcContext ctx, Span<AnyValue> args) =>
+        Count(ctx, args, TallyNumbers.IgnoreErrors);
 
     internal static AnyValue Count(CalcContext ctx, Span<AnyValue> args, ITally tally)
     {
@@ -243,10 +237,8 @@ internal static class Statistical
         return state.Count;
     }
 
-    private static AnyValue CountA(CalcContext ctx, Span<AnyValue> args)
-    {
-        return Count(ctx, args, TallyAll.IncludeErrors);
-    }
+    private static AnyValue CountA(CalcContext ctx, Span<AnyValue> args) =>
+        Count(ctx, args, TallyAll.IncludeErrors);
 
     private static AnyValue CountBlank(CalcContext ctx, AnyValue arg)
     {
@@ -410,10 +402,8 @@ internal static class Statistical
         return Math.Exp(geoMean.LogSum / geoMean.Count);
     }
 
-    private static AnyValue Max(CalcContext ctx, Span<AnyValue> args)
-    {
-        return Max(ctx, args, TallyNumbers.Default);
-    }
+    private static AnyValue Max(CalcContext ctx, Span<AnyValue> args) =>
+        Max(ctx, args, TallyNumbers.Default);
 
     internal static AnyValue Max(CalcContext ctx, Span<AnyValue> args, ITally tally)
     {
@@ -431,10 +421,8 @@ internal static class Statistical
         return state.Max;
     }
 
-    private static AnyValue MaxA(CalcContext ctx, Span<AnyValue> args)
-    {
-        return Max(ctx, args, TallyAll.Default);
-    }
+    private static AnyValue MaxA(CalcContext ctx, Span<AnyValue> args) =>
+        Max(ctx, args, TallyAll.Default);
 
     private static AnyValue Median(CalcContext ctx, Span<AnyValue> args)
     {
@@ -468,10 +456,8 @@ internal static class Statistical
         return allNumbers[halfIndex];
     }
 
-    private static AnyValue Min(CalcContext ctx, Span<AnyValue> args)
-    {
-        return Min(ctx, args, TallyNumbers.Default);
-    }
+    private static AnyValue Min(CalcContext ctx, Span<AnyValue> args) =>
+        Min(ctx, args, TallyNumbers.Default);
 
     internal static AnyValue Min(CalcContext ctx, Span<AnyValue> args, ITally tally)
     {
@@ -491,15 +477,11 @@ internal static class Statistical
         return state.Min;
     }
 
-    private static AnyValue MinA(CalcContext ctx, Span<AnyValue> args)
-    {
-        return Min(ctx, args, TallyAll.Default);
-    }
+    private static AnyValue MinA(CalcContext ctx, Span<AnyValue> args) =>
+        Min(ctx, args, TallyAll.Default);
 
-    private static AnyValue StDev(CalcContext ctx, Span<AnyValue> args)
-    {
-        return StDev(ctx, args, TallyNumbers.Default);
-    }
+    private static AnyValue StDev(CalcContext ctx, Span<AnyValue> args) =>
+        StDev(ctx, args, TallyNumbers.Default);
 
     internal static AnyValue StDev(CalcContext ctx, Span<AnyValue> args, ITally tally)
     {
@@ -519,15 +501,11 @@ internal static class Statistical
         return Math.Sqrt(squareDiff.Sum / (squareDiff.Count - 1));
     }
 
-    private static AnyValue StDevA(CalcContext ctx, Span<AnyValue> args)
-    {
-        return StDev(ctx, args, TallyAll.Default);
-    }
+    private static AnyValue StDevA(CalcContext ctx, Span<AnyValue> args) =>
+        StDev(ctx, args, TallyAll.Default);
 
-    private static AnyValue StDevP(CalcContext ctx, Span<AnyValue> args)
-    {
-        return StDevP(ctx, args, TallyNumbers.Default);
-    }
+    private static AnyValue StDevP(CalcContext ctx, Span<AnyValue> args) =>
+        StDevP(ctx, args, TallyNumbers.Default);
 
     internal static AnyValue StDevP(CalcContext ctx, Span<AnyValue> args, ITally tally)
     {
@@ -547,15 +525,11 @@ internal static class Statistical
         return Math.Sqrt(squareDiff.Sum / squareDiff.Count);
     }
 
-    private static AnyValue StDevPA(CalcContext ctx, Span<AnyValue> args)
-    {
-        return StDevP(ctx, args, TallyAll.Default);
-    }
+    private static AnyValue StDevPA(CalcContext ctx, Span<AnyValue> args) =>
+        StDevP(ctx, args, TallyAll.Default);
 
-    private static AnyValue Var(CalcContext ctx, Span<AnyValue> args)
-    {
-        return Var(ctx, args, TallyNumbers.Default);
-    }
+    private static AnyValue Var(CalcContext ctx, Span<AnyValue> args) =>
+        Var(ctx, args, TallyNumbers.Default);
 
     internal static AnyValue Var(CalcContext ctx, Span<AnyValue> args, ITally tally)
     {
@@ -575,15 +549,11 @@ internal static class Statistical
         return squareDiff.Sum / (squareDiff.Count - 1);
     }
 
-    private static AnyValue VarA(CalcContext ctx, Span<AnyValue> args)
-    {
-        return Var(ctx, args, TallyAll.Default);
-    }
+    private static AnyValue VarA(CalcContext ctx, Span<AnyValue> args) =>
+        Var(ctx, args, TallyAll.Default);
 
-    private static AnyValue VarP(CalcContext ctx, Span<AnyValue> args)
-    {
-        return VarP(ctx, args, TallyNumbers.Default);
-    }
+    private static AnyValue VarP(CalcContext ctx, Span<AnyValue> args) =>
+        VarP(ctx, args, TallyNumbers.Default);
 
     internal static AnyValue VarP(CalcContext ctx, Span<AnyValue> args, ITally tally)
     {
@@ -603,10 +573,8 @@ internal static class Statistical
         return squareDiff.Sum / squareDiff.Count;
     }
 
-    private static AnyValue VarPA(CalcContext ctx, Span<AnyValue> args)
-    {
-        return VarP(ctx, args, TallyAll.Default);
-    }
+    private static AnyValue VarPA(CalcContext ctx, Span<AnyValue> args) =>
+        VarP(ctx, args, TallyAll.Default);
 
     private static AnyValue Large(CalcContext ctx, AnyValue arrayParam, double kParam)
     {

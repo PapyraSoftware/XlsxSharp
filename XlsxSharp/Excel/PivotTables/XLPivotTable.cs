@@ -259,7 +259,7 @@ internal class XLPivotTable : IXLPivotTable
 
     public String Name
     {
-        get { return this._name; }
+        get => this._name;
         set
         {
             if (this._name == value)
@@ -770,7 +770,7 @@ internal class XLPivotTable : IXLPivotTable
 
     public Boolean InsertBlankLines
     {
-        set { this.ImplementedFields.ForEach(f => f.SetInsertBlankLines(value)); }
+        set => this.ImplementedFields.ForEach(f => f.SetInsertBlankLines(value));
     }
 
     public IXLPivotTable SetInsertBlankLines()
@@ -851,20 +851,12 @@ internal class XLPivotTable : IXLPivotTable
     }
 
 #nullable enable
-    internal void AddField(XLPivotTableField field)
-    {
-        this._fields.Add(field);
-    }
+    internal void AddField(XLPivotTableField field) => this._fields.Add(field);
 
-    internal void AddFormat(XLPivotFormat pivotFormat)
-    {
-        this._formats.Add(pivotFormat);
-    }
+    internal void AddFormat(XLPivotFormat pivotFormat) => this._formats.Add(pivotFormat);
 
-    internal void AddConditionalFormat(XLPivotConditionalFormat conditionalFormat)
-    {
+    internal void AddConditionalFormat(XLPivotConditionalFormat conditionalFormat) =>
         this._conditionalFormats.Add(conditionalFormat);
-    }
 
     #region location
 

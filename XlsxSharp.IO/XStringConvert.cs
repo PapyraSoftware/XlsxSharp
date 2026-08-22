@@ -126,20 +126,16 @@ public class XStringConvert
         return codepoint;
     }
 
-    private static bool IsHex(char c)
-    {
-        return c is >= '0' and <= '9' || c is >= 'A' and <= 'F' || c is >= 'a' and <= 'f';
-    }
+    private static bool IsHex(char c) =>
+        c is >= '0' and <= '9' || c is >= 'A' and <= 'F' || c is >= 'a' and <= 'f';
 
     // We already know that c passed the IsHex method.
-    private static int GetHex(char c)
-    {
-        return c switch
+    private static int GetHex(char c) =>
+        c switch
         {
             >= 'A' and <= 'F' => c - 'A' + 10,
             >= 'a' and <= 'f' => c - 'a' + 10,
             >= '0' and <= '9' => c - '0',
             _ => throw new UnreachableException(),
         };
-    }
 }

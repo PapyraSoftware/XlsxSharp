@@ -7,8 +7,6 @@ namespace XlsxSharp.Tests.Examples;
 public class LoadingTests
 {
     [Test]
-    public void ChangingBasicTable()
-    {
+    public void ChangingBasicTable() =>
         TestHelper.RunTestExample<ChangingBasicTable>(@"Loading\ChangingBasicTable.xlsx");
-    }
 }

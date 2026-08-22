@@ -23,11 +23,9 @@ internal class XLSparklineHorizontalAxis : IXLSparklineHorizontalAxis
 
     #region Public Constructors
 
-    public XLSparklineHorizontalAxis(IXLSparklineGroup sparklineGroup)
-    {
+    public XLSparklineHorizontalAxis(IXLSparklineGroup sparklineGroup) =>
         this.SparklineGroup =
             sparklineGroup ?? throw new ArgumentNullException(nameof(sparklineGroup));
-    }
 
     #endregion Public Constructors
 

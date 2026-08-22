@@ -86,10 +86,8 @@ internal class CodeBuilder
         return csReturnType;
     }
 
-    internal string GetSimpleType(string simpleType)
-    {
-        return this._typeMap.GetSimpleType(simpleType).CsTypeName;
-    }
+    internal string GetSimpleType(string simpleType) =>
+        this._typeMap.GetSimpleType(simpleType).CsTypeName;
 
     internal CodeBuilder AppendValue(string simpleType, string value)
     {
@@ -98,10 +96,8 @@ internal class CodeBuilder
         return this;
     }
 
-    internal bool TryGetCsType(ParsletName name, [NotNullWhen(true)] out string? csType)
-    {
-        return this._typeMap.TryGetParsletCsType(name, out csType);
-    }
+    internal bool TryGetCsType(ParsletName name, [NotNullWhen(true)] out string? csType) =>
+        this._typeMap.TryGetParsletCsType(name, out csType);
 
     internal string GetCsItemType(ParsletName parsletName)
     {
@@ -113,10 +109,8 @@ internal class CodeBuilder
         throw new KeyNotFoundException($"Missing parslet '{parsletName.Value}'");
     }
 
-    internal CodeBuilder AppendCtParseCall(ParsletName name, string elementName)
-    {
-        return this.AppendParseCall(name, ["\"" + elementName + "\"", "_ns"]);
-    }
+    internal CodeBuilder AppendCtParseCall(ParsletName name, string elementName) =>
+        this.AppendParseCall(name, ["\"" + elementName + "\"", "_ns"]);
 
     internal CodeBuilder AppendGroupParseCall(ParsletName name)
     {
@@ -207,8 +201,5 @@ internal class CodeBuilder
         }
     }
 
-    public override string ToString()
-    {
-        return this._sb.ToString();
-    }
+    public override string ToString() => this._sb.ToString();
 }

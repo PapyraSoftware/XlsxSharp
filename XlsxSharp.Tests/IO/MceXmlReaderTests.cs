@@ -320,8 +320,7 @@ internal class MceXmlReaderTests
         return mceReader;
     }
 
-    private static void AssertReadThrows(MceXmlReader reader, string expectedMessage)
-    {
+    private static void AssertReadThrows(MceXmlReader reader, string expectedMessage) =>
         Assert.That(
             reader.Read,
             Throws
@@ -329,5 +328,4 @@ internal class MceXmlReaderTests
                 .With.Message.StartsWith("MCE")
                 .And.Message.EndsWith(expectedMessage)
         );
-    }
 }

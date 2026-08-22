@@ -10,10 +10,7 @@ internal sealed partial class XLFontCellFormat
 {
     private readonly XLCellFormat _parent;
 
-    internal XLFontCellFormat(XLCellFormat parent)
-    {
-        this._parent = parent;
-    }
+    internal XLFontCellFormat(XLCellFormat parent) => this._parent = parent;
 
     internal XLFontName Name
     {
@@ -105,34 +102,22 @@ internal sealed partial class XLFontCellFormat
         set => this.Modify(static (font, scheme) => font with { Scheme = scheme }, value);
     }
 
-    public override bool Equals(object? obj)
-    {
-        return obj is IXLFont other && (this as IEquatable<IXLFont>).Equals(other);
-    }
+    public override bool Equals(object? obj) =>
+        obj is IXLFont other && (this as IEquatable<IXLFont>).Equals(other);
 
-    public override int GetHashCode()
-    {
-        return 0;
-    }
+    public override int GetHashCode() => 0;
 
-    private T Resolve<T>(Func<XLCellFormatValue, T> selector)
-    {
-        return this._parent.Resolve(selector);
-    }
+    private T Resolve<T>(Func<XLCellFormatValue, T> selector) => this._parent.Resolve(selector);
 
     private void Modify<TProperty>(
         Func<XLFontFormatValue, TProperty, XLFontFormatValue> modifyFont,
         TProperty value
-    )
-    {
-        this._parent.ModifyFont(modifyFont, value);
-    }
+    ) => this._parent.ModifyFont(modifyFont, value);
 
     /// <summary>
     /// A helper method to set all font properties at once (e.g, <c>someStyle.Font = otherStyle.Font</c>).
     /// </summary>
-    internal void SetFont(IXLFont value)
-    {
+    internal void SetFont(IXLFont value) =>
         this._parent.ModifyFont(
             static (font, value) =>
                 font with
@@ -152,5 +137,4 @@ internal sealed partial class XLFontCellFormat
                 },
             value
         );
-    }
 }

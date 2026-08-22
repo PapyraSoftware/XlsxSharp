@@ -12,16 +12,10 @@ internal class XLHFItem : IXLHFItem
 {
     internal readonly XLHeaderFooter HeaderFooter;
 
-    public XLHFItem(XLHeaderFooter headerFooter)
-    {
-        this.HeaderFooter = headerFooter;
-    }
+    public XLHFItem(XLHeaderFooter headerFooter) => this.HeaderFooter = headerFooter;
 
     public XLHFItem(XLHFItem defaultHFItem, XLHeaderFooter headerFooter)
-        : this(headerFooter)
-    {
-        defaultHFItem.texts.ForEach(kp => this.texts.Add(kp.Key, kp.Value));
-    }
+        : this(headerFooter) => defaultHFItem.texts.ForEach(kp => this.texts.Add(kp.Key, kp.Value));
 
     private readonly Dictionary<XLHFOccurrence, List<XLHFText>> texts = new();
 
@@ -39,15 +33,10 @@ internal class XLHFItem : IXLHFItem
         return sb.ToString();
     }
 
-    public IXLRichString AddText(String text)
-    {
-        return this.AddText(text, XLHFOccurrence.AllPages);
-    }
+    public IXLRichString AddText(String text) => this.AddText(text, XLHFOccurrence.AllPages);
 
-    public IXLRichString AddText(XLHFPredefinedText predefinedText)
-    {
-        return this.AddText(predefinedText, XLHFOccurrence.AllPages);
-    }
+    public IXLRichString AddText(XLHFPredefinedText predefinedText) =>
+        this.AddText(predefinedText, XLHFOccurrence.AllPages);
 
     public IXLRichString AddText(String text, XLHFOccurrence occurrence)
     {
@@ -75,18 +64,12 @@ internal class XLHFItem : IXLHFItem
         return richText;
     }
 
-    public IXLRichString AddNewLine()
-    {
-        return this.AddText(Environment.NewLine);
-    }
+    public IXLRichString AddNewLine() => this.AddText(Environment.NewLine);
 
     public IXLRichString AddImage(
         String imagePath,
         XLHFOccurrence occurrence = XLHFOccurrence.AllPages
-    )
-    {
-        throw new NotImplementedException();
-    }
+    ) => throw new NotImplementedException();
 
     private void AddTextToOccurrence(XLHFText hfText, XLHFOccurrence occurrence)
     {

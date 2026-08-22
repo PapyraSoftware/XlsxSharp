@@ -8,13 +8,11 @@ internal class SheetPointTests
 {
     [TestCase(null)]
     [TestCase("")]
-    public void Ctor_sheet_must_be_valid(string invalidSheetName)
-    {
+    public void Ctor_sheet_must_be_valid(string invalidSheetName) =>
         Assert.That(
             () => new SheetPoint(invalidSheetName, new Point(1, 1)),
             Throws.Exception.TypeOf<ArgumentException>()
         );
-    }
 
     [TestCase("sheet", 2, 5, "sheet", 2, 5, true)]
     [TestCase("SHEET", 2, 5, "sheet", 2, 5, true)]

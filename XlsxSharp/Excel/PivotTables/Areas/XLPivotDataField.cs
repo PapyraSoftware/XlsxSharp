@@ -97,12 +97,10 @@ internal class XLPivotDataField : IXLPivotValue
     internal XLNumberFormat? NumberFormatValue
     {
         get => this._numberFormat;
-        set
-        {
+        set =>
             this._numberFormat = value is not null
                 ? this._pivotTable.Worksheet.Workbook.Styles.RegisterNumberFormat(value.Value)
                 : null;
-        }
     }
 
     #region IXLPivotValue
@@ -188,15 +186,13 @@ internal class XLPivotDataField : IXLPivotValue
 
     public XLPivotCalculationItem CalculationItem
     {
-        get
-        {
-            return this._baseItem switch
+        get =>
+            this._baseItem switch
             {
                 BaseItemPreviousValue => XLPivotCalculationItem.Previous,
                 BaseItemNextValue => XLPivotCalculationItem.Next,
                 _ => XLPivotCalculationItem.Value,
             };
-        }
         set
         {
             switch (value)
@@ -283,15 +279,9 @@ internal class XLPivotDataField : IXLPivotValue
         return new XLPivotValueCombination(this);
     }
 
-    public IXLPivotValue ShowAsIndex()
-    {
-        return this.SetCalculation(XLPivotCalculation.Index);
-    }
+    public IXLPivotValue ShowAsIndex() => this.SetCalculation(XLPivotCalculation.Index);
 
-    public IXLPivotValue ShowAsNormal()
-    {
-        return this.SetCalculation(XLPivotCalculation.Normal);
-    }
+    public IXLPivotValue ShowAsNormal() => this.SetCalculation(XLPivotCalculation.Normal);
 
     public IXLPivotValueCombination ShowAsPercentageDifferenceFrom(string fieldSourceName)
     {
@@ -307,20 +297,14 @@ internal class XLPivotDataField : IXLPivotValue
         return new XLPivotValueCombination(this);
     }
 
-    public IXLPivotValue ShowAsPercentageOfColumn()
-    {
-        return this.SetCalculation(XLPivotCalculation.PercentageOfColumn);
-    }
+    public IXLPivotValue ShowAsPercentageOfColumn() =>
+        this.SetCalculation(XLPivotCalculation.PercentageOfColumn);
 
-    public IXLPivotValue ShowAsPercentageOfRow()
-    {
-        return this.SetCalculation(XLPivotCalculation.PercentageOfRow);
-    }
+    public IXLPivotValue ShowAsPercentageOfRow() =>
+        this.SetCalculation(XLPivotCalculation.PercentageOfRow);
 
-    public IXLPivotValue ShowAsPercentageOfTotal()
-    {
-        return this.SetCalculation(XLPivotCalculation.PercentageOfTotal);
-    }
+    public IXLPivotValue ShowAsPercentageOfTotal() =>
+        this.SetCalculation(XLPivotCalculation.PercentageOfTotal);
 
     public IXLPivotValue ShowAsRunningTotalIn(string fieldSourceName)
     {

@@ -12,8 +12,7 @@ namespace XlsxSharp.Tests.Excel.PivotTables.Create;
 internal class XLPivotTableAddFieldsTests
 {
     [Test]
-    public void Add_empty_table()
-    {
+    public void Add_empty_table() =>
         TestHelper.CreateAndCompare(
             wb =>
             {
@@ -21,11 +20,9 @@ internal class XLPivotTableAddFieldsTests
             },
             @"Other\PivotTable\Create\Add_empty_table.xlsx"
         );
-    }
 
     [Test]
-    public void Add_one_column_without_value()
-    {
+    public void Add_one_column_without_value() =>
         TestHelper.CreateAndCompare(
             wb =>
             {
@@ -35,11 +32,9 @@ internal class XLPivotTableAddFieldsTests
             },
             @"Other\PivotTable\Create\Add_one_column_without_value.xlsx"
         );
-    }
 
     [Test]
-    public void Add_one_row_without_value()
-    {
+    public void Add_one_row_without_value() =>
         TestHelper.CreateAndCompare(
             wb =>
             {
@@ -49,11 +44,9 @@ internal class XLPivotTableAddFieldsTests
             },
             @"Other\PivotTable\Create\Add_one_row_without_value.xlsx"
         );
-    }
 
     [Test]
-    public void Add_one_column_and_one_value()
-    {
+    public void Add_one_column_and_one_value() =>
         TestHelper.CreateAndCompare(
             wb =>
             {
@@ -64,11 +57,9 @@ internal class XLPivotTableAddFieldsTests
             },
             @"Other\PivotTable\Create\Add_one_column_and_one_value.xlsx"
         );
-    }
 
     [Test]
-    public void Add_one_column_and_two_values()
-    {
+    public void Add_one_column_and_two_values() =>
         TestHelper.CreateAndCompare(
             wb =>
             {
@@ -81,7 +72,6 @@ internal class XLPivotTableAddFieldsTests
             },
             @"Other\PivotTable\Create\Add_one_column_and_two_values.xlsx"
         );
-    }
 
     private static IXLPivotTable CreatePivotTableFor2X2(XLWorkbook wb)
     {

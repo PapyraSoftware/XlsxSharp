@@ -29,15 +29,9 @@ internal class XLRowsCollection : IDictionary<Int32, XLRow>
         this._dictionary.Add(key, value);
     }
 
-    public bool ContainsKey(int key)
-    {
-        return this._dictionary.ContainsKey(key);
-    }
+    public bool ContainsKey(int key) => this._dictionary.ContainsKey(key);
 
-    public ICollection<int> Keys
-    {
-        get { return this._dictionary.Keys; }
-    }
+    public ICollection<int> Keys => this._dictionary.Keys;
 
     public bool Remove(int key)
     {
@@ -49,20 +43,15 @@ internal class XLRowsCollection : IDictionary<Int32, XLRow>
         return this._dictionary.Remove(key);
     }
 
-    public bool TryGetValue(int key, out XLRow value)
-    {
-        return this._dictionary.TryGetValue(key, out value);
-    }
+    public bool TryGetValue(int key, out XLRow value) =>
+        this._dictionary.TryGetValue(key, out value);
 
-    public ICollection<XLRow> Values
-    {
-        get { return this._dictionary.Values; }
-    }
+    public ICollection<XLRow> Values => this._dictionary.Values;
 
     public XLRow this[int key]
     {
-        get { return this._dictionary[key]; }
-        set { this._dictionary[key] = value; }
+        get => this._dictionary[key];
+        set => this._dictionary[key] = value;
     }
 
     public void Add(KeyValuePair<int, XLRow> item)
@@ -76,30 +65,16 @@ internal class XLRowsCollection : IDictionary<Int32, XLRow>
         this._dictionary.Add(item.Key, item.Value);
     }
 
-    public void Clear()
-    {
-        this._dictionary.Clear();
-    }
+    public void Clear() => this._dictionary.Clear();
 
-    public bool Contains(KeyValuePair<int, XLRow> item)
-    {
-        return this._dictionary.Contains(item);
-    }
+    public bool Contains(KeyValuePair<int, XLRow> item) => this._dictionary.Contains(item);
 
-    public void CopyTo(KeyValuePair<int, XLRow>[] array, int arrayIndex)
-    {
+    public void CopyTo(KeyValuePair<int, XLRow>[] array, int arrayIndex) =>
         throw new NotImplementedException();
-    }
 
-    public int Count
-    {
-        get { return this._dictionary.Count; }
-    }
+    public int Count => this._dictionary.Count;
 
-    public bool IsReadOnly
-    {
-        get { return false; }
-    }
+    public bool IsReadOnly => false;
 
     public bool Remove(KeyValuePair<int, XLRow> item)
     {
@@ -111,15 +86,10 @@ internal class XLRowsCollection : IDictionary<Int32, XLRow>
         return this._dictionary.Remove(item.Key);
     }
 
-    public IEnumerator<KeyValuePair<int, XLRow>> GetEnumerator()
-    {
-        return this._dictionary.GetEnumerator();
-    }
+    public IEnumerator<KeyValuePair<int, XLRow>> GetEnumerator() =>
+        this._dictionary.GetEnumerator();
 
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return this._dictionary.GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => this._dictionary.GetEnumerator();
 
     #endregion IDictionary<int,XLRow> Members
 

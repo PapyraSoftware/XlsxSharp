@@ -9,44 +9,32 @@ namespace XlsxSharp.Tests.Excel.Sparklines;
 public class SparklineShiftTests
 {
     [Test]
-    public void SparklineAreShiftedOnColumnInsert()
-    {
+    public void SparklineAreShiftedOnColumnInsert() =>
         AssertSparklinePosition("D2", ws => ws.Column("C").InsertColumnsAfter(2), "F2");
-    }
 
     [Test]
-    public void SparklineAreShiftedOnColumnDelete()
-    {
+    public void SparklineAreShiftedOnColumnDelete() =>
         AssertSparklinePosition("F2", ws => ws.Column("C").Delete(), "E2");
-    }
 
     [Test]
-    public void SparklineColumnShiftedOutOfSheetAreRemoved()
-    {
+    public void SparklineColumnShiftedOutOfSheetAreRemoved() =>
         AssertSparklinePosition("XFD1", ws => ws.Column("C").InsertColumnsAfter(1), null);
-    }
 
     [Test]
-    public void SparklineAreShiftedOnRowInsert()
-    {
+    public void SparklineAreShiftedOnRowInsert() =>
         AssertSparklinePosition("B3", ws => ws.Row(2).InsertRowsBelow(3), "B6");
-    }
 
     [Test]
-    public void SparklineAreShiftedOnRowDelete()
-    {
+    public void SparklineAreShiftedOnRowDelete() =>
         AssertSparklinePosition("F8", ws => ws.Rows(4, 6).Delete(), "F5");
-    }
 
     [Test]
-    public void SparklineRowShiftedOutOfSheetAreRemoved()
-    {
+    public void SparklineRowShiftedOutOfSheetAreRemoved() =>
         AssertSparklinePosition(
             $"A{XLHelper.MaxRowNumber}",
             ws => ws.Row(2).InsertRowsBelow(1),
             null
         );
-    }
 
     private static void AssertSparklinePosition(
         string sparklineAddress,

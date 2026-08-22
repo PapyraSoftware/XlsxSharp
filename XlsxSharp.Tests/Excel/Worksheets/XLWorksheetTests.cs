@@ -381,10 +381,8 @@ public class XLWorksheetTests
     }
 
     [Test]
-    public void WorksheetNameCannotBeEmpty()
-    {
+    public void WorksheetNameCannotBeEmpty() =>
         Assert.Throws<ArgumentException>(() => new XLWorkbook().AddWorksheet(" "));
-    }
 
     [TestCaseSource(nameof(illegalWorksheetCharacters))]
     public void WorksheetNameCannotContainIllegalCharacters(char c)

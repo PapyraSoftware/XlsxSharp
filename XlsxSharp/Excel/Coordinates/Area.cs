@@ -81,20 +81,13 @@ internal readonly struct Area : IEquatable<Area>, IEnumerable<Point>
         this.TopRow == XlsxSharp.XLHelper.MinRowNumber
         && this.BottomRow == XlsxSharp.XLHelper.MaxRowNumber;
 
-    public override bool Equals(object? obj)
-    {
-        return obj is Area range && this.Equals(range);
-    }
+    public override bool Equals(object? obj) => obj is Area range && this.Equals(range);
 
-    public bool Equals(Area other)
-    {
-        return this.FirstPoint.Equals(other.FirstPoint) && this.LastPoint.Equals(other.LastPoint);
-    }
+    public bool Equals(Area other) =>
+        this.FirstPoint.Equals(other.FirstPoint) && this.LastPoint.Equals(other.LastPoint);
 
-    public override int GetHashCode()
-    {
-        return this.FirstPoint.GetHashCode() ^ this.LastPoint.GetHashCode();
-    }
+    public override int GetHashCode() =>
+        this.FirstPoint.GetHashCode() ^ this.LastPoint.GetHashCode();
 
     public static bool operator ==(Area left, Area right) => left.Equals(right);
 
@@ -185,10 +178,7 @@ internal readonly struct Area : IEquatable<Area>, IEnumerable<Point>
     /// Return a range that contains all cells below the current range.
     /// </summary>
     /// <exception cref="InvalidOperationException">The range touches the bottom border of the sheet.</exception>
-    internal Area BelowRange()
-    {
-        return this.BelowRange(XlsxSharp.XLHelper.MaxRowNumber);
-    }
+    internal Area BelowRange() => this.BelowRange(XlsxSharp.XLHelper.MaxRowNumber);
 
     /// <summary>
     /// Get a range below the current one <paramref name="rows"/> rows.
@@ -259,21 +249,17 @@ internal readonly struct Area : IEquatable<Area>, IEnumerable<Point>
         return new Area(firstPoint, lastPoint);
     }
 
-    public bool Contains(Point point)
-    {
-        return point.Row >= this.FirstPoint.Row
-            && point.Row <= this.LastPoint.Row
-            && point.Column >= this.FirstPoint.Column
-            && point.Column <= this.LastPoint.Column;
-    }
+    public bool Contains(Point point) =>
+        point.Row >= this.FirstPoint.Row
+        && point.Row <= this.LastPoint.Row
+        && point.Column >= this.FirstPoint.Column
+        && point.Column <= this.LastPoint.Column;
 
-    internal bool Covers(Area otherArea)
-    {
-        return this.LeftColumn <= otherArea.LeftColumn
-            && this.TopRow <= otherArea.TopRow
-            && this.RightColumn >= otherArea.RightColumn
-            && this.BottomRow >= otherArea.BottomRow;
-    }
+    internal bool Covers(Area otherArea) =>
+        this.LeftColumn <= otherArea.LeftColumn
+        && this.TopRow <= otherArea.TopRow
+        && this.RightColumn >= otherArea.RightColumn
+        && this.BottomRow >= otherArea.BottomRow;
 
     /// <summary>
     /// Create a new range from this one by taking a number of rows from the bottom row up.
@@ -359,10 +345,7 @@ internal readonly struct Area : IEquatable<Area>, IEnumerable<Point>
     /// Does this range intersects with <paramref name="other"/>.
     /// </summary>
     /// <returns><c>true</c> if intersects, <c>false</c> otherwise.</returns>
-    internal bool Intersects(Area other)
-    {
-        return this.Intersect(other) is not null;
-    }
+    internal bool Intersects(Area other) => this.Intersect(other) is not null;
 
     /// <summary>
     /// Do an intersection between this range and other range.
@@ -387,29 +370,23 @@ internal readonly struct Area : IEquatable<Area>, IEnumerable<Point>
     /// <summary>
     /// Does this range overlaps the <paramref name="otherRange"/>?
     /// </summary>
-    internal bool Overlaps(Area otherRange)
-    {
-        return this.TopRow <= otherRange.TopRow
-            && this.RightColumn >= otherRange.RightColumn
-            && this.BottomRow >= otherRange.BottomRow
-            && this.LeftColumn <= otherRange.LeftColumn;
-    }
+    internal bool Overlaps(Area otherRange) =>
+        this.TopRow <= otherRange.TopRow
+        && this.RightColumn >= otherRange.RightColumn
+        && this.BottomRow >= otherRange.BottomRow
+        && this.LeftColumn <= otherRange.LeftColumn;
 
     /// <summary>
     /// Does range cover all rows, from top row to bottom row of a sheet.
     /// </summary>
-    internal bool IsEntireColumn()
-    {
-        return this.TopRow == 1 && this.BottomRow == XlsxSharp.XLHelper.MaxRowNumber;
-    }
+    internal bool IsEntireColumn() =>
+        this.TopRow == 1 && this.BottomRow == XlsxSharp.XLHelper.MaxRowNumber;
 
     /// <summary>
     /// Does range cover all columns, from first to last column of a sheet.
     /// </summary>
-    public bool IsEntireRow()
-    {
-        return this.LeftColumn == 1 && this.RightColumn == XlsxSharp.XLHelper.MaxColumnNumber;
-    }
+    public bool IsEntireRow() =>
+        this.LeftColumn == 1 && this.RightColumn == XlsxSharp.XLHelper.MaxColumnNumber;
 
     /// <summary>
     /// Return a new range that has the same size as the current one,
@@ -532,10 +509,7 @@ internal readonly struct Area : IEquatable<Area>, IEnumerable<Point>
         }
     }
 
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return this.GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 
     /// <summary>
     /// Calculate size and position of the area when another area is inserted into a sheet.
@@ -1189,8 +1163,5 @@ internal readonly struct Area : IEquatable<Area>, IEnumerable<Point>
         return true;
     }
 
-    internal XLAreaList ToAreaList()
-    {
-        return new XLAreaList(this);
-    }
+    internal XLAreaList ToAreaList() => new(this);
 }

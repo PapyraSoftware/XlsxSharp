@@ -5,10 +5,7 @@ internal class XLPivotTableStyleFormats : IXLPivotTableStyleFormats
 {
     private readonly XLPivotTable _pivotTable;
 
-    public XLPivotTableStyleFormats(XLPivotTable pivotTable)
-    {
-        this._pivotTable = pivotTable;
-    }
+    public XLPivotTableStyleFormats(XLPivotTable pivotTable) => this._pivotTable = pivotTable;
 
     #region IXLPivotTableStyleFormats members
 

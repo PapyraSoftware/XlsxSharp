@@ -85,15 +85,9 @@ internal class XLPivotTableAxis : IXLPivotFields
         return new XLPivotTableAxisField(this._pivotTable, this._fields[index]);
     }
 
-    Int32 IXLPivotFields.IndexOf(String sourceName)
-    {
-        return this.IndexOf(sourceName);
-    }
+    Int32 IXLPivotFields.IndexOf(String sourceName) => this.IndexOf(sourceName);
 
-    Int32 IXLPivotFields.IndexOf(IXLPivotField pf)
-    {
-        return this.IndexOf(pf.SourceName);
-    }
+    Int32 IXLPivotFields.IndexOf(IXLPivotField pf) => this.IndexOf(pf.SourceName);
 
     void IXLPivotFields.Remove(String sourceName)
     {
@@ -119,10 +113,7 @@ internal class XLPivotTableAxis : IXLPivotFields
         }
     }
 
-    internal int IndexOf(FieldIndex index)
-    {
-        return this._fields.IndexOf(index);
-    }
+    internal int IndexOf(FieldIndex index) => this._fields.IndexOf(index);
 
     internal bool Contains(string sourceName)
     {
@@ -171,10 +162,7 @@ internal class XLPivotTableAxis : IXLPivotFields
     /// <summary>
     /// Add a row/column axis values (i.e. values visible on the axis).
     /// </summary>
-    internal void AddItem(XLPivotFieldAxisItem axisItem)
-    {
-        this._axisItems.Add(axisItem);
-    }
+    internal void AddItem(XLPivotFieldAxisItem axisItem) => this._axisItems.Add(axisItem);
 
     internal void Clear()
     {

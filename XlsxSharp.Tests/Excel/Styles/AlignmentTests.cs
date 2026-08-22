@@ -11,8 +11,7 @@ namespace XlsxSharp.Tests.Excel.Styles;
 public class AlignmentTests
 {
     [Test]
-    public void TextRotationCanBeFromMinus90To90DegreesAnd255ForVerticalLayout()
-    {
+    public void TextRotationCanBeFromMinus90To90DegreesAnd255ForVerticalLayout() =>
         TestHelper.CreateAndCompare(
             wb =>
             {
@@ -30,11 +29,9 @@ public class AlignmentTests
             },
             @"Other\Styles\Alignment\TextRotation.xlsx"
         );
-    }
 
     [Test]
-    public void TextRotationIsConvertedOnLoadToMinus90To90Degrees()
-    {
+    public void TextRotationIsConvertedOnLoadToMinus90To90Degrees() =>
         TestHelper.LoadAndAssert(
             wb =>
             {
@@ -48,21 +45,18 @@ public class AlignmentTests
             },
             @"Other\Styles\Alignment\TextRotation.xlsx"
         );
-    }
 
     [TestCase(91)]
     [TestCase(-91)]
     [TestCase(254)]
     [TestCase(256)]
-    public void TextRotationOutsideBoundsThrowsException(int textRotation)
-    {
+    public void TextRotationOutsideBoundsThrowsException(int textRotation) =>
         Assert.Throws<ArgumentOutOfRangeException>(() =>
         {
             using XLWorkbook wb = new();
             IXLWorksheet ws = wb.AddWorksheet();
             ws.FirstCell().Style.Alignment.TextRotation = textRotation;
         });
-    }
 
     [Test]
     [TestCaseSource(nameof(AlignmentApiSetters))]

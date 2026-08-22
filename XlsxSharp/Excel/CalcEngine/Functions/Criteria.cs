@@ -95,9 +95,8 @@ internal class Criteria
         }
     }
 
-    internal bool Match(ScalarValue value)
-    {
-        return this._value switch
+    internal bool Match(ScalarValue value) =>
+        this._value switch
         {
             { IsBlank: true } => this.CompareBlank(value),
             { IsLogical: true } => this.CompareLogical(value, this._value.GetLogical()),
@@ -106,7 +105,6 @@ internal class Criteria
             { IsError: true } => this.CompareError(value, this._value.GetError()),
             _ => throw new UnreachableException(),
         };
-    }
 
     private bool CompareBlank(ScalarValue value)
     {
@@ -207,9 +205,8 @@ internal class Criteria
         return this.Compare(value.GetError().CompareTo(actual));
     }
 
-    private bool Compare(int cmp)
-    {
-        return this._comparison switch
+    private bool Compare(int cmp) =>
+        this._comparison switch
         {
             Comparison.Equal or Comparison.None => cmp == 0,
             Comparison.NotEqual => cmp != 0,
@@ -219,7 +216,6 @@ internal class Criteria
             Comparison.GreaterOrEqualTo => cmp >= 0,
             _ => throw new UnreachableException(),
         };
-    }
 
     private enum Comparison
     {

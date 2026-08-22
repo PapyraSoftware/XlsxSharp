@@ -11,8 +11,7 @@ namespace XlsxSharp.Tests.Excel.AutoFilters;
 public class RegularFilterTests
 {
     [Test]
-    public void DateTimeGroupingAndRegularValuesCanBeUsedTogether()
-    {
+    public void DateTimeGroupingAndRegularValuesCanBeUsedTogether() =>
         // OpenXML SDK validator considers filter and dateTimeGroup filter elements together to
         // be an error, but it isn't (XSD allows and Excel reads). Therefore, disable
         // validation for the test.
@@ -44,12 +43,10 @@ public class RegularFilterTests
             },
             false
         );
-    }
 
     [Test]
     [SetCulture("cs-CZ")]
-    public void RegularNumberValueIsComparedAsTextAgainstFormattedText()
-    {
+    public void RegularNumberValueIsComparedAsTextAgainstFormattedText() =>
         new AutoFilterTester(f => f.AddFilter(1.5))
             .Add(1.5, true)
             .Add("1.5", false)
@@ -62,12 +59,10 @@ public class RegularFilterTests
             )
             .Add(700, nf => nf.SetFormat("\"1,5\""), true)
             .AssertVisibility();
-    }
 
     [Test]
     [SetCulture("cs-CZ")]
-    public void RegularLogicalValueIsComparedAsTextAgainstFormattedText()
-    {
+    public void RegularLogicalValueIsComparedAsTextAgainstFormattedText() =>
         new AutoFilterTester(f => f.AddFilter(false))
             .Add(false, true)
             .Add(0, false)
@@ -76,26 +71,21 @@ public class RegularFilterTests
             .Add(true, false)
             .Add(77, nf => nf.SetFormat("\"FALSE\""), true)
             .AssertVisibility();
-    }
 
     [Test]
     [SetCulture("cs-CZ")]
-    public void RegularErrorValueIsComparedAsTextAgainstFormattedText()
-    {
+    public void RegularErrorValueIsComparedAsTextAgainstFormattedText() =>
         new AutoFilterTester(f => f.AddFilter("#VALUE!"))
             .Add(XLError.IncompatibleValue, true)
             .Add(2, false)
             .Add("#VALUE!", true)
             .AssertVisibility();
-    }
 
     [Test]
-    public void PatternIsNotInterpretedAsWildcard()
-    {
+    public void PatternIsNotInterpretedAsWildcard() =>
         new AutoFilterTester(f => f.AddFilter("A*"))
             .Add("A*", true)
             .Add("A", false)
             .Add("A something", false)
             .AssertVisibility();
-    }
 }

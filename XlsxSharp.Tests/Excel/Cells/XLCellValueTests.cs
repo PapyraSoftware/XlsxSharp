@@ -39,10 +39,8 @@ public class XLCellValueTests
     [TestCase(Double.NaN)]
     [TestCase(Double.PositiveInfinity)]
     [TestCase(Double.NegativeInfinity)]
-    public void CreationNumberCantBeNonNumber(Double nonNumber)
-    {
+    public void CreationNumberCantBeNonNumber(Double nonNumber) =>
         Assert.Throws<ArgumentException>(() => _ = (XLCellValue)nonNumber);
-    }
 
     // Decimal is not allowed as a member of an attribute, so TestCase can't be used.
     private static readonly object[] DecimalTestCases =

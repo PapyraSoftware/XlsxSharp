@@ -12,10 +12,8 @@ internal class XLSparklineGroups : IXLSparklineGroups, IEnumerable<XLSparklineGr
     private readonly XLWorksheet _worksheet;
     private readonly List<XLSparklineGroup> _sparklineGroups = [];
 
-    public XLSparklineGroups(XLWorksheet worksheet)
-    {
+    public XLSparklineGroups(XLWorksheet worksheet) =>
         this._worksheet = worksheet ?? throw new ArgumentNullException(nameof(worksheet));
-    }
 
     public IXLWorksheet Worksheet => this._worksheet;
 
@@ -129,34 +127,23 @@ internal class XLSparklineGroups : IXLSparklineGroups, IEnumerable<XLSparklineGr
     /// </summary>
     /// <param name="searchRange">The range to search</param>
     /// <returns>The sparkline in the cell or null if no sparklines are found</returns>
-    public IEnumerable<IXLSparkline> GetSparklines(IXLRangeBase searchRange)
-    {
-        return this._sparklineGroups.SelectMany(g => g.GetSparklines(searchRange));
-    }
+    public IEnumerable<IXLSparkline> GetSparklines(IXLRangeBase searchRange) =>
+        this._sparklineGroups.SelectMany(g => g.GetSparklines(searchRange));
 
-    public IEnumerator<XLSparklineGroup> GetEnumerator()
-    {
-        return this._sparklineGroups.GetEnumerator();
-    }
+    public IEnumerator<XLSparklineGroup> GetEnumerator() => this._sparklineGroups.GetEnumerator();
 
-    IEnumerator<IXLSparklineGroup> IEnumerable<IXLSparklineGroup>.GetEnumerator()
-    {
-        return this.GetEnumerator();
-    }
+    IEnumerator<IXLSparklineGroup> IEnumerable<IXLSparklineGroup>.GetEnumerator() =>
+        this.GetEnumerator();
 
-    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-    {
-        return this.GetEnumerator();
-    }
+    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() =>
+        this.GetEnumerator();
 
     /// <summary>
     /// Remove all sparklines in the specified cell
     /// </summary>
     /// <param name="cell">The cell to remove sparklines from</param>
-    public void Remove(IXLCell cell)
-    {
+    public void Remove(IXLCell cell) =>
         this._sparklineGroups.AsParallel().ForEach(g => g.Remove(cell));
-    }
 
     public void Remove(IXLRangeBase range)
     {
@@ -174,30 +161,19 @@ internal class XLSparklineGroups : IXLSparklineGroups, IEnumerable<XLSparklineGr
     /// Remove the sparkline group from the worksheet
     /// </summary>
     /// <param name="sparklineGroup">The sparkline group to remove</param>
-    public void Remove(IXLSparklineGroup sparklineGroup)
-    {
+    public void Remove(IXLSparklineGroup sparklineGroup) =>
         this._sparklineGroups.Remove((XLSparklineGroup)sparklineGroup);
-    }
 
-    internal void Remove(Point location)
-    {
-        this._sparklineGroups.ForEach(g => g.Remove(location));
-    }
+    internal void Remove(Point location) => this._sparklineGroups.ForEach(g => g.Remove(location));
 
     /// <summary>
     /// Remove the sparkline from the worksheet
     /// </summary>
     /// <param name="sparkline">The sparkline to remove</param>
-    private void Remove(IXLSparkline sparkline)
-    {
-        sparkline.SparklineGroup.Remove(sparkline);
-    }
+    private void Remove(IXLSparkline sparkline) => sparkline.SparklineGroup.Remove(sparkline);
 
     /// <summary>
     /// Remove all sparkline groups and their contents from the worksheet.
     /// </summary>
-    public void RemoveAll()
-    {
-        this._sparklineGroups.Clear();
-    }
+    public void RemoveAll() => this._sparklineGroups.Clear();
 }

@@ -200,10 +200,7 @@ internal class NumberArray : Array
 {
     private readonly double[,] _data;
 
-    public NumberArray(double[,] data)
-    {
-        this._data = data;
-    }
+    public NumberArray(double[,] data) => this._data = data;
 
     public override ScalarValue this[int y, int x] => this._data[y, x];
 
@@ -389,23 +386,15 @@ internal class ScalarArray : Array
         }
     }
 
-    public override IEnumerator<ScalarValue> GetEnumerator()
-    {
-        return Enumerable
-            .Range(0, this._columns * this._rows)
-            .Select(_ => this._value)
-            .GetEnumerator();
-    }
+    public override IEnumerator<ScalarValue> GetEnumerator() =>
+        Enumerable.Range(0, this._columns * this._rows).Select(_ => this._value).GetEnumerator();
 }
 
 internal class TransposedArray : Array
 {
     private readonly Array _original;
 
-    public TransposedArray(Array original)
-    {
-        this._original = original;
-    }
+    public TransposedArray(Array original) => this._original = original;
 
     public override ScalarValue this[int y, int x] => this._original[x, y];
 

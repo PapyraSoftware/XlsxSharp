@@ -7,10 +7,7 @@ internal sealed partial class XLBorderCellFormat
 {
     private readonly XLCellFormat _parent;
 
-    internal XLBorderCellFormat(XLCellFormat parent)
-    {
-        this._parent = parent;
-    }
+    internal XLBorderCellFormat(XLCellFormat parent) => this._parent = parent;
 
     internal XLBorderStyleValues LeftBorder
     {
@@ -172,18 +169,12 @@ internal sealed partial class XLBorderCellFormat
             );
     }
 
-    public override bool Equals(object? obj)
-    {
-        return obj is IXLBorder other && (this as IEquatable<IXLBorder>).Equals(other);
-    }
+    public override bool Equals(object? obj) =>
+        obj is IXLBorder other && (this as IEquatable<IXLBorder>).Equals(other);
 
-    public override int GetHashCode()
-    {
-        return 0;
-    }
+    public override int GetHashCode() => 0;
 
-    internal void SetValue(IXLBorder value)
-    {
+    internal void SetValue(IXLBorder value) =>
         this._parent.ModifyBorder(
             (border, other) =>
                 border with
@@ -198,5 +189,4 @@ internal sealed partial class XLBorderCellFormat
                 },
             value
         );
-    }
 }

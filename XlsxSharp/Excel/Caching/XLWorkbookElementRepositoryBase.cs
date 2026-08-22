@@ -21,8 +21,5 @@ internal abstract class XLWorkbookElementRepositoryBase<Tkey, Tvalue>
         Func<Tkey, Tvalue> createNew,
         IEqualityComparer<Tkey> comparer
     )
-        : base(createNew, comparer)
-    {
-        this.Workbook = workbook;
-    }
+        : base(createNew, comparer) => this.Workbook = workbook;
 }

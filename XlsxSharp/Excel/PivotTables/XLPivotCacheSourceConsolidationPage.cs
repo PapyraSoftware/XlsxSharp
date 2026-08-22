@@ -9,10 +9,8 @@ namespace XlsxSharp.Excel;
 /// </summary>
 internal class XLPivotCacheSourceConsolidationPage
 {
-    internal XLPivotCacheSourceConsolidationPage(List<string> pageItems)
-    {
+    internal XLPivotCacheSourceConsolidationPage(List<string> pageItems) =>
         this.PageItems = pageItems;
-    }
 
     /// <summary>
     /// Page items (=names) displayed in the filter. The value is referenced

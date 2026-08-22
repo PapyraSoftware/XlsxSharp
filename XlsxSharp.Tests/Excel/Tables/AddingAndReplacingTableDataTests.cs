@@ -32,10 +32,7 @@ public class AppendingAndReplacingTableDataTests
         public String FirstName { get; set; }
 
         [XLColumn(Header = "Full name", Order = 0)]
-        public String FullName
-        {
-            get => string.Concat(this.FirstName, " ", this.LastName);
-        }
+        public String FullName => string.Concat(this.FirstName, " ", this.LastName);
 
         [XLColumn(Order = 3)]
         public DateTime DateOfBirth { get; set; }
@@ -115,31 +112,25 @@ public class AppendingAndReplacingTableDataTests
         return wb;
     }
 
-    private static Person[] NewData
-    {
-        get
-        {
-            return
-            [
-                new Person
-                {
-                    FirstName = "Michelle",
-                    LastName = "de Beer",
-                    Age = 35,
-                    DateOfBirth = new DateTime(1983, 1, 1),
-                    IsActive = false,
-                },
-                new Person
-                {
-                    FirstName = "Marichen",
-                    LastName = "van der Gryp",
-                    Age = 30,
-                    DateOfBirth = new DateTime(1990, 1, 1),
-                    IsActive = true,
-                },
-            ];
-        }
-    }
+    private static Person[] NewData =>
+        [
+            new Person
+            {
+                FirstName = "Michelle",
+                LastName = "de Beer",
+                Age = 35,
+                DateOfBirth = new DateTime(1983, 1, 1),
+                IsActive = false,
+            },
+            new Person
+            {
+                FirstName = "Marichen",
+                LastName = "van der Gryp",
+                Age = 30,
+                DateOfBirth = new DateTime(1990, 1, 1),
+                IsActive = true,
+            },
+        ];
 
     [Test]
     public void AddingEmptyEnumerables()

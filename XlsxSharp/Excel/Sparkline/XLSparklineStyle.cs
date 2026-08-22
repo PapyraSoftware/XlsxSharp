@@ -88,19 +88,15 @@ internal class XLSparklineStyle : IXLSparklineStyle, IEquatable<XLSparklineStyle
     /// <param name="left">The first value to compare.</param>
     /// <param name="right">The second value to compare.</param>
     /// <returns>true if <paramref name="left" /> and <paramref name="right" /> are not equal; otherwise, false.</returns>
-    public static bool operator !=(XLSparklineStyle left, XLSparklineStyle right)
-    {
-        return !Equals(left, right);
-    }
+    public static bool operator !=(XLSparklineStyle left, XLSparklineStyle right) =>
+        !Equals(left, right);
 
     /// <summary>Returns a value that indicates whether the values of two <see cref="T:XLSparklineStyle" /> objects are equal.</summary>
     /// <param name="left">The first value to compare.</param>
     /// <param name="right">The second value to compare.</param>
     /// <returns>true if the <paramref name="left" /> and <paramref name="right" /> parameters have the same value; otherwise, false.</returns>
-    public static bool operator ==(XLSparklineStyle left, XLSparklineStyle right)
-    {
-        return Equals(left, right);
-    }
+    public static bool operator ==(XLSparklineStyle left, XLSparklineStyle right) =>
+        Equals(left, right);
 
     /// <summary>Indicates whether the current object is equal to another object of the same type.</summary>
     /// <param name="other">An object to compare with this object.</param>

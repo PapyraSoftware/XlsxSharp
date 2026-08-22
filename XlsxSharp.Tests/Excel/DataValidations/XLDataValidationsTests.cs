@@ -227,8 +227,6 @@ public class XLDataValidationsTests
         }
     }
 
-    private static string ToSpaceList(IEnumerable<IXLRange> ranges)
-    {
-        return string.Join(" ", ranges.Select(x => x.RangeAddress.ToStringRelative()));
-    }
+    private static string ToSpaceList(IEnumerable<IXLRange> ranges) =>
+        string.Join(" ", ranges.Select(x => x.RangeAddress.ToStringRelative()));
 }

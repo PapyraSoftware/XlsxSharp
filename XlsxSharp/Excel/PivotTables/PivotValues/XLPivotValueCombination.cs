@@ -6,25 +6,14 @@ internal class XLPivotValueCombination : IXLPivotValueCombination
 {
     private readonly IXLPivotValue _pivotValue;
 
-    public XLPivotValueCombination(IXLPivotValue pivotValue)
-    {
-        this._pivotValue = pivotValue;
-    }
+    public XLPivotValueCombination(IXLPivotValue pivotValue) => this._pivotValue = pivotValue;
 
-    public IXLPivotValue And(XLCellValue item)
-    {
-        return this
-            ._pivotValue.SetBaseItemValue(item)
-            .SetCalculationItem(XLPivotCalculationItem.Value);
-    }
+    public IXLPivotValue And(XLCellValue item) =>
+        this._pivotValue.SetBaseItemValue(item).SetCalculationItem(XLPivotCalculationItem.Value);
 
-    public IXLPivotValue AndNext()
-    {
-        return this._pivotValue.SetCalculationItem(XLPivotCalculationItem.Next);
-    }
+    public IXLPivotValue AndNext() =>
+        this._pivotValue.SetCalculationItem(XLPivotCalculationItem.Next);
 
-    public IXLPivotValue AndPrevious()
-    {
-        return this._pivotValue.SetCalculationItem(XLPivotCalculationItem.Previous);
-    }
+    public IXLPivotValue AndPrevious() =>
+        this._pivotValue.SetCalculationItem(XLPivotCalculationItem.Previous);
 }

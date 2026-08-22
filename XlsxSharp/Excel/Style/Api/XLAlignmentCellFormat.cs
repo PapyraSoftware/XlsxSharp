@@ -7,23 +7,14 @@ internal partial class XLAlignmentCellFormat
 {
     private readonly XLCellFormat _parent;
 
-    internal XLAlignmentCellFormat(XLCellFormat parent)
-    {
-        this._parent = parent;
-    }
+    internal XLAlignmentCellFormat(XLCellFormat parent) => this._parent = parent;
 
-    public override bool Equals(object? obj)
-    {
-        return obj is IXLAlignment other && (this as IEquatable<IXLAlignment>).Equals(other);
-    }
+    public override bool Equals(object? obj) =>
+        obj is IXLAlignment other && (this as IEquatable<IXLAlignment>).Equals(other);
 
-    public override int GetHashCode()
-    {
-        return 0;
-    }
+    public override int GetHashCode() => 0;
 
-    internal void SetValue(IXLAlignment value)
-    {
+    internal void SetValue(IXLAlignment value) =>
         this.Modify(
             static (alignment, other) =>
                 alignment with
@@ -40,18 +31,11 @@ internal partial class XLAlignmentCellFormat
                 },
             value
         );
-    }
 
-    private T Resolve<T>(Func<XLCellFormatValue, T> selector)
-    {
-        return this._parent.Resolve(selector);
-    }
+    private T Resolve<T>(Func<XLCellFormatValue, T> selector) => this._parent.Resolve(selector);
 
     private void Modify<TProperty>(
         Func<XLAlignmentFormatValue, TProperty, XLAlignmentFormatValue> modifyAlignment,
         TProperty value
-    )
-    {
-        this._parent.ModifyAlignment(modifyAlignment, value);
-    }
+    ) => this._parent.ModifyAlignment(modifyAlignment, value);
 }

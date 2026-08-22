@@ -11,8 +11,5 @@ namespace XlsxSharp.IO;
 /// <param name="LinePosition">Position on the line, can be 0 if not available.</param>
 public readonly record struct LineInfo(int LineNumber, int LinePosition)
 {
-    public override string ToString()
-    {
-        return $"{this.LineNumber}:{this.LinePosition}";
-    }
+    public override string ToString() => $"{this.LineNumber}:{this.LinePosition}";
 }

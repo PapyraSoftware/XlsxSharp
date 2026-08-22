@@ -165,7 +165,7 @@ internal sealed class XLPicture : IXLPicture, IDisposable
 
     public Int32 Top
     {
-        get { return this.Markers[XLMarkerPosition.TopLeft]?.Offset.Y ?? 0; }
+        get => this.Markers[XLMarkerPosition.TopLeft]?.Offset.Y ?? 0;
         set
         {
             if (this.Placement != XLPicturePlacement.FreeFloating)
@@ -184,7 +184,7 @@ internal sealed class XLPicture : IXLPicture, IDisposable
 
     public IXLCell TopLeftCell
     {
-        get { return this.Markers[XLMarkerPosition.TopLeft].Cell; }
+        get => this.Markers[XLMarkerPosition.TopLeft].Cell;
         private set
         {
             if (!value.Worksheet.Equals(this.Worksheet))
@@ -200,7 +200,7 @@ internal sealed class XLPicture : IXLPicture, IDisposable
 
     public Int32 Width
     {
-        get { return this._width; }
+        get => this._width;
         set
         {
             if (this.Placement == XLPicturePlacement.MoveAndSize)
@@ -225,29 +225,18 @@ internal sealed class XLPicture : IXLPicture, IDisposable
     /// </summary>
     /// <param name="targetSheet">The worksheet to which the picture will be copied.</param>
     /// <returns>A created copy of the picture.</returns>
-    public IXLPicture CopyTo(IXLWorksheet targetSheet)
-    {
-        return this.CopyTo((XLWorksheet)targetSheet);
-    }
+    public IXLPicture CopyTo(IXLWorksheet targetSheet) => this.CopyTo((XLWorksheet)targetSheet);
 
-    public void Delete()
-    {
-        this.Worksheet.Pictures.Delete(this.Name);
-    }
+    public void Delete() => this.Worksheet.Pictures.Delete(this.Name);
 
     /// <summary>
     /// Create a copy of the picture on the same worksheet.
     /// </summary>
     /// <returns>A created copy of the picture.</returns>
-    public IXLPicture Duplicate()
-    {
-        return this.CopyTo(this.Worksheet);
-    }
+    public IXLPicture Duplicate() => this.CopyTo(this.Worksheet);
 
-    public System.Drawing.Point GetOffset(XLMarkerPosition position)
-    {
-        return this.Markers[position].Offset;
-    }
+    public System.Drawing.Point GetOffset(XLMarkerPosition position) =>
+        this.Markers[position].Offset;
 
     public IXLPicture MoveTo(Int32 left, Int32 top)
     {
@@ -257,15 +246,10 @@ internal sealed class XLPicture : IXLPicture, IDisposable
         return this;
     }
 
-    public IXLPicture MoveTo(IXLCell cell)
-    {
-        return this.MoveTo(cell, 0, 0);
-    }
+    public IXLPicture MoveTo(IXLCell cell) => this.MoveTo(cell, 0, 0);
 
-    public IXLPicture MoveTo(IXLCell cell, Int32 xOffset, Int32 yOffset)
-    {
-        return this.MoveTo(cell, new System.Drawing.Point(xOffset, yOffset));
-    }
+    public IXLPicture MoveTo(IXLCell cell, Int32 xOffset, Int32 yOffset) =>
+        this.MoveTo(cell, new System.Drawing.Point(xOffset, yOffset));
 
     public IXLPicture MoveTo(IXLCell cell, System.Drawing.Point offset)
     {
@@ -276,10 +260,8 @@ internal sealed class XLPicture : IXLPicture, IDisposable
         return this;
     }
 
-    public IXLPicture MoveTo(IXLCell fromCell, IXLCell toCell)
-    {
-        return this.MoveTo(fromCell, 0, 0, toCell, 0, 0);
-    }
+    public IXLPicture MoveTo(IXLCell fromCell, IXLCell toCell) =>
+        this.MoveTo(fromCell, 0, 0, toCell, 0, 0);
 
     public IXLPicture MoveTo(
         IXLCell fromCell,
@@ -288,15 +270,13 @@ internal sealed class XLPicture : IXLPicture, IDisposable
         IXLCell toCell,
         Int32 toCellXOffset,
         Int32 toCellYOffset
-    )
-    {
-        return this.MoveTo(
+    ) =>
+        this.MoveTo(
             fromCell,
             new System.Drawing.Point(fromCellXOffset, fromCellYOffset),
             toCell,
             new System.Drawing.Point(toCellXOffset, toCellYOffset)
         );
-    }
 
     public IXLPicture MoveTo(
         IXLCell fromCell,
@@ -318,10 +298,8 @@ internal sealed class XLPicture : IXLPicture, IDisposable
         return this;
     }
 
-    public IXLPicture Scale(Double factor, Boolean relativeToOriginal = false)
-    {
-        return this.ScaleHeight(factor, relativeToOriginal).ScaleWidth(factor, relativeToOriginal);
-    }
+    public IXLPicture Scale(Double factor, Boolean relativeToOriginal = false) =>
+        this.ScaleHeight(factor, relativeToOriginal).ScaleWidth(factor, relativeToOriginal);
 
     public IXLPicture ScaleHeight(Double factor, Boolean relativeToOriginal = false)
     {

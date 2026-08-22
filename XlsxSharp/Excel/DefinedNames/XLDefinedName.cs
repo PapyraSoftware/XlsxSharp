@@ -169,10 +169,7 @@ internal class XLDefinedName : IXLDefinedName, IWorkbookListener
         return targetSheet.DefinedNames.Add(this.Name, copiedName);
     }
 
-    public IXLDefinedName SetRefersTo(IXLRangeBase range)
-    {
-        return this.SetRefersTo(RangeToFixed(range));
-    }
+    public IXLDefinedName SetRefersTo(IXLRangeBase range) => this.SetRefersTo(RangeToFixed(range));
 
     public IXLDefinedName SetRefersTo(IXLRanges ranges)
     {
@@ -186,10 +183,7 @@ internal class XLDefinedName : IXLDefinedName, IWorkbookListener
         return this;
     }
 
-    public override string ToString()
-    {
-        return this._formula;
-    }
+    public override string ToString() => this._formula;
 
     internal void Add(String rangeAddress)
     {
@@ -205,15 +199,11 @@ internal class XLDefinedName : IXLDefinedName, IWorkbookListener
             this._formula + "," + string.Join(",", ranges.Select<XLRange, string>(RangeToFixed));
     }
 
-    void IWorkbookListener.OnSheetRenamed(string oldSheetName, string newSheetName)
-    {
+    void IWorkbookListener.OnSheetRenamed(string oldSheetName, string newSheetName) =>
         this.RenameFormulaSheet(oldSheetName, newSheetName);
-    }
 
-    internal void OnWorksheetDeleted(string worksheetName)
-    {
+    internal void OnWorksheetDeleted(string worksheetName) =>
         this.RenameFormulaSheet(worksheetName, null);
-    }
 
     private void RenameFormulaSheet(string oldSheetName, string? newSheetName)
     {
@@ -236,8 +226,6 @@ internal class XLDefinedName : IXLDefinedName, IWorkbookListener
         this.RefersTo = modified;
     }
 
-    private static string RangeToFixed(IXLRangeBase range)
-    {
-        return range.RangeAddress.ToStringFixed(XLReferenceStyle.A1, true);
-    }
+    private static string RangeToFixed(IXLRangeBase range) =>
+        range.RangeAddress.ToStringFixed(XLReferenceStyle.A1, true);
 }

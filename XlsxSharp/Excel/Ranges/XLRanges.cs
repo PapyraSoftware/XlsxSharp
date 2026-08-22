@@ -72,15 +72,9 @@ internal class XLRanges : IXLRanges, IEnumerable<XLRange>
         }
     }
 
-    public void Add(IXLRangeBase range)
-    {
-        this.Add((XLRange)range.AsRange());
-    }
+    public void Add(IXLRangeBase range) => this.Add((XLRange)range.AsRange());
 
-    public void Add(IXLCell cell)
-    {
-        this.Add(cell.AsRange());
-    }
+    public void Add(IXLCell cell) => this.Add(cell.AsRange());
 
     public bool Remove(IXLRange range)
     {
@@ -110,35 +104,22 @@ internal class XLRanges : IXLRanges, IEnumerable<XLRange>
 
     public int Count { get; private set; }
 
-    public IEnumerator<XLRange> GetEnumerator()
-    {
-        return this
+    public IEnumerator<XLRange> GetEnumerator() =>
+        this
             .Ranges.OrderBy(r => r.Worksheet.Position)
             .ThenBy(r => r.RangeAddress.FirstAddress.RowNumber)
             .ThenBy(r => r.RangeAddress.FirstAddress.ColumnNumber)
             .GetEnumerator();
-    }
 
-    IEnumerator<IXLRange> IEnumerable<IXLRange>.GetEnumerator()
-    {
-        return this.GetEnumerator();
-    }
+    IEnumerator<IXLRange> IEnumerable<IXLRange>.GetEnumerator() => this.GetEnumerator();
 
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return this.GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 
-    public Boolean Contains(IXLCell cell)
-    {
-        return this.GetIntersectedRanges((XLAddress)cell.Address).Any();
-    }
+    public Boolean Contains(IXLCell cell) =>
+        this.GetIntersectedRanges((XLAddress)cell.Address).Any();
 
-    public Boolean Contains(IXLRange range)
-    {
-        return this.GetIntersectedRanges((XLRangeAddress)range.RangeAddress)
-            .Any(r => r.Contains(range));
-    }
+    public Boolean Contains(IXLRange range) =>
+        this.GetIntersectedRanges((XLRangeAddress)range.RangeAddress).Any(r => r.Contains(range));
 
     /// <summary>
     /// Filter ranges from a collection that intersect the specified address. Is much more efficient
@@ -150,10 +131,8 @@ internal class XLRanges : IXLRanges, IEnumerable<XLRange>
         return this.GetIntersectedRanges(in xlRangeAddress);
     }
 
-    internal IEnumerable<IXLRange> GetIntersectedRanges(in XLRangeAddress rangeAddress)
-    {
-        return this.GetRangeIndex(rangeAddress.Worksheet!).GetIntersectedRanges(rangeAddress);
-    }
+    internal IEnumerable<IXLRange> GetIntersectedRanges(in XLRangeAddress rangeAddress) =>
+        this.GetRangeIndex(rangeAddress.Worksheet!).GetIntersectedRanges(rangeAddress);
 
     /// <summary>
     /// Filter ranges from a collection that intersect the specified address. Is much more efficient
@@ -165,33 +144,19 @@ internal class XLRanges : IXLRanges, IEnumerable<XLRange>
         return this.GetIntersectedRanges(in xlAddress);
     }
 
-    internal IEnumerable<IXLRange> GetIntersectedRanges(in XLAddress address)
-    {
-        return this.GetRangeIndex(address.Worksheet).GetIntersectedRanges(address);
-    }
+    internal IEnumerable<IXLRange> GetIntersectedRanges(in XLAddress address) =>
+        this.GetRangeIndex(address.Worksheet).GetIntersectedRanges(address);
 
-    public IEnumerable<IXLRange> GetIntersectedRanges(IXLCell cell)
-    {
-        return this.GetIntersectedRanges(cell.Address);
-    }
+    public IEnumerable<IXLRange> GetIntersectedRanges(IXLCell cell) =>
+        this.GetIntersectedRanges(cell.Address);
 
-    public IEnumerable<IXLDataValidation> DataValidation
-    {
-        get
-        {
-            return this.Ranges.Select(range => range.GetDataValidation()).Where(dv => dv != null);
-        }
-    }
+    public IEnumerable<IXLDataValidation> DataValidation =>
+        this.Ranges.Select(range => range.GetDataValidation()).Where(dv => dv != null);
 
-    public IXLRanges AddToNamed(String rangeName)
-    {
-        return this.AddToNamed(rangeName, XLScope.Workbook);
-    }
+    public IXLRanges AddToNamed(String rangeName) => this.AddToNamed(rangeName, XLScope.Workbook);
 
-    public IXLRanges AddToNamed(String rangeName, XLScope scope)
-    {
-        return this.AddToNamed(rangeName, XLScope.Workbook, null);
-    }
+    public IXLRanges AddToNamed(String rangeName, XLScope scope) =>
+        this.AddToNamed(rangeName, XLScope.Workbook, null);
 
     public IXLRanges AddToNamed(String rangeName, XLScope scope, String? comment)
     {
@@ -201,7 +166,7 @@ internal class XLRanges : IXLRanges, IEnumerable<XLRange>
 
     public XLCellValue Value
     {
-        set { this.Ranges.ForEach(r => r.Value = value); }
+        set => this.Ranges.ForEach(r => r.Value = value);
     }
 
     public IXLRanges SetValue(XLCellValue value)
@@ -256,10 +221,7 @@ internal class XLRanges : IXLRanges, IEnumerable<XLRange>
         return retVal;
     }
 
-    public override bool Equals(object obj)
-    {
-        return this.Equals(obj as XLRanges);
-    }
+    public override bool Equals(object obj) => this.Equals(obj as XLRanges);
 
     public bool Equals(XLRanges? other)
     {
@@ -273,10 +235,8 @@ internal class XLRanges : IXLRanges, IEnumerable<XLRange>
                 .All(foundOne => foundOne);
     }
 
-    public override int GetHashCode()
-    {
-        return this.Ranges.Aggregate(0, (current, r) => current ^ r.GetHashCode());
-    }
+    public override int GetHashCode() =>
+        this.Ranges.Aggregate(0, (current, r) => current ^ r.GetHashCode());
 
     public IXLDataValidation CreateDataValidation()
     {
@@ -293,10 +253,7 @@ internal class XLRanges : IXLRanges, IEnumerable<XLRange>
     }
 
     [Obsolete("Use CreateDataValidation() instead.")]
-    public IXLDataValidation SetDataValidation()
-    {
-        return this.CreateDataValidation();
-    }
+    public IXLDataValidation SetDataValidation() => this.CreateDataValidation();
 
     public void Select()
     {

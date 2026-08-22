@@ -21,17 +21,13 @@ internal class XLHyperlinks : IXLHyperlinks, ISheetListener
 
     private delegate (bool Success, Area? RepositionedArea) RepositionFunc(Area hyperlinkArea);
 
-    internal XLHyperlinks(XLWorksheet worksheet)
-    {
-        this._worksheet = worksheet;
-    }
+    internal XLHyperlinks(XLWorksheet worksheet) => this._worksheet = worksheet;
 
     internal string WorksheetName => this._worksheet.Name;
 
     #region ISheetListener
 
-    void ISheetListener.OnInsertAreaAndShiftDown(XLWorksheet sheet, Area insertedArea)
-    {
+    void ISheetListener.OnInsertAreaAndShiftDown(XLWorksheet sheet, Area insertedArea) =>
         this.RepositionOnChange(
             sheet,
             hyperlinkArea =>
@@ -43,10 +39,8 @@ internal class XLHyperlinks : IXLHyperlinks, ISheetListener
                 return (success, newHlArea);
             }
         );
-    }
 
-    void ISheetListener.OnInsertAreaAndShiftRight(XLWorksheet sheet, Area insertedArea)
-    {
+    void ISheetListener.OnInsertAreaAndShiftRight(XLWorksheet sheet, Area insertedArea) =>
         this.RepositionOnChange(
             sheet,
             hyperlinkArea =>
@@ -58,10 +52,8 @@ internal class XLHyperlinks : IXLHyperlinks, ISheetListener
                 return (success, newHlArea);
             }
         );
-    }
 
-    void ISheetListener.OnDeleteAreaAndShiftLeft(XLWorksheet sheet, Area deletedArea)
-    {
+    void ISheetListener.OnDeleteAreaAndShiftLeft(XLWorksheet sheet, Area deletedArea) =>
         this.RepositionOnChange(
             sheet,
             hyperlinkArea =>
@@ -73,10 +65,8 @@ internal class XLHyperlinks : IXLHyperlinks, ISheetListener
                 return (success, newHlArea);
             }
         );
-    }
 
-    void ISheetListener.OnDeleteAreaAndShiftUp(XLWorksheet sheet, Area deletedArea)
-    {
+    void ISheetListener.OnDeleteAreaAndShiftUp(XLWorksheet sheet, Area deletedArea) =>
         this.RepositionOnChange(
             sheet,
             hyperlinkArea =>
@@ -88,7 +78,6 @@ internal class XLHyperlinks : IXLHyperlinks, ISheetListener
                 return (success, newHlArea);
             }
         );
-    }
 
     private void RepositionOnChange(XLWorksheet sheet, RepositionFunc reposition)
     {
@@ -121,16 +110,12 @@ internal class XLHyperlinks : IXLHyperlinks, ISheetListener
 
     #endregion ISheetListener
 
-    public IEnumerator<XLHyperlink> GetEnumerator()
-    {
+    public IEnumerator<XLHyperlink> GetEnumerator() =>
         // Enumerate in same order it was loaded and will be saved
-        return this._hyperlinks.Select(static x => x.Link).GetEnumerator();
-    }
+        this._hyperlinks.Select(static x => x.Link).GetEnumerator();
 
-    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-    {
-        return this.GetEnumerator();
-    }
+    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() =>
+        this.GetEnumerator();
 
     /// <inheritdoc />
     public bool Delete(XLHyperlink hyperlink)
@@ -279,10 +264,7 @@ internal class XLHyperlinks : IXLHyperlinks, ISheetListener
         Debug.Assert(this._hyperlinks.Count == this._areaIndex.Count);
     }
 
-    private void Remove(XLHyperlink link)
-    {
-        this.Remove(link, out _);
-    }
+    private void Remove(XLHyperlink link) => this.Remove(link, out _);
 
     private bool Remove(XLHyperlink link, out Area area)
     {

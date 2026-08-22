@@ -7,13 +7,9 @@ internal partial class XLDxfFontFormat
 {
     private readonly XLDxFormat _parent;
 
-    internal XLDxfFontFormat(XLDxFormat parent)
-    {
-        this._parent = parent;
-    }
+    internal XLDxfFontFormat(XLDxFormat parent) => this._parent = parent;
 
-    internal void SetValue(IXLFont value)
-    {
+    internal void SetValue(IXLFont value) =>
         this._parent.ModifyFont(
             static (font, value) =>
                 font with
@@ -33,25 +29,17 @@ internal partial class XLDxfFontFormat
                 },
             value
         );
-    }
 
     private T Resolve<T>(Func<XLDifferentialFontValue, T?> getProperty, T defaultValue)
-        where T : struct
-    {
-        return this._parent.Resolve(static format => format.Font, getProperty) ?? defaultValue;
-    }
+        where T : struct =>
+        this._parent.Resolve(static format => format.Font, getProperty) ?? defaultValue;
 
     private T Resolve<T>(Func<XLDifferentialFontValue, T?> getProperty, T defaultValue)
-        where T : class
-    {
-        return this._parent.Resolve(static format => format.Font, getProperty) ?? defaultValue;
-    }
+        where T : class =>
+        this._parent.Resolve(static format => format.Font, getProperty) ?? defaultValue;
 
     private void Modify<T>(
         Func<XLDifferentialFontValue, T, XLDifferentialFontValue> modify,
         T value
-    )
-    {
-        this._parent.ModifyFont(modify, value);
-    }
+    ) => this._parent.ModifyFont(modify, value);
 }

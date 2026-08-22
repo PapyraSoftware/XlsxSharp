@@ -92,10 +92,7 @@ internal partial class XLDxfFontFormat : IXLFont
         set => this.Modify(static (font, scheme) => font with { Scheme = scheme }, value);
     }
 
-    IXLStyle IXLFont.SetBold()
-    {
-        return (this as IXLFont).SetBold(true);
-    }
+    IXLStyle IXLFont.SetBold() => (this as IXLFont).SetBold(true);
 
     IXLStyle IXLFont.SetBold(bool value)
     {
@@ -103,10 +100,7 @@ internal partial class XLDxfFontFormat : IXLFont
         return this._parent;
     }
 
-    IXLStyle IXLFont.SetItalic()
-    {
-        return (this as IXLFont).SetItalic(true);
-    }
+    IXLStyle IXLFont.SetItalic() => (this as IXLFont).SetItalic(true);
 
     IXLStyle IXLFont.SetItalic(bool value)
     {
@@ -114,10 +108,7 @@ internal partial class XLDxfFontFormat : IXLFont
         return this._parent;
     }
 
-    IXLStyle IXLFont.SetUnderline()
-    {
-        return (this as IXLFont).SetUnderline(XLFontUnderlineValues.Single);
-    }
+    IXLStyle IXLFont.SetUnderline() => (this as IXLFont).SetUnderline(XLFontUnderlineValues.Single);
 
     IXLStyle IXLFont.SetUnderline(XLFontUnderlineValues value)
     {
@@ -125,10 +116,7 @@ internal partial class XLDxfFontFormat : IXLFont
         return this._parent;
     }
 
-    IXLStyle IXLFont.SetStrikethrough()
-    {
-        return (this as IXLFont).SetStrikethrough(true);
-    }
+    IXLStyle IXLFont.SetStrikethrough() => (this as IXLFont).SetStrikethrough(true);
 
     IXLStyle IXLFont.SetStrikethrough(bool value)
     {
@@ -142,10 +130,7 @@ internal partial class XLDxfFontFormat : IXLFont
         return this._parent;
     }
 
-    IXLStyle IXLFont.SetShadow()
-    {
-        return (this as IXLFont).SetShadow(true);
-    }
+    IXLStyle IXLFont.SetShadow() => (this as IXLFont).SetShadow(true);
 
     IXLStyle IXLFont.SetShadow(bool value)
     {
@@ -189,8 +174,5 @@ internal partial class XLDxfFontFormat : IXLFont
         return this._parent;
     }
 
-    bool IEquatable<IXLFont>.Equals(IXLFont? other)
-    {
-        throw new NotSupportedException();
-    }
+    bool IEquatable<IXLFont>.Equals(IXLFont? other) => throw new NotSupportedException();
 }

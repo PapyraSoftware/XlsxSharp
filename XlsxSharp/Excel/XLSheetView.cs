@@ -64,15 +64,12 @@ internal class XLSheetView : IXLSheetView
 
     public XLSheetViewOptions View { get; set; }
 
-    IXLWorksheet IXLSheetView.Worksheet
-    {
-        get => this.Worksheet;
-    }
+    IXLWorksheet IXLSheetView.Worksheet => this.Worksheet;
     public XLWorksheet Worksheet { get; internal set; }
 
     public int ZoomScale
     {
-        get { return this._zoomScale; }
+        get => this._zoomScale;
         set
         {
             this._zoomScale = value;

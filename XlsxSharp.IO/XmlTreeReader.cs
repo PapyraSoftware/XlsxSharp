@@ -415,10 +415,7 @@ public sealed class XmlTreeReader : IDisposable
         return enumValue;
     }
 
-    public void Dispose()
-    {
-        this._reader.Dispose();
-    }
+    public void Dispose() => this._reader.Dispose();
 
     private void SwitchToProcessing()
     {
@@ -471,20 +468,16 @@ public sealed class XmlTreeReader : IDisposable
         string attributeName,
         string attributeValue,
         Exception? exception = null
-    )
-    {
+    ) =>
         throw PartStructureException.InvalidAttributeFormat(
             attributeName,
             attributeValue,
             this,
             exception
         );
-    }
 
-    private Exception InvalidXml()
-    {
+    private Exception InvalidXml() =>
         // This should never happen. The underlaying reader should throw when it detects
         // invalid XML (no root, unpaired elements, multiple elements in root)
-        return new UnreachableException($"{this._reader.LineInfo}: Invalid XML.");
-    }
+        new UnreachableException($"{this._reader.LineInfo}: Invalid XML.");
 }

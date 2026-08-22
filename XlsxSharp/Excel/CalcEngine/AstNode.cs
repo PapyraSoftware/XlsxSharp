@@ -29,10 +29,7 @@ internal abstract class ValueNode : AstNode { }
 /// </summary>
 internal class ScalarNode : ValueNode
 {
-    public ScalarNode(ScalarValue value)
-    {
-        this.Value = value;
-    }
+    public ScalarNode(ScalarValue value) => this.Value = value;
 
     public ScalarValue Value { get; }
 
@@ -47,10 +44,7 @@ internal class ScalarNode : ValueNode
 /// </summary>
 internal class ArrayNode : ValueNode
 {
-    public ArrayNode(Array value)
-    {
-        this.Value = value;
-    }
+    public ArrayNode(Array value) => this.Value = value;
 
     public Array Value { get; }
 
@@ -178,10 +172,7 @@ internal class FunctionNode : ValueNode
 /// </summary>
 internal class NotSupportedNode : ValueNode
 {
-    public NotSupportedNode(string featureName)
-    {
-        this.FeatureName = featureName;
-    }
+    public NotSupportedNode(string featureName) => this.FeatureName = featureName;
 
     public string FeatureName { get; }
 
@@ -206,15 +197,9 @@ internal class FileNode : AstNode
     /// </summary>
     public string? Path { get; }
 
-    public FileNode(string path)
-    {
-        this.Path = path;
-    }
+    public FileNode(string path) => this.Path = path;
 
-    public FileNode(int numeric)
-    {
-        this.Numeric = numeric;
-    }
+    public FileNode(int numeric) => this.Numeric = numeric;
 
     public override TResult Accept<TContext, TResult>(
         TContext context,

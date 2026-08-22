@@ -7,38 +7,21 @@ namespace XlsxSharp.Tests.Examples;
 public class PageSetupTests
 {
     [Test]
-    public void HeaderFooters()
-    {
+    public void HeaderFooters() =>
         TestHelper.RunTestExample<HeaderFooters>(@"PageSetup\HeaderFooters.xlsx");
-    }
 
     [Test]
-    public void Margins()
-    {
-        TestHelper.RunTestExample<Margins>(@"PageSetup\Margins.xlsx");
-    }
+    public void Margins() => TestHelper.RunTestExample<Margins>(@"PageSetup\Margins.xlsx");
 
     [Test]
-    public void Page()
-    {
-        TestHelper.RunTestExample<Page>(@"PageSetup\Page.xlsx");
-    }
+    public void Page() => TestHelper.RunTestExample<Page>(@"PageSetup\Page.xlsx");
 
     [Test]
-    public void SheetTab()
-    {
-        TestHelper.RunTestExample<SheetTab>(@"PageSetup\SheetTab.xlsx");
-    }
+    public void SheetTab() => TestHelper.RunTestExample<SheetTab>(@"PageSetup\SheetTab.xlsx");
 
     [Test]
-    public void Sheets()
-    {
-        TestHelper.RunTestExample<Sheets>(@"PageSetup\Sheets.xlsx");
-    }
+    public void Sheets() => TestHelper.RunTestExample<Sheets>(@"PageSetup\Sheets.xlsx");
 
     [Test]
-    public void TwoPages()
-    {
-        TestHelper.RunTestExample<TwoPages>(@"PageSetup\TwoPages.xlsx");
-    }
+    public void TwoPages() => TestHelper.RunTestExample<TwoPages>(@"PageSetup\TwoPages.xlsx");
 }

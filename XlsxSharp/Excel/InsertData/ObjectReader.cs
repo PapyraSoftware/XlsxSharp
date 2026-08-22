@@ -46,17 +46,10 @@ internal class ObjectReader : IInsertDataReader
         this._staticMembers = [.. this._members.Select(ReflectionExtensions.IsStatic)];
     }
 
-    public IEnumerable<IEnumerable<XLCellValue>> GetRecords()
-    {
-        return this._data.Select(item =>
-            this.GetItemData(item).Select(XLCellValue.FromInsertedObject)
-        );
-    }
+    public IEnumerable<IEnumerable<XLCellValue>> GetRecords() =>
+        this._data.Select(item => this.GetItemData(item).Select(XLCellValue.FromInsertedObject));
 
-    public int GetPropertiesCount()
-    {
-        return this._members.Length;
-    }
+    public int GetPropertiesCount() => this._members.Length;
 
     public string? GetPropertyName(int propertyIndex)
     {

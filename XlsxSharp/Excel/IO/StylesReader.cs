@@ -248,10 +248,7 @@ internal partial class StylesReader
     private static (int NumFmtId, XLNumberFormat FormatCode) OnNumFmtParsed(
         uint numFmtId,
         string formatCode
-    )
-    {
-        return (checked((int)numFmtId), XLNumberFormat.Parse(formatCode));
-    }
+    ) => (checked((int)numFmtId), XLNumberFormat.Parse(formatCode));
 
     partial void OnNumFmtsParsed(List<(int NumFmtId, XLNumberFormat Format)> numFmt, uint? count)
     {
@@ -535,11 +532,9 @@ internal partial class StylesReader
     private static (FractionOfOne Position, XLColor Color) OnGradientStopParsed(
         XLColor color,
         double position
-    )
-    {
+    ) =>
         // Spec requires stop positions to be 0..1, but doesn't have a type for that. Excel repairs workbook when it receives values outside 0..1.
-        return (position, color);
-    }
+        (position, color);
 
     private XLDifferentialBorderValue OnBorderParsed(
         XLBorderLine? left,
@@ -576,18 +571,13 @@ internal partial class StylesReader
         return dxfBorder;
     }
 
-    private static XLBorderLine OnBorderPrParsed(XLColor? color, XLBorderStyleValues style)
-    {
-        return new XLBorderLine(color ?? XLColor.Automatic, style);
-    }
+    private static XLBorderLine OnBorderPrParsed(XLColor? color, XLBorderStyleValues style) =>
+        new(color ?? XLColor.Automatic, style);
 
     partial void OnCellStyleXfsParsed(
         List<(XLCellFormatValue Format, int? CellStyleXfId)> xf,
         uint? count
-    )
-    {
-        this._styleFormats = [.. xf.Select(x => x.Format)];
-    }
+    ) => this._styleFormats = [.. xf.Select(x => x.Format)];
 
     private (XLCellFormatValue Format, int? CellStyleXfId) OnXfParsed(
         XLDifferentialAlignmentValue? alignment,
@@ -717,10 +707,7 @@ internal partial class StylesReader
     private static List<(XLCellFormatValue Format, int? CellStyleXfId)> OnCellXfsParsed(
         List<(XLCellFormatValue Format, int? CellStyleXfId)> xf,
         uint? count
-    )
-    {
-        return xf;
-    }
+    ) => xf;
 
     private (int XfId, XLCellStyleValue Style) OnCellStyleParsed(
         string? name,
@@ -955,22 +942,15 @@ internal partial class StylesReader
         }
     }
 
-    private static uint OnRgbColorParsed(uint? rgb)
-    {
+    private static uint OnRgbColorParsed(uint? rgb) =>
         // Despite the name, it's ARGB. If not specified, use black (Excel supplies 0x00000000, but
         // Excel plays very fast and loose with transparency).
-        return rgb ?? 0xFF000000;
-    }
+        rgb ?? 0xFF000000;
 
-    partial void OnIndexedColorsParsed(List<uint> rgbColor)
-    {
+    partial void OnIndexedColorsParsed(List<uint> rgbColor) =>
         this._styles.SetIndexedColors(rgbColor);
-    }
 
-    partial void OnMRUColorsParsed(List<XLColor> color)
-    {
-        this._styles.SetMruColors(color);
-    }
+    partial void OnMRUColorsParsed(List<XLColor> color) => this._styles.SetMruColors(color);
 
     private Xpr<XLColor> ParseColor(string elementName, string ns)
     {
@@ -993,20 +973,17 @@ internal partial class StylesReader
         return Xpr.Success();
     }
 
-    private static XLDifferentialProtectionValue OnCellProtectionParsed(bool? locked, bool? hidden)
-    {
-        return new XLDifferentialProtectionValue { Locked = locked, Hidden = hidden };
-    }
+    private static XLDifferentialProtectionValue OnCellProtectionParsed(
+        bool? locked,
+        bool? hidden
+    ) => new() { Locked = locked, Hidden = hidden };
 
-    private static XLFillFormatValue OnFillPatternFillParsed(XLFillFormatValue patternFillValue)
-    {
-        return patternFillValue;
-    }
+    private static XLFillFormatValue OnFillPatternFillParsed(XLFillFormatValue patternFillValue) =>
+        patternFillValue;
 
-    private static XLFillFormatValue OnFillGradientFillParsed(XLFillFormatValue gradientFillValue)
-    {
-        return gradientFillValue;
-    }
+    private static XLFillFormatValue OnFillGradientFillParsed(
+        XLFillFormatValue gradientFillValue
+    ) => gradientFillValue;
 
     /// <summary>
     /// A mapping of <c>ST_TableStyleType</c>. Custom enum mapping due to table/pivot duality.

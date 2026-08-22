@@ -11,8 +11,7 @@ namespace XlsxSharp.Tests.Excel.AutoFilters;
 public class DynamicFilterTests
 {
     [Test]
-    public void AverageFilterIsInitializedAfterLoad()
-    {
+    public void AverageFilterIsInitializedAfterLoad() =>
         TestHelper.CreateSaveLoadAssert(
             (_, ws) =>
             {
@@ -42,40 +41,31 @@ public class DynamicFilterTests
                 );
             }
         );
-    }
 
     [Test]
-    public void BelowAverageTakesValuesUnderAvgValue()
-    {
+    public void BelowAverageTakesValuesUnderAvgValue() =>
         // The average 2 is not included.
         new AutoFilterTester(f => f.BelowAverage())
             .AddTrue(1)
             .AddFalse(2, 3)
             .AssertVisibility();
-    }
 
     [Test]
-    public void AboveAverageTakesValuesOverAvgValue()
-    {
+    public void AboveAverageTakesValuesOverAvgValue() =>
         new AutoFilterTester(f => f.AboveAverage()).AddTrue(3).AddFalse(2, 1).AssertVisibility();
-    }
 
     [Test]
-    public void AverageIgnoresNonUnifiedNumbers()
-    {
+    public void AverageIgnoresNonUnifiedNumbers() =>
         new AutoFilterTester(f => f.BelowAverage())
             .AddTrue(new DateTime(1900, 1, 1)) // Serial date time 1
             .AddFalse(1.1)
             .AddFalse(1.2)
             .AddFalse(XLError.NoValueAvailable, true, false, "-100", "Text", Blank.Value)
             .AssertVisibility();
-    }
 
     [Test]
-    public void AllRowsAreHiddenWhenColumnHasNoNumber()
-    {
+    public void AllRowsAreHiddenWhenColumnHasNoNumber() =>
         new AutoFilterTester(f => f.AboveAverage())
             .AddFalse(Blank.Value, true, false, "-100", "Text", XLError.NoValueAvailable)
             .AssertVisibility();
-    }
 }

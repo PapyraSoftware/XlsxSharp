@@ -45,30 +45,17 @@ internal class BiDictionary<TKey, TValue> : IReadOnlyBiDictionary<TKey, TValue>
 
     public int Count => this._keyToValue.Count;
 
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return this.GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 
-    public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
-    {
-        return this._keyToValue.GetEnumerator();
-    }
+    public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() =>
+        this._keyToValue.GetEnumerator();
 
-    public bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value)
-    {
-        return this._keyToValue.TryGetValue(key, out value);
-    }
+    public bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value) =>
+        this._keyToValue.TryGetValue(key, out value);
 
-    public bool ContainsKey(TKey key)
-    {
-        return this._keyToValue.ContainsKey(key);
-    }
+    public bool ContainsKey(TKey key) => this._keyToValue.ContainsKey(key);
 
-    public bool ContainsValue(TValue value)
-    {
-        return this._entryToKey.ContainsKey(value);
-    }
+    public bool ContainsValue(TValue value) => this._entryToKey.ContainsKey(value);
 
     internal IReadOnlyDictionary<TKey, TValue> KeyToValue => this._keyToValue;
 

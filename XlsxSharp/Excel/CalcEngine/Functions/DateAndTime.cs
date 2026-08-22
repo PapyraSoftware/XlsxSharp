@@ -412,10 +412,8 @@ internal static class DateAndTime
         return endOfMonth.ToSerialDate().Match<ScalarValue>(d => d, e => e);
     }
 
-    private static ScalarValue Hour(CalcContext ctx, double serialTime)
-    {
-        return GetTimeComponent(ctx, serialTime, static d => d.Hour);
-    }
+    private static ScalarValue Hour(CalcContext ctx, double serialTime) =>
+        GetTimeComponent(ctx, serialTime, static d => d.Hour);
 
     private static ScalarValue IsoWeekNum(CalcContext ctx, double serialDateTime)
     {
@@ -467,15 +465,10 @@ internal static class DateAndTime
         }
     }
 
-    private static bool IsWeekend(int date)
-    {
-        return WeekdayCalc(date) is 1 or 7;
-    }
+    private static bool IsWeekend(int date) => WeekdayCalc(date) is 1 or 7;
 
-    private static ScalarValue Minute(CalcContext ctx, double serialTime)
-    {
-        return GetTimeComponent(ctx, serialTime, static d => d.Minute);
-    }
+    private static ScalarValue Minute(CalcContext ctx, double serialTime) =>
+        GetTimeComponent(ctx, serialTime, static d => d.Minute);
 
     private static ScalarValue Month(CalcContext ctx, double serialDateTime)
     {
@@ -520,15 +513,10 @@ internal static class DateAndTime
         return BusinessDaysUntil(ctx, startSerialDate, endSerialDate, allHolidays);
     }
 
-    private static ScalarValue Now()
-    {
-        return DateTime.Now.ToSerialDateTime();
-    }
+    private static ScalarValue Now() => DateTime.Now.ToSerialDateTime();
 
-    private static ScalarValue Second(CalcContext ctx, double serialDate)
-    {
-        return GetTimeComponent(ctx, serialDate, static d => d.Second);
-    }
+    private static ScalarValue Second(CalcContext ctx, double serialDate) =>
+        GetTimeComponent(ctx, serialDate, static d => d.Second);
 
     private static ScalarValue Time(CalcContext ctx, double hour, double minute, double second)
     {
@@ -583,10 +571,7 @@ internal static class DateAndTime
         return serialDateTime % 1.0;
     }
 
-    private static ScalarValue Today()
-    {
-        return DateTime.Today.ToSerialDateTime();
-    }
+    private static ScalarValue Today() => DateTime.Today.ToSerialDateTime();
 
     private static ScalarValue Weekday(CalcContext ctx, ScalarValue date, ScalarValue flag)
     {
@@ -650,10 +635,8 @@ internal static class DateAndTime
     /// <summary>
     /// Calculate week day. No checks. The default form is form 3 (week starts at Sun, range 1..7).
     /// </summary>
-    private static int WeekdayCalc(int serialDate, int weekStartOffset = 0, int numberOffset = 1)
-    {
-        return (serialDate + 6 + weekStartOffset) % 7 + numberOffset;
-    }
+    private static int WeekdayCalc(int serialDate, int weekStartOffset = 0, int numberOffset = 1) =>
+        (serialDate + 6 + weekStartOffset) % 7 + numberOffset;
 
     private static ScalarValue WeekNum(
         CalcContext ctx,
@@ -1091,15 +1074,10 @@ internal static class DateAndTime
             return daysToMonth[month] - daysToMonth[month - 1];
         }
 
-        private static bool IsLeapYear(int year)
-        {
-            return year % 4 == 0 && (year % 100 != 0 || year % 400 == 0);
-        }
+        private static bool IsLeapYear(int year) =>
+            year % 4 == 0 && (year % 100 != 0 || year % 400 == 0);
 
-        private static DateParts From(DateTime date)
-        {
-            return new DateParts(date.Year, date.Month, date.Day);
-        }
+        private static DateParts From(DateTime date) => new(date.Year, date.Month, date.Day);
 
         internal bool IsLastDayOfMonth()
         {
@@ -1129,10 +1107,7 @@ internal static class DateAndTime
             return new DateParts(year, month, day);
         }
 
-        internal DateParts EndOfMonth()
-        {
-            return this with { Day = DaysInMonth(this.Year, this.Month) };
-        }
+        internal DateParts EndOfMonth() => this with { Day = DaysInMonth(this.Year, this.Month) };
 
         internal OneOf<int, XLError> ToSerialDate()
         {

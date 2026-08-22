@@ -12,20 +12,16 @@ internal static class ReferenceAreaExtensions
     /// <summary>
     /// Is reference a row span (e.g. $3:7).
     /// </summary>
-    public static bool IsRowSpan(this ReferenceArea reference)
-    {
-        return reference.First.ColumnType == ReferenceAxisType.None
-            && reference.Second.ColumnType == ReferenceAxisType.None;
-    }
+    public static bool IsRowSpan(this ReferenceArea reference) =>
+        reference.First.ColumnType == ReferenceAxisType.None
+        && reference.Second.ColumnType == ReferenceAxisType.None;
 
     /// <summary>
     /// Is reference a column span (e.g. $B:G).
     /// </summary>
-    public static bool IsColumnSpan(this ReferenceArea reference)
-    {
-        return reference.First.RowType == ReferenceAxisType.None
-            && reference.Second.RowType == ReferenceAxisType.None;
-    }
+    public static bool IsColumnSpan(this ReferenceArea reference) =>
+        reference.First.RowType == ReferenceAxisType.None
+        && reference.Second.RowType == ReferenceAxisType.None;
 
     /// <summary>
     /// Convert area to an absolute sheet range (regardless if the area is A1 or R1C1).
@@ -33,10 +29,8 @@ internal static class ReferenceAreaExtensions
     /// <param name="area">Area to convert</param>
     /// <param name="anchor">An anchor address that is the center of R1C1 relative address.</param>
     /// <returns>Converted absolute range.</returns>
-    public static Area ToArea(this ReferenceArea area, Point anchor)
-    {
-        return area.First.IsA1 ? ToAreaFromA1(area) : ToAreaFromR1C1(area, anchor);
-    }
+    public static Area ToArea(this ReferenceArea area, Point anchor) =>
+        area.First.IsA1 ? ToAreaFromA1(area) : ToAreaFromR1C1(area, anchor);
 
     public static Area ToAreaFromA1(this ReferenceArea area)
     {
@@ -268,16 +262,18 @@ internal static class ReferenceAreaExtensions
         return new Area(rowStart, colStart, rowEnd, colEnd);
     }
 
-    private static int A1ToPosition(ReferenceAxisType axisType, int position, int defaultPosition)
-    {
-        return axisType switch
+    private static int A1ToPosition(
+        ReferenceAxisType axisType,
+        int position,
+        int defaultPosition
+    ) =>
+        axisType switch
         {
             ReferenceAxisType.Absolute => position, // $A$1 => R1C1
             ReferenceAxisType.Relative => position, // A1 => R1C1
             ReferenceAxisType.None => defaultPosition, // Only other axis specified, e.g. A:B doesn't have row.
             _ => throw new NotSupportedException(),
         };
-    }
 
     private static int R1C1ToPosition(
         ReferenceAxisType axisType,

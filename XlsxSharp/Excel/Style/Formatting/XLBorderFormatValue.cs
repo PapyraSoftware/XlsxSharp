@@ -37,9 +37,8 @@ internal record XLBorderFormatValue
 
     public required bool DiagonalDown { get; init; }
 
-    internal static XLBorderFormatValue FromDxf(XLDifferentialBorderValue dxfBorder)
-    {
-        return new XLBorderFormatValue
+    internal static XLBorderFormatValue FromDxf(XLDifferentialBorderValue dxfBorder) =>
+        new()
         {
             Left = dxfBorder.Left ?? XLBorderLine.None,
             Right = dxfBorder.Right ?? XLBorderLine.None,
@@ -49,5 +48,4 @@ internal record XLBorderFormatValue
             DiagonalUp = dxfBorder.DiagonalUp,
             DiagonalDown = dxfBorder.DiagonalDown,
         };
-    }
 }

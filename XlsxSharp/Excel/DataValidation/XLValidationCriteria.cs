@@ -9,10 +9,8 @@ public abstract class XLValidationCriteria : IXLValidationCriteria
 {
     protected IXLDataValidation dataValidation;
 
-    protected XLValidationCriteria(IXLDataValidation dataValidation)
-    {
+    protected XLValidationCriteria(IXLDataValidation dataValidation) =>
         this.dataValidation = dataValidation;
-    }
 
     #region IXLValidationCriteria Members
 

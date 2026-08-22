@@ -9,17 +9,12 @@ internal class XLCustomProperties : IXLCustomProperties, IEnumerable<IXLCustomPr
 {
     XLWorkbook workbook;
 
-    public XLCustomProperties(XLWorkbook workbook)
-    {
-        this.workbook = workbook;
-    }
+    public XLCustomProperties(XLWorkbook workbook) => this.workbook = workbook;
 
     private Dictionary<String, IXLCustomProperty> customProperties = new();
 
-    public void Add(IXLCustomProperty customProperty)
-    {
+    public void Add(IXLCustomProperty customProperty) =>
         this.customProperties.Add(customProperty.Name, customProperty);
-    }
 
     public void Add<T>(String name, T value)
     {
@@ -27,23 +22,13 @@ internal class XLCustomProperties : IXLCustomProperties, IEnumerable<IXLCustomPr
         this.Add(cp);
     }
 
-    public void Delete(String name)
-    {
-        this.customProperties.Remove(name);
-    }
+    public void Delete(String name) => this.customProperties.Remove(name);
 
-    public IXLCustomProperty CustomProperty(String name)
-    {
-        return this.customProperties[name];
-    }
+    public IXLCustomProperty CustomProperty(String name) => this.customProperties[name];
 
-    public IEnumerator<IXLCustomProperty> GetEnumerator()
-    {
-        return this.customProperties.Values.GetEnumerator();
-    }
+    public IEnumerator<IXLCustomProperty> GetEnumerator() =>
+        this.customProperties.Values.GetEnumerator();
 
-    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-    {
-        return this.GetEnumerator();
-    }
+    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() =>
+        this.GetEnumerator();
 }

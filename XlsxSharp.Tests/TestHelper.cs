@@ -17,22 +17,15 @@ namespace XlsxSharp.Tests;
 
 internal static class TestHelper
 {
-    public static string CurrencySymbol
-    {
-        get { return Thread.CurrentThread.CurrentCulture.NumberFormat.CurrencySymbol; }
-    }
+    public static string CurrencySymbol =>
+        Thread.CurrentThread.CurrentCulture.NumberFormat.CurrencySymbol;
 
     //Note: Run example tests parameters
-    public static string TestsOutputDirectory
-    {
-        get
-        {
-            return Path.Combine(
-                Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location),
-                "Generated"
-            );
-        }
-    }
+    public static string TestsOutputDirectory =>
+        Path.Combine(
+            Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location),
+            "Generated"
+        );
 
     public const string ActualTestResultPostFix = "";
     public static readonly string ExampleTestsOutputDirectory = Path.Combine(
@@ -47,8 +40,7 @@ internal static class TestHelper
         ".Resource."
     );
 
-    public static void SaveWorkbook(XLWorkbook workbook, params string[] fileNameParts)
-    {
+    public static void SaveWorkbook(XLWorkbook workbook, params string[] fileNameParts) =>
         workbook.SaveAs(
             Path.Combine(
                 new string[] { TestsOutputDirectory }
@@ -57,16 +49,12 @@ internal static class TestHelper
             ),
             true
         );
-    }
 
     // Because different fonts are installed on Unix,
     // the columns widths after AdjustToContents() will
     // cause the tests to fail.
     // Therefore we ignore the width attribute when running on Unix
-    public static bool StripColumnWidths
-    {
-        get { return IsRunningOnUnix; }
-    }
+    public static bool StripColumnWidths => IsRunningOnUnix;
 
     public static bool IsRunningOnUnix
     {
@@ -151,8 +139,7 @@ internal static class TestHelper
         string referenceResource,
         bool evaluateFormulae = false,
         bool validate = true
-    )
-    {
+    ) =>
         CreateAndCompare(
             () =>
             {
@@ -164,7 +151,6 @@ internal static class TestHelper
             evaluateFormulae,
             validate
         );
-    }
 
     public static void CreateAndCompare(
         Func<IXLWorkbook> workbookGenerator,
@@ -257,8 +243,7 @@ internal static class TestHelper
         string expectedOutputResourcePath,
         bool evaluateFormulae = false,
         bool validate = true
-    )
-    {
+    ) =>
         LoadModifyAndCompare(
             loadResourcePath,
             _ => { },
@@ -266,7 +251,6 @@ internal static class TestHelper
             evaluateFormulae,
             validate
         );
-    }
 
     /// <summary>
     /// A testing method to load a workbook from resource and assert the state of the loaded workbook.
@@ -291,8 +275,7 @@ internal static class TestHelper
         Action<XLWorkbook, IXLWorksheet> assertWorksheet,
         string loadResourcePath,
         LoadOptions options = null
-    )
-    {
+    ) =>
         LoadAndAssert(
             wb =>
             {
@@ -302,17 +285,12 @@ internal static class TestHelper
             loadResourcePath,
             options
         );
-    }
 
-    public static string GetResourcePath(string filePartName)
-    {
-        return filePartName.Replace('\\', '.').TrimStart('.');
-    }
+    public static string GetResourcePath(string filePartName) =>
+        filePartName.Replace('\\', '.').TrimStart('.');
 
-    public static Stream GetStreamFromResource(string resourcePath)
-    {
-        return _extractor.ReadFileFromResourceToStream(resourcePath);
-    }
+    public static Stream GetStreamFromResource(string resourcePath) =>
+        _extractor.ReadFileFromResourceToStream(resourcePath);
 
     public static void LoadFile(string filePartName)
     {
@@ -327,10 +305,8 @@ internal static class TestHelper
         }
     }
 
-    public static IEnumerable<String> ListResourceFiles(Func<String, Boolean> predicate = null)
-    {
-        return _extractor.GetFileNames(predicate);
-    }
+    public static IEnumerable<String> ListResourceFiles(Func<String, Boolean> predicate = null) =>
+        _extractor.GetFileNames(predicate);
 
     /// <summary>
     /// A method for testing of a saving and loading capabilities of XlsxSharp. Use this
@@ -429,10 +405,7 @@ internal static class TestHelper
         Action<XDocument> part1Assert,
         string part2,
         Action<XDocument> part2Assert
-    )
-    {
-        LoadSaveAndAssert(referenceResource, [(part1, part1Assert), (part2, part2Assert)]);
-    }
+    ) => LoadSaveAndAssert(referenceResource, [(part1, part1Assert), (part2, part2Assert)]);
 
     private static void LoadSaveAndAssert(
         string loadResourcePath,

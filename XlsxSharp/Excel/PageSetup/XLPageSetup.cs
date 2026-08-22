@@ -122,13 +122,11 @@ internal class XLPageSetup : IXLPageSetup
     public void SetColumnsToRepeatAtLeft(
         String firstColumnToRepeatAtLeft,
         String lastColumnToRepeatAtLeft
-    )
-    {
+    ) =>
         this.SetColumnsToRepeatAtLeft(
             XlsxSharp.XLHelper.GetColumnNumberFromLetter(firstColumnToRepeatAtLeft),
             XlsxSharp.XLHelper.GetColumnNumberFromLetter(lastColumnToRepeatAtLeft)
         );
-    }
 
     public void SetColumnsToRepeatAtLeft(
         Int32 firstColumnToRepeatAtLeft,
@@ -164,7 +162,7 @@ internal class XLPageSetup : IXLPageSetup
     private Int32 _pagesWide;
     public Int32 PagesWide
     {
-        get { return this._pagesWide; }
+        get => this._pagesWide;
         set
         {
             this._pagesWide = value;
@@ -178,7 +176,7 @@ internal class XLPageSetup : IXLPageSetup
     private Int32 _pagesTall;
     public Int32 PagesTall
     {
-        get { return this._pagesTall; }
+        get => this._pagesTall;
         set
         {
             this._pagesTall = value;
@@ -192,7 +190,7 @@ internal class XLPageSetup : IXLPageSetup
     private Int32 _scale;
     public Int32 Scale
     {
-        get { return this._scale; }
+        get => this._scale;
         set
         {
             this._scale = value;
@@ -433,10 +431,7 @@ internal class XLPageSetup : IXLPageSetup
 
     public Boolean DifferentFirstPageOnHF { get; set; }
 
-    public IXLPageSetup SetDifferentFirstPageOnHF()
-    {
-        return this.SetDifferentFirstPageOnHF(true);
-    }
+    public IXLPageSetup SetDifferentFirstPageOnHF() => this.SetDifferentFirstPageOnHF(true);
 
     public IXLPageSetup SetDifferentFirstPageOnHF(Boolean value)
     {
@@ -446,10 +441,7 @@ internal class XLPageSetup : IXLPageSetup
 
     public Boolean DifferentOddEvenPagesOnHF { get; set; }
 
-    public IXLPageSetup SetDifferentOddEvenPagesOnHF()
-    {
-        return this.SetDifferentOddEvenPagesOnHF(true);
-    }
+    public IXLPageSetup SetDifferentOddEvenPagesOnHF() => this.SetDifferentOddEvenPagesOnHF(true);
 
     public IXLPageSetup SetDifferentOddEvenPagesOnHF(Boolean value)
     {

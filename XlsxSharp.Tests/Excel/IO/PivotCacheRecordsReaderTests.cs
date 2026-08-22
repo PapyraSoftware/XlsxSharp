@@ -76,8 +76,7 @@ internal class PivotCacheRecordsReaderTests
     [TestCase("<m/><m/><m/>")]
     public void All_records_must_have_same_number_of_items_as_there_is_cache_fields(
         string recordItems
-    )
-    {
+    ) =>
         ReadRecords(
             new[] { "Field 1", "Field 2" },
             $"""
@@ -97,7 +96,6 @@ internal class PivotCacheRecordsReaderTests
                 );
             }
         );
-    }
 
     private static void ReadRecords(
         IReadOnlyList<string> fieldNames,

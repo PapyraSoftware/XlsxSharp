@@ -28,20 +28,11 @@ internal readonly record struct XLFontName : IEquatable<string>
 
     public string Text { get; }
 
-    public bool Equals(string other)
-    {
-        return string.Equals(this.Text, other, Comparison);
-    }
+    public bool Equals(string other) => string.Equals(this.Text, other, Comparison);
 
-    public override int GetHashCode()
-    {
-        return this.Text.GetHashCode(Comparison);
-    }
+    public override int GetHashCode() => this.Text.GetHashCode(Comparison);
 
-    public bool Equals(XLFontName other)
-    {
-        return this.Equals(other.Text);
-    }
+    public bool Equals(XLFontName other) => this.Equals(other.Text);
 
     public static implicit operator XLFontName(string text) => new(text);
 }

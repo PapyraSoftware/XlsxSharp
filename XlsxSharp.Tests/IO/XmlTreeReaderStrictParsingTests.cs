@@ -19,65 +19,53 @@ namespace XlsxSharp.Tests.IO;
 internal class XmlTreeReaderStrictParsingTests
 {
     [Test]
-    public void Reader_parses_bool_attributes_with_attribute_parsing_flag()
-    {
+    public void Reader_parses_bool_attributes_with_attribute_parsing_flag() =>
         AssertStrictParsingFlag(
             """<element boolAttr="PRAVDA"/>""",
             reader => reader.GetOptionalBool("boolAttr")
         );
-    }
 
     [Test]
-    public void Reader_parses_dateTime_attributes_with_attribute_parsing_flag()
-    {
+    public void Reader_parses_dateTime_attributes_with_attribute_parsing_flag() =>
         AssertStrictParsingFlag(
             """<element dateTimeAttr="tomorrow"/>""",
             reader => reader.GetOptionalDateTime("dateTimeAttr")
         );
-    }
 
     [TestCase("pi")]
     [TestCase("1E+5000")]
     [TestCase("INF")]
     [TestCase("NaN")]
-    public void Reader_parses_double_attributes_with_attribute_parsing_flag(string invalidValue)
-    {
+    public void Reader_parses_double_attributes_with_attribute_parsing_flag(string invalidValue) =>
         AssertStrictParsingFlag(
             $"""<element doubleAttr="{invalidValue}"/>""",
             reader => reader.GetOptionalDouble("doubleAttr")
         );
-    }
 
     [Test]
-    public void Reader_parses_enum_attributes_with_attribute_parsing_flag()
-    {
+    public void Reader_parses_enum_attributes_with_attribute_parsing_flag() =>
         AssertStrictParsingFlag(
             """<element enumAttr="triangle"/>""",
             reader => reader.GetOptionalEnum<XLBorderStyleValues>("enumAttr")
         );
-    }
 
     [TestCase("zero")]
     [TestCase("5000000000000")]
-    public void Reader_parses_int_attributes_with_attribute_parsing_flag(string invalidValue)
-    {
+    public void Reader_parses_int_attributes_with_attribute_parsing_flag(string invalidValue) =>
         AssertStrictParsingFlag(
             $"""<element intAttr="{invalidValue}"/>""",
             reader => reader.GetOptionalInt("intAttr")
         );
-    }
 
     [TestCase("zero")]
     [TestCase("-1")]
     [TestCase("4300000000")]
     [TestCase("10000000000000000000")] // Greater than long.MaxValue
-    public void Reader_parses_uint_attributes_with_attribute_parsing_flag(string invalidValue)
-    {
+    public void Reader_parses_uint_attributes_with_attribute_parsing_flag(string invalidValue) =>
         AssertStrictParsingFlag(
             $"""<element uintAttr="{invalidValue}"/>""",
             reader => reader.GetOptionalUInt("uintAttr")
         );
-    }
 
     private static void AssertStrictParsingFlag<T>(
         string xmlText,

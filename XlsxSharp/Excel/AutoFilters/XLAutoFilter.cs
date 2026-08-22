@@ -46,10 +46,7 @@ internal class XLAutoFilter : IXLAutoFilter
         XLSortOrder sortOrder,
         Boolean matchCase,
         Boolean ignoreBlanks
-    )
-    {
-        return this.Sort(columnToSortBy, sortOrder, matchCase, ignoreBlanks);
-    }
+    ) => this.Sort(columnToSortBy, sortOrder, matchCase, ignoreBlanks);
 
     public IXLAutoFilter Reapply()
     {

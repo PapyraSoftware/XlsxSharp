@@ -48,15 +48,10 @@ internal class XLRows : IXLRows
 
     #region IXLRows Members
 
-    public IEnumerator<IXLRow> GetEnumerator()
-    {
-        return this.Rows.Cast<IXLRow>().OrderBy(r => r.RowNumber()).GetEnumerator();
-    }
+    public IEnumerator<IXLRow> GetEnumerator() =>
+        this.Rows.Cast<IXLRow>().OrderBy(r => r.RowNumber()).GetEnumerator();
 
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return this.GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 
     public double Height
     {
@@ -145,55 +140,27 @@ internal class XLRows : IXLRows
         return this;
     }
 
-    public void Hide()
-    {
-        this.Rows.ForEach(r => r.Hide());
-    }
+    public void Hide() => this.Rows.ForEach(r => r.Hide());
 
-    public void Unhide()
-    {
-        this.Rows.ForEach(r => r.Unhide());
-    }
+    public void Unhide() => this.Rows.ForEach(r => r.Unhide());
 
-    public void Group()
-    {
-        this.Group(false);
-    }
+    public void Group() => this.Group(false);
 
-    public void Group(Int32 outlineLevel)
-    {
-        this.Group(outlineLevel, false);
-    }
+    public void Group(Int32 outlineLevel) => this.Group(outlineLevel, false);
 
-    public void Ungroup()
-    {
-        this.Ungroup(false);
-    }
+    public void Ungroup() => this.Ungroup(false);
 
-    public void Group(Boolean collapse)
-    {
-        this.Rows.ForEach(r => r.Group(collapse));
-    }
+    public void Group(Boolean collapse) => this.Rows.ForEach(r => r.Group(collapse));
 
-    public void Group(Int32 outlineLevel, Boolean collapse)
-    {
+    public void Group(Int32 outlineLevel, Boolean collapse) =>
         this.Rows.ForEach(r => r.Group(outlineLevel, collapse));
-    }
 
-    public void Ungroup(Boolean ungroupFromAll)
-    {
+    public void Ungroup(Boolean ungroupFromAll) =>
         this.Rows.ForEach(r => r.Ungroup(ungroupFromAll));
-    }
 
-    public void Collapse()
-    {
-        this.Rows.ForEach(r => r.Collapse());
-    }
+    public void Collapse() => this.Rows.ForEach(r => r.Collapse());
 
-    public void Expand()
-    {
-        this.Rows.ForEach(r => r.Expand());
-    }
+    public void Expand() => this.Rows.ForEach(r => r.Expand());
 
     public IXLCells Cells()
     {

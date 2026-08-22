@@ -21,10 +21,7 @@ internal sealed partial class XLFillCellFormat
 
     private readonly XLCellFormat _parent;
 
-    public XLFillCellFormat(XLCellFormat parent)
-    {
-        this._parent = parent;
-    }
+    public XLFillCellFormat(XLCellFormat parent) => this._parent = parent;
 
     private XLColor BackgroundColor
     {
@@ -70,18 +67,12 @@ internal sealed partial class XLFillCellFormat
             );
     }
 
-    public override bool Equals(object? obj)
-    {
-        return obj is IXLFill other && (this as IEquatable<IXLFill>).Equals(other);
-    }
+    public override bool Equals(object? obj) =>
+        obj is IXLFill other && (this as IEquatable<IXLFill>).Equals(other);
 
-    public override int GetHashCode()
-    {
-        return 0;
-    }
+    public override int GetHashCode() => 0;
 
-    internal void SetValue(IXLFill value)
-    {
+    internal void SetValue(IXLFill value) =>
         // No need for shenanigans with changing pattern fill or colors, the original should be valid and consistent.
         this._parent.ModifyFill(
             static (_, patternFill) =>
@@ -95,5 +86,4 @@ internal sealed partial class XLFillCellFormat
                 ),
             value
         );
-    }
 }

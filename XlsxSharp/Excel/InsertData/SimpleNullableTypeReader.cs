@@ -20,15 +20,10 @@ internal class SimpleNullableTypeReader : IInsertDataReader
         this._itemType = data.GetItemType().GetUnderlyingType();
     }
 
-    public IEnumerable<IEnumerable<XLCellValue>> GetRecords()
-    {
-        return this._data.Select(item => new[] { item }.Select(XLCellValue.FromInsertedObject));
-    }
+    public IEnumerable<IEnumerable<XLCellValue>> GetRecords() =>
+        this._data.Select(item => new[] { item }.Select(XLCellValue.FromInsertedObject));
 
-    public int GetPropertiesCount()
-    {
-        return 1;
-    }
+    public int GetPropertiesCount() => 1;
 
     public string GetPropertyName(int propertyIndex = 0)
     {

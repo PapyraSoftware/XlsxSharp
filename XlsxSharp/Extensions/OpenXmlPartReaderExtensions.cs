@@ -9,12 +9,10 @@ namespace XlsxSharp.Extensions;
 
 internal static class OpenXmlPartReaderExtensions
 {
-    internal static bool IsStartElement(this OpenXmlPartReader reader, string localName)
-    {
-        return reader.LocalName == localName
-            && reader.NamespaceUri == OpenXmlConst.Main2006SsNs
-            && reader.IsStartElement;
-    }
+    internal static bool IsStartElement(this OpenXmlPartReader reader, string localName) =>
+        reader.LocalName == localName
+        && reader.NamespaceUri == OpenXmlConst.Main2006SsNs
+        && reader.IsStartElement;
 
     internal static void MoveAhead(this OpenXmlPartReader reader)
     {

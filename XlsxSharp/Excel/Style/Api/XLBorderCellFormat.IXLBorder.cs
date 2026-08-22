@@ -185,10 +185,7 @@ internal sealed partial class XLBorderCellFormat : IXLBorder
         return this._parent;
     }
 
-    IXLStyle IXLBorder.SetDiagonalUp()
-    {
-        return (this as IXLBorder).SetDiagonalUp(true);
-    }
+    IXLStyle IXLBorder.SetDiagonalUp() => (this as IXLBorder).SetDiagonalUp(true);
 
     IXLStyle IXLBorder.SetDiagonalUp(bool value)
     {
@@ -196,10 +193,7 @@ internal sealed partial class XLBorderCellFormat : IXLBorder
         return this._parent;
     }
 
-    IXLStyle IXLBorder.SetDiagonalDown()
-    {
-        return (this as IXLBorder).SetDiagonalDown(true);
-    }
+    IXLStyle IXLBorder.SetDiagonalDown() => (this as IXLBorder).SetDiagonalDown(true);
 
     IXLStyle IXLBorder.SetDiagonalDown(bool value)
     {

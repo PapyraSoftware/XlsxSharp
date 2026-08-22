@@ -7,10 +7,7 @@ namespace XlsxSharp.Excel;
 /// </summary>
 internal class XLPivotFormat : IXLDxfContainer
 {
-    internal XLPivotFormat(XLPivotArea pivotArea)
-    {
-        this.PivotArea = pivotArea;
-    }
+    internal XLPivotFormat(XLPivotArea pivotArea) => this.PivotArea = pivotArea;
 
     /// <summary>
     /// Pivot area that should be formatted.

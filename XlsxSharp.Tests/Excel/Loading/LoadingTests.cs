@@ -29,16 +29,10 @@ public class LoadingTests
         );
 
     [TestCaseSource(nameof(TryToLoad))]
-    public void CanSuccessfullyLoadFiles(string file)
-    {
-        TestHelper.LoadFile(file);
-    }
+    public void CanSuccessfullyLoadFiles(string file) => TestHelper.LoadFile(file);
 
     [TestCaseSource(nameof(LOFiles))]
-    public void CanSuccessfullyLoadLOFiles(string file)
-    {
-        TestHelper.LoadFile(file);
-    }
+    public void CanSuccessfullyLoadLOFiles(string file) => TestHelper.LoadFile(file);
 
     private static IEnumerable<string> LOFiles
     {
@@ -616,8 +610,7 @@ public class LoadingTests
     }
 
     [Test]
-    public void CanCorrectLoadWorkbookCellsWithDateTimesWithLocalePrefix()
-    {
+    public void CanCorrectLoadWorkbookCellsWithDateTimesWithLocalePrefix() =>
         TestHelper.LoadAndAssert(
             wb =>
             {
@@ -630,7 +623,6 @@ public class LoadingTests
             },
             @"TryToLoad\CellsWithDateTimeWithLocalePrefix.xlsx"
         );
-    }
 
     [Test]
     public void CanCorrectLoadWorkbookDefaultColumnWidth()
@@ -911,8 +903,7 @@ public class LoadingTests
     }
 
     [Test]
-    public void CanLoadEmptyStyles()
-    {
+    public void CanLoadEmptyStyles() =>
         // Stylesheet part exists, but no style collection elements are present
         TestHelper.LoadAndAssert(
             wb =>
@@ -922,11 +913,9 @@ public class LoadingTests
             },
             @"TryToLoad\EmptyStyles.xlsx"
         );
-    }
 
     [Test]
-    public void CanLoadInvalidColors()
-    {
+    public void CanLoadInvalidColors() =>
         // The styles.xml contains two invalid colors: '0' and 'FED+'. Both
         // should be loaded and no exception thrown. The colors are
         // converted using an Excel algorithm.
@@ -942,11 +931,9 @@ public class LoadingTests
             },
             @"TryToLoad\InvalidColors.xlsx"
         );
-    }
 
     [Test]
-    public void WontCrashOnSheetsWithoutRelId()
-    {
+    public void WontCrashOnSheetsWithoutRelId() =>
         // Some non-Excel producers create workbooks where workbookPart declares
         // sheet with empty r:id, but with name and sheetId. Content of such sheets
         // isn't loaded even if relationship part declares implicit relationship to
@@ -973,11 +960,9 @@ public class LoadingTests
             },
             @"TryToLoad\SheetsWithoutRelId.xlsx"
         );
-    }
 
     [Test]
-    public void CanLoadDialogSheet()
-    {
+    public void CanLoadDialogSheet() =>
         // Workbook can reference multiple different types of sheet, most common is worksheet,
         // but there is also possibility of referencing dialogSheet (basically VBA dialog).
         // dialogSheet is basically obsolete (from Excel 5.0), but still supported. Do not
@@ -995,11 +980,9 @@ public class LoadingTests
             },
             @"TryToLoad\DialogSheet.xlsx"
         );
-    }
 
     [Test]
-    public void CanLoadWorkbookWithInvalidAttributesWhenStrictParsingIsDisabled()
-    {
+    public void CanLoadWorkbookWithInvalidAttributesWhenStrictParsingIsDisabled() =>
         TestHelper.LoadAndAssert(
             (_, ws) =>
             {
@@ -1024,5 +1007,4 @@ public class LoadingTests
             @"TryToLoad\Malformed\AttributesWithInvalidValues.xlsx",
             new LoadOptions { StrictAttributeParsing = false }
         );
-    }
 }

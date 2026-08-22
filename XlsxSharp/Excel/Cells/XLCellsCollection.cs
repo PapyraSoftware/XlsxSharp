@@ -88,10 +88,7 @@ internal class XLCellsCollection : IWorkbookListener
 
     internal XLWorksheet Worksheet => this._ws;
 
-    internal void Clear()
-    {
-        this.Clear(Area.Full);
-    }
+    internal void Clear() => this.Clear(Area.Full);
 
     internal void Clear(Area clearRange)
     {
@@ -117,26 +114,18 @@ internal class XLCellsCollection : IWorkbookListener
         }
     }
 
-    internal XLCell GetCell(Point address)
-    {
-        return new XLCell(this._ws, address);
-    }
+    internal XLCell GetCell(Point address) => new(this._ws, address);
 
     /// <summary>
     /// Get all used cells in the worksheet.
     /// </summary>
-    internal IEnumerable<XLCell> GetCells()
-    {
-        return this.GetCells(Area.Full);
-    }
+    internal IEnumerable<XLCell> GetCells() => this.GetCells(Area.Full);
 
     /// <summary>
     /// Get all used cells in the worksheet that satisfy the predicate.
     /// </summary>
-    internal IEnumerable<XLCell> GetCells(Func<XLCell, Boolean> predicate)
-    {
-        return this.GetCells(Area.Full, predicate);
-    }
+    internal IEnumerable<XLCell> GetCells(Func<XLCell, Boolean> predicate) =>
+        this.GetCells(Area.Full, predicate);
 
     /// <summary>
     /// Get all used cells in the range that satisfy the predicate.
@@ -147,10 +136,7 @@ internal class XLCellsCollection : IWorkbookListener
         Int32 rowEnd,
         Int32 columnEnd,
         Func<XLCell, Boolean>? predicate = null
-    )
-    {
-        return this.GetCells(new Area(rowStart, columnStart, rowEnd, columnEnd), predicate);
-    }
+    ) => this.GetCells(new Area(rowStart, columnStart, rowEnd, columnEnd), predicate);
 
     /// <summary>
     /// Get all used cells in the range that satisfy the predicate.
@@ -170,15 +156,11 @@ internal class XLCellsCollection : IWorkbookListener
         }
     }
 
-    internal IEnumerable<XLCell> GetCellsInColumn(Int32 column)
-    {
-        return this.GetCells(1, column, XlsxSharp.XLHelper.MaxRowNumber, column);
-    }
+    internal IEnumerable<XLCell> GetCellsInColumn(Int32 column) =>
+        this.GetCells(1, column, XlsxSharp.XLHelper.MaxRowNumber, column);
 
-    internal IEnumerable<XLCell> GetCellsInRow(Int32 row)
-    {
-        return this.GetCells(row, 1, row, XlsxSharp.XLHelper.MaxColumnNumber);
-    }
+    internal IEnumerable<XLCell> GetCellsInRow(Int32 row) =>
+        this.GetCells(row, 1, row, XlsxSharp.XLHelper.MaxColumnNumber);
 
     /// <summary>
     /// Get cell or null, if cell is not used.
@@ -197,19 +179,13 @@ internal class XLCellsCollection : IWorkbookListener
         Area searchRange,
         XLCellsUsedOptions options,
         Func<IXLCell, Boolean>? predicate = null
-    )
-    {
-        return this.FindUsedColumn(searchRange, options, predicate, false);
-    }
+    ) => this.FindUsedColumn(searchRange, options, predicate, false);
 
     internal int FirstRowUsed(
         Area searchRange,
         XLCellsUsedOptions options,
         Func<IXLCell, Boolean>? predicate = null
-    )
-    {
-        return this.FindUsedRow(searchRange, options, predicate, false);
-    }
+    ) => this.FindUsedRow(searchRange, options, predicate, false);
 
     internal void InsertAreaAndShiftDown(Area insertedRange)
     {
@@ -231,19 +207,13 @@ internal class XLCellsCollection : IWorkbookListener
         Area searchRange,
         XLCellsUsedOptions options,
         Func<IXLCell, Boolean>? predicate = null
-    )
-    {
-        return this.FindUsedColumn(searchRange, options, predicate, true);
-    }
+    ) => this.FindUsedColumn(searchRange, options, predicate, true);
 
     internal int LastRowUsed(
         Area searchRange,
         XLCellsUsedOptions options,
         Func<IXLCell, Boolean>? predicate = null
-    )
-    {
-        return this.FindUsedRow(searchRange, options, predicate, true);
-    }
+    ) => this.FindUsedRow(searchRange, options, predicate, true);
 
     /// <summary>
     /// Remap rows of a range.

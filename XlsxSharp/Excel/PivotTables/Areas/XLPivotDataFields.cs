@@ -18,24 +18,16 @@ internal class XLPivotDataFields : IXLPivotValues, IReadOnlyCollection<XLPivotDa
     /// </summary>
     private readonly List<XLPivotDataField> _fields = [];
 
-    internal XLPivotDataFields(XLPivotTable pivotTable)
-    {
-        this._pivotTable = pivotTable;
-    }
+    internal XLPivotDataFields(XLPivotTable pivotTable) => this._pivotTable = pivotTable;
 
     public int Count => this._fields.Count;
 
     #region IXLPivotValues
 
-    public IXLPivotValue Add(string sourceName)
-    {
-        return this.AddField(sourceName, sourceName);
-    }
+    public IXLPivotValue Add(string sourceName) => this.AddField(sourceName, sourceName);
 
-    public IXLPivotValue Add(string sourceName, string customName)
-    {
-        return this.AddField(sourceName, customName);
-    }
+    public IXLPivotValue Add(string sourceName, string customName) =>
+        this.AddField(sourceName, customName);
 
     public void Clear()
     {
@@ -46,15 +38,9 @@ internal class XLPivotDataFields : IXLPivotValues, IReadOnlyCollection<XLPivotDa
         }
     }
 
-    public bool Contains(string customName)
-    {
-        return this.IndexOf(customName) != -1;
-    }
+    public bool Contains(string customName) => this.IndexOf(customName) != -1;
 
-    public bool Contains(IXLPivotValue pivotValue)
-    {
-        return this.Contains(pivotValue.CustomName);
-    }
+    public bool Contains(IXLPivotValue pivotValue) => this.Contains(pivotValue.CustomName);
 
     public IXLPivotValue Get(string customName)
     {
@@ -69,22 +55,14 @@ internal class XLPivotDataFields : IXLPivotValues, IReadOnlyCollection<XLPivotDa
         return dataField;
     }
 
-    public IXLPivotValue Get(int index)
-    {
-        return this._fields[index];
-    }
+    public IXLPivotValue Get(int index) => this._fields[index];
 
-    public int IndexOf(string customName)
-    {
-        return this._fields.FindIndex(x =>
+    public int IndexOf(string customName) =>
+        this._fields.FindIndex(x =>
             XlsxSharp.XLHelper.NameComparer.Equals(x.CustomName, customName)
         );
-    }
 
-    public int IndexOf(IXLPivotValue pivotValue)
-    {
-        return this.IndexOf(pivotValue.CustomName);
-    }
+    public int IndexOf(IXLPivotValue pivotValue) => this.IndexOf(pivotValue.CustomName);
 
     public void Remove(string customName)
     {
@@ -99,15 +77,9 @@ internal class XLPivotDataFields : IXLPivotValues, IReadOnlyCollection<XLPivotDa
         this._fields.Remove(dataField);
     }
 
-    IEnumerator<IXLPivotValue> IEnumerable<IXLPivotValue>.GetEnumerator()
-    {
-        return this.GetEnumerator();
-    }
+    IEnumerator<IXLPivotValue> IEnumerable<IXLPivotValue>.GetEnumerator() => this.GetEnumerator();
 
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return this.GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 
     #endregion
 
@@ -154,8 +126,5 @@ internal class XLPivotDataFields : IXLPivotValues, IReadOnlyCollection<XLPivotDa
         this._pivotTable.PivotFields[dataField.Field].DataField = true;
     }
 
-    public IEnumerator<XLPivotDataField> GetEnumerator()
-    {
-        return this._fields.GetEnumerator();
-    }
+    public IEnumerator<XLPivotDataField> GetEnumerator() => this._fields.GetEnumerator();
 }

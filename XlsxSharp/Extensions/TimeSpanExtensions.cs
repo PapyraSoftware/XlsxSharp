@@ -9,10 +9,8 @@ namespace XlsxSharp.Extensions;
 
 internal static class TimeSpanExtensions
 {
-    public static double ToSerialDateTime(this TimeSpan time)
-    {
-        return time.Ticks / (double)TimeSpan.TicksPerDay;
-    }
+    public static double ToSerialDateTime(this TimeSpan time) =>
+        time.Ticks / (double)TimeSpan.TicksPerDay;
 
     /// <summary>
     /// Return a string representation of a TimeSpan that can be parsed by an Excel through text-to-number coercion.

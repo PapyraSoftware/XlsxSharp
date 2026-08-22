@@ -29,17 +29,13 @@ namespace XlsxSharp.Excel.CalcEngine;
 /// </summary>
 internal class DependenciesVisitor : IFormulaVisitor<DependenciesContext, List<SheetArea>?>
 {
-    public List<SheetArea>? Visit(DependenciesContext context, ScalarNode node)
-    {
+    public List<SheetArea>? Visit(DependenciesContext context, ScalarNode node) =>
         // Scalar node can't contain sub-nodes or references.
-        return null;
-    }
+        null;
 
-    public List<SheetArea>? Visit(DependenciesContext context, ArrayNode node)
-    {
+    public List<SheetArea>? Visit(DependenciesContext context, ArrayNode node) =>
         // Array node can't contain sub-nodes or references.
-        return null;
-    }
+        null;
 
     public List<SheetArea>? Visit(DependenciesContext context, UnaryNode node)
     {
@@ -269,10 +265,7 @@ internal class DependenciesVisitor : IFormulaVisitor<DependenciesContext, List<S
         return null;
     }
 
-    public List<SheetArea>? Visit(DependenciesContext context, NotSupportedNode node)
-    {
-        return null;
-    }
+    public List<SheetArea>? Visit(DependenciesContext context, NotSupportedNode node) => null;
 
     public List<SheetArea>? Visit(DependenciesContext context, ReferenceNode node)
     {
@@ -357,19 +350,13 @@ internal class DependenciesVisitor : IFormulaVisitor<DependenciesContext, List<S
         }
     }
 
-    public List<SheetArea>? Visit(DependenciesContext context, StructuredReferenceNode node)
-    {
+    public List<SheetArea>? Visit(DependenciesContext context, StructuredReferenceNode node) =>
         // TODO: Structured reference should be evaluated into a reference and propagated.
-        return null;
-    }
+        null;
 
-    public List<SheetArea> Visit(DependenciesContext context, PrefixNode node)
-    {
+    public List<SheetArea> Visit(DependenciesContext context, PrefixNode node) =>
         throw new InvalidOperationException("Should never be called.");
-    }
 
-    public List<SheetArea> Visit(DependenciesContext context, FileNode node)
-    {
+    public List<SheetArea> Visit(DependenciesContext context, FileNode node) =>
         throw new InvalidOperationException("Should never be called.");
-    }
 }

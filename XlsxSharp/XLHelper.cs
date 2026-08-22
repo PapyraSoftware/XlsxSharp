@@ -42,10 +42,7 @@ public static partial class XLHelper
 
     public static Encoding NoBomUTF8 = new UTF8Encoding(false);
 
-    public static String LastCell
-    {
-        get { return $"{MaxColumnLetter}{MaxRowNumber}"; }
-    }
+    public static String LastCell => $"{MaxColumnLetter}{MaxRowNumber}";
 
     internal static readonly NumberStyles NumberStyle =
         NumberStyles.AllowDecimalPoint
@@ -214,15 +211,11 @@ public static partial class XLHelper
         return allLetters[columnNumber - 1];
     }
 
-    internal static int TrimColumnNumber(int columnNumber)
-    {
-        return Math.Max(XLHelper.MinColumnNumber, Math.Min(XLHelper.MaxColumnNumber, columnNumber));
-    }
+    internal static int TrimColumnNumber(int columnNumber) =>
+        Math.Max(XLHelper.MinColumnNumber, Math.Min(XLHelper.MaxColumnNumber, columnNumber));
 
-    internal static int TrimRowNumber(int rowNumber)
-    {
-        return Math.Max(XLHelper.MinRowNumber, Math.Min(XLHelper.MaxRowNumber, rowNumber));
-    }
+    internal static int TrimRowNumber(int rowNumber) =>
+        Math.Max(XLHelper.MinRowNumber, Math.Min(XLHelper.MaxRowNumber, rowNumber));
 
     public static bool IsValidColumn(string column)
     {
@@ -326,16 +319,14 @@ public static partial class XLHelper
         return A1SimpleRegex.IsMatch(rangeAddress);
     }
 
-    public static Boolean IsValidRangeAddress(IXLRangeAddress rangeAddress)
-    {
-        return rangeAddress.IsValid
-            && rangeAddress.FirstAddress.RowNumber >= 1
-            && rangeAddress.LastAddress.RowNumber <= MaxRowNumber
-            && rangeAddress.FirstAddress.ColumnNumber >= 1
-            && rangeAddress.LastAddress.ColumnNumber <= MaxColumnNumber
-            && rangeAddress.FirstAddress.RowNumber <= rangeAddress.LastAddress.RowNumber
-            && rangeAddress.FirstAddress.ColumnNumber <= rangeAddress.LastAddress.ColumnNumber;
-    }
+    public static Boolean IsValidRangeAddress(IXLRangeAddress rangeAddress) =>
+        rangeAddress.IsValid
+        && rangeAddress.FirstAddress.RowNumber >= 1
+        && rangeAddress.LastAddress.RowNumber <= MaxRowNumber
+        && rangeAddress.FirstAddress.ColumnNumber >= 1
+        && rangeAddress.LastAddress.ColumnNumber <= MaxColumnNumber
+        && rangeAddress.FirstAddress.RowNumber <= rangeAddress.LastAddress.RowNumber
+        && rangeAddress.FirstAddress.ColumnNumber <= rangeAddress.LastAddress.ColumnNumber;
 
     public static int GetColumnNumberFromAddress(string cellAddressString)
     {
@@ -348,10 +339,8 @@ public static partial class XLHelper
         return GetColumnNumberFromLetter(cellAddressString.Substring(0, rowPos));
     }
 
-    internal static string[] SplitRange(string range)
-    {
-        return range.Contains('-') ? range.Replace('-', ':').Split(':') : range.Split(':');
-    }
+    internal static string[] SplitRange(string range) =>
+        range.Contains('-') ? range.Replace('-', ':').Split(':') : range.Split(':');
 
     internal static IXLTableRows InsertRowsWithoutEvents(
         Func<int, bool, IXLRangeRows> insertFunc,
@@ -427,10 +416,7 @@ public static partial class XLHelper
         return newVal.Substring(1, newVal.Length - 2);
     }
 
-    public static Boolean AreEqual(Double d1, Double d2)
-    {
-        return Math.Abs(d1 - d2) < Epsilon;
-    }
+    public static Boolean AreEqual(Double d1, Double d2) => Math.Abs(d1 - d2) < Epsilon;
 
     public static DateTime GetDate(Object v)
     {
@@ -450,10 +436,7 @@ public static partial class XLHelper
         return (DateTime)Convert.ChangeType(v, typeof(DateTime));
     }
 
-    internal static bool IsValidOADateNumber(this double d)
-    {
-        return -657435 <= d && d < 2958466;
-    }
+    internal static bool IsValidOADateNumber(this double d) => -657435 <= d && d < 2958466;
 
     /// <summary>
     /// <para>
@@ -602,15 +585,10 @@ public static partial class XLHelper
     /// <param name="width">Width from the source file, not NoC that is displayed in Excel as a width.</param>
     /// <param name="mdw"></param>
     /// <returns>Number of pixels.</returns>
-    internal static int WidthToPixels(double width, int mdw)
-    {
-        return (width * mdw).RoundToInt();
-    }
+    internal static int WidthToPixels(double width, int mdw) => (width * mdw).RoundToInt();
 
-    internal static double PixelsToWidth(double width, int mdw)
-    {
-        return Math.Truncate(width * mdw * 256) / 256d;
-    }
+    internal static double PixelsToWidth(double width, int mdw) =>
+        Math.Truncate(width * mdw * 256) / 256d;
 
     /// <summary>
     /// Convert width (as a multiple of MDWs) into a NoCs (number displayed in Excel).

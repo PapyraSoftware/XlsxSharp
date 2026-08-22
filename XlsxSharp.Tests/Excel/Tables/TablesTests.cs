@@ -1362,8 +1362,7 @@ public class TablesTests
     }
 
     [Test]
-    public void SaveTotalsRowLabelCellWithSstIdMatchingTheLabel()
-    {
+    public void SaveTotalsRowLabelCellWithSstIdMatchingTheLabel() =>
         // Issue #2602 test. The totals row wasn't saved with compact SST ID from file, but with a memory SST that has holes.
         TestHelper.CreateAndCompare(
             wb =>
@@ -1383,7 +1382,6 @@ public class TablesTests
             },
             @"Other\Tables\TotalRowSstId.xlsx"
         );
-    }
 
     [Test]
     public void CanCreateTableWithWhiteSpaceColumnHeaders()

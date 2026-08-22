@@ -8,10 +8,7 @@ namespace XlsxSharp.Excel.CalcEngine.Exceptions;
 /// </summary>
 internal class GettingDataException : Exception
 {
-    public GettingDataException(SheetPoint point)
-    {
-        this.Point = point;
-    }
+    public GettingDataException(SheetPoint point) => this.Point = point;
 
     public SheetPoint Point { get; }
 }

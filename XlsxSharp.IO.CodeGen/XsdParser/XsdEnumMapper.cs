@@ -11,10 +11,7 @@ public class XsdEnumMapper : IEnumMapper
 {
     private readonly Dictionary<Type, object> _textToEnumMaps = new();
 
-    public XsdEnumMapper()
-    {
-        this.AddMaps();
-    }
+    public XsdEnumMapper() => this.AddMaps();
 
     public bool TryGetEnum<TEnum>(string text, out TEnum enumValue)
         where TEnum : struct, Enum
@@ -25,10 +22,7 @@ public class XsdEnumMapper : IEnumMapper
     }
 
     public bool TryGetText<TEnum>(TEnum enumValue, out string text)
-        where TEnum : struct, Enum
-    {
-        throw new NotSupportedException();
-    }
+        where TEnum : struct, Enum => throw new NotSupportedException();
 
     private void AddMaps()
     {
@@ -49,8 +43,5 @@ public class XsdEnumMapper : IEnumMapper
     }
 
     private void AddMap<TEnum>(Dictionary<string, TEnum> enumMap)
-        where TEnum : struct, Enum
-    {
-        this._textToEnumMaps.Add(typeof(TEnum), enumMap);
-    }
+        where TEnum : struct, Enum => this._textToEnumMaps.Add(typeof(TEnum), enumMap);
 }

@@ -60,22 +60,19 @@ public class SchemeTypeMap
         string csTypeName,
         string xmlValue,
         string csValue
-    )
-    {
-        return this.AddSimpleTypeEnum(
+    ) =>
+        this.AddSimpleTypeEnum(
             simpleType,
             csTypeName,
             new Dictionary<string, string> { { xmlValue, csValue } }
         );
-    }
 
     public SchemeTypeMap AddSimpleTypeEnum(
         string simpleType,
         string csTypeName,
         Dictionary<string, string>? valuesMap = null
-    )
-    {
-        return this.AddSimpleType(
+    ) =>
+        this.AddSimpleType(
             new SimpleTypeMapping
             {
                 Name = simpleType,
@@ -89,7 +86,6 @@ public class SchemeTypeMap
                     ),
             }
         );
-    }
 
     /// <summary>
     /// Specify a piece of code that will be used to parse <paramref name="name"/> type.  It must
@@ -104,10 +100,7 @@ public class SchemeTypeMap
         return this;
     }
 
-    internal SimpleTypeMapping GetSimpleType(string typeName)
-    {
-        return this._simpleTypeMap[typeName];
-    }
+    internal SimpleTypeMapping GetSimpleType(string typeName) => this._simpleTypeMap[typeName];
 
     internal string GetSimpleTypeMethod(AttributeElement attribute)
     {

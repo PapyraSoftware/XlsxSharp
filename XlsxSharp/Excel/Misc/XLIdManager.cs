@@ -30,13 +30,7 @@ internal class XLIdManager
         }
     }
 
-    public void Add(Int32 value)
-    {
-        this._hash.Add(value);
-    }
+    public void Add(Int32 value) => this._hash.Add(value);
 
-    public void Add(IEnumerable<Int32> values)
-    {
-        values.ForEach(v => this._hash.Add(v));
-    }
+    public void Add(IEnumerable<Int32> values) => values.ForEach(v => this._hash.Add(v));
 }

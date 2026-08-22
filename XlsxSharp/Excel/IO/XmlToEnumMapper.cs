@@ -20,10 +20,7 @@ internal sealed class XmlToEnumMapper : IEnumMapper
 
     internal static XmlToEnumMapper Instance => LazyInstance.Value;
 
-    private XmlToEnumMapper(Dictionary<Type, object> maps)
-    {
-        this._enumMaps = maps;
-    }
+    private XmlToEnumMapper(Dictionary<Type, object> maps) => this._enumMaps = maps;
 
     public bool TryGetEnum<TEnum>(string text, out TEnum enumValue)
         where TEnum : struct, Enum
@@ -40,10 +37,7 @@ internal sealed class XmlToEnumMapper : IEnumMapper
     }
 
     private BiDictionary<string, TEnum> GetEnumMap<TEnum>()
-        where TEnum : struct, Enum
-    {
-        return (BiDictionary<string, TEnum>)this._enumMaps[typeof(TEnum)];
-    }
+        where TEnum : struct, Enum => (BiDictionary<string, TEnum>)this._enumMaps[typeof(TEnum)];
 
     private static XmlToEnumMapper CreateSpreadsheetMapper()
     {
@@ -178,9 +172,6 @@ internal sealed class XmlToEnumMapper : IEnumMapper
             return this;
         }
 
-        public XmlToEnumMapper Build()
-        {
-            return new XmlToEnumMapper(this._maps);
-        }
+        public XmlToEnumMapper Build() => new(this._maps);
     }
 }

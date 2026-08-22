@@ -26,76 +26,60 @@ public class FormatTestCase<TApi>
         Func<IXLFont, T> getter,
         Action<IXLFont, T> setter,
         params T[] testValues
-    )
-    {
-        return new FormatTestCase<IXLFont>(
+    ) =>
+        new(
             font => getter(font),
             (font, value) => setter(font, (T)value),
             [.. testValues.Cast<object>()]
         );
-    }
 
     internal static FormatTestCase<IXLFill> ForFill<T>(
         Func<IXLFill, T> getter,
         Action<IXLFill, T> setter,
         params T[] testValues
-    )
-    {
-        return new FormatTestCase<IXLFill>(
+    ) =>
+        new(
             fill => getter(fill),
             (fill, value) => setter(fill, (T)value),
             [.. testValues.Cast<object>()]
         );
-    }
 
     internal static FormatTestCase<IXLBorder> ForBorder<T>(
         Func<IXLBorder, T> getter,
         Action<IXLBorder, T> setter,
         params T[] testValues
-    )
-    {
-        return new FormatTestCase<IXLBorder>(
+    ) =>
+        new(
             border => getter(border),
             (border, value) => setter(border, (T)value),
             [.. testValues.Cast<object>()]
         );
-    }
 
     internal static FormatTestCase<IXLAlignment> ForAlignment<T>(
         Func<IXLAlignment, T> getter,
         Action<IXLAlignment, T> setter,
         params T[] testValues
-    )
-    {
-        return new FormatTestCase<IXLAlignment>(
+    ) =>
+        new(
             align => getter(align),
             (align, value) => setter(align, (T)value),
             [.. testValues.Cast<object>()]
         );
-    }
 
     internal static FormatTestCase<IXLProtection> ForProtection<T>(
         Func<IXLProtection, T> getter,
         Action<IXLProtection, T> setter,
         params T[] testValues
-    )
-    {
-        return new FormatTestCase<IXLProtection>(
+    ) =>
+        new(
             protection => getter(protection),
             (protection, value) => setter(protection, (T)value),
             [.. testValues.Cast<object>()]
         );
-    }
 
     internal IEnumerable<object> Values => this._testValues;
 
-    internal object GetPropertyValue(TApi font)
-    {
-        return this._getter(font);
-    }
+    internal object GetPropertyValue(TApi font) => this._getter(font);
 
-    internal void SetPropertyValue(TApi font, object value)
-    {
-        this._setter(font, value);
-    }
+    internal void SetPropertyValue(TApi font, object value) => this._setter(font, value);
 }

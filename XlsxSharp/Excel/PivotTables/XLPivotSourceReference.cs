@@ -58,10 +58,7 @@ internal sealed class XLPivotSourceReference : IXLPivotSource
             && XlsxSharp.XLHelper.NameComparer.Equals(this.Name, other.Name);
     }
 
-    public override bool Equals(object? obj)
-    {
-        return obj is IXLPivotSource other && this.Equals(other);
-    }
+    public override bool Equals(object? obj) => obj is IXLPivotSource other && this.Equals(other);
 
     public override int GetHashCode()
     {

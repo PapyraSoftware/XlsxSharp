@@ -28,19 +28,14 @@ public class XLHyperlinksTests
         Assert.AreSame(ws.Cell(expectedPosition).GetHyperlink(), hyperlink);
     }
 
-    public static IEnumerable<object[]> StructuralChangeCases
-    {
-        get
+    public static IEnumerable<object[]> StructuralChangeCases =>
+        new List<(string, Action<IXLWorksheet>, string)>
         {
-            return new List<(string, Action<IXLWorksheet>, string)>
-            {
-                ("D5", ws => ws.Range("A5:B5").Delete(XLShiftDeletedCells.ShiftCellsLeft), "B5"),
-                ("D5", ws => ws.Range("B2:D4").Delete(XLShiftDeletedCells.ShiftCellsUp), "D2"),
-                ("D5", ws => ws.Column("D").InsertColumnsBefore(2), "F5"), // Insert column leftward
-                ("D5", ws => ws.Row(2).InsertRowsAbove(4), "D9"), // Insert row above
-            }.Select(x => new object[] { x.Item1, x.Item2, x.Item3 });
-        }
-    }
+            ("D5", ws => ws.Range("A5:B5").Delete(XLShiftDeletedCells.ShiftCellsLeft), "B5"),
+            ("D5", ws => ws.Range("B2:D4").Delete(XLShiftDeletedCells.ShiftCellsUp), "D2"),
+            ("D5", ws => ws.Column("D").InsertColumnsBefore(2), "F5"), // Insert column leftward
+            ("D5", ws => ws.Row(2).InsertRowsAbove(4), "D9"), // Insert row above
+        }.Select(x => new object[] { x.Item1, x.Item2, x.Item3 });
 
     [Test]
     public void ShiftDoesntCollideHyperlinks()

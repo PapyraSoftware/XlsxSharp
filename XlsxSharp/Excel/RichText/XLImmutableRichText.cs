@@ -67,10 +67,7 @@ internal sealed class XLImmutableRichText : IEquatable<XLImmutableRichText>
             && Nullable.Equals(this.PhoneticsProperties, other.PhoneticsProperties);
     }
 
-    public override bool Equals(object? obj)
-    {
-        return this.Equals(obj as XLImmutableRichText);
-    }
+    public override bool Equals(object? obj) => this.Equals(obj as XLImmutableRichText);
 
     public override int GetHashCode()
     {
@@ -172,17 +169,12 @@ internal sealed class XLImmutableRichText : IEquatable<XLImmutableRichText>
             this.Length = length;
         }
 
-        public bool Equals(RichTextRun other)
-        {
-            return this.StartIndex == other.StartIndex
-                && this.Length == other.Length
-                && this.Font.Equals(other.Font);
-        }
+        public bool Equals(RichTextRun other) =>
+            this.StartIndex == other.StartIndex
+            && this.Length == other.Length
+            && this.Font.Equals(other.Font);
 
-        public override bool Equals(object? obj)
-        {
-            return obj is RichTextRun other && this.Equals(other);
-        }
+        public override bool Equals(object? obj) => obj is RichTextRun other && this.Equals(other);
 
         public override int GetHashCode()
         {
@@ -244,17 +236,12 @@ internal sealed class XLImmutableRichText : IEquatable<XLImmutableRichText>
             this.EndIndex = endIndex;
         }
 
-        public bool Equals(PhoneticRun other)
-        {
-            return this.Text == other.Text
-                && this.StartIndex == other.StartIndex
-                && this.EndIndex == other.EndIndex;
-        }
+        public bool Equals(PhoneticRun other) =>
+            this.Text == other.Text
+            && this.StartIndex == other.StartIndex
+            && this.EndIndex == other.EndIndex;
 
-        public override bool Equals(object? obj)
-        {
-            return obj is PhoneticRun other && this.Equals(other);
-        }
+        public override bool Equals(object? obj) => obj is PhoneticRun other && this.Equals(other);
 
         public override int GetHashCode()
         {
@@ -296,17 +283,13 @@ internal sealed class XLImmutableRichText : IEquatable<XLImmutableRichText>
             this.Alignment = rtPhonetics.Alignment;
         }
 
-        public bool Equals(PhoneticProperties other)
-        {
-            return this.Font.Equals(other.Font)
-                && this.Type == other.Type
-                && this.Alignment == other.Alignment;
-        }
+        public bool Equals(PhoneticProperties other) =>
+            this.Font.Equals(other.Font)
+            && this.Type == other.Type
+            && this.Alignment == other.Alignment;
 
-        public override bool Equals(object? obj)
-        {
-            return obj is PhoneticProperties other && this.Equals(other);
-        }
+        public override bool Equals(object? obj) =>
+            obj is PhoneticProperties other && this.Equals(other);
 
         public override int GetHashCode()
         {

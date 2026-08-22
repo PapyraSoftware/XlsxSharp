@@ -7,8 +7,7 @@ namespace XlsxSharp.Tests.Excel.PivotTables.Style;
 internal class XLPivotFieldStyleFormatsTests
 {
     [Test]
-    public void Modify_pivot_field_label_style()
-    {
+    public void Modify_pivot_field_label_style() =>
         TestHelper.CreateAndCompare(
             wb =>
             {
@@ -40,12 +39,10 @@ internal class XLPivotFieldStyleFormatsTests
             },
             @"Other\PivotTable\Style\Modify_pivot_field_label_style.xlsx"
         );
-    }
 
     [TestCase(XLPivotLayout.Compact, "Set_pivot_field_header_style-compact.xlsx")]
     [TestCase(XLPivotLayout.Tabular, "Set_pivot_field_header_style-tabular.xlsx")]
-    public void Set_pivot_field_header_style(XLPivotLayout layout, string testFile)
-    {
+    public void Set_pivot_field_header_style(XLPivotLayout layout, string testFile) =>
         // Header in compact is only one cell, whereas tabular has individual header for each field
         // on axis. Tested axis contains two fields to check that even when there is only one header,
         // it is used for all fields (i.e. the single header cell is colored, not a cell next to it).
@@ -79,11 +76,9 @@ internal class XLPivotFieldStyleFormatsTests
             },
             $@"Other\PivotTable\Style\{testFile}"
         );
-    }
 
     [Test]
-    public void Set_pivot_field_subtotals_style()
-    {
+    public void Set_pivot_field_subtotals_style() =>
         // In the test we set two subtotals, one for name and other for month. The month one
         // is there to check the subtotal of a last field on an multi-field axis is displayed
         // correctly (it needs Outline:0 attribute to be displayed correctly in Excel).
@@ -128,11 +123,9 @@ internal class XLPivotFieldStyleFormatsTests
             },
             @"Other\PivotTable\Style\Set_pivot_field_subtotals_style.xlsx"
         );
-    }
 
     [Test]
-    public void Style_values_at_intersection_of_row_and_column()
-    {
+    public void Style_values_at_intersection_of_row_and_column() =>
         // Style cells that belong to a row/column that represent a specific field.
         // The question for data cell is this: does the row/column of the cell
         // intersects a label that belongs to specified field?
@@ -175,11 +168,9 @@ internal class XLPivotFieldStyleFormatsTests
             },
             @"Other\PivotTable\Style\Style_values_at_intersection_of_row_and_column.xlsx"
         );
-    }
 
     [Test]
-    public void Style_data_cells_at_intersection_of_values_field_and_row_or_column_field()
-    {
+    public void Style_data_cells_at_intersection_of_values_field_and_row_or_column_field() =>
         // Style all data cells that display 'Max Price' value (i.e. value cells and grand totals)
         // and lie on a row that represents the 'flavor' field. 'lie on' means it intersects a row
         // that contains field label.
@@ -216,11 +207,9 @@ internal class XLPivotFieldStyleFormatsTests
             },
             @"Other\PivotTable\Style\Style_data_cells_at_intersection_of_values_field_and_row_or_column_field.xlsx"
         );
-    }
 
     [Test]
-    public void Style_data_cells_at_intersection_of_value_field_and_axis_field_with_specific_values()
-    {
+    public void Style_data_cells_at_intersection_of_value_field_and_axis_field_with_specific_values() =>
         TestHelper.CreateAndCompare(
             wb =>
             {
@@ -259,5 +248,4 @@ internal class XLPivotFieldStyleFormatsTests
             },
             @"Other\PivotTable\Style\Style_data_cells_at_intersection_of_value_field_and_axis_field_with_specific_values.xlsx"
         );
-    }
 }

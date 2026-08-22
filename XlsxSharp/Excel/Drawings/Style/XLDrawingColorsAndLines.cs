@@ -8,10 +8,7 @@ internal class XLDrawingColorsAndLines : IXLDrawingColorsAndLines
 {
     private readonly IXLDrawingStyle _style;
 
-    public XLDrawingColorsAndLines(IXLDrawingStyle style)
-    {
-        this._style = style;
-    }
+    public XLDrawingColorsAndLines(IXLDrawingStyle style) => this._style = style;
 
     public XLColor FillColor { get; set; }
 

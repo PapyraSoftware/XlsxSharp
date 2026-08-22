@@ -18,15 +18,9 @@ internal class CalculationVisitor : IFormulaVisitor<CalcContext, AnyValue>
         this._argsPool = ArrayPool<AnyValue>.Create(XLConstants.MaxFunctionArguments, 100);
     }
 
-    public AnyValue Visit(CalcContext context, ScalarNode node)
-    {
-        return node.Value.ToAnyValue();
-    }
+    public AnyValue Visit(CalcContext context, ScalarNode node) => node.Value.ToAnyValue();
 
-    public AnyValue Visit(CalcContext context, ArrayNode node)
-    {
-        return node.Value;
-    }
+    public AnyValue Visit(CalcContext context, ArrayNode node) => node.Value;
 
     public AnyValue Visit(CalcContext context, UnaryNode node)
     {
@@ -102,15 +96,10 @@ internal class CalculationVisitor : IFormulaVisitor<CalcContext, AnyValue>
         }
     }
 
-    public AnyValue Visit(CalcContext context, ReferenceNode node)
-    {
-        return node.GetReference(context);
-    }
+    public AnyValue Visit(CalcContext context, ReferenceNode node) => node.GetReference(context);
 
-    public AnyValue Visit(CalcContext context, NameNode node)
-    {
-        return node.GetValue(context.Worksheet, context.CalcEngine);
-    }
+    public AnyValue Visit(CalcContext context, NameNode node) =>
+        node.GetValue(context.Worksheet, context.CalcEngine);
 
     public AnyValue Visit(CalcContext context, NotSupportedNode node) =>
         throw new NotImplementedException($"Evaluation of {node.FeatureName} is not implemented.");

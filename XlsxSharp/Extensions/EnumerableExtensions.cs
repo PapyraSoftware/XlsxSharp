@@ -72,8 +72,6 @@ internal static class EnumerableExtensions
         this IEnumerable<T> source,
         Func<T, TItem?> property
     )
-        where TItem : struct
-    {
-        return source.Select(property).Where(x => x.HasValue).Select(x => x!.Value);
-    }
+        where TItem : struct =>
+        source.Select(property).Where(x => x.HasValue).Select(x => x!.Value);
 }

@@ -8,10 +8,8 @@ internal class XLRangeFactory
 {
     private readonly XLWorksheet _worksheet;
 
-    public XLRangeFactory(XLWorksheet worksheet)
-    {
+    public XLRangeFactory(XLWorksheet worksheet) =>
         this._worksheet = worksheet ?? throw new ArgumentNullException(nameof(worksheet));
-    }
 
     #region Methods
 
@@ -43,35 +41,19 @@ internal class XLRangeFactory
         }
     }
 
-    public XLRange CreateRange(XLRangeAddress rangeAddress)
-    {
-        return new XLRange(rangeAddress, this._worksheet.Style);
-    }
+    public XLRange CreateRange(XLRangeAddress rangeAddress) =>
+        new(rangeAddress, this._worksheet.Style);
 
-    public XLColumn CreateColumn(int columnNumber)
-    {
-        return new XLColumn(this._worksheet, columnNumber);
-    }
+    public XLColumn CreateColumn(int columnNumber) => new(this._worksheet, columnNumber);
 
-    public XLRow CreateRow(int rowNumber)
-    {
-        return new XLRow(this._worksheet, rowNumber);
-    }
+    public XLRow CreateRow(int rowNumber) => new(this._worksheet, rowNumber);
 
-    public static XLRangeColumn CreateRangeColumn(XLRangeAddress rangeAddress)
-    {
-        return new XLRangeColumn(rangeAddress);
-    }
+    public static XLRangeColumn CreateRangeColumn(XLRangeAddress rangeAddress) => new(rangeAddress);
 
-    public static XLRangeRow CreateRangeRow(XLRangeAddress rangeAddress)
-    {
-        return new XLRangeRow(rangeAddress);
-    }
+    public static XLRangeRow CreateRangeRow(XLRangeAddress rangeAddress) => new(rangeAddress);
 
-    public XLTable CreateTable(XLRangeAddress rangeAddress)
-    {
-        return new XLTable(rangeAddress, this._worksheet.Style);
-    }
+    public XLTable CreateTable(XLRangeAddress rangeAddress) =>
+        new(rangeAddress, this._worksheet.Style);
 
     #endregion Methods
 }

@@ -57,8 +57,5 @@ internal partial class XLDxFormat : IXLStyle
         return this;
     }
 
-    bool IEquatable<IXLStyle>.Equals(IXLStyle? other)
-    {
-        throw new NotSupportedException();
-    }
+    bool IEquatable<IXLStyle>.Equals(IXLStyle? other) => throw new NotSupportedException();
 }

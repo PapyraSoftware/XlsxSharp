@@ -14,10 +14,8 @@ internal class RenameFunctionsVisitor : RefModVisitor
     /// </summary>
     private readonly Lazy<IReadOnlyDictionary<string, string>> _functionMap;
 
-    internal RenameFunctionsVisitor(Lazy<IReadOnlyDictionary<string, string>> functionMap)
-    {
+    internal RenameFunctionsVisitor(Lazy<IReadOnlyDictionary<string, string>> functionMap) =>
         this._functionMap = functionMap;
-    }
 
     protected override ReadOnlySpan<char> ModifyFunction(
         ModContext ctx,

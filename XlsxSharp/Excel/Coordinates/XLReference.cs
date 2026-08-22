@@ -16,15 +16,9 @@ internal readonly record struct XLReference
 {
     private readonly ReferenceArea _reference;
 
-    internal XLReference(ReferenceArea reference)
-    {
-        this._reference = reference;
-    }
+    internal XLReference(ReferenceArea reference) => this._reference = reference;
 
-    internal string GetA1()
-    {
-        return this._reference.GetDisplayStringA1();
-    }
+    internal string GetA1() => this._reference.GetDisplayStringA1();
 
     internal XLRangeAddress ToRangeAddress(XLWorksheet? sheet, Point anchor)
     {

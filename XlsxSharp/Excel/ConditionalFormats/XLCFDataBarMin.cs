@@ -10,10 +10,8 @@ internal class XLCFDataBarMin : IXLCFDataBarMin
 {
     private readonly XLConditionalFormat _conditionalFormat;
 
-    public XLCFDataBarMin(XLConditionalFormat conditionalFormat)
-    {
+    public XLCFDataBarMin(XLConditionalFormat conditionalFormat) =>
         this._conditionalFormat = conditionalFormat;
-    }
 
     public IXLCFDataBarMax Minimum(XLCFContentType type, String value)
     {
@@ -22,13 +20,8 @@ internal class XLCFDataBarMin : IXLCFDataBarMin
         return new XLCFDataBarMax(this._conditionalFormat);
     }
 
-    public IXLCFDataBarMax Minimum(XLCFContentType type, Double value)
-    {
-        return this.Minimum(type, value.ToInvariantString());
-    }
+    public IXLCFDataBarMax Minimum(XLCFContentType type, Double value) =>
+        this.Minimum(type, value.ToInvariantString());
 
-    public IXLCFDataBarMax LowestValue()
-    {
-        return this.Minimum(XLCFContentType.Minimum, "0");
-    }
+    public IXLCFDataBarMax LowestValue() => this.Minimum(XLCFContentType.Minimum, "0");
 }

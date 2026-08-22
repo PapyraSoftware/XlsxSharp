@@ -26,15 +26,9 @@ internal class FormulaDependencies
     /// </summary>
     public IReadOnlyCollection<XLName> Names => this._names;
 
-    internal void AddAreas(List<SheetArea> sheetAreas)
-    {
-        this._areas.UnionWith(sheetAreas);
-    }
+    internal void AddAreas(List<SheetArea> sheetAreas) => this._areas.UnionWith(sheetAreas);
 
-    internal void AddName(XLName name)
-    {
-        this._names.Add(name);
-    }
+    internal void AddName(XLName name) => this._names.Add(name);
 
     internal void RenameSheet(string oldSheetName, string newSheetName)
     {

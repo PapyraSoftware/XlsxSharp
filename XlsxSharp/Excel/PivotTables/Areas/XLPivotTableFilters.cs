@@ -23,10 +23,7 @@ internal class XLPivotTableFilters : IXLPivotFields
     /// </summary>
     private readonly List<XLPivotPageField> _fields = [];
 
-    internal XLPivotTableFilters(XLPivotTable pivotTable)
-    {
-        this._pivotTable = pivotTable;
-    }
+    internal XLPivotTableFilters(XLPivotTable pivotTable) => this._pivotTable = pivotTable;
 
     IXLPivotField IXLPivotFields.Add(String sourceName) => this.Add(sourceName, sourceName);
 
@@ -43,15 +40,9 @@ internal class XLPivotTableFilters : IXLPivotFields
         this._fields.Clear();
     }
 
-    public Boolean Contains(String sourceName)
-    {
-        return this.IndexOf(sourceName) >= 0;
-    }
+    public Boolean Contains(String sourceName) => this.IndexOf(sourceName) >= 0;
 
-    public bool Contains(IXLPivotField pivotField)
-    {
-        return this.Contains(pivotField.SourceName);
-    }
+    public bool Contains(IXLPivotField pivotField) => this.Contains(pivotField.SourceName);
 
     public IXLPivotField Get(String sourceName)
     {
@@ -105,10 +96,7 @@ internal class XLPivotTableFilters : IXLPivotFields
         return this._fields.FindIndex(f => f.Field == fieldIndex);
     }
 
-    public Int32 IndexOf(IXLPivotField pf)
-    {
-        return this.IndexOf(pf.SourceName);
-    }
+    public Int32 IndexOf(IXLPivotField pf) => this.IndexOf(pf.SourceName);
 
     public void Remove(String sourceName)
     {
@@ -154,40 +142,31 @@ internal class XLPivotTableFilters : IXLPivotFields
         return new XLPivotTablePageField(this._pivotTable, filterField);
     }
 
-    internal bool Contains(FieldIndex fieldIndex)
-    {
-        return this._fields.FindIndex(f => f.Field == fieldIndex) >= 0;
-    }
+    internal bool Contains(FieldIndex fieldIndex) =>
+        this._fields.FindIndex(f => f.Field == fieldIndex) >= 0;
 
-    internal void AddField(XLPivotPageField pageField)
-    {
-        this._fields.Add(pageField);
-    }
+    internal void AddField(XLPivotPageField pageField) => this._fields.Add(pageField);
 
     /// <summary>
     /// Number of rows/cols occupied by the filter area. Filter area is above the pivot table and it
     /// optional (i.e. size <c>0</c> indicates no filter).
     /// </summary>
-    internal (int Width, int Height) GetSize()
-    {
-        return GetSize(
+    internal (int Width, int Height) GetSize() =>
+        GetSize(
             this._fields.Count,
             this._pivotTable.FilterAreaOrder,
             this._pivotTable.FilterFieldsPageWrap
         );
-    }
 
     /// <summary>
     /// Number of rows/cols occupied by the filter area, including the gap below, if there is at least one filter.
     /// </summary>
-    internal (int Width, int Height) GetSizeWithGap()
-    {
-        return GetSizeWithGap(
+    internal (int Width, int Height) GetSizeWithGap() =>
+        GetSizeWithGap(
             this._fields.Count,
             this._pivotTable.FilterAreaOrder,
             this._pivotTable.FilterFieldsPageWrap
         );
-    }
 
     private int GetHeightDifference(int fieldChangeCount)
     {

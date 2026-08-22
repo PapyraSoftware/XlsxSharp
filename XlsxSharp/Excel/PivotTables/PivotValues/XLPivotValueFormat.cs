@@ -7,10 +7,7 @@ internal class XLPivotValueFormat : IXLPivotValueFormat
 {
     private readonly XLPivotDataField _pivotValue;
 
-    public XLPivotValueFormat(XLPivotDataField pivotValue)
-    {
-        this._pivotValue = pivotValue;
-    }
+    public XLPivotValueFormat(XLPivotDataField pivotValue) => this._pivotValue = pivotValue;
 
     public Int32 NumberFormatId
     {
@@ -49,7 +46,7 @@ internal class XLPivotValueFormat : IXLPivotValueFormat
     public String Format
     {
         get => this._pivotValue.NumberFormatValue ?? string.Empty;
-        set { this._pivotValue.NumberFormatValue = XLNumberFormat.Parse(value); }
+        set => this._pivotValue.NumberFormatValue = XLNumberFormat.Parse(value);
     }
 
     public IXLPivotValue SetNumberFormatId(Int32 value)

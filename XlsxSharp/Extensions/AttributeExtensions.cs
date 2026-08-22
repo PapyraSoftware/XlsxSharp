@@ -18,8 +18,5 @@ internal static class AttributeExtensions
     }
 
     public static bool HasAttribute<TAttribute>(this MemberInfo member)
-        where TAttribute : Attribute
-    {
-        return GetAttributes<TAttribute>(member).Any();
-    }
+        where TAttribute : Attribute => GetAttributes<TAttribute>(member).Any();
 }

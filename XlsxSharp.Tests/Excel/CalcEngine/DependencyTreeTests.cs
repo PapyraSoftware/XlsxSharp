@@ -428,15 +428,11 @@ internal class DependencyTreeTests
         tree.MarkDirty(area);
     }
 
-    private static void AssertDirty(IXLWorksheet sheet, params string[] dirtyRanges)
-    {
+    private static void AssertDirty(IXLWorksheet sheet, params string[] dirtyRanges) =>
         AssertDirtyFlag(true, sheet, dirtyRanges);
-    }
 
-    private static void AssertNotDirty(IXLWorksheet sheet, params string[] dirtyRanges)
-    {
+    private static void AssertNotDirty(IXLWorksheet sheet, params string[] dirtyRanges) =>
         AssertDirtyFlag(false, sheet, dirtyRanges);
-    }
 
     private static void AssertDirtyFlag(
         bool expectedDirtyFlag,

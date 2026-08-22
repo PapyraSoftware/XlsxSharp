@@ -30,24 +30,16 @@ internal class XLColumnsCollection : IDictionary<Int32, XLColumn>
         }
     }
 
-    public void Add(int key, XLColumn value)
-    {
-        this._dictionary.Add(key, value);
-    }
+    public void Add(int key, XLColumn value) => this._dictionary.Add(key, value);
 
     public bool ContainsKey(int key) => this._dictionary.ContainsKey(key);
 
     public ICollection<int> Keys => this._dictionary.Keys;
 
-    public bool Remove(int key)
-    {
-        return this._dictionary.Remove(key);
-    }
+    public bool Remove(int key) => this._dictionary.Remove(key);
 
-    public bool TryGetValue(int key, out XLColumn value)
-    {
-        return this._dictionary.TryGetValue(key, out value);
-    }
+    public bool TryGetValue(int key, out XLColumn value) =>
+        this._dictionary.TryGetValue(key, out value);
 
     public ICollection<XLColumn> Values => this._dictionary.Values;
 
@@ -57,34 +49,20 @@ internal class XLColumnsCollection : IDictionary<Int32, XLColumn>
         set => this._dictionary[key] = value;
     }
 
-    public void Add(KeyValuePair<int, XLColumn> item)
-    {
-        this._dictionary.Add(item.Key, item.Value);
-    }
+    public void Add(KeyValuePair<int, XLColumn> item) => this._dictionary.Add(item.Key, item.Value);
 
-    public void Clear()
-    {
-        this._dictionary.Clear();
-    }
+    public void Clear() => this._dictionary.Clear();
 
-    public bool Contains(KeyValuePair<int, XLColumn> item)
-    {
-        return this._dictionary.Contains(item);
-    }
+    public bool Contains(KeyValuePair<int, XLColumn> item) => this._dictionary.Contains(item);
 
-    public void CopyTo(KeyValuePair<int, XLColumn>[] array, int arrayIndex)
-    {
+    public void CopyTo(KeyValuePair<int, XLColumn>[] array, int arrayIndex) =>
         throw new NotImplementedException();
-    }
 
     public int Count => this._dictionary.Count;
 
     public bool IsReadOnly => false;
 
-    public bool Remove(KeyValuePair<int, XLColumn> item)
-    {
-        return this._dictionary.Remove(item.Key);
-    }
+    public bool Remove(KeyValuePair<int, XLColumn> item) => this._dictionary.Remove(item.Key);
 
     public IEnumerator<KeyValuePair<int, XLColumn>> GetEnumerator() =>
         this._dictionary.GetEnumerator();
@@ -92,8 +70,6 @@ internal class XLColumnsCollection : IDictionary<Int32, XLColumn>
     System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() =>
         this._dictionary.GetEnumerator();
 
-    public void RemoveAll(Func<XLColumn, Boolean> predicate)
-    {
+    public void RemoveAll(Func<XLColumn, Boolean> predicate) =>
         this._dictionary.RemoveAll(predicate);
-    }
 }

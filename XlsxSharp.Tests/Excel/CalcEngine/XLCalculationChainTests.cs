@@ -262,13 +262,9 @@ public class XLCalculationChainTests
         CollectionAssert.AreEqual(new[] { 0, 0, 0 }, GetPositions(chain));
     }
 
-    private static IEnumerable<SheetPoint> GetPoints(XLCalculationChain chain)
-    {
-        return chain.GetLinks().Select(x => x.Point);
-    }
+    private static IEnumerable<SheetPoint> GetPoints(XLCalculationChain chain) =>
+        chain.GetLinks().Select(x => x.Point);
 
-    private static IEnumerable<int> GetPositions(XLCalculationChain chain)
-    {
-        return chain.GetLinks().Select(x => x.LastPosition);
-    }
+    private static IEnumerable<int> GetPositions(XLCalculationChain chain) =>
+        chain.GetLinks().Select(x => x.LastPosition);
 }

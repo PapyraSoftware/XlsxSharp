@@ -10,10 +10,8 @@ internal class XLCFColorScaleMid : IXLCFColorScaleMid
 {
     private readonly XLConditionalFormat _conditionalFormat;
 
-    public XLCFColorScaleMid(XLConditionalFormat conditionalFormat)
-    {
+    public XLCFColorScaleMid(XLConditionalFormat conditionalFormat) =>
         this._conditionalFormat = conditionalFormat;
-    }
 
     public IXLCFColorScaleMax Midpoint(XLCFContentType type, String value, XLColor color)
     {
@@ -23,20 +21,14 @@ internal class XLCFColorScaleMid : IXLCFColorScaleMid
         return new XLCFColorScaleMax(this._conditionalFormat);
     }
 
-    public IXLCFColorScaleMax Midpoint(XLCFContentType type, Double value, XLColor color)
-    {
-        return this.Midpoint(type, value.ToInvariantString(), color);
-    }
+    public IXLCFColorScaleMax Midpoint(XLCFContentType type, Double value, XLColor color) =>
+        this.Midpoint(type, value.ToInvariantString(), color);
 
-    public void Maximum(XLCFContentType type, String value, XLColor color)
-    {
+    public void Maximum(XLCFContentType type, String value, XLColor color) =>
         this.Midpoint(type, value, color);
-    }
 
-    public void Maximum(XLCFContentType type, Double value, XLColor color)
-    {
+    public void Maximum(XLCFContentType type, Double value, XLColor color) =>
         this.Maximum(type, value.ToInvariantString(), color);
-    }
 
     public void HighestValue(XLColor color)
     {

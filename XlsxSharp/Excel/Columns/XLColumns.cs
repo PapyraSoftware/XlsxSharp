@@ -51,15 +51,10 @@ internal class XLColumns : IXLColumns
 
     #region IXLColumns Members
 
-    public IEnumerator<IXLColumn> GetEnumerator()
-    {
-        return this.Columns.Cast<IXLColumn>().OrderBy(r => r.ColumnNumber()).GetEnumerator();
-    }
+    public IEnumerator<IXLColumn> GetEnumerator() =>
+        this.Columns.Cast<IXLColumn>().OrderBy(r => r.ColumnNumber()).GetEnumerator();
 
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return this.GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 
     public Double Width
     {
@@ -149,55 +144,27 @@ internal class XLColumns : IXLColumns
         return this;
     }
 
-    public void Hide()
-    {
-        this.Columns.ForEach(c => c.Hide());
-    }
+    public void Hide() => this.Columns.ForEach(c => c.Hide());
 
-    public void Unhide()
-    {
-        this.Columns.ForEach(c => c.Unhide());
-    }
+    public void Unhide() => this.Columns.ForEach(c => c.Unhide());
 
-    public void Group()
-    {
-        this.Group(false);
-    }
+    public void Group() => this.Group(false);
 
-    public void Group(Int32 outlineLevel)
-    {
-        this.Group(outlineLevel, false);
-    }
+    public void Group(Int32 outlineLevel) => this.Group(outlineLevel, false);
 
-    public void Ungroup()
-    {
-        this.Ungroup(false);
-    }
+    public void Ungroup() => this.Ungroup(false);
 
-    public void Group(Boolean collapse)
-    {
-        this.Columns.ForEach(c => c.Group(collapse));
-    }
+    public void Group(Boolean collapse) => this.Columns.ForEach(c => c.Group(collapse));
 
-    public void Group(Int32 outlineLevel, Boolean collapse)
-    {
+    public void Group(Int32 outlineLevel, Boolean collapse) =>
         this.Columns.ForEach(c => c.Group(outlineLevel, collapse));
-    }
 
-    public void Ungroup(Boolean ungroupFromAll)
-    {
+    public void Ungroup(Boolean ungroupFromAll) =>
         this.Columns.ForEach(c => c.Ungroup(ungroupFromAll));
-    }
 
-    public void Collapse()
-    {
-        this.Columns.ForEach(c => c.Collapse());
-    }
+    public void Collapse() => this.Columns.ForEach(c => c.Collapse());
 
-    public void Expand()
-    {
-        this.Columns.ForEach(c => c.Expand());
-    }
+    public void Expand() => this.Columns.ForEach(c => c.Expand());
 
     public IXLCells Cells()
     {
@@ -221,12 +188,8 @@ internal class XLColumns : IXLColumns
         return cells;
     }
 
-    public IXLCells CellsUsed(Boolean includeFormats)
-    {
-        return this.CellsUsed(
-            includeFormats ? XLCellsUsedOptions.All : XLCellsUsedOptions.AllContents
-        );
-    }
+    public IXLCells CellsUsed(Boolean includeFormats) =>
+        this.CellsUsed(includeFormats ? XLCellsUsedOptions.All : XLCellsUsedOptions.AllContents);
 
     public IXLCells CellsUsed(XLCellsUsedOptions options)
     {
@@ -279,10 +242,7 @@ internal class XLColumns : IXLColumns
         this._columnsCollection.Add(column);
     }
 
-    public void CollapseOnly()
-    {
-        this.Columns.ForEach(c => c.Collapsed = true);
-    }
+    public void CollapseOnly() => this.Columns.ForEach(c => c.Collapsed = true);
 
     public IXLColumns Clear(XLClearOptions clearOptions = XLClearOptions.All)
     {

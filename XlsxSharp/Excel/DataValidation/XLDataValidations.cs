@@ -11,10 +11,8 @@ internal class XLDataValidations : IXLDataValidations, IEnumerable<XLDataValidat
     private readonly List<XLDataValidation> _dataValidations = [];
     private readonly XLWorksheet _worksheet;
 
-    public XLDataValidations(XLWorksheet worksheet)
-    {
+    public XLDataValidations(XLWorksheet worksheet) =>
         this._worksheet = worksheet ?? throw new ArgumentNullException(nameof(worksheet));
-    }
 
     #region IXLDataValidations Members
 
@@ -111,20 +109,12 @@ internal class XLDataValidations : IXLDataValidations, IEnumerable<XLDataValidat
         }
     }
 
-    public IEnumerator<XLDataValidation> GetEnumerator()
-    {
-        return this._dataValidations.GetEnumerator();
-    }
+    public IEnumerator<XLDataValidation> GetEnumerator() => this._dataValidations.GetEnumerator();
 
-    IEnumerator<IXLDataValidation> IEnumerable<IXLDataValidation>.GetEnumerator()
-    {
-        return this.GetEnumerator();
-    }
+    IEnumerator<IXLDataValidation> IEnumerable<IXLDataValidation>.GetEnumerator() =>
+        this.GetEnumerator();
 
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return this.GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 
     /// <summary>
     /// Get the data validation rule for the range with the specified address if it exists.
@@ -207,10 +197,8 @@ internal class XLDataValidations : IXLDataValidations, IEnumerable<XLDataValidat
         }
     }
 
-    internal void Delete(XLDataValidation dataValidation)
-    {
+    internal void Delete(XLDataValidation dataValidation) =>
         this._dataValidations.Remove(dataValidation);
-    }
 
     internal void Consolidate()
     {
@@ -302,41 +290,33 @@ internal class XLDataValidations : IXLDataValidations, IEnumerable<XLDataValidat
             .With(addedArea);
     }
 
-    void ISheetListener.OnInsertAreaAndShiftDown(XLWorksheet sheet, Area area)
-    {
+    void ISheetListener.OnInsertAreaAndShiftDown(XLWorksheet sheet, Area area) =>
         this.AdjustDataValidationAreas(
             sheet,
             area,
             static (sqref, insertedArea) => sqref.InsertAndShiftDown(insertedArea)
         );
-    }
 
-    void ISheetListener.OnInsertAreaAndShiftRight(XLWorksheet sheet, Area area)
-    {
+    void ISheetListener.OnInsertAreaAndShiftRight(XLWorksheet sheet, Area area) =>
         this.AdjustDataValidationAreas(
             sheet,
             area,
             static (sqref, insertedArea) => sqref.InsertAndShiftRight(insertedArea)
         );
-    }
 
-    void ISheetListener.OnDeleteAreaAndShiftLeft(XLWorksheet sheet, Area deletedRange)
-    {
+    void ISheetListener.OnDeleteAreaAndShiftLeft(XLWorksheet sheet, Area deletedRange) =>
         this.AdjustDataValidationAreas(
             sheet,
             deletedRange,
             static (sqref, deletedArea) => sqref.DeleteAndShiftLeft(deletedArea)
         );
-    }
 
-    void ISheetListener.OnDeleteAreaAndShiftUp(XLWorksheet sheet, Area deletedRange)
-    {
+    void ISheetListener.OnDeleteAreaAndShiftUp(XLWorksheet sheet, Area deletedRange) =>
         this.AdjustDataValidationAreas(
             sheet,
             deletedRange,
             static (sqref, deletedArea) => sqref.DeleteAndShiftUp(deletedArea)
         );
-    }
 
     private void AdjustDataValidationAreas(
         XLWorksheet sheet,

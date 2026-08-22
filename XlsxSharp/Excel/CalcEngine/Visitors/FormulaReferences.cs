@@ -14,10 +14,7 @@ internal class FormulaReferences
 {
     private readonly string _formula;
 
-    private FormulaReferences(string formula)
-    {
-        this._formula = formula;
-    }
+    private FormulaReferences(string formula) => this._formula = formula;
 
     /// <summary>
     /// Is there a <c>#REF!</c> anywhere in the formula?
@@ -48,12 +45,10 @@ internal class FormulaReferences
         return references;
     }
 
-    internal bool ContainsSheet(string worksheetName)
-    {
-        return this.SheetReferences.Any(x =>
+    internal bool ContainsSheet(string worksheetName) =>
+        this.SheetReferences.Any(x =>
             XlsxSharp.XLHelper.SheetComparer.Equals(x.Sheet, worksheetName)
         );
-    }
 
     internal XLRanges GetExternalRanges(XLWorkbook workbook, Point anchor)
     {
