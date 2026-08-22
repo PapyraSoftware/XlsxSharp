@@ -10,18 +10,18 @@ public interface IXLComment : IXLFormattedText<IXLComment>, IXLDrawing<IXLCommen
     /// <summary>
     /// Gets or sets this comment's author's name
     /// </summary>
-    string Author { get; set; }
+    public string Author { get; set; }
 
     /// <summary>
     /// Sets the name of the comment's author
     /// </summary>
     /// <param name="value">Author's name</param>
-    IXLComment SetAuthor(string value);
+    public IXLComment SetAuthor(string value);
 
     /// <summary>
     /// Adds a bolded line with the author's name
     /// </summary>
-    IXLRichString AddSignature();
+    public IXLRichString AddSignature();
 
-    void Delete();
+    public void Delete();
 }

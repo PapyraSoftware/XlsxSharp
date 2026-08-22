@@ -2,6 +2,6 @@ namespace XlsxSharp.Excel.Drawings.Style;
 
 public interface IXLDrawingWeb
 {
-    string? AlternateText { get; set; }
-    IXLDrawingStyle SetAlternateText(string? value);
+    public string? AlternateText { get; set; }
+    public IXLDrawingStyle SetAlternateText(string? value);
 }

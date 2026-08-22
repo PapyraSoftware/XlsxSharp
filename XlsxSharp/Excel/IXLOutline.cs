@@ -16,6 +16,6 @@ public enum XLOutlineSummaryHLocation
 
 public interface IXLOutline
 {
-    XLOutlineSummaryVLocation SummaryVLocation { get; set; }
-    XLOutlineSummaryHLocation SummaryHLocation { get; set; }
+    public XLOutlineSummaryVLocation SummaryVLocation { get; set; }
+    public XLOutlineSummaryHLocation SummaryHLocation { get; set; }
 }

@@ -22,10 +22,10 @@ public interface IXLNumberFormatBase
     /// </para>
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The passed value is not a predefined format.</exception>
-    int NumberFormatId { get; set; }
+    public int NumberFormatId { get; set; }
 
     /// <summary>
     /// Gets or sets number format.
     /// </summary>
-    string Format { get; set; }
+    public string Format { get; set; }
 }

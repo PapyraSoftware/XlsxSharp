@@ -12,7 +12,7 @@ public interface IXLPivotStyleFormat
     /// <summary>
     /// To what part of the pivot table part will the style apply to.
     /// </summary>
-    XLPivotStyleFormatElement AppliesTo { get; }
+    public XLPivotStyleFormatElement AppliesTo { get; }
 
     /// <summary>
     /// The differential style of the part.
@@ -20,5 +20,5 @@ public interface IXLPivotStyleFormat
     /// <remarks>
     /// The final displayed style is done by composing all differential styles that overlap the element.
     /// </remarks>
-    IXLStyle Style { get; set; }
+    public IXLStyle Style { get; set; }
 }

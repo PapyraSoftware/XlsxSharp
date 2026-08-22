@@ -4,13 +4,13 @@ namespace XlsxSharp.Excel.Drawings;
 
 public interface IXLDrawingPosition
 {
-    int Column { get; set; }
-    IXLDrawingPosition SetColumn(int column);
-    double ColumnOffset { get; set; }
-    IXLDrawingPosition SetColumnOffset(double columnOffset);
+    public int Column { get; set; }
+    public IXLDrawingPosition SetColumn(int column);
+    public double ColumnOffset { get; set; }
+    public IXLDrawingPosition SetColumnOffset(double columnOffset);
 
-    int Row { get; set; }
-    IXLDrawingPosition SetRow(int row);
-    double RowOffset { get; set; }
-    IXLDrawingPosition SetRowOffset(double rowOffset);
+    public int Row { get; set; }
+    public IXLDrawingPosition SetRow(int row);
+    public double RowOffset { get; set; }
+    public IXLDrawingPosition SetRowOffset(double rowOffset);
 }

@@ -2,5 +2,5 @@
 
 internal interface ITallyState<out TState>
 {
-    TState Tally(double number);
+    public TState Tally(double number);
 }

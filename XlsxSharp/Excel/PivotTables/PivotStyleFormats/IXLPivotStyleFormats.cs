@@ -18,5 +18,5 @@ public interface IXLPivotStyleFormats : IEnumerable<IXLPivotStyleFormat>
     /// <returns>An API to inspect/modify style of the <paramref name="element"/>.</returns>
     /// <exception cref="ArgumentException">When <see cref="XLPivotStyleFormatElement.None"/> is
     ///     passed as an argument.</exception>
-    IXLPivotStyleFormat ForElement(XLPivotStyleFormatElement element);
+    public IXLPivotStyleFormat ForElement(XLPivotStyleFormatElement element);
 }

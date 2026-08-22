@@ -16,7 +16,7 @@ public interface IXLPivotTables : IEnumerable<IXLPivotTable>
     /// <param name="pivotCache">Pivot cache to use for the pivot table.</param>
     /// <returns>Added pivot table.</returns>
     /// <exception cref="ArgumentException">There already is a pivot table with the same name.</exception>
-    IXLPivotTable Add(string name, IXLCell targetCell, IXLPivotCache pivotCache);
+    public IXLPivotTable Add(string name, IXLCell targetCell, IXLPivotCache pivotCache);
 
     /// <summary>
     /// Add a pivot table from source data of <paramref name="range"/>.
@@ -27,7 +27,7 @@ public interface IXLPivotTables : IEnumerable<IXLPivotTable>
     /// <param name="targetCell">A cell where will the pivot table be have it's left top corner.</param>
     /// <param name="range">A range to add/find pivot cache.</param>
     /// <exception cref="ArgumentException">There already is a pivot table with the same name.</exception>
-    IXLPivotTable Add(string name, IXLCell targetCell, IXLRange range);
+    public IXLPivotTable Add(string name, IXLCell targetCell, IXLRange range);
 
     /// <summary>
     /// Add a pivot table from source data of <paramref name="table"/>.
@@ -38,18 +38,18 @@ public interface IXLPivotTables : IEnumerable<IXLPivotTable>
     /// <param name="targetCell">A cell where will the pivot table be have it's left top corner.</param>
     /// <param name="table">A table to add/find pivot cache.</param>
     /// <exception cref="ArgumentException">There already is a pivot table with the same name.</exception>
-    IXLPivotTable Add(string name, IXLCell targetCell, IXLTable table);
+    public IXLPivotTable Add(string name, IXLCell targetCell, IXLTable table);
 
-    bool Contains(string name);
+    public bool Contains(string name);
 
-    void Delete(string name);
+    public void Delete(string name);
 
-    void DeleteAll();
+    public void DeleteAll();
 
     /// <summary>
     /// Get pivot table with the specified name (case insensitive).
     /// </summary>
     /// <param name="name">Name of a pivot table to return.</param>
     /// <exception cref="KeyNotFoundException">No such pivot table found.</exception>
-    IXLPivotTable PivotTable(string name);
+    public IXLPivotTable PivotTable(string name);
 }

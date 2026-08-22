@@ -6,17 +6,17 @@ namespace XlsxSharp.Excel;
 
 public interface IXLFontBase
 {
-    bool Bold { get; set; }
+    public bool Bold { get; set; }
 
-    bool Italic { get; set; }
+    public bool Italic { get; set; }
 
-    XLFontUnderlineValues Underline { get; set; }
+    public XLFontUnderlineValues Underline { get; set; }
 
-    bool Strikethrough { get; set; }
+    public bool Strikethrough { get; set; }
 
-    XLFontVerticalTextAlignmentValues VerticalAlignment { get; set; }
+    public XLFontVerticalTextAlignmentValues VerticalAlignment { get; set; }
 
-    bool Shadow { get; set; }
+    public bool Shadow { get; set; }
 
     /// <summary>
     /// Get or set font size in points.
@@ -26,13 +26,13 @@ public interface IXLFontBase
     /// values are from 1pt to 409.55pt.
     /// </value>
     /// <exception cref="ArgumentOutOfRangeException">Value is outside of allowed values 1pt to 409.55pt.</exception>
-    double FontSize { get; set; }
+    public double FontSize { get; set; }
 
-    XLColor FontColor { get; set; }
+    public XLColor FontColor { get; set; }
 
-    string FontName { get; set; }
+    public string FontName { get; set; }
 
-    XLFontFamilyNumberingValues FontFamilyNumbering { get; set; }
+    public XLFontFamilyNumberingValues FontFamilyNumbering { get; set; }
 
     /// <summary>
     /// <para>
@@ -51,12 +51,12 @@ public interface IXLFontBase
     /// </example>
     /// </summary>
     /// <remarks>Due to prevalence of unicode fonts, this property is rarely used.</remarks>
-    XLFontCharSet FontCharSet { get; set; }
+    public XLFontCharSet FontCharSet { get; set; }
 
     /// <summary>
     /// Determines a theme font scheme a text belongs to. If the text belongs to a scheme and user changes theme
     /// in Excel, the font of the text will switch to the new theme font. Scheme font has precedence and will be
     /// used instead of a set font.
     /// </summary>
-    XLFontScheme FontScheme { get; set; }
+    public XLFontScheme FontScheme { get; set; }
 }

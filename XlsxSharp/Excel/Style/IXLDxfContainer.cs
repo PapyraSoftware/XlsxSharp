@@ -14,5 +14,5 @@ internal interface IXLDxfContainer
     /// <remarks>
     /// The value is optional, because attribute in XML is optional.
     /// </remarks>
-    XLDxfValue? FormatValue { get; set; }
+    public XLDxfValue? FormatValue { get; set; }
 }

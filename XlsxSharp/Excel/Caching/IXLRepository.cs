@@ -11,7 +11,7 @@ internal interface IXLRepository
     /// <summary>
     /// Clear the repository;
     /// </summary>
-    void Clear();
+    public void Clear();
 }
 
 internal interface IXLRepository<Tkey, Tvalue> : IXLRepository, IEnumerable<Tvalue>
@@ -26,5 +26,5 @@ internal interface IXLRepository<Tkey, Tvalue> : IXLRepository, IEnumerable<Tval
     /// <param name="value">Value to put into the repository if key does not exist.</param>
     /// <returns>Value stored in the repository under the specified <paramref name="key"/>. If key already existed
     /// returned value may differ from the input one.</returns>
-    Tvalue? Store(ref Tkey key, Tvalue value);
+    public Tvalue? Store(ref Tkey key, Tvalue value);
 }

@@ -107,57 +107,60 @@ public interface IXLPageSetup
     /// <summary>
     /// Gets an object to manage the print areas of the worksheet.
     /// </summary>
-    IXLPrintAreas PrintAreas { get; }
+    public IXLPrintAreas PrintAreas { get; }
 
     /// <summary>
     /// Gets the first row that will repeat on the top of the printed pages.
     /// <para>Use SetRowsToRepeatAtTop() to set the rows that will be repeated on the top of the printed pages.</para>
     /// </summary>
-    int FirstRowToRepeatAtTop { get; }
+    public int FirstRowToRepeatAtTop { get; }
 
     /// <summary>
     /// Gets the last row that will repeat on the top of the printed pages.
     /// <para>Use SetRowsToRepeatAtTop() to set the rows that will be repeated on the top of the printed pages.</para>
     /// </summary>
-    int LastRowToRepeatAtTop { get; }
+    public int LastRowToRepeatAtTop { get; }
 
     /// <summary>
     /// Sets the rows to repeat on the top of the printed pages.
     /// </summary>
     /// <param name="range">The range of rows to repeat on the top of the printed pages.</param>
-    void SetRowsToRepeatAtTop(string range);
+    public void SetRowsToRepeatAtTop(string range);
 
     /// <summary>
     /// Sets the rows to repeat on the top of the printed pages.
     /// </summary>
     /// <param name="firstRowToRepeatAtTop">The first row to repeat at top.</param>
     /// <param name="lastRowToRepeatAtTop">The last row to repeat at top.</param>
-    void SetRowsToRepeatAtTop(int firstRowToRepeatAtTop, int lastRowToRepeatAtTop);
+    public void SetRowsToRepeatAtTop(int firstRowToRepeatAtTop, int lastRowToRepeatAtTop);
 
     /// <summary>Gets the first column to repeat on the left of the printed pages.</summary>
     /// <value>The first column to repeat on the left of the printed pages.</value>
-    int FirstColumnToRepeatAtLeft { get; }
+    public int FirstColumnToRepeatAtLeft { get; }
 
     /// <summary>Gets the last column to repeat on the left of the printed pages.</summary>
     /// <value>The last column to repeat on the left of the printed pages.</value>
-    int LastColumnToRepeatAtLeft { get; }
+    public int LastColumnToRepeatAtLeft { get; }
 
     /// <summary>
     /// Sets the rows to repeat on the left of the printed pages.
     /// </summary>
     /// <param name="firstColumnToRepeatAtLeft">The first column to repeat at left.</param>
     /// <param name="lastColumnToRepeatAtLeft">The last column to repeat at left.</param>
-    void SetColumnsToRepeatAtLeft(int firstColumnToRepeatAtLeft, int lastColumnToRepeatAtLeft);
+    public void SetColumnsToRepeatAtLeft(
+        int firstColumnToRepeatAtLeft,
+        int lastColumnToRepeatAtLeft
+    );
 
     /// <summary>
     /// Sets the rows to repeat on the left of the printed pages.
     /// </summary>
     /// <param name="range">The range of rows to repeat on the left of the printed pages.</param>
-    void SetColumnsToRepeatAtLeft(string range);
+    public void SetColumnsToRepeatAtLeft(string range);
 
     /// <summary>Gets or sets the page orientation for printing.</summary>
     /// <value>The page orientation.</value>
-    XLPageOrientation PageOrientation { get; set; }
+    public XLPageOrientation PageOrientation { get; set; }
 
     /// <summary>
     /// Gets or sets the number of pages wide (horizontal) the worksheet will be printed on.
@@ -165,7 +168,7 @@ public interface IXLPageSetup
     /// <para>based on the contents of the worksheet and the PagesWide number.</para>
     /// <para>Setting this value will override the Scale value.</para>
     /// </summary>
-    int PagesWide { get; set; }
+    public int PagesWide { get; set; }
 
     /// <summary>
     /// Gets or sets the number of pages tall (vertical) the worksheet will be printed on.
@@ -173,31 +176,31 @@ public interface IXLPageSetup
     /// <para>based on the contents of the worksheet and the PagesTall number.</para>
     /// <para>Setting this value will override the Scale value.</para>
     /// </summary>
-    int PagesTall { get; set; }
+    public int PagesTall { get; set; }
 
     /// <summary>
     /// Gets or sets the scale at which the worksheet will be printed.
     /// <para>The worksheet will be printed on as many pages as necessary to print at the given scale.</para>
     /// <para>Setting this value will override the PagesWide and PagesTall values.</para>
     /// </summary>
-    int Scale { get; set; }
+    public int Scale { get; set; }
 
     /// <summary>
     /// Gets or sets the horizontal dpi for printing the worksheet.
     /// </summary>
-    int HorizontalDpi { get; set; }
+    public int HorizontalDpi { get; set; }
 
     /// <summary>
     /// Gets or sets the vertical dpi for printing the worksheet.
     /// </summary>
-    int VerticalDpi { get; set; }
+    public int VerticalDpi { get; set; }
 
     /// <summary>
     /// Gets or sets the page number that will begin the printout.
     /// <para>For example, the first page of your printout could be numbered page 5.</para>
     /// </summary>
     /// <remarks>First page number can be negative, e.g. <c>-2</c>.</remarks>
-    int? FirstPageNumber { get; set; }
+    public int? FirstPageNumber { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether the worksheet will be centered on the page horizontally.
@@ -205,7 +208,7 @@ public interface IXLPageSetup
     /// <value>
     ///   <c>true</c> if the worksheet will be centered on the page horizontally; otherwise, <c>false</c>.
     /// </value>
-    bool CenterHorizontally { get; set; }
+    public bool CenterHorizontally { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether the worksheet will be centered on the page vertically.
@@ -213,7 +216,7 @@ public interface IXLPageSetup
     /// <value>
     ///   <c>true</c> if the worksheet will be centered on the page vertically; otherwise, <c>false</c>.
     /// </value>
-    bool CenterVertically { get; set; }
+    public bool CenterVertically { get; set; }
 
     /// <summary>
     /// Sets the scale at which the worksheet will be printed. This is equivalent to setting the Scale property.
@@ -221,7 +224,7 @@ public interface IXLPageSetup
     /// <para>Setting this value will override the PagesWide and PagesTall values.</para>
     /// </summary>
     /// <param name="percentageOfNormalSize">The scale at which the worksheet will be printed.</param>
-    void AdjustTo(int percentageOfNormalSize);
+    public void AdjustTo(int percentageOfNormalSize);
 
     /// <summary>
     /// Gets or sets the number of pages the worksheet will be printed on.
@@ -230,27 +233,27 @@ public interface IXLPageSetup
     /// </summary>
     /// <param name="pagesWide">The pages wide.</param>
     /// <param name="pagesTall">The pages tall.</param>
-    void FitToPages(int pagesWide, int pagesTall);
+    public void FitToPages(int pagesWide, int pagesTall);
 
     /// <summary>
     /// Gets or sets the size of the paper to print the worksheet.
     /// </summary>
-    XLPaperSize PaperSize { get; set; }
+    public XLPaperSize PaperSize { get; set; }
 
     /// <summary>
     /// Gets an object to work with the page margins.
     /// </summary>
-    IXLMargins Margins { get; }
+    public IXLMargins Margins { get; }
 
     /// <summary>
     /// Gets an object to work with the page headers.
     /// </summary>
-    IXLHeaderFooter Header { get; }
+    public IXLHeaderFooter Header { get; }
 
     /// <summary>
     /// Gets an object to work with the page footers.
     /// </summary>
-    IXLHeaderFooter Footer { get; }
+    public IXLHeaderFooter Footer { get; }
 
     /// <summary>
     /// Gets or sets a value indicating whether Excel will automatically adjust the font size to the scale of the worksheet.
@@ -258,7 +261,7 @@ public interface IXLPageSetup
     /// <value>
     /// 	<c>true</c> if Excel will automatically adjust the font size to the scale of the worksheet; otherwise, <c>false</c>.
     /// </value>
-    bool ScaleHFWithDocument { get; set; }
+    public bool ScaleHFWithDocument { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether the header and footer margins are aligned with the left and right margins of the worksheet.
@@ -266,7 +269,7 @@ public interface IXLPageSetup
     /// <value>
     ///   <c>true</c> if the header and footer margins are aligned with the left and right margins of the worksheet; otherwise, <c>false</c>.
     /// </value>
-    bool AlignHFWithMargins { get; set; }
+    public bool AlignHFWithMargins { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether the gridlines will be printed.
@@ -274,7 +277,7 @@ public interface IXLPageSetup
     /// <value>
     ///   <c>true</c> if the gridlines will be printed; otherwise, <c>false</c>.
     /// </value>
-    bool ShowGridlines { get; set; }
+    public bool ShowGridlines { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether to show row numbers and column letters/numbers.
@@ -282,7 +285,7 @@ public interface IXLPageSetup
     /// <value>
     /// 	<c>true</c> to show row numbers and column letters/numbers; otherwise, <c>false</c>.
     /// </value>
-    bool ShowRowAndColumnHeadings { get; set; }
+    public bool ShowRowAndColumnHeadings { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether the worksheet will be printed in black and white.
@@ -290,7 +293,7 @@ public interface IXLPageSetup
     /// <value>
     ///   <c>true</c> if the worksheet will be printed in black and white; otherwise, <c>false</c>.
     /// </value>
-    bool BlackAndWhite { get; set; }
+    public bool BlackAndWhite { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether the worksheet will be printed in draft quality.
@@ -298,97 +301,98 @@ public interface IXLPageSetup
     /// <value>
     ///   <c>true</c> if the worksheet will be printed in draft quality; otherwise, <c>false</c>.
     /// </value>
-    bool DraftQuality { get; set; }
+    public bool DraftQuality { get; set; }
 
     /// <summary>
     /// Gets or sets the page order for printing.
     /// </summary>
-    XLPageOrderValues PageOrder { get; set; }
+    public XLPageOrderValues PageOrder { get; set; }
 
     /// <summary>
     /// Gets or sets how the comments will be printed.
     /// </summary>
-    XLShowCommentsValues ShowComments { get; set; }
+    public XLShowCommentsValues ShowComments { get; set; }
 
     /// <summary>
     /// Gets a list with the row breaks (for printing).
     /// </summary>
-    List<int> RowBreaks { get; }
+    public List<int> RowBreaks { get; }
 
     /// <summary>
     /// Gets a list with the column breaks (for printing).
     /// </summary>
-    List<int> ColumnBreaks { get; }
+    public List<int> ColumnBreaks { get; }
 
     /// <summary>
     /// Adds a horizontal page break after the given row.
     /// </summary>
     /// <param name="row">The row to insert the break.</param>
-    void AddHorizontalPageBreak(int row);
+    public void AddHorizontalPageBreak(int row);
 
     /// <summary>
     /// Adds a vertical page break after the given column.
     /// </summary>
     /// <param name="column">The column to insert the break.</param>
-    void AddVerticalPageBreak(int column);
+    public void AddVerticalPageBreak(int column);
 
     /// <summary>
     /// Gets or sets how error values will be printed.
     /// </summary>
-    XLPrintErrorValues PrintErrorValue { get; set; }
+    public XLPrintErrorValues PrintErrorValue { get; set; }
 
-    IXLPageSetup SetPageOrientation(XLPageOrientation value);
-    IXLPageSetup SetPagesWide(int value);
-    IXLPageSetup SetPagesTall(int value);
-    IXLPageSetup SetScale(int value);
-    IXLPageSetup SetHorizontalDpi(int value);
-    IXLPageSetup SetVerticalDpi(int value);
+    public IXLPageSetup SetPageOrientation(XLPageOrientation value);
+    public IXLPageSetup SetPagesWide(int value);
+    public IXLPageSetup SetPagesTall(int value);
+    public IXLPageSetup SetScale(int value);
+    public IXLPageSetup SetHorizontalDpi(int value);
+    public IXLPageSetup SetVerticalDpi(int value);
 
     /// <inheritdoc cref="FirstPageNumber"/>>
     /// <param name="value">First page number or <c>null</c> for auto/default page numbering.</param>
-    IXLPageSetup SetFirstPageNumber(int? value);
-    IXLPageSetup SetCenterHorizontally();
-    IXLPageSetup SetCenterHorizontally(bool value);
-    IXLPageSetup SetCenterVertically();
-    IXLPageSetup SetCenterVertically(bool value);
-    IXLPageSetup SetPaperSize(XLPaperSize value);
-    IXLPageSetup SetScaleHFWithDocument();
-    IXLPageSetup SetScaleHFWithDocument(bool value);
-    IXLPageSetup SetAlignHFWithMargins();
-    IXLPageSetup SetAlignHFWithMargins(bool value);
-    IXLPageSetup SetShowGridlines();
-    IXLPageSetup SetShowGridlines(bool value);
-    IXLPageSetup SetShowRowAndColumnHeadings();
-    IXLPageSetup SetShowRowAndColumnHeadings(bool value);
-    IXLPageSetup SetBlackAndWhite();
-    IXLPageSetup SetBlackAndWhite(bool value);
-    IXLPageSetup SetDraftQuality();
-    IXLPageSetup SetDraftQuality(bool value);
-    IXLPageSetup SetPageOrder(XLPageOrderValues value);
-    IXLPageSetup SetShowComments(XLShowCommentsValues value);
-    IXLPageSetup SetPrintErrorValue(XLPrintErrorValues value);
+    public IXLPageSetup SetFirstPageNumber(int? value);
+
+    public IXLPageSetup SetCenterHorizontally();
+    public IXLPageSetup SetCenterHorizontally(bool value);
+    public IXLPageSetup SetCenterVertically();
+    public IXLPageSetup SetCenterVertically(bool value);
+    public IXLPageSetup SetPaperSize(XLPaperSize value);
+    public IXLPageSetup SetScaleHFWithDocument();
+    public IXLPageSetup SetScaleHFWithDocument(bool value);
+    public IXLPageSetup SetAlignHFWithMargins();
+    public IXLPageSetup SetAlignHFWithMargins(bool value);
+    public IXLPageSetup SetShowGridlines();
+    public IXLPageSetup SetShowGridlines(bool value);
+    public IXLPageSetup SetShowRowAndColumnHeadings();
+    public IXLPageSetup SetShowRowAndColumnHeadings(bool value);
+    public IXLPageSetup SetBlackAndWhite();
+    public IXLPageSetup SetBlackAndWhite(bool value);
+    public IXLPageSetup SetDraftQuality();
+    public IXLPageSetup SetDraftQuality(bool value);
+    public IXLPageSetup SetPageOrder(XLPageOrderValues value);
+    public IXLPageSetup SetShowComments(XLShowCommentsValues value);
+    public IXLPageSetup SetPrintErrorValue(XLPrintErrorValues value);
 
     /// <summary>
     /// Should sheet display header/footer values with <see cref="XLHFOccurrence.FirstPage"/>? Default is
     /// <c>false</c>.
     /// </summary>
-    bool DifferentFirstPageOnHF { get; set; }
+    public bool DifferentFirstPageOnHF { get; set; }
 
     /// <inheritdoc cref="DifferentFirstPageOnHF"/>
-    IXLPageSetup SetDifferentFirstPageOnHF();
+    public IXLPageSetup SetDifferentFirstPageOnHF();
 
     /// <inheritdoc cref="DifferentFirstPageOnHF"/>
-    IXLPageSetup SetDifferentFirstPageOnHF(bool value);
+    public IXLPageSetup SetDifferentFirstPageOnHF(bool value);
 
     /// <summary>
     /// Should sheet display header/footer values with <see cref="XLHFOccurrence.OddPages"/> or
     /// <see cref="XLHFOccurrence.EvenPages"/>? Default is <c>false</c>.
     /// </summary>
-    bool DifferentOddEvenPagesOnHF { get; set; }
+    public bool DifferentOddEvenPagesOnHF { get; set; }
 
     /// <inheritdoc cref="DifferentOddEvenPagesOnHF"/>
-    IXLPageSetup SetDifferentOddEvenPagesOnHF();
+    public IXLPageSetup SetDifferentOddEvenPagesOnHF();
 
     /// <inheritdoc cref="DifferentOddEvenPagesOnHF"/>
-    IXLPageSetup SetDifferentOddEvenPagesOnHF(bool value);
+    public IXLPageSetup SetDifferentOddEvenPagesOnHF(bool value);
 }

@@ -13,7 +13,7 @@ public interface IXLSparkline
     /// <summary>
     /// A cell that contains the sparkline.
     /// </summary>
-    IXLCell Location { get; set; }
+    public IXLCell Location { get; set; }
 
     /// <summary>
     /// Get range of source data. The returned value is null if sparkline formula for source
@@ -27,12 +27,12 @@ public interface IXLSparkline
     /// </remarks>
     /// <exception cref="ArgumentException">Throws when trying to set a range is from different
     ///   worksheet than the sparkline.</exception>
-    IXLRange? SourceData { get; set; }
+    public IXLRange? SourceData { get; set; }
 
     /// <summary>
     /// Sparkline group into which this sparkline belongs to.
     /// </summary>
-    IXLSparklineGroup SparklineGroup { get; }
+    public IXLSparklineGroup SparklineGroup { get; }
 
     /// <summary>
     /// Move sparkline from current cell to a different cell. If target cell has a sparkline,
@@ -41,7 +41,7 @@ public interface IXLSparkline
     /// <param name="value">New location of the sparkline.</param>
     /// <exception cref="ArgumentException">The <paramref name="value"/> is from different
     ///   worksheet than the sparkline.</exception>
-    IXLSparkline SetLocation(IXLCell value);
+    public IXLSparkline SetLocation(IXLCell value);
 
     /// <summary>
     /// Change the the <see cref="SourceData"/> of sparkline.
@@ -49,5 +49,5 @@ public interface IXLSparkline
     /// <param name="value">The range that should be used as a source data for the sparkline.</param>
     /// <exception cref="ArgumentException">The <paramref name="value"/> is not a single row or
     ///   a single column.</exception>
-    IXLSparkline SetSourceData(IXLRange? value);
+    public IXLSparkline SetSourceData(IXLRange? value);
 }

@@ -8,35 +8,35 @@ namespace XlsxSharp.Excel.Index;
 /// </summary>
 internal interface IXLRangeIndex
 {
-    bool Add(IXLAddressable range);
+    public bool Add(IXLAddressable range);
 
-    bool Remove(IXLRangeAddress rangeAddress);
+    public bool Remove(IXLRangeAddress rangeAddress);
 
-    int RemoveAll(Predicate<IXLAddressable>? predicate = null);
+    public int RemoveAll(Predicate<IXLAddressable>? predicate = null);
 
-    IEnumerable<IXLAddressable> GetIntersectedRanges(XLRangeAddress rangeAddress);
+    public IEnumerable<IXLAddressable> GetIntersectedRanges(XLRangeAddress rangeAddress);
 
-    IEnumerable<IXLAddressable> GetIntersectedRanges(XLAddress address);
+    public IEnumerable<IXLAddressable> GetIntersectedRanges(XLAddress address);
 
-    IEnumerable<IXLAddressable> GetAll();
+    public IEnumerable<IXLAddressable> GetAll();
 
-    bool Intersects(in XLRangeAddress rangeAddress);
+    public bool Intersects(in XLRangeAddress rangeAddress);
 
-    bool Contains(in XLAddress address);
+    public bool Contains(in XLAddress address);
 
-    bool MatchesType(XLRangeType rangeType);
+    public bool MatchesType(XLRangeType rangeType);
 }
 
 internal interface IXLRangeIndex<T> : IXLRangeIndex
     where T : IXLAddressable
 {
-    bool Add(T range);
+    public bool Add(T range);
 
-    int RemoveAll(Predicate<T>? predicate = null);
+    public int RemoveAll(Predicate<T>? predicate = null);
 
-    new IEnumerable<T> GetIntersectedRanges(XLRangeAddress rangeAddress);
+    public new IEnumerable<T> GetIntersectedRanges(XLRangeAddress rangeAddress);
 
-    new IEnumerable<T> GetIntersectedRanges(XLAddress address);
+    public new IEnumerable<T> GetIntersectedRanges(XLAddress address);
 
-    new IEnumerable<T> GetAll();
+    public new IEnumerable<T> GetAll();
 }

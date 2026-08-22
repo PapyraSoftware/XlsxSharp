@@ -4,11 +4,11 @@ namespace XlsxSharp.Excel.Drawings.Style;
 
 public interface IXLDrawingProtection
 {
-    bool Locked { get; set; }
-    bool LockText { get; set; }
+    public bool Locked { get; set; }
+    public bool LockText { get; set; }
 
-    IXLDrawingStyle SetLocked();
-    IXLDrawingStyle SetLocked(bool value);
-    IXLDrawingStyle SetLockText();
-    IXLDrawingStyle SetLockText(bool value);
+    public IXLDrawingStyle SetLocked();
+    public IXLDrawingStyle SetLocked(bool value);
+    public IXLDrawingStyle SetLockText();
+    public IXLDrawingStyle SetLockText(bool value);
 }

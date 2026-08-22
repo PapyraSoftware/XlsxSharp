@@ -19,7 +19,7 @@ public interface IXLPivotCache
     /// source might differ from actual names of the columns
     /// in the data cells.
     /// </remarks>
-    IReadOnlyList<string> FieldNames { get; }
+    public IReadOnlyList<string> FieldNames { get; }
 
     /// <summary>
     /// Gets the number of unused items in shared items to allow before discarding unused items.
@@ -29,13 +29,13 @@ public interface IXLPivotCache
     /// and this controls, when should the cache be updated. Application-dependent attribute.
     /// </remarks>
     /// <value>Default value is <see cref="XLItemsToRetain.Automatic"/>.</value>
-    XLItemsToRetain ItemsToRetainPerField { get; set; }
+    public XLItemsToRetain ItemsToRetainPerField { get; set; }
 
     /// <summary>
     /// Will Excel refresh the cache when it opens the workbook.
     /// </summary>
     /// <value>Default value is <c>false</c>.</value>
-    bool RefreshDataOnOpen { get; set; }
+    public bool RefreshDataOnOpen { get; set; }
 
     /// <summary>
     /// Should the cached values of the pivot source be saved into the workbook file?
@@ -43,28 +43,28 @@ public interface IXLPivotCache
     /// reference which might cause a change in the table values.
     /// </summary>
     /// <value>Default value is <c>true</c>.</value>
-    bool SaveSourceData { get; set; }
+    public bool SaveSourceData { get; set; }
 
     /// <summary>
     /// Refresh data in the pivot source from the source reference data.
     /// </summary>
     /// <exception cref="InvalidReferenceException">The data source for the pivot table can't be found.</exception>
-    IXLPivotCache Refresh();
+    public IXLPivotCache Refresh();
 
     /// <inheritdoc cref="ItemsToRetainPerField"/>
-    IXLPivotCache SetItemsToRetainPerField(XLItemsToRetain value);
+    public IXLPivotCache SetItemsToRetainPerField(XLItemsToRetain value);
 
     /// <inheritdoc cref="RefreshDataOnOpen"/>
     /// <remarks>Sets the value to <c>true</c>.</remarks>
-    IXLPivotCache SetRefreshDataOnOpen();
+    public IXLPivotCache SetRefreshDataOnOpen();
 
     /// <inheritdoc cref="RefreshDataOnOpen"/>
-    IXLPivotCache SetRefreshDataOnOpen(bool value);
+    public IXLPivotCache SetRefreshDataOnOpen(bool value);
 
     /// <inheritdoc cref="SaveSourceData"/>
     /// <remarks>Sets the value to <c>true</c>.</remarks>
-    IXLPivotCache SetSaveSourceData();
+    public IXLPivotCache SetSaveSourceData();
 
     /// <inheritdoc cref="SaveSourceData"/>
-    IXLPivotCache SetSaveSourceData(bool value);
+    public IXLPivotCache SetSaveSourceData(bool value);
 }

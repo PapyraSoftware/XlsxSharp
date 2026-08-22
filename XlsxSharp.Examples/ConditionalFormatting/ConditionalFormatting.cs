@@ -4,7 +4,7 @@ using XlsxSharp.Excel.ConditionalFormats;
 
 namespace XlsxSharp.Examples.ConditionalFormatting;
 
-public class CFColorScaleLowMidHigh : IXLExample
+public class CfColorScaleLowMidHigh : IXLExample
 {
     public void Create(string filePath)
     {
@@ -31,7 +31,7 @@ public class CFColorScaleLowMidHigh : IXLExample
     }
 }
 
-public class CFColorScaleLowHigh : IXLExample
+public class CfColorScaleLowHigh : IXLExample
 {
     public void Create(string filePath)
     {
@@ -57,7 +57,7 @@ public class CFColorScaleLowHigh : IXLExample
     }
 }
 
-public class CFColorScaleMinimumMaximum : IXLExample
+public class CfColorScaleMinimumMaximum : IXLExample
 {
     public void Create(string filePath)
     {
@@ -83,7 +83,7 @@ public class CFColorScaleMinimumMaximum : IXLExample
     }
 }
 
-public class CFStartsWith : IXLExample
+public class CfStartsWith : IXLExample
 {
     public void Create(string filePath)
     {
@@ -111,7 +111,7 @@ public class CFStartsWith : IXLExample
     }
 }
 
-public class CFEndsWith : IXLExample
+public class CfEndsWith : IXLExample
 {
     public void Create(string filePath)
     {
@@ -136,7 +136,7 @@ public class CFEndsWith : IXLExample
     }
 }
 
-public class CFIsBlank : IXLExample
+public class CfIsBlank : IXLExample
 {
     public void Create(string filePath)
     {
@@ -158,7 +158,7 @@ public class CFIsBlank : IXLExample
     }
 }
 
-public class CFNotBlank : IXLExample
+public class CfNotBlank : IXLExample
 {
     public void Create(string filePath)
     {
@@ -180,7 +180,7 @@ public class CFNotBlank : IXLExample
     }
 }
 
-public class CFIsError : IXLExample
+public class CfIsError : IXLExample
 {
     public void Create(string filePath)
     {
@@ -202,7 +202,7 @@ public class CFIsError : IXLExample
     }
 }
 
-public class CFNotError : IXLExample
+public class CfNotError : IXLExample
 {
     public void Create(string filePath)
     {
@@ -224,7 +224,7 @@ public class CFNotError : IXLExample
     }
 }
 
-public class CFContains : IXLExample
+public class CfContains : IXLExample
 {
     public void Create(string filePath)
     {
@@ -249,7 +249,7 @@ public class CFContains : IXLExample
     }
 }
 
-public class CFNotContains : IXLExample
+public class CfNotContains : IXLExample
 {
     public void Create(string filePath)
     {
@@ -274,7 +274,7 @@ public class CFNotContains : IXLExample
     }
 }
 
-public class CFEqualsString : IXLExample
+public class CfEqualsString : IXLExample
 {
     public void Create(string filePath)
     {
@@ -299,7 +299,7 @@ public class CFEqualsString : IXLExample
     }
 }
 
-public class CFEqualsNumber : IXLExample
+public class CfEqualsNumber : IXLExample
 {
     public void Create(string filePath)
     {
@@ -321,7 +321,7 @@ public class CFEqualsNumber : IXLExample
     }
 }
 
-public class CFNotEqualsString : IXLExample
+public class CfNotEqualsString : IXLExample
 {
     public void Create(string filePath)
     {
@@ -346,7 +346,7 @@ public class CFNotEqualsString : IXLExample
     }
 }
 
-public class CFNotEqualsNumber : IXLExample
+public class CfNotEqualsNumber : IXLExample
 {
     public void Create(string filePath)
     {
@@ -368,7 +368,7 @@ public class CFNotEqualsNumber : IXLExample
     }
 }
 
-public class CFGreaterThan : IXLExample
+public class CfGreaterThan : IXLExample
 {
     public void Create(string filePath)
     {
@@ -393,7 +393,7 @@ public class CFGreaterThan : IXLExample
     }
 }
 
-public class CFEqualOrGreaterThan : IXLExample
+public class CfEqualOrGreaterThan : IXLExample
 {
     public void Create(string filePath)
     {
@@ -418,7 +418,7 @@ public class CFEqualOrGreaterThan : IXLExample
     }
 }
 
-public class CFLessThan : IXLExample
+public class CfLessThan : IXLExample
 {
     public void Create(string filePath)
     {
@@ -443,7 +443,7 @@ public class CFLessThan : IXLExample
     }
 }
 
-public class CFEqualOrLessThan : IXLExample
+public class CfEqualOrLessThan : IXLExample
 {
     public void Create(string filePath)
     {
@@ -468,7 +468,7 @@ public class CFEqualOrLessThan : IXLExample
     }
 }
 
-public class CFBetween : IXLExample
+public class CfBetween : IXLExample
 {
     public void Create(string filePath)
     {
@@ -493,7 +493,7 @@ public class CFBetween : IXLExample
     }
 }
 
-public class CFNotBetween : IXLExample
+public class CfNotBetween : IXLExample
 {
     public void Create(string filePath)
     {
@@ -518,7 +518,7 @@ public class CFNotBetween : IXLExample
     }
 }
 
-public class CFUnique : IXLExample
+public class CfUnique : IXLExample
 {
     public void Create(string filePath)
     {
@@ -540,7 +540,7 @@ public class CFUnique : IXLExample
     }
 }
 
-public class CFDuplicate : IXLExample
+public class CfDuplicate : IXLExample
 {
     public void Create(string filePath)
     {
@@ -565,7 +565,7 @@ public class CFDuplicate : IXLExample
     }
 }
 
-public class CFIsTrue : IXLExample
+public class CfIsTrue : IXLExample
 {
     public void Create(string filePath)
     {
@@ -590,7 +590,7 @@ public class CFIsTrue : IXLExample
     }
 }
 
-public class CFTop : IXLExample
+public class CfTop : IXLExample
 {
     public void Create(string filePath)
     {
@@ -612,7 +612,7 @@ public class CFTop : IXLExample
     }
 }
 
-public class CFBottom : IXLExample
+public class CfBottom : IXLExample
 {
     public void Create(string filePath)
     {
@@ -637,7 +637,7 @@ public class CFBottom : IXLExample
     }
 }
 
-public class CFDataBar : IXLExample
+public class CfDataBar : IXLExample
 {
     public void Create(string filePath)
     {
@@ -663,7 +663,7 @@ public class CFDataBar : IXLExample
     }
 }
 
-public class CFDataBarNegative : IXLExample
+public class CfDataBarNegative : IXLExample
 {
     public void Create(string filePath)
     {
@@ -704,7 +704,7 @@ public class CFDataBarNegative : IXLExample
     }
 }
 
-public class CFIconSet : IXLExample
+public class CfIconSet : IXLExample
 {
     public void Create(string filePath)
     {
@@ -731,7 +731,7 @@ public class CFIconSet : IXLExample
     }
 }
 
-public class CFTwoConditions : IXLExample
+public class CfTwoConditions : IXLExample
 {
     public void Create(string filePath)
     {
@@ -763,7 +763,7 @@ public class CFTwoConditions : IXLExample
     }
 }
 
-public class CFInsertRows : IXLExample
+public class CfInsertRows : IXLExample
 {
     public void Create(string filePath)
     {
@@ -787,7 +787,7 @@ public class CFInsertRows : IXLExample
     }
 }
 
-public class CFTest : IXLExample
+public class CfTest : IXLExample
 {
     public void Create(string filePath)
     {
@@ -815,7 +815,7 @@ public class CFTest : IXLExample
     }
 }
 
-public class CFMultipleConditions : IXLExample
+public class CfMultipleConditions : IXLExample
 {
     public void Create(string filePath)
     {
@@ -831,7 +831,7 @@ public class CFMultipleConditions : IXLExample
     }
 }
 
-public class CFStopIfTrue : IXLExample
+public class CfStopIfTrue : IXLExample
 {
     public void Create(string filePath)
     {
@@ -860,7 +860,7 @@ public class CFStopIfTrue : IXLExample
     }
 }
 
-public class CFDatesOccurring : IXLExample
+public class CfDatesOccurring : IXLExample
 {
     public void Create(string filePath)
     {
@@ -894,7 +894,7 @@ public class CFDatesOccurring : IXLExample
     }
 }
 
-public class CFDataBars : IXLExample
+public class CfDataBars : IXLExample
 {
     public void Create(string filePath)
     {

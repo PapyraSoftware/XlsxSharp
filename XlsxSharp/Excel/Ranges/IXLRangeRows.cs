@@ -10,36 +10,36 @@ public interface IXLRangeRows : IEnumerable<IXLRangeRow>
     /// Adds a row range to this group.
     /// </summary>
     /// <param name="rowRange">The row range to add.</param>
-    void Add(IXLRangeRow rowRange);
+    public void Add(IXLRangeRow rowRange);
 
     /// <summary>
     /// Returns the collection of cells.
     /// </summary>
-    IXLCells Cells();
+    public IXLCells Cells();
 
     /// <summary>
     /// Returns the collection of cells that have a value.
     /// </summary>
-    IXLCells CellsUsed();
+    public IXLCells CellsUsed();
 
     /// <summary>
     /// Returns the collection of cells that have a value.
     /// </summary>
     /// <param name="options">The options to determine whether a cell is used.</param>
-    IXLCells CellsUsed(XLCellsUsedOptions options);
+    public IXLCells CellsUsed(XLCellsUsedOptions options);
 
     /// <summary>
     /// Deletes all rows and shifts the rows below them accordingly.
     /// </summary>
-    void Delete();
+    public void Delete();
 
-    IXLStyle Style { get; set; }
+    public IXLStyle Style { get; set; }
 
     /// <summary>
     /// Clears the contents of these rows.
     /// </summary>
     /// <param name="clearOptions">Specify what you want to clear.</param>
-    IXLRangeRows Clear(XLClearOptions clearOptions = XLClearOptions.All);
+    public IXLRangeRows Clear(XLClearOptions clearOptions = XLClearOptions.All);
 
-    void Select();
+    public void Select();
 }

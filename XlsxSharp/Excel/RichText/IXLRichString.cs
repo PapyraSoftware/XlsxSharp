@@ -6,31 +6,31 @@ namespace XlsxSharp.Excel.RichText;
 
 public interface IXLWithRichString
 {
-    IXLRichString AddText(string text);
-    IXLRichString AddNewLine();
+    public IXLRichString AddText(string text);
+    public IXLRichString AddNewLine();
 }
 
 public interface IXLRichString : IXLFontBase, IEquatable<IXLRichString>, IXLWithRichString
 {
-    string Text { get; set; }
+    public string Text { get; set; }
 
-    IXLRichString SetBold();
-    IXLRichString SetBold(bool value);
-    IXLRichString SetItalic();
-    IXLRichString SetItalic(bool value);
-    IXLRichString SetUnderline();
-    IXLRichString SetUnderline(XLFontUnderlineValues value);
-    IXLRichString SetStrikethrough();
-    IXLRichString SetStrikethrough(bool value);
-    IXLRichString SetVerticalAlignment(XLFontVerticalTextAlignmentValues value);
-    IXLRichString SetShadow();
-    IXLRichString SetShadow(bool value);
-    IXLRichString SetFontSize(double value);
-    IXLRichString SetFontColor(XLColor value);
-    IXLRichString SetFontName(string value);
-    IXLRichString SetFontFamilyNumbering(XLFontFamilyNumberingValues value);
-    IXLRichString SetFontCharSet(XLFontCharSet value);
+    public IXLRichString SetBold();
+    public IXLRichString SetBold(bool value);
+    public IXLRichString SetItalic();
+    public IXLRichString SetItalic(bool value);
+    public IXLRichString SetUnderline();
+    public IXLRichString SetUnderline(XLFontUnderlineValues value);
+    public IXLRichString SetStrikethrough();
+    public IXLRichString SetStrikethrough(bool value);
+    public IXLRichString SetVerticalAlignment(XLFontVerticalTextAlignmentValues value);
+    public IXLRichString SetShadow();
+    public IXLRichString SetShadow(bool value);
+    public IXLRichString SetFontSize(double value);
+    public IXLRichString SetFontColor(XLColor value);
+    public IXLRichString SetFontName(string value);
+    public IXLRichString SetFontFamilyNumbering(XLFontFamilyNumberingValues value);
+    public IXLRichString SetFontCharSet(XLFontCharSet value);
 
     /// <inheritdoc cref="IXLFontBase.FontScheme"/>
-    IXLRichString SetFontScheme(XLFontScheme value);
+    public IXLRichString SetFontScheme(XLFontScheme value);
 }

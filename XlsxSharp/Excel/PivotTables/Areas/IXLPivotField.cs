@@ -52,7 +52,7 @@ public interface IXLPivotField
     /// duplicate column names, the cache will rename them to keep all names unique.
     /// </para>
     /// </summary>
-    string SourceName { get; }
+    public string SourceName { get; }
 
     /// <summary>
     /// <see cref="CustomName"/> of the field in the pivot table. Custom name is a unique
@@ -62,9 +62,9 @@ public interface IXLPivotField
     /// </summary>
     /// <exception cref="ArgumentException">When setting name to a name that is already used by
     ///     another field.</exception>
-    string CustomName { get; set; }
+    public string CustomName { get; set; }
 
-    string SubtotalCaption { get; set; }
+    public string SubtotalCaption { get; set; }
 
     /// <summary>
     /// Get subtotals of the field. The content of the collection depends on the type of subtotal:
@@ -74,15 +74,16 @@ public interface IXLPivotField
     ///   <item>Custom - the collection contains a set of functions (at least one) except the <see cref="XLSubtotalFunction.Automatic"/>.</item>
     /// </list>
     /// </summary>
-    IReadOnlyCollection<XLSubtotalFunction> Subtotals { get; }
-    bool IncludeNewItemsInFilter { get; set; }
-    bool Outline { get; set; }
-    bool Compact { get; set; }
-    bool? SubtotalsAtTop { get; set; }
-    bool RepeatItemLabels { get; set; }
-    bool InsertBlankLines { get; set; }
-    bool ShowBlankItems { get; set; }
-    bool InsertPageBreaks { get; set; }
+    public IReadOnlyCollection<XLSubtotalFunction> Subtotals { get; }
+
+    public bool IncludeNewItemsInFilter { get; set; }
+    public bool Outline { get; set; }
+    public bool Compact { get; set; }
+    public bool? SubtotalsAtTop { get; set; }
+    public bool RepeatItemLabels { get; set; }
+    public bool InsertBlankLines { get; set; }
+    public bool ShowBlankItems { get; set; }
+    public bool InsertPageBreaks { get; set; }
 
     /// <summary>
     /// Are all items of the field collapsed?
@@ -90,62 +91,62 @@ public interface IXLPivotField
     /// <remarks>
     /// If only a subset of items is collapsed, getter returns <c>false</c>.
     /// </remarks>
-    bool Collapsed { get; set; }
+    public bool Collapsed { get; set; }
 
-    XLPivotSortType SortType { get; set; }
+    public XLPivotSortType SortType { get; set; }
 
     /// <inheritdoc cref="CustomName"/>
-    IXLPivotField SetCustomName(string value);
+    public IXLPivotField SetCustomName(string value);
 
-    IXLPivotField SetSubtotalCaption(string value);
+    public IXLPivotField SetSubtotalCaption(string value);
 
-    IXLPivotField AddSubtotal(XLSubtotalFunction value);
+    public IXLPivotField AddSubtotal(XLSubtotalFunction value);
 
-    IXLPivotField SetIncludeNewItemsInFilter(bool value = true);
+    public IXLPivotField SetIncludeNewItemsInFilter(bool value = true);
 
-    IXLPivotField SetLayout(XLPivotLayout value);
+    public IXLPivotField SetLayout(XLPivotLayout value);
 
-    IXLPivotField SetSubtotalsAtTop(bool value = true);
+    public IXLPivotField SetSubtotalsAtTop(bool value = true);
 
-    IXLPivotField SetRepeatItemLabels(bool value = true);
+    public IXLPivotField SetRepeatItemLabels(bool value = true);
 
-    IXLPivotField SetInsertBlankLines(bool value = true);
+    public IXLPivotField SetInsertBlankLines(bool value = true);
 
-    IXLPivotField SetShowBlankItems(bool value = true);
+    public IXLPivotField SetShowBlankItems(bool value = true);
 
-    IXLPivotField SetInsertPageBreaks(bool value = true);
+    public IXLPivotField SetInsertPageBreaks(bool value = true);
 
-    IXLPivotField SetCollapsed(bool value = true);
+    public IXLPivotField SetCollapsed(bool value = true);
 
-    IXLPivotField SetSort(XLPivotSortType value);
+    public IXLPivotField SetSort(XLPivotSortType value);
 
     /// <summary>
     /// Selected values for <see cref="IXLPivotTable.ReportFilters"/> filter of the pivot
     /// table. Empty for non-filter fields.
     /// </summary>
-    IReadOnlyList<XLCellValue> SelectedValues { get; }
+    public IReadOnlyList<XLCellValue> SelectedValues { get; }
 
     /// <summary>
     /// Add a value to selected values of a filter field (<see cref="IXLPivotTable.ReportFilters"/>).
     /// Doesn't do anything, if this field is not a filter fields.
     /// </summary>
-    IXLPivotField AddSelectedValue(XLCellValue value);
+    public IXLPivotField AddSelectedValue(XLCellValue value);
 
     /// <summary>
     /// Add a values to a selected values of a filter field. Doesn't do anything if this field
     /// is not a filter fields.
     /// </summary>
-    IXLPivotField AddSelectedValues(IEnumerable<XLCellValue> values);
+    public IXLPivotField AddSelectedValues(IEnumerable<XLCellValue> values);
 
-    IXLPivotFieldStyleFormats StyleFormats { get; }
+    public IXLPivotFieldStyleFormats StyleFormats { get; }
 
-    bool IsOnRowAxis { get; }
-    bool IsOnColumnAxis { get; }
-    bool IsInFilterList { get; }
+    public bool IsOnRowAxis { get; }
+    public bool IsOnColumnAxis { get; }
+    public bool IsInFilterList { get; }
 
     /// <summary>
     /// Index of a field in <see cref="XLPivotTable.PivotFields">all pivot fields</see> or -2
     /// for data field.
     /// </summary>
-    int Offset { get; }
+    public int Offset { get; }
 }

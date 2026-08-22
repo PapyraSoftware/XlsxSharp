@@ -4,9 +4,9 @@ namespace XlsxSharp.Excel.ConditionalFormats;
 
 public interface IXLCFColorScaleMid
 {
-    IXLCFColorScaleMax Midpoint(XLCFContentType type, string value, XLColor color);
-    IXLCFColorScaleMax Midpoint(XLCFContentType type, double value, XLColor color);
-    void Maximum(XLCFContentType type, string value, XLColor color);
-    void Maximum(XLCFContentType type, double value, XLColor color);
-    void HighestValue(XLColor color);
+    public IXLCFColorScaleMax Midpoint(XLCFContentType type, string value, XLColor color);
+    public IXLCFColorScaleMax Midpoint(XLCFContentType type, double value, XLColor color);
+    public void Maximum(XLCFContentType type, string value, XLColor color);
+    public void Maximum(XLCFContentType type, double value, XLColor color);
+    public void HighestValue(XLColor color);
 }

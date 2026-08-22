@@ -7,27 +7,27 @@ namespace XlsxSharp.Excel.Drawings;
 
 public interface IXLPictures : IEnumerable<IXLPicture>
 {
-    int Count { get; }
+    public int Count { get; }
 
-    IXLPicture Add(Stream stream);
+    public IXLPicture Add(Stream stream);
 
-    IXLPicture Add(Stream stream, string name);
+    public IXLPicture Add(Stream stream, string name);
 
-    IXLPicture Add(Stream stream, XLPictureFormat format);
+    public IXLPicture Add(Stream stream, XLPictureFormat format);
 
-    IXLPicture Add(Stream stream, XLPictureFormat format, string name);
+    public IXLPicture Add(Stream stream, XLPictureFormat format, string name);
 
-    IXLPicture Add(string imageFile);
+    public IXLPicture Add(string imageFile);
 
-    IXLPicture Add(string imageFile, string name);
+    public IXLPicture Add(string imageFile, string name);
 
-    bool Contains(string pictureName);
+    public bool Contains(string pictureName);
 
-    void Delete(string pictureName);
+    public void Delete(string pictureName);
 
-    void Delete(IXLPicture picture);
+    public void Delete(IXLPicture picture);
 
-    IXLPicture Picture(string pictureName);
+    public IXLPicture Picture(string pictureName);
 
-    bool TryGetPicture(string pictureName, out IXLPicture picture);
+    public bool TryGetPicture(string pictureName, out IXLPicture picture);
 }

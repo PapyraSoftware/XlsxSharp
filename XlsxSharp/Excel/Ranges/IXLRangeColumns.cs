@@ -10,36 +10,36 @@ public interface IXLRangeColumns : IEnumerable<IXLRangeColumn>
     /// Adds a column range to this group.
     /// </summary>
     /// <param name="columRange">The column range to add.</param>
-    void Add(IXLRangeColumn columRange);
+    public void Add(IXLRangeColumn columRange);
 
     /// <summary>
     /// Returns the collection of cells.
     /// </summary>
-    IXLCells Cells();
+    public IXLCells Cells();
 
     /// <summary>
     /// Returns the collection of cells that have a value.
     /// </summary>
-    IXLCells CellsUsed();
+    public IXLCells CellsUsed();
 
     /// <summary>
     /// Returns the collection of cells that have a value.
     /// </summary>
     /// <param name="options">The options to determine whether a cell is used.</param>
-    IXLCells CellsUsed(XLCellsUsedOptions options);
+    public IXLCells CellsUsed(XLCellsUsedOptions options);
 
     /// <summary>
     /// Deletes all columns and shifts the columns at the right of them accordingly.
     /// </summary>
-    void Delete();
+    public void Delete();
 
-    IXLStyle Style { get; set; }
+    public IXLStyle Style { get; set; }
 
     /// <summary>
     /// Clears the contents of these columns.
     /// </summary>
     /// <param name="clearOptions">Specify what you want to clear.</param>
-    IXLRangeColumns Clear(XLClearOptions clearOptions = XLClearOptions.All);
+    public IXLRangeColumns Clear(XLClearOptions clearOptions = XLClearOptions.All);
 
-    void Select();
+    public void Select();
 }

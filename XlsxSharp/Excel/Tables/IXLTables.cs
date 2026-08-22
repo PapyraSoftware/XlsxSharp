@@ -7,23 +7,23 @@ namespace XlsxSharp.Excel.Tables;
 
 public interface IXLTables : IEnumerable<IXLTable>
 {
-    void Add(IXLTable table);
+    public void Add(IXLTable table);
 
     /// <summary>
     /// Clears the contents of these tables.
     /// </summary>
     /// <param name="clearOptions">Specify what you want to clear.</param>
-    IXLTables Clear(XLClearOptions clearOptions = XLClearOptions.All);
+    public IXLTables Clear(XLClearOptions clearOptions = XLClearOptions.All);
 
-    bool Contains(string name);
+    public bool Contains(string name);
 
-    void Remove(int index);
+    public void Remove(int index);
 
-    void Remove(string name);
+    public void Remove(string name);
 
-    IXLTable Table(int index);
+    public IXLTable Table(int index);
 
-    IXLTable Table(string name);
+    public IXLTable Table(string name);
 
-    bool TryGetTable(string tableName, out IXLTable table);
+    public bool TryGetTable(string tableName, out IXLTable table);
 }

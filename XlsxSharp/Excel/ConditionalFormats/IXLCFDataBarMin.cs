@@ -4,7 +4,7 @@ namespace XlsxSharp.Excel.ConditionalFormats;
 
 public interface IXLCFDataBarMin
 {
-    IXLCFDataBarMax Minimum(XLCFContentType type, string value);
-    IXLCFDataBarMax Minimum(XLCFContentType type, double value);
-    IXLCFDataBarMax LowestValue();
+    public IXLCFDataBarMax Minimum(XLCFContentType type, string value);
+    public IXLCFDataBarMax Minimum(XLCFContentType type, double value);
+    public IXLCFDataBarMax LowestValue();
 }

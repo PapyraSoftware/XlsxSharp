@@ -6,29 +6,29 @@ namespace XlsxSharp.Excel;
 
 public interface IXLWorksheets : IEnumerable<IXLWorksheet>
 {
-    int Count { get; }
+    public int Count { get; }
 
-    IXLWorksheet Add();
+    public IXLWorksheet Add();
 
-    IXLWorksheet Add(int position);
+    public IXLWorksheet Add(int position);
 
-    IXLWorksheet Add(string sheetName);
+    public IXLWorksheet Add(string sheetName);
 
-    IXLWorksheet Add(string sheetName, int position);
+    public IXLWorksheet Add(string sheetName, int position);
 
-    IXLWorksheet Add(DataTable dataTable);
+    public IXLWorksheet Add(DataTable dataTable);
 
-    IXLWorksheet Add(DataTable dataTable, string sheetName);
+    public IXLWorksheet Add(DataTable dataTable, string sheetName);
 
-    IXLWorksheet Add(DataTable dataTable, string sheetName, string tableName);
+    public IXLWorksheet Add(DataTable dataTable, string sheetName, string tableName);
 
-    void Add(DataSet dataSet);
+    public void Add(DataSet dataSet);
 
-    bool Contains(string sheetName);
+    public bool Contains(string sheetName);
 
-    void Delete(string sheetName);
+    public void Delete(string sheetName);
 
-    void Delete(int position);
+    public void Delete(int position);
 
     /// <summary>
     /// Try to get a sheet of a workbook with the specified name. Sheet names are case-insensitive.
@@ -36,7 +36,7 @@ public interface IXLWorksheets : IEnumerable<IXLWorksheet>
     /// <param name="sheetName">Name of sought sheet.</param>
     /// <param name="worksheet">Found sheet or null if sheet is not found.</param>
     /// <returns><c>true</c> when sheet was found or <c>false</c> when it wasn't.</returns>
-    bool TryGetWorksheet(string sheetName, [NotNullWhen(true)] out IXLWorksheet? worksheet);
+    public bool TryGetWorksheet(string sheetName, [NotNullWhen(true)] out IXLWorksheet? worksheet);
 
     /// <summary>
     /// Get a sheet of a workbook with specified name. Sheet names are case-insensitive.
@@ -44,7 +44,7 @@ public interface IXLWorksheets : IEnumerable<IXLWorksheet>
     /// <param name="sheetName">Name of sought sheet.</param>
     /// <returns>Sheet with the specified name.</returns>
     /// <exception cref="KeyNotFoundException">When sheet with <paramref name="sheetName"/> isn't among the sheets.</exception>
-    IXLWorksheet Worksheet(string sheetName);
+    public IXLWorksheet Worksheet(string sheetName);
 
-    IXLWorksheet Worksheet(int position);
+    public IXLWorksheet Worksheet(int position);
 }

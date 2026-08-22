@@ -17,14 +17,14 @@ public interface IXLFilteredColumn
     /// convenience sake. The value is converted to a string and filter works with string.</param>
     /// <param name="reapply">Should the autofilter be immediately reapplied?</param>
     /// <returns>Fluent API allowing to add additional filter value.</returns>
-    IXLFilteredColumn AddFilter(XLCellValue value, bool reapply = true);
+    public IXLFilteredColumn AddFilter(XLCellValue value, bool reapply = true);
 
     /// <summary>
     /// Add another grouping to a set of allowed groupings. See <see cref="IXLFilterColumn.AddDateGroupFilter"/>
     /// for more details.
     /// </summary>
     /// <returns>Fluent API allowing to add additional date group filter.</returns>
-    IXLFilteredColumn AddDateGroupFilter(
+    public IXLFilteredColumn AddDateGroupFilter(
         DateTime date,
         XLDateTimeGrouping dateTimeGrouping,
         bool reapply = true

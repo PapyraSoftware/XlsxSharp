@@ -9,9 +9,9 @@ namespace XlsxSharp.Excel.PivotValues;
 /// </summary>
 public interface IXLPivotValueCombination
 {
-    IXLPivotValue And(XLCellValue item);
+    public IXLPivotValue And(XLCellValue item);
 
-    IXLPivotValue AndNext();
+    public IXLPivotValue AndNext();
 
     /// <summary>
     /// The base item value for calculation will be the value of the previous row of base
@@ -31,5 +31,5 @@ public interface IXLPivotValueCombination
     /// </c>
     /// </para>
     /// </summary>
-    IXLPivotValue AndPrevious();
+    public IXLPivotValue AndPrevious();
 }

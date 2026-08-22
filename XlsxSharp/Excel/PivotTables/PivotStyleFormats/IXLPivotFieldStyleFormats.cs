@@ -9,19 +9,19 @@ public interface IXLPivotFieldStyleFormats
     /// <summary>
     /// Pivot table style of the field values displayed in the data area of the pivot table.
     /// </summary>
-    IXLPivotValueStyleFormat DataValuesFormat { get; }
+    public IXLPivotValueStyleFormat DataValuesFormat { get; }
 
     /// <summary>
     /// Get the style of the pivot field header. The head usually contains a name of the field.
     /// In some layouts, header is not individually displayed (e.g. compact), while in others
     /// it is (e.g. tabular).
     /// </summary>
-    IXLPivotStyleFormat Header { get; }
+    public IXLPivotStyleFormat Header { get; }
 
     /// <summary>
     /// Get the style of the pivot field label values on horizontal or vertical axis.
     /// </summary>
-    IXLPivotStyleFormat Label { get; }
+    public IXLPivotStyleFormat Label { get; }
 
-    IXLPivotStyleFormat Subtotal { get; }
+    public IXLPivotStyleFormat Subtotal { get; }
 }

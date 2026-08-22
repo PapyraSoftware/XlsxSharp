@@ -15,10 +15,10 @@ public interface IXLNumberFormat : IXLNumberFormatBase, IEquatable<IXLNumberForm
     /// </example>
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The passed value is not a predefined format.</exception>
-    IXLStyle SetNumberFormatId(int value);
+    public IXLStyle SetNumberFormatId(int value);
 
     /// <summary>
     /// Sets the number format.
     /// </summary>
-    IXLStyle SetFormat(string value);
+    public IXLStyle SetFormat(string value);
 }

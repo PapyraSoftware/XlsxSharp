@@ -6,33 +6,33 @@ namespace XlsxSharp.Excel.Tables;
 
 public interface IXLTableRow : IXLRangeRow
 {
-    IXLCell Field(int index);
+    public IXLCell Field(int index);
 
-    IXLCell Field(string name);
+    public IXLCell Field(string name);
 
-    new IXLTableRow Sort();
+    public new IXLTableRow Sort();
 
-    new IXLTableRow SortLeftToRight(
+    public new IXLTableRow SortLeftToRight(
         XLSortOrder sortOrder = XLSortOrder.Ascending,
         bool matchCase = false,
         bool ignoreBlanks = true
     );
 
-    new IXLTableRow RowAbove();
+    public new IXLTableRow RowAbove();
 
-    new IXLTableRow RowAbove(int step);
+    public new IXLTableRow RowAbove(int step);
 
-    new IXLTableRow RowBelow();
+    public new IXLTableRow RowBelow();
 
-    new IXLTableRow RowBelow(int step);
+    public new IXLTableRow RowBelow(int step);
 
     /// <summary>
     /// Clears the contents of this row.
     /// </summary>
     /// <param name="clearOptions">Specify what you want to clear.</param>
-    new IXLTableRow Clear(XLClearOptions clearOptions = XLClearOptions.All);
+    public new IXLTableRow Clear(XLClearOptions clearOptions = XLClearOptions.All);
 
-    new IXLTableRows InsertRowsAbove(int numberOfRows);
+    public new IXLTableRows InsertRowsAbove(int numberOfRows);
 
-    new IXLTableRows InsertRowsBelow(int numberOfRows);
+    public new IXLTableRows InsertRowsBelow(int numberOfRows);
 }

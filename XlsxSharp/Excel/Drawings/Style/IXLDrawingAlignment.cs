@@ -37,16 +37,16 @@ public enum XLDrawingVerticalAlignment
 
 public interface IXLDrawingAlignment
 {
-    XLDrawingHorizontalAlignment Horizontal { get; set; }
-    XLDrawingVerticalAlignment Vertical { get; set; }
-    bool AutomaticSize { get; set; }
-    XLDrawingTextDirection Direction { get; set; }
-    XLDrawingTextOrientation Orientation { get; set; }
+    public XLDrawingHorizontalAlignment Horizontal { get; set; }
+    public XLDrawingVerticalAlignment Vertical { get; set; }
+    public bool AutomaticSize { get; set; }
+    public XLDrawingTextDirection Direction { get; set; }
+    public XLDrawingTextOrientation Orientation { get; set; }
 
-    IXLDrawingStyle SetHorizontal(XLDrawingHorizontalAlignment value);
-    IXLDrawingStyle SetVertical(XLDrawingVerticalAlignment value);
-    IXLDrawingStyle SetAutomaticSize();
-    IXLDrawingStyle SetAutomaticSize(bool value);
-    IXLDrawingStyle SetDirection(XLDrawingTextDirection value);
-    IXLDrawingStyle SetOrientation(XLDrawingTextOrientation value);
+    public IXLDrawingStyle SetHorizontal(XLDrawingHorizontalAlignment value);
+    public IXLDrawingStyle SetVertical(XLDrawingVerticalAlignment value);
+    public IXLDrawingStyle SetAutomaticSize();
+    public IXLDrawingStyle SetAutomaticSize(bool value);
+    public IXLDrawingStyle SetDirection(XLDrawingTextDirection value);
+    public IXLDrawingStyle SetOrientation(XLDrawingTextOrientation value);
 }

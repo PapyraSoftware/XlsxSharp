@@ -16,5 +16,5 @@ public interface IXLPivotCaches : IEnumerable<IXLPivotCache>
     /// </summary>
     /// <param name="range">Range for which to create the pivot cache.</param>
     /// <returns>The pivot cache for the range.</returns>
-    IXLPivotCache Add(IXLRange range);
+    public IXLPivotCache Add(IXLRange range);
 }

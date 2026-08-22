@@ -21,23 +21,23 @@ public enum XLPhoneticType
 
 public interface IXLPhonetics : IXLFontBase, IEnumerable<IXLPhonetic>, IEquatable<IXLPhonetics>
 {
-    IXLPhonetics SetBold();
-    IXLPhonetics SetBold(bool value);
-    IXLPhonetics SetItalic();
-    IXLPhonetics SetItalic(bool value);
-    IXLPhonetics SetUnderline();
-    IXLPhonetics SetUnderline(XLFontUnderlineValues value);
-    IXLPhonetics SetStrikethrough();
-    IXLPhonetics SetStrikethrough(bool value);
-    IXLPhonetics SetVerticalAlignment(XLFontVerticalTextAlignmentValues value);
-    IXLPhonetics SetShadow();
-    IXLPhonetics SetShadow(bool value);
-    IXLPhonetics SetFontSize(double value);
-    IXLPhonetics SetFontColor(XLColor value);
-    IXLPhonetics SetFontName(string value);
-    IXLPhonetics SetFontFamilyNumbering(XLFontFamilyNumberingValues value);
-    IXLPhonetics SetFontCharSet(XLFontCharSet value);
-    IXLPhonetics SetFontScheme(XLFontScheme value);
+    public IXLPhonetics SetBold();
+    public IXLPhonetics SetBold(bool value);
+    public IXLPhonetics SetItalic();
+    public IXLPhonetics SetItalic(bool value);
+    public IXLPhonetics SetUnderline();
+    public IXLPhonetics SetUnderline(XLFontUnderlineValues value);
+    public IXLPhonetics SetStrikethrough();
+    public IXLPhonetics SetStrikethrough(bool value);
+    public IXLPhonetics SetVerticalAlignment(XLFontVerticalTextAlignmentValues value);
+    public IXLPhonetics SetShadow();
+    public IXLPhonetics SetShadow(bool value);
+    public IXLPhonetics SetFontSize(double value);
+    public IXLPhonetics SetFontColor(XLColor value);
+    public IXLPhonetics SetFontName(string value);
+    public IXLPhonetics SetFontFamilyNumbering(XLFontFamilyNumberingValues value);
+    public IXLPhonetics SetFontCharSet(XLFontCharSet value);
+    public IXLPhonetics SetFontScheme(XLFontScheme value);
 
     /// <summary>
     /// Add a phonetic run above a base text. Phonetic runs can't overlap.
@@ -45,26 +45,26 @@ public interface IXLPhonetics : IXLFontBase, IEnumerable<IXLPhonetic>, IEquatabl
     /// <param name="text">Text to display above a section of a base text. Can't be empty.</param>
     /// <param name="start">Index of a first character of a base  text above which should <paramref name="text"/> be displayed. Valid values are <c>0</c>..<c>length-1</c>.</param>
     /// <param name="end">The excluded ending index in a base text (the hint is not displayed above the <c>end</c>). Must be &gt; <paramref name="start"/>. Valid values are <c>1</c>..<c>length</c>.</param>
-    IXLPhonetics Add(string text, int start, int end);
+    public IXLPhonetics Add(string text, int start, int end);
 
     /// <summary>
     /// Remove all phonetic runs. Keeps font properties.
     /// </summary>
-    IXLPhonetics ClearText();
+    public IXLPhonetics ClearText();
 
     /// <summary>
     /// Reset font properties to the default font of a container (likely <c>IXLCell</c>). Keeps phonetic runs, <see cref="Type"/> and <see cref="Alignment"/>.
     /// </summary>
-    IXLPhonetics ClearFont();
+    public IXLPhonetics ClearFont();
 
     /// <summary>
     /// Number of phonetic runs above the base text.
     /// </summary>
-    int Count { get; }
+    public int Count { get; }
 
-    XLPhoneticAlignment Alignment { get; set; }
-    XLPhoneticType Type { get; set; }
+    public XLPhoneticAlignment Alignment { get; set; }
+    public XLPhoneticType Type { get; set; }
 
-    IXLPhonetics SetAlignment(XLPhoneticAlignment phoneticAlignment);
-    IXLPhonetics SetType(XLPhoneticType phoneticType);
+    public IXLPhonetics SetAlignment(XLPhoneticAlignment phoneticAlignment);
+    public IXLPhonetics SetType(XLPhoneticType phoneticType);
 }

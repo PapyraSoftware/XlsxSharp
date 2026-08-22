@@ -5,9 +5,9 @@ namespace XlsxSharp.Excel.ConditionalFormats;
 
 public interface IXLConditionalFormats : IEnumerable<IXLConditionalFormat>
 {
-    void Add(IXLConditionalFormat conditionalFormat);
+    public void Add(IXLConditionalFormat conditionalFormat);
 
-    void RemoveAll();
+    public void RemoveAll();
 
-    void Remove(Predicate<IXLConditionalFormat> predicate);
+    public void Remove(Predicate<IXLConditionalFormat> predicate);
 }

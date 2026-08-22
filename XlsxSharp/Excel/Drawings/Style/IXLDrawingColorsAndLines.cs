@@ -25,19 +25,19 @@ public enum XLLineStyle
 
 public interface IXLDrawingColorsAndLines
 {
-    XLColor FillColor { get; set; }
-    double FillTransparency { get; set; }
-    XLColor LineColor { get; set; }
-    double LineTransparency { get; set; }
-    double LineWeight { get; set; }
-    XLDashStyle LineDash { get; set; }
-    XLLineStyle LineStyle { get; set; }
+    public XLColor FillColor { get; set; }
+    public double FillTransparency { get; set; }
+    public XLColor LineColor { get; set; }
+    public double LineTransparency { get; set; }
+    public double LineWeight { get; set; }
+    public XLDashStyle LineDash { get; set; }
+    public XLLineStyle LineStyle { get; set; }
 
-    IXLDrawingStyle SetFillColor(XLColor value);
-    IXLDrawingStyle SetFillTransparency(double value);
-    IXLDrawingStyle SetLineColor(XLColor value);
-    IXLDrawingStyle SetLineTransparency(double value);
-    IXLDrawingStyle SetLineWeight(double value);
-    IXLDrawingStyle SetLineDash(XLDashStyle value);
-    IXLDrawingStyle SetLineStyle(XLLineStyle value);
+    public IXLDrawingStyle SetFillColor(XLColor value);
+    public IXLDrawingStyle SetFillTransparency(double value);
+    public IXLDrawingStyle SetLineColor(XLColor value);
+    public IXLDrawingStyle SetLineTransparency(double value);
+    public IXLDrawingStyle SetLineWeight(double value);
+    public IXLDrawingStyle SetLineDash(XLDashStyle value);
+    public IXLDrawingStyle SetLineStyle(XLLineStyle value);
 }

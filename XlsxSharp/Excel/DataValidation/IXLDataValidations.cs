@@ -6,7 +6,7 @@ namespace XlsxSharp.Excel.DataValidation;
 
 public interface IXLDataValidations : IEnumerable<IXLDataValidation>
 {
-    IXLWorksheet Worksheet { get; }
+    public IXLWorksheet Worksheet { get; }
 
     /// <summary>
     /// Add data validation rule to the collection. If the specified rule refers to another
@@ -17,16 +17,16 @@ public interface IXLDataValidations : IEnumerable<IXLDataValidation>
     /// <param name="dataValidation">A data validation rule to add.</param>
     /// <returns>The instance that has actually been added in the collection
     /// (may be a copy of the specified one).</returns>
-    IXLDataValidation Add(IXLDataValidation dataValidation);
+    public IXLDataValidation Add(IXLDataValidation dataValidation);
 
-    bool ContainsSingle(IXLRange range);
+    public bool ContainsSingle(IXLRange range);
 
-    void Delete(Predicate<IXLDataValidation> predicate);
+    public void Delete(Predicate<IXLDataValidation> predicate);
 
     /// <summary>
     /// Get all data validation rules applied to ranges that intersect the specified range.
     /// </summary>
-    IEnumerable<IXLDataValidation> GetAllInRange(IXLRangeAddress rangeAddress);
+    public IEnumerable<IXLDataValidation> GetAllInRange(IXLRangeAddress rangeAddress);
 
     /// <summary>
     /// Get the data validation rule for the range with the specified address if it exists.
@@ -37,7 +37,7 @@ public interface IXLDataValidations : IEnumerable<IXLDataValidation>
     /// For example, if the rule is applied to ranges A1:A3,C1:C3 then this method will
     /// return True for ranges A1:A3, C1:C2, A2:A3, and False for ranges A1:C3, A1:C1, etc.</param>
     /// <returns>True is the data validation rule was found, false otherwise.</returns>
-    bool TryGet(
+    public bool TryGet(
         IXLRangeAddress rangeAddress,
         [NotNullWhen(true)] out IXLDataValidation? dataValidation
     );

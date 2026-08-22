@@ -15,7 +15,7 @@ public interface IXLPivotValueStyleFormat : IXLPivotStyleFormat
     /// that also belong to the <paramref name="field"/> (label or data).
     /// </summary>
     /// <param name="field">Only cells in a pivot table under this field will be styled.</param>
-    IXLPivotValueStyleFormat AndWith(IXLPivotField field);
+    public IXLPivotValueStyleFormat AndWith(IXLPivotField field);
 
     /// <summary>
     /// Adds a limitation so the <see cref="IXLPivotStyleFormat.Style"/> is only applied to cells in a pivot table
@@ -28,12 +28,12 @@ public interface IXLPivotValueStyleFormat : IXLPivotStyleFormat
     /// </remarks>
     /// <param name="field">Only cells in a pivot table under this field will be styled.</param>
     /// <param name="predicate">A predicate to determine which index of the field should be styled.</param>
-    IXLPivotValueStyleFormat AndWith(IXLPivotField field, Predicate<XLCellValue> predicate);
+    public IXLPivotValueStyleFormat AndWith(IXLPivotField field, Predicate<XLCellValue> predicate);
 
     /// <summary>
     /// Adds a limitation so the <see cref="IXLPivotStyleFormat.Style"/> is only applied to cells in a pivot table
     /// that display values for <paramref name="valueField"/> cells (i.e. data cells and grand total).
     /// </summary>
     /// <param name="valueField">One of <see cref="IXLPivotTable.Values">value fields</see> of the pivot table.</param>
-    IXLPivotValueStyleFormat ForValueField(IXLPivotValue valueField);
+    public IXLPivotValueStyleFormat ForValueField(IXLPivotValue valueField);
 }

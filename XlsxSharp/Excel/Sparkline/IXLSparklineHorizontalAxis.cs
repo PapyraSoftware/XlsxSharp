@@ -7,23 +7,23 @@ public interface IXLSparklineHorizontalAxis
 {
     #region Public Properties
 
-    XLColor Color { get; set; }
+    public XLColor Color { get; set; }
 
-    bool DateAxis { get; }
+    public bool DateAxis { get; }
 
-    bool IsVisible { get; set; }
+    public bool IsVisible { get; set; }
 
-    bool RightToLeft { get; set; }
+    public bool RightToLeft { get; set; }
 
     #endregion Public Properties
 
     #region Public Methods
 
-    IXLSparklineHorizontalAxis SetColor(XLColor value);
+    public IXLSparklineHorizontalAxis SetColor(XLColor value);
 
-    IXLSparklineHorizontalAxis SetRightToLeft(bool value);
+    public IXLSparklineHorizontalAxis SetRightToLeft(bool value);
 
-    IXLSparklineHorizontalAxis SetVisible(bool value);
+    public IXLSparklineHorizontalAxis SetVisible(bool value);
 
     #endregion Public Methods
 }

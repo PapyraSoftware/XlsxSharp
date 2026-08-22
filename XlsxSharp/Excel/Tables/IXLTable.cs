@@ -9,29 +9,30 @@ namespace XlsxSharp.Excel.Tables;
 
 public interface IXLTable : IXLRange
 {
-    IXLAutoFilter AutoFilter { get; }
-    IXLTableRange DataRange { get; }
-    bool EmphasizeFirstColumn { get; set; }
-    bool EmphasizeLastColumn { get; set; }
-    IEnumerable<IXLTableField> Fields { get; }
+    public IXLAutoFilter AutoFilter { get; }
+    public IXLTableRange DataRange { get; }
+    public bool EmphasizeFirstColumn { get; set; }
+    public bool EmphasizeLastColumn { get; set; }
+    public IEnumerable<IXLTableField> Fields { get; }
 
     /// <summary>
     /// Change the name of a table. Structural references to the table are not updated.
     /// </summary>
     /// <exception cref="ArgumentException">If the new table name is already used by other table in the sheet.</exception>
-    string Name { get; set; }
-    bool ShowAutoFilter { get; set; }
-    bool ShowColumnStripes { get; set; }
-    bool ShowHeaderRow { get; set; }
-    bool ShowRowStripes { get; set; }
-    bool ShowTotalsRow { get; set; }
-    XLTableTheme Theme { get; set; }
+    public string Name { get; set; }
+
+    public bool ShowAutoFilter { get; set; }
+    public bool ShowColumnStripes { get; set; }
+    public bool ShowHeaderRow { get; set; }
+    public bool ShowRowStripes { get; set; }
+    public bool ShowTotalsRow { get; set; }
+    public XLTableTheme Theme { get; set; }
 
     /// <summary>
     /// Clears the contents of this table.
     /// </summary>
     /// <param name="clearOptions">Specify what you want to clear.</param>
-    new IXLTable Clear(XLClearOptions clearOptions = XLClearOptions.All);
+    public new IXLTable Clear(XLClearOptions clearOptions = XLClearOptions.All);
 
     /// <summary>
     /// Get field of the table.
@@ -39,11 +40,11 @@ public interface IXLTable : IXLRange
     /// <param name="fieldName">Name of the field. Field names are case-insensitive.</param>
     /// <returns>Requested field.</returns>
     /// <exception cref="ArgumentOutOfRangeException">Table doesn't contain <paramref name="fieldName"/> field.</exception>
-    IXLTableField Field(string fieldName);
+    public IXLTableField Field(string fieldName);
 
-    IXLTableField Field(int fieldIndex);
+    public IXLTableField Field(int fieldIndex);
 
-    IXLRangeRow HeadersRow();
+    public IXLRangeRow HeadersRow();
 
     /// <summary>
     /// Appends the IEnumerable data elements and returns the range of the new rows.
@@ -53,7 +54,7 @@ public interface IXLTable : IXLRange
     /// <returns>
     /// The range of the new rows.
     /// </returns>
-    IXLRange AppendData(IEnumerable data, bool propagateExtraColumns = false);
+    public IXLRange AppendData(IEnumerable data, bool propagateExtraColumns = false);
 
     /// <summary>
     /// Appends the IEnumerable data elements and returns the range of the new rows.
@@ -64,7 +65,11 @@ public interface IXLTable : IXLRange
     /// <returns>
     /// The range of the new rows.
     /// </returns>
-    IXLRange AppendData(IEnumerable data, bool transpose, bool propagateExtraColumns = false);
+    public IXLRange AppendData(
+        IEnumerable data,
+        bool transpose,
+        bool propagateExtraColumns = false
+    );
 
     /// <summary>
     /// Appends the data of a data table and returns the range of the new rows.
@@ -74,7 +79,7 @@ public interface IXLTable : IXLRange
     /// <returns>
     /// The range of the new rows.
     /// </returns>
-    IXLRange AppendData(DataTable dataTable, bool propagateExtraColumns = false);
+    public IXLRange AppendData(DataTable dataTable, bool propagateExtraColumns = false);
 
     /// <summary>
     /// Appends the IEnumerable data elements and returns the range of the new rows.
@@ -85,7 +90,7 @@ public interface IXLTable : IXLRange
     /// <returns>
     /// The range of the new rows.
     /// </returns>
-    IXLRange AppendData<T>(IEnumerable<T> data, bool propagateExtraColumns = false);
+    public IXLRange AppendData<T>(IEnumerable<T> data, bool propagateExtraColumns = false);
 
     /// <summary>
     /// Replaces the IEnumerable data elements and returns the table's data range.
@@ -95,7 +100,7 @@ public interface IXLTable : IXLRange
     /// <returns>
     /// The table's data range.
     /// </returns>
-    IXLRange ReplaceData(IEnumerable data, bool propagateExtraColumns = false);
+    public IXLRange ReplaceData(IEnumerable data, bool propagateExtraColumns = false);
 
     /// <summary>
     /// Replaces the IEnumerable data elements and returns the table's data range.
@@ -106,7 +111,11 @@ public interface IXLTable : IXLRange
     /// <returns>
     /// The table's data range.
     /// </returns>
-    IXLRange ReplaceData(IEnumerable data, bool transpose, bool propagateExtraColumns = false);
+    public IXLRange ReplaceData(
+        IEnumerable data,
+        bool transpose,
+        bool propagateExtraColumns = false
+    );
 
     /// <summary>
     /// Replaces the data from the records of a data table and returns the table's data range.
@@ -116,7 +125,7 @@ public interface IXLTable : IXLRange
     /// <returns>
     /// The table's data range.
     /// </returns>
-    IXLRange ReplaceData(DataTable dataTable, bool propagateExtraColumns = false);
+    public IXLRange ReplaceData(DataTable dataTable, bool propagateExtraColumns = false);
 
     /// <summary>
     /// Replaces the IEnumerable data elements as a table and the table's data range.
@@ -127,46 +136,46 @@ public interface IXLTable : IXLRange
     /// <returns>
     /// The table's data range.
     /// </returns>
-    IXLRange ReplaceData<T>(IEnumerable<T> data, bool propagateExtraColumns = false);
+    public IXLRange ReplaceData<T>(IEnumerable<T> data, bool propagateExtraColumns = false);
 
     /// <summary>
     /// Resizes the table to the specified range address.
     /// </summary>
     /// <param name="range">The new table range.</param>
-    IXLTable Resize(IXLRange range);
+    public IXLTable Resize(IXLRange range);
 
     /// <summary>
     /// Resizes the table to the specified range address.
     /// </summary>
     /// <param name="rangeAddress">The range boundaries.</param>
-    IXLTable Resize(IXLRangeAddress rangeAddress);
+    public IXLTable Resize(IXLRangeAddress rangeAddress);
 
     /// <summary>
     /// Resizes the table to the specified range address.
     /// </summary>
     /// <param name="rangeAddress">The range boundaries.</param>
-    IXLTable Resize(string rangeAddress);
+    public IXLTable Resize(string rangeAddress);
 
     /// <summary>
     /// Resizes the table to the specified range.
     /// </summary>
     /// <param name="firstCell">The first cell in the range.</param>
     /// <param name="lastCell">The last cell in the range.</param>
-    IXLTable Resize(IXLCell firstCell, IXLCell lastCell);
+    public IXLTable Resize(IXLCell firstCell, IXLCell lastCell);
 
     /// <summary>
     /// Resizes the table to the specified range.
     /// </summary>
     /// <param name="firstCellAddress">The first cell address in the worksheet.</param>
     /// <param name="lastCellAddress">The last cell address in the worksheet.</param>
-    IXLTable Resize(string firstCellAddress, string lastCellAddress);
+    public IXLTable Resize(string firstCellAddress, string lastCellAddress);
 
     /// <summary>
     /// Resizes the table to the specified range.
     /// </summary>
     /// <param name="firstCellAddress">The first cell address in the worksheet.</param>
     /// <param name="lastCellAddress">The last cell address in the worksheet.</param>
-    IXLTable Resize(IXLAddress firstCellAddress, IXLAddress lastCellAddress);
+    public IXLTable Resize(IXLAddress firstCellAddress, IXLAddress lastCellAddress);
 
     /// <summary>
     /// Resizes the table to the specified range.
@@ -175,49 +184,54 @@ public interface IXLTable : IXLRange
     /// <param name="firstCellColumn">The first cell's column of the range to return.</param>
     /// <param name="lastCellRow">The last cell's row of the range to return.</param>
     /// <param name="lastCellColumn">The last cell's column of the range to return.</param>
-    IXLTable Resize(int firstCellRow, int firstCellColumn, int lastCellRow, int lastCellColumn);
+    public IXLTable Resize(
+        int firstCellRow,
+        int firstCellColumn,
+        int lastCellRow,
+        int lastCellColumn
+    );
 
-    new IXLAutoFilter SetAutoFilter();
+    public new IXLAutoFilter SetAutoFilter();
 
-    IXLTable SetEmphasizeFirstColumn();
+    public IXLTable SetEmphasizeFirstColumn();
 
-    IXLTable SetEmphasizeFirstColumn(bool value);
+    public IXLTable SetEmphasizeFirstColumn(bool value);
 
-    IXLTable SetEmphasizeLastColumn();
+    public IXLTable SetEmphasizeLastColumn();
 
-    IXLTable SetEmphasizeLastColumn(bool value);
+    public IXLTable SetEmphasizeLastColumn(bool value);
 
-    IXLTable SetShowAutoFilter();
+    public IXLTable SetShowAutoFilter();
 
-    IXLTable SetShowAutoFilter(bool value);
+    public IXLTable SetShowAutoFilter(bool value);
 
-    IXLTable SetShowColumnStripes();
+    public IXLTable SetShowColumnStripes();
 
-    IXLTable SetShowColumnStripes(bool value);
+    public IXLTable SetShowColumnStripes(bool value);
 
-    IXLTable SetShowHeaderRow();
+    public IXLTable SetShowHeaderRow();
 
-    IXLTable SetShowHeaderRow(bool value);
+    public IXLTable SetShowHeaderRow(bool value);
 
-    IXLTable SetShowRowStripes();
+    public IXLTable SetShowRowStripes();
 
-    IXLTable SetShowRowStripes(bool value);
+    public IXLTable SetShowRowStripes(bool value);
 
-    IXLTable SetShowTotalsRow();
+    public IXLTable SetShowTotalsRow();
 
-    IXLTable SetShowTotalsRow(bool value);
+    public IXLTable SetShowTotalsRow(bool value);
 
-    IXLRangeRow TotalsRow();
+    public IXLRangeRow TotalsRow();
 
     /// <summary>
     /// Converts the table to an enumerable of dynamic objects
     /// </summary>
-    IEnumerable<dynamic> AsDynamicEnumerable();
+    public IEnumerable<dynamic> AsDynamicEnumerable();
 
     /// <summary>
     /// Converts the table to a standard .NET System.Data.DataTable
     /// </summary>
-    DataTable AsNativeDataTable();
+    public DataTable AsNativeDataTable();
 
-    IXLTable CopyTo(IXLWorksheet targetSheet);
+    public IXLTable CopyTo(IXLWorksheet targetSheet);
 }

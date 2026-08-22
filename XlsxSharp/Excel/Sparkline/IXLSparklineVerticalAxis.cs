@@ -7,25 +7,25 @@ public interface IXLSparklineVerticalAxis
 {
     #region Public Properties
 
-    double? ManualMax { get; set; }
+    public double? ManualMax { get; set; }
 
-    double? ManualMin { get; set; }
+    public double? ManualMin { get; set; }
 
-    XLSparklineAxisMinMax MaxAxisType { get; set; }
+    public XLSparklineAxisMinMax MaxAxisType { get; set; }
 
-    XLSparklineAxisMinMax MinAxisType { get; set; }
+    public XLSparklineAxisMinMax MinAxisType { get; set; }
 
     #endregion Public Properties
 
     #region Public Methods
 
-    IXLSparklineVerticalAxis SetManualMax(double? value);
+    public IXLSparklineVerticalAxis SetManualMax(double? value);
 
-    IXLSparklineVerticalAxis SetManualMin(double? value);
+    public IXLSparklineVerticalAxis SetManualMin(double? value);
 
-    IXLSparklineVerticalAxis SetMaxAxisType(XLSparklineAxisMinMax value);
+    public IXLSparklineVerticalAxis SetMaxAxisType(XLSparklineAxisMinMax value);
 
-    IXLSparklineVerticalAxis SetMinAxisType(XLSparklineAxisMinMax value);
+    public IXLSparklineVerticalAxis SetMinAxisType(XLSparklineAxisMinMax value);
 
     #endregion Public Methods
 }

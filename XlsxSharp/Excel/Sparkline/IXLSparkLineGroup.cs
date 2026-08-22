@@ -42,61 +42,61 @@ public enum XLSparklineType
 
 public interface IXLSparklineGroup : IEnumerable<IXLSparkline>
 {
-    IXLRange DateRange { get; set; }
+    public IXLRange DateRange { get; set; }
 
-    XLDisplayBlanksAsValues DisplayEmptyCellsAs { get; set; }
+    public XLDisplayBlanksAsValues DisplayEmptyCellsAs { get; set; }
 
-    bool DisplayHidden { get; set; }
+    public bool DisplayHidden { get; set; }
 
-    IXLSparklineHorizontalAxis HorizontalAxis { get; }
+    public IXLSparklineHorizontalAxis HorizontalAxis { get; }
 
-    double LineWeight { get; set; }
+    public double LineWeight { get; set; }
 
-    XLSparklineMarkers ShowMarkers { get; set; }
+    public XLSparklineMarkers ShowMarkers { get; set; }
 
-    IXLSparklineStyle Style { get; set; }
+    public IXLSparklineStyle Style { get; set; }
 
-    XLSparklineType Type { get; set; }
+    public XLSparklineType Type { get; set; }
 
-    IXLSparklineVerticalAxis VerticalAxis { get; }
+    public IXLSparklineVerticalAxis VerticalAxis { get; }
 
-    IXLWorksheet Worksheet { get; }
+    public IXLWorksheet Worksheet { get; }
 
-    IXLSparkline Add(IXLCell location, IXLRange sourceData);
+    public IXLSparkline Add(IXLCell location, IXLRange sourceData);
 
-    IEnumerable<IXLSparkline> Add(IXLRange locationRange, IXLRange sourceDataRange);
+    public IEnumerable<IXLSparkline> Add(IXLRange locationRange, IXLRange sourceDataRange);
 
-    IEnumerable<IXLSparkline> Add(string locationRangeAddress, string sourceDataAddress);
+    public IEnumerable<IXLSparkline> Add(string locationRangeAddress, string sourceDataAddress);
 
-    void CopyFrom(IXLSparklineGroup sparklineGroup);
+    public void CopyFrom(IXLSparklineGroup sparklineGroup);
 
     /// <summary>
     /// Copy this sparkline group to the specified worksheet
     /// </summary>
     /// <param name="targetSheet">The worksheet to copy this sparkline group to</param>
-    IXLSparklineGroup CopyTo(IXLWorksheet targetSheet);
+    public IXLSparklineGroup CopyTo(IXLWorksheet targetSheet);
 
-    IXLSparkline GetSparkline(IXLCell cell);
+    public IXLSparkline GetSparkline(IXLCell cell);
 
-    IEnumerable<IXLSparkline> GetSparklines(IXLRangeBase searchRange);
+    public IEnumerable<IXLSparkline> GetSparklines(IXLRangeBase searchRange);
 
-    void Remove(IXLCell cell);
+    public void Remove(IXLCell cell);
 
-    void Remove(IXLSparkline sparkline);
+    public void Remove(IXLSparkline sparkline);
 
-    void RemoveAll();
+    public void RemoveAll();
 
-    IXLSparklineGroup SetDateRange(IXLRange value);
+    public IXLSparklineGroup SetDateRange(IXLRange value);
 
-    IXLSparklineGroup SetDisplayEmptyCellsAs(XLDisplayBlanksAsValues value);
+    public IXLSparklineGroup SetDisplayEmptyCellsAs(XLDisplayBlanksAsValues value);
 
-    IXLSparklineGroup SetDisplayHidden(bool value);
+    public IXLSparklineGroup SetDisplayHidden(bool value);
 
-    IXLSparklineGroup SetLineWeight(double value);
+    public IXLSparklineGroup SetLineWeight(double value);
 
-    IXLSparklineGroup SetShowMarkers(XLSparklineMarkers value);
+    public IXLSparklineGroup SetShowMarkers(XLSparklineMarkers value);
 
-    IXLSparklineGroup SetStyle(IXLSparklineStyle value);
+    public IXLSparklineGroup SetStyle(IXLSparklineStyle value);
 
-    IXLSparklineGroup SetType(XLSparklineType value);
+    public IXLSparklineGroup SetType(XLSparklineType value);
 }

@@ -9,10 +9,10 @@ public interface IXLPivotTableStyleFormats
     /// <summary>
     /// Get style formats of a grand total column in a pivot table (i.e. the right column a pivot table).
     /// </summary>
-    IXLPivotStyleFormats ColumnGrandTotalFormats { get; }
+    public IXLPivotStyleFormats ColumnGrandTotalFormats { get; }
 
     /// <summary>
     /// Get style formats of a grand total row in a pivot table (i.e. the bottom row of a pivot table).
     /// </summary>
-    IXLPivotStyleFormats RowGrandTotalFormats { get; }
+    public IXLPivotStyleFormats RowGrandTotalFormats { get; }
 }

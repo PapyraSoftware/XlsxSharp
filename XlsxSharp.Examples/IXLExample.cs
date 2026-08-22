@@ -2,5 +2,5 @@ namespace XlsxSharp.Examples;
 
 public interface IXLExample
 {
-    void Create(string filePath);
+    public void Create(string filePath);
 }

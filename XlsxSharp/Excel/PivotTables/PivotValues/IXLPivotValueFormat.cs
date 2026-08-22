@@ -14,7 +14,7 @@ public interface IXLPivotValueFormat : IXLNumberFormatBase
     /// </summary>
     /// <param name="value">A numeric value describing how should the number be formatted.</param>
     /// <exception cref="ArgumentOutOfRangeException">The passed value is not a predefined format.</exception>
-    IXLPivotValue SetNumberFormatId(int value);
+    public IXLPivotValue SetNumberFormatId(int value);
 
-    IXLPivotValue SetFormat(string value);
+    public IXLPivotValue SetFormat(string value);
 }

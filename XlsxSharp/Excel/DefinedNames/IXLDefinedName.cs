@@ -28,7 +28,7 @@ public interface IXLDefinedName
     /// <value>
     /// The comment for this named range.
     /// </value>
-    string? Comment { get; set; }
+    public string? Comment { get; set; }
 
     /// <summary>
     /// Checks if the named range contains invalid references (#REF!).
@@ -37,7 +37,7 @@ public interface IXLDefinedName
     /// <c>true</c>, because <c>#REF!A1</c> is an invalid reference.</example>
     /// </para>
     /// </summary>
-    bool IsValid { get; }
+    public bool IsValid { get; }
 
     /// <summary>
     /// Gets or sets the name of the range.
@@ -48,13 +48,13 @@ public interface IXLDefinedName
     /// <exception cref="ArgumentException">Set value is not a valid name.</exception>
     /// <exception cref="InvalidOperationException">The name is colliding with a different name
     /// that is already defined in the collection.</exception>
-    string Name { get; set; }
+    public string Name { get; set; }
 
     /// <summary>
     /// Gets the ranges associated with this named range.
     /// <para>Note: A named range can point to multiple ranges.</para>
     /// </summary>
-    IXLRanges Ranges { get; }
+    public IXLRanges Ranges { get; }
 
     /// <summary>
     /// A formula of the named range. In most cases, name is just a range (e.g.
@@ -65,12 +65,12 @@ public interface IXLDefinedName
     /// The value can't be empty and it must be a valid formula.
     /// </summary>
     /// <exception cref="ArgumentException">When passed formula is empty.</exception>
-    string RefersTo { get; set; }
+    public string RefersTo { get; set; }
 
     /// <summary>
     /// Gets the scope of this named range.
     /// </summary>
-    XLNamedRangeScope Scope { get; }
+    public XLNamedRangeScope Scope { get; }
 
     /// <summary>
     /// Gets or sets the visibility of this named range.
@@ -78,7 +78,7 @@ public interface IXLDefinedName
     /// <value>
     ///   <c>true</c> if visible; otherwise, <c>false</c>.
     /// </value>
-    bool Visible { get; set; }
+    public bool Visible { get; set; }
 
     /// <summary>
     /// Copy sheet-scoped defined name to a different sheet. The references to the original
@@ -92,17 +92,17 @@ public interface IXLDefinedName
     /// <param name="targetSheet">Target sheet where to copy the defined name.</param>
     /// <exception cref="InvalidOperationException">Defined name is workbook-scoped</exception>
     /// <exception cref="InvalidOperationException">Trying to copy defined name to the same sheet.</exception>
-    IXLDefinedName CopyTo(IXLWorksheet targetSheet);
+    public IXLDefinedName CopyTo(IXLWorksheet targetSheet);
 
     /// <summary>
     /// Deletes this named range (not the cells).
     /// </summary>
-    void Delete();
+    public void Delete();
 
     /// <inheritdoc cref="RefersTo"/>
-    IXLDefinedName SetRefersTo(string formula);
+    public IXLDefinedName SetRefersTo(string formula);
 
-    IXLDefinedName SetRefersTo(IXLRangeBase range);
+    public IXLDefinedName SetRefersTo(IXLRangeBase range);
 
-    IXLDefinedName SetRefersTo(IXLRanges ranges);
+    public IXLDefinedName SetRefersTo(IXLRanges ranges);
 }

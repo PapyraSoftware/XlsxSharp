@@ -5,5 +5,5 @@ namespace XlsxSharp.IO.CodeGen.Model.SimpleTypes;
 /// </summary>
 public interface ISimpleType
 {
-    string Name { get; }
+    public string Name { get; }
 }

@@ -13,7 +13,7 @@ public interface IXLProtection : IEquatable<IXLProtection>
     /// the protected operations (<see cref="XLSheetProtectionElements"/>) are prohibited on
     /// the cell.
     /// </remarks>
-    bool Locked { get; set; }
+    public bool Locked { get; set; }
 
     /// <summary>
     /// Get or set whether cell is a hidden.
@@ -23,29 +23,29 @@ public interface IXLProtection : IEquatable<IXLProtection>
     /// application will display content of a cell in a grid, but it will hide formulas bar
     /// content (i.e. formulas or even plain text).
     /// </value>
-    bool Hidden { get; set; }
+    public bool Hidden { get; set; }
 
     /// <summary>
     /// Set cell as locked.
     /// </summary>
     /// <inheritdoc cref="Locked"/>
-    IXLStyle SetLocked();
+    public IXLStyle SetLocked();
 
     /// <summary>
     /// Set whether a cell is locked.
     /// </summary>
     /// <inheritdoc cref="Locked"/>
-    IXLStyle SetLocked(bool value);
+    public IXLStyle SetLocked(bool value);
 
     /// <summary>
     /// Set cell as hidden.
     /// </summary>
     /// <inheritdoc cref="Hidden"/>
-    IXLStyle SetHidden();
+    public IXLStyle SetHidden();
 
     /// <summary>
     /// Set whether a cell is hidden.
     /// </summary>
     /// <inheritdoc cref="Hidden"/>
-    IXLStyle SetHidden(bool value);
+    public IXLStyle SetHidden(bool value);
 }

@@ -4,12 +4,12 @@ namespace XlsxSharp.Excel.Drawings.Style;
 
 public interface IXLDrawingSize
 {
-    bool AutomaticSize { get; set; }
-    double Height { get; set; }
-    double Width { get; set; }
+    public bool AutomaticSize { get; set; }
+    public double Height { get; set; }
+    public double Width { get; set; }
 
-    IXLDrawingStyle SetAutomaticSize();
-    IXLDrawingStyle SetAutomaticSize(bool value);
-    IXLDrawingStyle SetHeight(double value);
-    IXLDrawingStyle SetWidth(double value);
+    public IXLDrawingStyle SetAutomaticSize();
+    public IXLDrawingStyle SetAutomaticSize(bool value);
+    public IXLDrawingStyle SetHeight(double value);
+    public IXLDrawingStyle SetWidth(double value);
 }

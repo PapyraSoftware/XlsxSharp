@@ -4,18 +4,18 @@ namespace XlsxSharp.Excel;
 
 public interface IXLTheme
 {
-    XLColor Background1 { get; set; }
-    XLColor Text1 { get; set; }
-    XLColor Background2 { get; set; }
-    XLColor Text2 { get; set; }
-    XLColor Accent1 { get; set; }
-    XLColor Accent2 { get; set; }
-    XLColor Accent3 { get; set; }
-    XLColor Accent4 { get; set; }
-    XLColor Accent5 { get; set; }
-    XLColor Accent6 { get; set; }
-    XLColor Hyperlink { get; set; }
-    XLColor FollowedHyperlink { get; set; }
+    public XLColor Background1 { get; set; }
+    public XLColor Text1 { get; set; }
+    public XLColor Background2 { get; set; }
+    public XLColor Text2 { get; set; }
+    public XLColor Accent1 { get; set; }
+    public XLColor Accent2 { get; set; }
+    public XLColor Accent3 { get; set; }
+    public XLColor Accent4 { get; set; }
+    public XLColor Accent5 { get; set; }
+    public XLColor Accent6 { get; set; }
+    public XLColor Hyperlink { get; set; }
+    public XLColor FollowedHyperlink { get; set; }
 
-    XLColor ResolveThemeColor(XLThemeColor themeColor);
+    public XLColor ResolveThemeColor(XLThemeColor themeColor);
 }

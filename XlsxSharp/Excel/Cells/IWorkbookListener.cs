@@ -14,5 +14,5 @@ internal interface IWorkbookListener
     /// </summary>
     /// <param name="oldSheetName">Old sheet name.</param>
     /// <param name="newSheetName">New sheet name, different from old one.</param>
-    void OnSheetRenamed(string oldSheetName, string newSheetName);
+    public void OnSheetRenamed(string oldSheetName, string newSheetName);
 }

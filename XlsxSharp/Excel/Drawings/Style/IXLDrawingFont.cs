@@ -4,21 +4,21 @@ namespace XlsxSharp.Excel.Drawings.Style;
 
 public interface IXLDrawingFont : IXLFontBase
 {
-    IXLDrawingStyle SetBold();
-    IXLDrawingStyle SetBold(bool value);
-    IXLDrawingStyle SetItalic();
-    IXLDrawingStyle SetItalic(bool value);
-    IXLDrawingStyle SetUnderline();
-    IXLDrawingStyle SetUnderline(XLFontUnderlineValues value);
-    IXLDrawingStyle SetStrikethrough();
-    IXLDrawingStyle SetStrikethrough(bool value);
-    IXLDrawingStyle SetVerticalAlignment(XLFontVerticalTextAlignmentValues value);
-    IXLDrawingStyle SetShadow();
-    IXLDrawingStyle SetShadow(bool value);
-    IXLDrawingStyle SetFontSize(double value);
-    IXLDrawingStyle SetFontColor(XLColor value);
-    IXLDrawingStyle SetFontName(string value);
-    IXLDrawingStyle SetFontFamilyNumbering(XLFontFamilyNumberingValues value);
-    IXLDrawingStyle SetFontCharSet(XLFontCharSet value);
-    IXLDrawingStyle SetFontScheme(XLFontScheme value);
+    public IXLDrawingStyle SetBold();
+    public IXLDrawingStyle SetBold(bool value);
+    public IXLDrawingStyle SetItalic();
+    public IXLDrawingStyle SetItalic(bool value);
+    public IXLDrawingStyle SetUnderline();
+    public IXLDrawingStyle SetUnderline(XLFontUnderlineValues value);
+    public IXLDrawingStyle SetStrikethrough();
+    public IXLDrawingStyle SetStrikethrough(bool value);
+    public IXLDrawingStyle SetVerticalAlignment(XLFontVerticalTextAlignmentValues value);
+    public IXLDrawingStyle SetShadow();
+    public IXLDrawingStyle SetShadow(bool value);
+    public IXLDrawingStyle SetFontSize(double value);
+    public IXLDrawingStyle SetFontColor(XLColor value);
+    public IXLDrawingStyle SetFontName(string value);
+    public IXLDrawingStyle SetFontFamilyNumbering(XLFontFamilyNumberingValues value);
+    public IXLDrawingStyle SetFontCharSet(XLFontCharSet value);
+    public IXLDrawingStyle SetFontScheme(XLFontScheme value);
 }

@@ -59,26 +59,26 @@ public interface IXLAutoFilter
     /// <remarks>
     /// Visibility is automatically updated on filter change.
     /// </remarks>
-    IEnumerable<IXLRangeRow> HiddenRows { get; }
+    public IEnumerable<IXLRangeRow> HiddenRows { get; }
 
     /// <summary>
     /// Is autofilter enabled? When autofilter is enabled, it shows the arrow buttons and might
     /// contain some filter that hide some rows. Disabled autofilter doesn't show arrow buttons
     /// and all rows are visible.
     /// </summary>
-    bool IsEnabled { get; set; }
+    public bool IsEnabled { get; set; }
 
     /// <summary>
     /// Range of the autofilter. It consists of a header in first row, followed by data rows.
     /// It doesn't include totals row for tables.
     /// </summary>
-    IXLRange Range { get; }
+    public IXLRange Range { get; }
 
     /// <summary>
     /// What column was used during last <see cref="Sort"/>. Contains undefined value for not
     /// yet <see cref="Sorted"/> autofilter.
     /// </summary>
-    int SortColumn { get; }
+    public int SortColumn { get; }
 
     /// <summary>
     /// Are values in the autofilter range sorted? I.e. the values were either already loaded
@@ -87,13 +87,13 @@ public interface IXLAutoFilter
     /// <remarks>
     /// If <c>true</c>, <see cref="SortColumn"/> and <see cref="SortOrder"/> contain valid values.
     /// </remarks>
-    bool Sorted { get; }
+    public bool Sorted { get; }
 
     /// <summary>
     /// What sorting order was used during last <see cref="Sort"/>. Contains undefined value
     /// for not yet <see cref="Sorted"/> autofilter.
     /// </summary>
-    XLSortOrder SortOrder { get; }
+    public XLSortOrder SortOrder { get; }
 
     /// <summary>
     /// Get rows of <see cref="Range"/> that are visible because they satisfied filter
@@ -102,12 +102,12 @@ public interface IXLAutoFilter
     /// <remarks>
     /// Visibility is not updated on filter change.
     /// </remarks>
-    IEnumerable<IXLRangeRow> VisibleRows { get; }
+    public IEnumerable<IXLRangeRow> VisibleRows { get; }
 
     /// <summary>
     /// Disable autofilter, remove all filters and unhide all rows of the <see cref="Range"/>.
     /// </summary>
-    IXLAutoFilter Clear();
+    public IXLAutoFilter Clear();
 
     /// <summary>
     /// Get filter configuration for a column.
@@ -118,14 +118,14 @@ public interface IXLAutoFilter
     /// </param>
     /// <returns>Filter configuration for the column.</returns>
     /// <exception cref="ArgumentOutOfRangeException">Invalid column.</exception>
-    IXLFilterColumn Column(string columnLetter);
+    public IXLFilterColumn Column(string columnLetter);
 
     /// <summary>
     /// Get filter configuration for a column.
     /// </summary>
     /// <param name="columnNumber">Column number in the range, from 1 as the first column of a <see cref="Range"/>.</param>
     /// <returns>Filter configuration for the column.</returns>
-    IXLFilterColumn Column(int columnNumber);
+    public IXLFilterColumn Column(int columnNumber);
 
     /// <summary>
     /// Apply autofilter filters to the range and show every row that satisfies the conditions
@@ -135,7 +135,7 @@ public interface IXLAutoFilter
     /// Filter is generally automatically applied on a filter change. This method could be
     /// called after a cell value change or row deletion.
     /// </remarks>
-    IXLAutoFilter Reapply();
+    public IXLAutoFilter Reapply();
 
     /// <summary>
     /// Sort rows of the range using data of one column.
@@ -155,7 +155,7 @@ public interface IXLAutoFilter
     /// sorting order. <c>false</c> - blank will be treated as empty string and sorted
     /// accordingly.
     /// </param>
-    IXLAutoFilter Sort(
+    public IXLAutoFilter Sort(
         int columnToSortBy = 1,
         XLSortOrder sortOrder = XLSortOrder.Ascending,
         bool matchCase = false,

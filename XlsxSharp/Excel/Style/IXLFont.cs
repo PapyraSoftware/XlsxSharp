@@ -181,38 +181,38 @@ public enum XLFontScheme
 
 public interface IXLFont : IXLFontBase, IEquatable<IXLFont>
 {
-    IXLStyle SetBold();
-    IXLStyle SetBold(bool value);
+    public IXLStyle SetBold();
+    public IXLStyle SetBold(bool value);
 
-    IXLStyle SetItalic();
-    IXLStyle SetItalic(bool value);
+    public IXLStyle SetItalic();
+    public IXLStyle SetItalic(bool value);
 
-    IXLStyle SetUnderline();
-    IXLStyle SetUnderline(XLFontUnderlineValues value);
+    public IXLStyle SetUnderline();
+    public IXLStyle SetUnderline(XLFontUnderlineValues value);
 
-    IXLStyle SetStrikethrough();
-    IXLStyle SetStrikethrough(bool value);
+    public IXLStyle SetStrikethrough();
+    public IXLStyle SetStrikethrough(bool value);
 
-    IXLStyle SetVerticalAlignment(XLFontVerticalTextAlignmentValues value);
+    public IXLStyle SetVerticalAlignment(XLFontVerticalTextAlignmentValues value);
 
-    IXLStyle SetShadow();
-    IXLStyle SetShadow(bool value);
+    public IXLStyle SetShadow();
+    public IXLStyle SetShadow(bool value);
 
     /// <summary>
     /// Set font size in points.
     /// </summary>
     /// <inheritdoc cref="IXLFontBase.FontSize"/>
-    IXLStyle SetFontSize(double value);
+    public IXLStyle SetFontSize(double value);
 
-    IXLStyle SetFontColor(XLColor value);
+    public IXLStyle SetFontColor(XLColor value);
 
-    IXLStyle SetFontName(string value);
+    public IXLStyle SetFontName(string value);
 
-    IXLStyle SetFontFamilyNumbering(XLFontFamilyNumberingValues value);
+    public IXLStyle SetFontFamilyNumbering(XLFontFamilyNumberingValues value);
 
     /// <inheritdoc cref="IXLFontBase.FontCharSet"/>
-    IXLStyle SetFontCharSet(XLFontCharSet value);
+    public IXLStyle SetFontCharSet(XLFontCharSet value);
 
     /// <inheritdoc cref="IXLFontBase.FontScheme"/>
-    IXLStyle SetFontScheme(XLFontScheme value);
+    public IXLStyle SetFontScheme(XLFontScheme value);
 }

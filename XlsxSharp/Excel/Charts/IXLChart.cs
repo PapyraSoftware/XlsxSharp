@@ -83,10 +83,10 @@ public enum XLChartType
 
 public interface IXLChart : IXLDrawing<IXLChart>
 {
-    bool RightAngleAxes { get; set; }
-    IXLChart SetRightAngleAxes();
-    IXLChart SetRightAngleAxes(bool rightAngleAxes);
+    public bool RightAngleAxes { get; set; }
+    public IXLChart SetRightAngleAxes();
+    public IXLChart SetRightAngleAxes(bool rightAngleAxes);
 
-    XLChartType ChartType { get; set; }
-    IXLChart SetChartType(XLChartType chartType);
+    public XLChartType ChartType { get; set; }
+    public IXLChart SetChartType(XLChartType chartType);
 }

@@ -6,5 +6,8 @@ namespace XlsxSharp.Excel.ConditionalFormats.Save;
 
 internal interface IXLCFConverterExtension
 {
-    ConditionalFormattingRule Convert(IXLConditionalFormat cf, XLWorkbook.SaveContext context);
+    public ConditionalFormattingRule Convert(
+        IXLConditionalFormat cf,
+        XLWorkbook.SaveContext context
+    );
 }

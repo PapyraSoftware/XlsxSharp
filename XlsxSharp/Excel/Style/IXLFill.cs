@@ -46,12 +46,12 @@ public interface IXLFill : IEquatable<IXLFill>
     ///     the fill type is changed to <see cref="XLFillPatternValues.Solid"/>.</item>
     /// </list>
     /// </remarks>
-    XLColor BackgroundColor { get; set; }
+    public XLColor BackgroundColor { get; set; }
 
     /// <summary>
     /// Gets or set the pattern color of a fill.
     /// </summary>
-    XLColor PatternColor { get; set; }
+    public XLColor PatternColor { get; set; }
 
     /// <summary>
     /// Change pattern type of a fill.
@@ -61,23 +61,23 @@ public interface IXLFill : IEquatable<IXLFill>
     /// a different pattern type, the <see cref="BackgroundColor"/> is set to
     /// a <see cref="XLThemeColor.Text1"/> color.
     /// </remarks>
-    XLFillPatternValues PatternType { get; set; }
+    public XLFillPatternValues PatternType { get; set; }
 
     /// <summary>
     /// Set the background color of a fill.
     /// </summary>
     /// <inheritdoc cref="BackgroundColor"/>
-    IXLStyle SetBackgroundColor(XLColor value);
+    public IXLStyle SetBackgroundColor(XLColor value);
 
     /// <summary>
     /// Set the pattern color of a fill.
     /// </summary>
     /// <inheritdoc cref="PatternColor"/>
-    IXLStyle SetPatternColor(XLColor value);
+    public IXLStyle SetPatternColor(XLColor value);
 
     /// <summary>
     /// Set the pattern type of a fill.
     /// </summary>
     /// <inheritdoc cref="PatternType"/>
-    IXLStyle SetPatternType(XLFillPatternValues value);
+    public IXLStyle SetPatternType(XLFillPatternValues value);
 }

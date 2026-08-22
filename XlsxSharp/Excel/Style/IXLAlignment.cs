@@ -60,12 +60,12 @@ public interface IXLAlignment : IEquatable<IXLAlignment>
     /// <summary>
     /// Gets or sets the cell's horizontal alignment.
     /// </summary>
-    XLAlignmentHorizontalValues Horizontal { get; set; }
+    public XLAlignmentHorizontalValues Horizontal { get; set; }
 
     /// <summary>
     /// Gets or sets the cell's vertical alignment.
     /// </summary>
-    XLAlignmentVerticalValues Vertical { get; set; }
+    public XLAlignmentVerticalValues Vertical { get; set; }
 
     /// <summary>
     /// Gets or sets the cell's text indentation. If <see cref="Horizontal"/>
@@ -80,7 +80,7 @@ public interface IXLAlignment : IEquatable<IXLAlignment>
     ///     is either <see cref="XLAlignmentHorizontalValues.Left"/>, <see cref="XLAlignmentHorizontalValues.Right"/>
     ///     or <see cref="XLAlignmentHorizontalValues.Distributed"/>.
     /// </exception>
-    int Indent { get; set; }
+    public int Indent { get; set; }
 
     /// <summary>
     /// Gets or sets whether the cell's last line is justified or not.
@@ -89,12 +89,12 @@ public interface IXLAlignment : IEquatable<IXLAlignment>
     /// The value changes the behavior of <see cref="XLAlignmentHorizontalValues.Distributed"/>
     /// alignment. Name of the property doesn't match actual behavior.
     /// </value>
-    bool JustifyLastLine { get; set; }
+    public bool JustifyLastLine { get; set; }
 
     /// <summary>
     /// Gets or sets the cell's reading order.
     /// </summary>
-    XLAlignmentReadingOrderValues ReadingOrder { get; set; }
+    public XLAlignmentReadingOrderValues ReadingOrder { get; set; }
 
     /// <summary>
     /// Gets or sets the cell's relative indent.
@@ -107,7 +107,7 @@ public interface IXLAlignment : IEquatable<IXLAlignment>
     /// The value is used only in differential formatting. It determines an additional indent
     /// to add to cells exiting <see cref="Indent"/>.
     /// </value>
-    int RelativeIndent { get; set; }
+    public int RelativeIndent { get; set; }
 
     /// <summary>
     /// Gets or sets whether the cell's font size should decrease to fit the contents.
@@ -117,7 +117,7 @@ public interface IXLAlignment : IEquatable<IXLAlignment>
     /// implicitly through some <see cref="XLAlignmentHorizontalValues"/> alignment (e.g.
     /// <see cref="XLAlignmentHorizontalValues.Distributed"/>).
     /// </remarks>
-    bool ShrinkToFit { get; set; }
+    public bool ShrinkToFit { get; set; }
 
     /// <summary>
     /// Gets or sets the cell's text rotation in degrees.
@@ -127,12 +127,12 @@ public interface IXLAlignment : IEquatable<IXLAlignment>
     /// counterclockwise) and 255 for vertical layout of a text.
     /// </value>
     /// <exception cref="ArgumentOutOfRangeException">When setting the rotation to a value outside of [-90,90] or 255.</exception>
-    int TextRotation { get; set; }
+    public int TextRotation { get; set; }
 
     /// <summary>
     /// Gets or sets whether the cell's text should wrap if it doesn't fit.
     /// </summary>
-    bool WrapText { get; set; }
+    public bool WrapText { get; set; }
 
     /// <summary>
     /// Gets or sets whether the cell's text should be displayed from top to bottom
@@ -141,87 +141,87 @@ public interface IXLAlignment : IEquatable<IXLAlignment>
     /// <remarks>
     /// The setter has same effect as as <c>alignment.TextRotation = topToBottom ? 255 : 0</c>.
     /// </remarks>
-    bool TopToBottom { get; set; }
+    public bool TopToBottom { get; set; }
 
     /// <summary>
     /// Sets the cell's horizontal alignment.
     /// </summary>
     /// <inheritdoc cref="Horizontal"/>
-    IXLStyle SetHorizontal(XLAlignmentHorizontalValues value);
+    public IXLStyle SetHorizontal(XLAlignmentHorizontalValues value);
 
     /// <summary>
     /// Sets the cell's vertical alignment.
     /// </summary>
     /// <inheritdoc cref="Vertical"/>
-    IXLStyle SetVertical(XLAlignmentVerticalValues value);
+    public IXLStyle SetVertical(XLAlignmentVerticalValues value);
 
     /// <summary>
     /// Sets the cell's text indentation.
     /// </summary>
     /// <inheritdoc cref="Indent"/>
-    IXLStyle SetIndent(int value);
+    public IXLStyle SetIndent(int value);
 
     /// <summary>
     /// Changes mode of <see cref="XLAlignmentHorizontalValues.Distributed"/> alignment.
     /// </summary>
     /// <inheritdoc cref="JustifyLastLine"/>
-    IXLStyle SetJustifyLastLine();
+    public IXLStyle SetJustifyLastLine();
 
     /// <summary>
     /// Changes mode of <see cref="XLAlignmentHorizontalValues.Distributed"/> alignment.
     /// </summary>
     /// <inheritdoc cref="JustifyLastLine"/>
-    IXLStyle SetJustifyLastLine(bool value);
+    public IXLStyle SetJustifyLastLine(bool value);
 
     /// <summary>
     /// Sets the cell's reading order.
     /// </summary>
     /// <inheritdoc cref="ReadingOrder"/>
-    IXLStyle SetReadingOrder(XLAlignmentReadingOrderValues value);
+    public IXLStyle SetReadingOrder(XLAlignmentReadingOrderValues value);
 
-    IXLStyle SetRelativeIndent(int value);
-
-    /// <summary>
-    /// Sets whether the cell's font size should decrease to fit the contents.
-    /// </summary>
-    /// <inheritdoc cref="ShrinkToFit"/>
-    IXLStyle SetShrinkToFit();
+    public IXLStyle SetRelativeIndent(int value);
 
     /// <summary>
     /// Sets whether the cell's font size should decrease to fit the contents.
     /// </summary>
     /// <inheritdoc cref="ShrinkToFit"/>
-    IXLStyle SetShrinkToFit(bool value);
+    public IXLStyle SetShrinkToFit();
+
+    /// <summary>
+    /// Sets whether the cell's font size should decrease to fit the contents.
+    /// </summary>
+    /// <inheritdoc cref="ShrinkToFit"/>
+    public IXLStyle SetShrinkToFit(bool value);
 
     /// <summary>
     /// Sets the cell's text rotation in degrees.
     /// </summary>
     /// <inheritdoc cref="TextRotation"/>
-    IXLStyle SetTextRotation(int value);
+    public IXLStyle SetTextRotation(int value);
 
     /// <summary>
     /// Sets whether the cell's text should wrap if it doesn't fit.
     /// </summary>
     /// <inheritdoc cref="WrapText"/>
-    IXLStyle SetWrapText();
+    public IXLStyle SetWrapText();
 
     /// <summary>
     /// Sets whether the cell's text should wrap if it doesn't fit.
     /// </summary>
     /// <inheritdoc cref="WrapText"/>
-    IXLStyle SetWrapText(bool value);
+    public IXLStyle SetWrapText(bool value);
 
     /// <summary>
     /// Sets whether the cell's text should be displayed from top to bottom (as opposed to
     /// the normal left to right).
     /// </summary>
     /// <inheritdoc cref="TopToBottom"/>
-    IXLStyle SetTopToBottom();
+    public IXLStyle SetTopToBottom();
 
     /// <summary>
     /// Sets whether the cell's text should be displayed from top to bottom (as opposed to
     /// the normal left to right).
     /// </summary>
     /// <inheritdoc cref="TopToBottom"/>
-    IXLStyle SetTopToBottom(bool value);
+    public IXLStyle SetTopToBottom(bool value);
 }

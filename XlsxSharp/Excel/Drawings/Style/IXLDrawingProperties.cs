@@ -4,6 +4,6 @@ namespace XlsxSharp.Excel.Drawings.Style;
 
 public interface IXLDrawingProperties
 {
-    XLDrawingAnchor Positioning { get; set; }
-    IXLDrawingStyle SetPositioning(XLDrawingAnchor value);
+    public XLDrawingAnchor Positioning { get; set; }
+    public IXLDrawingStyle SetPositioning(XLDrawingAnchor value);
 }

@@ -5,5 +5,5 @@ namespace XlsxSharp.Tests.IO;
 
 internal interface IExpectedXmlNode
 {
-    void AssertMatches(IXmlReader reader);
+    public void AssertMatches(IXmlReader reader);
 }

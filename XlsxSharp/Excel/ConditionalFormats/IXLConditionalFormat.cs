@@ -81,122 +81,126 @@ public enum XLCFOperator
 
 public interface IXLConditionalFormat
 {
-    IXLStyle Style { get; set; }
+    public IXLStyle Style { get; set; }
 
-    IXLStyle WhenIsBlank();
+    public IXLStyle WhenIsBlank();
 
-    IXLStyle WhenNotBlank();
+    public IXLStyle WhenNotBlank();
 
-    IXLStyle WhenIsError();
+    public IXLStyle WhenIsError();
 
-    IXLStyle WhenNotError();
+    public IXLStyle WhenNotError();
 
-    IXLStyle WhenDateIs(XLTimePeriod timePeriod);
+    public IXLStyle WhenDateIs(XLTimePeriod timePeriod);
 
-    IXLStyle WhenContains(string value);
+    public IXLStyle WhenContains(string value);
 
-    IXLStyle WhenNotContains(string value);
+    public IXLStyle WhenNotContains(string value);
 
-    IXLStyle WhenStartsWith(string value);
+    public IXLStyle WhenStartsWith(string value);
 
-    IXLStyle WhenEndsWith(string value);
+    public IXLStyle WhenEndsWith(string value);
 
-    IXLStyle WhenEquals(string value);
+    public IXLStyle WhenEquals(string value);
 
-    IXLStyle WhenNotEquals(string value);
+    public IXLStyle WhenNotEquals(string value);
 
-    IXLStyle WhenGreaterThan(string value);
+    public IXLStyle WhenGreaterThan(string value);
 
-    IXLStyle WhenLessThan(string value);
+    public IXLStyle WhenLessThan(string value);
 
-    IXLStyle WhenEqualOrGreaterThan(string value);
+    public IXLStyle WhenEqualOrGreaterThan(string value);
 
-    IXLStyle WhenEqualOrLessThan(string value);
+    public IXLStyle WhenEqualOrLessThan(string value);
 
-    IXLStyle WhenBetween(string minValue, string maxValue);
+    public IXLStyle WhenBetween(string minValue, string maxValue);
 
-    IXLStyle WhenNotBetween(string minValue, string maxValue);
+    public IXLStyle WhenNotBetween(string minValue, string maxValue);
 
-    IXLStyle WhenEquals(double value);
+    public IXLStyle WhenEquals(double value);
 
-    IXLStyle WhenNotEquals(double value);
+    public IXLStyle WhenNotEquals(double value);
 
-    IXLStyle WhenGreaterThan(double value);
+    public IXLStyle WhenGreaterThan(double value);
 
-    IXLStyle WhenLessThan(double value);
+    public IXLStyle WhenLessThan(double value);
 
-    IXLStyle WhenEqualOrGreaterThan(double value);
+    public IXLStyle WhenEqualOrGreaterThan(double value);
 
-    IXLStyle WhenEqualOrLessThan(double value);
+    public IXLStyle WhenEqualOrLessThan(double value);
 
-    IXLStyle WhenBetween(double minValue, double maxValue);
+    public IXLStyle WhenBetween(double minValue, double maxValue);
 
-    IXLStyle WhenNotBetween(double minValue, double maxValue);
+    public IXLStyle WhenNotBetween(double minValue, double maxValue);
 
-    IXLStyle WhenIsDuplicate();
+    public IXLStyle WhenIsDuplicate();
 
-    IXLStyle WhenIsUnique();
+    public IXLStyle WhenIsUnique();
 
-    IXLStyle WhenIsTrue(string formula);
+    public IXLStyle WhenIsTrue(string formula);
 
-    IXLStyle WhenIsTop(int value, XLTopBottomType topBottomType = XLTopBottomType.Items);
+    public IXLStyle WhenIsTop(int value, XLTopBottomType topBottomType = XLTopBottomType.Items);
 
-    IXLStyle WhenIsBottom(int value, XLTopBottomType topBottomType);
+    public IXLStyle WhenIsBottom(int value, XLTopBottomType topBottomType);
 
-    IXLCFColorScaleMin ColorScale();
+    public IXLCFColorScaleMin ColorScale();
 
-    IXLCFDataBarMin DataBar(XLColor color, bool showBarOnly = false);
+    public IXLCFDataBarMin DataBar(XLColor color, bool showBarOnly = false);
 
-    IXLCFDataBarMin DataBar(XLColor positiveColor, XLColor negativeColor, bool showBarOnly = false);
+    public IXLCFDataBarMin DataBar(
+        XLColor positiveColor,
+        XLColor negativeColor,
+        bool showBarOnly = false
+    );
 
-    IXLCFIconSet IconSet(
+    public IXLCFIconSet IconSet(
         XLIconSetStyle iconSetStyle,
         bool reverseIconOrder = false,
         bool showIconOnly = false
     );
 
-    XLConditionalFormatType ConditionalFormatType { get; }
+    public XLConditionalFormatType ConditionalFormatType { get; }
 
-    XLIconSetStyle IconSetStyle { get; }
+    public XLIconSetStyle IconSetStyle { get; }
 
-    XLTimePeriod TimePeriod { get; }
+    public XLTimePeriod TimePeriod { get; }
 
-    bool ReverseIconOrder { get; }
+    public bool ReverseIconOrder { get; }
 
-    bool ShowIconOnly { get; }
+    public bool ShowIconOnly { get; }
 
-    bool ShowBarOnly { get; }
+    public bool ShowBarOnly { get; }
 
-    bool StopIfTrue { get; }
+    public bool StopIfTrue { get; }
 
     /// <summary>
     /// The first of the <see cref="Ranges"/>.
     /// </summary>
-    IXLRange Range { get; set; }
+    public IXLRange Range { get; set; }
 
     /// <summary>
     /// Get or set all ranges the conditional format applies to.
     /// </summary>
     /// <exception cref="ArgumentException">If sequence contains no elements or the range is from different worksheet.</exception>
-    IEnumerable<IXLRange> Ranges { get; set; }
+    public IEnumerable<IXLRange> Ranges { get; set; }
 
-    XLDictionary<XLFormula> Values { get; }
+    public XLDictionary<XLFormula> Values { get; }
 
-    XLDictionary<XLColor> Colors { get; }
+    public XLDictionary<XLColor> Colors { get; }
 
-    XLDictionary<XLCFContentType> ContentTypes { get; }
+    public XLDictionary<XLCFContentType> ContentTypes { get; }
 
-    XLDictionary<XLCFIconSetOperator> IconSetOperators { get; }
+    public XLDictionary<XLCFIconSetOperator> IconSetOperators { get; }
 
-    XLCFOperator Operator { get; }
+    public XLCFOperator Operator { get; }
 
-    bool Bottom { get; }
+    public bool Bottom { get; }
 
-    bool Percent { get; }
+    public bool Percent { get; }
 
-    IXLConditionalFormat SetStopIfTrue();
+    public IXLConditionalFormat SetStopIfTrue();
 
-    IXLConditionalFormat SetStopIfTrue(bool value);
+    public IXLConditionalFormat SetStopIfTrue(bool value);
 
-    IXLConditionalFormat CopyTo(IXLWorksheet targetSheet);
+    public IXLConditionalFormat CopyTo(IXLWorksheet targetSheet);
 }

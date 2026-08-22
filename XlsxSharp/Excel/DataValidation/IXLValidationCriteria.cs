@@ -5,35 +5,35 @@ namespace XlsxSharp.Excel.DataValidation;
 
 public interface IXLValidationCriteria
 {
-    void Between(string minValue, string maxValue);
+    public void Between(string minValue, string maxValue);
 
-    void Between(IXLCell minValue, IXLCell maxValue);
+    public void Between(IXLCell minValue, IXLCell maxValue);
 
-    void EqualOrGreaterThan(string value);
+    public void EqualOrGreaterThan(string value);
 
-    void EqualOrGreaterThan(IXLCell cell);
+    public void EqualOrGreaterThan(IXLCell cell);
 
-    void EqualOrLessThan(string value);
+    public void EqualOrLessThan(string value);
 
-    void EqualOrLessThan(IXLCell cell);
+    public void EqualOrLessThan(IXLCell cell);
 
-    void EqualTo(string value);
+    public void EqualTo(string value);
 
-    void EqualTo(IXLCell cell);
+    public void EqualTo(IXLCell cell);
 
-    void GreaterThan(string value);
+    public void GreaterThan(string value);
 
-    void GreaterThan(IXLCell cell);
+    public void GreaterThan(IXLCell cell);
 
-    void LessThan(string value);
+    public void LessThan(string value);
 
-    void LessThan(IXLCell cell);
+    public void LessThan(IXLCell cell);
 
-    void NotBetween(string minValue, string maxValue);
+    public void NotBetween(string minValue, string maxValue);
 
-    void NotBetween(IXLCell minValue, IXLCell maxValue);
+    public void NotBetween(IXLCell minValue, IXLCell maxValue);
 
-    void NotEqualTo(string value);
+    public void NotEqualTo(string value);
 
-    void NotEqualTo(IXLCell cell);
+    public void NotEqualTo(IXLCell cell);
 }

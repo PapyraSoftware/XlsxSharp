@@ -8,37 +8,37 @@ public interface IXLSparklineStyle
 {
     #region Public Properties
 
-    XLColor FirstMarkerColor { get; set; }
+    public XLColor FirstMarkerColor { get; set; }
 
-    XLColor HighMarkerColor { get; set; }
+    public XLColor HighMarkerColor { get; set; }
 
-    XLColor LastMarkerColor { get; set; }
+    public XLColor LastMarkerColor { get; set; }
 
-    XLColor LowMarkerColor { get; set; }
+    public XLColor LowMarkerColor { get; set; }
 
-    XLColor MarkersColor { get; set; }
+    public XLColor MarkersColor { get; set; }
 
-    XLColor NegativeColor { get; set; }
+    public XLColor NegativeColor { get; set; }
 
-    XLColor SeriesColor { get; set; }
+    public XLColor SeriesColor { get; set; }
 
     #endregion Public Properties
 
     #region Public Methods
 
-    IXLSparklineStyle SetFirstMarkerColor(XLColor value);
+    public IXLSparklineStyle SetFirstMarkerColor(XLColor value);
 
-    IXLSparklineStyle SetHighMarkerColor(XLColor value);
+    public IXLSparklineStyle SetHighMarkerColor(XLColor value);
 
-    IXLSparklineStyle SetLastMarkerColor(XLColor value);
+    public IXLSparklineStyle SetLastMarkerColor(XLColor value);
 
-    IXLSparklineStyle SetLowMarkerColor(XLColor value);
+    public IXLSparklineStyle SetLowMarkerColor(XLColor value);
 
-    IXLSparklineStyle SetMarkersColor(XLColor value);
+    public IXLSparklineStyle SetMarkersColor(XLColor value);
 
-    IXLSparklineStyle SetNegativeColor(XLColor value);
+    public IXLSparklineStyle SetNegativeColor(XLColor value);
 
-    IXLSparklineStyle SetSeriesColor(XLColor value);
+    public IXLSparklineStyle SetSeriesColor(XLColor value);
 
     #endregion Public Methods
 }

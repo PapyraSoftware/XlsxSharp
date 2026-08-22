@@ -7,7 +7,7 @@ public interface IXLRangeAddress
     /// <summary>
     /// Gets the number of columns in the area covered by the range address.
     /// </summary>
-    int ColumnSpan { get; }
+    public int ColumnSpan { get; }
 
     /// <summary>
     /// Gets or sets the first address in the range.
@@ -15,7 +15,7 @@ public interface IXLRangeAddress
     /// <value>
     /// The first address.
     /// </value>
-    IXLAddress FirstAddress { get; }
+    public IXLAddress FirstAddress { get; }
 
     /// <summary>
     /// Gets or sets a value indicating whether this range is valid.
@@ -23,7 +23,7 @@ public interface IXLRangeAddress
     /// <value>
     /// 	<c>true</c> if this instance is valid; otherwise, <c>false</c>.
     /// </value>
-    bool IsValid { get; }
+    public bool IsValid { get; }
 
     /// <summary>
     /// Gets or sets the last address in the range.
@@ -31,34 +31,34 @@ public interface IXLRangeAddress
     /// <value>
     /// The last address.
     /// </value>
-    IXLAddress LastAddress { get; }
+    public IXLAddress LastAddress { get; }
 
     /// <summary>
     /// Gets the number of cells in the area covered by the range address.
     /// </summary>
-    int NumberOfCells { get; }
+    public int NumberOfCells { get; }
 
     /// <summary>
     /// Gets the number of rows in the area covered by the range address.
     /// </summary>
-    int RowSpan { get; }
+    public int RowSpan { get; }
 
-    IXLWorksheet? Worksheet { get; }
+    public IXLWorksheet? Worksheet { get; }
 
     /// <summary>Allocates the current range address in the internal range repository and returns it</summary>
     /// <returns>Range of the address or null, if the range is not a valid address.</returns>
-    IXLRange? AsRange();
+    public IXLRange? AsRange();
 
-    bool Contains(IXLAddress address);
+    public bool Contains(IXLAddress address);
 
     /// <summary>
     /// Returns the intersection of this range address with another range address on the same worksheet.
     /// </summary>
     /// <param name="otherRangeAddress">The other range address.</param>
     /// <returns>The intersection's range address</returns>
-    IXLRangeAddress Intersection(IXLRangeAddress otherRangeAddress);
+    public IXLRangeAddress Intersection(IXLRangeAddress otherRangeAddress);
 
-    bool Intersects(IXLRangeAddress otherAddress);
+    public bool Intersects(IXLRangeAddress otherAddress);
 
     /// <summary>
     /// Determines whether range address spans the entire column.
@@ -66,7 +66,7 @@ public interface IXLRangeAddress
     /// <returns>
     ///   <c>true</c> if is entire column; otherwise, <c>false</c>.
     /// </returns>
-    bool IsEntireColumn();
+    public bool IsEntireColumn();
 
     /// <summary>
     /// Determines whether range address spans the entire row.
@@ -74,7 +74,7 @@ public interface IXLRangeAddress
     /// <returns>
     ///   <c>true</c> if is entire row; otherwise, <c>false</c>.
     /// </returns>
-    bool IsEntireRow();
+    public bool IsEntireRow();
 
     /// <summary>
     /// Determines whether the range address spans the entire worksheet.
@@ -82,7 +82,7 @@ public interface IXLRangeAddress
     /// <returns>
     ///   <c>true</c> if is entire sheet; otherwise, <c>false</c>.
     /// </returns>
-    bool IsEntireSheet();
+    public bool IsEntireSheet();
 
     /// <summary>
     /// Returns a range address so that its offset from the target base address is equal to the offset of the current range address to the source base address.
@@ -91,22 +91,22 @@ public interface IXLRangeAddress
     /// <param name="sourceRangeAddress">The source base range address.</param>
     /// <param name="targetRangeAddress">The target base range address.</param>
     /// <returns>The relative range</returns>
-    IXLRangeAddress Relative(
+    public IXLRangeAddress Relative(
         IXLRangeAddress sourceRangeAddress,
         IXLRangeAddress targetRangeAddress
     );
 
-    string ToString(XLReferenceStyle referenceStyle);
+    public string ToString(XLReferenceStyle referenceStyle);
 
-    string ToString(XLReferenceStyle referenceStyle, bool includeSheet);
+    public string ToString(XLReferenceStyle referenceStyle, bool includeSheet);
 
-    string ToStringFixed();
+    public string ToStringFixed();
 
-    string ToStringFixed(XLReferenceStyle referenceStyle);
+    public string ToStringFixed(XLReferenceStyle referenceStyle);
 
-    string ToStringFixed(XLReferenceStyle referenceStyle, bool includeSheet);
+    public string ToStringFixed(XLReferenceStyle referenceStyle, bool includeSheet);
 
-    string ToStringRelative();
+    public string ToStringRelative();
 
-    string ToStringRelative(bool includeSheet);
+    public string ToStringRelative(bool includeSheet);
 }

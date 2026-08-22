@@ -4,7 +4,7 @@ namespace XlsxSharp.Excel.RichText;
 
 public interface IXLPhonetic : IEquatable<IXLPhonetic>
 {
-    string Text { get; }
-    int Start { get; }
-    int End { get; }
+    public string Text { get; }
+    public int Start { get; }
+    public int End { get; }
 }

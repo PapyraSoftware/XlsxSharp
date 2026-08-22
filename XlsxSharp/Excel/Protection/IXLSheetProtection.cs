@@ -7,11 +7,14 @@ namespace XlsxSharp.Excel.Protection;
 
 public interface IXLSheetProtection : IXLElementProtection<XLSheetProtectionElements>
 {
-    IXLSheetProtection Protect(XLSheetProtectionElements allowedElements);
+    public IXLSheetProtection Protect(XLSheetProtectionElements allowedElements);
 
-    IXLSheetProtection Protect(Algorithm algorithm, XLSheetProtectionElements allowedElements);
+    public IXLSheetProtection Protect(
+        Algorithm algorithm,
+        XLSheetProtectionElements allowedElements
+    );
 
-    IXLSheetProtection Protect(
+    public IXLSheetProtection Protect(
         string password,
         Algorithm algorithm = DefaultProtectionAlgorithm,
         XLSheetProtectionElements allowedElements = XLSheetProtectionElements.SelectEverything

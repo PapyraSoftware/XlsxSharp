@@ -7,14 +7,14 @@ namespace XlsxSharp.Excel.Protection;
 
 public interface IXLWorkbookProtection : IXLElementProtection<XLWorkbookProtectionElements>
 {
-    IXLWorkbookProtection Protect(XLWorkbookProtectionElements allowedElements);
+    public IXLWorkbookProtection Protect(XLWorkbookProtectionElements allowedElements);
 
-    IXLWorkbookProtection Protect(
+    public IXLWorkbookProtection Protect(
         Algorithm algorithm,
         XLWorkbookProtectionElements allowedElements
     );
 
-    IXLWorkbookProtection Protect(
+    public IXLWorkbookProtection Protect(
         string password,
         Algorithm algorithm = DefaultProtectionAlgorithm,
         XLWorkbookProtectionElements allowedElements = XLWorkbookProtectionElements.Windows

@@ -8,114 +8,116 @@ namespace XlsxSharp.Excel;
 
 public interface IXLPivotTable
 {
-    XLPivotTableTheme Theme { get; set; }
+    public XLPivotTableTheme Theme { get; set; }
 
-    IXLPivotFields ReportFilters { get; }
+    public IXLPivotFields ReportFilters { get; }
 
     /// <summary>
     /// Labels displayed in columns (i.e. horizontal axis) of the pivot table.
     /// </summary>
-    IXLPivotFields ColumnLabels { get; }
+    public IXLPivotFields ColumnLabels { get; }
 
     /// <summary>
     /// Labels displayed in rows (i.e. vertical axis) of the pivot table.
     /// </summary>
-    IXLPivotFields RowLabels { get; }
-    IXLPivotValues Values { get; }
+    public IXLPivotFields RowLabels { get; }
 
-    string Name { get; set; }
-    string Title { get; set; }
-    string Description { get; set; }
+    public IXLPivotValues Values { get; }
 
-    string ColumnHeaderCaption { get; set; }
-    string RowHeaderCaption { get; set; }
+    public string Name { get; set; }
+    public string Title { get; set; }
+    public string Description { get; set; }
+
+    public string ColumnHeaderCaption { get; set; }
+    public string RowHeaderCaption { get; set; }
 
     /// <summary>
     /// Top left corner cell of a pivot table. If the pivot table contains filters fields, the target cell is top
     /// left cell of the first filter field.
     /// </summary>
-    IXLCell TargetCell { get; set; }
+    public IXLCell TargetCell { get; set; }
 
     /// <summary>
     /// The cache of data for the pivot table. The pivot table is created
     /// from cached data, not up-to-date data in a worksheet.
     /// </summary>
-    IXLPivotCache PivotCache { get; set; }
+    public IXLPivotCache PivotCache { get; set; }
 
-    bool MergeAndCenterWithLabels { get; set; } // MergeItem
-    int RowLabelIndent { get; set; } // Indent
+    public bool MergeAndCenterWithLabels { get; set; } // MergeItem
+    public int RowLabelIndent { get; set; } // Indent
 
     /// <summary>
     /// Filter fields layout setting that indicates layout order of filter fields. The layout
     /// uses <see cref="FilterFieldsPageWrap"/> to determine when to break to a new row or
     /// column. Default value is <see cref="XLFilterAreaOrder.DownThenOver"/>.
     /// </summary>
-    XLFilterAreaOrder FilterAreaOrder { get; set; }
+    public XLFilterAreaOrder FilterAreaOrder { get; set; }
 
     /// <summary>
     /// Specifies the number of page fields to display before starting another row or column.
     /// Value = 0 means unlimited.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">If value &lt; 0.</exception>
-    int FilterFieldsPageWrap { get; set; } // PageWrap
-    string ErrorValueReplacement { get; set; } // ErrorCaption
-    string EmptyCellReplacement { get; set; } // MissingCaption
-    bool AutofitColumns { get; set; } //UseAutoFormatting
-    bool PreserveCellFormatting { get; set; } // PreserveFormatting
+    public int FilterFieldsPageWrap { get; set; } // PageWrap
 
-    bool ShowGrandTotalsRows { get; set; } // RowGrandTotals
-    bool ShowGrandTotalsColumns { get; set; } // ColumnGrandTotals
-    bool FilteredItemsInSubtotals { get; set; } // Subtotal filtered page items
-    bool AllowMultipleFilters { get; set; } // MultipleFieldFilters
-    bool UseCustomListsForSorting { get; set; } // CustomListSort
+    public string ErrorValueReplacement { get; set; } // ErrorCaption
+    public string EmptyCellReplacement { get; set; } // MissingCaption
+    public bool AutofitColumns { get; set; } //UseAutoFormatting
+    public bool PreserveCellFormatting { get; set; } // PreserveFormatting
 
-    bool ShowExpandCollapseButtons { get; set; }
-    bool ShowContextualTooltips { get; set; }
-    bool ShowPropertiesInTooltips { get; set; }
-    bool DisplayCaptionsAndDropdowns { get; set; }
-    bool ClassicPivotTableLayout { get; set; }
-    bool ShowValuesRow { get; set; }
-    bool ShowEmptyItemsOnRows { get; set; }
-    bool ShowEmptyItemsOnColumns { get; set; }
-    bool DisplayItemLabels { get; set; }
-    bool SortFieldsAtoZ { get; set; }
+    public bool ShowGrandTotalsRows { get; set; } // RowGrandTotals
+    public bool ShowGrandTotalsColumns { get; set; } // ColumnGrandTotals
+    public bool FilteredItemsInSubtotals { get; set; } // Subtotal filtered page items
+    public bool AllowMultipleFilters { get; set; } // MultipleFieldFilters
+    public bool UseCustomListsForSorting { get; set; } // CustomListSort
 
-    bool PrintExpandCollapsedButtons { get; set; }
-    bool RepeatRowLabels { get; set; }
-    bool PrintTitles { get; set; }
+    public bool ShowExpandCollapseButtons { get; set; }
+    public bool ShowContextualTooltips { get; set; }
+    public bool ShowPropertiesInTooltips { get; set; }
+    public bool DisplayCaptionsAndDropdowns { get; set; }
+    public bool ClassicPivotTableLayout { get; set; }
+    public bool ShowValuesRow { get; set; }
+    public bool ShowEmptyItemsOnRows { get; set; }
+    public bool ShowEmptyItemsOnColumns { get; set; }
+    public bool DisplayItemLabels { get; set; }
+    public bool SortFieldsAtoZ { get; set; }
 
-    bool EnableShowDetails { get; set; }
-    bool EnableCellEditing { get; set; }
+    public bool PrintExpandCollapsedButtons { get; set; }
+    public bool RepeatRowLabels { get; set; }
+    public bool PrintTitles { get; set; }
 
-    IXLPivotTable CopyTo(IXLCell targetCell);
+    public bool EnableShowDetails { get; set; }
+    public bool EnableCellEditing { get; set; }
 
-    IXLPivotTable SetName(string value);
+    public IXLPivotTable CopyTo(IXLCell targetCell);
 
-    IXLPivotTable SetTitle(string value);
+    public IXLPivotTable SetName(string value);
 
-    IXLPivotTable SetDescription(string value);
+    public IXLPivotTable SetTitle(string value);
 
-    IXLPivotTable SetMergeAndCenterWithLabels();
-    IXLPivotTable SetMergeAndCenterWithLabels(bool value);
+    public IXLPivotTable SetDescription(string value);
 
-    IXLPivotTable SetRowLabelIndent(int value);
+    public IXLPivotTable SetMergeAndCenterWithLabels();
+    public IXLPivotTable SetMergeAndCenterWithLabels(bool value);
 
-    IXLPivotTable SetFilterAreaOrder(XLFilterAreaOrder value);
+    public IXLPivotTable SetRowLabelIndent(int value);
 
-    IXLPivotTable SetFilterFieldsPageWrap(int value);
+    public IXLPivotTable SetFilterAreaOrder(XLFilterAreaOrder value);
 
-    IXLPivotTable SetErrorValueReplacement(string value);
+    public IXLPivotTable SetFilterFieldsPageWrap(int value);
 
-    IXLPivotTable SetEmptyCellReplacement(string value);
+    public IXLPivotTable SetErrorValueReplacement(string value);
 
-    IXLPivotTable SetAutofitColumns();
-    IXLPivotTable SetAutofitColumns(bool value);
+    public IXLPivotTable SetEmptyCellReplacement(string value);
 
-    IXLPivotTable SetPreserveCellFormatting();
-    IXLPivotTable SetPreserveCellFormatting(bool value);
+    public IXLPivotTable SetAutofitColumns();
+    public IXLPivotTable SetAutofitColumns(bool value);
 
-    IXLPivotTable SetShowGrandTotalsRows();
-    IXLPivotTable SetShowGrandTotalsRows(bool value);
+    public IXLPivotTable SetPreserveCellFormatting();
+    public IXLPivotTable SetPreserveCellFormatting(bool value);
+
+    public IXLPivotTable SetShowGrandTotalsRows();
+    public IXLPivotTable SetShowGrandTotalsRows(bool value);
 
     /// <summary>
     /// Should pivot table display a grand total for each row in the last column of a pivot
@@ -125,99 +127,101 @@ public interface IXLPivotTable
     /// This API has inverse row/column names than the Excel. Excel: <em>On for rows
     /// </em> should use this method <em>ShowGrandTotalsColumns</em>.
     /// </remarks>
-    IXLPivotTable SetShowGrandTotalsColumns();
-    IXLPivotTable SetShowGrandTotalsColumns(bool value);
+    public IXLPivotTable SetShowGrandTotalsColumns();
 
-    IXLPivotTable SetFilteredItemsInSubtotals();
-    IXLPivotTable SetFilteredItemsInSubtotals(bool value);
+    public IXLPivotTable SetShowGrandTotalsColumns(bool value);
 
-    IXLPivotTable SetAllowMultipleFilters();
-    IXLPivotTable SetAllowMultipleFilters(bool value);
+    public IXLPivotTable SetFilteredItemsInSubtotals();
+    public IXLPivotTable SetFilteredItemsInSubtotals(bool value);
 
-    IXLPivotTable SetUseCustomListsForSorting();
-    IXLPivotTable SetUseCustomListsForSorting(bool value);
+    public IXLPivotTable SetAllowMultipleFilters();
+    public IXLPivotTable SetAllowMultipleFilters(bool value);
 
-    IXLPivotTable SetShowExpandCollapseButtons();
-    IXLPivotTable SetShowExpandCollapseButtons(bool value);
+    public IXLPivotTable SetUseCustomListsForSorting();
+    public IXLPivotTable SetUseCustomListsForSorting(bool value);
 
-    IXLPivotTable SetShowContextualTooltips();
-    IXLPivotTable SetShowContextualTooltips(bool value);
+    public IXLPivotTable SetShowExpandCollapseButtons();
+    public IXLPivotTable SetShowExpandCollapseButtons(bool value);
 
-    IXLPivotTable SetShowPropertiesInTooltips();
-    IXLPivotTable SetShowPropertiesInTooltips(bool value);
+    public IXLPivotTable SetShowContextualTooltips();
+    public IXLPivotTable SetShowContextualTooltips(bool value);
 
-    IXLPivotTable SetDisplayCaptionsAndDropdowns();
-    IXLPivotTable SetDisplayCaptionsAndDropdowns(bool value);
+    public IXLPivotTable SetShowPropertiesInTooltips();
+    public IXLPivotTable SetShowPropertiesInTooltips(bool value);
 
-    IXLPivotTable SetClassicPivotTableLayout();
-    IXLPivotTable SetClassicPivotTableLayout(bool value);
+    public IXLPivotTable SetDisplayCaptionsAndDropdowns();
+    public IXLPivotTable SetDisplayCaptionsAndDropdowns(bool value);
 
-    IXLPivotTable SetShowValuesRow();
-    IXLPivotTable SetShowValuesRow(bool value);
+    public IXLPivotTable SetClassicPivotTableLayout();
+    public IXLPivotTable SetClassicPivotTableLayout(bool value);
 
-    IXLPivotTable SetShowEmptyItemsOnRows();
-    IXLPivotTable SetShowEmptyItemsOnRows(bool value);
+    public IXLPivotTable SetShowValuesRow();
+    public IXLPivotTable SetShowValuesRow(bool value);
 
-    IXLPivotTable SetShowEmptyItemsOnColumns();
-    IXLPivotTable SetShowEmptyItemsOnColumns(bool value);
+    public IXLPivotTable SetShowEmptyItemsOnRows();
+    public IXLPivotTable SetShowEmptyItemsOnRows(bool value);
 
-    IXLPivotTable SetDisplayItemLabels();
-    IXLPivotTable SetDisplayItemLabels(bool value);
+    public IXLPivotTable SetShowEmptyItemsOnColumns();
+    public IXLPivotTable SetShowEmptyItemsOnColumns(bool value);
 
-    IXLPivotTable SetSortFieldsAtoZ();
-    IXLPivotTable SetSortFieldsAtoZ(bool value);
+    public IXLPivotTable SetDisplayItemLabels();
+    public IXLPivotTable SetDisplayItemLabels(bool value);
 
-    IXLPivotTable SetPrintExpandCollapsedButtons();
-    IXLPivotTable SetPrintExpandCollapsedButtons(bool value);
+    public IXLPivotTable SetSortFieldsAtoZ();
+    public IXLPivotTable SetSortFieldsAtoZ(bool value);
 
-    IXLPivotTable SetRepeatRowLabels();
-    IXLPivotTable SetRepeatRowLabels(bool value);
+    public IXLPivotTable SetPrintExpandCollapsedButtons();
+    public IXLPivotTable SetPrintExpandCollapsedButtons(bool value);
 
-    IXLPivotTable SetPrintTitles();
-    IXLPivotTable SetPrintTitles(bool value);
+    public IXLPivotTable SetRepeatRowLabels();
+    public IXLPivotTable SetRepeatRowLabels(bool value);
 
-    IXLPivotTable SetEnableShowDetails();
-    IXLPivotTable SetEnableShowDetails(bool value);
+    public IXLPivotTable SetPrintTitles();
+    public IXLPivotTable SetPrintTitles(bool value);
 
-    IXLPivotTable SetEnableCellEditing();
-    IXLPivotTable SetEnableCellEditing(bool value);
+    public IXLPivotTable SetEnableShowDetails();
+    public IXLPivotTable SetEnableShowDetails(bool value);
 
-    IXLPivotTable SetColumnHeaderCaption(string value);
+    public IXLPivotTable SetEnableCellEditing();
+    public IXLPivotTable SetEnableCellEditing(bool value);
 
-    IXLPivotTable SetRowHeaderCaption(string value);
+    public IXLPivotTable SetColumnHeaderCaption(string value);
 
-    bool ShowRowHeaders { get; set; }
-    bool ShowColumnHeaders { get; set; }
-    bool ShowRowStripes { get; set; }
-    bool ShowColumnStripes { get; set; }
-    XLPivotSubtotals Subtotals { get; set; }
+    public IXLPivotTable SetRowHeaderCaption(string value);
+
+    public bool ShowRowHeaders { get; set; }
+    public bool ShowColumnHeaders { get; set; }
+    public bool ShowRowStripes { get; set; }
+    public bool ShowColumnStripes { get; set; }
+    public XLPivotSubtotals Subtotals { get; set; }
 
     /// <summary>
     /// Set the layout of the pivot table. It also changes layout of all pivot fields.
     /// </summary>
-    XLPivotLayout Layout { set; }
-    bool InsertBlankLines { set; }
+    public XLPivotLayout Layout { set; }
 
-    IXLPivotTable SetShowRowHeaders();
-    IXLPivotTable SetShowRowHeaders(bool value);
+    public bool InsertBlankLines { set; }
 
-    IXLPivotTable SetShowColumnHeaders();
-    IXLPivotTable SetShowColumnHeaders(bool value);
+    public IXLPivotTable SetShowRowHeaders();
+    public IXLPivotTable SetShowRowHeaders(bool value);
 
-    IXLPivotTable SetShowRowStripes();
-    IXLPivotTable SetShowRowStripes(bool value);
+    public IXLPivotTable SetShowColumnHeaders();
+    public IXLPivotTable SetShowColumnHeaders(bool value);
 
-    IXLPivotTable SetShowColumnStripes();
-    IXLPivotTable SetShowColumnStripes(bool value);
+    public IXLPivotTable SetShowRowStripes();
+    public IXLPivotTable SetShowRowStripes(bool value);
 
-    IXLPivotTable SetSubtotals(XLPivotSubtotals value);
+    public IXLPivotTable SetShowColumnStripes();
+    public IXLPivotTable SetShowColumnStripes(bool value);
 
-    IXLPivotTable SetLayout(XLPivotLayout value);
+    public IXLPivotTable SetSubtotals(XLPivotSubtotals value);
 
-    IXLPivotTable SetInsertBlankLines();
-    IXLPivotTable SetInsertBlankLines(bool value);
+    public IXLPivotTable SetLayout(XLPivotLayout value);
 
-    IXLWorksheet Worksheet { get; }
+    public IXLPivotTable SetInsertBlankLines();
+    public IXLPivotTable SetInsertBlankLines(bool value);
 
-    IXLPivotTableStyleFormats StyleFormats { get; }
+    public IXLWorksheet Worksheet { get; }
+
+    public IXLPivotTableStyleFormats StyleFormats { get; }
 }

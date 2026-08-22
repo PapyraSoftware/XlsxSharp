@@ -83,7 +83,7 @@ public interface IXLPivotValue
     /// <example>
     /// Show values as a percent of a specific value of a different field, e.g. as a % of units sold from Q1 (quarts is a base field and Q1 is a base item).
     /// </example>
-    string BaseFieldName { get; set; }
+    public string BaseFieldName { get; set; }
 
     /// <summary>
     /// The value of a base item to calculate a value to show in the pivot table. The base item is selected from values of a base field.
@@ -96,47 +96,47 @@ public interface IXLPivotValue
     /// <example>
     /// Show values as a percent of a specific value of a different field, e.g. as a % of units sold from Q1 (quarts is a base field and Q1 is a base item).
     /// </example>
-    XLCellValue BaseItemValue { get; set; }
+    public XLCellValue BaseItemValue { get; set; }
 
-    XLPivotCalculation Calculation { get; set; }
-    XLPivotCalculationItem CalculationItem { get; set; }
+    public XLPivotCalculation Calculation { get; set; }
+    public XLPivotCalculationItem CalculationItem { get; set; }
 
     /// <summary>
     /// Get custom name of pivot value. If custom name is not specified, return source name as
     /// a fallback.
     /// </summary>
-    string CustomName { get; set; }
+    public string CustomName { get; set; }
 
-    IXLPivotValueFormat NumberFormat { get; }
+    public IXLPivotValueFormat NumberFormat { get; }
 
-    string SourceName { get; }
-    XLPivotSummary SummaryFormula { get; set; }
+    public string SourceName { get; }
+    public XLPivotSummary SummaryFormula { get; set; }
 
-    IXLPivotValue SetBaseFieldName(string value);
+    public IXLPivotValue SetBaseFieldName(string value);
 
-    IXLPivotValue SetBaseItemValue(XLCellValue value);
+    public IXLPivotValue SetBaseItemValue(XLCellValue value);
 
-    IXLPivotValue SetCalculation(XLPivotCalculation value);
+    public IXLPivotValue SetCalculation(XLPivotCalculation value);
 
-    IXLPivotValue SetCalculationItem(XLPivotCalculationItem value);
+    public IXLPivotValue SetCalculationItem(XLPivotCalculationItem value);
 
-    IXLPivotValue SetSummaryFormula(XLPivotSummary value);
+    public IXLPivotValue SetSummaryFormula(XLPivotSummary value);
 
-    IXLPivotValueCombination ShowAsDifferenceFrom(string fieldSourceName);
+    public IXLPivotValueCombination ShowAsDifferenceFrom(string fieldSourceName);
 
-    IXLPivotValue ShowAsIndex();
+    public IXLPivotValue ShowAsIndex();
 
-    IXLPivotValue ShowAsNormal();
+    public IXLPivotValue ShowAsNormal();
 
-    IXLPivotValueCombination ShowAsPercentageDifferenceFrom(string fieldSourceName);
+    public IXLPivotValueCombination ShowAsPercentageDifferenceFrom(string fieldSourceName);
 
-    IXLPivotValueCombination ShowAsPercentageFrom(string fieldSourceName);
+    public IXLPivotValueCombination ShowAsPercentageFrom(string fieldSourceName);
 
-    IXLPivotValue ShowAsPercentageOfColumn();
+    public IXLPivotValue ShowAsPercentageOfColumn();
 
-    IXLPivotValue ShowAsPercentageOfRow();
+    public IXLPivotValue ShowAsPercentageOfRow();
 
-    IXLPivotValue ShowAsPercentageOfTotal();
+    public IXLPivotValue ShowAsPercentageOfTotal();
 
-    IXLPivotValue ShowAsRunningTotalIn(string fieldSourceName);
+    public IXLPivotValue ShowAsRunningTotalIn(string fieldSourceName);
 }

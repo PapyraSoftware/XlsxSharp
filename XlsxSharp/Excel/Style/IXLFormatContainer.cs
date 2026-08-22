@@ -13,5 +13,5 @@ internal interface IXLFormatContainer
     /// The format of a container can be <c>null</c>, e.g. a row that doesn't have format. In that
     /// situation, we have a container (e.g. a row), but no format.
     /// </summary>
-    XLCellFormatValue? FormatValue { get; set; }
+    public XLCellFormatValue? FormatValue { get; set; }
 }

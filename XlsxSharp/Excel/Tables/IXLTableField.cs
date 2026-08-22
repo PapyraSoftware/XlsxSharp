@@ -25,7 +25,7 @@ public interface IXLTableField
     /// <value>
     /// The column.
     /// </value>
-    IXLRangeColumn Column { get; }
+    public IXLRangeColumn Column { get; }
 
     /// <summary>
     /// Gets the collection of data cells for this field
@@ -34,7 +34,7 @@ public interface IXLTableField
     /// <value>
     /// The data cells
     /// </value>
-    IXLCells DataCells { get; }
+    public IXLCells DataCells { get; }
 
     /// <summary>
     /// Gets the footer cell for the table field.
@@ -43,7 +43,7 @@ public interface IXLTableField
     /// The footer cell. <c>null</c>, if the table
     /// doesn't have set <see cref="IXLTable.ShowTotalsRow"/>.
     /// </value>
-    IXLCell TotalsCell { get; }
+    public IXLCell TotalsCell { get; }
 
     /// <summary>
     /// Gets the header cell for the table field.
@@ -52,7 +52,7 @@ public interface IXLTableField
     /// The header cell.<c>null</c>, if the table
     /// doesn't have set <see cref="IXLTable.ShowHeaderRow"/>.
     /// </value>
-    IXLCell HeaderCell { get; }
+    public IXLCell HeaderCell { get; }
 
     /// <summary>
     /// Gets the index of the column (0-based).
@@ -60,7 +60,7 @@ public interface IXLTableField
     /// <value>
     /// The index.
     /// </value>
-    int Index { get; }
+    public int Index { get; }
 
     /// <summary>
     /// Gets or sets the name/header of this table field.
@@ -69,12 +69,12 @@ public interface IXLTableField
     /// <value>
     /// The name.
     /// </value>
-    string Name { get; set; }
+    public string Name { get; set; }
 
     /// <summary>
     /// Gets the underlying table for this table field.
     /// </summary>
-    IXLTable Table { get; }
+    public IXLTable Table { get; }
 
     /// <summary>
     /// Gets or sets the totals row formula in A1 format.
@@ -82,7 +82,7 @@ public interface IXLTableField
     /// <value>
     /// The totals row formula a1.
     /// </value>
-    string TotalsRowFormulaA1 { get; set; }
+    public string TotalsRowFormulaA1 { get; set; }
 
     /// <summary>
     /// Gets or sets the totals row formula in R1C1 format.
@@ -90,7 +90,7 @@ public interface IXLTableField
     /// <value>
     /// The totals row formula r1 c1.
     /// </value>
-    string TotalsRowFormulaR1C1 { get; set; }
+    public string TotalsRowFormulaR1C1 { get; set; }
 
     /// <summary>
     /// Gets or sets the totals row function.
@@ -98,7 +98,7 @@ public interface IXLTableField
     /// <value>
     /// The totals row function.
     /// </value>
-    XLTotalsRowFunction TotalsRowFunction { get; set; }
+    public XLTotalsRowFunction TotalsRowFunction { get; set; }
 
     /// <summary>
     /// Gets or sets the totals row label (the leftmost cell in the totals row).
@@ -107,25 +107,25 @@ public interface IXLTableField
     /// The totals row label.
     /// </value>
     /// <exception>If the totals row is not displayed for the table.</exception>
-    string TotalsRowLabel { get; set; }
+    public string TotalsRowLabel { get; set; }
 
     /// <summary>
     /// Deletes this table field from the table.
     /// </summary>
-    void Delete();
+    public void Delete();
 
     /// <summary>
     /// Determines whether all cells this table field have a consistent data type.
     /// </summary>
-    bool IsConsistentDataType();
+    public bool IsConsistentDataType();
 
     /// <summary>
     /// Determines whether all cells this table field have a consistent formula.
     /// </summary>
-    bool IsConsistentFormula();
+    public bool IsConsistentFormula();
 
     /// <summary>
     /// Determines whether all cells this table field have a consistent style.
     /// </summary>
-    bool IsConsistentStyle();
+    public bool IsConsistentStyle();
 }

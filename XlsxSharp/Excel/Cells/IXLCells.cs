@@ -14,37 +14,37 @@ public interface IXLCells : IEnumerable<IXLCell>
     /// <see cref="IXLStyle.IncludeQuotePrefix"/> in Excel too and the value of cell is set to to non-quoted text.
     /// </para>
     /// </summary>
-    XLCellValue Value { set; }
+    public XLCellValue Value { set; }
 
     /// <summary>
     /// Clears the contents of these cells.
     /// </summary>
     /// <param name="clearOptions">Specify what you want to clear.</param>
-    IXLCells Clear(XLClearOptions clearOptions = XLClearOptions.All);
+    public IXLCells Clear(XLClearOptions clearOptions = XLClearOptions.All);
 
     /// <summary>
     /// Delete the comments of these cells.
     /// </summary>
-    void DeleteComments();
+    public void DeleteComments();
 
     /// <summary>
     /// Delete the sparklines of these cells.
     /// </summary>
-    void DeleteSparklines();
+    public void DeleteSparklines();
 
     /// <summary>
     /// Sets the cells' formula with A1 references.
     /// </summary>
     /// <value>The formula with A1 references.</value>
-    string FormulaA1 { set; }
+    public string FormulaA1 { set; }
 
     /// <summary>
     /// Sets the cells' formula with R1C1 references.
     /// </summary>
     /// <value>The formula with R1C1 references.</value>
-    string FormulaR1C1 { set; }
+    public string FormulaR1C1 { set; }
 
-    IXLStyle Style { get; set; }
+    public IXLStyle Style { get; set; }
 
-    void Select();
+    public void Select();
 }

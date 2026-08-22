@@ -6,17 +6,17 @@ namespace XlsxSharp.Excel.Sort;
 
 public interface IXLSortElements : IEnumerable<IXLSortElement>
 {
-    void Add(int elementNumber);
-    void Add(int elementNumber, XLSortOrder sortOrder);
-    void Add(int elementNumber, XLSortOrder sortOrder, bool ignoreBlanks);
-    void Add(int elementNumber, XLSortOrder sortOrder, bool ignoreBlanks, bool matchCase);
+    public void Add(int elementNumber);
+    public void Add(int elementNumber, XLSortOrder sortOrder);
+    public void Add(int elementNumber, XLSortOrder sortOrder, bool ignoreBlanks);
+    public void Add(int elementNumber, XLSortOrder sortOrder, bool ignoreBlanks, bool matchCase);
 
-    void Add(string elementNumber);
-    void Add(string elementNumber, XLSortOrder sortOrder);
-    void Add(string elementNumber, XLSortOrder sortOrder, bool ignoreBlanks);
-    void Add(string elementNumber, XLSortOrder sortOrder, bool ignoreBlanks, bool matchCase);
+    public void Add(string elementNumber);
+    public void Add(string elementNumber, XLSortOrder sortOrder);
+    public void Add(string elementNumber, XLSortOrder sortOrder, bool ignoreBlanks);
+    public void Add(string elementNumber, XLSortOrder sortOrder, bool ignoreBlanks, bool matchCase);
 
-    void Clear();
+    public void Clear();
 
-    void Remove(int elementNumber);
+    public void Remove(int elementNumber);
 }
