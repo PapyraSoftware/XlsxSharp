@@ -1,6 +1,5 @@
 #nullable disable
 
-using System;
 using DocumentFormat.OpenXml.Spreadsheet;
 
 namespace XlsxSharp.Excel.ConditionalFormats.Save;

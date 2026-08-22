@@ -1,5 +1,3 @@
-using System;
-
 namespace XlsxSharp.Excel.Drawings.Style;
 
 internal class XLDrawingWeb : IXLDrawingWeb

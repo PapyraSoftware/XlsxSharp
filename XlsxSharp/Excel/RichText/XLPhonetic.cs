@@ -1,5 +1,3 @@
-using System;
-
 namespace XlsxSharp.Excel.RichText;
 
 internal class XLPhonetic : IXLPhonetic

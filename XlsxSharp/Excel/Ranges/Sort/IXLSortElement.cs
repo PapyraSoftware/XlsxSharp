@@ -1,5 +1,3 @@
-using System;
-
 namespace XlsxSharp.Excel.Sort;
 
 public enum XLSortOrder

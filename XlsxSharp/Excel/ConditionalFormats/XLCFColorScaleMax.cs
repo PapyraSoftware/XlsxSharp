@@ -1,6 +1,5 @@
 #nullable disable
 
-using System;
 using XlsxSharp.Excel.Misc;
 using XlsxSharp.Extensions;
 

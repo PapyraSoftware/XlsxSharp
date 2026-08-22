@@ -1,6 +1,5 @@
 #nullable disable
 
-using System;
 using XlsxSharp.Excel.RichText;
 
 namespace XlsxSharp.Excel.PageSetup;

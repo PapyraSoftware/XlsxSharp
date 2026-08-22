@@ -1,7 +1,6 @@
 #nullable disable
 
 // Keep this file CodeMaid organised and cleaned
-using System;
 using XlsxSharp.Extensions;
 
 namespace XlsxSharp.Excel.DataValidation;

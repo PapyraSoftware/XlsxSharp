@@ -1,5 +1,3 @@
-using System;
-
 namespace XlsxSharp.Excel.Sort;
 
 internal record XLSortElement(

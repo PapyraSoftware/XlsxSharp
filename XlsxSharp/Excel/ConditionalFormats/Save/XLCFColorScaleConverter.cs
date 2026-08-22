@@ -1,6 +1,5 @@
 #nullable disable
 
-using System;
 using DocumentFormat.OpenXml.Spreadsheet;
 using XlsxSharp.Excel.Misc;
 using XlsxSharp.Extensions;

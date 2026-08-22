@@ -1,4 +1,3 @@
-using System;
 using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.CalcEngine;
