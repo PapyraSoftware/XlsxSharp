@@ -6,7 +6,7 @@ namespace XlsxSharp.Excel.PageSetup;
 
 internal class XLPrintAreas : IXLPrintAreas
 {
-    List<IXLRange> ranges = [];
+    private List<IXLRange> ranges = [];
     private XLWorksheet worksheet;
 
     public XLPrintAreas(XLWorksheet worksheet) => this.worksheet = worksheet;

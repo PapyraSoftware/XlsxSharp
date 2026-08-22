@@ -17,8 +17,8 @@ internal abstract class XLRepositoryBase<Tkey, Tvalue>
     where Tkey : struct, IEquatable<Tkey>
     where Tvalue : class
 {
-    const int CONCURRENCY_LEVEL = 4;
-    const int INITIAL_CAPACITY = 1000;
+    private const int CONCURRENCY_LEVEL = 4;
+    private const int INITIAL_CAPACITY = 1000;
 
     private readonly ConcurrentDictionary<Tkey, WeakReference> _storage;
     private readonly Func<Tkey, Tvalue> _createNew;

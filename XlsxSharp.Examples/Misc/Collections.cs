@@ -90,7 +90,7 @@ public class Collections : IXLExample
         wb.SaveAs(filePath);
     }
 
-    class Person
+    private class Person
     {
         public string House { get; set; }
         public string Name { get; set; }

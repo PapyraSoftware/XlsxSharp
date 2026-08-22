@@ -22,7 +22,7 @@ internal class XLDrawingMargins : IXLDrawingMargins
         return this._style;
     }
 
-    double _left;
+    private double _left;
     public double Left
     {
         get => this._left;
@@ -39,7 +39,7 @@ internal class XLDrawingMargins : IXLDrawingMargins
         return this._style;
     }
 
-    double _right;
+    private double _right;
     public double Right
     {
         get => this._right;
@@ -56,7 +56,7 @@ internal class XLDrawingMargins : IXLDrawingMargins
         return this._style;
     }
 
-    double _top;
+    private double _top;
     public double Top
     {
         get => this._top;
@@ -73,7 +73,7 @@ internal class XLDrawingMargins : IXLDrawingMargins
         return this._style;
     }
 
-    double _bottom;
+    private double _bottom;
     public double Bottom
     {
         get => this._bottom;

@@ -6,7 +6,7 @@ namespace XlsxSharp.Excel.CustomProperties;
 
 internal class XLCustomProperties : IXLCustomProperties, IEnumerable<IXLCustomProperty>
 {
-    XLWorkbook workbook;
+    private XLWorkbook workbook;
 
     public XLCustomProperties(XLWorkbook workbook) => this.workbook = workbook;
 

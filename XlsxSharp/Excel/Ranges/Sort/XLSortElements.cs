@@ -6,7 +6,7 @@ namespace XlsxSharp.Excel.Sort;
 
 internal class XLSortElements : IXLSortElements
 {
-    List<IXLSortElement> elements = [];
+    private List<IXLSortElement> elements = [];
 
     public void Add(int elementNumber) => this.Add(elementNumber, XLSortOrder.Ascending);
 
