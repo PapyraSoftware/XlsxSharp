@@ -7,12 +7,18 @@ namespace XlsxSharp.Tests.Excel.Coordinates;
 [TestOf(typeof(XLColumnArea))]
 internal class XlColumnAreaTests
 {
-    [TestCase(null)]
-    [TestCase("")]
-    public void Ctor_sheet_must_be_valid(string invalidSheetName) =>
+    [Test]
+    public void Ctor_sheet_must_not_be_null() =>
         Assert.That(
-            () => new XLColumnArea(invalidSheetName, 1),
-            Throws.Exception.TypeOf<ArgumentException>()
+            () => new XLColumnArea(null, 1),
+            Throws.Exception.TypeOf<ArgumentNullException>().With.Property("ParamName").EqualTo("name")
+        );
+
+    [Test]
+    public void Ctor_sheet_must_not_be_empty() =>
+        Assert.That(
+            () => new XLColumnArea("", 1),
+            Throws.Exception.TypeOf<ArgumentException>().With.Property("ParamName").EqualTo("name")
         );
 
     [TestCase(-50)]

@@ -203,14 +203,7 @@ internal class SharedStringTable
         public bool Equals(Text other) =>
             Equals(this.Value, other.Value) && this.Inline == other.Inline;
 
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                return ((this.Value is not null ? this.Value.GetHashCode() : 0) * 397)
-                    ^ this.Inline.GetHashCode();
-            }
-        }
+        public override int GetHashCode() => HashCode.Combine(this.Value, this.Inline);
     }
 
     [DebuggerDisplay("{Text.Value}:{RefCount} (Shared:{!Text.Inline})")]

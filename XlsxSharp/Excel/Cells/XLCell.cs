@@ -26,10 +26,10 @@ using XlsxSharp.Graphics;
 namespace XlsxSharp.Excel;
 
 [DebuggerDisplay("{Address}")]
-internal sealed class XLCell : IXLCell, IXLFormatContainer
+internal sealed partial class XLCell : IXLCell, IXLFormatContainer
 {
-    public static readonly Regex A1SimpleRegex = new(
-        //  @"(?<=\W)" // Start with non word
+    //  @"(?<=\W)" // Start with non word
+    [GeneratedRegex(
         @"(?<Reference>" // Start Group to pick
             + @"(?<Sheet>" // Start Sheet Name, optional
             + @"("
@@ -50,27 +50,20 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
             + @"(?<ColumnLetters>\$?[a-zA-Z]{1,3}:\$?[a-zA-Z]{1,3})" // A:A
             + @")" // End Range
             + @")" // End Group to pick
-        //+ @"(?=\W)" // End with non word
-        ,
-        RegexOptions.Compiled
-    );
+    //+ @"(?=\W)" // End with non word
+    )]
+    public static partial Regex A1SimpleRegex { get; }
 
-    private static readonly Regex A1RowRegex = new(
-        @"(\$?\d{1,7}:\$?\d{1,7})" // 1:1
-        ,
-        RegexOptions.Compiled
-    );
+    // 1:1
+    [GeneratedRegex(@"(\$?\d{1,7}:\$?\d{1,7})")]
+    private static partial Regex A1RowRegex { get; }
 
-    private static readonly Regex A1ColumnRegex = new(
-        @"(\$?[a-zA-Z]{1,3}:\$?[a-zA-Z]{1,3})" // A:A
-        ,
-        RegexOptions.Compiled
-    );
+    // A:A
+    [GeneratedRegex(@"(\$?[a-zA-Z]{1,3}:\$?[a-zA-Z]{1,3})")]
+    private static partial Regex A1ColumnRegex { get; }
 
-    private static readonly Regex utfPattern = new(
-        @"(?<!_x005F)_x(?!005F)([0-9A-F]{4})_",
-        RegexOptions.Compiled
-    );
+    [GeneratedRegex(@"(?<!_x005F)_x(?!005F)([0-9A-F]{4})_")]
+    private static partial Regex utfPattern { get; }
 
     private readonly XLCellsCollection _cellsCollection;
 
@@ -1355,7 +1348,7 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
         }
 
         string wsName = pair[0];
-        if (wsName.StartsWith("'"))
+        if (wsName.StartsWith('\''))
         {
             wsName = wsName.Substring(1, wsName.Length - 2);
         }
@@ -1559,7 +1552,7 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
                                         "$"
                                         + (
                                             XlsxSharp.XLHelper.TrimRowNumber(
-                                                int.Parse(row1String.Substring(1)) + rowsShifted
+                                                int.Parse(row1String.AsSpan(1)) + rowsShifted
                                             )
                                         ).ToInvariantString();
                                 }
@@ -1579,7 +1572,7 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
                                         "$"
                                         + (
                                             XlsxSharp.XLHelper.TrimRowNumber(
-                                                int.Parse(row2String.Substring(1)) + rowsShifted
+                                                int.Parse(row2String.AsSpan(1)) + rowsShifted
                                             )
                                         ).ToInvariantString();
                                 }
@@ -2198,13 +2191,7 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
         }
     }
 
-    public override int GetHashCode()
-    {
-        unchecked
-        {
-            return (this.Point.GetHashCode() * 397) ^ this.Worksheet.GetHashCode();
-        }
-    }
+    public override int GetHashCode() => HashCode.Combine(this.Point, this.Worksheet);
 
     public override bool Equals(object obj) =>
         obj is XLCell cell && cell.Worksheet == this.Worksheet && cell.Point == this.Point;

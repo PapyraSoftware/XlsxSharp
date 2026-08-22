@@ -169,7 +169,7 @@ internal class XLHeaderFooter : IXLHeaderFooter
     internal void SetAsInitial()
     {
         this._initialTexts = new Dictionary<XLHFOccurrence, string>();
-        foreach (XLHFOccurrence o in Enum.GetValues(typeof(XLHFOccurrence)).Cast<XLHFOccurrence>())
+        foreach (XLHFOccurrence o in Enum.GetValues<XLHFOccurrence>())
         {
             this._initialTexts.Add(o, this.GetText(o));
         }

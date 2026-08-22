@@ -1,5 +1,3 @@
-// Keep this file CodeMaid organised and cleaned
-
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Spreadsheet;
 using X14 = DocumentFormat.OpenXml.Office2010.Excel;

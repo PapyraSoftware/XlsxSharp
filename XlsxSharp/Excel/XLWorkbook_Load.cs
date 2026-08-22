@@ -847,7 +847,7 @@ public partial class XLWorkbook
             if (opacity != null)
             {
                 string opacityVal = opacity.Value;
-                if (opacityVal.EndsWith("f"))
+                if (opacityVal.EndsWith('f'))
                 {
                     drawing.Style.ColorsAndLines.FillTransparency =
                         double.Parse(
@@ -872,7 +872,7 @@ public partial class XLWorkbook
             if (opacity != null)
             {
                 string opacityVal = opacity.Value;
-                if (opacityVal.EndsWith("f"))
+                if (opacityVal.EndsWith('f'))
                 {
                     drawing.Style.ColorsAndLines.LineTransparency =
                         double.Parse(
@@ -1120,8 +1120,9 @@ public partial class XLWorkbook
             .FirstOrDefault(e => e.Name.LocalName == "TextHAlign");
         if (textHAlign != null)
         {
-            drawing.Style.Alignment.Horizontal = (XLDrawingHorizontalAlignment)
-                Enum.Parse(typeof(XLDrawingHorizontalAlignment), textHAlign.Value.ToProper());
+            drawing.Style.Alignment.Horizontal = Enum.Parse<XLDrawingHorizontalAlignment>(
+                textHAlign.Value.ToProper()
+            );
         }
     }
 
@@ -1132,8 +1133,9 @@ public partial class XLWorkbook
             .FirstOrDefault(e => e.Name.LocalName == "TextVAlign");
         if (textVAlign != null)
         {
-            drawing.Style.Alignment.Vertical = (XLDrawingVerticalAlignment)
-                Enum.Parse(typeof(XLDrawingVerticalAlignment), textVAlign.Value.ToProper());
+            drawing.Style.Alignment.Vertical = Enum.Parse<XLDrawingVerticalAlignment>(
+                textVAlign.Value.ToProper()
+            );
         }
     }
 
@@ -1297,7 +1299,7 @@ public partial class XLWorkbook
                 IEnumerable<string> fixedNames = validateDefinedNames(definedName.Text.Split(','));
                 foreach (string area in fixedNames)
                 {
-                    if (area.Contains("["))
+                    if (area.Contains('['))
                     {
                         XLWorksheet ws = this.WorksheetsInternal.FirstOrDefault<XLWorksheet>(w =>
                             w.SheetId == (localSheetId + 1)
@@ -1368,7 +1370,8 @@ public partial class XLWorkbook
         }
     }
 
-    private static Regex definedNameRegex = new(@"\A('?).*\1!.*\z", RegexOptions.Compiled);
+    [GeneratedRegex(@"\A('?).*\1!.*\z")]
+    private static partial Regex definedNameRegex { get; }
 
     private static IEnumerable<string> validateDefinedNames(IEnumerable<string> definedNames)
     {

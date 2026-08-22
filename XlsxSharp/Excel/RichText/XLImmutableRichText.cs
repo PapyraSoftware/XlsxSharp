@@ -71,22 +71,20 @@ internal sealed class XLImmutableRichText : IEquatable<XLImmutableRichText>
 
     public override int GetHashCode()
     {
-        unchecked
+        HashCode hashCode = new();
+        hashCode.Add(this.Text);
+        hashCode.Add(this.PhoneticsProperties);
+        foreach (PhoneticRun phoneticRun in this._phoneticRuns)
         {
-            int hashCode = this.Text.GetHashCode();
-            hashCode = (hashCode * 397) ^ this.PhoneticsProperties.GetHashCode();
-            foreach (PhoneticRun phoneticRun in this._phoneticRuns)
-            {
-                hashCode = (hashCode * 397) ^ phoneticRun.GetHashCode();
-            }
-
-            foreach (RichTextRun run in this._runs)
-            {
-                hashCode = (hashCode * 397) ^ run.GetHashCode();
-            }
-
-            return hashCode;
+            hashCode.Add(phoneticRun);
         }
+
+        foreach (RichTextRun run in this._runs)
+        {
+            hashCode.Add(run);
+        }
+
+        return hashCode.ToHashCode();
     }
 
     internal string GetRunText(RichTextRun run) => this.Text.Substring(run.StartIndex, run.Length);
@@ -176,16 +174,8 @@ internal sealed class XLImmutableRichText : IEquatable<XLImmutableRichText>
 
         public override bool Equals(object? obj) => obj is RichTextRun other && this.Equals(other);
 
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                int hashCode = this.StartIndex;
-                hashCode = (hashCode * 397) ^ this.Length;
-                hashCode = (hashCode * 397) ^ this.Font.GetHashCode();
-                return hashCode;
-            }
-        }
+        public override int GetHashCode() =>
+            HashCode.Combine(this.StartIndex, this.Length, this.Font);
     }
 
     /// <summary>
@@ -243,16 +233,8 @@ internal sealed class XLImmutableRichText : IEquatable<XLImmutableRichText>
 
         public override bool Equals(object? obj) => obj is PhoneticRun other && this.Equals(other);
 
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                int hashCode = this.Text.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.StartIndex;
-                hashCode = (hashCode * 397) ^ this.EndIndex;
-                return hashCode;
-            }
-        }
+        public override int GetHashCode() =>
+            HashCode.Combine(this.Text, this.StartIndex, this.EndIndex);
     }
 
     /// <summary>
@@ -291,15 +273,7 @@ internal sealed class XLImmutableRichText : IEquatable<XLImmutableRichText>
         public override bool Equals(object? obj) =>
             obj is PhoneticProperties other && this.Equals(other);
 
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                int hashCode = this.Font.GetHashCode();
-                hashCode = (hashCode * 397) ^ (int)this.Type;
-                hashCode = (hashCode * 397) ^ (int)this.Alignment;
-                return hashCode;
-            }
-        }
+        public override int GetHashCode() =>
+            HashCode.Combine(this.Font, this.Type, this.Alignment);
     }
 }

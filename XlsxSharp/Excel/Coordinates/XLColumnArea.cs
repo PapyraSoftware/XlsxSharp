@@ -12,10 +12,7 @@ internal readonly record struct XLColumnArea
 {
     public XLColumnArea(string name, int columnNumber)
     {
-        if (string.IsNullOrEmpty(name))
-        {
-            throw new ArgumentException(nameof(name));
-        }
+        ArgumentException.ThrowIfNullOrEmpty(name);
 
         if (
             columnNumber
@@ -55,14 +52,9 @@ internal readonly record struct XLColumnArea
         this.ColumNumber == other.ColumNumber
         && XlsxSharp.XLHelper.SheetComparer.Equals(this.Name, other.Name);
 
-    public override int GetHashCode()
-    {
-        unchecked
-        {
-            return (XlsxSharp.XLHelper.SheetComparer.GetHashCode(this.Name) * 397)
-                ^ this.ColumNumber.GetHashCode();
-        }
-    }
+    // Name is hashed through SheetComparer so that it matches the case insensitive Equals.
+    public override int GetHashCode() =>
+        HashCode.Combine(XlsxSharp.XLHelper.SheetComparer.GetHashCode(this.Name), this.ColumNumber);
 
     public override string ToString()
     {

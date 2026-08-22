@@ -62,15 +62,10 @@ internal sealed class XLPivotSourceReference : IXLPivotSource
 
     public override int GetHashCode()
     {
-        unchecked
-        {
-            return (this.Area.GetHashCode() * 397)
-                ^ (
-                    this.Name is not null
-                        ? XlsxSharp.XLHelper.NameComparer.GetHashCode(this.Name)
-                        : 0
-                );
-        }
+        // Name is hashed through NameComparer so that it matches the case insensitive Equals.
+        int nameHashCode =
+            this.Name is not null ? XlsxSharp.XLHelper.NameComparer.GetHashCode(this.Name) : 0;
+        return HashCode.Combine(this.Area, nameHashCode);
     }
 
     /// <summary>

@@ -16,10 +16,7 @@ internal readonly struct SheetPoint : IEquatable<SheetPoint>
 
     internal SheetPoint(string sheetName, Point point)
     {
-        if (string.IsNullOrEmpty(sheetName))
-        {
-            throw new ArgumentException(nameof(sheetName));
-        }
+        ArgumentException.ThrowIfNullOrEmpty(sheetName);
 
         this.SheetName = sheetName;
         this.Point = point;
@@ -51,14 +48,9 @@ internal readonly struct SheetPoint : IEquatable<SheetPoint>
 
     public override bool Equals(object? obj) => obj is SheetPoint other && this.Equals(other);
 
-    public override int GetHashCode()
-    {
-        unchecked
-        {
-            return (XlsxSharp.XLHelper.SheetComparer.GetHashCode(this.SheetName) * 397)
-                ^ this.Point.GetHashCode();
-        }
-    }
+    // SheetName is hashed through SheetComparer so that it matches the case insensitive Equals.
+    public override int GetHashCode() =>
+        HashCode.Combine(XlsxSharp.XLHelper.SheetComparer.GetHashCode(this.SheetName), this.Point);
 
     public override string ToString()
     {

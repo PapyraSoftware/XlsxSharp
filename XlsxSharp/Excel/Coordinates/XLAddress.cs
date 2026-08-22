@@ -49,7 +49,7 @@ internal struct XLAddress : IXLAddress, IEquatable<XLAddress>
             }
 
             rowNumber = int.Parse(
-                cellAddressString.Substring(rowPos + 1),
+                cellAddressString.AsSpan(rowPos + 1),
                 XlsxSharp.XLHelper.NumberStyle,
                 XlsxSharp.XLHelper.ParseCulture
             );
@@ -66,7 +66,7 @@ internal struct XLAddress : IXLAddress, IEquatable<XLAddress>
             }
 
             rowNumber = int.Parse(
-                cellAddressString.Substring(rowPos),
+                cellAddressString.AsSpan(rowPos),
                 XlsxSharp.XLHelper.NumberStyle,
                 XlsxSharp.XLHelper.ParseCulture
             );

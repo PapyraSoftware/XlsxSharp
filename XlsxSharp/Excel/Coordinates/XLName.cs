@@ -22,10 +22,7 @@ internal readonly struct XLName : IEquatable<XLName>
 
     public XLName(string sheetName, string name)
     {
-        if (string.IsNullOrEmpty(sheetName))
-        {
-            throw new ArgumentException(nameof(sheetName));
-        }
+        ArgumentException.ThrowIfNullOrEmpty(sheetName);
 
         if (name.Any(char.IsWhiteSpace))
         {
@@ -69,17 +66,13 @@ internal readonly struct XLName : IEquatable<XLName>
 
     public override int GetHashCode()
     {
-        unchecked
-        {
-            int hashCode =
-                (
-                    this.SheetName is not null
-                        ? XlsxSharp.XLHelper.SheetComparer.GetHashCode(this.SheetName)
-                        : 0
-                ) * 397;
-            hashCode ^= XlsxSharp.XLHelper.NameComparer.GetHashCode(this.Name);
-            return hashCode;
-        }
+        // Both parts are hashed through their comparer so that they match the case insensitive
+        // Equals.
+        int sheetHashCode =
+            this.SheetName is not null
+                ? XlsxSharp.XLHelper.SheetComparer.GetHashCode(this.SheetName)
+                : 0;
+        return HashCode.Combine(sheetHashCode, XlsxSharp.XLHelper.NameComparer.GetHashCode(this.Name));
     }
 
     public override string ToString()

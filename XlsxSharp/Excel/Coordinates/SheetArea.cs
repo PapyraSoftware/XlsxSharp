@@ -21,10 +21,7 @@ internal readonly struct SheetArea : IEquatable<SheetArea>, IEnumerable<SheetPoi
 
     public SheetArea(string name, Area area)
     {
-        if (string.IsNullOrEmpty(name))
-        {
-            throw new ArgumentException(nameof(name));
-        }
+        ArgumentException.ThrowIfNullOrEmpty(name);
 
         this.Name = name;
         this.Area = area;
@@ -72,14 +69,9 @@ internal readonly struct SheetArea : IEquatable<SheetArea>, IEnumerable<SheetPoi
 
     public override bool Equals(object? obj) => obj is SheetArea other && this.Equals(other);
 
-    public override int GetHashCode()
-    {
-        unchecked
-        {
-            return (XlsxSharp.XLHelper.SheetComparer.GetHashCode(this.Name) * 397)
-                ^ this.Area.GetHashCode();
-        }
-    }
+    // Name is hashed through SheetComparer so that it matches the case insensitive Equals.
+    public override int GetHashCode() =>
+        HashCode.Combine(XlsxSharp.XLHelper.SheetComparer.GetHashCode(this.Name), this.Area);
 
     /// <summary>
     /// Perform an intersection.

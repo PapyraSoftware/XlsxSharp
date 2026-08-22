@@ -505,16 +505,7 @@ public readonly struct XLCellValue
 
     public override bool Equals(object obj) => obj is XLCellValue other && this.Equals(other);
 
-    public override int GetHashCode()
-    {
-        unchecked
-        {
-            int hashCode = this._value.GetHashCode();
-            hashCode = (hashCode * 397) ^ (this._text != null ? this._text.GetHashCode() : 0);
-            hashCode = (hashCode * 397) ^ (int)this.Type;
-            return hashCode;
-        }
-    }
+    public override int GetHashCode() => HashCode.Combine(this._value, this._text, this.Type);
 
     /// <summary>
     /// Get a value, if it is a <see cref="XLDataType.Text"/>.

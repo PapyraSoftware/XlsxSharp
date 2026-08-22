@@ -12,10 +12,7 @@ internal readonly record struct XLRowArea
 {
     public XLRowArea(string name, int rowNumber)
     {
-        if (string.IsNullOrEmpty(name))
-        {
-            throw new ArgumentException(nameof(name));
-        }
+        ArgumentException.ThrowIfNullOrEmpty(name);
 
         if (rowNumber is < XlsxSharp.XLHelper.MinRowNumber or > XlsxSharp.XLHelper.MaxRowNumber)
         {
@@ -54,14 +51,9 @@ internal readonly record struct XLRowArea
         this.RowNumber == other.RowNumber
         && XlsxSharp.XLHelper.SheetComparer.Equals(this.Name, other.Name);
 
-    public override int GetHashCode()
-    {
-        unchecked
-        {
-            return (XlsxSharp.XLHelper.SheetComparer.GetHashCode(this.Name) * 397)
-                ^ this.RowNumber.GetHashCode();
-        }
-    }
+    // Name is hashed through SheetComparer so that it matches the case insensitive Equals.
+    public override int GetHashCode() =>
+        HashCode.Combine(XlsxSharp.XLHelper.SheetComparer.GetHashCode(this.Name), this.RowNumber);
 
     public override string ToString()
     {

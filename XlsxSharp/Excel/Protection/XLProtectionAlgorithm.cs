@@ -1,6 +1,5 @@
 #nullable disable
 
-// Keep this file CodeMaid organised and cleaned
 using System.ComponentModel;
 
 namespace XlsxSharp.Excel.Protection;

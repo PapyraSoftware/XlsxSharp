@@ -1,8 +1,7 @@
 #nullable disable
 
-// Keep this file CodeMaid organised and cleaned
-
 using System.Diagnostics;
+using System.Numerics;
 
 namespace XlsxSharp.Extensions;
 
@@ -16,20 +15,13 @@ internal static class IntegerExtensions
     internal static int GetHighestSetBitBelow(this uint value, int maximalIndex)
     {
         Debug.Assert(maximalIndex >= 0 && maximalIndex < 32);
-        const uint highestBit = 0x80000000;
-        value <<= 31 - maximalIndex;
-        while (value != 0)
-        {
-            if ((value & highestBit) != 0)
-            {
-                return maximalIndex;
-            }
 
-            value <<= 1;
-            maximalIndex--;
-        }
-
-        return -1;
+        // Shifting the bit at maximalIndex up to bit 31 discards everything above it, so the
+        // remaining leading zeroes say how far below maximalIndex the answer sits. Shifting rather
+        // than masking because a mask would need 1u << 32 for maximalIndex 31, which C# wraps to
+        // 1u << 0.
+        uint shifted = value << (31 - maximalIndex);
+        return shifted == 0 ? -1 : maximalIndex - BitOperations.LeadingZeroCount(shifted);
     }
 
     /// <summary>
@@ -37,33 +29,14 @@ internal static class IntegerExtensions
     /// </summary>
     internal static int GetLowestSetBitAbove(this uint value, int minimalIndex)
     {
-        value >>= minimalIndex;
-        while (value != 0)
-        {
-            if ((value & 1) == 1)
-            {
-                return minimalIndex;
-            }
-
-            value >>= 1;
-            minimalIndex++;
-        }
-
-        return -1;
+        uint shifted = value >> minimalIndex;
+        return shifted == 0 ? -1 : BitOperations.TrailingZeroCount(shifted) + minimalIndex;
     }
 
     /// <summary>
     /// Get highest set bit index or -1 if no bit is set.
     /// </summary>
-    internal static int GetHighestSetBit(this uint value)
-    {
-        int highestSetBitIndex = -1;
-        while (value != 0)
-        {
-            value >>= 1;
-            highestSetBitIndex++;
-        }
-
-        return highestSetBitIndex;
-    }
+    // LeadingZeroCount(0) is 32, so the empty case falls out as -1 without a branch.
+    internal static int GetHighestSetBit(this uint value) =>
+        31 - BitOperations.LeadingZeroCount(value);
 }
