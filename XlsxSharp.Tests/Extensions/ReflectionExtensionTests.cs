@@ -28,13 +28,13 @@ public class ReflectionExtensionTests
         public int InstanceProperty { get; set; }
         public int InstanceField = 0;
 
-        public static event EventHandler<EventArgs> InstanceEvent
+        public event EventHandler<EventArgs> InstanceEvent
         {
             add => _ = value;
             remove => _ = value;
         }
 
-        public static void InstanceMethod() { }
+        public void InstanceMethod() { }
     }
 
     [TestCase(nameof(TestClass.StaticProperty), true)]
