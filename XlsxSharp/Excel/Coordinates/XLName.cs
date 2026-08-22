@@ -22,10 +22,7 @@ internal readonly struct XLName : IEquatable<XLName>
 
     public XLName(string sheetName, string name)
     {
-        if (string.IsNullOrEmpty(sheetName))
-        {
-            throw new ArgumentException(nameof(sheetName));
-        }
+        ArgumentException.ThrowIfNullOrEmpty(sheetName);
 
         if (name.Any(char.IsWhiteSpace))
         {

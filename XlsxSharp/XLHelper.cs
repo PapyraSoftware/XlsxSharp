@@ -171,10 +171,7 @@ public static partial class XLHelper
     /// <param name="columnLetter"> The column letter to translate into a column number. </param>
     public static int GetColumnNumberFromLetter(string columnLetter)
     {
-        if (string.IsNullOrEmpty(columnLetter))
-        {
-            throw new ArgumentNullException("columnLetter");
-        }
+        ArgumentException.ThrowIfNullOrEmpty(columnLetter);
 
         //Extra check because we allow users to pass row col positions in as strings
         if (columnLetter[0] <= '9')

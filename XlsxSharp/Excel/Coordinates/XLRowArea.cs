@@ -12,10 +12,7 @@ internal readonly record struct XLRowArea
 {
     public XLRowArea(string name, int rowNumber)
     {
-        if (string.IsNullOrEmpty(name))
-        {
-            throw new ArgumentException(nameof(name));
-        }
+        ArgumentException.ThrowIfNullOrEmpty(name);
 
         if (rowNumber is < XlsxSharp.XLHelper.MinRowNumber or > XlsxSharp.XLHelper.MaxRowNumber)
         {

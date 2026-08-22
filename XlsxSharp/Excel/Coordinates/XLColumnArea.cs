@@ -12,10 +12,7 @@ internal readonly record struct XLColumnArea
 {
     public XLColumnArea(string name, int columnNumber)
     {
-        if (string.IsNullOrEmpty(name))
-        {
-            throw new ArgumentException(nameof(name));
-        }
+        ArgumentException.ThrowIfNullOrEmpty(name);
 
         if (
             columnNumber

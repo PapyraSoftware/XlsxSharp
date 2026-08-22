@@ -21,10 +21,7 @@ internal readonly struct SheetArea : IEquatable<SheetArea>, IEnumerable<SheetPoi
 
     public SheetArea(string name, Area area)
     {
-        if (string.IsNullOrEmpty(name))
-        {
-            throw new ArgumentException(nameof(name));
-        }
+        ArgumentException.ThrowIfNullOrEmpty(name);
 
         this.Name = name;
         this.Area = area;

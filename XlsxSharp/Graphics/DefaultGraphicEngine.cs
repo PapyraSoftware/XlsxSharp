@@ -78,10 +78,7 @@ public class DefaultGraphicEngine : IXLGraphicEngine
     /// <param name="fallbackFont">A name of a font that is used when a font in a workbook is not available.</param>
     public DefaultGraphicEngine(string fallbackFont)
     {
-        if (string.IsNullOrWhiteSpace(fallbackFont))
-        {
-            throw new ArgumentException(nameof(fallbackFont));
-        }
+        ArgumentException.ThrowIfNullOrWhiteSpace(fallbackFont);
 
         FontCollection fontCollection = new();
         AddEmbeddedFont(fontCollection);
