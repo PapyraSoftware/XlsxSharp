@@ -8,12 +8,13 @@ namespace XlsxSharp.Excel.CalcEngine;
 /// <summary>
 /// Parse a fraction for text-to-number type coercion.
 /// </summary>
-internal static class FractionParser
+internal static partial class FractionParser
 {
-    private static readonly Regex FractionRegex = new(
+    [GeneratedRegex(
         @"^ *([+-]?) *([0-9]+) ([0-9]{1,5})/([0-9]{1,5}) *$",
         RegexOptions.CultureInvariant
-    );
+    )]
+    private static partial Regex FractionRegex { get; }
 
     public static bool TryParse(string s, out double result)
     {

@@ -67,12 +67,13 @@ public static partial class XLHelper
     /// </summary>
     internal static readonly StringComparer FunctionComparer = StringComparer.OrdinalIgnoreCase;
 
-    internal static readonly Regex RCSimpleRegex = new(
+    [GeneratedRegex(
         @"^(r(((-\d)?\d*)|\[(-\d)?\d*\]))?(c(((-\d)?\d*)|\[(-\d)?\d*\]))?$",
-        RegexOptions.IgnoreCase | RegexOptions.Compiled
-    );
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant
+    )]
+    internal static partial Regex RCSimpleRegex { get; }
 
-    internal static readonly Regex A1SimpleRegex = new(
+    [GeneratedRegex(
         @"\A"
             + @"(?<Reference>" // Start Group to pick
             + @"(?<Sheet>" // Start Sheet Name, optional
@@ -92,14 +93,15 @@ public static partial class XLHelper
             + @"(?<ColumnLetters>\$?[a-zA-Z]{1,3}:\$?[a-zA-Z]{1,3})" // A:A
             + @")" // End Range
             + @")" // End Group to pick
-            + @"\Z",
-        RegexOptions.Compiled
-    );
+            + @"\Z"
+    )]
+    internal static partial Regex A1SimpleRegex { get; }
 
-    internal static readonly Regex NamedRangeReferenceRegex = new(
+    [GeneratedRegex(
         @"^('?(?<Sheet>[^'!]+)'?!(?<Range>.+))|((?<Table>[^\[]+)\[(?<Column>[^\]]+)\])$",
-        RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.ExplicitCapture
-    );
+        RegexOptions.CultureInvariant | RegexOptions.ExplicitCapture
+    )]
+    internal static partial Regex NamedRangeReferenceRegex { get; }
 
     private static readonly string[] letters =
     [
@@ -362,12 +364,13 @@ public static partial class XLHelper
         return rows;
     }
 
-    private static readonly Regex A1RegexRelative = new(
+    // A:A
+    [GeneratedRegex(
         @"(?<=\W)(?<one>\$?[a-zA-Z]{1,3}\$?\d{1,7})(?=\W)" // A1
             + @"|(?<=\W)(?<two>\$?\d{1,7}:\$?\d{1,7})(?=\W)" // 1:1
-            + @"|(?<=\W)(?<three>\$?[a-zA-Z]{1,3}:\$?[a-zA-Z]{1,3})(?=\W)",
-        RegexOptions.Compiled
-    ); // A:A
+            + @"|(?<=\W)(?<three>\$?[a-zA-Z]{1,3}:\$?[a-zA-Z]{1,3})(?=\W)"
+    )]
+    private static partial Regex A1RegexRelative { get; }
 
     private static string Evaluator(Match match, int row, string column)
     {

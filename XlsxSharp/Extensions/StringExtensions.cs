@@ -9,9 +9,10 @@ using ClosedXML.Parser;
 
 namespace XlsxSharp.Extensions;
 
-internal static class StringExtensions
+internal static partial class StringExtensions
 {
-    private static readonly Regex RegexNewLine = new(@"((?<!\r)\n|\r\n)", RegexOptions.Compiled);
+    [GeneratedRegex(@"((?<!\r)\n|\r\n)")]
+    private static partial Regex RegexNewLine { get; }
 
     public static int CharCount(this string instance, char c) =>
         instance.Length - instance.Replace(c.ToString(), "").Length;

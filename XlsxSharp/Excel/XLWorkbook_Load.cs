@@ -1368,7 +1368,8 @@ public partial class XLWorkbook
         }
     }
 
-    private static Regex definedNameRegex = new(@"\A('?).*\1!.*\z", RegexOptions.Compiled);
+    [GeneratedRegex(@"\A('?).*\1!.*\z")]
+    private static partial Regex definedNameRegex { get; }
 
     private static IEnumerable<string> validateDefinedNames(IEnumerable<string> definedNames)
     {
