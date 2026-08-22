@@ -519,7 +519,7 @@ public partial class XLWorkbook
 
             using (XmlTextWriter writer = new(vmlStream, Encoding.UTF8))
             {
-                string contents = xdoc.ToString();
+                string contents = xdoc.ToXmlString();
                 writer.WriteRaw(contents);
                 vmlStream.SetLength(contents.Length);
             }

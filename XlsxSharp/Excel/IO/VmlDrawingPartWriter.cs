@@ -1,4 +1,4 @@
-﻿#nullable disable
+#nullable disable
 
 using System;
 using System.Collections.Generic;
@@ -73,7 +73,7 @@ internal class VmlDrawingPartWriter
             {
                 ms.Position = 0;
                 XDocument xdoc = XDocumentExtensions.Load(ms);
-                xdoc.Root.Elements().ForEach(e => writer.WriteRaw(e.ToString()));
+                xdoc.Root.Elements().ForEach(e => writer.WriteRaw(e.ToXmlString()));
                 hasAnyVmlElements |= xdoc.Root.HasElements;
             }
 
