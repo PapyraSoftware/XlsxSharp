@@ -12,7 +12,7 @@ namespace XlsxSharp.Tests.Excel.RichText;
 ///     to contain all XLRichStringTests Unit Tests
 /// </summary>
 [TestFixture]
-public class XLRichStringTests
+public class XlRichStringTests
 {
     [Test]
     public void AccessRichTextTest1()

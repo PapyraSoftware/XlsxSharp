@@ -9,23 +9,23 @@ namespace XlsxSharp.Tests.Excel.InsertData;
 
 public class DataRowReaderTests
 {
-    private readonly DataTable _data;
+    private readonly DataTable data;
 
     public DataRowReaderTests()
     {
-        this._data = new DataTable();
-        this._data.Columns.Add("Last name");
-        this._data.Columns.Add("First name");
-        this._data.Columns.Add("Age", typeof(int));
+        this.data = new DataTable();
+        this.data.Columns.Add("Last name");
+        this.data.Columns.Add("First name");
+        this.data.Columns.Add("Age", typeof(int));
 
-        this._data.Rows.Add("Smith", "John", 33);
-        this._data.Rows.Add("Ivanova", "Olga", 25);
+        this.data.Rows.Add("Smith", "John", 33);
+        this.data.Rows.Add("Ivanova", "Olga", 25);
     }
 
     [Test]
     public void CanGetPropertyName()
     {
-        IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(this._data);
+        IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(this.data);
         Assert.AreEqual("Last name", reader.GetPropertyName(0));
         Assert.AreEqual("First name", reader.GetPropertyName(1));
         Assert.AreEqual("Age", reader.GetPropertyName(2));
@@ -34,21 +34,21 @@ public class DataRowReaderTests
     [Test]
     public void CanGetPropertiesCount()
     {
-        IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(this._data);
+        IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(this.data);
         Assert.AreEqual(3, reader.GetPropertiesCount());
     }
 
     [Test]
     public void CanGetRecordsCount()
     {
-        IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(this._data);
+        IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(this.data);
         Assert.AreEqual(2, reader.GetRecords().Count());
     }
 
     [Test]
     public void CanReadValue()
     {
-        IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(this._data);
+        IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(this.data);
         IEnumerable<IEnumerable<XLCellValue>> result = reader.GetRecords();
 
         Assert.AreEqual("Smith", result.First().First());

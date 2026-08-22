@@ -439,13 +439,13 @@ public static class PackageHelper
         #region Private fields
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private readonly CompressionOption _compressOption;
+        private readonly CompressionOption compressOption;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private readonly string _contentType;
+        private readonly string contentType;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private readonly Uri _uri;
+        private readonly Uri uri;
 
         #endregion Private fields
 
@@ -472,9 +472,9 @@ public static class PackageHelper
 
             #endregion Check
 
-            this._uri = uri;
-            this._contentType = contentType;
-            this._compressOption = compressOption;
+            this.uri = uri;
+            this.contentType = contentType;
+            this.compressOption = compressOption;
         }
 
         #endregion Constructor
@@ -484,19 +484,19 @@ public static class PackageHelper
         public Uri Uri
         {
             [DebuggerStepThrough]
-            get => this._uri;
+            get => this.uri;
         }
 
         public string ContentType
         {
             [DebuggerStepThrough]
-            get => this._contentType;
+            get => this.contentType;
         }
 
         public CompressionOption CompressOption
         {
             [DebuggerStepThrough]
-            get => this._compressOption;
+            get => this.compressOption;
         }
 
         #endregion Public properties
@@ -506,9 +506,9 @@ public static class PackageHelper
         public override string ToString() =>
             string.Format(
                 "Uri:{0} ContentType: {1}, Compression: {2}",
-                this._uri,
-                this._contentType,
-                this._compressOption
+                this.uri,
+                this.contentType,
+                this.compressOption
             );
 
         #endregion Public methods
@@ -535,10 +535,10 @@ public static class PackageHelper
         #region Private fields
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private readonly Uri _uri;
+        private readonly Uri uri;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private CompareStatus _status;
+        private CompareStatus status;
 
         #endregion Private fields
 
@@ -546,8 +546,8 @@ public static class PackageHelper
 
         public PartPair(Uri uri, CompareStatus status)
         {
-            this._uri = uri;
-            this._status = status;
+            this.uri = uri;
+            this.status = status;
         }
 
         #endregion Constructor
@@ -557,15 +557,15 @@ public static class PackageHelper
         public Uri Uri
         {
             [DebuggerStepThrough]
-            get => this._uri;
+            get => this.uri;
         }
 
         public CompareStatus Status
         {
             [DebuggerStepThrough]
-            get => this._status;
+            get => this.status;
             [DebuggerStepThrough]
-            set => this._status = value;
+            set => this.status = value;
         }
 
         #endregion Public properties

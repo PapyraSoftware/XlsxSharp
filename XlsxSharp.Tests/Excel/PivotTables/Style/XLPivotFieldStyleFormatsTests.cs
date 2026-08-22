@@ -4,7 +4,7 @@ using XlsxSharp.Excel.PivotValues;
 
 namespace XlsxSharp.Tests.Excel.PivotTables.Style;
 
-internal class XLPivotFieldStyleFormatsTests
+internal class XlPivotFieldStyleFormatsTests
 {
     [Test]
     public void Modify_pivot_field_label_style() =>

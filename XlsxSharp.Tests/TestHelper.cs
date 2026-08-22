@@ -43,7 +43,7 @@ internal static class TestHelper
 
     private const bool CompareWithResources = true;
 
-    private static readonly ResourceFileExtractor _extractor = new(
+    private static readonly ResourceFileExtractor Extractor = new(
         Assembly.GetExecutingAssembly(),
         ".Resource."
     );
@@ -141,7 +141,7 @@ internal static class TestHelper
         if (CompareWithResources)
         {
             string resourcePath = "Examples." + filePartName.Replace('\\', '.').TrimStart('.');
-            using (Stream streamExpected = _extractor.ReadFileFromResourceToStream(resourcePath))
+            using (Stream streamExpected = Extractor.ReadFileFromResourceToStream(resourcePath))
             using (FileStream streamActual = File.OpenRead(filePath2))
             {
                 bool success = ExcelDocsComparer.Compare(
@@ -219,7 +219,7 @@ internal static class TestHelper
         if (CompareWithResources)
         {
             string resourcePath = referenceResource.Replace('\\', '.').TrimStart('.');
-            using (Stream streamExpected = _extractor.ReadFileFromResourceToStream(resourcePath))
+            using (Stream streamExpected = Extractor.ReadFileFromResourceToStream(resourcePath))
             using (FileStream streamActual = File.OpenRead(filePath2))
             {
                 bool success = ExcelDocsComparer.Compare(
@@ -324,7 +324,7 @@ internal static class TestHelper
         filePartName.Replace('\\', '.').TrimStart('.');
 
     public static Stream GetStreamFromResource(string resourcePath) =>
-        _extractor.ReadFileFromResourceToStream(resourcePath);
+        Extractor.ReadFileFromResourceToStream(resourcePath);
 
     public static void LoadFile(string filePartName)
     {
@@ -340,7 +340,7 @@ internal static class TestHelper
     }
 
     public static IEnumerable<string> ListResourceFiles(Func<string, bool> predicate = null) =>
-        _extractor.GetFileNames(predicate);
+        Extractor.GetFileNames(predicate);
 
     /// <summary>
     /// A method for testing of a saving and loading capabilities of XlsxSharp. Use this

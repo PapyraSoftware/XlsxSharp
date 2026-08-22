@@ -1110,7 +1110,7 @@ public class SparklinesTests
         XLWorkbook wb = new();
         IXLWorksheet ws1 = wb.AddWorksheet("Sheet 1");
         IXLWorksheet ws2 = wb.AddWorksheet("Sheet 2");
-        IXLWorksheet ws3 = wb.AddWorksheet("Sheet 3");
+        wb.AddWorksheet("Sheet 3");
         ws1.SparklineGroups.Add("A1:A3", "B1:F3");
         ws1.SparklineGroups.Add("A4:A6", "'Sheet 3'!B4:F6");
         IXLCell target1 = ws2.Cell("D4");

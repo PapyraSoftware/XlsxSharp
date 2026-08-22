@@ -162,7 +162,7 @@ public class ConditionalFormatShiftTests
     }
 
     [Test]
-    public void CFShiftedTruncateRange()
+    public void CfShiftedTruncateRange()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet("CFShift");

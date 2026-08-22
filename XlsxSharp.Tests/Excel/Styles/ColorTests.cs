@@ -20,7 +20,7 @@ public class ColorTests
     public void ColorNotEqualOperatorInPlace() => Assert.IsFalse(XLColor.Black != XLColor.Black);
 
     [Test]
-    public void ColorNamedVsHTML() => Assert.IsTrue(XLColor.Black == XLColor.FromHtml("#000000"));
+    public void ColorNamedVsHtml() => Assert.IsTrue(XLColor.Black == XLColor.FromHtml("#000000"));
 
     [Test]
     public void DefaultStyleColorIsAutomatic()
@@ -40,7 +40,7 @@ public class ColorTests
         );
 
     [Test]
-    public void CanConvertXLColorToColorType()
+    public void CanConvertXlColorToColorType()
     {
         XLColor xlColor1 = XLColor.Red;
         XLColor xlColor2 = XLColor.FromIndex(20);

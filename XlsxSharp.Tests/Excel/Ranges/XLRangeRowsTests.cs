@@ -4,7 +4,7 @@ using XlsxSharp.Excel;
 
 namespace XlsxSharp.Tests.Excel.Ranges;
 
-internal class XLRangeRowsTests
+internal class XlRangeRowsTests
 {
     [Test]
     public void Style_sets_format_of_range_rows()

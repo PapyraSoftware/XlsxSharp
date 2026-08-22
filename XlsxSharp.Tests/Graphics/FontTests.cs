@@ -9,13 +9,13 @@ namespace XlsxSharp.Tests.Graphics;
 [TestFixture]
 public class FontTests
 {
-    private readonly IXLGraphicEngine _engine = DefaultGraphicEngine.Instance.Value;
+    private readonly IXLGraphicEngine engine = DefaultGraphicEngine.Instance.Value;
 
     [TestCase]
     public void CalculatedTextWidth()
     {
         DummyFont textFont = new("Calibri", 20);
-        double textWidthPt = this._engine.GetTextWidth("Lorem ipsum dolor sit amet", textFont, 96);
+        double textWidthPt = this.engine.GetTextWidth("Lorem ipsum dolor sit amet", textFont, 96);
 
         // SixLabors.Fonts 1.x rounded the total advance up to a whole pixel at the engine's
         // FontMetricSize of 16 (180 instead of 179.0625), which is where the previous 300 came from.
@@ -28,7 +28,7 @@ public class FontTests
     public void CalculatedTextHeight()
     {
         DummyFont textFont = new("Calibri", 300);
-        double textHeightPx = this._engine.GetTextHeight(textFont, 96);
+        double textHeightPx = this.engine.GetTextHeight(textFont, 96);
         Assert.That(textHeightPx, Is.EqualTo(500));
     }
 
@@ -36,7 +36,7 @@ public class FontTests
     public void GetMaxDigitWidth()
     {
         DummyFont textFont = new("Calibri", 11);
-        double textWidthPx = this._engine.GetMaxDigitWidth(textFont, 96);
+        double textWidthPx = this.engine.GetMaxDigitWidth(textFont, 96);
         Assert.That(textWidthPx, Is.EqualTo(7.43359375d)); // Calibri,11 has a max digit width of 7 per spec 18.3.1.13
     }
 
@@ -44,7 +44,7 @@ public class FontTests
     public void DescentIsPositive()
     {
         DummyFont textFont = new("Calibri", 11);
-        double textWidthPt = this._engine.GetDescent(textFont, 96);
+        double textWidthPt = this.engine.GetDescent(textFont, 96);
         Assert.That(textWidthPt, Is.EqualTo(3.666666666666667d));
     }
 
@@ -54,12 +54,12 @@ public class FontTests
         DummyFont nonExistentFont = new("NonExistentFont", 100);
         DummyFont fallbackFont = new("Microsoft Sans Serif", 100);
 
-        double nonExistentFontWidth = this._engine.GetTextWidth("ABCDEF text", nonExistentFont, 96);
-        double fallbackFontWidth = this._engine.GetTextWidth("ABCDEF text", fallbackFont, 96);
+        double nonExistentFontWidth = this.engine.GetTextWidth("ABCDEF text", nonExistentFont, 96);
+        double fallbackFontWidth = this.engine.GetTextWidth("ABCDEF text", fallbackFont, 96);
         Assert.That(nonExistentFontWidth, Is.EqualTo(fallbackFontWidth));
 
-        double nonExistentFontHeight = this._engine.GetTextHeight(nonExistentFont, 96);
-        double fallbackFontHeight = this._engine.GetTextHeight(fallbackFont, 96);
+        double nonExistentFontHeight = this.engine.GetTextHeight(nonExistentFont, 96);
+        double fallbackFontHeight = this.engine.GetTextHeight(fallbackFont, 96);
         Assert.That(nonExistentFontHeight, Is.EqualTo(fallbackFontHeight));
     }
 

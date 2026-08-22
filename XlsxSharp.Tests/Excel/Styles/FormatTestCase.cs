@@ -7,9 +7,9 @@ namespace XlsxSharp.Tests.Excel.Styles;
 
 public class FormatTestCase<TApi>
 {
-    private readonly Func<TApi, object> _getter;
-    private readonly Action<TApi, object> _setter;
-    private readonly IReadOnlyList<object> _testValues;
+    private readonly Func<TApi, object> getter;
+    private readonly Action<TApi, object> setter;
+    private readonly IReadOnlyList<object> testValues;
 
     private FormatTestCase(
         Func<TApi, object> getter,
@@ -17,9 +17,9 @@ public class FormatTestCase<TApi>
         params object[] testValues
     )
     {
-        this._getter = getter;
-        this._setter = setter;
-        this._testValues = testValues;
+        this.getter = getter;
+        this.setter = setter;
+        this.testValues = testValues;
     }
 
     internal static FormatTestCase<IXLFont> ForFont<T>(
@@ -77,9 +77,9 @@ public class FormatTestCase<TApi>
             [.. testValues.Cast<object>()]
         );
 
-    internal IEnumerable<object> Values => this._testValues;
+    internal IEnumerable<object> Values => this.testValues;
 
-    internal object GetPropertyValue(TApi font) => this._getter(font);
+    internal object GetPropertyValue(TApi font) => this.getter(font);
 
-    internal void SetPropertyValue(TApi font, object value) => this._setter(font, value);
+    internal void SetPropertyValue(TApi font, object value) => this.setter(font, value);
 }

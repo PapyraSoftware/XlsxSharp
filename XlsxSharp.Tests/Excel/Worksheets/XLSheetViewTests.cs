@@ -9,7 +9,7 @@ using XlsxSharp.Excel;
 namespace XlsxSharp.Tests.Excel.Worksheets;
 
 [TestFixture]
-public class XLSheetViewTests
+public class XlSheetViewTests
 {
     [Test]
     public void CopyWorksheetSheetViews()

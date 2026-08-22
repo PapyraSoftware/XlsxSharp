@@ -247,7 +247,7 @@ public class ArithmeticOperatorsTests
     }
 
     [Test]
-    public void ArrayOperation1x1ArrayIsScaledToOtherArray()
+    public void ArrayOperation1X1ArrayIsScaledToOtherArray()
     {
         Assert.AreEqual(20, XLWorkbook.EvaluateExpr("SUM({2}*{1,2;3,4})"));
         Assert.AreEqual(20, XLWorkbook.EvaluateExpr("SUM({1,2;3,4}*{2})"));

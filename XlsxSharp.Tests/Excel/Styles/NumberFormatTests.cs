@@ -89,7 +89,7 @@ public class NumberFormatTests
     }
 
     [Test]
-    public void XLNumberFormatGetHashCodeIsCaseSensitive()
+    public void XlNumberFormatGetHashCodeIsCaseSensitive()
     {
         XLNumberFormat numberFormatKey1 = new("MM");
         XLNumberFormat numberFormatKey2 = new("mm");
@@ -98,7 +98,7 @@ public class NumberFormatTests
     }
 
     [Test]
-    public void XLNumberFormatEqualsIsCaseSensitive()
+    public void XlNumberFormatEqualsIsCaseSensitive()
     {
         XLNumberFormat numberFormatKey1 = new("MM");
         XLNumberFormat numberFormatKey2 = new("mm");

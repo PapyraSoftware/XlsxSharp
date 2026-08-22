@@ -8,7 +8,7 @@ namespace XlsxSharp.Tests.Excel.PivotTables;
 /// <summary>
 /// Test methods of interface <see cref="IXLPivotValues"/> implemented through <see cref="XLPivotDataFields"/> class.
 /// </summary>
-internal class XLPivotDataFieldsTests
+internal class XlPivotDataFieldsTests
 {
     #region IXLPivotValues methods
 

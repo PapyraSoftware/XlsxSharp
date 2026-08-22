@@ -11,7 +11,7 @@ namespace XlsxSharp.Tests.Excel.InsertData;
 
 public class UntypedObjectReaderTests
 {
-    private readonly ArrayList _data = new(
+    private readonly ArrayList data = new(
         new object[]
         {
             null,
@@ -42,7 +42,7 @@ public class UntypedObjectReaderTests
     [TestCase(3, "UnOrderedColumn")]
     public void CanGetPropertyName(int propertyIndex, string expectedPropertyName)
     {
-        IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(this._data);
+        IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(this.data);
         string? actualPropertyName = reader.GetPropertyName(propertyIndex);
         Assert.AreEqual(expectedPropertyName, actualPropertyName);
     }
@@ -50,21 +50,21 @@ public class UntypedObjectReaderTests
     [Test]
     public void CanGetPropertiesCount()
     {
-        IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(this._data);
+        IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(this.data);
         Assert.AreEqual(4, reader.GetPropertiesCount());
     }
 
     [Test]
     public void CanGetRecordsCount()
     {
-        IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(this._data);
+        IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(this.data);
         Assert.AreEqual(9, reader.GetRecords().Count());
     }
 
     [Test]
     public void CanGetData()
     {
-        IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(this._data);
+        IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(this.data);
 
         IEnumerable<XLCellValue>[] result = [.. reader.GetRecords()];
 

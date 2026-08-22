@@ -4,7 +4,7 @@ using XlsxSharp.Excel;
 namespace XlsxSharp.Tests.Excel.Coordinates;
 
 [TestFixture]
-public class XLSheetAreaTests
+public class XlSheetAreaTests
 {
     [Test]
     public void SheetNameIsComparedCaseInsensitive()

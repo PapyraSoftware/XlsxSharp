@@ -6,7 +6,7 @@ namespace XlsxSharp.Tests.Excel.PivotTables;
 /// Tests for classes that implement <c>IXLPivotSource</c>.
 /// </summary>
 [TestFixture]
-internal class XLPivotSourceTests
+internal class XlPivotSourceTests
 {
     [Test]
     public void Can_load_and_save_all_source_types() =>

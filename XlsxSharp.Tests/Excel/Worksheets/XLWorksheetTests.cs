@@ -19,9 +19,9 @@ using XlsxSharp.Tests.Utils;
 namespace XlsxSharp.Tests.Excel.Worksheets;
 
 [TestFixture]
-public class XLWorksheetTests
+public class XlWorksheetTests
 {
-    private static readonly char[] illegalWorksheetCharacters =
+    private static readonly char[] IllegalWorksheetCharacters =
         "\u0000\u0003:\\/?*[]".ToCharArray();
 
     [Test]
@@ -332,7 +332,6 @@ public class XLWorksheetTests
             IXLWorksheet ws3 = wb.Worksheets.Skip(2).First();
             ws3.CopyTo("Copy3");
 
-            IXLWorksheet ws4 = wb.Worksheets.Skip(3).First();
             ws3.CopyTo("Copy4");
         }
     }
@@ -384,7 +383,7 @@ public class XLWorksheetTests
     public void WorksheetNameCannotBeEmpty() =>
         Assert.Throws<ArgumentException>(() => new XLWorkbook().AddWorksheet(" "));
 
-    [TestCaseSource(nameof(illegalWorksheetCharacters))]
+    [TestCaseSource(nameof(IllegalWorksheetCharacters))]
     public void WorksheetNameCannotContainIllegalCharacters(char c)
     {
         string proposedName = $"Sheet{c}Name";
@@ -787,7 +786,7 @@ public class XLWorksheetTests
         {
             IXLWorksheet ws1 = wb1.Worksheets.Add("Original");
 
-            IXLPicture picture = ws1.AddPicture(imageStream, "MyPicture")
+            ws1.AddPicture(imageStream, "MyPicture")
                 .WithPlacement(XLPicturePlacement.FreeFloating)
                 .MoveTo(50, 50)
                 .WithSize(200, 200);
@@ -1109,7 +1108,7 @@ public class XLWorksheetTests
     }
 
     [Test]
-    public void RangesFromDeletedWorksheetContainREF()
+    public void RangesFromDeletedWorksheetContainRef()
     {
         using (XLWorkbook wb1 = new())
         {
@@ -1340,7 +1339,7 @@ public class XLWorksheetTests
             {
                 IXLWorksheet ws1 = wb.AddWorksheet();
                 ws1.TabSelected = true;
-                IXLWorksheet ws2 = wb.Worksheets.Add(1);
+                wb.Worksheets.Add(1);
                 wb.SaveAs(ms);
             }
 

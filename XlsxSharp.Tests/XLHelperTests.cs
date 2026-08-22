@@ -4,7 +4,7 @@ using NUnit.Framework;
 namespace XlsxSharp.Tests;
 
 [TestFixture]
-public class XLHelperTests
+public class XlHelperTests
 {
     [Test]
     public void IsValidColumnTest()

@@ -14,7 +14,7 @@ public class HashAlgorithmTests
     }
 
     [Test]
-    public void TestSHA512()
+    public void TestSha512()
     {
         string hash = CryptographicAlgorithms.GetPasswordHash(
             Algorithm.SHA512,

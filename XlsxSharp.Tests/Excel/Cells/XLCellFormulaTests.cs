@@ -4,7 +4,7 @@ using XlsxSharp.Excel;
 namespace XlsxSharp.Tests.Excel.Cells;
 
 [TestFixture]
-public class XLCellFormulaTests
+public class XlCellFormulaTests
 {
     [Test]
     public void CellFormulaIsStrippedOfEqualSign()

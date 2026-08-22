@@ -17,7 +17,7 @@ public class ExcelDocsComparerTests
         {
             new BasicTable().Create(left);
             new BasicTable().Create(right);
-            Assert.IsTrue(ExcelDocsComparer.Compare(left, right, out string message));
+            Assert.IsTrue(ExcelDocsComparer.Compare(left, right, out string _));
         }
         finally
         {
@@ -42,7 +42,7 @@ public class ExcelDocsComparerTests
             new BasicTable().Create(left);
             new HelloWorld().Create(right);
 
-            Assert.IsFalse(ExcelDocsComparer.Compare(left, right, out string message));
+            Assert.IsFalse(ExcelDocsComparer.Compare(left, right, out string _));
         }
         finally
         {

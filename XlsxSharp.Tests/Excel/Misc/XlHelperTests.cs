@@ -56,7 +56,7 @@ public class XlHelperTests
     }
 
     [Test]
-    public void PlusAA1IsNotAnAddress() => Assert.IsFalse(XLHelper.IsValidA1Address("+AA1"));
+    public void PlusAa1IsNotAnAddress() => Assert.IsFalse(XLHelper.IsValidA1Address("+AA1"));
 
     [Test]
     public void TestConvertColumnLetterToNumberAnd()
@@ -119,7 +119,7 @@ public class XlHelperTests
     [TestCase("R111C[222]")]
     [TestCase("R[111]C[222]")]
     [TestCase("R[-111]C[-222]")]
-    public void ValidRCAddresses(string address) =>
+    public void ValidRcAddresses(string address) =>
         Assert.IsTrue(XLHelper.IsValidRCAddress(address));
 
     [TestCase("RD")]
@@ -127,12 +127,12 @@ public class XlHelperTests
     [TestCase("R[-]C222")]
     [TestCase("R[]C[-]")]
     [TestCase("_R111C222")]
-    public void InvalidRCAddresses(string address) =>
+    public void InvalidRcAddresses(string address) =>
         Assert.IsFalse(XLHelper.IsValidRCAddress(address));
 
     #region Old XLHelper methods
 
-    private static readonly string[] letters =
+    private static readonly string[] Letters =
     [
         "A",
         "B",
@@ -214,7 +214,7 @@ public class XlHelperTests
         columnNumber--; // Adjust for start on column 1
         if (columnNumber <= 25)
         {
-            return letters[columnNumber];
+            return Letters[columnNumber];
         }
         int firstPart = (columnNumber) / 26;
         int remainder = ((columnNumber) % 26) + 1;

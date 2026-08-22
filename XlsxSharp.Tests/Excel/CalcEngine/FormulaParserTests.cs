@@ -473,7 +473,7 @@ public class FormulaParserTests
 
     [TestCase("=Sheet1:Sheet5!A1")]
     [TestCase("=Jan:Dec!A1")]
-    public void PrefixCanBeSheetsFor3dReference(string formula) =>
+    public void PrefixCanBeSheetsFor3DReference(string formula) =>
         AssertCanParseButNotEvaluate(formula, "3D references are not yet implemented.");
 
     [TestCase("=[1]Sheet4!A1")]

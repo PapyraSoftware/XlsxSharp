@@ -12,7 +12,7 @@ using static XlsxSharp.Excel.Protection.XLProtectionAlgorithm;
 
 namespace XlsxSharp.Tests.Excel.Protection;
 
-public class XLWorkbookProtectionTests
+public class XlWorkbookProtectionTests
 {
     [Test]
     public void CanChangeProtectionAlgorithm()
@@ -262,7 +262,7 @@ public class XLWorkbookProtectionTests
     }
 
     [Test]
-    public void IXLProtectableTests()
+    public void IxlProtectableTests()
     {
         using XLWorkbook wb = new();
         Enumerable.Range(1, 5).ForEach(i => wb.AddWorksheet());

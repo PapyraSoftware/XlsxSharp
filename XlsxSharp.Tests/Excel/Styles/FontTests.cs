@@ -10,25 +10,25 @@ namespace XlsxSharp.Tests.Excel.Styles;
 
 public class FontTests
 {
-    private readonly XLFontFormatValue _defaultFormat = XLFontFormatValue.Default;
+    private readonly XLFontFormatValue defaultFormat = XLFontFormatValue.Default;
 
     [Test]
-    public void XLFontFormatValueGetHashCodeIsCaseInsensitive()
+    public void XlFontFormatValueGetHashCodeIsCaseInsensitive()
     {
-        XLFontFormatValue fontKey1 = this._defaultFormat with { Name = "Arial" };
-        XLFontFormatValue fontKey2 = this._defaultFormat with { Name = "Times New Roman" };
-        XLFontFormatValue fontKey3 = this._defaultFormat with { Name = "TIMES NEW ROMAN" };
+        XLFontFormatValue fontKey1 = this.defaultFormat with { Name = "Arial" };
+        XLFontFormatValue fontKey2 = this.defaultFormat with { Name = "Times New Roman" };
+        XLFontFormatValue fontKey3 = this.defaultFormat with { Name = "TIMES NEW ROMAN" };
 
         Assert.AreNotEqual(fontKey1.GetHashCode(), fontKey2.GetHashCode());
         Assert.AreEqual(fontKey2.GetHashCode(), fontKey3.GetHashCode());
     }
 
     [Test]
-    public void XLFontFormatValueEqualsIsCaseInsensitive()
+    public void XlFontFormatValueEqualsIsCaseInsensitive()
     {
-        XLFontFormatValue fontKey1 = this._defaultFormat with { Name = "Arial" };
-        XLFontFormatValue fontKey2 = this._defaultFormat with { Name = "Times New Roman" };
-        XLFontFormatValue fontKey3 = this._defaultFormat with { Name = "TIMES NEW ROMAN" };
+        XLFontFormatValue fontKey1 = this.defaultFormat with { Name = "Arial" };
+        XLFontFormatValue fontKey2 = this.defaultFormat with { Name = "Times New Roman" };
+        XLFontFormatValue fontKey3 = this.defaultFormat with { Name = "TIMES NEW ROMAN" };
 
         Assert.IsFalse(fontKey1.Equals(fontKey2));
         Assert.IsTrue(fontKey2.Equals(fontKey3));

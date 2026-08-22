@@ -14,7 +14,7 @@ namespace XlsxSharp.Tests.Excel.CalcEngine;
 [SetCulture("en-US")]
 public class MathTrigTests
 {
-    private const double tolerance = 1e-10;
+    private const double Tolerance = 1e-10;
 
     [Theory]
     public void AbsReturnsItselfOnPositiveNumbers([Range(0, 10, 0.1)] double input)
@@ -23,7 +23,7 @@ public class MathTrigTests
             XLWorkbook.EvaluateExpr(
                 string.Format(@"ABS({0})", input.ToString(CultureInfo.InvariantCulture))
             );
-        Assert.AreEqual(input, actual, tolerance * 10);
+        Assert.AreEqual(input, actual, Tolerance * 10);
     }
 
     [Theory]
@@ -33,7 +33,7 @@ public class MathTrigTests
             XLWorkbook.EvaluateExpr(
                 string.Format(@"ABS({0})", input.ToString(CultureInfo.InvariantCulture))
             );
-        Assert.AreEqual(-input, actual, tolerance * 10);
+        Assert.AreEqual(-input, actual, Tolerance * 10);
     }
 
     [TestCase(-1, 3.141592654)]
@@ -60,7 +60,7 @@ public class MathTrigTests
     public void AcosReturnsCorrectValue(double input, double expectedResult)
     {
         double actual = (double)XLWorkbook.EvaluateExpr($"ACOS({input})");
-        Assert.AreEqual(expectedResult, actual, tolerance * 10);
+        Assert.AreEqual(expectedResult, actual, Tolerance * 10);
     }
 
     [Theory]
@@ -96,7 +96,7 @@ public class MathTrigTests
     public void AcoshReturnsCorrectNumber(double angle, double expectedResult)
     {
         double actual = (double)XLWorkbook.EvaluateExpr($"ACOSH({angle})");
-        Assert.AreEqual(expectedResult, actual, tolerance * 10);
+        Assert.AreEqual(expectedResult, actual, Tolerance * 10);
     }
 
     [TestCase(-10, 3.041924001)]
@@ -123,7 +123,7 @@ public class MathTrigTests
     public void AcotReturnsCorrectNumber(double angle, double expectedResult)
     {
         double actual = (double)XLWorkbook.EvaluateExpr($"ACOT({angle})");
-        Assert.AreEqual(expectedResult, actual, tolerance * 10);
+        Assert.AreEqual(expectedResult, actual, Tolerance * 10);
     }
 
     [Theory]
@@ -153,7 +153,7 @@ public class MathTrigTests
     public void AcothReturnsCorrectNumber(double angle, double expectedResult)
     {
         double actual = (double)XLWorkbook.EvaluateExpr($"ACOTH({angle})");
-        Assert.AreEqual(expectedResult, actual, tolerance * 10);
+        Assert.AreEqual(expectedResult, actual, Tolerance * 10);
     }
 
     [TestCase("LVII", 57)]
@@ -218,7 +218,7 @@ public class MathTrigTests
     public void AsinReturnsCorrectResult(double input, double expectedResult)
     {
         double actual = (double)XLWorkbook.EvaluateExpr($"ASIN({input})");
-        Assert.AreEqual(expectedResult, actual, tolerance * 10);
+        Assert.AreEqual(expectedResult, actual, Tolerance * 10);
     }
 
     [Theory]
@@ -248,9 +248,9 @@ public class MathTrigTests
     public void AsinhReturnsCorrectResult(double input, double expectedResult)
     {
         double actual = (double)XLWorkbook.EvaluateExpr($"ASINH({input})");
-        Assert.AreEqual(expectedResult, actual, tolerance);
+        Assert.AreEqual(expectedResult, actual, Tolerance);
         double minusActual = (double)XLWorkbook.EvaluateExpr($"ASINH({-input})");
-        Assert.AreEqual(-expectedResult, minusActual, tolerance);
+        Assert.AreEqual(-expectedResult, minusActual, Tolerance);
     }
 
     [TestCase(0, 0)]
@@ -271,16 +271,16 @@ public class MathTrigTests
     public void AtanReturnsCorrectResult(double input, double expectedResult)
     {
         double actual = (double)XLWorkbook.EvaluateExpr($"ATAN({input})");
-        Assert.AreEqual(expectedResult, actual, tolerance);
+        Assert.AreEqual(expectedResult, actual, Tolerance);
         double minusActual = (double)XLWorkbook.EvaluateExpr($"ATAN({-input})");
-        Assert.AreEqual(-expectedResult, minusActual, tolerance);
+        Assert.AreEqual(-expectedResult, minusActual, Tolerance);
     }
 
     [Test]
     public void Atan2Returns0OnSecond0AndFirstGreater0([Range(0.1, 5, 0.4)] double input)
     {
         double actual = (double)XLWorkbook.EvaluateExpr($"ATAN2({input}, 0)");
-        Assert.AreEqual(0, actual, tolerance);
+        Assert.AreEqual(0, actual, Tolerance);
     }
 
     [TestCase(1, 2, 1.10714871779409)]
@@ -309,7 +309,7 @@ public class MathTrigTests
         for (int i = 1; i < 5; i++)
         {
             double actual = (double)XLWorkbook.EvaluateExpr($"ATAN2({x * i}, {y * i})");
-            Assert.AreEqual(expectedResult, actual, tolerance);
+            Assert.AreEqual(expectedResult, actual, Tolerance);
         }
     }
 
@@ -319,7 +319,7 @@ public class MathTrigTests
     )
     {
         double actual = (double)XLWorkbook.EvaluateExpr($"ATAN2(0, {input})");
-        Assert.AreEqual(0.5 * Math.PI, actual, tolerance);
+        Assert.AreEqual(0.5 * Math.PI, actual, Tolerance);
     }
 
     [Test]
@@ -328,7 +328,7 @@ public class MathTrigTests
     )
     {
         double actual = (double)XLWorkbook.EvaluateExpr($"ATAN2({input}, {input})");
-        Assert.AreEqual(-0.75 * Math.PI, actual, tolerance);
+        Assert.AreEqual(-0.75 * Math.PI, actual, Tolerance);
     }
 
     [Test]
@@ -337,14 +337,14 @@ public class MathTrigTests
     )
     {
         double actual = (double)XLWorkbook.EvaluateExpr($"ATAN2(0, {input})");
-        Assert.AreEqual(-0.5 * Math.PI, actual, tolerance);
+        Assert.AreEqual(-0.5 * Math.PI, actual, Tolerance);
     }
 
     [Test]
     public void Atan2ReturnsPiOn0AsSecondInputWhenFirstSmaller0([Range(-5, -0.1, 0.4)] double input)
     {
         double actual = (double)XLWorkbook.EvaluateExpr($"ATAN2({input}, 0)");
-        Assert.AreEqual(Math.PI, actual, tolerance);
+        Assert.AreEqual(Math.PI, actual, Tolerance);
     }
 
     [Test]
@@ -353,7 +353,7 @@ public class MathTrigTests
     )
     {
         double actual = (double)XLWorkbook.EvaluateExpr($"ATAN2({input}, {input})");
-        Assert.AreEqual(0.25 * Math.PI, actual, tolerance);
+        Assert.AreEqual(0.25 * Math.PI, actual, Tolerance);
     }
 
     [Test]
@@ -377,7 +377,7 @@ public class MathTrigTests
     public void AtanhReturnsCorrectResults(double input, double expectedResult)
     {
         double actual = (double)XLWorkbook.EvaluateExpr($"ATANH({input})");
-        Assert.AreEqual(expectedResult, actual, tolerance * 10);
+        Assert.AreEqual(expectedResult, actual, Tolerance * 10);
     }
 
     [Theory]
@@ -492,7 +492,7 @@ public class MathTrigTests
     public void Ceiling(double input, double significance, double expectedResult)
     {
         double actual = (double)XLWorkbook.EvaluateExpr($"CEILING({input}, {significance})");
-        Assert.AreEqual(expectedResult, actual, tolerance);
+        Assert.AreEqual(expectedResult, actual, Tolerance);
     }
 
     [TestCase(6.7, -1)]
@@ -545,7 +545,7 @@ public class MathTrigTests
         }
 
         double actual = (double)XLWorkbook.EvaluateExpr($"CEILING.MATH({parameters})");
-        Assert.AreEqual(expectedResult, actual, tolerance);
+        Assert.AreEqual(expectedResult, actual, Tolerance);
     }
 
     [Test]
@@ -716,7 +716,7 @@ public class MathTrigTests
     public void CosReturnsCorrectResult(double input, double expectedResult)
     {
         double actualResult = (double)XLWorkbook.EvaluateExpr($"COS({input})");
-        Assert.AreEqual(expectedResult, actualResult, tolerance);
+        Assert.AreEqual(expectedResult, actualResult, Tolerance);
     }
 
     [TestCase(0, 1)]
@@ -744,9 +744,9 @@ public class MathTrigTests
     public void CoshReturnsCorrectResult(double input, double expectedResult)
     {
         double actualResult = (double)XLWorkbook.EvaluateExpr($"COSH({input})");
-        Assert.AreEqual(expectedResult, actualResult, tolerance);
+        Assert.AreEqual(expectedResult, actualResult, Tolerance);
         double actualResult2 = (double)XLWorkbook.EvaluateExpr($"COSH({-input})");
-        Assert.AreEqual(expectedResult, actualResult2, tolerance);
+        Assert.AreEqual(expectedResult, actualResult2, Tolerance);
     }
 
     [TestCase(711)]
@@ -773,7 +773,7 @@ public class MathTrigTests
     public void Cot(double angle, double expected)
     {
         double actual = (double)XLWorkbook.EvaluateExpr($"COT({angle})");
-        Assert.AreEqual(expected, actual, tolerance * 10.0);
+        Assert.AreEqual(expected, actual, Tolerance * 10.0);
     }
 
     [Test]
@@ -807,7 +807,7 @@ public class MathTrigTests
     public void CothReturnsCorrectNumber(double angle, double expected)
     {
         double actual = (double)XLWorkbook.EvaluateExpr($"COTH({angle})");
-        Assert.AreEqual(expected, actual, tolerance * 10.0);
+        Assert.AreEqual(expected, actual, Tolerance * 10.0);
     }
 
     [Test]
@@ -837,7 +837,7 @@ public class MathTrigTests
     public void CscReturnsCorrectNumber(double angle, double expected)
     {
         double actual = (double)XLWorkbook.EvaluateExpr($"CSC({angle})");
-        Assert.AreEqual(expected, actual, tolerance * 10);
+        Assert.AreEqual(expected, actual, Tolerance * 10);
     }
 
     [TestCase(1, 0.850918128)]
@@ -937,7 +937,7 @@ public class MathTrigTests
     public void DegreesReturnsCorrectResult(double input, double expected)
     {
         double actual = (double)XLWorkbook.EvaluateExpr($"DEGREES({input})");
-        Assert.AreEqual(expected, actual, tolerance);
+        Assert.AreEqual(expected, actual, Tolerance);
     }
 
     [TestCase(3, 4)]
@@ -972,7 +972,7 @@ public class MathTrigTests
     public void ExpReturnsCorrectResults(double input, double expectedResult)
     {
         double actual = (double)XLWorkbook.EvaluateExpr($"EXP({input})");
-        Assert.AreEqual(expectedResult, actual, tolerance);
+        Assert.AreEqual(expectedResult, actual, Tolerance);
     }
 
     [TestCase(710)]
@@ -1093,7 +1093,7 @@ public class MathTrigTests
     public void Floor(double input, double significance, double expectedResult)
     {
         double actual = (double)XLWorkbook.EvaluateExpr($"FLOOR({input}, {significance})");
-        Assert.AreEqual(expectedResult, actual, tolerance);
+        Assert.AreEqual(expectedResult, actual, Tolerance);
     }
 
     [TestCase(6.7, 0)]
@@ -1134,7 +1134,7 @@ public class MathTrigTests
     [TestCase(-5.5, 2.1, 10, -4.2)]
     [TestCase(-5.5, -2.1, 10, -4.2)]
     [TestCase(-5.5, 0, 0, 0)]
-    [DefaultFloatingPointTolerance(tolerance)]
+    [DefaultFloatingPointTolerance(Tolerance)]
     public void FloorMath(double input, double? significance, int? mode, double expectedResult)
     {
         StringBuilder parameters = new();
@@ -1245,7 +1245,7 @@ public class MathTrigTests
     [TestCase(2.7182818, 0.9999999895)]
     [TestCase(20.085536923, 3)]
     public void LnCalculatesLogarithm(double x, double ln) =>
-        Assert.AreEqual(ln, (double)XLWorkbook.EvaluateExpr($"LN({x})"), tolerance);
+        Assert.AreEqual(ln, (double)XLWorkbook.EvaluateExpr($"LN({x})"), Tolerance);
 
     [TestCase(0)]
     [TestCase(-0.7)]
@@ -1257,7 +1257,7 @@ public class MathTrigTests
     [TestCase(8, 2, 3)]
     [TestCase(86, 2.7182818, 4.4543473428883)]
     public void LogCalculatesLogarithm(double x, double @base, double result) =>
-        Assert.AreEqual(result, (double)XLWorkbook.EvaluateExpr($"LOG({x}, {@base})"), tolerance);
+        Assert.AreEqual(result, (double)XLWorkbook.EvaluateExpr($"LOG({x}, {@base})"), Tolerance);
 
     [Test]
     public void LogDefaultBaseIs10() => Assert.AreEqual(2, XLWorkbook.EvaluateExpr("LOG(100)"));
@@ -1275,7 +1275,7 @@ public class MathTrigTests
     [TestCase(10, 1)]
     [TestCase(1E5, 5)]
     public void Log10CalculatesLogarithm(double x, double expectedResult) =>
-        Assert.AreEqual(expectedResult, (double)XLWorkbook.EvaluateExpr($"LOG10({x})"), tolerance);
+        Assert.AreEqual(expectedResult, (double)XLWorkbook.EvaluateExpr($"LOG10({x})"), Tolerance);
 
     [TestCase(0)]
     [TestCase(-5)]
@@ -1289,7 +1289,7 @@ public class MathTrigTests
         Assert.AreEqual(1, XLWorkbook.EvaluateExpr("0 + LOG10(10)"));
 
     [Test]
-    [DefaultFloatingPointTolerance(tolerance)]
+    [DefaultFloatingPointTolerance(Tolerance)]
     public void MDeterm()
     {
         using XLWorkbook wb = new();
@@ -1310,7 +1310,7 @@ public class MathTrigTests
     }
 
     [Test]
-    [DefaultFloatingPointTolerance(tolerance)]
+    [DefaultFloatingPointTolerance(Tolerance)]
     public void MDetermExamples()
     {
         // Examples from spec
@@ -1363,7 +1363,7 @@ public class MathTrigTests
     }
 
     [Test]
-    [DefaultFloatingPointTolerance(tolerance)]
+    [DefaultFloatingPointTolerance(Tolerance)]
     public void MInverse()
     {
         using XLWorkbook wb = new();
@@ -1538,7 +1538,7 @@ public class MathTrigTests
     public void Mod(double x, double y, double result)
     {
         double actual = (double)XLWorkbook.EvaluateExpr($"MOD({x}, {y})");
-        Assert.AreEqual(result, actual, tolerance);
+        Assert.AreEqual(result, actual, Tolerance);
     }
 
     [Test]
@@ -1856,7 +1856,7 @@ public class MathTrigTests
     [TestCase("PI()/2", ExpectedResult = 1)]
     [TestCase("30*PI()/180", ExpectedResult = 0.5)]
     [TestCase("RADIANS(30)", ExpectedResult = 0.5)]
-    [DefaultFloatingPointTolerance(tolerance)]
+    [DefaultFloatingPointTolerance(Tolerance)]
     public double Sin(string arg) => (double)XLWorkbook.EvaluateExpr($"SIN({arg})");
 
     [TestCase("0", 0)]
@@ -1946,7 +1946,7 @@ public class MathTrigTests
     }
 
     [Test]
-    [DefaultFloatingPointTolerance(tolerance)]
+    [DefaultFloatingPointTolerance(Tolerance)]
     public void SeriesSum()
     {
         Assert.AreEqual(40.0, XLWorkbook.EvaluateExpr("SERIESSUM(2,3,4,5)"));
@@ -2029,7 +2029,7 @@ public class MathTrigTests
     [TestCase(2, 1.4142135624)]
     [TestCase(1E+300, 1E+150)]
     public void Sqrt(double x, double result) =>
-        Assert.AreEqual(result, (double)XLWorkbook.EvaluateExpr($"SQRT({x})"), tolerance);
+        Assert.AreEqual(result, (double)XLWorkbook.EvaluateExpr($"SQRT({x})"), Tolerance);
 
     [TestCase(-1)]
     [TestCase(-0.0001)]
@@ -2040,10 +2040,10 @@ public class MathTrigTests
     public void SqrtPi()
     {
         double actual = (double)XLWorkbook.EvaluateExpr("SQRTPI(1)");
-        Assert.AreEqual(1.7724538509055159, actual, tolerance);
+        Assert.AreEqual(1.7724538509055159, actual, Tolerance);
 
         actual = (double)XLWorkbook.EvaluateExpr("SQRTPI(2)");
-        Assert.AreEqual(2.5066282746310002, actual, tolerance);
+        Assert.AreEqual(2.5066282746310002, actual, Tolerance);
 
         Assert.AreEqual(XLError.NumberInvalid, XLWorkbook.EvaluateExpr("SQRTPI(-1)"));
     }
@@ -2718,7 +2718,7 @@ public class MathTrigTests
 
             XLCellValue actualResult = ws.Evaluate(formula);
 
-            Assert.AreEqual(expectedResult, (double)actualResult, tolerance);
+            Assert.AreEqual(expectedResult, (double)actualResult, Tolerance);
         }
     }
 
@@ -2850,7 +2850,7 @@ public class MathTrigTests
     [TestCase(1, ExpectedResult = 1.5574077247)]
     [TestCase(134217727, ExpectedResult = 3.2584564256)]
     [TestCase(-134217727, ExpectedResult = -3.2584564256)]
-    [DefaultFloatingPointTolerance(tolerance)]
+    [DefaultFloatingPointTolerance(Tolerance)]
     public double Tan(double radians) => (double)XLWorkbook.EvaluateExpr($"TAN({radians})");
 
     [TestCase(134217728)]
@@ -2864,7 +2864,7 @@ public class MathTrigTests
     [TestCase(1, 0.761594156)]
     [TestCase(1E+300, 1)]
     [TestCase(-1E+300, -1)]
-    [DefaultFloatingPointTolerance(tolerance)]
+    [DefaultFloatingPointTolerance(Tolerance)]
     public void Tanh(double number, double result) =>
         Assert.AreEqual(result, (double)XLWorkbook.EvaluateExpr($"TANH({number})"));
 

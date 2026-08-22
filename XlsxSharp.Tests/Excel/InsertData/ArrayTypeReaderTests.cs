@@ -8,33 +8,33 @@ namespace XlsxSharp.Tests.Excel.InsertData;
 
 public class ArrayTypeReaderTests
 {
-    private readonly int[][] _data = new int[][] { [1, 2, 3], [4, 5, 6] };
+    private readonly int[][] data = new int[][] { [1, 2, 3], [4, 5, 6] };
 
     [Test]
     public void GetPropertyNameReturnsNull()
     {
-        IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(this._data);
+        IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(this.data);
         Assert.IsNull(reader.GetPropertyName(0));
     }
 
     [Test]
     public void CanGetPropertiesCount()
     {
-        IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(this._data);
+        IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(this.data);
         Assert.AreEqual(3, reader.GetPropertiesCount());
     }
 
     [Test]
     public void CanGetRecordsCount()
     {
-        IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(this._data);
+        IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(this.data);
         Assert.AreEqual(2, reader.GetRecords().Count());
     }
 
     [Test]
     public void CanReadValues()
     {
-        IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(this._data);
+        IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(this.data);
         IEnumerable<IEnumerable<XLCellValue>> result = reader.GetRecords();
 
         Assert.AreEqual(1, result.First().First());

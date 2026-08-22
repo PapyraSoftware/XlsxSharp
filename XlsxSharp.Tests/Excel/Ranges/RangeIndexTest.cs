@@ -10,7 +10,7 @@ namespace XlsxSharp.Tests.Excel.Ranges;
 [TestFixture]
 public class RangeIndexTest
 {
-    private const int TEST_COUNT = 10000;
+    private const int TestCount = 10000;
 
     [Test]
     public void FindExistingMatches()
@@ -20,7 +20,7 @@ public class RangeIndexTest
             XLWorksheet? ws = wb.Worksheets.Add("Sheet1") as XLWorksheet;
             IXLRangeIndex index = this.FillIndexWithTestData(ws);
 
-            for (int i = 1; i <= TEST_COUNT; i++)
+            for (int i = 1; i <= TestCount; i++)
             {
                 for (int j = 2; j <= 4; j++)
                 {
@@ -39,7 +39,7 @@ public class RangeIndexTest
             XLWorksheet? ws = wb.Worksheets.Add("Sheet1") as XLWorksheet;
             IXLRangeIndex index = this.FillIndexWithTestData(ws);
 
-            for (int i = 1; i <= TEST_COUNT; i++)
+            for (int i = 1; i <= TestCount; i++)
             {
                 XLAddress address = new(ws, i * 2 + 1, 3, false, false);
                 Assert.False(index.Contains(in address));
@@ -55,7 +55,7 @@ public class RangeIndexTest
             XLWorksheet? ws = wb.Worksheets.Add("Sheet1") as XLWorksheet;
             IXLRangeIndex index = this.FillIndexWithTestData(ws);
 
-            for (int i = 1; i <= TEST_COUNT; i++)
+            for (int i = 1; i <= TestCount; i++)
             {
                 XLRangeAddress rangeAddress = new(
                     new XLAddress(ws, i * 2, 1 + i % 4, false, false),
@@ -81,7 +81,7 @@ public class RangeIndexTest
             XLWorksheet? ws = wb.Worksheets.Add("Sheet1") as XLWorksheet;
             IXLRangeIndex index = this.FillIndexWithTestData(ws);
 
-            for (int i = 1; i <= TEST_COUNT; i++)
+            for (int i = 1; i <= TestCount; i++)
             {
                 XLRangeAddress rangeAddress = new(
                     new XLAddress(ws, i * 2 + 1, 1 + i % 4, false, false),
@@ -231,7 +231,7 @@ public class RangeIndexTest
     }
 
     [Test]
-    public void XLRangesCountChangesCorrectly()
+    public void XlRangesCountChangesCorrectly()
     {
         using (XLWorkbook wb = new())
         {
@@ -251,14 +251,14 @@ public class RangeIndexTest
             Assert.AreEqual(ranges.Count, ranges.Count);
 
             // Add many entries to activate QuadTree
-            for (int i = 1; i <= TEST_COUNT; i++)
+            for (int i = 1; i <= TestCount; i++)
             {
                 ranges.Add(ws.Range(i * 2, 2, i * 2, 4));
             }
 
-            Assert.AreEqual(2 + TEST_COUNT, ranges.Count);
+            Assert.AreEqual(2 + TestCount, ranges.Count);
 
-            for (int i = 1; i <= TEST_COUNT; i++)
+            for (int i = 1; i <= TestCount; i++)
             {
                 ranges.Remove(ws.Range(i * 2, 2, i * 2, 4));
             }
@@ -280,7 +280,7 @@ public class RangeIndexTest
     private IXLRangeIndex FillIndexWithTestData(IXLWorksheet worksheet)
     {
         List<IXLRange> ranges = [];
-        for (int i = 1; i <= TEST_COUNT; i++)
+        for (int i = 1; i <= TestCount; i++)
         {
             ranges.Add(worksheet.Range(i * 2, 2, i * 2, 4));
         }

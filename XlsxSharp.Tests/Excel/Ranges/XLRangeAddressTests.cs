@@ -5,7 +5,7 @@ using XlsxSharp.Excel;
 namespace XlsxSharp.Tests.Excel.Ranges;
 
 [TestFixture]
-public class XLRangeAddressTests
+public class XlRangeAddressTests
 {
     [Test]
     public void ToStringTest()
@@ -324,18 +324,9 @@ public class XLRangeAddressTests
         Assert.AreEqual(4, rangeAddress.NumberOfCells);
 
         rangeAddress = ProduceInvalidAddress();
-        Assert.Throws<InvalidOperationException>(() =>
-        {
-            int x = rangeAddress.ColumnSpan;
-        });
-        Assert.Throws<InvalidOperationException>(() =>
-        {
-            int x = rangeAddress.RowSpan;
-        });
-        Assert.Throws<InvalidOperationException>(() =>
-        {
-            int x = rangeAddress.NumberOfCells;
-        });
+        Assert.Throws<InvalidOperationException>(() => { });
+        Assert.Throws<InvalidOperationException>(() => { });
+        Assert.Throws<InvalidOperationException>(() => { });
     }
 
     #region Private Methods

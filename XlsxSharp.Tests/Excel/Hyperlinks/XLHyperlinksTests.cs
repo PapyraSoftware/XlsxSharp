@@ -8,7 +8,7 @@ namespace XlsxSharp.Tests.Excel.Hyperlinks;
 
 [TestFixture]
 [TestOf(typeof(XLHyperlinks))]
-public class XLHyperlinksTests
+public class XlHyperlinksTests
 {
     [TestCaseSource(nameof(StructuralChangeCases))]
     public void HyperlinkIsMovedOnSheetStructureChange(

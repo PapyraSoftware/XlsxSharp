@@ -11,26 +11,26 @@ namespace XlsxSharp.Tests.Utils;
 public sealed class ResourceFileExtractor
 {
     /// <summary>Assembly used to load resources.</summary>
-    private readonly Assembly _assembly;
+    private readonly Assembly assembly;
 
     /// <summary>A prefix of loadable resources names in the assembly.</summary>
-    private readonly string _resourcePathPrefix;
+    private readonly string resourcePathPrefix;
 
     /// <param name="assembly">Assembly that contains the resources.</param>
     /// <param name="resourcePath"><c>ResourceFilePath</c> in assembly. Example: .Properties.Scripts.</param>
     public ResourceFileExtractor(Assembly assembly, string resourcePath)
     {
-        this._assembly = assembly ?? Assembly.GetCallingAssembly();
-        this._resourcePathPrefix = this._assembly.GetName().Name + resourcePath;
+        this.assembly = assembly ?? Assembly.GetCallingAssembly();
+        this.resourcePathPrefix = this.assembly.GetName().Name + resourcePath;
     }
 
     public IEnumerable<string> GetFileNames(Func<string, bool> predicate)
     {
-        foreach (string resourceName in this._assembly.GetManifestResourceNames())
+        foreach (string resourceName in this.assembly.GetManifestResourceNames())
         {
-            if (resourceName.StartsWith(this._resourcePathPrefix) && predicate(resourceName))
+            if (resourceName.StartsWith(this.resourcePathPrefix) && predicate(resourceName))
             {
-                yield return resourceName[this._resourcePathPrefix.Length..];
+                yield return resourceName[this.resourcePathPrefix.Length..];
             }
         }
     }
@@ -40,8 +40,8 @@ public sealed class ResourceFileExtractor
     /// </summary>
     public Stream ReadFileFromResourceToStream(string fileName)
     {
-        string resourceFileName = this._resourcePathPrefix + fileName;
-        Stream? stream = this._assembly.GetManifestResourceStream(resourceFileName);
+        string resourceFileName = this.resourcePathPrefix + fileName;
+        Stream? stream = this.assembly.GetManifestResourceStream(resourceFileName);
         if (stream is null)
         {
             throw new ArgumentException(

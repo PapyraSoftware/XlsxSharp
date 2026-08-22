@@ -8,7 +8,7 @@ using XlsxSharp.Excel.Protection;
 namespace XlsxSharp.Tests.Excel.Misc;
 
 [TestFixture]
-public class XLWorkbookTests
+public class XlWorkbookTests
 {
     [Test]
     public void Cell1()
@@ -100,7 +100,7 @@ public class XLWorkbookTests
     public void GetCellFromNonExistingFullAddress(string address)
     {
         XLWorkbook wb = new();
-        IXLWorksheet ws = wb.AddWorksheet("Sheet1");
+        wb.AddWorksheet("Sheet1");
 
         IXLCell c = wb.Cell(address);
 
@@ -125,7 +125,7 @@ public class XLWorkbookTests
     public void GetRangeFromNonExistingFullAddress(string rangeAddress)
     {
         XLWorkbook wb = new();
-        IXLWorksheet ws = wb.AddWorksheet("Sheet1");
+        wb.AddWorksheet("Sheet1");
 
         IXLRange r = wb.Range(rangeAddress);
 
@@ -151,7 +151,7 @@ public class XLWorkbookTests
     public void GetRangesFromNonExistingFullAddress(string rangesAddress)
     {
         XLWorkbook wb = new();
-        IXLWorksheet ws = wb.AddWorksheet("Sheet1");
+        wb.AddWorksheet("Sheet1");
 
         IXLRanges r = wb.Ranges(rangesAddress);
 
@@ -184,7 +184,7 @@ public class XLWorkbookTests
     public void SheetSpecifiedDefinedNameReturnsNullIfNotDefinedInSheetNorWorkbook()
     {
         XLWorkbook wb = new();
-        IXLWorksheet ws = wb.AddWorksheet("Sheet1");
+        wb.AddWorksheet("Sheet1");
         IXLDefinedName? definedName = wb.DefinedName("Sheet1!Result");
         Assert.IsNull(definedName);
     }
@@ -358,7 +358,7 @@ public class XLWorkbookTests
     {
         using (XLWorkbook wb = new())
         {
-            IXLWorksheet ws = wb.Worksheets.Add("Sheet1");
+            wb.Worksheets.Add("Sheet1");
             wb.Protect();
             Assert.IsTrue(wb.LockStructure);
             Assert.IsFalse(wb.LockWindows);
@@ -371,7 +371,7 @@ public class XLWorkbookTests
     {
         using (XLWorkbook wb = new())
         {
-            IXLWorksheet ws = wb.Worksheets.Add("Sheet1");
+            wb.Worksheets.Add("Sheet1");
             wb.Protect(XLWorkbookProtectionElements.Windows);
             Assert.IsTrue(wb.LockStructure);
             Assert.IsFalse(wb.LockWindows);
@@ -384,7 +384,7 @@ public class XLWorkbookTests
     {
         using (XLWorkbook wb = new())
         {
-            IXLWorksheet ws = wb.Worksheets.Add("Sheet1");
+            wb.Worksheets.Add("Sheet1");
             wb.Protect("Abc@123");
             Assert.IsTrue(wb.LockStructure);
             Assert.IsFalse(wb.LockWindows);
@@ -400,7 +400,7 @@ public class XLWorkbookTests
     {
         using (XLWorkbook wb = new())
         {
-            IXLWorksheet ws = wb.Worksheets.Add("Sheet1");
+            wb.Worksheets.Add("Sheet1");
             wb.Protect();
             Assert.IsTrue(wb.LockStructure);
             Assert.IsFalse(wb.LockWindows);
@@ -418,7 +418,7 @@ public class XLWorkbookTests
     {
         using (XLWorkbook wb = new())
         {
-            IXLWorksheet ws = wb.Worksheets.Add("Sheet1");
+            wb.Worksheets.Add("Sheet1");
             wb.Protect(
                 "Abc@123",
                 XLProtectionAlgorithm.DefaultProtectionAlgorithm,

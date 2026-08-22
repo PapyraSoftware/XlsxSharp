@@ -268,7 +268,7 @@ public class DateAndTimeTests
     }
 
     [Test]
-    public void Days360UsesUSMethodByDefault()
+    public void Days360UsesUsMethodByDefault()
     {
         const string formulaFormat = "DAYS360(DATE(2002,2,3),DATE(2005,5,31){0})";
         XLCellValue defaultResult = XLWorkbook.EvaluateExpr(
@@ -305,7 +305,7 @@ public class DateAndTimeTests
     [TestCase(2020, 5, 30, 2020, 4, 1, ExpectedResult = -59)]
     [TestCase(2020, 5, 30, 2020, 3, 31, ExpectedResult = -60)]
     [TestCase(2020, 5, 30, 2020, 3, 30, ExpectedResult = -60)]
-    public double Days360USMethod(
+    public double Days360UsMethod(
         int startYear,
         int startMonth,
         int startDay,
@@ -334,7 +334,7 @@ public class DateAndTimeTests
     [TestCase(1900, 3, 1, 1900, 2, 28, ExpectedResult = -3)]
     [TestCase(1900, 3, 1, 1900, 2, 29, ExpectedResult = -2)]
     [TestCase(1900, 3, 1, 1900, 3, 1, ExpectedResult = 0)]
-    public double Days360USMethodForFeb291900(
+    public double Days360UsMethodForFeb291900(
         int startYear,
         int startMonth,
         int startDay,

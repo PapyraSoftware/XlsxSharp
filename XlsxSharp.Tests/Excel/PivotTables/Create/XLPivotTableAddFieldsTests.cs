@@ -9,7 +9,7 @@ namespace XlsxSharp.Tests.Excel.PivotTables.Create;
 /// Expected: Make sure Excel can read the stuff we wrote.
 /// </summary>
 [TestFixture]
-internal class XLPivotTableAddFieldsTests
+internal class XlPivotTableAddFieldsTests
 {
     [Test]
     public void Add_empty_table() =>

@@ -5,7 +5,7 @@ using XlsxSharp.Excel;
 namespace XlsxSharp.Tests.Excel.Coordinates;
 
 [TestOf(typeof(XLRowArea))]
-internal class XLRowAreaTests
+internal class XlRowAreaTests
 {
     [TestCase(null)]
     [TestCase("")]

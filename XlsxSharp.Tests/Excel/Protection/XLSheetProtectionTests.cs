@@ -12,7 +12,7 @@ using static XlsxSharp.Excel.Protection.XLProtectionAlgorithm;
 namespace XlsxSharp.Tests.Excel.Protection;
 
 [TestFixture]
-public class XLSheetProtectionTests
+public class XlSheetProtectionTests
 {
     [Test]
     public void AllowEverything()
@@ -228,7 +228,7 @@ public class XLSheetProtectionTests
     }
 
     [Test]
-    public void TestWorksheetWithSHA512Protection()
+    public void TestWorksheetWithSha512Protection()
     {
         using (
             Stream stream = TestHelper.GetStreamFromResource(

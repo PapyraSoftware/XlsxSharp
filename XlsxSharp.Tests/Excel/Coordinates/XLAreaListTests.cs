@@ -7,7 +7,7 @@ using XlsxSharp.Tests.Utils;
 namespace XlsxSharp.Tests.Excel.Coordinates;
 
 [TestFixture]
-internal class XLAreaListTests
+internal class XlAreaListTests
 {
     [TestCase("A1:C3", "A1", "B1:C3 A2:A4")]
     [TestCase("A1:C3", "B1", "A1:A3 C1:C3 B2:B4")]

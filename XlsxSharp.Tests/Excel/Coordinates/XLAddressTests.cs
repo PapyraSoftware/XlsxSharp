@@ -4,7 +4,7 @@ using XlsxSharp.Excel;
 namespace XlsxSharp.Tests.Excel.Coordinates;
 
 [TestFixture]
-public class XLAddressTests
+public class XlAddressTests
 {
     [Test]
     public void ToStringTest()

@@ -6,7 +6,7 @@ using XlsxSharp.Excel.PivotValues;
 namespace XlsxSharp.Tests.Excel.PivotTables.Style;
 
 [TestFixture]
-internal class XLPivotTableStyleFormatsTests
+internal class XlPivotTableStyleFormatsTests
 {
     [Test]
     public void Add_grand_row_total_styles() =>

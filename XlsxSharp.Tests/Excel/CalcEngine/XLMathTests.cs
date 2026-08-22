@@ -4,7 +4,7 @@ using XlsxSharp.Excel.CalcEngine.Functions;
 namespace XlsxSharp.Tests.Excel.CalcEngine;
 
 [TestFixture]
-public class XLMathTests
+public class XlMathTests
 {
     [Test]
     public void IsEven()

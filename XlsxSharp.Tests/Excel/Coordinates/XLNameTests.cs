@@ -4,7 +4,7 @@ using XlsxSharp.Excel;
 namespace XlsxSharp.Tests.Excel.Coordinates;
 
 [TestFixture]
-public class XLNameTests
+public class XlNameTests
 {
     [Test]
     public void WorkbookScopedNameIsComparedCaseInsensitive()

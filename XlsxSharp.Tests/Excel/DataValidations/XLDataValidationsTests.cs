@@ -7,7 +7,7 @@ using XlsxSharp.Tests.Utils;
 
 namespace XlsxSharp.Tests.Excel.DataValidations;
 
-public class XLDataValidationsTests
+public class XlDataValidationsTests
 {
     [Test]
     public void AddedRangesAreTransferredToTargetSheet()

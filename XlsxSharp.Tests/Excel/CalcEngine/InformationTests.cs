@@ -14,7 +14,7 @@ public class InformationTests
     [TestCase("TRUE")]
     [TestCase("14.5")]
     [TestCase("\"text\"")]
-    public void ErrorTypeNonErrorsAreNA(string argumentFormula)
+    public void ErrorTypeNonErrorsAreNa(string argumentFormula)
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -91,14 +91,14 @@ public class InformationTests
     [TestCase("#NUM!")]
     [TestCase("#REF!")]
     [TestCase("#VALUE!")]
-    public void IsErrErrorsExceptNATrue(string valueFormula)
+    public void IsErrErrorsExceptNaTrue(string valueFormula)
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr($"IsErr({valueFormula})");
         Assert.AreEqual(true, actual);
     }
 
     [Test]
-    public void IsErrNAFalse()
+    public void IsErrNaFalse()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr("IsErr(#N/A)");
         Assert.AreEqual(false, actual);
@@ -229,7 +229,7 @@ public class InformationTests
     #endregion IsLogical Tests
 
     [Test]
-    public void IsNANATrue()
+    public void IsNanaTrue()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr("ISNA(#N/A)");
         Assert.AreEqual(true, actual);
@@ -241,7 +241,7 @@ public class InformationTests
     [TestCase("\"\"")]
     [TestCase("#REF!")]
     [TestCase("\"#N/A\"")]
-    public void IsNANonNotAvailableValueFalse(string valueFormula)
+    public void IsNaNonNotAvailableValueFalse(string valueFormula)
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr($"ISNA({valueFormula})");
         Assert.AreEqual(false, actual);

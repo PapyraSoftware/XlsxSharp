@@ -8,7 +8,7 @@ namespace XlsxSharp.Tests.Excel.PivotTables;
 /// Tests methods of interface <see cref="IXLPivotField"/> implemented through <see cref="XLPivotTableAxisField"/>.
 /// </summary>
 [TestFixture]
-internal class XLPivotTableAxisFieldTests
+internal class XlPivotTableAxisFieldTests
 {
     [Test]
     public void CustomName_can_be_changed()

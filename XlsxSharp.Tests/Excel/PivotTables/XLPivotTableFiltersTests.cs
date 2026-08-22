@@ -4,7 +4,7 @@ using XlsxSharp.Excel;
 namespace XlsxSharp.Tests.Excel.PivotTables;
 
 [TestFixture]
-public class XLPivotTableFiltersTests
+public class XlPivotTableFiltersTests
 {
     [Test]
     public void AddingAndRemovingFiltersShiftsPivotTableArea()

@@ -8,7 +8,7 @@ using XlsxSharp.Excel.CalcEngine;
 namespace XlsxSharp.Tests.Excel.Cells;
 
 [TestFixture]
-public class XLCellValueTests
+public class XlCellValueTests
 {
     [Test]
     public void CreationBlank()

@@ -11,7 +11,7 @@ public class CalcEngineCellEnumerationTests
         using (XLWorkbook wb = new())
         {
             IXLWorksheet sheet1 = wb.AddWorksheet("Sheet1");
-            IXLWorksheet sheet2 = wb.AddWorksheet("Sheet2");
+            wb.AddWorksheet("Sheet2");
 
             IXLCell cell = sheet1.FirstCell();
             cell.FormulaA1 = "=SUMIFS(Sheet2!B:B, Sheet2!C:C, 1)";

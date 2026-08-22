@@ -7,111 +7,111 @@ namespace XlsxSharp.Tests.Examples;
 public class ConditionalFormattingTests
 {
     [Test]
-    public void CFColorScaleLowHigh() =>
+    public void CfColorScaleLowHigh() =>
         TestHelper.RunTestExample<CfColorScaleLowHigh>(
             @"ConditionalFormatting\CFColorScaleLowHigh.xlsx"
         );
 
     [Test]
-    public void CFColorScaleLowMidHigh() =>
+    public void CfColorScaleLowMidHigh() =>
         TestHelper.RunTestExample<CfColorScaleLowMidHigh>(
             @"ConditionalFormatting\CFColorScaleLowMidHigh.xlsx"
         );
 
     [Test]
-    public void CFColorScaleMinimumMaximum() =>
+    public void CfColorScaleMinimumMaximum() =>
         TestHelper.RunTestExample<CfColorScaleMinimumMaximum>(
             @"ConditionalFormatting\CFColorScaleMinimumMaximum.xlsx"
         );
 
     [Test]
-    public void CFContains() =>
+    public void CfContains() =>
         TestHelper.RunTestExample<CfContains>(@"ConditionalFormatting\CFContains.xlsx");
 
     [Test]
-    public void CFDataBar() =>
+    public void CfDataBar() =>
         TestHelper.RunTestExample<CfDataBar>(@"ConditionalFormatting\CFDataBar.xlsx");
 
     [Test]
-    public void CFDataBarNegative() =>
+    public void CfDataBarNegative() =>
         TestHelper.RunTestExample<CfDataBarNegative>(
             @"ConditionalFormatting\CFDataBarNegative.xlsx"
         );
 
     [Test]
-    public void CFEndsWith() =>
+    public void CfEndsWith() =>
         TestHelper.RunTestExample<CfEndsWith>(@"ConditionalFormatting\CFEndsWith.xlsx");
 
     [Test]
-    public void CFEqualsNumber() =>
+    public void CfEqualsNumber() =>
         TestHelper.RunTestExample<CfEqualsNumber>(@"ConditionalFormatting\CFEqualsNumber.xlsx");
 
     [Test]
-    public void CFEqualsString() =>
+    public void CfEqualsString() =>
         TestHelper.RunTestExample<CfEqualsString>(@"ConditionalFormatting\CFEqualsString.xlsx");
 
     [Test]
-    public void CFIconSet() =>
+    public void CfIconSet() =>
         TestHelper.RunTestExample<CfIconSet>(@"ConditionalFormatting\CFIconSet.xlsx");
 
     [Test]
-    public void CFIsBlank() =>
+    public void CfIsBlank() =>
         TestHelper.RunTestExample<CfIsBlank>(@"ConditionalFormatting\CFIsBlank.xlsx");
 
     [Test]
-    public void CFIsError() =>
+    public void CfIsError() =>
         TestHelper.RunTestExample<CfIsError>(@"ConditionalFormatting\CFIsError.xlsx");
 
     [Test]
-    public void CFNotBlank() =>
+    public void CfNotBlank() =>
         TestHelper.RunTestExample<CfNotBlank>(@"ConditionalFormatting\CFNotBlank.xlsx");
 
     [Test]
-    public void CFNotContains() =>
+    public void CfNotContains() =>
         TestHelper.RunTestExample<CfNotContains>(@"ConditionalFormatting\CFNotContains.xlsx");
 
     [Test]
-    public void CFNotEqualsNumber() =>
+    public void CfNotEqualsNumber() =>
         TestHelper.RunTestExample<CfNotEqualsNumber>(
             @"ConditionalFormatting\CFNotEqualsNumber.xlsx"
         );
 
     [Test]
-    public void CFNotEqualsString() =>
+    public void CfNotEqualsString() =>
         TestHelper.RunTestExample<CfNotEqualsString>(
             @"ConditionalFormatting\CFNotEqualsString.xlsx"
         );
 
     [Test]
-    public void CFNotError() =>
+    public void CfNotError() =>
         TestHelper.RunTestExample<CfNotError>(@"ConditionalFormatting\CFNotError.xlsx");
 
     [Test]
-    public void CFStartsWith() =>
+    public void CfStartsWith() =>
         TestHelper.RunTestExample<CfStartsWith>(@"ConditionalFormatting\CFStartsWith.xlsx");
 
     [Test]
-    public void CFMultipleConditions() =>
+    public void CfMultipleConditions() =>
         TestHelper.RunTestExample<CfMultipleConditions>(
             @"ConditionalFormatting\CFMultipleConditions.xlsx"
         );
 
     [Test]
-    public void CFStopIfTrue() =>
+    public void CfStopIfTrue() =>
         TestHelper.RunTestExample<CfStopIfTrue>(@"ConditionalFormatting\CFStopIfTrue.xlsx");
 
     [Test]
-    public void CFTop() => TestHelper.RunTestExample<CfTop>(@"ConditionalFormatting\CFTop.xlsx");
+    public void CfTop() => TestHelper.RunTestExample<CfTop>(@"ConditionalFormatting\CFTop.xlsx");
 
     [Test]
-    public void CFBottom() =>
+    public void CfBottom() =>
         TestHelper.RunTestExample<CfBottom>(@"ConditionalFormatting\CFBottom.xlsx");
 
     [Test]
-    public void CFDatesOccurring() =>
+    public void CfDatesOccurring() =>
         TestHelper.RunTestExample<CfDatesOccurring>(@"ConditionalFormatting\CFDatesOccurring.xlsx");
 
     [Test]
-    public void CFDataBars() =>
+    public void CfDataBars() =>
         TestHelper.RunTestExample<CfDataBars>(@"ConditionalFormatting\CFDataBars.xlsx");
 }

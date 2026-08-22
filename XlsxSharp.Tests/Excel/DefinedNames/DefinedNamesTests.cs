@@ -19,7 +19,7 @@ public class DefinedNamesTests
     public void FormulaMustBeValid()
     {
         using XLWorkbook wb = new();
-        IXLWorksheet ws = wb.AddWorksheet();
+        wb.AddWorksheet();
         Assert.Throws<ParsingException>(() => wb.DefinedNames.Add("Test", "SUM(Sheet7!A4"));
     }
 
@@ -122,7 +122,7 @@ public class DefinedNamesTests
             Assert.IsFalse(wb.DefinedNames.TryGetValue("TEST", out _));
             Assert.IsTrue(wb.DefinedNames.TryGetValue("TEST1", out _));
 
-            IXLDefinedName dn2 = wb.DefinedNames.Add("TEST2", "=TEST1*2");
+            wb.DefinedNames.Add("TEST2", "=TEST1*2");
 
             ws1.Cell(1, 1).FormulaA1 = "TEST1";
             ws1.Cell(2, 1).FormulaA1 = "TEST1*10";
@@ -254,7 +254,7 @@ public class DefinedNamesTests
     public void CopyWorkbookScopedDefined()
     {
         using XLWorkbook wb = new();
-        IXLWorksheet ws = wb.AddWorksheet("Sheet");
+        wb.AddWorksheet("Sheet");
         IXLDefinedName name = wb.DefinedNames.Add("Name", "Sheet!$A$1");
 
         IXLWorksheet copySheet = wb.AddWorksheet();
@@ -356,7 +356,7 @@ public class DefinedNamesTests
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws1 = wb.Worksheets.Add("Sheet 1");
-        IXLWorksheet ws2 = wb.Worksheets.Add("Sheet 2");
+        wb.Worksheets.Add("Sheet 2");
         ws1.Range("A1:B2").AddToNamed("Simple", XLScope.Workbook);
         wb.Ranges("'Sheet 1'!C1:D2,'Sheet 2'!A10:D15").AddToNamed("Compound");
 

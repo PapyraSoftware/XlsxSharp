@@ -7,18 +7,18 @@ namespace XlsxSharp.Tests.Utils;
 
 internal class PivotTableComparer : IEqualityComparer<XLPivotTable>
 {
-    private readonly bool _compareName;
-    private readonly bool _compareRelId;
-    private readonly bool _compareTargetCellAddress;
+    private readonly bool compareName;
+    private readonly bool compareRelId;
+    private readonly bool compareTargetCellAddress;
 
     public PivotTableComparer()
         : this(compareName: true, compareRelId: false, compareTargetCellAddress: true) { }
 
     public PivotTableComparer(bool compareName, bool compareRelId, bool compareTargetCellAddress)
     {
-        this._compareName = compareName;
-        this._compareRelId = compareRelId;
-        this._compareTargetCellAddress = compareTargetCellAddress;
+        this.compareName = compareName;
+        this.compareRelId = compareRelId;
+        this.compareTargetCellAddress = compareTargetCellAddress;
     }
 
     public bool Equals(XLPivotTable x, XLPivotTable y)
@@ -33,18 +33,18 @@ internal class PivotTableComparer : IEqualityComparer<XLPivotTable>
             return false;
         }
 
-        return (!this._compareName || StringComparer.CurrentCulture.Equals(x.Name, y.Name))
-            && (!this._compareRelId || StringComparer.CurrentCulture.Equals(x.RelId, y.RelId))
+        return (!this.compareName || StringComparer.CurrentCulture.Equals(x.Name, y.Name))
+            && (!this.compareRelId || StringComparer.CurrentCulture.Equals(x.RelId, y.RelId))
             && x.ReportFilters.Count().Equals(y.ReportFilters.Count())
             && x.ColumnLabels.Count().Equals(y.ColumnLabels.Count())
             && x.RowLabels.Count().Equals(y.RowLabels.Count())
             && x.Values.Count().Equals(y.Values.Count())
             && (
-                !this._compareTargetCellAddress
+                !this.compareTargetCellAddress
                 || x.TargetCell.Address.ColumnLetter.Equals(y.TargetCell.Address.ColumnLetter)
             )
             && (
-                !this._compareTargetCellAddress
+                !this.compareTargetCellAddress
                 || x.TargetCell.Address.RowNumber.Equals(y.TargetCell.Address.RowNumber)
             )
             && StringComparer.CurrentCulture.Equals(x.Title, y.Title)

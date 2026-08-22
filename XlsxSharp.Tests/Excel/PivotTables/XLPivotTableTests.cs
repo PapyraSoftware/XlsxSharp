@@ -12,7 +12,7 @@ using XlsxSharp.Tests.Utils;
 namespace XlsxSharp.Tests.Excel.PivotTables;
 
 [TestFixture]
-public class XLPivotTableTests
+public class XlPivotTableTests
 {
     [Test]
     public void PivotTables() =>

@@ -8,7 +8,7 @@ using XlsxSharp.Excel.CalcEngine;
 namespace XlsxSharp.Tests.Excel.CalcEngine;
 
 [TestFixture]
-public class XLCalculationChainTests
+public class XlCalculationChainTests
 {
     [Test]
     public void EnumeratingEmptyChain()

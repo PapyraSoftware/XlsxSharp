@@ -5,7 +5,7 @@ using XlsxSharp.Excel;
 
 namespace XlsxSharp.Tests.Excel.Styles;
 
-public class XLColorTests
+public class XlColorTests
 {
     public static IEnumerable<object[]> VmlColors
     {

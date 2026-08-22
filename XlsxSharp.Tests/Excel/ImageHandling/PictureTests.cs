@@ -99,7 +99,7 @@ public class PictureTests
                 fileStream.Close();
             }
 
-            Parallel.Invoke(() => verifyAddImageFromFile(path), () => verifyAddImageFromFile(path));
+            Parallel.Invoke(() => VerifyAddImageFromFile(path), () => VerifyAddImageFromFile(path));
         }
         finally
         {
@@ -110,7 +110,7 @@ public class PictureTests
         }
     }
 
-    private static void verifyAddImageFromFile(string filePath)
+    private static void VerifyAddImageFromFile(string filePath)
     {
         using (XLWorkbook wb = new())
         {
@@ -242,7 +242,7 @@ public class PictureTests
     }
 
     [Test]
-    public void XLMarkerTests()
+    public void XlMarkerTests()
     {
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         XLMarker firstMarker = new(ws.Cell(1, 10), new Point(100, 0));
@@ -254,7 +254,7 @@ public class PictureTests
     }
 
     [Test]
-    public void XLPictureTests()
+    public void XlPictureTests()
     {
         using (XLWorkbook wb = new())
         {
@@ -393,7 +393,7 @@ public class PictureTests
 
                 pic.Id = id;
 
-                XLPicture? pic2 =
+                _ =
                     (ws2 as XLWorksheet)
                         .AddPicture(stream, "Picture 2", 3)
                         .WithPlacement(XLPicturePlacement.FreeFloating)

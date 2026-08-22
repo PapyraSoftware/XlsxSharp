@@ -10,7 +10,7 @@ namespace XlsxSharp.Tests.Excel.InsertData;
 
 public class DataRecordReaderTests
 {
-    private readonly string _connectionString =
+    private readonly string connectionString =
         @"Data Source=(localdb)\MSSQLLocalDB;Integrated Security=True;Connect Timeout=1";
 
     private IEnumerable<IDataRecord> GetData()
@@ -23,7 +23,7 @@ public class DataRecordReaderTests
             union all
             select 'Value 3', 300";
 
-        using (SqlConnection connection = new(this._connectionString))
+        using (SqlConnection connection = new(this.connectionString))
         using (SqlCommand command = new(queryString, connection))
         {
             try

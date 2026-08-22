@@ -9,13 +9,13 @@ using XlsxSharp.Tests.Utils;
 namespace XlsxSharp.Tests.Excel.Ranges;
 
 [TestFixture]
-public class XLRangeBaseTests
+public class XlRangeBaseTests
 {
     [Test]
     public void IsEmpty1()
     {
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
-        IXLCell cell = ws.Cell(1, 1);
+        ws.Cell(1, 1);
         IXLRange range = ws.Range("A1:B2");
         bool actual = range.IsEmpty();
         bool expected = true;
@@ -26,7 +26,7 @@ public class XLRangeBaseTests
     public void IsEmpty2()
     {
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
-        IXLCell cell = ws.Cell(1, 1);
+        ws.Cell(1, 1);
         IXLRange range = ws.Range("A1:B2");
         bool actual = range.IsEmpty(XLCellsUsedOptions.All);
         bool expected = true;
@@ -485,7 +485,7 @@ public class XLRangeBaseTests
     }
 
     [Test]
-    public void XLRangesReturnsRangesInDeterministicOrder()
+    public void XlRangesReturnsRangesInDeterministicOrder()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws1 = wb.Worksheets.Add("Sheet1");

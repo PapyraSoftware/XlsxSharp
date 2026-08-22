@@ -71,7 +71,7 @@ public class SavingTests
     }
 
     [Test]
-    public void CanEscapeXHHHHCorrectly()
+    public void CanEscapeXhhhhCorrectly()
     {
         using (MemoryStream ms = new())
         {
@@ -131,7 +131,7 @@ public class SavingTests
             using (XLWorkbook wb = new())
             {
                 MemoryStream memoryStream = new();
-                IXLWorksheet ws = wb.Worksheets.Add("Sheet1");
+                wb.Worksheets.Add("Sheet1");
 
                 wb.SaveAs(memoryStream, true);
             }
@@ -204,7 +204,7 @@ public class SavingTests
                     // Arrange
                     using (XLWorkbook wb = new())
                     {
-                        IXLWorksheet sheet = wb.Worksheets.Add("TestSheet");
+                        wb.Worksheets.Add("TestSheet");
                         wb.SaveAs(original.Path);
                     }
                     File.SetAttributes(original.Path, FileAttributes.ReadOnly);
@@ -239,7 +239,7 @@ public class SavingTests
             // Act
             using (XLWorkbook wb = new())
             {
-                IXLWorksheet sheet = wb.Worksheets.Add("TestSheet");
+                wb.Worksheets.Add("TestSheet");
                 wb.SaveAs(existing.Path);
             }
 
@@ -266,7 +266,7 @@ public class SavingTests
                 {
                     using (XLWorkbook wb = new())
                     {
-                        IXLWorksheet sheet = wb.Worksheets.Add("TestSheet");
+                        wb.Worksheets.Add("TestSheet");
                         wb.SaveAs(existing.Path);
                     }
                 };

@@ -11,13 +11,13 @@ namespace XlsxSharp.Tests.Utils;
 /// </summary>
 public static class StreamHelper
 {
-    private static readonly XName colTagName = XName.Get(
+    private static readonly XName ColTagName = XName.Get(
         "col",
         @"http://schemas.openxmlformats.org/spreadsheetml/2006/main"
     );
-    private static readonly XName widthAttrName = XName.Get("width");
+    private static readonly XName WidthAttrName = XName.Get("width");
 
-    private static readonly IEnumerable<(string PartSubstring, XName NodeName)> ignoredNodes =
+    private static readonly IEnumerable<(string PartSubstring, XName NodeName)> IgnoredNodes =
         (List<(string PartSubstring, XName NodeName)>)
             [
                 ("/docProps/core.xml", XName.Get("created", @"http://purl.org/dc/terms/")),
@@ -35,7 +35,7 @@ public static class StreamHelper
         string PartSubstring,
         XName NodeName,
         XName AttrName
-    )> ignoredAttributes =
+    )> IgnoredAttributes =
         (List<(string PartSubstring, XName NodeName, XName AttrName)>)
             [
                 (
@@ -163,7 +163,7 @@ public static class StreamHelper
     private static void RemoveIgnoredParts(XDocument document, Uri partUri, bool stripColumnWidths)
     {
         foreach (
-            (string PartSubstring, XName NodeName) ignoredNode in ignoredNodes.Where(i =>
+            (string PartSubstring, XName NodeName) ignoredNode in IgnoredNodes.Where(i =>
                 partUri.OriginalString.Contains(i.PartSubstring)
             )
         )
@@ -176,7 +176,7 @@ public static class StreamHelper
                 string PartSubstring,
                 XName NodeName,
                 XName AttrName
-            ) ignoredAttr in ignoredAttributes.Where(i =>
+            ) ignoredAttr in IgnoredAttributes.Where(i =>
                 partUri.OriginalString.Contains(i.PartSubstring)
             )
         )
@@ -186,7 +186,7 @@ public static class StreamHelper
 
         if (stripColumnWidths)
         {
-            document.Descendants(colTagName).Attributes(widthAttrName).Remove();
+            document.Descendants(ColTagName).Attributes(WidthAttrName).Remove();
         }
     }
 

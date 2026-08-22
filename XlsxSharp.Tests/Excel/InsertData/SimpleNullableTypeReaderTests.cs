@@ -10,7 +10,7 @@ namespace XlsxSharp.Tests.Excel.InsertData;
 
 public class SimpleNullableTypeReaderTests
 {
-    private readonly int?[] _data = [1, 2, null];
+    private readonly int?[] data = [1, 2, null];
 
     [TestCaseSource(nameof(SimpleNullableSourceNames))]
     public string CanGetPropertyName<T>(IEnumerable<T> data)
@@ -36,21 +36,21 @@ public class SimpleNullableTypeReaderTests
     [Test]
     public void CanGetPropertiesCount()
     {
-        IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(this._data);
+        IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(this.data);
         Assert.AreEqual(1, reader.GetPropertiesCount());
     }
 
     [Test]
     public void CanGetRecordsCount()
     {
-        IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(this._data);
+        IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(this.data);
         Assert.AreEqual(3, reader.GetRecords().Count());
     }
 
     [Test]
     public void CanReadValues()
     {
-        IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(this._data);
+        IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(this.data);
         IEnumerable<IEnumerable<XLCellValue>> result = reader.GetRecords();
 
         Assert.AreEqual(1, result.First().Single());

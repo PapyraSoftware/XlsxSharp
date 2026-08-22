@@ -5,7 +5,7 @@ using XlsxSharp.Excel;
 
 namespace XlsxSharp.Tests.Excel.Styles;
 
-internal class XLPredefinedFormatTests
+internal class XlPredefinedFormatTests
 {
     [TestCaseSource(nameof(FormattedStringTestCases))]
     public void Predefined_formats_are_correctly_formatted(

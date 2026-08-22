@@ -3,7 +3,7 @@ using XlsxSharp.Excel;
 
 namespace XlsxSharp.Tests.Excel.Rows;
 
-internal class XLRowsTests
+internal class XlRowsTests
 {
     [Test]
     public void Style_sets_format_of_rows()

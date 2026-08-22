@@ -31,10 +31,10 @@ public class LoadingTests
     [TestCaseSource(nameof(TryToLoad))]
     public void CanSuccessfullyLoadFiles(string file) => TestHelper.LoadFile(file);
 
-    [TestCaseSource(nameof(LOFiles))]
-    public void CanSuccessfullyLoadLOFiles(string file) => TestHelper.LoadFile(file);
+    [TestCaseSource(nameof(LoFiles))]
+    public void CanSuccessfullyLoadLoFiles(string file) => TestHelper.LoadFile(file);
 
-    private static IEnumerable<string> LOFiles
+    private static IEnumerable<string> LoFiles
     {
         get
         {
@@ -864,7 +864,7 @@ public class LoadingTests
         {
             using (XLWorkbook wb = new())
             {
-                IXLWorksheet sheet = wb.AddWorksheet("sheet1");
+                wb.AddWorksheet("sheet1");
 
                 wb.Properties.Author = author;
                 wb.Properties.Title = title;

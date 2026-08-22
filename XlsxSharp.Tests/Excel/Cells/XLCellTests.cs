@@ -13,7 +13,7 @@ using XlsxSharp.Excel.CalcEngine;
 namespace XlsxSharp.Tests.Excel.Cells;
 
 [TestFixture]
-public class XLCellTests
+public class XlCellTests
 {
     [SuppressMessage("ReSharper", "RedundantCast")]
     private static readonly object[] AllNumberTypes =
@@ -322,7 +322,7 @@ public class XLCellTests
     {
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         IXLCell cell = ws.Cell("A1").SetValue("ABC");
-        bool success = cell.TryGetValue(out bool outValue);
+        bool success = cell.TryGetValue(out bool _);
         Assert.IsFalse(success);
     }
 
@@ -398,7 +398,7 @@ public class XLCellTests
     {
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         string date = "ABC";
-        bool success = ws.Cell("A1").SetValue(date).TryGetValue(out DateTime outValue);
+        bool success = ws.Cell("A1").SetValue(date).TryGetValue(out DateTime _);
         Assert.IsFalse(success);
     }
 
@@ -436,8 +436,8 @@ public class XLCellTests
     public void TryGetValueEnumBadString()
     {
         IXLWorksheet ws = new XLWorkbook().AddWorksheet();
-        Assert.IsFalse(ws.FirstCell().SetValue("ABC").TryGetValue(out NumberStyles value));
-        Assert.IsFalse(ws.FirstCell().SetValue("ABC").TryGetValue(out NumberStyles? value2));
+        Assert.IsFalse(ws.FirstCell().SetValue("ABC").TryGetValue(out NumberStyles _));
+        Assert.IsFalse(ws.FirstCell().SetValue("ABC").TryGetValue(out NumberStyles? _));
     }
 
     [Test]
@@ -445,7 +445,7 @@ public class XLCellTests
     {
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         string timeSpan = "ABC";
-        bool success = ws.Cell("A1").SetValue(timeSpan).TryGetValue(out TimeSpan outValue);
+        bool success = ws.Cell("A1").SetValue(timeSpan).TryGetValue(out TimeSpan _);
         Assert.IsFalse(success);
     }
 
@@ -495,7 +495,7 @@ public class XLCellTests
     {
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         IXLCell cell = ws.Cell("A1").SetValue("255");
-        bool success = cell.TryGetValue(out sbyte outValue);
+        bool success = cell.TryGetValue(out sbyte _);
         Assert.IsFalse(success);
     }
 
@@ -954,7 +954,7 @@ public class XLCellTests
     }
 
     [Test]
-    public void InvalidFormulaShiftProducesREF()
+    public void InvalidFormulaShiftProducesRef()
     {
         using (MemoryStream ms = new())
         {

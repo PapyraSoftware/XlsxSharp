@@ -7,7 +7,7 @@ using XlsxSharp.Tests.Utils;
 namespace XlsxSharp.Tests.Excel.Styles;
 
 [TestFixture]
-public class XLFillTests
+public class XlFillTests
 {
     [Test]
     [TestCaseSource(nameof(FillApiSetters))]

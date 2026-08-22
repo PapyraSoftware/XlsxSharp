@@ -442,7 +442,7 @@ public class TablesTests
     [TestCase("Amount")]
     [TestCase("AMOUNT")]
     [TestCase("amount")]
-    public void FieldNamesOfXLTableAreCaseInsensitive(string fieldName)
+    public void FieldNamesOfXlTableAreCaseInsensitive(string fieldName)
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();

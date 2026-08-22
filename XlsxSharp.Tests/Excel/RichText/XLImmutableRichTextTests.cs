@@ -6,7 +6,7 @@ using XlsxSharp.Excel.RichText;
 namespace XlsxSharp.Tests.Excel.RichText;
 
 [TestFixture]
-public class XLImmutableRichTextTests
+public class XlImmutableRichTextTests
 {
     [Test]
     public void EqualsComparesTextRunsPhoneticRunsAndProperties()

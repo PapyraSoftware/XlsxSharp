@@ -12,7 +12,7 @@ namespace XlsxSharp.Tests.Excel.CalcEngine;
 [TestFixture]
 public class StatisticalTests
 {
-    private const double tolerance = 1e-6;
+    private const double Tolerance = 1e-6;
     private XLWorkbook workbook;
 
     [Test]
@@ -20,11 +20,11 @@ public class StatisticalTests
     {
         double value;
         value = (double)this.workbook.Evaluate("AVERAGE(-27.5,93.93,64.51,-70.56)");
-        Assert.AreEqual(15.095, value, tolerance);
+        Assert.AreEqual(15.095, value, Tolerance);
 
         IXLWorksheet ws = this.workbook.Worksheets.First();
         value = (double)ws.Evaluate("AVERAGE(G3:G45)");
-        Assert.AreEqual(49.3255814, value, tolerance);
+        Assert.AreEqual(49.3255814, value, Tolerance);
 
         // Column D contains only strings - no average, because non-number types are skipped
         Assert.AreEqual(XLError.DivisionByZero, ws.Evaluate("AVERAGE(D3:D45)"));
@@ -58,7 +58,7 @@ public class StatisticalTests
         Assert.AreEqual(
             15.095,
             (double)this.workbook.Evaluate("AVERAGEA(-27.5,93.93,64.51,-70.56)"),
-            tolerance
+            Tolerance
         );
 
         // Array logical arguments are ignored
@@ -100,7 +100,7 @@ public class StatisticalTests
         string pString = p.ToInvariantString();
         double result = (double)
             XLWorkbook.EvaluateExpr($"BINOMDIST({kString}, {nString}, {pString}, FALSE)");
-        Assert.AreEqual(expected, result, tolerance);
+        Assert.AreEqual(expected, result, Tolerance);
     }
 
     [TestCase(6, 10, 0.5, 0.828125)]
@@ -122,7 +122,7 @@ public class StatisticalTests
         string pString = p.ToInvariantString();
         double result = (double)
             XLWorkbook.EvaluateExpr($"BINOMDIST({kString}, {nString}, {pString}, TRUE)");
-        Assert.AreEqual(expected, result, tolerance);
+        Assert.AreEqual(expected, result, Tolerance);
     }
 
     [TestCase(5, 4, 0.5)] // Five successes out of 4 attempts
@@ -707,7 +707,7 @@ public class StatisticalTests
         double value = (double)ws.Evaluate("MEDIAN(I3:I10)");
 
         //Assert
-        Assert.AreEqual(244.225, value, tolerance);
+        Assert.AreEqual(244.225, value, Tolerance);
     }
 
     [Test]
@@ -717,7 +717,7 @@ public class StatisticalTests
         double value = (double)this.workbook.Evaluate("MEDIAN(-27.5,93.93,64.51,-70.56)");
 
         //Assert
-        Assert.AreEqual(18.505, value, tolerance);
+        Assert.AreEqual(18.505, value, Tolerance);
     }
 
     [Test]
@@ -730,7 +730,7 @@ public class StatisticalTests
         double value = (double)ws.Evaluate("MEDIAN(I3:I11)");
 
         //Assert
-        Assert.AreEqual(189.05, value, tolerance);
+        Assert.AreEqual(189.05, value, Tolerance);
     }
 
     [Test]
@@ -740,7 +740,7 @@ public class StatisticalTests
         double value = (double)this.workbook.Evaluate("MEDIAN(-27.5,93.93,64.51,-70.56,101.65)");
 
         //Assert
-        Assert.AreEqual(64.51, value, tolerance);
+        Assert.AreEqual(64.51, value, Tolerance);
     }
 
     [Test]
@@ -843,7 +843,7 @@ public class StatisticalTests
     }
 
     [Test]
-    [DefaultFloatingPointTolerance(tolerance)]
+    [DefaultFloatingPointTolerance(Tolerance)]
     public void StDev()
     {
         IXLWorksheet ws = this.workbook.Worksheets.First();
@@ -853,14 +853,14 @@ public class StatisticalTests
 
         // Calculate StDev from numeric values (reference contains only numbers)
         double value = (double)ws.Evaluate("STDEV(H3:H45)");
-        Assert.AreEqual(47.34511769, value, tolerance);
+        Assert.AreEqual(47.34511769, value, Tolerance);
 
         // Ignores text values in the H column and only uses numeric ones, same as reference with only number
         value = (double)ws.Evaluate("STDEV(H:H)");
-        Assert.AreEqual(47.34511769, value, tolerance);
+        Assert.AreEqual(47.34511769, value, Tolerance);
 
         value = (double)this.workbook.Evaluate("STDEV(Data!H:H)");
-        Assert.AreEqual(47.34511769, value, tolerance);
+        Assert.AreEqual(47.34511769, value, Tolerance);
 
         // Need at least two values, otherwise returns error
         Assert.AreEqual(XLError.DivisionByZero, this.workbook.Evaluate("STDEV(1)"));
@@ -870,7 +870,7 @@ public class StatisticalTests
         Assert.AreEqual(
             0.707106781,
             (double)this.workbook.Evaluate("STDEV({0, 1, \"Hello\", FALSE, TRUE})"),
-            tolerance
+            Tolerance
         );
 
         // Reference argument only uses number, ignores blanks, logical and text
@@ -880,14 +880,14 @@ public class StatisticalTests
         ws.Cell("Z4").Value = "hello";
         ws.Cell("Z5").Value = 0;
         ws.Cell("Z6").Value = 1;
-        Assert.AreEqual(0.707106781, (double)ws.Evaluate("STDEV(Z1:Z6)"), tolerance);
+        Assert.AreEqual(0.707106781, (double)ws.Evaluate("STDEV(Z1:Z6)"), Tolerance);
 
         AssertScalarToNumberConversion("STDEV", 0.707106781);
         AssertAnyErrorIsPropagated("STDEV");
     }
 
     [Test]
-    [DefaultFloatingPointTolerance(tolerance)]
+    [DefaultFloatingPointTolerance(Tolerance)]
     public void StDevA()
     {
         using XLWorkbook wb = new();
@@ -928,19 +928,19 @@ public class StatisticalTests
         Assert.AreEqual(
             21.66153785,
             (double)ws.Evaluate("STDEVP(123, 134, 143, 173, 112, 109)"),
-            tolerance
+            Tolerance
         );
 
         // Column D contains only region names (non-convertible text), thus reference contains less than 1 sample that is required
         Assert.AreEqual(XLError.DivisionByZero, ws.Evaluate("STDEVP(D3:D45)"));
 
         // Calculate StDevP from numeric values (reference contains only numbers)
-        Assert.AreEqual(46.79135458, (double)ws.Evaluate("STDEVP(H3:H45)"), tolerance);
+        Assert.AreEqual(46.79135458, (double)ws.Evaluate("STDEVP(H3:H45)"), Tolerance);
 
         // StDevP ignores text values/blanks in the H column and only uses numeric ones, the result is same as the reference above that contains only numbers
-        Assert.AreEqual(46.79135458, (double)ws.Evaluate("STDEVP(H:H)"), tolerance);
+        Assert.AreEqual(46.79135458, (double)ws.Evaluate("STDEVP(H:H)"), Tolerance);
 
-        Assert.AreEqual(46.79135458, (double)this.workbook.Evaluate("STDEVP(Data!H:H)"), tolerance);
+        Assert.AreEqual(46.79135458, (double)this.workbook.Evaluate("STDEVP(Data!H:H)"), Tolerance);
 
         // If sample size is 0, return error
         Assert.AreEqual(XLError.DivisionByZero, this.workbook.Evaluate("STDEVP({TRUE})"));
@@ -963,8 +963,8 @@ public class StatisticalTests
     }
 
     [Test]
-    [DefaultFloatingPointTolerance(tolerance)]
-    public void StDevPA()
+    [DefaultFloatingPointTolerance(Tolerance)]
+    public void StDevPa()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -1053,7 +1053,7 @@ public class StatisticalTests
 
             double actualResult = (double)ws.Evaluate(formulaA1);
 
-            Assert.AreEqual(expectedResult, actualResult, tolerance);
+            Assert.AreEqual(expectedResult, actualResult, Tolerance);
         }
     }
 
@@ -1069,11 +1069,11 @@ public class StatisticalTests
         Assert.AreEqual(XLError.DivisionByZero, ws.Evaluate("VAR(D3:D45)"));
 
         // Calculate VAR from numeric values (reference contains only numbers)
-        Assert.AreEqual(2241.560169, (double)ws.Evaluate("VAR(H3:H45)"), tolerance);
+        Assert.AreEqual(2241.560169, (double)ws.Evaluate("VAR(H3:H45)"), Tolerance);
 
         // Ignores text values in the H column and only uses numeric ones, same as reference with only number
-        Assert.AreEqual(2241.560169, (double)ws.Evaluate("VAR(H:H)"), tolerance);
-        Assert.AreEqual(2241.560169, (double)this.workbook.Evaluate("VAR(Data!H:H)"), tolerance);
+        Assert.AreEqual(2241.560169, (double)ws.Evaluate("VAR(H:H)"), Tolerance);
+        Assert.AreEqual(2241.560169, (double)this.workbook.Evaluate("VAR(Data!H:H)"), Tolerance);
 
         // Need at least two samples, otherwise returns error
         Assert.AreEqual(XLError.DivisionByZero, this.workbook.Evaluate("VAR({\"hello\"})"));
@@ -1097,7 +1097,7 @@ public class StatisticalTests
     }
 
     [Test]
-    [DefaultFloatingPointTolerance(tolerance)]
+    [DefaultFloatingPointTolerance(Tolerance)]
     public void VarA()
     {
         using XLWorkbook wb = new();
@@ -1132,17 +1132,17 @@ public class StatisticalTests
         IXLWorksheet ws = this.workbook.Worksheets.First();
 
         // Example from specification
-        Assert.AreEqual(2146.56, (double)ws.Evaluate("VARP(1202,1220,1323,1254,1302)"), tolerance);
+        Assert.AreEqual(2146.56, (double)ws.Evaluate("VARP(1202,1220,1323,1254,1302)"), Tolerance);
 
         // Only non-convertible text in D column, thus less than 1 sample.
         Assert.AreEqual(XLError.DivisionByZero, ws.Evaluate("VARP(D3:D45)"));
 
         // Calculate VARP from numeric values (reference contains only numbers)
-        Assert.AreEqual(2189.430863, (double)ws.Evaluate("VARP(H3:H45)"), tolerance);
+        Assert.AreEqual(2189.430863, (double)ws.Evaluate("VARP(H3:H45)"), Tolerance);
 
         // Ignores text values in the H column and only uses numeric ones, same as reference with only number
-        Assert.AreEqual(2189.430863, (double)ws.Evaluate("VARP(H:H)"), tolerance);
-        Assert.AreEqual(2189.430863, (double)this.workbook.Evaluate("VARP(Data!H:H)"), tolerance);
+        Assert.AreEqual(2189.430863, (double)ws.Evaluate("VARP(H:H)"), Tolerance);
+        Assert.AreEqual(2189.430863, (double)this.workbook.Evaluate("VARP(Data!H:H)"), Tolerance);
 
         // Need at least one sample, otherwise returns error
         Assert.AreEqual(XLError.DivisionByZero, this.workbook.Evaluate("VARP({\"hello\"})"));
@@ -1165,8 +1165,8 @@ public class StatisticalTests
     }
 
     [Test]
-    [DefaultFloatingPointTolerance(tolerance)]
-    public void VarPA()
+    [DefaultFloatingPointTolerance(Tolerance)]
+    public void VarPa()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();

@@ -6,7 +6,7 @@ using XlsxSharp.Excel.Tables;
 namespace XlsxSharp.Tests.Excel.PivotTables;
 
 [TestFixture]
-public class XLPivotCacheTests
+public class XlPivotCacheTests
 {
     [Test]
     public void FieldNamesKeepNamesEvenWhenSourceChange()

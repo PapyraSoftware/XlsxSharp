@@ -3,7 +3,7 @@ using XlsxSharp.Excel;
 
 namespace XlsxSharp.Tests.Excel.Columns;
 
-internal class XLColumnsTests
+internal class XlColumnsTests
 {
     [Test]
     public void Style_sets_format_of_columns()

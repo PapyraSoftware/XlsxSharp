@@ -5,7 +5,7 @@ using XlsxSharp.Excel.Tables;
 
 namespace XlsxSharp.Tests.Excel.Tables;
 
-internal class XLTableRowsTests
+internal class XlTableRowsTests
 {
     [Test]
     public void Style_sets_format_of_rows()
