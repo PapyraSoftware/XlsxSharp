@@ -6,9 +6,18 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <!-- Versions come from git tags via MinVer. A tag 'v1.2.3' builds 1.2.3, any commit after it
+       builds 1.2.4-preview.0.<commits since the tag>, which sorts below the eventual 1.2.4.
+       Nothing here or in CI hard-codes a version number. -->
   <PropertyGroup>
-    <Version>0.106.0-preview1</Version>
+    <MinVerTagPrefix>v</MinVerTagPrefix>
+    <MinVerDefaultPreReleaseIdentifiers>preview.0</MinVerDefaultPreReleaseIdentifiers>
+    <MinVerMinimumMajorMinor>1.0</MinVerMinimumMajorMinor>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MinVer" Version="7.0.0" PrivateAssets="All" />
+  </ItemGroup>
 
   <!-- Set common properties regarding assembly information and nuget packages -->
   <PropertyGroup>
@@ -18,12 +27,12 @@
     <Owners>Stefan Nikolei</Owners>
 
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/XlsxSharp/XlsxSharp</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/PapyraSoftware/XlsxSharp</PackageProjectUrl>
     <PackageIcon>nuget-logo.png</PackageIcon>
     <PackageTags>Excel OpenXml xlsx</PackageTags>
-    <Description>See release notes https://github.com/XlsxSharp/XlsxSharp/releases/tag/$(productVersion) XlsxSharp is a .NET library for reading, manipulating and writing Excel 2007+ (.xlsx, .xlsm) files. It aims to provide an intuitive and user-friendly interface to dealing with the underlying OpenXML API.</Description>
-    <PackageReleaseNotes>See https://github.com/XlsxSharp/XlsxSharp/releases/tag/$(productVersion)</PackageReleaseNotes>
-    <RepositoryUrl>https://github.com/XlsxSharp/XlsxSharp</RepositoryUrl>
+    <Description>XlsxSharp is a .NET library for reading, manipulating and writing Excel 2007+ (.xlsx, .xlsm) files. It aims to provide an intuitive and user-friendly interface to dealing with the underlying OpenXML API.</Description>
+    <PackageReleaseNotes>See https://github.com/PapyraSoftware/XlsxSharp/releases</PackageReleaseNotes>
+    <RepositoryUrl>https://github.com/PapyraSoftware/XlsxSharp</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
 
     <!-- Sourcelink: https://github.com/dotnet/sourcelink/ -->

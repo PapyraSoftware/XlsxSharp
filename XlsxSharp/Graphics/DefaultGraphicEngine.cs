@@ -359,6 +359,15 @@ public class DefaultGraphicEngine : IXLGraphicEngine
 
     private Font GetFont(MetricId metricId) => this._fonts.GetOrAdd(metricId, this._loadFont);
 
+    /// <summary>
+    /// Can the engine measure that font itself, or would it fall back to another one? A font name from
+    /// a workbook resolves to a fallback when the machine doesn't have the font, and every measurement
+    /// derived from it then belongs to the fallback instead.
+    /// </summary>
+    /// <param name="name">Font name, as it appears in the workbook.</param>
+    internal bool IsFontAvailable(string name) =>
+        SubstitutedByEmbeddedFont(name) || this._fontCollection.Value.TryGet(name, out _);
+
     private Font LoadFont(MetricId metricId)
     {
         // The embedded font is metric compatible with Calibri, so it is used for Calibri even when the

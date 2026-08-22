@@ -31,6 +31,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          # MinVer reads the version out of the git history, so the assemblies built here only carry
+          # the same version as the published package with the full history available.
+          fetch-depth: 0
 
       - name: Setup .NET 10
         uses: actions/setup-dotnet@v4

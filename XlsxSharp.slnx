@@ -5,6 +5,7 @@
     <File Path=".github\ISSUE_TEMPLATE\config.yml" />
     <File Path=".github\ISSUE_TEMPLATE\issue_template.md" />
     <File Path=".github\workflows\build.yml" />
+    <File Path=".github\workflows\publish.yml" />
   </Folder>
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />

@@ -10,6 +10,7 @@ using System.Xml.Linq;
 using NUnit.Framework;
 using XlsxSharp.Examples;
 using XlsxSharp.Excel;
+using XlsxSharp.Graphics;
 using XlsxSharp.Tests.Utils;
 using LoadOptions = XlsxSharp.Excel.LoadOptions;
 using Path = System.IO.Path;
@@ -47,6 +48,23 @@ internal static class TestHelper
         Assembly.GetExecutingAssembly(),
         ".Resource."
     );
+
+    /// <summary>
+    /// Skip the test when the machine has no font of that name. Column widths, text sizes and
+    /// everything else derived from font metrics are only the numbers Excel produced as long as the
+    /// font from the workbook is installed. Without it the engine measures a fallback font and the
+    /// expected values of such a test say nothing.
+    /// </summary>
+    /// <param name="fontName">Font name, exactly as it appears in the workbook.</param>
+    public static void IgnoreIfFontIsMissing(string fontName)
+    {
+        if (!DefaultGraphicEngine.Instance.Value.IsFontAvailable(fontName))
+        {
+            Assert.Ignore(
+                $"Font '{fontName}' is not installed, the measured values would be of a fallback font."
+            );
+        }
+    }
 
     public static void SaveWorkbook(XLWorkbook workbook, params string[] fileNameParts) =>
         workbook.SaveAs(

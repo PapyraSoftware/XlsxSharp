@@ -1,0 +1,88 @@
+name: Publish
+
+# A commit on develop publishes a prerelease, a v* tag publishes the release. Which of the two it
+# becomes is decided entirely by MinVer from the git history, there is no version logic here.
+on:
+  push:
+    branches: [ develop ]
+    tags: [ 'v*' ]
+  workflow_dispatch:
+
+concurrency:
+  # Never cancel a publish that is already pushing to nuget.org.
+  group: publish-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Pack & publish
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      # nuget.org issues the API key against a GitHub OIDC token, so the job has to be allowed to
+      # request one. Without this the login step fails with a missing token, not with a denied push.
+      id-token: write
+
+    env:
+      # SixLabors.Fonts 3.x refuses to compile without a license. Directory.Build.props picks this up
+      # via the SixLaborsLicenseKey property when GITHUB_ACTIONS is set.
+      SIXLABORS_LICENSE_KEY: ${{ secrets.SIXLABORS_LICENSE_KEY }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          # MinVer derives the version from the closest tag and the number of commits since then,
+          # so it needs the full history and all tags. A shallow clone silently yields 0.0.0-alpha.
+          fetch-depth: 0
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.x'
+
+      - name: Restore dependencies
+        run: dotnet restore XlsxSharp.slnx
+
+      - name: Build
+        run: dotnet build XlsxSharp.slnx --configuration Release --no-restore
+
+      # Nothing reaches nuget.org that has not passed the tests on at least one platform. The full
+      # matrix runs in build.yml.
+      - name: Test
+        run: dotnet test XlsxSharp.slnx --configuration Release --no-build
+
+      - name: Pack
+        run: dotnet pack XlsxSharp/XlsxSharp.csproj --configuration Release --no-build --output artifacts
+
+      - name: Upload packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-packages
+          path: artifacts/
+
+      # Trusted publishing: this exchanges the OIDC token of the job for an API key that nuget.org
+      # issues on the spot, so no long lived key is stored in the repository. nuget.org accepts the
+      # exchange only for the owner, repository, workflow file (publish.yml) and environment of the
+      # trusted publishing policy configured there, and the key it hands out is valid for one hour
+      # and for a single use - which is why this sits directly before the push instead of at the top.
+      - name: NuGet login
+        id: login
+        uses: NuGet/login@v1
+        with:
+          # nuget.org account name that owns the policy, not an e-mail address.
+          user: ${{ secrets.NUGET_USER }}
+
+      # The condition covers workflow_dispatch, which can be started from any ref: MinVer only looks
+      # at tags and commit height, so a run from a feature branch would mint a version that already
+      # belongs to develop. --skip-duplicate keeps this idempotent, because pushing a branch and its
+      # tag together fires two runs and a rerun of a successful publish must not fail. The matching
+      # .snupkg goes along with the .nupkg.
+      - name: Push to NuGet
+        if: github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/tags/v')
+        run: >
+          dotnet nuget push "artifacts/*.nupkg"
+          --api-key "${{ steps.login.outputs.NUGET_API_KEY }}"
+          --source https://api.nuget.org/v3/index.json
+          --skip-duplicate

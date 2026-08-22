@@ -1,1 +1,6 @@
-﻿<Project Sdk="Microsoft.NET.Sdk" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <!-- Shipped as part of the XlsxSharp package, see XlsxSharp.csproj. -->
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+</Project>

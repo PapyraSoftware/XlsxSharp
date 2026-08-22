@@ -49,3 +49,25 @@ To ensure you follow the coding conventions, please do the following steps befor
 
 - In Visual Studio, run `CodeMaid > Cleanup Active Document` or `Ctrl+M, Space` on each file that you have altered. This will ensure the correct whitespace consistency.
 - Some files, not all, have a header in the first line: `// Keep this file CodeMaid organised and cleaned`. For these files, also run `CodeMaid > Reorganize Active Document` or `Ctrl+M, Z`. This will reorder properties and methods alphabetically into a predetermined order. For example, public properties and methods will be organized before private properties and methods. Not all files require this yet. Please take note of the headers.
+
+## Versioning and releases
+
+Version numbers are not maintained anywhere in the repository. [MinVer](https://github.com/adamralph/minver) derives them from the git history:
+
+- An annotated tag `v0.107.0` builds exactly `0.107.0` and is published as a release.
+- Every commit after that tag builds a prerelease of the next patch version, `0.107.1-preview.0.N`, where `N` counts the commits since the tag. Each of these is published to nuget.org as well.
+
+A release is therefore made by tagging the commit that should become it, at any time:
+
+```
+git tag -a v0.107.0 -m "0.107.0"
+git push origin v0.107.0
+```
+
+The next version is always guessed as a patch bump, so the prereleases between two releases are named after a patch version even when the release eventually turns out to be a minor one. That is only a naming detail and does not restrict which tag can be set next; `MinVerAutoIncrement` in `Directory.Build.props` would change the guess to `minor`. `MinVerMinimumMajorMinor` is only a floor for the very first release and does not need to be touched per release.
+
+Packing a stable version warns with `NU5104` for as long as XlsxSharp depends on a prerelease of `ClosedXML.Parser`. This is expected and does not fail the build.
+
+`XlsxSharp.IO` has no package of its own. It is compiled into the `XlsxSharp` package, see the `IncludeXlsxSharpIoInPackage` target in `XlsxSharp/XlsxSharp.csproj`.
+
+Publishing uses [trusted publishing](https://learn.microsoft.com/nuget/nuget-org/trusted-publishing) instead of a stored API key, so nuget.org needs a policy for this repository and the `publish.yml` workflow. The repository needs the secrets `NUGET_USER` (the nuget.org account that owns the policy) and `SIXLABORS_LICENSE_KEY`.

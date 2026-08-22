@@ -1,6 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Optimize>true</Optimize>
   </PropertyGroup>
 
@@ -29,9 +28,32 @@
     <PackageReference Include="ClosedXML.Parser" Version="2.0.0-preview1" />
   </ItemGroup>
 
+  <!-- XlsxSharp.IO ships inside this package rather than as a package of its own. PrivateAssets
+       keeps it out of the nuspec dependencies, IncludeXlsxSharpIoInPackage puts its assembly next
+       to XlsxSharp.dll in lib/ so consumers still resolve the types it exposes. -->
   <ItemGroup>
-    <ProjectReference Include="..\XlsxSharp.IO\XlsxSharp.IO.csproj" />
+    <ProjectReference Include="..\XlsxSharp.IO\XlsxSharp.IO.csproj" PrivateAssets="all" />
   </ItemGroup>
+
+  <PropertyGroup>
+    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);IncludeXlsxSharpIoInPackage</TargetsForTfmSpecificBuildOutput>
+  </PropertyGroup>
+
+  <Target Name="IncludeXlsxSharpIoInPackage">
+    <!-- Taken from the output directory rather than from ReferenceCopyLocalPaths, so that packing
+         works whether or not pack rebuilds first. Documentation and symbols are optional, the
+         assembly is not. -->
+    <ItemGroup>
+      <_XlsxSharpIoOutput Include="$(OutputPath)XlsxSharp.IO.dll;$(OutputPath)XlsxSharp.IO.xml;$(OutputPath)XlsxSharp.IO.pdb" />
+    </ItemGroup>
+
+    <Error Condition="!Exists('$(OutputPath)XlsxSharp.IO.dll')"
+           Text="XlsxSharp.IO.dll was not found in $(OutputPath). It has to be packed into the XlsxSharp package, so build the project before packing it." />
+
+    <ItemGroup>
+      <BuildOutputInPackage Include="@(_XlsxSharpIoOutput)" Condition="Exists('%(Identity)')" />
+    </ItemGroup>
+  </Target>
 
   <ItemGroup>
     <Folder Include="Properties\" />

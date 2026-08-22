@@ -639,6 +639,14 @@ public class LoadingTests
             Assert.AreEqual(8.43, defaultColumnWidth, XLHelper.Epsilon);
             Assert.AreEqual(64, pixelWidth);
         }
+    }
+
+    [Test]
+    public void CanCorrectLoadWorkbookDefaultColumnWidthOfNonDefaultFont()
+    {
+        // The width is derived from the metric of the font of the workbook, so the numbers Excel
+        // wrote can only be reproduced on a machine that has that font.
+        TestHelper.IgnoreIfFontIsMissing("Arial");
 
         using (
             Stream stream = TestHelper.GetStreamFromResource(
@@ -669,8 +677,14 @@ public class LoadingTests
             Assert.AreEqual(8.43, ws.ColumnWidth, XLHelper.Epsilon);
             Assert.AreEqual(8.43, ws.Column(1).Width, XLHelper.Epsilon);
         }
+    }
 
-        // worksheet has base column width.
+    [Test]
+    public void CanCorrectLoadWorksheetBaseColumnWidthOfNonDefaultFont()
+    {
+        // worksheet has base column width, converted through the metric of the font of the worksheet.
+        TestHelper.IgnoreIfFontIsMissing("Arial");
+
         using (
             Stream stream = TestHelper.GetStreamFromResource(
                 TestHelper.GetResourcePath(@"TryToLoad\BaseColumnWidth.xlsx")
@@ -687,13 +701,19 @@ public class LoadingTests
     [Test]
     public void CanCorrectLoadWorksheetDefaultColumnWidth()
     {
-        // worksheet has default column width.
+        // The worksheet has a default column width of 20.375 MDWs and the font of the workbook
+        // (游ゴシック) is not installed on most machines, so the default engine would measure
+        // whatever font it falls back to. Unlike the tests above, the presence of the font of the
+        // workbook is not what makes the numbers reproducible here - the maximum digit width is,
+        // so the test supplies it and checks the conversion done during the load.
+        LoadOptions loadOptions = new() { GraphicEngine = new FixedMaxDigitWidthEngine(8) };
+
         using (
             Stream stream = TestHelper.GetStreamFromResource(
                 TestHelper.GetResourcePath(@"TryToLoad\SheetDefaultColumnWidth.xlsx")
             )
         )
-        using (XLWorkbook wb = new(stream))
+        using (XLWorkbook wb = new(stream, loadOptions))
         {
             IXLWorksheet ws = wb.Worksheet(1);
             double pixelWidth = XLHelper.NoCToPixels(ws.Column(1).Width, ws.Style.Font, wb);
