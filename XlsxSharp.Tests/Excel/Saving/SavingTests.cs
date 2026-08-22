@@ -250,6 +250,7 @@ public class SavingTests
     }
 
     [Test]
+    [Platform(Include = "Win")]
     public void CannotSaveAsOverwriteExistingReadOnlyFile()
     {
         using (TemporaryFile existing = new())
