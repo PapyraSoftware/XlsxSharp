@@ -1,0 +1,32 @@
+﻿using System;
+using System.Collections.Generic;
+using ClosedXML.Parser;
+
+namespace XlsxSharp.Excel.CalcEngine.Visitors;
+
+/// <summary>
+/// A visitor for <see cref="FormulaConverter"/> that maps one name of a function to another.
+/// </summary>
+internal class RenameFunctionsVisitor : RefModVisitor
+{
+    /// <summary>
+    /// Case insensitive dictionary of function names.
+    /// </summary>
+    private readonly Lazy<IReadOnlyDictionary<string, string>> _functionMap;
+
+    internal RenameFunctionsVisitor(Lazy<IReadOnlyDictionary<string, string>> functionMap) =>
+        this._functionMap = functionMap;
+
+    protected override ReadOnlySpan<char> ModifyFunction(
+        ModContext ctx,
+        ReadOnlySpan<char> functionName
+    )
+    {
+        if (this._functionMap.Value.TryGetValue(functionName.ToString(), out string? mapped))
+        {
+            return mapped.AsSpan();
+        }
+
+        return functionName;
+    }
+}

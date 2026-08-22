@@ -1,58 +1,34 @@
 **********************
-ClosedXML Installation
+XlsxSharp Installation
 **********************
 
 ====================
-Installing ClosedXML
+Installing XlsxSharp
 ====================
-The easiest way to add ClosedXML to your project is to install it using the NET CLI.
+The easiest way to add XlsxSharp to your project is to install it using the .NET CLI.
+XlsxSharp is currently published as a prerelease, so the ``--prerelease`` switch is required
+until a stable version is released.
 
 .. code-block:: batch
 
-   C:\source> dotnet add package ClosedXML
+   C:\source> dotnet add package XlsxSharp --prerelease
 
-===============
-SixLabors.Fonts
-===============
-ClosedXML depends on the ``SixLabors.Fonts`` library that is only available as a beta. The legacy ``package.config``
-nuget dependency resolution ignores prerelease packages during installation, resulting in the following error:
-
-.. error::
-   ::
-
-     Unable to resolve dependency 'SixLabors.Fonts'. Source(s) used: 'nuget.org', 'Microsoft Visual Studio Offline Packages'.
-
-To solve the error, choose one of the possible solutions:
-
---------------------
-Use PackageReference
---------------------
-
-Migrate from ``package.config`` to ``PackageReference``. ``package.config`` has been deprecated for 5 year and
-there is a full-fledged replacement that is better in every way that works on .NET Framework. If you
-use ``PackageReference`` style, the ClosedXML is installed without the error.
-
-See `Migrate from packages.config to PackageReference <https://learn.microsoft.com/en-us/nuget/consume-packages/migrate-packages-config-to-package-reference>`_
-and related pages.
-
------------------------------
-Install SixLabors.Fonts first
------------------------------
-Install ``SixLabors.Fonts-beta18`` package and then install ClosedXML package. This way, you can install the ClosedXML
-even for the ``package.config`` nuget restore.
-
----------------------
-Use prerelease switch
----------------------
-
-Open the *Package Manager Console* and specify the ``-IncludePrerelease`` switch during installation.
+You can also install the package from the *Package Manager Console* in Visual Studio.
 
 .. code-block:: batch
 
-   PM> Install-Package ClosedXML -Version 0.97.0 -Verbose -IncludePrerelease
+   PM> Install-Package XlsxSharp -IncludePrerelease
 
 ==========================
 Compatible implementations
 ==========================
-ClosedXML is a .NET Standard 2.0 library that runs on any compatible implementation (.NET Core 2.0+, .NET Framework 4.6.2, Blazor).
-ClosedXML doesn't work on Unity due to Unity `script engine <https://github.com/ClosedXML/ClosedXML/issues/1880>`_.
+XlsxSharp targets ``net10.0`` and runs on .NET 10 or later, on every platform supported by
+.NET (Windows, Linux, macOS).
+
+.. note::
+   XlsxSharp is a fork of `ClosedXML <https://github.com/ClosedXML/ClosedXML>`_ whose primary goal
+   is to keep the library current with the latest .NET releases. Unlike ClosedXML, it does not
+   target .NET Standard 2.0 or .NET Framework. If you need to run on those platforms, use
+   ClosedXML instead.
+
+XlsxSharp doesn't work on Unity due to Unity `script engine <https://github.com/ClosedXML/ClosedXML/issues/1880>`_.

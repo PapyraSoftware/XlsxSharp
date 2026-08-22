@@ -1,12 +1,9 @@
-# Notice
-ClosedXML is currently not seeking new contributions, until the worst technical debt and current backlog of PRs are dealt with.
-
 # Developer guidelines
-The [OpenXML specification](https://www.ecma-international.org/publications/standards/Ecma-376.htm) is a large and complicated beast. In order for ClosedXML, the wrapper around OpenXML, to support all the features, we rely on community contributions. Before opening an issue to request a new feature, we'd like to urge you to try to implement it yourself and log a pull request.
+The [OpenXML specification](https://www.ecma-international.org/publications/standards/Ecma-376.htm) is a large and complicated beast. In order for XlsxSharp, the wrapper around OpenXML, to support all the features, we rely on community contributions. Before opening an issue to request a new feature, we'd like to urge you to try to implement it yourself and log a pull request.
 
 Here are some tips.
 
-* Before starting a large pull request, log an issue and outline the problem and a broad outline of your solution. The maintainers will discuss the issue with you and possibly propose some alternative approaches to align with the ClosedXML development conventions. 
+* Before starting a large pull request, log an issue and outline the problem and a broad outline of your solution. The maintainers will discuss the issue with you and possibly propose some alternative approaches to align with the XlsxSharp development conventions. 
 * Please submit pull requests that are based on the `develop` branch.
 * Where possible, pull requests should include unit tests that cover as many uses cases as possible.
 * We recommend Visual Studio 2019 or higher as the development environment. If you do use Visual Studio, please install these extensions:
@@ -21,11 +18,11 @@ Excel files (`.xlsx` and `.xlsm`) are zip packages. You can easily verify this b
 
 Internally, the file contains files (also known as parts) that represent different entities in the Excel framework, for example `workbook.xml` and `table1.xml`. The [OpenXML specification](https://www.ecma-international.org/publications/standards/Ecma-376.htm) documents all these parts and their contents.
 
-Making changes to the ClosedXML code may change the input or output of the package parts. For example if you add support for a currently unsupported element, you will have to ensure that you read the appropriate package part into the ClosedXML model and also support writing of the package parts to the file.
+Making changes to the XlsxSharp code may change the input or output of the package parts. For example if you add support for a currently unsupported element, you will have to ensure that you read the appropriate package part into the XlsxSharp model and also support writing of the package parts to the file.
 
 ### Comparing the internals of Excel files
 
-A ClosedXML developer will often want to compare the internals of 2 similar Excel files. For example if you want to compare the output of a specific package part before and after your code changes. The long, difficult way would be to extract the package parts of the 2 files and manually compare the relevant parts. To ease this, we recommend this tooling stack:
+A XlsxSharp developer will often want to compare the internals of 2 similar Excel files. For example if you want to compare the output of a specific package part before and after your code changes. The long, difficult way would be to extract the package parts of the 2 files and manually compare the relevant parts. To ease this, we recommend this tooling stack:
 
 - [Total Commander](https://www.ghisler.com/download.htm)
 - [WinMerge](http://winmerge.org/downloads) version `2.14.0`, because subsequent versions for [some reason](https://bitbucket.org/winmerge/winmerge/issues/152/displayxmlfiles-plugin-not-included-with) excludes the required `DisplayXMLFiles.dll` plugin.
@@ -43,12 +40,32 @@ Now, to compare 2 similar, but not exact Excel files:
 
 ## Reconciling Test Files
 
-ClosedXML uses a set of [reference .xlsx files](https://github.com/ClosedXML/ClosedXML/tree/develop/ClosedXML.Tests/Resource) for comparison for some of the unit tests. Sometimes when you update the ClosedXML codebase, e.g. a bugfix, the reference test files maybe become obsolete. When running unit tests and the generated file doesn't match the reference file, you will have to update the reference file. You should do this only after inspecting the differences between the generated and reference files in detail and confirming that each change is indeed the expected behaviour. Check the new files visually (e.g. in Excel) and through XML comparison before overwriting the reference files.
+XlsxSharp uses a set of [reference .xlsx files](https://github.com/PapyraSoftware/XlsxSharp/tree/develop/XlsxSharp.Tests/Resource) for comparison for some of the unit tests. Sometimes when you update the XlsxSharp codebase, e.g. a bugfix, the reference test files maybe become obsolete. When running unit tests and the generated file doesn't match the reference file, you will have to update the reference file. You should do this only after inspecting the differences between the generated and reference files in detail and confirming that each change is indeed the expected behaviour. Check the new files visually (e.g. in Excel) and through XML comparison before overwriting the reference files.
 
 ## Code conventions
-ClosedXML has a fairly large codebase and we therefore want to keep code revisions as clean and tidy as possible. It is therefore important not to introduce unnecessary whitespace changes in your commits.
+XlsxSharp has a fairly large codebase and we therefore want to keep code revisions as clean and tidy as possible. It is therefore important not to introduce unnecessary whitespace changes in your commits.
 
 To ensure you follow the coding conventions, please do the following steps before you commit your code:
 
 - In Visual Studio, run `CodeMaid > Cleanup Active Document` or `Ctrl+M, Space` on each file that you have altered. This will ensure the correct whitespace consistency.
 - Some files, not all, have a header in the first line: `// Keep this file CodeMaid organised and cleaned`. For these files, also run `CodeMaid > Reorganize Active Document` or `Ctrl+M, Z`. This will reorder properties and methods alphabetically into a predetermined order. For example, public properties and methods will be organized before private properties and methods. Not all files require this yet. Please take note of the headers.
+
+## Versioning and releases
+
+Version numbers are not maintained anywhere in the repository. [MinVer](https://github.com/adamralph/minver) derives them from the git history:
+
+- An annotated tag `v0.107.0` builds exactly `0.107.0` and is published as a release.
+- Every commit after that tag builds a prerelease of the next patch version, `0.107.1-preview.0.N`, where `N` counts the commits since the tag. Each of these is published to nuget.org as well.
+
+A release is therefore made by tagging the commit that should become it, at any time:
+
+```
+git tag -a v0.107.0 -m "0.107.0"
+git push origin v0.107.0
+```
+
+The next version is always guessed as a patch bump, so the prereleases between two releases are named after a patch version even when the release eventually turns out to be a minor one. That is only a naming detail and does not restrict which tag can be set next; `MinVerAutoIncrement` in `Directory.Build.props` would change the guess to `minor`. `MinVerMinimumMajorMinor` is only a floor for the very first release and does not need to be touched per release.
+
+`XlsxSharp.IO` has no package of its own. It is compiled into the `XlsxSharp` package, see the `IncludeXlsxSharpIoInPackage` target in `XlsxSharp/XlsxSharp.csproj`.
+
+Publishing uses [trusted publishing](https://learn.microsoft.com/nuget/nuget-org/trusted-publishing) instead of a stored API key, so nuget.org needs a policy for this repository and the `publish.yml` workflow. The repository needs the secrets `NUGET_USER` (the nuget.org account that owns the policy) and `SIXLABORS_LICENSE_KEY`.

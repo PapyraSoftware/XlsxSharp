@@ -1,0 +1,43 @@
+using XlsxSharp.Excel;
+
+namespace XlsxSharp.Examples.Ranges;
+
+public class CurrentRowColumn : IXLExample
+{
+    public void Create(string filePath)
+    {
+        XLWorkbook wb = new();
+        IXLWorksheet ws = wb.Worksheets.Add("Current Row Column");
+
+        IXLCell cell = ws.Cell(5, 2);
+        cell.Style.Fill.SetBackgroundColor(XLColor.Red);
+        ws.Cell(1, 1)
+            .SetValue("Red's Row:")
+            .CellRight()
+            .SetValue(cell.WorksheetRow().RowNumber())
+            .CellBelow()
+            .SetValue(cell.WorksheetColumn().ColumnLetter())
+            .CellLeft()
+            .SetValue("Red's Column:");
+
+        IXLRangeRow row = ws.Range("A6:C6").FirstRow();
+        row.Style.Fill.SetBackgroundColor(XLColor.Blue);
+
+        IXLRangeColumn column = ws.Range("B7:B9").FirstColumn();
+        column.Style.Fill.SetBackgroundColor(XLColor.Green);
+
+        ws.Cell(1, 4)
+            .SetValue("Blue's Row:")
+            .CellRight()
+            .SetValue(row.WorksheetRow().RowNumber())
+            .CellBelow()
+            .SetValue(column.WorksheetColumn().ColumnLetter())
+            .CellLeft()
+            .SetValue("Green's Column:");
+
+        ws.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
+        ws.Columns().AdjustToContents();
+
+        wb.SaveAs(filePath);
+    }
+}

@@ -2,12 +2,12 @@
 Organizing Worksheets
 *********************
 
-It is possible to use ClosedXML to organize the worksheets in a workbook.
+It is possible to use XlsxSharp to organize the worksheets in a workbook.
 
 Adding a worksheet
 ------------------
 
-There are several overloads of the method `AddWorksheet` that take a name and a position (first position is 1). If an argument is missing, ClosedXML will use a default behavior.
+There are several overloads of the method `AddWorksheet` that take a name and a position (first position is 1). If an argument is missing, XlsxSharp will use a default behavior.
 For name, a new name `Sheet{number}` will be used. If a position is missing, sheet will be added as the last worksheet of a workbook.
 
 .. code-block:: csharp

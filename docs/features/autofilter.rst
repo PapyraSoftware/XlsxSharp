@@ -16,7 +16,7 @@ Through powerfull, there are some limitations:
 * There can be only one autofilter per worksheet, though each table can have its own autofilter.
 
 The filter behaviors sometimes isn't consistent and has various weird edge cases. That is just
-how Excel behaves and ClosedXML generally follows Excel, unless there is a good reason not to.
+how Excel behaves and XlsxSharp generally follows Excel, unless there is a good reason not to.
 
 Define autofilter
 =================

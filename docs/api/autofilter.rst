@@ -1,5 +1,5 @@
 AutoFilter
 ==========
 
-.. doxygeninterface:: ClosedXML::Excel::IXLAutoFilter
+.. doxygeninterface:: XlsxSharp::Excel::IXLAutoFilter
    :members:

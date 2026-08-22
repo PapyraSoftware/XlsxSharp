@@ -1,0 +1,214 @@
+#nullable disable
+
+// Keep this file CodeMaid organised and cleaned
+using System;
+using XlsxSharp.Utils;
+using static XlsxSharp.Excel.Protection.XLProtectionAlgorithm;
+
+namespace XlsxSharp.Excel.Protection;
+
+internal class XLWorkbookProtection : IXLWorkbookProtection
+{
+    public XLWorkbookProtection(Algorithm algorithm)
+        : this(algorithm, XLWorkbookProtectionElements.Windows) { }
+
+    public XLWorkbookProtection(Algorithm algorithm, XLWorkbookProtectionElements allowedElements)
+    {
+        this.Algorithm = algorithm;
+        this.AllowedElements = allowedElements;
+    }
+
+    public Algorithm Algorithm { get; internal set; }
+    public XLWorkbookProtectionElements AllowedElements { get; set; }
+    public bool IsPasswordProtected => this.IsProtected && !string.IsNullOrEmpty(this.PasswordHash);
+    public bool IsProtected { get; internal set; }
+
+    internal string Base64EncodedSalt { get; set; }
+    internal string PasswordHash { get; set; }
+    internal uint SpinCount { get; set; } = 100000;
+
+    public IXLWorkbookProtection AllowElement(
+        XLWorkbookProtectionElements element,
+        bool allowed = true
+    )
+    {
+        if (allowed)
+        {
+            this.AllowedElements |= element;
+        }
+        else
+        {
+            this.AllowedElements &= ~element;
+        }
+
+        return this;
+    }
+
+    public IXLWorkbookProtection AllowEverything()
+    {
+        this.AllowedElements = XLWorkbookProtectionElements.Everything;
+        return this;
+    }
+
+    public IXLWorkbookProtection AllowNone()
+    {
+        this.AllowedElements = XLWorkbookProtectionElements.None;
+        return this;
+    }
+
+    public object Clone() =>
+        new XLWorkbookProtection(this.Algorithm, this.AllowedElements)
+        {
+            IsProtected = this.IsProtected,
+            PasswordHash = this.PasswordHash,
+            SpinCount = this.SpinCount,
+            Base64EncodedSalt = this.Base64EncodedSalt,
+        };
+
+    public IXLWorkbookProtection CopyFrom(
+        IXLElementProtection<XLWorkbookProtectionElements> workbookProtection
+    )
+    {
+        if (workbookProtection is XLWorkbookProtection xlWorkbookProtection)
+        {
+            this.IsProtected = xlWorkbookProtection.IsProtected;
+            this.Algorithm = xlWorkbookProtection.Algorithm;
+            this.PasswordHash = xlWorkbookProtection.PasswordHash;
+            this.SpinCount = xlWorkbookProtection.SpinCount;
+            this.Base64EncodedSalt = xlWorkbookProtection.Base64EncodedSalt;
+            this.AllowedElements = xlWorkbookProtection.AllowedElements;
+        }
+        return this;
+    }
+
+    public IXLWorkbookProtection DisallowElement(XLWorkbookProtectionElements element) =>
+        this.AllowElement(element, allowed: false);
+
+    public IXLWorkbookProtection Protect(Algorithm algorithm = DefaultProtectionAlgorithm) =>
+        this.Protect(string.Empty, algorithm);
+
+    public IXLWorkbookProtection Protect(XLWorkbookProtectionElements allowedElements) =>
+        this.Protect(string.Empty, DefaultProtectionAlgorithm, allowedElements);
+
+    public IXLWorkbookProtection Protect(
+        Algorithm algorithm,
+        XLWorkbookProtectionElements allowedElements
+    ) => this.Protect(string.Empty, algorithm, allowedElements);
+
+    public IXLWorkbookProtection Protect(
+        string password,
+        Algorithm algorithm = DefaultProtectionAlgorithm,
+        XLWorkbookProtectionElements allowedElements = XLWorkbookProtectionElements.Windows
+    )
+    {
+        if (this.IsProtected)
+        {
+            throw new InvalidOperationException("The workbook structure is already protected");
+        }
+        else
+        {
+            this.IsProtected = true;
+
+            password = password ?? "";
+
+            this.Algorithm = algorithm;
+            this.Base64EncodedSalt = CryptographicAlgorithms.GenerateNewSalt(this.Algorithm);
+            this.PasswordHash = CryptographicAlgorithms.GetPasswordHash(
+                this.Algorithm,
+                password,
+                this.Base64EncodedSalt,
+                this.SpinCount
+            );
+        }
+
+        this.AllowedElements = allowedElements;
+
+        return this;
+    }
+
+    public IXLWorkbookProtection Unprotect() => this.Unprotect(string.Empty);
+
+    public IXLWorkbookProtection Unprotect(string password)
+    {
+        if (this.IsProtected)
+        {
+            if (this.PasswordHash.Length > 0 && string.IsNullOrEmpty(password))
+            {
+                throw new InvalidOperationException("The workbook structure is password protected");
+            }
+
+            string hash = CryptographicAlgorithms.GetPasswordHash(
+                this.Algorithm,
+                password,
+                this.Base64EncodedSalt,
+                this.SpinCount
+            );
+            if (hash != this.PasswordHash)
+            {
+                throw new ArgumentException("Invalid password");
+            }
+            else
+            {
+                this.IsProtected = false;
+                this.PasswordHash = string.Empty;
+                this.Base64EncodedSalt = string.Empty;
+            }
+        }
+
+        return this;
+    }
+
+    #region IXLProtectable interface
+
+    IXLElementProtection<XLWorkbookProtectionElements> IXLElementProtection<XLWorkbookProtectionElements>.AllowElement(
+        XLWorkbookProtectionElements element,
+        bool allowed
+    ) => this.AllowElement(element, allowed);
+
+    IXLElementProtection<XLWorkbookProtectionElements> IXLElementProtection<XLWorkbookProtectionElements>.AllowEverything() =>
+        this.AllowEverything();
+
+    IXLElementProtection<XLWorkbookProtectionElements> IXLElementProtection<XLWorkbookProtectionElements>.AllowNone() =>
+        this.AllowNone();
+
+    IXLElementProtection<XLWorkbookProtectionElements> IXLElementProtection<XLWorkbookProtectionElements>.DisallowElement(
+        XLWorkbookProtectionElements element
+    ) => this.DisallowElement(element);
+
+    IXLElementProtection<XLWorkbookProtectionElements> IXLElementProtection<XLWorkbookProtectionElements>.Protect(
+        Algorithm algorithm
+    ) => this.Protect(algorithm);
+
+    IXLElementProtection<XLWorkbookProtectionElements> IXLElementProtection<XLWorkbookProtectionElements>.Protect(
+        string password,
+        Algorithm algorithm
+    ) => this.Protect(password, algorithm);
+
+    IXLWorkbookProtection IXLWorkbookProtection.Protect(
+        XLWorkbookProtectionElements allowedElements
+    ) => this.Protect(allowedElements);
+
+    IXLWorkbookProtection IXLWorkbookProtection.Protect(
+        Algorithm algorithm,
+        XLWorkbookProtectionElements allowedElements
+    ) => this.Protect(algorithm, allowedElements);
+
+    IXLWorkbookProtection IXLWorkbookProtection.Protect(
+        string password,
+        Algorithm algorithm,
+        XLWorkbookProtectionElements allowedElements
+    ) => this.Protect(password, algorithm, allowedElements);
+
+    IXLElementProtection<XLWorkbookProtectionElements> IXLElementProtection<XLWorkbookProtectionElements>.Unprotect() =>
+        this.Unprotect();
+
+    IXLElementProtection<XLWorkbookProtectionElements> IXLElementProtection<XLWorkbookProtectionElements>.Unprotect(
+        string password
+    ) => this.Unprotect(password);
+
+    IXLElementProtection<XLWorkbookProtectionElements> IXLElementProtection<XLWorkbookProtectionElements>.CopyFrom(
+        IXLElementProtection<XLWorkbookProtectionElements> protectable
+    ) => this.CopyFrom(protectable);
+
+    #endregion IXLProtectable interface
+}

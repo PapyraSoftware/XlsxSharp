@@ -1,0 +1,60 @@
+﻿using System;
+using System.Linq;
+using XlsxSharp.Excel;
+using XlsxSharp.Excel.Tables;
+
+// TODO: Add example to Wiki
+
+namespace XlsxSharp.Examples.Tables;
+
+public class ResizingTables : IXLExample
+{
+    public void Create(string filePath)
+    {
+        using (XLWorkbook wb = new())
+        {
+            IXLWorksheet ws1 = wb.AddWorksheet("Sheet1");
+
+            var data1 = Enumerable
+                .Range(1, 10)
+                .Select(i => new
+                {
+                    Index = i,
+                    Character = Convert.ToChar(64 + i),
+                    String = new string('a', i),
+                    Integer = 64 + i,
+                });
+
+            IXLTable table1 = ws1.Cell("B2")
+                .InsertTable(data1, true)
+                .SetShowHeaderRow()
+                .SetShowTotalsRow();
+
+            table1.Fields.First().TotalsRowLabel = "Sum of Integer";
+            table1.Fields.Last().TotalsRowFunction = XLTotalsRowFunction.Sum;
+
+            IXLWorksheet ws2 = ws1.CopyTo("Sheet2");
+            IXLTable table2 = ws2.Tables.First();
+            table2.Resize(table2.FirstCell(), table2.LastCell().CellLeft().CellAbove(3));
+
+            IXLWorksheet ws3 = ws2.CopyTo("Sheet3");
+            IXLTable table3 = ws3.Tables.First();
+            table3.Resize(
+                table3.FirstCell().CellLeft(),
+                table3.LastCell().CellRight().CellBelow(1)
+            );
+
+            ////See #1492
+            IXLWorksheet ws4 = ws1.CopyTo("Sheet4");
+            IXLTable table4 = ws4.Tables.First();
+            table4.Field("String").Column.InsertColumnsAfter(1, true);
+
+            foreach (IXLWorksheet ws in wb.Worksheets)
+            {
+                ws.Columns().AdjustToContents();
+            }
+
+            wb.SaveAs(filePath);
+        }
+    }
+}

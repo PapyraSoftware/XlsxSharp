@@ -2,26 +2,37 @@
   <!-- Set the repository root into a variable -->
   <PropertyGroup>
     <SourceRoot>$(MSBuildThisFileDirectory)</SourceRoot>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <!-- Versions come from git tags via MinVer. A tag 'v1.2.3' builds 1.2.3, any commit after it
+       builds 1.2.4-preview.0.<commits since the tag>, which sorts below the eventual 1.2.4.
+       Nothing here or in CI hard-codes a version number. -->
   <PropertyGroup>
-    <Version>0.106.0-preview1</Version>
+    <MinVerTagPrefix>v</MinVerTagPrefix>
+    <MinVerDefaultPreReleaseIdentifiers>preview.0</MinVerDefaultPreReleaseIdentifiers>
+    <MinVerMinimumMajorMinor>1.0</MinVerMinimumMajorMinor>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MinVer" Version="7.0.0" PrivateAssets="All" />
+  </ItemGroup>
 
   <!-- Set common properties regarding assembly information and nuget packages -->
   <PropertyGroup>
-    <Product>ClosedXML</Product>
+    <Product>XlsxSharp</Product>
 
-    <Authors>Jan Havlíček, Francois Botha, Aleksei Pankratev, Manuel de Leon, Amir Ghezelbash</Authors>
-    <Owners>Jan Havlíček, Francois Botha, Aleksei Pankratev</Owners>
+    <Authors>Stefan Nikolei</Authors>
+    <Owners>Stefan Nikolei</Owners>
 
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/ClosedXML/ClosedXML</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/PapyraSoftware/XlsxSharp</PackageProjectUrl>
     <PackageIcon>nuget-logo.png</PackageIcon>
     <PackageTags>Excel OpenXml xlsx</PackageTags>
-    <Description>See release notes https://github.com/ClosedXML/ClosedXML/releases/tag/$(productVersion) ClosedXML is a .NET library for reading, manipulating and writing Excel 2007+ (.xlsx, .xlsm) files. It aims to provide an intuitive and user-friendly interface to dealing with the underlying OpenXML API.</Description>
-    <PackageReleaseNotes>See https://github.com/ClosedXML/ClosedXML/releases/tag/$(productVersion)</PackageReleaseNotes>
-    <RepositoryUrl>https://github.com/ClosedXML/ClosedXML</RepositoryUrl>
+    <Description>XlsxSharp is a .NET library for reading, manipulating and writing Excel 2007+ (.xlsx, .xlsm) files. It aims to provide an intuitive and user-friendly interface to dealing with the underlying OpenXML API.</Description>
+    <PackageReleaseNotes>See https://github.com/PapyraSoftware/XlsxSharp/releases</PackageReleaseNotes>
+    <RepositoryUrl>https://github.com/PapyraSoftware/XlsxSharp</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
 
     <!-- Sourcelink: https://github.com/dotnet/sourcelink/ -->
@@ -35,13 +46,10 @@
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
 
-    <LangVersion>9.0</LangVersion>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <LangVersion>latest</LangVersion>
+    <!--    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>-->
     <NoWarn>$(NoWarn);NU1605;CS1591</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>$(SourceRoot)/ClosedXML.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <!-- Make deterministic build (same binary is produced regardless of the machine building it) for CI -->
@@ -49,4 +57,21 @@
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
 
+  <!-- SixLabors.Fonts 3.x validates a license before CoreCompile. On CI the key comes from the
+       SIXLABORS_LICENSE_KEY environment variable (a repository secret). -->
+  <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+    <SixLaborsLicenseKey>$(SIXLABORS_LICENSE_KEY)</SixLaborsLicenseKey>
+  </PropertyGroup>
+
+  <!-- Locally the license comes from sixlabors.lic in the repository root (git ignored, so every
+       developer drops in their own). The package only searches '**/sixlabors.lic' relative to each
+       project directory and would never look at the repository root, hence the explicit path.
+       Guarded by Exists so that without the file the package's own search still applies. -->
+  <PropertyGroup Condition="'$(GITHUB_ACTIONS)' != 'true' And Exists('$(MSBuildThisFileDirectory)sixlabors.lic')">
+    <SixLaborsLicenseFile>$(MSBuildThisFileDirectory)sixlabors.lic</SixLaborsLicenseFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="XlsxSharp.Tests" />
+  </ItemGroup>
 </Project>

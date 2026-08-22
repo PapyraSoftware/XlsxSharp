@@ -1,0 +1,953 @@
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Threading;
+using System.Xml.Linq;
+using DocumentFormat.OpenXml;
+using DocumentFormat.OpenXml.Packaging;
+using NUnit.Framework;
+using XlsxSharp.Examples;
+using XlsxSharp.Excel;
+using XlsxSharp.Excel.CalcEngine;
+using XlsxSharp.Excel.ConditionalFormats;
+using XlsxSharp.Excel.DataValidation;
+using XlsxSharp.Excel.Drawings;
+using XlsxSharp.Excel.IO;
+using XlsxSharp.Excel.Tables;
+using XlsxSharp.Tests.Utils;
+using SaveOptions = XlsxSharp.Excel.SaveOptions;
+
+namespace XlsxSharp.Tests.Excel.Saving;
+
+[TestFixture]
+public class SavingTests
+{
+    [Test]
+    public void BooleanValueSavesAsZeroOrOne() =>
+        // When a cell evaluates to a boolean value, the text in the XML has to be true/false (lowercase only) or 0/1
+        TestHelper.CreateAndCompare(
+            wb =>
+            {
+                IXLWorksheet ws = wb.AddWorksheet();
+                ws.FirstCell().FormulaA1 = "=TRUE";
+            },
+            @"Other\Formulas\BooleanFormulaValues.xlsx",
+            evaluateFormulae: true
+        );
+
+    [Test]
+    public void CanSaveEmptyFile()
+    {
+        using (MemoryStream ms = new())
+        using (XLWorkbook wb = new())
+        {
+            wb.AddWorksheet("Sheet1");
+            wb.SaveAs(ms);
+        }
+    }
+
+    [Test]
+    public void CanSuccessfullySaveFileMultipleTimes()
+    {
+        using (MemoryStream memoryStream = new())
+        using (XLWorkbook wb = new())
+        {
+            IXLWorksheet sheet = wb.Worksheets.Add("TestSheet");
+
+            // Comments might cause duplicate VmlDrawing Id's - ensure it's tested:
+            sheet.Cell(1, 1).GetComment().AddText("abc");
+
+            wb.SaveAs(memoryStream, validate: true);
+
+            for (int i = 1; i <= 3; i++)
+            {
+                sheet.Cell(i, 1).Value = "test" + i;
+                wb.SaveAs(memoryStream, validate: true);
+            }
+        }
+    }
+
+    [Test]
+    public void CanEscapeXhhhhCorrectly()
+    {
+        using (MemoryStream ms = new())
+        {
+            using (XLWorkbook wb = new())
+            {
+                IXLWorksheet ws = wb.AddWorksheet("Sheet1");
+                ws.FirstCell().Value = "Reserve_TT_A_BLOCAGE_CAG_x6904_2";
+                wb.SaveAs(ms);
+            }
+
+            ms.Seek(0, SeekOrigin.Begin);
+
+            using (XLWorkbook wb = new(ms))
+            {
+                IXLWorksheet ws = wb.Worksheets.First();
+                Assert.AreEqual("Reserve_TT_A_BLOCAGE_CAG_x6904_2", ws.FirstCell().Value);
+            }
+        }
+    }
+
+    [Test]
+    public void CanSaveFileMultipleTimesAfterDeletingWorksheet()
+    {
+        // https://github.com/XlsxSharp/XlsxSharp/issues/435
+
+        using (MemoryStream ms = new())
+        {
+            using (XLWorkbook book1 = new())
+            {
+                book1.AddWorksheet("sheet1");
+                book1.AddWorksheet("sheet2");
+
+                book1.SaveAs(ms);
+            }
+            ms.Position = 0;
+
+            using (XLWorkbook book2 = new(ms))
+            {
+                IXLWorksheet ws = book2.Worksheet(1);
+                Assert.AreEqual("sheet1", ws.Name);
+                ws.Delete();
+                book2.Save();
+                book2.Save();
+            }
+        }
+    }
+
+    [Test]
+    public void CanSaveAndValidateFileInAnotherCulture()
+    {
+        string[] cultures = ["it", "de-AT"];
+
+        foreach (string culture in cultures)
+        {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo(culture);
+
+            using (XLWorkbook wb = new())
+            {
+                MemoryStream memoryStream = new();
+                wb.Worksheets.Add("Sheet1");
+
+                wb.SaveAs(memoryStream, true);
+            }
+        }
+    }
+
+    [Test]
+    public void NotSaveCachedValueWhenFlagIsFalse()
+    {
+        using (MemoryStream ms = new())
+        {
+            using (XLWorkbook book1 = new())
+            {
+                IXLWorksheet sheet = book1.AddWorksheet("sheet1");
+                sheet.Cell("A1").Value = 123;
+                sheet.Cell("A2").FormulaA1 = "A1*10";
+                book1.RecalculateAllFormulas();
+                SaveOptions options = new() { EvaluateFormulasBeforeSaving = false };
+
+                book1.SaveAs(ms, options);
+            }
+            ms.Position = 0;
+
+            using (XLWorkbook book2 = new(ms))
+            {
+                IXLWorksheet ws = book2.Worksheet(1);
+
+                Assert.AreEqual(Blank.Value, ws.Cell("A2").CachedValue);
+            }
+        }
+    }
+
+    [Test]
+    public void SaveCachedValueWhenFlagIsTrue()
+    {
+        using (MemoryStream ms = new())
+        {
+            using (XLWorkbook book1 = new())
+            {
+                IXLWorksheet sheet = book1.AddWorksheet("sheet1");
+                sheet.Cell("A1").Value = 123;
+                sheet.Cell("A2").FormulaA1 = "A1*10";
+                sheet.Cell("A3").FormulaA1 = "TEXT(A2, \"# ###\")";
+                SaveOptions options = new() { EvaluateFormulasBeforeSaving = true };
+
+                book1.SaveAs(ms, options);
+            }
+            ms.Position = 0;
+
+            using (XLWorkbook book2 = new(ms))
+            {
+                IXLWorksheet ws = book2.Worksheet(1);
+
+                Assert.AreEqual(1230, ws.Cell("A2").CachedValue);
+
+                Assert.AreEqual("1 230", ws.Cell("A3").CachedValue);
+            }
+        }
+    }
+
+    [Test]
+    public void CanSaveAsCopyReadOnlyFile()
+    {
+        using (TemporaryFile original = new())
+        {
+            try
+            {
+                using (TemporaryFile copy = new())
+                {
+                    // Arrange
+                    using (XLWorkbook wb = new())
+                    {
+                        wb.Worksheets.Add("TestSheet");
+                        wb.SaveAs(original.Path);
+                    }
+                    File.SetAttributes(original.Path, FileAttributes.ReadOnly);
+
+                    // Act
+                    using (XLWorkbook wb = new(original.Path))
+                    {
+                        wb.SaveAs(copy.Path);
+                    }
+
+                    // Assert
+                    Assert.IsTrue(File.Exists(copy.Path));
+                    Assert.IsFalse(File.GetAttributes(copy.Path).HasFlag(FileAttributes.ReadOnly));
+                }
+            }
+            finally
+            {
+                // Tear down
+                File.SetAttributes(original.Path, FileAttributes.Normal);
+            }
+        }
+    }
+
+    [Test]
+    public void CanSaveAsOverwriteExistingFile()
+    {
+        using (TemporaryFile existing = new())
+        {
+            // Arrange
+            File.WriteAllText(existing.Path, "");
+
+            // Act
+            using (XLWorkbook wb = new())
+            {
+                wb.Worksheets.Add("TestSheet");
+                wb.SaveAs(existing.Path);
+            }
+
+            // Assert
+            Assert.IsTrue(File.Exists(existing.Path));
+            Assert.Greater(new FileInfo(existing.Path).Length, 0);
+        }
+    }
+
+    [Test]
+    [Platform(Include = "Win")]
+    public void CannotSaveAsOverwriteExistingReadOnlyFile()
+    {
+        using (TemporaryFile existing = new())
+        {
+            try
+            {
+                // Arrange
+                File.WriteAllText(existing.Path, "");
+                File.SetAttributes(existing.Path, FileAttributes.ReadOnly);
+
+                // Act
+                TestDelegate saveAs = () =>
+                {
+                    using (XLWorkbook wb = new())
+                    {
+                        wb.Worksheets.Add("TestSheet");
+                        wb.SaveAs(existing.Path);
+                    }
+                };
+
+                // Assert
+                Assert.Throws(typeof(UnauthorizedAccessException), saveAs);
+            }
+            finally
+            {
+                // Tear down
+                File.SetAttributes(existing.Path, FileAttributes.Normal);
+            }
+        }
+    }
+
+    [Test]
+    public void PageBreaksDontDuplicateAtSaving()
+    {
+        // https://github.com/XlsxSharp/XlsxSharp/issues/666
+
+        using (MemoryStream ms = new())
+        {
+            using (XLWorkbook wb1 = new())
+            {
+                IXLWorksheet ws = wb1.Worksheets.Add("Page Breaks");
+                ws.PageSetup.PrintAreas.Add("A1:D5");
+                ws.PageSetup.AddHorizontalPageBreak(2);
+                ws.PageSetup.AddVerticalPageBreak(2);
+                wb1.SaveAs(ms);
+                wb1.Save();
+            }
+            using (XLWorkbook wb2 = new(ms))
+            {
+                IXLWorksheet ws = wb2.Worksheets.First();
+
+                Assert.AreEqual(1, ws.PageSetup.ColumnBreaks.Count);
+                Assert.AreEqual(1, ws.PageSetup.RowBreaks.Count);
+            }
+        }
+    }
+
+    [Test]
+    public void CanSaveFileWithPictureAndComment()
+    {
+        using (MemoryStream ms = new())
+        using (XLWorkbook wb = new())
+        using (
+            Stream? imageStream = Assembly
+                .GetAssembly(typeof(BasicTable))
+                .GetManifestResourceStream("XlsxSharp.Examples.Resources.SampleImage.jpg")
+        )
+        {
+            IXLWorksheet ws = wb.AddWorksheet("Sheet1");
+            ws.Cell("D4").Value = "Hello world.";
+
+            ws.AddPicture(imageStream, "MyPicture")
+                .WithPlacement(XLPicturePlacement.FreeFloating)
+                .MoveTo(50, 50)
+                .WithSize(200, 200);
+
+            ws.Cell("D4").GetComment().SetVisible().AddText("This is a comment");
+
+            wb.SaveAs(ms);
+        }
+    }
+
+    [Test]
+    public void PreserveChartsWhenSaving() =>
+        TestHelper.LoadSaveAndCompare(
+            @"Other\Charts\PreserveCharts\inputfile.xlsx",
+            @"Other\Charts\PreserveCharts\outputfile.xlsx"
+        );
+
+    [Test]
+    public void DeletingAllPicturesRemovesDrawingPart() =>
+        TestHelper.LoadModifyAndCompare(
+            @"Examples\ImageHandling\ImageAnchors.xlsx",
+            wb =>
+            {
+                foreach (IXLWorksheet ws in wb.Worksheets)
+                {
+                    string[] pictureNames = [.. ws.Pictures.Select(pic => pic.Name)];
+                    foreach (string name in pictureNames)
+                    {
+                        ws.Pictures.Delete(name);
+                    }
+                }
+            },
+            @"Other\Drawings\NoDrawings\outputfile.xlsx"
+        );
+
+    [Test]
+    [TestCase("xlsx", SpreadsheetDocumentType.Workbook)]
+    [TestCase("xlsm", SpreadsheetDocumentType.MacroEnabledWorkbook)]
+    [TestCase("xltx", SpreadsheetDocumentType.Template)]
+    [TestCase("xltm", SpreadsheetDocumentType.MacroEnabledTemplate)]
+    public void SavesAsProperSpreadsheetDocumentType(
+        string extension,
+        SpreadsheetDocumentType expectedType
+    )
+    {
+        using (TemporaryFile tf = new(Path.ChangeExtension(Path.GetTempFileName(), extension)))
+        {
+            using (XLWorkbook wb = new())
+            {
+                wb.Worksheets.Add("Sheet1");
+                wb.SaveAs(tf.Path);
+            }
+
+            using (SpreadsheetDocument package = SpreadsheetDocument.Open(tf.Path, false))
+            {
+                Assert.AreEqual(expectedType, package.DocumentType);
+            }
+        }
+    }
+
+    [Test]
+    public void CanSaveTemplateAsWorkbook()
+    {
+        // See #1375
+        using (TemporaryFile template = new(Path.ChangeExtension(Path.GetTempFileName(), "xltx")))
+        using (TemporaryFile workbook = new())
+        {
+            using (XLWorkbook wb = new())
+            {
+                wb.AddWorksheet();
+                wb.SaveAs(template.Path);
+            }
+            using (XLWorkbook wb = new(template.Path))
+            {
+                wb.SaveAs(workbook.Path);
+            }
+            using (SpreadsheetDocument package = SpreadsheetDocument.Open(workbook.Path, false))
+            {
+                Assert.AreEqual(SpreadsheetDocumentType.Workbook, package.DocumentType);
+            }
+        }
+    }
+
+    [Test]
+    public void SaveAsWithNoExtensionFails()
+    {
+        using (TemporaryFile tf = new("FileWithNoExtension"))
+        using (XLWorkbook wb = new())
+        {
+            wb.Worksheets.Add("Sheet1");
+            TestDelegate action = () => wb.SaveAs(tf.Path);
+
+            Assert.Throws<ArgumentException>(action);
+        }
+    }
+
+    [Test]
+    public void SaveAsWithUnsupportedExtensionFails()
+    {
+        using (TemporaryFile tf = new("FileWithBadExtension.bad"))
+        using (XLWorkbook wb = new())
+        {
+            wb.Worksheets.Add("Sheet1");
+            TestDelegate action = () => wb.SaveAs(tf.Path);
+
+            Assert.Throws<ArgumentException>(action);
+        }
+    }
+
+    [Test]
+    public void SaveCellValueWithLeadingQuotationMarkCorrectly()
+    {
+        string formulaValue = "=IF(TRUE, 1, 0)";
+        string quotedFormulaValue = '\'' + formulaValue;
+        using (MemoryStream ms = new())
+        {
+            using (XLWorkbook wb = new())
+            {
+                IXLWorksheet ws = wb.AddWorksheet("Sheet1");
+                IXLCell cell = ws.FirstCell();
+                cell.SetValue(quotedFormulaValue);
+                Assert.IsFalse(cell.HasFormula);
+                Assert.AreEqual(formulaValue, cell.Value);
+                Assert.AreEqual(XLDataType.Text, cell.DataType);
+                Assert.True(cell.Style.IncludeQuotePrefix);
+
+                wb.SaveAs(ms);
+            }
+
+            ms.Seek(0, SeekOrigin.Begin);
+
+            using (XLWorkbook wb = new(ms))
+            {
+                IXLWorksheet ws = wb.Worksheets.First();
+                IXLCell cell = ws.FirstCell();
+                Assert.IsFalse(cell.HasFormula);
+                Assert.IsFalse(cell.HasFormula);
+                Assert.AreEqual(formulaValue, cell.Value);
+                Assert.AreEqual(XLDataType.Text, cell.DataType);
+                Assert.True(cell.Style.IncludeQuotePrefix);
+            }
+        }
+    }
+
+    [Test]
+    public void PreserveHeightOfEmptyRowsOnSaving()
+    {
+        using (MemoryStream ms = new())
+        {
+            using (XLWorkbook wb = new())
+            {
+                IXLWorksheet ws = wb.AddWorksheet("Sheet1");
+                ws.RowHeight = 50;
+                ws.Row(2).Height = 0;
+                ws.Row(3).Height = 20;
+                ws.Row(4).Height = 100;
+
+                ws.CopyTo("Sheet2");
+                wb.SaveAs(ms);
+            }
+
+            ms.Seek(0, SeekOrigin.Begin);
+
+            using (XLWorkbook wb = new(ms))
+            {
+                foreach (string sheetName in new[] { "Sheet1", "Sheet2" })
+                {
+                    IXLWorksheet ws = wb.Worksheet(sheetName);
+
+                    Assert.AreEqual(50, ws.Row(1).Height);
+                    Assert.AreEqual(0, ws.Row(2).Height);
+                    Assert.AreEqual(20, ws.Row(3).Height);
+                    Assert.AreEqual(100, ws.Row(4).Height);
+                }
+            }
+        }
+    }
+
+    [Test]
+    public void PreserveWidthOfEmptyColumnsOnSaving()
+    {
+        using (MemoryStream ms = new())
+        {
+            using (XLWorkbook wb = new())
+            {
+                IXLWorksheet ws = wb.AddWorksheet("Sheet1");
+                ws.Column(2).Width = 0;
+                ws.Column(3).Width = 20;
+                ws.Column(4).Width = 100;
+
+                ws.CopyTo("Sheet2");
+                wb.SaveAs(ms);
+            }
+
+            ms.Seek(0, SeekOrigin.Begin);
+
+            using (XLWorkbook wb = new(ms))
+            {
+                foreach (string sheetName in new[] { "Sheet1", "Sheet2" })
+                {
+                    IXLWorksheet ws = wb.Worksheet(sheetName);
+
+                    Assert.AreEqual(ws.ColumnWidth, ws.Column(1).Width);
+                    Assert.AreEqual(0, ws.Column(2).Width);
+                    Assert.AreEqual(20, ws.Column(3).Width);
+                    Assert.AreEqual(100, ws.Column(4).Width);
+                }
+            }
+        }
+    }
+
+    [Test]
+    public void PreserveAlignmentOnSaving()
+    {
+        using (
+            Stream input = TestHelper.GetStreamFromResource(
+                TestHelper.GetResourcePath(@"TryToLoad\HorizontalAlignment.xlsx")
+            )
+        )
+        using (MemoryStream output = new())
+        {
+            using (XLWorkbook wb = new(input))
+            {
+                wb.SaveAs(output);
+            }
+
+            using (XLWorkbook wb = new(output))
+            {
+                Assert.AreEqual(
+                    XLAlignmentHorizontalValues.Center,
+                    wb.Worksheets.First().Cell("B1").Style.Alignment.Horizontal
+                );
+            }
+        }
+    }
+
+    [Test]
+    public void PreserveMultipleColorScalesOnSaving()
+    {
+        using (MemoryStream output = new())
+        {
+            using (XLWorkbook wb = new())
+            {
+                IXLWorksheet sheet = wb.Worksheets.Add("test");
+                sheet
+                    .Column(1)
+                    .AddConditionalFormat()
+                    .ColorScale()
+                    .LowestValue(XLColor.Red)
+                    .HighestValue(XLColor.Green);
+
+                sheet
+                    .Column(2)
+                    .AddConditionalFormat()
+                    .ColorScale()
+                    .LowestValue(XLColor.Alizarin)
+                    .HighestValue(XLColor.Blue);
+
+                wb.SaveAs(output);
+            }
+
+            using (XLWorkbook wb = new(output))
+            {
+                IXLWorksheet sheet = wb.Worksheets.First();
+                IXLConditionalFormat[] cf =
+                [
+                    .. sheet.ConditionalFormats.OrderBy(x =>
+                        x.Range.RangeAddress.FirstAddress.ColumnNumber
+                    ),
+                ];
+                Assert.AreEqual(2, cf.Length);
+                Assert.AreEqual(XLConditionalFormatType.ColorScale, cf[0].ConditionalFormatType);
+                Assert.AreEqual(XLColor.Red, cf[0].Colors[1]);
+                Assert.AreEqual(XLCFContentType.Minimum, cf[0].ContentTypes[1]);
+                Assert.AreEqual(XLColor.Green, cf[0].Colors[2]);
+                Assert.AreEqual(XLCFContentType.Maximum, cf[0].ContentTypes[2]);
+                Assert.AreEqual(XLConditionalFormatType.ColorScale, cf[1].ConditionalFormatType);
+                Assert.AreEqual(XLColor.Alizarin, cf[1].Colors[1]);
+                Assert.AreEqual(XLCFContentType.Minimum, cf[1].ContentTypes[1]);
+                Assert.AreEqual(XLColor.Blue, cf[1].Colors[2]);
+                Assert.AreEqual(XLCFContentType.Maximum, cf[1].ContentTypes[2]);
+            }
+        }
+    }
+
+    [Test]
+    public void RemoveExistingInlineStringsIfRequired() =>
+        TestHelper.LoadModifyAndCompare(
+            @"Other\InlineStrings\inputfile.xlsx",
+            wb =>
+            {
+                IXLWorksheet ws = wb.Worksheet(1);
+
+                IXLCells numericCells = ws.CellsUsed(c =>
+                    double.TryParse(c.GetString(), out double _)
+                );
+                IXLCells textCells = ws.CellsUsed(c =>
+                    !double.TryParse(c.GetString(), out double _)
+                );
+
+                foreach (IXLCell cell in numericCells)
+                {
+                    cell.Clear(XLClearOptions.AllFormats);
+                    Assert.True(cell.Value.TryConvert(out double val, CultureInfo.CurrentCulture));
+                    cell.Value = val;
+                }
+
+                foreach (IXLCell cell in textCells)
+                {
+                    cell.ShareString = true;
+                }
+            },
+            @"Other\InlineStrings\outputfile.xlsx"
+        );
+
+    [Test]
+    public void CanSaveFileWithEmptyFill()
+    {
+        using (
+            Stream stream = TestHelper.GetStreamFromResource(
+                TestHelper.GetResourcePath(@"TryToLoad\EmptyFill.xlsx")
+            )
+        )
+        using (XLWorkbook wb = new(stream))
+        using (MemoryStream ms = new())
+        {
+            Assert.DoesNotThrow(() => wb.SaveAs(ms, false));
+        }
+    }
+
+    [Test]
+    public void CanSaveSingleRowAutoFilter()
+    {
+        using (
+            Stream stream = TestHelper.GetStreamFromResource(
+                TestHelper.GetResourcePath(@"TryToLoad\SingleRowAutoFilter.xlsx")
+            )
+        )
+        using (XLWorkbook wb = new(stream))
+        using (MemoryStream ms = new())
+        {
+            Assert.DoesNotThrow(() => wb.SaveAs(ms, false));
+        }
+    }
+
+    [Test]
+    public void PivotTableWithVeryLongField() =>
+        TestHelper.CreateAndCompare(
+            () =>
+            {
+                XLWorkbook wb = new();
+                IXLWorksheet ws = wb.AddWorksheet();
+
+                string longText = string.Join(
+                    " ",
+                    Enumerable.Range(0, 40).Select(i => "1234567890")
+                );
+
+                var data = new[] { new { Col1 = longText, Col2 = 2 } };
+
+                IXLTable table = ws.FirstCell().InsertTable(data);
+
+                IXLWorksheet pvtSheet = wb.AddWorksheet("pvt");
+
+                IXLPivotTable pvt = table.CreatePivotTable(pvtSheet.FirstCell(), "PivotTable1");
+                pvt.RowLabels.Add("Col1");
+
+                return wb;
+            },
+            @"Other\PivotTableReferenceFiles\LongText\outputfile.xlsx"
+        );
+
+    [Test]
+    public void PivotTableCfDxfIsSaved() =>
+        // Issue #2075: Pivot table conditional format wasn't saved.
+        TestHelper.LoadSaveAndAssert(
+            @"Other\PivotTable\Save\Pivot_table_conditional_format.xlsx",
+            "/xl/worksheets/sheet1.xml",
+            sheet =>
+            {
+                IEnumerable<XElement> conditionalFormatting = sheet.Descendants(
+                    XName.Get("conditionalFormatting", OpenXmlConst.Main2006SsNs)
+                );
+                Assert.That(
+                    conditionalFormatting,
+                    new MatchesXmlConstraint(
+                        $"""
+                        <conditionalFormatting xmlns="{OpenXmlConst.Main2006SsNs}"
+                                               pivot="1"
+                                               sqref="G2:G3">
+                          <cfRule type="cellIs"
+                                   dxfId="0"
+                                   priority="1"
+                                   operator="greaterThan">
+                            <formula>10</formula>
+                          </cfRule>
+                        </conditionalFormatting>
+                        """
+                    )
+                );
+            },
+            "/xl/styles.xml",
+            styles =>
+            {
+                IEnumerable<XElement> dxfs = styles.Descendants(
+                    XName.Get("dxfs", OpenXmlConst.Main2006SsNs)
+                );
+                Assert.That(
+                    dxfs,
+                    new MatchesXmlConstraint(
+                        $"""
+                        <dxfs count="1" xmlns="{OpenXmlConst.Main2006SsNs}">
+                          <dxf>
+                            <fill>
+                              <patternFill patternType="solid">
+                                <bgColor rgb="FF000000"/>
+                              </patternFill>
+                            </fill>
+                          </dxf>
+                        </dxfs>
+                        """
+                    )
+                );
+            }
+        );
+
+    [Test]
+    public void CanSaveFileWithVmlNoComments()
+    {
+        //See #1285
+        using (
+            Stream stream = TestHelper.GetStreamFromResource(
+                TestHelper.GetResourcePath(@"TryToLoad\FileWithButton.xlsm")
+            )
+        )
+        using (XLWorkbook wb = new(stream))
+        using (MemoryStream ms = new())
+        {
+            Assert.DoesNotThrow(() => wb.SaveAs(ms));
+        }
+    }
+
+    [Test]
+    public void CanEnableWorkbookFilterPrivacyAndSaveInWorkbook()
+    {
+        using MemoryStream ms = new();
+
+        using (XLWorkbook wb = new())
+        {
+            wb.AddWorksheet();
+            wb.SaveAs(ms, new SaveOptions { FilterPrivacy = true });
+        }
+
+        ms.Seek(0, SeekOrigin.Begin);
+
+        using (SpreadsheetDocument wb = SpreadsheetDocument.Open(ms, false))
+        {
+            Assert.IsTrue(wb.WorkbookPart.Workbook.WorkbookProperties.FilterPrivacy);
+        }
+    }
+
+    [Test]
+    public void WorkbookFilterPrivacyIsNotSetByDefault()
+    {
+        using MemoryStream ms = new();
+
+        using (XLWorkbook wb = new())
+        {
+            wb.AddWorksheet();
+            wb.SaveAs(ms);
+        }
+
+        ms.Seek(0, SeekOrigin.Begin);
+
+        using (SpreadsheetDocument wb = SpreadsheetDocument.Open(ms, false))
+        {
+            Assert.IsNull(wb.WorkbookPart.Workbook.WorkbookProperties.FilterPrivacy);
+        }
+    }
+
+    [Test]
+    public void WorkbookFilterPrivacyIsReadCorrectly()
+    {
+        using (
+            Stream stream = TestHelper.GetStreamFromResource(
+                TestHelper.GetResourcePath(@"TryToLoad\FilterPrivacyEnabledWorkbook.xlsx")
+            )
+        )
+        using (SpreadsheetDocument wb = SpreadsheetDocument.Open(stream, false))
+        {
+            Assert.IsTrue(wb.WorkbookPart.Workbook.WorkbookProperties.FilterPrivacy);
+        }
+    }
+
+    [Test]
+    public void CanSaveAsWithDataValidationAfterInsertFirstRowsAboveAndInsertFirstColumnsBefore()
+    {
+        using (XLWorkbook wb = new())
+        using (MemoryStream ms = new())
+        {
+            IXLWorksheet ws = wb.AddWorksheet("WithDataValidation");
+            ws.Range("B4:B4").CreateDataValidation().WholeNumber.Between(0, 1);
+
+            ws.Row(1).InsertRowsAbove(1);
+            IXLDataValidation[] dv = [.. ws.DataValidations];
+            Assert.AreEqual(1, dv.Length);
+            Assert.AreEqual("B5:B5", dv[0].Ranges.Single().RangeAddress.ToString());
+
+            Assert.DoesNotThrow(() => wb.SaveAs(ms));
+
+            ws.Column(1).InsertColumnsBefore(1);
+            dv = [.. ws.DataValidations];
+            Assert.AreEqual(1, dv.Length);
+            Assert.AreEqual("C5:C5", dv[0].Ranges.Single().RangeAddress.ToString());
+
+            Assert.DoesNotThrow(() => wb.SaveAs(ms));
+        }
+    }
+
+    // https://github.com/XlsxSharp/XlsxSharp/issues/1606
+    [Test]
+    public void CanSaveGSheetsFileWithNewComment()
+    {
+        using MemoryStream ms = new();
+        using Stream stream = TestHelper.GetStreamFromResource(
+            TestHelper.GetResourcePath(@"Other\GoogleSheets\file1.xlsx")
+        );
+        using XLWorkbook wb = new(stream);
+        IXLWorksheet ws = wb.Worksheets.First();
+        ws.Cell(1, 1).CreateComment().AddText("Test");
+        Assert.DoesNotThrow(() => wb.SaveAs(ms));
+    }
+
+    [Test]
+    public void CanSaveFileToDefaultDirectory()
+    {
+        string filename = $"test-{Guid.NewGuid()}.xlsx";
+        try
+        {
+            using XLWorkbook wb = new();
+            wb.AddWorksheet().FirstCell().SetValue("Hello, world!");
+            Assert.DoesNotThrow(() => wb.SaveAs(filename));
+        }
+        finally
+        {
+            File.Delete(filename);
+        }
+    }
+
+    [Test]
+    public void CanAddNewPartsInWorkbookWithDuplicateRelIds() =>
+        // Both Sheet1 and drawing have same relIds: rId2
+        // We can add a new worksheet even when there are parts with same relId
+        TestHelper.LoadModifyAndCompare(
+            @"Other\Parts\MultiplePartsHaveNonUniqueRelId-input.xlsx",
+            wb => wb.AddWorksheet(),
+            @"Other\Parts\MultiplePartsHaveNonUniqueRelId-output.xlsx"
+        );
+
+    [Test]
+    public void WorksheetWithDrawingCanBeModified() =>
+        // Issue 2080: Drawing was loading the workbook DOM from the worksheet part and
+        // the OpenXML SDK was ignoring worksheet changes saved through streaming, but used
+        // the eager loaded DOM instead.
+        // Saved file doesn't contain shape because it's not yet supported (#1252)
+        TestHelper.LoadModifyAndCompare(
+            @"Other\Parts\WorksheetWithDrawingCanBeModified-input.xlsx",
+            wb =>
+            {
+                IXLWorksheet ws = wb.Worksheets.Single();
+                ws.Cell("A1").Value = "B";
+            },
+            @"Other\Parts\WorksheetWithDrawingCanBeModified-output.xlsx"
+        );
+
+    [Test]
+    public void CorrectlySaveValidationWithSheetReference()
+    {
+        // When validation with sheet reference loading was first implemented, there was a
+        // disconnect between where those validations were being loaded from and where they
+        // were being saved to. This led to exceptions being thrown when these validations
+        // were loaded/saved multiple times, so this test makes sure that the fix for that
+        // issue continues to work by forcing multiple load/save cycles.
+
+        string filename1 = $"test-{Guid.NewGuid()}.xlsx";
+        string filename2 = $"test-{Guid.NewGuid()}.xlsx";
+        try
+        {
+            string path = TestHelper.GetResourcePath(
+                @"TryToLoad\ValidationWithSheetReference.xlsx"
+            );
+            using Stream stream = TestHelper.GetStreamFromResource(path);
+
+            using XLWorkbook originalWorkbook = new(stream);
+            Assert.DoesNotThrow(() => originalWorkbook.SaveAs(filename1));
+
+            using XLWorkbook workbook1 = new(filename1);
+            Assert.DoesNotThrow(() => workbook1.SaveAs(filename2));
+
+            using XLWorkbook workbook2 = new(filename2);
+            IXLWorksheet ws = workbook2.Worksheet("UI Sheet");
+            IXLCell B2 = ws.Cell("B2");
+            Assert.AreEqual(XLAllowedValues.List, B2.GetDataValidation().AllowedValues);
+            Assert.AreEqual("$E$1:$E$4", B2.GetDataValidation().Value);
+            IXLCell A2 = ws.Cell("A2");
+            Assert.AreEqual(XLAllowedValues.List, A2.GetDataValidation().AllowedValues);
+            Assert.AreEqual("ValuesSheet!$A$1:$A$4", A2.GetDataValidation().Value);
+        }
+        finally
+        {
+            File.Delete(filename1);
+            File.Delete(filename2);
+        }
+    }
+
+    [Test]
+    public void FormControlsArePreserved() =>
+        // The sheet contains three form controls: two radio buttons and group box.
+        // Form controls are rather complex and this test ensures that the saved
+        // file still has VML part (that is the source of truth), drawing part
+        // (likely a replacement in a decade or two) and three control parts.
+        //
+        // Also check that custom text of the form controls is preserved (stored in VML).
+        TestHelper.LoadSaveAndCompare(
+            @"Other\Shapes\sheet-with-form-controls-input.xlsx",
+            @"Other\Shapes\sheet-with-form-controls-output.xlsx"
+        );
+}

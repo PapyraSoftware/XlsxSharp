@@ -1,0 +1,49 @@
+﻿using ClosedXML.Parser;
+using XlsxSharp.Extensions;
+
+namespace XlsxSharp.Excel;
+
+/// <summary>
+/// A reference without a sheet. Can represent single cell (<c>A1</c>), area
+/// (<c>B$4:$D$10</c>), row span (<c>4:10</c>) and col span (<c>G:H</c>).
+/// </summary>
+/// <remarks>
+/// This is an actual representation of a reference, while the <see cref="Area"/> is for
+/// an absolute are of a sheet and <see cref="XLAddress"/> is only for a cell reference and
+/// <see cref="XLRangeAddress"/> only for area reference.
+/// </remarks>
+internal readonly record struct XLReference
+{
+    private readonly ReferenceArea _reference;
+
+    internal XLReference(ReferenceArea reference) => this._reference = reference;
+
+    internal string GetA1() => this._reference.GetDisplayStringA1();
+
+    internal XLRangeAddress ToRangeAddress(XLWorksheet? sheet, Point anchor)
+    {
+        Area area = this._reference.ToArea(anchor);
+        bool firstColAbs = this._reference.First.ColumnType == ReferenceAxisType.Absolute;
+        bool firstRowAbs = this._reference.First.RowType == ReferenceAxisType.Absolute;
+        bool secondColAbs = this._reference.Second.ColumnType == ReferenceAxisType.Absolute;
+        bool secondRowAbs = this._reference.Second.RowType == ReferenceAxisType.Absolute;
+        if (this._reference.First.IsColumn)
+        {
+            // Column span
+            firstRowAbs = true;
+            secondRowAbs = true;
+        }
+
+        if (this._reference.First.IsRow)
+        {
+            // Row span
+            firstColAbs = true;
+            secondColAbs = true;
+        }
+
+        return new XLRangeAddress(
+            new XLAddress(sheet, area.TopRow, area.LeftColumn, firstRowAbs, firstColAbs),
+            new XLAddress(sheet, area.BottomRow, area.RightColumn, secondRowAbs, secondColAbs)
+        );
+    }
+}

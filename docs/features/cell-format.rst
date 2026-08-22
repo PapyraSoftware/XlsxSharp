@@ -62,7 +62,7 @@ format or through a custom number format code.
   :alt: Number format options in a ribbon
   :width: 23 %
 
-ClosedXML can set format of a cell or a range through ``IXLStyle.NumberFormat``
+XlsxSharp can set format of a cell or a range through ``IXLStyle.NumberFormat``
 property. The property can be found on interfaces of ranges, e.g. ``IXLCell``,
 ``IXLCells`` or ``IXLRangeBase``. The built-in style is set by setting
 a (in theory well known) number format id. Custom style is set by setting
@@ -72,7 +72,7 @@ Built-in number format
 ----------------------
 
 To use built-in number format, first determine a number format id.
-ClosedXML contains a subset of common format ids (0..49) in a static class
+XlsxSharp contains a subset of common format ids (0..49) in a static class
 ``XLPredefinedFormat`` or you can just pick an integer from OpenXML SDK
 documentation `NumberingFormat Class <https://learn.microsoft.com/en-us/dotnet/api/documentformat.openxml.spreadsheet.numberingformat>`_.
 
@@ -95,7 +95,7 @@ documentation `NumberingFormat Class <https://learn.microsoft.com/en-us/dotnet/a
 You can set a built-in number format by setting a ``NumberFormatId`` property like this:
 ``ws.Cell("A1").Style.NumberFormat.NumberFormatId = (int)XLPredefinedFormat.Number.PercentInteger``
 
-ClosedXML doesn't contain all possible values for all locales. You either
+XlsxSharp doesn't contain all possible values for all locales. You either
 have to look through specification (ECMA-376 18.8.30), but it is not
 exhaustive.
 
@@ -145,7 +145,7 @@ method.
 
 .. warning::
    The format code in the xlsx file must be in some cases escaped, but
-   ClosedXML doesn't do that at the moment. If you encounter a problem
+   XlsxSharp doesn't do that at the moment. If you encounter a problem
    that value isn't formatted correcty, set the format in an Excel,
    save the xlsx file, change the *xlsx* extension to *zip* and use
    correctly escaped format code from `/xl/styles.xml` file in the zip.
@@ -167,7 +167,7 @@ how to set vertical layout of a text.
 
 .. code-block:: csharp
 
-   using ClosedXML.Excel;
+   using XlsxSharp.Excel;
    
    using var wb = new XLWorkbook();
    var ws = wb.AddWorksheet();

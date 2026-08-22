@@ -1,16 +1,16 @@
-ClosedXML
+XlsxSharp
 *********
 
-ClosedXML is a .NET library for reading, manipulating and writing Excel 2007+ (.xlsx, .xlsm) files. It aims to provide an intuitive and
+XlsxSharp is a .NET library for reading, manipulating and writing Excel 2007+ (.xlsx, .xlsm) files. It aims to provide an intuitive and
 user-friendly interface to dealing with the underlying OpenXML API.
 
 Install the library through .NET CLI
 
 .. code-block:: batch
 
-   C:\source> dotnet add package ClosedXML
+   C:\source> dotnet add package XlsxSharp --prerelease
 
-ClosedXML allows you to create Excel files without the Excel application. The typical example is creating Excel reports on a web server.
+XlsxSharp allows you to create Excel files without the Excel application. The typical example is creating Excel reports on a web server.
 
 .. code-block:: csharp
 
@@ -85,5 +85,5 @@ ClosedXML allows you to create Excel files without the Excel application. The ty
 Contribute
 ----------
 
-- Issue Tracker: https://github.com/ClosedXML/ClosedXML/issues
-- Source Code: https://github.com/ClosedXML/ClosedXML
+- Issue Tracker: https://github.com/PapyraSoftware/XlsxSharp/issues
+- Source Code: https://github.com/PapyraSoftware/XlsxSharp

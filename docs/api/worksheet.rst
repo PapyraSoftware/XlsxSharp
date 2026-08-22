@@ -1,5 +1,5 @@
 Worksheet
 =========
 
-.. doxygeninterface:: ClosedXML::Excel::IXLWorksheet
+.. doxygeninterface:: XlsxSharp::Excel::IXLWorksheet
    :members:

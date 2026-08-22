@@ -1,0 +1,18 @@
+using XlsxSharp.Excel.Formatting;
+
+namespace XlsxSharp.Excel;
+
+/// <summary>
+/// An interface used by object that use differential formatting, e.g. conditional formatting or
+/// pivot tables.
+/// </summary>
+internal interface IXLDxfContainer
+{
+    /// <summary>
+    /// The differential format value.
+    /// </summary>
+    /// <remarks>
+    /// The value is optional, because attribute in XML is optional.
+    /// </remarks>
+    public XLDxfValue? FormatValue { get; set; }
+}

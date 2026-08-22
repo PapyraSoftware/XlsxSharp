@@ -1,0 +1,41 @@
+using System.Linq;
+using XlsxSharp.Excel;
+
+namespace XlsxSharp.Examples.Ranges;
+
+public class ClearingRanges : IXLExample
+{
+    public void Create(string filePath)
+    {
+        XLWorkbook workbook = new();
+        IXLWorksheet ws = workbook.Worksheets.Add("Clearing Ranges");
+        foreach (int ro in Enumerable.Range(1, 10))
+        {
+            foreach (int co in Enumerable.Range(1, 10))
+            {
+                IXLCell cell = ws.Cell(ro, co);
+                cell.Value = cell.Address.ToString();
+                cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                cell.Style.Fill.BackgroundColor = XLColor.Turquoise;
+                cell.Style.Font.Bold = true;
+            }
+        }
+
+        // Clearing a range
+        ws.Range("B1:C2").Clear();
+
+        // Clearing a row in a range
+        ws.Range("B4:C5").Row(1).Clear();
+
+        // Clearing a column in a range
+        ws.Range("E1:F4").Column(2).Clear();
+
+        // Clear an entire row
+        ws.Row(7).Clear();
+
+        // Clear an entire column
+        ws.Column("H").Clear();
+
+        workbook.SaveAs(filePath);
+    }
+}

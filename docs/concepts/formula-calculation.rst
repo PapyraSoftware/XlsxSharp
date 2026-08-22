@@ -66,7 +66,7 @@ Use ``IXLCell.InvalidateFormula()`` to mark the formula as dirty.
 Transitive nature
 -----------------
 
-ClosedXML holds information about what areas formula depends on in a
+XlsxSharp holds information about what areas formula depends on in a
 `r-tree <https://en.wikipedia.org/wiki/R-tree>`_ (e.g. ``=SUM(A1:D4) + C7``
 depends on ``A1:D4`` and ``C7:C7``). When an area of a sheet changes (e.g.
 ``B2`` is now ``7`` instead of ``5``), the r-tree finds all overlapping

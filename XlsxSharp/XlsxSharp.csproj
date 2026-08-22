@@ -1,0 +1,60 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <NoWarn>$(NoWarn);NU1605;CS1591</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Graphics\Fonts\CarlitoBare-Bold.ttf" />
+    <EmbeddedResource Include="Graphics\Fonts\CarlitoBare-BoldItalic.ttf" />
+    <EmbeddedResource Include="Graphics\Fonts\CarlitoBare-Italic.ttf" />
+    <EmbeddedResource Include="Graphics\Fonts\CarlitoBare-Regular.ttf" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\.editorconfig" Link=".editorconfig" />
+    <None Include="..\resources\logo\nuget-logo.png" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DocumentFormat.OpenXml" Version="[3.5.1,4.0.0)" />
+    <PackageReference Include="ExcelNumberFormat" Version="1.1.0" />
+    <PackageReference Include="RBush.Signed" Version="4.0.0" />
+    <PackageReference Include="SixLabors.Fonts" Version="3.1.0" />
+    <PackageReference Include="ClosedXML.Parser" Version="2.0.0" />
+  </ItemGroup>
+
+  <!-- XlsxSharp.IO ships inside this package rather than as a package of its own. PrivateAssets
+       keeps it out of the nuspec dependencies, IncludeXlsxSharpIoInPackage puts its assembly next
+       to XlsxSharp.dll in lib/ so consumers still resolve the types it exposes. -->
+  <ItemGroup>
+    <ProjectReference Include="..\XlsxSharp.IO\XlsxSharp.IO.csproj" PrivateAssets="all" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);IncludeXlsxSharpIoInPackage</TargetsForTfmSpecificBuildOutput>
+  </PropertyGroup>
+
+  <Target Name="IncludeXlsxSharpIoInPackage">
+    <!-- Taken from the output directory rather than from ReferenceCopyLocalPaths, so that packing
+         works whether or not pack rebuilds first. Documentation and symbols are optional, the
+         assembly is not. -->
+    <ItemGroup>
+      <_XlsxSharpIoOutput Include="$(OutputPath)XlsxSharp.IO.dll;$(OutputPath)XlsxSharp.IO.xml;$(OutputPath)XlsxSharp.IO.pdb" />
+    </ItemGroup>
+
+    <Error Condition="!Exists('$(OutputPath)XlsxSharp.IO.dll')"
+           Text="XlsxSharp.IO.dll was not found in $(OutputPath). It has to be packed into the XlsxSharp package, so build the project before packing it." />
+
+    <ItemGroup>
+      <BuildOutputInPackage Include="@(_XlsxSharpIoOutput)" Condition="Exists('%(Identity)')" />
+    </ItemGroup>
+  </Target>
+
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+</Project>

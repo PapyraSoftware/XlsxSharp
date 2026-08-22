@@ -1,0 +1,222 @@
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Threading;
+using DocumentFormat.OpenXml.Spreadsheet;
+using NUnit.Framework;
+using XlsxSharp.Excel;
+using XlsxSharp.Utils;
+using X14 = DocumentFormat.OpenXml.Office2010.Excel;
+
+namespace XlsxSharp.Tests.Excel.Styles;
+
+[TestFixture]
+public class ColorTests
+{
+    [Test]
+    public void ColorEqualOperatorInPlace() => Assert.IsTrue(XLColor.Black == XLColor.Black);
+
+    [Test]
+    public void ColorNotEqualOperatorInPlace() => Assert.IsFalse(XLColor.Black != XLColor.Black);
+
+    [Test]
+    public void ColorNamedVsHtml() => Assert.IsTrue(XLColor.Black == XLColor.FromHtml("#000000"));
+
+    [Test]
+    public void DefaultStyleColorIsAutomatic()
+    {
+        using XLWorkbook wb = new();
+        IXLWorksheet ws = wb.AddWorksheet();
+        Assert.AreEqual(XLColor.Automatic, ws.FirstCell().Style.Fill.BackgroundColor);
+    }
+
+    [Test]
+    public void AutomaticColorCantBeResolvedToColor() =>
+        Assert.That(
+            () => _ = XLColor.Automatic.Color,
+            Throws
+                .TypeOf<InvalidOperationException>()
+                .With.Message.EqualTo("Cannot convert automatic color to Color.")
+        );
+
+    [Test]
+    public void CanConvertXlColorToColorType()
+    {
+        XLColor xlColor1 = XLColor.Red;
+        XLColor xlColor2 = XLColor.FromIndex(20);
+        XLColor xlColor3 = XLColor.FromTheme(XLThemeColor.Accent1);
+        XLColor xlColor4 = XLColor.FromTheme(XLThemeColor.Accent2, 0.4);
+
+        ForegroundColor color1 = new ForegroundColor().FromClosedXMLColor<ForegroundColor>(
+            xlColor1
+        );
+        ForegroundColor color2 = new ForegroundColor().FromClosedXMLColor<ForegroundColor>(
+            xlColor2
+        );
+        BackgroundColor color3 = new BackgroundColor().FromClosedXMLColor<BackgroundColor>(
+            xlColor3
+        );
+        BackgroundColor color4 = new BackgroundColor().FromClosedXMLColor<BackgroundColor>(
+            xlColor4
+        );
+
+        Assert.AreEqual("FFFF0000", color1.Rgb.Value);
+        Assert.IsNull(color1.Indexed);
+        Assert.IsNull(color1.Theme);
+        Assert.IsNull(color1.Tint);
+
+        Assert.IsNull(color2.Rgb);
+        Assert.AreEqual(20, color2.Indexed.Value);
+        Assert.IsNull(color2.Theme);
+        Assert.IsNull(color2.Tint);
+
+        Assert.IsNull(color3.Rgb);
+        Assert.IsNull(color3.Indexed);
+        Assert.AreEqual(4, color3.Theme.Value);
+        Assert.IsNull(color3.Tint);
+
+        Assert.IsNull(color4.Rgb);
+        Assert.IsNull(color4.Indexed);
+        Assert.AreEqual(5, color4.Theme.Value);
+        Assert.AreEqual(0.4, color4.Tint.Value);
+    }
+
+    [Test]
+    public void CanConvertXlColorToX14ColorType()
+    {
+        XLColor xlColor1 = XLColor.Red;
+        XLColor xlColor2 = XLColor.FromIndex(20);
+        XLColor xlColor3 = XLColor.FromTheme(XLThemeColor.Accent1);
+        XLColor xlColor4 = XLColor.FromTheme(XLThemeColor.Accent2, 0.4);
+
+        X14.AxisColor color1 = new X14.AxisColor().FromClosedXMLColor<X14.AxisColor>(xlColor1);
+        X14.BorderColor color2 = new X14.BorderColor().FromClosedXMLColor<X14.BorderColor>(
+            xlColor2
+        );
+        X14.FillColor color3 = new X14.FillColor().FromClosedXMLColor<X14.FillColor>(xlColor3);
+        X14.HighMarkerColor color4 =
+            new X14.HighMarkerColor().FromClosedXMLColor<X14.HighMarkerColor>(xlColor4);
+
+        Assert.AreEqual("FFFF0000", color1.Rgb.Value);
+        Assert.IsNull(color1.Indexed);
+        Assert.IsNull(color1.Theme);
+        Assert.IsNull(color1.Tint);
+
+        Assert.IsNull(color2.Rgb);
+        Assert.AreEqual(20, color2.Indexed.Value);
+        Assert.IsNull(color2.Theme);
+        Assert.IsNull(color2.Tint);
+
+        Assert.IsNull(color3.Rgb);
+        Assert.IsNull(color3.Indexed);
+        Assert.AreEqual(4, color3.Theme.Value);
+        Assert.IsNull(color3.Tint);
+
+        Assert.IsNull(color4.Rgb);
+        Assert.IsNull(color4.Indexed);
+        Assert.AreEqual(5, color4.Theme.Value);
+        Assert.AreEqual(0.4, color4.Tint.Value);
+    }
+
+    [Test]
+    public void CanConvertColorTypeToXlColor()
+    {
+        ForegroundColor color1 = new()
+        {
+            Rgb = new DocumentFormat.OpenXml.HexBinaryValue("FFFF0000"),
+        };
+        ForegroundColor color2 = new()
+        {
+            Indexed = new DocumentFormat.OpenXml.UInt32Value((uint)20),
+        };
+        BackgroundColor color3 = new() { Theme = new DocumentFormat.OpenXml.UInt32Value((uint)4) };
+        BackgroundColor color4 = new()
+        {
+            Theme = new DocumentFormat.OpenXml.UInt32Value((uint)4),
+            Tint = new DocumentFormat.OpenXml.DoubleValue(0.4),
+        };
+
+        XLColor xlColor1 = color1.ToClosedXMLColor();
+        XLColor xlColor2 = color2.ToClosedXMLColor();
+        XLColor xlColor3 = color3.ToClosedXMLColor();
+        XLColor xlColor4 = color4.ToClosedXMLColor();
+
+        Assert.AreEqual(XLColorType.Color, xlColor1.ColorType);
+        Assert.AreEqual(XLColor.Red.Color, xlColor1.Color);
+
+        Assert.AreEqual(XLColorType.Indexed, xlColor2.ColorType);
+        Assert.AreEqual(20, xlColor2.Indexed);
+
+        Assert.AreEqual(XLColorType.Theme, xlColor3.ColorType);
+        Assert.AreEqual(XLThemeColor.Accent1, xlColor3.ThemeColor);
+        Assert.AreEqual(0, xlColor3.ThemeTint, XLHelper.Epsilon);
+
+        Assert.AreEqual(XLColorType.Theme, xlColor4.ColorType);
+        Assert.AreEqual(XLThemeColor.Accent1, xlColor4.ThemeColor);
+        Assert.AreEqual(0.4, xlColor4.ThemeTint, XLHelper.Epsilon);
+    }
+
+    [Test]
+    public void CanConvertX14ColorTypeToXlColor()
+    {
+        X14.AxisColor color1 = new()
+        {
+            Rgb = new DocumentFormat.OpenXml.HexBinaryValue("FFFF0000"),
+        };
+        X14.BorderColor color2 = new()
+        {
+            Indexed = new DocumentFormat.OpenXml.UInt32Value((uint)20),
+        };
+        X14.FillColor color3 = new() { Theme = new DocumentFormat.OpenXml.UInt32Value((uint)4) };
+        X14.HighMarkerColor color4 = new()
+        {
+            Theme = new DocumentFormat.OpenXml.UInt32Value((uint)4),
+            Tint = new DocumentFormat.OpenXml.DoubleValue(0.4),
+        };
+
+        XLColor xlColor1 = color1.ToClosedXMLColor();
+        XLColor xlColor2 = color2.ToClosedXMLColor();
+        XLColor xlColor3 = color3.ToClosedXMLColor();
+        XLColor xlColor4 = color4.ToClosedXMLColor();
+
+        Assert.AreEqual(XLColorType.Color, xlColor1.ColorType);
+        Assert.AreEqual(XLColor.Red.Color, xlColor1.Color);
+
+        Assert.AreEqual(XLColorType.Indexed, xlColor2.ColorType);
+        Assert.AreEqual(20, xlColor2.Indexed);
+
+        Assert.AreEqual(XLColorType.Theme, xlColor3.ColorType);
+        Assert.AreEqual(XLThemeColor.Accent1, xlColor3.ThemeColor);
+        Assert.AreEqual(0, xlColor3.ThemeTint, XLHelper.Epsilon);
+
+        Assert.AreEqual(XLColorType.Theme, xlColor4.ColorType);
+        Assert.AreEqual(XLThemeColor.Accent1, xlColor4.ThemeColor);
+        Assert.AreEqual(0.4, xlColor4.ThemeTint, XLHelper.Epsilon);
+    }
+
+    [Test]
+    public void CanParseColorWithHashAsCultureLineSeparator()
+    {
+        // https://github.com/XlsxSharp/XlsxSharp/issues/675
+        CultureInfo culture = CultureInfo.CreateSpecificCulture("en-US");
+        culture.TextInfo.ListSeparator = "#";
+        Thread.CurrentThread.CurrentCulture = culture;
+        XLColor color = XLColor.FromHtml("#FF008000");
+        Assert.AreEqual(XLColor.Green, color);
+    }
+
+    [TestCaseSource(nameof(ToStringTestCases))]
+    public void ToStringWorksForAllColorTypes(XLColor colorType, string expectedString) =>
+        Assert.AreEqual(expectedString, colorType.ToString());
+
+    private static IEnumerable<TestCaseData<XLColor, string>> ToStringTestCases()
+    {
+        yield return new TestCaseData<XLColor, string>(XLColor.FromArgb(0xFF804010), "FF804010");
+        yield return new TestCaseData<XLColor, string>(
+            XLColor.FromTheme(XLThemeColor.Text1, 0.25),
+            "Color Theme: Text1, Tint: 0.25"
+        );
+        yield return new TestCaseData<XLColor, string>(XLColor.FromIndex(14), "Color Index: 14");
+        yield return new TestCaseData<XLColor, string>(XLColor.Automatic, "Automatic");
+    }
+}

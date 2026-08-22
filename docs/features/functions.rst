@@ -2,7 +2,7 @@
 Functions
 *********
 
-ClosedXML can evaluate formula functions. 
+XlsxSharp can evaluate formula functions. 
 
 .. note::
    Excel has a a list of functions that are defined in ISO-29500 and newer
@@ -38,7 +38,7 @@ ClosedXML can evaluate formula functions.
 
 
 .. note::
-   ClosedXML doesn't calculate and save values of a formula cells by default.
+   XlsxSharp doesn't calculate and save values of a formula cells by default.
    The saved cell contains only formula and when the file is opened in the Excel,
    it recalculates values of formulas.
    
