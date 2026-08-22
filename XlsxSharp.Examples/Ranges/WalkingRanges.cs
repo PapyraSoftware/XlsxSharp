@@ -6,7 +6,7 @@ namespace XlsxSharp.Examples.Ranges;
 
 public class WalkingRanges : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook wb = new();
         IXLWorksheet ws = wb.Worksheets.Add("Walking Cells");

@@ -8,7 +8,7 @@ namespace XlsxSharp.Examples.Misc;
 
 public class Collections : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook wb = new();
         IXLWorksheet ws = wb.Worksheets.Add("Collections");
@@ -92,9 +92,9 @@ public class Collections : IXLExample
 
     class Person
     {
-        public String House { get; set; }
-        public String Name { get; set; }
-        public Int32 Age { get; set; }
+        public string House { get; set; }
+        public string Name { get; set; }
+        public int Age { get; set; }
     }
 
     private static DataTable GetTable()

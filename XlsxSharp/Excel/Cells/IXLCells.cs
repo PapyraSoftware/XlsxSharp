@@ -37,13 +37,13 @@ public interface IXLCells : IEnumerable<IXLCell>
     /// Sets the cells' formula with A1 references.
     /// </summary>
     /// <value>The formula with A1 references.</value>
-    String FormulaA1 { set; }
+    string FormulaA1 { set; }
 
     /// <summary>
     /// Sets the cells' formula with R1C1 references.
     /// </summary>
     /// <value>The formula with R1C1 references.</value>
-    String FormulaR1C1 { set; }
+    string FormulaR1C1 { set; }
 
     IXLStyle Style { get; set; }
 

@@ -15,9 +15,9 @@ internal class XLDrawing<T> : IXLDrawing<T>
         this.Position = new XLDrawingPosition();
     }
 
-    public Int32 ShapeId { get; internal set; }
+    public int ShapeId { get; internal set; }
 
-    public Boolean Visible { get; set; }
+    public bool Visible { get; set; }
 
     public T SetVisible()
     {
@@ -25,23 +25,23 @@ internal class XLDrawing<T> : IXLDrawing<T>
         return this.Container;
     }
 
-    public T SetVisible(Boolean hidden)
+    public T SetVisible(bool hidden)
     {
         this.Visible = hidden;
         return this.Container;
     }
 
-    public String Name { get; set; }
+    public string Name { get; set; }
 
-    public T SetName(String name)
+    public T SetName(string name)
     {
         this.Name = name;
         return this.Container;
     }
 
-    public String Description { get; set; }
+    public string Description { get; set; }
 
-    public T SetDescription(String description)
+    public T SetDescription(string description)
     {
         this.Description = description;
         return this.Container;
@@ -49,15 +49,15 @@ internal class XLDrawing<T> : IXLDrawing<T>
 
     public IXLDrawingPosition Position { get; private set; }
 
-    public Int32 ZOrder { get; set; }
+    public int ZOrder { get; set; }
 
-    public T SetZOrder(Int32 zOrder)
+    public T SetZOrder(int zOrder)
     {
         this.ZOrder = zOrder;
         return this.Container;
     }
 
-    public Boolean HorizontalFlip { get; set; }
+    public bool HorizontalFlip { get; set; }
 
     public T SetHorizontalFlip()
     {
@@ -65,13 +65,13 @@ internal class XLDrawing<T> : IXLDrawing<T>
         return this.Container;
     }
 
-    public T SetHorizontalFlip(Boolean horizontalFlip)
+    public T SetHorizontalFlip(bool horizontalFlip)
     {
         this.HorizontalFlip = horizontalFlip;
         return this.Container;
     }
 
-    public Boolean VerticalFlip { get; set; }
+    public bool VerticalFlip { get; set; }
 
     public T SetVerticalFlip()
     {
@@ -79,47 +79,47 @@ internal class XLDrawing<T> : IXLDrawing<T>
         return this.Container;
     }
 
-    public T SetVerticalFlip(Boolean verticalFlip)
+    public T SetVerticalFlip(bool verticalFlip)
     {
         this.VerticalFlip = verticalFlip;
         return this.Container;
     }
 
-    public Int32 Rotation { get; set; }
+    public int Rotation { get; set; }
 
-    public T SetRotation(Int32 rotation)
+    public T SetRotation(int rotation)
     {
         this.Rotation = rotation;
         return this.Container;
     }
 
-    public Int32 OffsetX { get; set; }
+    public int OffsetX { get; set; }
 
-    public T SetOffsetX(Int32 offsetX)
+    public T SetOffsetX(int offsetX)
     {
         this.OffsetX = offsetX;
         return this.Container;
     }
 
-    public Int32 OffsetY { get; set; }
+    public int OffsetY { get; set; }
 
-    public T SetOffsetY(Int32 offsetY)
+    public T SetOffsetY(int offsetY)
     {
         this.OffsetY = offsetY;
         return this.Container;
     }
 
-    public Int32 ExtentLength { get; set; }
+    public int ExtentLength { get; set; }
 
-    public T SetExtentLength(Int32 extentLength)
+    public T SetExtentLength(int extentLength)
     {
         this.ExtentLength = extentLength;
         return this.Container;
     }
 
-    public Int32 ExtentWidth { get; set; }
+    public int ExtentWidth { get; set; }
 
-    public T SetExtentWidth(Int32 extentWidth)
+    public T SetExtentWidth(int extentWidth)
     {
         this.ExtentWidth = extentWidth;
         return this.Container;

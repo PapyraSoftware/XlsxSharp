@@ -10,8 +10,8 @@ namespace XlsxSharp.Excel;
 internal class XLPivotCache : IXLPivotCache
 {
     private readonly XLWorkbook _workbook;
-    private readonly Dictionary<String, Int32> _fieldIndexes = new(XlsxSharp.XLHelper.NameComparer);
-    private readonly List<String> _fieldNames = [];
+    private readonly Dictionary<string, int> _fieldIndexes = new(XlsxSharp.XLHelper.NameComparer);
+    private readonly List<string> _fieldNames = [];
 
     /// <summary>
     /// Length is a number of fields, in same order as <see cref="_fieldNames"/>.
@@ -28,13 +28,13 @@ internal class XLPivotCache : IXLPivotCache
 
     #region IXLPivotCache members
 
-    public IReadOnlyList<String> FieldNames => this._fieldNames;
+    public IReadOnlyList<string> FieldNames => this._fieldNames;
 
     public XLItemsToRetain ItemsToRetainPerField { get; set; }
 
-    public Boolean RefreshDataOnOpen { get; set; }
+    public bool RefreshDataOnOpen { get; set; }
 
-    public Boolean SaveSourceData { get; set; }
+    public bool SaveSourceData { get; set; }
 
     /// <summary>
     /// Number of fields in the cache.
@@ -94,7 +94,7 @@ internal class XLPivotCache : IXLPivotCache
 
     public IXLPivotCache SetRefreshDataOnOpen() => this.SetRefreshDataOnOpen(true);
 
-    public IXLPivotCache SetRefreshDataOnOpen(Boolean value)
+    public IXLPivotCache SetRefreshDataOnOpen(bool value)
     {
         this.RefreshDataOnOpen = value;
         return this;
@@ -102,7 +102,7 @@ internal class XLPivotCache : IXLPivotCache
 
     public IXLPivotCache SetSaveSourceData() => this.SetSaveSourceData(true);
 
-    public IXLPivotCache SetSaveSourceData(Boolean value)
+    public IXLPivotCache SetSaveSourceData(bool value)
     {
         this.SaveSourceData = value;
         return this;
@@ -123,9 +123,9 @@ internal class XLPivotCache : IXLPivotCache
     /// </summary>
     internal IXLPivotSource Source { get; set; }
 
-    internal String? WorkbookCacheRelId { get; set; }
+    internal string? WorkbookCacheRelId { get; set; }
 
-    internal XLPivotCache AddCachedField(String fieldName, XLPivotCacheValues fieldValues)
+    internal XLPivotCache AddCachedField(string fieldName, XLPivotCacheValues fieldValues)
     {
         if (this._fieldNames.Contains(fieldName, StringComparer.OrdinalIgnoreCase))
         {
@@ -142,10 +142,10 @@ internal class XLPivotCache : IXLPivotCache
     /// <param name="fieldName">Name of the field.</param>
     /// <param name="index">The found index, start at 0.</param>
     /// <returns>True if source contains the field.</returns>
-    internal bool TryGetFieldIndex(String fieldName, out int index) =>
+    internal bool TryGetFieldIndex(string fieldName, out int index) =>
         this._fieldIndexes.TryGetValue(fieldName, out index);
 
-    internal bool ContainsField(String fieldName) => this._fieldIndexes.ContainsKey(fieldName);
+    internal bool ContainsField(string fieldName) => this._fieldIndexes.ContainsKey(fieldName);
 
     internal XLPivotCacheValues GetFieldValues(int fieldIndex) => this._values[fieldIndex];
 
@@ -160,7 +160,7 @@ internal class XLPivotCache : IXLPivotCache
         }
     }
 
-    private String AdjustedFieldName(String header)
+    private string AdjustedFieldName(string header)
     {
         string modifiedHeader = header;
         int i = 1;
@@ -173,7 +173,7 @@ internal class XLPivotCache : IXLPivotCache
         return modifiedHeader;
     }
 
-    private void AddField(String fieldName, XLPivotCacheValues fieldValues)
+    private void AddField(string fieldName, XLPivotCacheValues fieldValues)
     {
         this._fieldIndexes.Add(fieldName, this._fieldNames.Count);
         this._fieldNames.Add(fieldName);

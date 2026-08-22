@@ -146,21 +146,21 @@ internal class TextSerializer
         w.WriteEndElement(); // r
     }
 
-    private static void WriteRunProperty(XmlWriter w, String elName, String val)
+    private static void WriteRunProperty(XmlWriter w, string elName, string val)
     {
         w.WriteStartElement(elName, Main2006SsNs);
         w.WriteAttributeString("val", val);
         w.WriteEndElement();
     }
 
-    private static void WriteRunProperty(XmlWriter w, String elName, Int32 val)
+    private static void WriteRunProperty(XmlWriter w, string elName, int val)
     {
         w.WriteStartElement(elName, Main2006SsNs);
         w.WriteAttribute("val", val);
         w.WriteEndElement();
     }
 
-    private static void WriteRunProperty(XmlWriter w, String elName, Double val)
+    private static void WriteRunProperty(XmlWriter w, string elName, double val)
     {
         w.WriteStartElement(elName, Main2006SsNs);
         w.WriteAttribute("val", val);

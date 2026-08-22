@@ -36,7 +36,7 @@ internal class TablePartWriter
 
         foreach (XLTable xlTable in tables.Cast<XLTable>())
         {
-            if (String.IsNullOrEmpty(xlTable.RelId))
+            if (string.IsNullOrEmpty(xlTable.RelId))
             {
                 xlTable.RelId = context.RelIdGenerator.GetNext(RelType.Workbook);
                 worksheetPart.AddNewPart<TableDefinitionPart>(xlTable.RelId);
@@ -91,9 +91,9 @@ internal class TablePartWriter
             table.TotalsRowShown = false;
         }
 
-        TableColumns tableColumns = new() { Count = (UInt32)xlTable.ColumnCount() };
+        TableColumns tableColumns = new() { Count = (uint)xlTable.ColumnCount() };
 
-        UInt32 columnId = 0;
+        uint columnId = 0;
         foreach (XLTableField xlField in xlTable.Fields)
         {
             columnId++;
@@ -153,7 +153,7 @@ internal class TablePartWriter
                     formula = formula.Substring(1);
                 }
 
-                if (!String.IsNullOrWhiteSpace(formula))
+                if (!string.IsNullOrWhiteSpace(formula))
                 {
                     tableColumn.CalculatedColumnFormula = new CalculatedColumnFormula
                     {
@@ -180,7 +180,7 @@ internal class TablePartWriter
                     }
                 }
 
-                if (!String.IsNullOrWhiteSpace(xlField.TotalsRowLabel))
+                if (!string.IsNullOrWhiteSpace(xlField.TotalsRowLabel))
                 {
                     tableColumn.TotalsRowLabel = xlField.TotalsRowLabel;
                 }
@@ -229,7 +229,7 @@ internal class TablePartWriter
         tableDefinitionPart.Table = table;
     }
 
-    private static string GetTableName(String originalTableName, SaveContext context)
+    private static string GetTableName(string originalTableName, SaveContext context)
     {
         string tableName = originalTableName.RemoveSpecialCharacters();
         string name = tableName;

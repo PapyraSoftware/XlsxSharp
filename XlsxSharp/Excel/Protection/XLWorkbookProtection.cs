@@ -20,16 +20,16 @@ internal class XLWorkbookProtection : IXLWorkbookProtection
 
     public Algorithm Algorithm { get; internal set; }
     public XLWorkbookProtectionElements AllowedElements { get; set; }
-    public bool IsPasswordProtected => this.IsProtected && !String.IsNullOrEmpty(this.PasswordHash);
+    public bool IsPasswordProtected => this.IsProtected && !string.IsNullOrEmpty(this.PasswordHash);
     public bool IsProtected { get; internal set; }
 
-    internal String Base64EncodedSalt { get; set; }
-    internal String PasswordHash { get; set; }
-    internal UInt32 SpinCount { get; set; } = 100000;
+    internal string Base64EncodedSalt { get; set; }
+    internal string PasswordHash { get; set; }
+    internal uint SpinCount { get; set; } = 100000;
 
     public IXLWorkbookProtection AllowElement(
         XLWorkbookProtectionElements element,
-        Boolean allowed = true
+        bool allowed = true
     )
     {
         if (allowed)
@@ -85,7 +85,7 @@ internal class XLWorkbookProtection : IXLWorkbookProtection
         this.AllowElement(element, allowed: false);
 
     public IXLWorkbookProtection Protect(Algorithm algorithm = DefaultProtectionAlgorithm) =>
-        this.Protect(String.Empty, algorithm);
+        this.Protect(string.Empty, algorithm);
 
     public IXLWorkbookProtection Protect(XLWorkbookProtectionElements allowedElements) =>
         this.Protect(string.Empty, DefaultProtectionAlgorithm, allowedElements);
@@ -96,7 +96,7 @@ internal class XLWorkbookProtection : IXLWorkbookProtection
     ) => this.Protect(string.Empty, algorithm, allowedElements);
 
     public IXLWorkbookProtection Protect(
-        String password,
+        string password,
         Algorithm algorithm = DefaultProtectionAlgorithm,
         XLWorkbookProtectionElements allowedElements = XLWorkbookProtectionElements.Windows
     )
@@ -126,9 +126,9 @@ internal class XLWorkbookProtection : IXLWorkbookProtection
         return this;
     }
 
-    public IXLWorkbookProtection Unprotect() => this.Unprotect(String.Empty);
+    public IXLWorkbookProtection Unprotect() => this.Unprotect(string.Empty);
 
-    public IXLWorkbookProtection Unprotect(String password)
+    public IXLWorkbookProtection Unprotect(string password)
     {
         if (this.IsProtected)
         {
@@ -150,8 +150,8 @@ internal class XLWorkbookProtection : IXLWorkbookProtection
             else
             {
                 this.IsProtected = false;
-                this.PasswordHash = String.Empty;
-                this.Base64EncodedSalt = String.Empty;
+                this.PasswordHash = string.Empty;
+                this.Base64EncodedSalt = string.Empty;
             }
         }
 
@@ -162,7 +162,7 @@ internal class XLWorkbookProtection : IXLWorkbookProtection
 
     IXLElementProtection<XLWorkbookProtectionElements> IXLElementProtection<XLWorkbookProtectionElements>.AllowElement(
         XLWorkbookProtectionElements element,
-        Boolean allowed
+        bool allowed
     ) => this.AllowElement(element, allowed);
 
     IXLElementProtection<XLWorkbookProtectionElements> IXLElementProtection<XLWorkbookProtectionElements>.AllowEverything() =>
@@ -180,7 +180,7 @@ internal class XLWorkbookProtection : IXLWorkbookProtection
     ) => this.Protect(algorithm);
 
     IXLElementProtection<XLWorkbookProtectionElements> IXLElementProtection<XLWorkbookProtectionElements>.Protect(
-        String password,
+        string password,
         Algorithm algorithm
     ) => this.Protect(password, algorithm);
 
@@ -194,7 +194,7 @@ internal class XLWorkbookProtection : IXLWorkbookProtection
     ) => this.Protect(algorithm, allowedElements);
 
     IXLWorkbookProtection IXLWorkbookProtection.Protect(
-        String password,
+        string password,
         Algorithm algorithm,
         XLWorkbookProtectionElements allowedElements
     ) => this.Protect(password, algorithm, allowedElements);
@@ -203,7 +203,7 @@ internal class XLWorkbookProtection : IXLWorkbookProtection
         this.Unprotect();
 
     IXLElementProtection<XLWorkbookProtectionElements> IXLElementProtection<XLWorkbookProtectionElements>.Unprotect(
-        String password
+        string password
     ) => this.Unprotect(password);
 
     IXLElementProtection<XLWorkbookProtectionElements> IXLElementProtection<XLWorkbookProtectionElements>.CopyFrom(

@@ -21,7 +21,7 @@ internal class XLCFColorScaleConverter : IXLCFConverter
         );
 
         ColorScale colorScale = new();
-        for (Int32 i = 1; i <= cf.ContentTypes.Count; i++)
+        for (int i = 1; i <= cf.ContentTypes.Count; i++)
         {
             ConditionalFormatValueObjectValues type = cf.ContentTypes[i].ToOpenXml();
             string val = cf.Values.TryGetValue(i, out XLFormula formula) ? formula?.Value : null;
@@ -35,7 +35,7 @@ internal class XLCFColorScaleConverter : IXLCFConverter
             colorScale.Append(conditionalFormatValueObject);
         }
 
-        for (Int32 i = 1; i <= cf.Colors.Count; i++)
+        for (int i = 1; i <= cf.Colors.Count; i++)
         {
             XLColor xlColor = cf.Colors[i];
             Color color = new();

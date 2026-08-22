@@ -84,9 +84,9 @@ internal static class XLMath
         return factorial;
     }
 
-    public static Boolean IsEven(Int32 value) => Math.Abs(value % 2) == 0;
+    public static bool IsEven(int value) => Math.Abs(value % 2) == 0;
 
-    public static Boolean IsEven(double value)
+    public static bool IsEven(double value)
     {
         // Check the number doesn't have any fractions and that it is even.
         // Due to rounding after division, only checking for % 2 could fail
@@ -96,9 +96,9 @@ internal static class XLMath
         return hasNoFraction && isEven;
     }
 
-    public static Boolean IsOdd(Int32 value) => Math.Abs(value % 2) != 0;
+    public static bool IsOdd(int value) => Math.Abs(value % 2) != 0;
 
-    public static Boolean IsOdd(double value)
+    public static bool IsOdd(double value)
     {
         bool hasNoFraction = value % 1 == 0;
         bool isOdd = value % 2 != 0;

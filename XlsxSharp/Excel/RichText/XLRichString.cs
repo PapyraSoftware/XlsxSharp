@@ -17,7 +17,7 @@ internal class XLRichString : IXLRichString
     private XLFontFormatValue _font;
 
     internal XLRichString(
-        String text,
+        string text,
         XLFontFormatValue font,
         IXLWithRichString withRichString,
         XLWorkbookStyles styles,
@@ -31,7 +31,7 @@ internal class XLRichString : IXLRichString
         this._onChange = onChange ?? (() => { });
     }
 
-    public String Text
+    public string Text
     {
         get => this._text;
         set
@@ -41,17 +41,17 @@ internal class XLRichString : IXLRichString
         }
     }
 
-    public IXLRichString AddText(String text) => this._withRichString.AddText(text);
+    public IXLRichString AddText(string text) => this._withRichString.AddText(text);
 
     public IXLRichString AddNewLine() => this.AddText(Environment.NewLine);
 
-    public Boolean Bold
+    public bool Bold
     {
         get => this._font.Bold;
         set => this.ChangeFont(f => f with { Bold = value });
     }
 
-    public Boolean Italic
+    public bool Italic
     {
         get => this._font.Italic;
         set => this.ChangeFont(f => f with { Italic = value });
@@ -63,7 +63,7 @@ internal class XLRichString : IXLRichString
         set => this.ChangeFont(f => f with { Underline = value });
     }
 
-    public Boolean Strikethrough
+    public bool Strikethrough
     {
         get => this._font.Strikethrough;
         set => this.ChangeFont(f => f with { Strikethrough = value });
@@ -75,13 +75,13 @@ internal class XLRichString : IXLRichString
         set => this.ChangeFont(f => f with { VerticalAlignment = value });
     }
 
-    public Boolean Shadow
+    public bool Shadow
     {
         get => this._font.Shadow;
         set => this.ChangeFont(f => f with { Shadow = value });
     }
 
-    public Double FontSize
+    public double FontSize
     {
         get => this._font.Size.Points;
         set => this.ChangeFont(f => f with { Size = XLFontSize.FromPoints(value) });
@@ -93,7 +93,7 @@ internal class XLRichString : IXLRichString
         set => this.ChangeFont(f => f with { Color = value });
     }
 
-    public String FontName
+    public string FontName
     {
         get => this._font.Name.Text;
         set => this.ChangeFont(f => f with { Name = value });
@@ -125,7 +125,7 @@ internal class XLRichString : IXLRichString
         return this;
     }
 
-    public IXLRichString SetBold(Boolean value)
+    public IXLRichString SetBold(bool value)
     {
         this.Bold = value;
         return this;
@@ -137,7 +137,7 @@ internal class XLRichString : IXLRichString
         return this;
     }
 
-    public IXLRichString SetItalic(Boolean value)
+    public IXLRichString SetItalic(bool value)
     {
         this.Italic = value;
         return this;
@@ -161,7 +161,7 @@ internal class XLRichString : IXLRichString
         return this;
     }
 
-    public IXLRichString SetStrikethrough(Boolean value)
+    public IXLRichString SetStrikethrough(bool value)
     {
         this.Strikethrough = value;
         return this;
@@ -179,13 +179,13 @@ internal class XLRichString : IXLRichString
         return this;
     }
 
-    public IXLRichString SetShadow(Boolean value)
+    public IXLRichString SetShadow(bool value)
     {
         this.Shadow = value;
         return this;
     }
 
-    public IXLRichString SetFontSize(Double value)
+    public IXLRichString SetFontSize(double value)
     {
         this.FontSize = value;
         return this;
@@ -197,7 +197,7 @@ internal class XLRichString : IXLRichString
         return this;
     }
 
-    public IXLRichString SetFontName(String value)
+    public IXLRichString SetFontName(string value)
     {
         this.FontName = value;
         return this;
@@ -223,9 +223,9 @@ internal class XLRichString : IXLRichString
 
     public override bool Equals(object? obj) => this.Equals(obj as XLRichString);
 
-    public Boolean Equals(IXLRichString? other) => this.Equals(other as XLRichString);
+    public bool Equals(IXLRichString? other) => this.Equals(other as XLRichString);
 
-    public Boolean Equals(XLRichString? other)
+    public bool Equals(XLRichString? other)
     {
         if (other is null)
         {

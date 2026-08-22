@@ -17,7 +17,7 @@ internal static class SignatureAdapter
 
     public static CalcEngineFunction Adapt(Func<ScalarValue> f) => (_, _) => f().ToAnyValue();
 
-    public static CalcEngineFunction AdaptCoerced(Func<Boolean, AnyValue> f) =>
+    public static CalcEngineFunction AdaptCoerced(Func<bool, AnyValue> f) =>
         (ctx, args) =>
         {
             OneOf<bool, XLError> arg0Converted = CoerceToLogical(args[0], ctx);
@@ -1192,7 +1192,7 @@ internal static class SignatureAdapter
     // Each method is named ToSomething and it converts an argument into a desired type (e.g. for ToSomething it should be type Something).
     // Return value is always OneOf<Something, Error>, if there is an error, return it as an error.
 
-    private static OneOf<Boolean, XLError> CoerceToLogical(in AnyValue value, CalcContext ctx)
+    private static OneOf<bool, XLError> CoerceToLogical(in AnyValue value, CalcContext ctx)
     {
         if (
             !ToScalarValue(in value, ctx).TryPickT0(out ScalarValue scalar, out XLError scalarError)

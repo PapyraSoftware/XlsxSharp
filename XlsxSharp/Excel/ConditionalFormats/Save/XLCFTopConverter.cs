@@ -11,7 +11,7 @@ internal class XLCFTopConverter : IXLCFConverter
         XLWorkbook.SaveContext context
     )
     {
-        UInt32 val = UInt32.Parse(cf.Values[1].Value);
+        uint val = uint.Parse(cf.Values[1].Value);
         ConditionalFormattingRule conditionalFormattingRule = XLCFBaseConverter.ConvertWithDxf(
             cf,
             priority,

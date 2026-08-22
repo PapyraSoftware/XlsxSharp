@@ -19,9 +19,9 @@ public static partial class XLHelper
     public const int MinColumnNumber = 1;
     public const int MaxRowNumber = 1048576;
     public const int MaxColumnNumber = 16384;
-    public const String MaxColumnLetter = "XFD";
+    public const string MaxColumnLetter = "XFD";
     public const string LastSheetAddress = "XFD1048576";
-    public const Double Epsilon = 1e-10;
+    public const double Epsilon = 1e-10;
 
     internal const string RefError = "#REF!";
 
@@ -42,7 +42,7 @@ public static partial class XLHelper
 
     public static Encoding NoBomUTF8 = new UTF8Encoding(false);
 
-    public static String LastCell => $"{MaxColumnLetter}{MaxRowNumber}";
+    public static string LastCell => $"{MaxColumnLetter}{MaxRowNumber}";
 
     internal static readonly NumberStyles NumberStyle =
         NumberStyles.AllowDecimalPoint
@@ -177,7 +177,7 @@ public static partial class XLHelper
         //Extra check because we allow users to pass row col positions in as strings
         if (columnLetter[0] <= '9')
         {
-            return Int32.Parse(columnLetter, XLHelper.NumberStyle, XLHelper.ParseCulture);
+            return int.Parse(columnLetter, XLHelper.NumberStyle, XLHelper.ParseCulture);
         }
 
         if (letterIndexes.TryGetValue(columnLetter, out int retVal))
@@ -219,7 +219,7 @@ public static partial class XLHelper
 
     public static bool IsValidColumn(string column)
     {
-        if (String.IsNullOrWhiteSpace(column))
+        if (string.IsNullOrWhiteSpace(column))
         {
             return false;
         }
@@ -271,7 +271,7 @@ public static partial class XLHelper
 
     public static bool IsValidRow(string rowString)
     {
-        if (Int32.TryParse(rowString, out int row))
+        if (int.TryParse(rowString, out int row))
         {
             return row > 0 && row <= MaxRowNumber;
         }
@@ -281,7 +281,7 @@ public static partial class XLHelper
 
     public static bool IsValidA1Address(string address)
     {
-        if (String.IsNullOrWhiteSpace(address))
+        if (string.IsNullOrWhiteSpace(address))
         {
             return false;
         }
@@ -301,7 +301,7 @@ public static partial class XLHelper
 
     public static bool IsValidRCAddress(string address)
     {
-        if (String.IsNullOrWhiteSpace(address))
+        if (string.IsNullOrWhiteSpace(address))
         {
             return false;
         }
@@ -309,9 +309,9 @@ public static partial class XLHelper
         return RCSimpleRegex.IsMatch(address);
     }
 
-    public static Boolean IsValidRangeAddress(String rangeAddress)
+    public static bool IsValidRangeAddress(string rangeAddress)
     {
-        if (String.IsNullOrWhiteSpace(rangeAddress))
+        if (string.IsNullOrWhiteSpace(rangeAddress))
         {
             return false;
         }
@@ -319,7 +319,7 @@ public static partial class XLHelper
         return A1SimpleRegex.IsMatch(rangeAddress);
     }
 
-    public static Boolean IsValidRangeAddress(IXLRangeAddress rangeAddress) =>
+    public static bool IsValidRangeAddress(IXLRangeAddress rangeAddress) =>
         rangeAddress.IsValid
         && rangeAddress.FirstAddress.RowNumber >= 1
         && rangeAddress.LastAddress.RowNumber <= MaxRowNumber
@@ -345,8 +345,8 @@ public static partial class XLHelper
     internal static IXLTableRows InsertRowsWithoutEvents(
         Func<int, bool, IXLRangeRows> insertFunc,
         XLTableRange tableRange,
-        Int32 numberOfRows,
-        Boolean expandTable
+        int numberOfRows,
+        bool expandTable
     )
     {
         XLWorksheet ws = tableRange.Worksheet;
@@ -369,7 +369,7 @@ public static partial class XLHelper
         RegexOptions.Compiled
     ); // A:A
 
-    private static string Evaluator(Match match, Int32 row, String column)
+    private static string Evaluator(Match match, int row, string column)
     {
         if (match.Groups["one"].Success)
         {
@@ -401,24 +401,24 @@ public static partial class XLHelper
         return ReplaceGroup(match.Groups["three"].Value, column);
     }
 
-    private static String ReplaceGroup(String value, String item)
+    private static string ReplaceGroup(string value, string item)
     {
         string[] split = value.Split(':');
-        String ret1 = split[0].StartsWith("$") ? split[0] : item;
-        String ret2 = split[1].StartsWith("$") ? split[1] : item;
+        string ret1 = split[0].StartsWith("$") ? split[0] : item;
+        string ret2 = split[1].StartsWith("$") ? split[1] : item;
         return ret1 + ":" + ret2;
     }
 
-    internal static String ReplaceRelative(String value, Int32 row, String column)
+    internal static string ReplaceRelative(string value, int row, string column)
     {
         string oldValue = ">" + value + "<";
         string newVal = A1RegexRelative.Replace(oldValue, m => Evaluator(m, row, column));
         return newVal.Substring(1, newVal.Length - 2);
     }
 
-    public static Boolean AreEqual(Double d1, Double d2) => Math.Abs(d1 - d2) < Epsilon;
+    public static bool AreEqual(double d1, double d2) => Math.Abs(d1 - d2) < Epsilon;
 
-    public static DateTime GetDate(Object v)
+    public static DateTime GetDate(object v)
     {
         // handle dates
         if (v is DateTime)
@@ -466,12 +466,12 @@ public static partial class XLHelper
         return TimeSpan.FromTicks(checked((long)ticks));
     }
 
-    internal static Boolean ValidateName(
-        String objectType,
-        String newName,
-        String oldName,
-        IEnumerable<String> existingNames,
-        out String message
+    internal static bool ValidateName(
+        string objectType,
+        string newName,
+        string oldName,
+        IEnumerable<string> existingNames,
+        out string message
     )
     {
         if (!ValidateName(objectType, newName, out message))
@@ -492,10 +492,10 @@ public static partial class XLHelper
         return true;
     }
 
-    internal static Boolean ValidateName(String objectType, String newName, out String message)
+    internal static bool ValidateName(string objectType, string newName, out string message)
     {
         message = "";
-        if (String.IsNullOrWhiteSpace(newName))
+        if (string.IsNullOrWhiteSpace(newName))
         {
             message = $"The {objectType} name '{newName}' is invalid";
             return false;

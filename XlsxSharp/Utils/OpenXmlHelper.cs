@@ -92,7 +92,7 @@ internal static class OpenXmlHelper
             && nfSource.NumberFormatId.Value < XLConstants.NumberOfBuiltInStyles
         )
         {
-            nf.NumberFormatId = (Int32)nfSource.NumberFormatId.Value;
+            nf.NumberFormatId = (int)nfSource.NumberFormatId.Value;
         }
         else if (nfSource.FormatCode != null)
         {
@@ -163,7 +163,7 @@ internal static class OpenXmlHelper
     internal static void LoadFill(
         Fill openXMLFill,
         IXLFill closedXMLFill,
-        Boolean differentialFillFormat
+        bool differentialFillFormat
     )
     {
         if (openXMLFill == null || openXMLFill.PatternFill == null)
@@ -256,7 +256,7 @@ internal static class OpenXmlHelper
         if (fontFamilyNumbering != null && fontFamilyNumbering.Val != null)
         {
             fontBase.FontFamilyNumbering = (XLFontFamilyNumberingValues)
-                Int32.Parse(fontFamilyNumbering.Val.ToString());
+                int.Parse(fontFamilyNumbering.Val.ToString());
         }
 
         RunFont runFont = fontSource.Elements<RunFont>().FirstOrDefault();
@@ -308,7 +308,7 @@ internal static class OpenXmlHelper
         }
     }
 
-    internal static Boolean GetBoolean(BooleanPropertyType property)
+    internal static bool GetBoolean(BooleanPropertyType property)
     {
         if (property != null)
         {
@@ -347,7 +347,7 @@ internal static class OpenXmlHelper
         }
         else if (openXMLColor.Indexed is not null && openXMLColor.Indexed <= 64)
         {
-            retVal = XLColor.FromIndex((Int32)openXMLColor.Indexed.Value);
+            retVal = XLColor.FromIndex((int)openXMLColor.Indexed.Value);
         }
         else if (openXMLColor.Theme is not null)
         {
@@ -387,13 +387,13 @@ internal static class OpenXmlHelper
                 // 64 is 'transparent' and should be ignored for differential formats
                 if (!isDifferential || xlColor.Indexed != 64)
                 {
-                    openXMLColor.Indexed = (UInt32)xlColor.Indexed;
+                    openXMLColor.Indexed = (uint)xlColor.Indexed;
                 }
 
                 break;
 
             case XLColorType.Theme:
-                openXMLColor.Theme = (UInt32)xlColor.ThemeColor;
+                openXMLColor.Theme = (uint)xlColor.ThemeColor;
 
                 if (xlColor.ThemeTint != 0)
                 {

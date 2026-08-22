@@ -13,13 +13,13 @@ internal class XLCFDataBarMax : IXLCFDataBarMax
     public XLCFDataBarMax(XLConditionalFormat conditionalFormat) =>
         this._conditionalFormat = conditionalFormat;
 
-    public void Maximum(XLCFContentType type, String value)
+    public void Maximum(XLCFContentType type, string value)
     {
         this._conditionalFormat.ContentTypes.Add(type);
         this._conditionalFormat.Values.Add(new XLFormula { Value = value });
     }
 
-    public void Maximum(XLCFContentType type, Double value) =>
+    public void Maximum(XLCFContentType type, double value) =>
         this.Maximum(type, value.ToInvariantString());
 
     public void HighestValue() => this.Maximum(XLCFContentType.Maximum, "0");

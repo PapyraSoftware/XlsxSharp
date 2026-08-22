@@ -48,20 +48,20 @@ internal class XLDataValidation : IXLDataValidation
         this.MaxValue = dataValidation.MaxValue;
     }
 
-    public Boolean IsDirty() =>
+    public bool IsDirty() =>
         this.AllowedValues != XLAllowedValues.AnyValue
         || (
             this.ShowInputMessage
             && (
-                !String.IsNullOrWhiteSpace(this.InputTitle)
-                || !String.IsNullOrWhiteSpace(this.InputMessage)
+                !string.IsNullOrWhiteSpace(this.InputTitle)
+                || !string.IsNullOrWhiteSpace(this.InputMessage)
             )
         )
         || (
             this.ShowErrorMessage
             && (
-                !String.IsNullOrWhiteSpace(this.ErrorTitle)
-                || !String.IsNullOrWhiteSpace(this.ErrorMessage)
+                !string.IsNullOrWhiteSpace(this.ErrorTitle)
+                || !string.IsNullOrWhiteSpace(this.ErrorMessage)
             )
         );
 
@@ -80,21 +80,21 @@ internal class XLDataValidation : IXLDataValidation
         this.ShowErrorMessage = true;
         this.ShowInputMessage = true;
         this.InCellDropdown = true;
-        this.InputTitle = String.Empty;
-        this.InputMessage = String.Empty;
-        this.ErrorTitle = String.Empty;
-        this.ErrorMessage = String.Empty;
+        this.InputTitle = string.Empty;
+        this.InputMessage = string.Empty;
+        this.ErrorTitle = string.Empty;
+        this.ErrorMessage = string.Empty;
         this.ErrorStyle = XLErrorStyle.Stop;
         this.Operator = XLOperator.Between;
-        this.Value = String.Empty;
-        this.minValue = String.Empty;
-        this.maxValue = String.Empty;
+        this.Value = string.Empty;
+        this.minValue = string.Empty;
+        this.maxValue = string.Empty;
     }
 
     #region IXLDataValidation Members
 
-    private String maxValue;
-    private String minValue;
+    private string maxValue;
+    private string minValue;
     public XLAllowedValues AllowedValues { get; set; }
 
     public XLDateCriteria Date
@@ -115,14 +115,14 @@ internal class XLDataValidation : IXLDataValidation
         }
     }
 
-    public String ErrorMessage { get; set; }
+    public string ErrorMessage { get; set; }
     public XLErrorStyle ErrorStyle { get; set; }
-    public String ErrorTitle { get; set; }
-    public Boolean IgnoreBlanks { get; set; }
-    public Boolean InCellDropdown { get; set; }
-    public String InputMessage { get; set; }
-    public String InputTitle { get; set; }
-    public String MaxValue
+    public string ErrorTitle { get; set; }
+    public bool IgnoreBlanks { get; set; }
+    public bool InCellDropdown { get; set; }
+    public string InputMessage { get; set; }
+    public string InputTitle { get; set; }
+    public string MaxValue
     {
         get => this.maxValue;
         set
@@ -131,7 +131,7 @@ internal class XLDataValidation : IXLDataValidation
             this.maxValue = value;
         }
     }
-    public String MinValue
+    public string MinValue
     {
         get => this.minValue;
         set
@@ -159,9 +159,9 @@ internal class XLDataValidation : IXLDataValidation
         }
     }
 
-    public Boolean ShowErrorMessage { get; set; }
+    public bool ShowErrorMessage { get; set; }
 
-    public Boolean ShowInputMessage { get; set; }
+    public bool ShowInputMessage { get; set; }
 
     public XLTextLengthCriteria TextLength
     {
@@ -181,7 +181,7 @@ internal class XLDataValidation : IXLDataValidation
         }
     }
 
-    public String Value
+    public string Value
     {
         get => this.MinValue;
         set => this.MinValue = value;
@@ -239,15 +239,15 @@ internal class XLDataValidation : IXLDataValidation
     /// </summary>
     public void ClearRanges() => this.Areas = XLAreaList.Empty;
 
-    public void Custom(String customValidation)
+    public void Custom(string customValidation)
     {
         this.AllowedValues = XLAllowedValues.Custom;
         this.Value = customValidation;
     }
 
-    public void List(String list) => this.List(list, true);
+    public void List(string list) => this.List(list, true);
 
-    public void List(String list, Boolean inCellDropdown)
+    public void List(string list, bool inCellDropdown)
     {
         this.AllowedValues = XLAllowedValues.List;
         this.InCellDropdown = inCellDropdown;
@@ -256,7 +256,7 @@ internal class XLDataValidation : IXLDataValidation
 
     public void List(IXLRange range) => this.List(range, true);
 
-    public void List(IXLRange range, Boolean inCellDropdown) =>
+    public void List(IXLRange range, bool inCellDropdown) =>
         this.List(range.RangeAddress.ToStringFixed(XLReferenceStyle.A1, true));
 
     /// <summary>
@@ -279,7 +279,7 @@ internal class XLDataValidation : IXLDataValidation
 
     #endregion IXLDataValidation Members
 
-    private static void Validate(String value)
+    private static void Validate(string value)
     {
         if (value.Length > 255)
         {

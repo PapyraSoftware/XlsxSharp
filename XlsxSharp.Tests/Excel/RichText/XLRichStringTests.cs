@@ -62,7 +62,7 @@ public class XLRichStringTests
     {
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         IXLCell cell = ws.Cell(1, 1);
-        Int32 number = 123;
+        int number = 123;
 
         cell.SetValue(number).Style.Font.SetBold().Font.SetFontColor(XLColor.Red);
 
@@ -87,7 +87,7 @@ public class XLRichStringTests
     {
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         IXLCell cell = ws.Cell(1, 1);
-        Int32 number = 123;
+        int number = 123;
         cell.Value = number;
         cell.Style.Font.SetBold().Font.SetFontColor(XLColor.Red);
 
@@ -121,8 +121,8 @@ public class XLRichStringTests
         richString.AddText("World!");
 
         richString.ClearText();
-        String expected = String.Empty;
-        String actual = richString.ToString();
+        string expected = string.Empty;
+        string actual = richString.ToString();
         Assert.AreEqual(expected, actual);
 
         Assert.AreEqual(0, richString.Count);
@@ -689,7 +689,7 @@ public class XLRichStringTests
         Assert.AreEqual(expected, actual);
 
         richString.ClearText();
-        expected = String.Empty;
+        expected = string.Empty;
         actual = richString.ToString();
         Assert.AreEqual(expected, actual);
     }

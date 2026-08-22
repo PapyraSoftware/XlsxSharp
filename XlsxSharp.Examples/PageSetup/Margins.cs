@@ -5,7 +5,7 @@ namespace XlsxSharp.Examples.PageSetup;
 
 public class Margins : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook workbook = new();
         IXLWorksheet ws = workbook.Worksheets.Add("Margins");

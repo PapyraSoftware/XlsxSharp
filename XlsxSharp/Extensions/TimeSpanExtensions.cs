@@ -19,7 +19,7 @@ internal static class TimeSpanExtensions
     /// Excel can convert time span string back to a number, but only if it doesn't has days in the string, only hours.
     /// It's an opposite of <see cref="TimeSpanParser"/>.
     /// </remarks>
-    public static String ToExcelString(this TimeSpan ts, CultureInfo culture)
+    public static string ToExcelString(this TimeSpan ts, CultureInfo culture)
     {
         string timeSep = culture.DateTimeFormat.TimeSeparator;
         StringBuilder sb = new StringBuilder()

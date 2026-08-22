@@ -10,7 +10,7 @@ internal class XLDrawingProtection : IXLDrawingProtection
 
     public XLDrawingProtection(IXLDrawingStyle style) => this._style = style;
 
-    public Boolean Locked { get; set; }
+    public bool Locked { get; set; }
 
     public IXLDrawingStyle SetLocked()
     {
@@ -18,13 +18,13 @@ internal class XLDrawingProtection : IXLDrawingProtection
         return this._style;
     }
 
-    public IXLDrawingStyle SetLocked(Boolean value)
+    public IXLDrawingStyle SetLocked(bool value)
     {
         this.Locked = value;
         return this._style;
     }
 
-    public Boolean LockText { get; set; }
+    public bool LockText { get; set; }
 
     public IXLDrawingStyle SetLockText()
     {
@@ -32,7 +32,7 @@ internal class XLDrawingProtection : IXLDrawingProtection
         return this._style;
     }
 
-    public IXLDrawingStyle SetLockText(Boolean value)
+    public IXLDrawingStyle SetLockText(bool value)
     {
         this.LockText = value;
         return this._style;

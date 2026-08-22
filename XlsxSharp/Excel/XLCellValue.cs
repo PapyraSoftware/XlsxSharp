@@ -22,9 +22,9 @@ namespace XlsxSharp.Excel;
 public readonly struct XLCellValue
     : IEquatable<XLCellValue>,
         IEquatable<Blank>,
-        IEquatable<Boolean>,
-        IEquatable<Double>,
-        IEquatable<String>,
+        IEquatable<bool>,
+        IEquatable<double>,
+        IEquatable<string>,
         IEquatable<XLError>,
         IEquatable<DateTime>,
         IEquatable<TimeSpan>,
@@ -46,7 +46,7 @@ public readonly struct XLCellValue
     private XLCellValue(double number)
         : this()
     {
-        if (Double.IsNaN(number) || Double.IsInfinity(number))
+        if (double.IsNaN(number) || double.IsInfinity(number))
         {
             throw new ArgumentException("Value can't be NaN or infinity.", nameof(number));
         }
@@ -101,7 +101,7 @@ public readonly struct XLCellValue
     private XLCellValue(XLDataType type, double value)
         : this()
     {
-        if (Double.IsNaN(value) || Double.IsInfinity(value))
+        if (double.IsNaN(value) || double.IsInfinity(value))
         {
             throw new ArgumentException("Value can't be NaN or infinity.", nameof(value));
         }
@@ -290,19 +290,19 @@ public readonly struct XLCellValue
         {
             null => Blank.Value,
             Blank blankValue => blankValue,
-            Boolean logical => logical,
-            SByte number => number,
-            Byte number => number,
-            Int16 number => number,
-            UInt16 number => number,
-            Int32 number => number,
-            UInt32 number => number,
-            Int64 number => number,
-            UInt64 number => number,
-            Single number => number,
-            Double number => number,
-            Decimal number => number,
-            String text => text,
+            bool logical => logical,
+            sbyte number => number,
+            byte number => number,
+            short number => number,
+            ushort number => number,
+            int number => number,
+            uint number => number,
+            long number => number,
+            ulong number => number,
+            float number => number,
+            double number => number,
+            decimal number => number,
+            string text => text,
             XLError error => error,
             DateTime date => date,
             DateTimeOffset dateOfs => dateOfs.DateTime,
@@ -329,7 +329,7 @@ public readonly struct XLCellValue
             return Blank.Value;
         }
 
-        if (text == String.Empty)
+        if (text == string.Empty)
         {
             return Blank.Value;
         }
@@ -361,13 +361,13 @@ public readonly struct XLCellValue
     public static explicit operator Blank(XLCellValue value) => value.GetBlank();
 
     /// <inheritdoc cref="GetBoolean"/>
-    public static explicit operator Boolean(XLCellValue value) => value.GetBoolean();
+    public static explicit operator bool(XLCellValue value) => value.GetBoolean();
 
     /// <inheritdoc cref="GetNumber"/>
-    public static explicit operator Double(XLCellValue value) => value.GetNumber();
+    public static explicit operator double(XLCellValue value) => value.GetNumber();
 
     /// <inheritdoc cref="GetText"/>
-    public static explicit operator String(XLCellValue value) => value.GetText();
+    public static explicit operator string(XLCellValue value) => value.GetText();
 
     /// <inheritdoc cref="GetError"/>
     public static explicit operator XLError(XLCellValue value) => value.GetError();
@@ -388,20 +388,20 @@ public readonly struct XLCellValue
     /// If the value is of type <see cref="XLDataType.Boolean"/>,
     /// return logical, otherwise throw <see cref="InvalidCastException"/>.
     /// </summary>
-    public Boolean GetBoolean() =>
+    public bool GetBoolean() =>
         this.IsBoolean ? this._value != 0d : throw new InvalidCastException();
 
     /// <summary>
     /// If the value is of type <see cref="XLDataType.Number"/>,
     /// return number, otherwise throw <see cref="InvalidCastException"/>.
     /// </summary>
-    public Double GetNumber() => this.IsNumber ? this._value : throw new InvalidCastException();
+    public double GetNumber() => this.IsNumber ? this._value : throw new InvalidCastException();
 
     /// <summary>
     /// If the value is of type <see cref="XLDataType.Text"/>,
     /// return text, otherwise throw <see cref="InvalidCastException"/>.
     /// </summary>
-    public String GetText() => this.IsText ? this._text : throw new InvalidCastException();
+    public string GetText() => this.IsText ? this._text : throw new InvalidCastException();
 
     /// <summary>
     /// If the value is of type <see cref="XLDataType.Error"/>,
@@ -446,7 +446,7 @@ public readonly struct XLCellValue
         throw new InvalidCastException("Value is not a number.");
     }
 
-    internal Object ToObject() =>
+    internal object ToObject() =>
         this.Type switch
         {
             XLDataType.Blank => null,
@@ -564,7 +564,7 @@ public readonly struct XLCellValue
     ///   <c>IF</c> or <c>AND</c>).</item>
     /// </list>
     /// </summary>
-    public bool TryConvert(out Boolean value)
+    public bool TryConvert(out bool value)
     {
         switch (this.Type)
         {
@@ -575,11 +575,11 @@ public readonly struct XLCellValue
                 value = this.GetNumber() != 0;
                 return true;
             case XLDataType.Text
-                when String.Equals(this.GetText(), "TRUE", StringComparison.OrdinalIgnoreCase):
+                when string.Equals(this.GetText(), "TRUE", StringComparison.OrdinalIgnoreCase):
                 value = true;
                 return true;
             case XLDataType.Text
-                when String.Equals(this.GetText(), "FALSE", StringComparison.OrdinalIgnoreCase):
+                when string.Equals(this.GetText(), "FALSE", StringComparison.OrdinalIgnoreCase):
                 value = false;
                 return true;
         }
@@ -601,7 +601,7 @@ public readonly struct XLCellValue
     /// <remarks>Note that the coercion is current culture specific (e.g. decimal separators can differ).</remarks>
     /// <param name="value">The converted value. Result is never <c>infinity</c> or <c>NaN</c>.</param>
     /// <param name="culture">The culture used to convert the value for texts.</param>
-    public bool TryConvert(out Double value, CultureInfo culture)
+    public bool TryConvert(out double value, CultureInfo culture)
     {
         switch (this.Type)
         {

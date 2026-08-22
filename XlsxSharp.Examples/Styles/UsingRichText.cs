@@ -6,7 +6,7 @@ namespace XlsxSharp.Examples.Styles;
 
 public class UsingRichText : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook wb = new();
         IXLWorksheet ws = wb.Worksheets.Add("Rich Text");
@@ -44,7 +44,7 @@ public class UsingRichText : IXLExample
         {
             if (richText.Bold)
             {
-                ws.Cell(3, 2).Value = String.Format("\"{0}\" is Bold.", richText.Text);
+                ws.Cell(3, 2).Value = string.Format("\"{0}\" is Bold.", richText.Text);
             }
         }
 

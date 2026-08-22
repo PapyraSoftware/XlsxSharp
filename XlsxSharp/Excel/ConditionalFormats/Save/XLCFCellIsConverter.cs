@@ -12,7 +12,7 @@ internal class XLCFCellIsConverter : IXLCFConverter
         XLWorkbook.SaveContext context
     )
     {
-        String val = GetQuoted(cf.Values[1]);
+        string val = GetQuoted(cf.Values[1]);
 
         ConditionalFormattingRule conditionalFormattingRule = XLCFBaseConverter.ConvertWithDxf(
             cf,
@@ -33,14 +33,14 @@ internal class XLCFCellIsConverter : IXLCFConverter
         return conditionalFormattingRule;
     }
 
-    private static String GetQuoted(XLFormula formula)
+    private static string GetQuoted(XLFormula formula)
     {
-        String value = formula.Value;
+        string value = formula.Value;
 
         if (
             formula.IsFormula
             || value.StartsWith("\"") && value.EndsWith("\"")
-            || Double.TryParse(
+            || double.TryParse(
                 value,
                 XlsxSharp.XLHelper.NumberStyle,
                 XlsxSharp.XLHelper.ParseCulture,
@@ -51,6 +51,6 @@ internal class XLCFCellIsConverter : IXLCFConverter
             return value;
         }
 
-        return String.Format("\"{0}\"", value.Replace("\"", "\"\""));
+        return string.Format("\"{0}\"", value.Replace("\"", "\"\""));
     }
 }

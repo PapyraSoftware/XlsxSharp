@@ -8,25 +8,25 @@ namespace XlsxSharp.Excel;
 public partial class XLHyperlink
 {
     private Uri _externalAddress;
-    private String _internalAddress;
+    private string _internalAddress;
 
-    public XLHyperlink(String address) => this.SetValues(address, String.Empty);
+    public XLHyperlink(string address) => this.SetValues(address, string.Empty);
 
-    public XLHyperlink(String address, String tooltip) => this.SetValues(address, tooltip);
+    public XLHyperlink(string address, string tooltip) => this.SetValues(address, tooltip);
 
-    public XLHyperlink(IXLCell cell) => this.SetValues(cell, String.Empty);
+    public XLHyperlink(IXLCell cell) => this.SetValues(cell, string.Empty);
 
-    public XLHyperlink(IXLCell cell, String tooltip) => this.SetValues(cell, tooltip);
+    public XLHyperlink(IXLCell cell, string tooltip) => this.SetValues(cell, tooltip);
 
-    public XLHyperlink(IXLRangeBase range) => this.SetValues(range, String.Empty);
+    public XLHyperlink(IXLRangeBase range) => this.SetValues(range, string.Empty);
 
-    public XLHyperlink(IXLRangeBase range, String tooltip) => this.SetValues(range, tooltip);
+    public XLHyperlink(IXLRangeBase range, string tooltip) => this.SetValues(range, tooltip);
 
-    public XLHyperlink(Uri uri) => this.SetValues(uri, String.Empty);
+    public XLHyperlink(Uri uri) => this.SetValues(uri, string.Empty);
 
-    public XLHyperlink(Uri uri, String tooltip) => this.SetValues(uri, tooltip);
+    public XLHyperlink(Uri uri, string tooltip) => this.SetValues(uri, tooltip);
 
-    public Boolean IsExternal { get; set; }
+    public bool IsExternal { get; set; }
 
     public Uri ExternalAddress
     {
@@ -58,7 +58,7 @@ public partial class XLHyperlink
 
 #nullable disable
 
-    public String InternalAddress
+    public string InternalAddress
     {
         get
         {
@@ -70,7 +70,7 @@ public partial class XLHyperlink
             if (this._internalAddress.Contains('!'))
             {
                 return this._internalAddress[0] != '\''
-                    ? String.Concat(
+                    ? string.Concat(
                         this._internalAddress.Substring(0, this._internalAddress.IndexOf('!'))
                             .EscapeSheetName(),
                         '!',
@@ -85,7 +85,7 @@ public partial class XLHyperlink
             }
 
             string sheetName = this.Container.WorksheetName;
-            return String.Concat(sheetName.EscapeSheetName(), '!', this._internalAddress);
+            return string.Concat(sheetName.EscapeSheetName(), '!', this._internalAddress);
         }
         set
         {
@@ -98,7 +98,7 @@ public partial class XLHyperlink
     /// Tooltip displayed when user hovers over the hyperlink range. If not specified,
     /// the link target is displayed in the tooltip.
     /// </summary>
-    public String Tooltip { get; set; }
+    public string Tooltip { get; set; }
 
     /// <inheritdoc cref="IXLHyperlinks.Delete(XLHyperlink)"/>
     public void Delete() => this.Container?.Delete(this);

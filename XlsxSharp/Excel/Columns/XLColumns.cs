@@ -56,7 +56,7 @@ internal class XLColumns : IXLColumns
 
     IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 
-    public Double Width
+    public double Width
     {
         set
         {
@@ -84,7 +84,7 @@ internal class XLColumns : IXLColumns
             Dictionary<IXLWorksheet, List<int>> toDelete = new();
             foreach (XLColumn c in this.Columns)
             {
-                if (!toDelete.TryGetValue(c.Worksheet, out List<Int32> list))
+                if (!toDelete.TryGetValue(c.Worksheet, out List<int> list))
                 {
                     list = [];
                     toDelete.Add(c.Worksheet, list);
@@ -109,36 +109,31 @@ internal class XLColumns : IXLColumns
         return this;
     }
 
-    public IXLColumns AdjustToContents(Int32 startRow)
+    public IXLColumns AdjustToContents(int startRow)
     {
         this.Columns.ForEach(c => c.AdjustToContents(startRow));
         return this;
     }
 
-    public IXLColumns AdjustToContents(Int32 startRow, Int32 endRow)
+    public IXLColumns AdjustToContents(int startRow, int endRow)
     {
         this.Columns.ForEach(c => c.AdjustToContents(startRow, endRow));
         return this;
     }
 
-    public IXLColumns AdjustToContents(Double minWidth, Double maxWidth)
+    public IXLColumns AdjustToContents(double minWidth, double maxWidth)
     {
         this.Columns.ForEach(c => c.AdjustToContents(minWidth, maxWidth));
         return this;
     }
 
-    public IXLColumns AdjustToContents(Int32 startRow, Double minWidth, Double maxWidth)
+    public IXLColumns AdjustToContents(int startRow, double minWidth, double maxWidth)
     {
         this.Columns.ForEach(c => c.AdjustToContents(startRow, minWidth, maxWidth));
         return this;
     }
 
-    public IXLColumns AdjustToContents(
-        Int32 startRow,
-        Int32 endRow,
-        Double minWidth,
-        Double maxWidth
-    )
+    public IXLColumns AdjustToContents(int startRow, int endRow, double minWidth, double maxWidth)
     {
         this.Columns.ForEach(c => c.AdjustToContents(startRow, endRow, minWidth, maxWidth));
         return this;
@@ -150,16 +145,16 @@ internal class XLColumns : IXLColumns
 
     public void Group() => this.Group(false);
 
-    public void Group(Int32 outlineLevel) => this.Group(outlineLevel, false);
+    public void Group(int outlineLevel) => this.Group(outlineLevel, false);
 
     public void Ungroup() => this.Ungroup(false);
 
-    public void Group(Boolean collapse) => this.Columns.ForEach(c => c.Group(collapse));
+    public void Group(bool collapse) => this.Columns.ForEach(c => c.Group(collapse));
 
-    public void Group(Int32 outlineLevel, Boolean collapse) =>
+    public void Group(int outlineLevel, bool collapse) =>
         this.Columns.ForEach(c => c.Group(outlineLevel, collapse));
 
-    public void Ungroup(Boolean ungroupFromAll) =>
+    public void Ungroup(bool ungroupFromAll) =>
         this.Columns.ForEach(c => c.Ungroup(ungroupFromAll));
 
     public void Collapse() => this.Columns.ForEach(c => c.Collapse());
@@ -188,7 +183,7 @@ internal class XLColumns : IXLColumns
         return cells;
     }
 
-    public IXLCells CellsUsed(Boolean includeFormats) =>
+    public IXLCells CellsUsed(bool includeFormats) =>
         this.CellsUsed(includeFormats ? XLCellsUsedOptions.All : XLCellsUsedOptions.AllContents);
 
     public IXLCells CellsUsed(XLCellsUsedOptions options)

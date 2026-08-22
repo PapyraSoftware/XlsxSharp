@@ -24,7 +24,7 @@ internal class XLPictures : IXLPictures, IEnumerable<XLPicture>
         get => this._pictures.Count;
     }
 
-    internal ICollection<String> Deleted { get; private set; }
+    internal ICollection<string> Deleted { get; private set; }
 
     public IXLPicture Add(Stream stream)
     {
@@ -152,7 +152,7 @@ internal class XLPictures : IXLPictures, IEnumerable<XLPicture>
         return picture;
     }
 
-    private String GetNextPictureName()
+    private string GetNextPictureName()
     {
         int pictureNumber = this.Count;
         while (this._pictures.Any(p => p.Name == $"Picture {pictureNumber}"))

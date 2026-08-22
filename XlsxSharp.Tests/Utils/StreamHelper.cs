@@ -160,11 +160,7 @@ public static class StreamHelper
         return XNode.DeepEquals(leftXml, rightXml);
     }
 
-    private static void RemoveIgnoredParts(
-        XDocument document,
-        Uri partUri,
-        Boolean stripColumnWidths
-    )
+    private static void RemoveIgnoredParts(XDocument document, Uri partUri, bool stripColumnWidths)
     {
         foreach (
             (string PartSubstring, XName NodeName) ignoredNode in ignoredNodes.Where(i =>

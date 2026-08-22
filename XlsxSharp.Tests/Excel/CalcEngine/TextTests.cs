@@ -324,14 +324,14 @@ public class TextTests
     [Test]
     public void ExactEmptyInputString()
     {
-        Object actual = XLWorkbook.EvaluateExpr(@"Exact("""", """")");
+        object actual = XLWorkbook.EvaluateExpr(@"Exact("""", """")");
         Assert.AreEqual(true, actual);
     }
 
     [Test]
     public void ExactValue()
     {
-        Object actual = XLWorkbook.EvaluateExpr(@"Exact(""asdf"", ""asdf"")");
+        object actual = XLWorkbook.EvaluateExpr(@"Exact(""asdf"", ""asdf"")");
         Assert.AreEqual(true, actual);
 
         actual = XLWorkbook.EvaluateExpr(@"Exact(""asdf"", ""ASDF"")");

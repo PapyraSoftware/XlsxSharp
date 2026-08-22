@@ -25,8 +25,8 @@ public partial class XLColor
     /// entry, but we have no way to get them. Win10 doesn't even have a tool, use Classic Color Panel. We will use the default
     /// values that are default on Windows.
     /// </summary>
-    private static readonly Lazy<Dictionary<String, XLColor>> VmlPaletteColors = new(() =>
-        new Dictionary<String, XLColor>(StringComparer.OrdinalIgnoreCase)
+    private static readonly Lazy<Dictionary<string, XLColor>> VmlPaletteColors = new(() =>
+        new Dictionary<string, XLColor>(StringComparer.OrdinalIgnoreCase)
         {
             { "ButtonFace", FromRgb(0xF0F0F0) },
             { "WindowText", SystemForeground },
@@ -87,7 +87,7 @@ public partial class XLColor
     /// <summary>
     /// Default indexed colors from ISO-29500:18.8.27. If a workbook doesn't have a specific colors, these are used.
     /// </summary>
-    private static readonly Lazy<Dictionary<Int32, XLColor>> IndexedColorsLazy = new(() =>
+    private static readonly Lazy<Dictionary<int, XLColor>> IndexedColorsLazy = new(() =>
         new Dictionary<int, XLColor>
         {
             { 0, FromArgb(0xFF000000) },
@@ -162,7 +162,7 @@ public partial class XLColor
     /// <summary>
     /// Default indexed colors per ISO-298500 indexedColors. All values are either RGB or named.
     /// </summary>
-    public static Dictionary<Int32, XLColor> IndexedColors => IndexedColorsLazy.Value;
+    public static Dictionary<int, XLColor> IndexedColors => IndexedColorsLazy.Value;
 
     internal static XLColor FromKey(ref XLColorKey key) => Repository.GetOrCreate(ref key);
 
@@ -172,20 +172,19 @@ public partial class XLColor
         return FromKey(ref key);
     }
 
-    public static XLColor FromArgb(Int32 argb) => FromColor(Color.FromArgb(argb));
+    public static XLColor FromArgb(int argb) => FromColor(Color.FromArgb(argb));
 
-    internal static XLColor FromArgb(UInt32 argb) =>
-        FromColor(Color.FromArgb(unchecked((int)argb)));
+    internal static XLColor FromArgb(uint argb) => FromColor(Color.FromArgb(unchecked((int)argb)));
 
-    public static XLColor FromArgb(Int32 r, Int32 g, Int32 b) => FromColor(Color.FromArgb(r, g, b));
+    public static XLColor FromArgb(int r, int g, int b) => FromColor(Color.FromArgb(r, g, b));
 
-    public static XLColor FromArgb(Int32 a, Int32 r, Int32 g, Int32 b) =>
+    public static XLColor FromArgb(int a, int r, int g, int b) =>
         FromColor(Color.FromArgb(a, r, g, b));
 
     /// <summary>
     /// Create a color from RBG hexa number. Alpha will be always set to full opacity.
     /// </summary>
-    internal static XLColor FromRgb(Int32 rgb)
+    internal static XLColor FromRgb(int rgb)
     {
         unchecked
         {
@@ -199,15 +198,15 @@ public partial class XLColor
     /// </summary>
     /// <param name="hexColorRgb">A 6 character long hexadecimal number.</param>
     /// <returns>Parsed color with full opacity.</returns>
-    internal static XLColor FromHexRgb(String hexColorRgb) =>
+    internal static XLColor FromHexRgb(string hexColorRgb) =>
         FromColor(ColorStringParser.ParseFromRgb6(hexColorRgb));
 
-    public static XLColor FromName(String name) => FromColor(Color.FromName(name));
+    public static XLColor FromName(string name) => FromColor(Color.FromName(name));
 
-    public static XLColor FromHtml(String htmlColor) =>
+    public static XLColor FromHtml(string htmlColor) =>
         FromColor(ColorStringParser.ParseFromHtml(htmlColor));
 
-    public static XLColor FromIndex(Int32 index)
+    public static XLColor FromIndex(int index)
     {
         XLColorKey key = new() { ColorType = XLColorType.Indexed, Indexed = index };
         return FromKey(ref key);
@@ -219,7 +218,7 @@ public partial class XLColor
         return FromKey(ref key);
     }
 
-    public static XLColor FromTheme(XLThemeColor themeColor, Double themeTint)
+    public static XLColor FromTheme(XLThemeColor themeColor, double themeTint)
     {
         XLColorKey key = new()
         {
@@ -233,7 +232,7 @@ public partial class XLColor
     /// <summary>
     /// Parse VML ST_ColorType type from ECMA-376, Part 4 §20.1.2.3.
     /// </summary>
-    internal static XLColor FromVmlColor(String vmlColor)
+    internal static XLColor FromVmlColor(string vmlColor)
     {
         // Check if VML color is a hexadecimal RGB color.
         ReadOnlySpan<char> rgbColorText = vmlColor.AsSpan().Trim();

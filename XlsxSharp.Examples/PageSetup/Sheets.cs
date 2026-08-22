@@ -5,7 +5,7 @@ namespace XlsxSharp.Examples.PageSetup;
 
 public class Sheets : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook workbook = new();
         IXLWorksheet ws1 = workbook.Worksheets.Add("Separate PrintAreas");

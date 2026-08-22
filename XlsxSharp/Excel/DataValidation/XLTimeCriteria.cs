@@ -28,5 +28,5 @@ public class XLTimeCriteria : XLValidationCriteria
 
     public void NotEqualTo(TimeSpan value) => base.NotEqualTo(GetXLTime(value));
 
-    private static String GetXLTime(TimeSpan value) => (value.TotalHours / 24.0).ToString();
+    private static string GetXLTime(TimeSpan value) => (value.TotalHours / 24.0).ToString();
 }

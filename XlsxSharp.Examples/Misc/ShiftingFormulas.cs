@@ -6,7 +6,7 @@ namespace XlsxSharp.Examples.Misc;
 
 public class ShiftingFormulas : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook wb = new();
         IXLWorksheet ws = wb.Worksheets.Add("Shifting Formulas");
@@ -39,7 +39,7 @@ public class ShiftingFormulas : IXLExample
         ws.Row(1).InsertRowsAbove(1);
         IXLRangeRow newRow = dataGrid.LastRow().InsertRowsAbove(1).First();
         newRow.Value = 1;
-        dataGrid.LastColumn().FormulaR1C1 = String.Format(
+        dataGrid.LastColumn().FormulaR1C1 = string.Format(
             "SUM(RC[-{0}]:RC[-1])",
             dataGrid.ColumnCount() - 1
         );

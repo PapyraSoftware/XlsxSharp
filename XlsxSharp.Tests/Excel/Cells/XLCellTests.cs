@@ -341,7 +341,7 @@ public class XLCellTests
     {
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         IXLCell cell = ws.Cell("A1").SetValue("False");
-        bool success = cell.TryGetValue(out Boolean outValue);
+        bool success = cell.TryGetValue(out bool outValue);
         Assert.IsTrue(success);
         Assert.IsFalse(outValue);
     }
@@ -514,8 +514,8 @@ public class XLCellTests
     {
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
 
-        Boolean success;
-        String outValue;
+        bool success;
+        string outValue;
 
         success = ws.Cell("A1").SetValue("Site_x0020_Column_x0020_Test").TryGetValue(out outValue);
         Assert.IsTrue(success);
@@ -573,12 +573,12 @@ public class XLCellTests
     [Test]
     public void ValueSetToEmptyString()
     {
-        string expected = String.Empty;
+        string expected = string.Empty;
 
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         IXLCell cell = ws.Cell(1, 1);
         cell.Value = new DateTime(2000, 1, 2);
-        cell.Value = String.Empty;
+        cell.Value = string.Empty;
         Assert.AreEqual(expected, cell.GetText());
         Assert.AreEqual(expected, cell.Value);
 
@@ -613,13 +613,13 @@ public class XLCellTests
 
             ws.FirstCell().Value = new DateTime(2018, 5, 15);
 
-            ws.FirstCell().SetValue(new String('A', 32767));
+            ws.FirstCell().SetValue(new string('A', 32767));
 
             Assert.Throws<ArgumentOutOfRangeException>(() =>
-                ws.FirstCell().Value = new String('A', 32768)
+                ws.FirstCell().Value = new string('A', 32768)
             );
             Assert.Throws<ArgumentOutOfRangeException>(() =>
-                ws.FirstCell().SetValue(new String('A', 32768))
+                ws.FirstCell().SetValue(new string('A', 32768))
             );
         }
     }
@@ -1006,9 +1006,9 @@ public class XLCellTests
             A1.FormulaA1 = "A2 + 1";
             A2.FormulaA1 = "A1 + 1";
 
-            Assert.IsFalse(A1.TryGetValue(out String _));
-            Assert.IsFalse(A2.TryGetValue(out String _));
-            Assert.IsTrue(A3.TryGetValue(out String _));
+            Assert.IsFalse(A1.TryGetValue(out string _));
+            Assert.IsFalse(A2.TryGetValue(out string _));
+            Assert.IsTrue(A3.TryGetValue(out string _));
         }
     }
 

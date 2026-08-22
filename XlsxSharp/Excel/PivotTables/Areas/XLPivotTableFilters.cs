@@ -25,9 +25,9 @@ internal class XLPivotTableFilters : IXLPivotFields
 
     internal XLPivotTableFilters(XLPivotTable pivotTable) => this._pivotTable = pivotTable;
 
-    IXLPivotField IXLPivotFields.Add(String sourceName) => this.Add(sourceName, sourceName);
+    IXLPivotField IXLPivotFields.Add(string sourceName) => this.Add(sourceName, sourceName);
 
-    IXLPivotField IXLPivotFields.Add(String sourceName, String customName) =>
+    IXLPivotField IXLPivotFields.Add(string sourceName, string customName) =>
         this.Add(sourceName, customName);
 
     public void Clear()
@@ -40,11 +40,11 @@ internal class XLPivotTableFilters : IXLPivotFields
         this._fields.Clear();
     }
 
-    public Boolean Contains(String sourceName) => this.IndexOf(sourceName) >= 0;
+    public bool Contains(string sourceName) => this.IndexOf(sourceName) >= 0;
 
     public bool Contains(IXLPivotField pivotField) => this.Contains(pivotField.SourceName);
 
-    public IXLPivotField Get(String sourceName)
+    public IXLPivotField Get(string sourceName)
     {
         if (!this._pivotTable.TryGetSourceNameFieldIndex(sourceName, out FieldIndex fieldIndex))
         {
@@ -64,7 +64,7 @@ internal class XLPivotTableFilters : IXLPivotFields
         return new XLPivotTablePageField(this._pivotTable, filterField);
     }
 
-    public IXLPivotField Get(Int32 index)
+    public IXLPivotField Get(int index)
     {
         if (index < 0 || index >= this._fields.Count)
         {
@@ -86,7 +86,7 @@ internal class XLPivotTableFilters : IXLPivotFields
         }
     }
 
-    public Int32 IndexOf(String sourceName)
+    public int IndexOf(string sourceName)
     {
         if (!this._pivotTable.TryGetSourceNameFieldIndex(sourceName, out FieldIndex fieldIndex))
         {
@@ -96,9 +96,9 @@ internal class XLPivotTableFilters : IXLPivotFields
         return this._fields.FindIndex(f => f.Field == fieldIndex);
     }
 
-    public Int32 IndexOf(IXLPivotField pf) => this.IndexOf(pf.SourceName);
+    public int IndexOf(IXLPivotField pf) => this.IndexOf(pf.SourceName);
 
-    public void Remove(String sourceName)
+    public void Remove(string sourceName)
     {
         int index = this.IndexOf(sourceName);
         if (index == -1)
@@ -117,7 +117,7 @@ internal class XLPivotTableFilters : IXLPivotFields
 
     internal IReadOnlyList<XLPivotPageField> Fields => this._fields;
 
-    internal XLPivotTablePageField Add(String sourceName, String customName)
+    internal XLPivotTablePageField Add(string sourceName, string customName)
     {
         if (sourceName == XLConstants.PivotTable.ValuesSentinalLabel)
         {

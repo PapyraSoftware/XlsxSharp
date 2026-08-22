@@ -14,11 +14,11 @@ public enum XLDrawingAnchor
 
 public interface IXLDrawing<T>
 {
-    Int32 ShapeId { get; }
+    int ShapeId { get; }
 
-    Boolean Visible { get; set; }
+    bool Visible { get; set; }
     T SetVisible();
-    T SetVisible(Boolean hidden);
+    T SetVisible(bool hidden);
 
     ////String Name { get; set; }
     ////T SetName(String name);
@@ -28,8 +28,8 @@ public interface IXLDrawing<T>
 
     IXLDrawingPosition Position { get; }
 
-    Int32 ZOrder { get; set; }
-    T SetZOrder(Int32 zOrder);
+    int ZOrder { get; set; }
+    T SetZOrder(int zOrder);
 
     //Boolean HorizontalFlip { get; set; }
     //T SetHorizontalFlip();

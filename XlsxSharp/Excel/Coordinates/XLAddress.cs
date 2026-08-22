@@ -18,7 +18,7 @@ internal struct XLAddress : IXLAddress, IEquatable<XLAddress>
     public static XLAddress Create(XLWorksheet worksheet, string cellAddressString)
     {
         bool fixedColumn = cellAddressString[0] == '$';
-        Int32 startPos;
+        int startPos;
         if (fixedColumn)
         {
             startPos = 1;
@@ -65,7 +65,7 @@ internal struct XLAddress : IXLAddress, IEquatable<XLAddress>
                 columnLetter = cellAddressString.Substring(startPos, rowPos);
             }
 
-            rowNumber = Int32.Parse(
+            rowNumber = int.Parse(
                 cellAddressString.Substring(rowPos),
                 XlsxSharp.XLHelper.NumberStyle,
                 XlsxSharp.XLHelper.ParseCulture
@@ -189,17 +189,17 @@ internal struct XLAddress : IXLAddress, IEquatable<XLAddress>
     /// <summary>
     /// Gets the row number of this address.
     /// </summary>
-    public Int32 RowNumber => this._rowNumber;
+    public int RowNumber => this._rowNumber;
 
     /// <summary>
     /// Gets the column number of this address.
     /// </summary>
-    public Int32 ColumnNumber => this._columnNumber;
+    public int ColumnNumber => this._columnNumber;
 
     /// <summary>
     /// Gets the column letter(s) of this address.
     /// </summary>
-    public String ColumnLetter => XlsxSharp.XLHelper.GetColumnLetterFromNumber(this._columnNumber);
+    public string ColumnLetter => XlsxSharp.XLHelper.GetColumnLetterFromNumber(this._columnNumber);
 
     #endregion Properties
 
@@ -212,7 +212,7 @@ internal struct XLAddress : IXLAddress, IEquatable<XLAddress>
             return "#REF!";
         }
 
-        String retVal = this.ColumnLetter;
+        string retVal = this.ColumnLetter;
         if (this._fixedColumn)
         {
             retVal = "$" + retVal;
@@ -256,7 +256,7 @@ internal struct XLAddress : IXLAddress, IEquatable<XLAddress>
 
         if (includeSheet)
         {
-            return String.Concat(
+            return string.Concat(
                 this.WorksheetIsDeleted ? "#REF" : this.Worksheet.Name.EscapeSheetName(),
                 '!',
                 address
@@ -296,7 +296,7 @@ internal struct XLAddress : IXLAddress, IEquatable<XLAddress>
             left._fixedColumn
         );
 
-    public static XLAddress operator +(XLAddress left, Int32 right) =>
+    public static XLAddress operator +(XLAddress left, int right) =>
         new(
             left.Worksheet,
             left.RowNumber + right,
@@ -305,7 +305,7 @@ internal struct XLAddress : IXLAddress, IEquatable<XLAddress>
             left._fixedColumn
         );
 
-    public static XLAddress operator -(XLAddress left, Int32 right) =>
+    public static XLAddress operator -(XLAddress left, int right) =>
         new(
             left.Worksheet,
             left.RowNumber - right,
@@ -314,9 +314,9 @@ internal struct XLAddress : IXLAddress, IEquatable<XLAddress>
             left._fixedColumn
         );
 
-    public static Boolean operator ==(XLAddress left, XLAddress right) => left.Equals(right);
+    public static bool operator ==(XLAddress left, XLAddress right) => left.Equals(right);
 
-    public static Boolean operator !=(XLAddress left, XLAddress right) => !(left == right);
+    public static bool operator !=(XLAddress left, XLAddress right) => !(left == right);
 
     #endregion Operator Overloads
 
@@ -324,9 +324,9 @@ internal struct XLAddress : IXLAddress, IEquatable<XLAddress>
 
     #region IEqualityComparer<XLCellAddress> Members
 
-    public Boolean Equals(IXLAddress x, IXLAddress y) => x == y;
+    public bool Equals(IXLAddress x, IXLAddress y) => x == y;
 
-    public static new Boolean Equals(object x, object y) => x == y;
+    public static new bool Equals(object x, object y) => x == y;
 
     #endregion IEqualityComparer<XLCellAddress> Members
 
@@ -351,7 +351,7 @@ internal struct XLAddress : IXLAddress, IEquatable<XLAddress>
         && this._fixedRow == other._fixedRow
         && this._fixedColumn == other._fixedColumn;
 
-    public override Boolean Equals(Object other) => this.Equals(other as IXLAddress);
+    public override bool Equals(object other) => this.Equals(other as IXLAddress);
 
     public override int GetHashCode()
     {
@@ -369,17 +369,17 @@ internal struct XLAddress : IXLAddress, IEquatable<XLAddress>
 
     #endregion Interface Requirements
 
-    public String ToStringRelative() => this.ToStringRelative(false);
+    public string ToStringRelative() => this.ToStringRelative(false);
 
-    public String ToStringFixed() => this.ToStringFixed(XLReferenceStyle.Default);
+    public string ToStringFixed() => this.ToStringFixed(XLReferenceStyle.Default);
 
-    public String ToStringRelative(Boolean includeSheet)
+    public string ToStringRelative(bool includeSheet)
     {
         string address = this.IsValid ? this.GetTrimmedAddress() : "#REF!";
 
         if (includeSheet)
         {
-            return String.Concat(
+            return string.Concat(
                 this.WorksheetIsDeleted ? "#REF" : this.Worksheet.Name.EscapeSheetName(),
                 '!',
                 address
@@ -395,12 +395,12 @@ internal struct XLAddress : IXLAddress, IEquatable<XLAddress>
     internal XLAddress WithWorksheet(XLWorksheet worksheet) =>
         new(worksheet, this.RowNumber, this.ColumnNumber, this.FixedRow, this.FixedColumn);
 
-    public String ToStringFixed(XLReferenceStyle referenceStyle) =>
+    public string ToStringFixed(XLReferenceStyle referenceStyle) =>
         this.ToStringFixed(referenceStyle, false);
 
-    public String ToStringFixed(XLReferenceStyle referenceStyle, Boolean includeSheet)
+    public string ToStringFixed(XLReferenceStyle referenceStyle, bool includeSheet)
     {
-        String address;
+        string address;
 
         if (referenceStyle == XLReferenceStyle.Default && this.HasWorksheet)
         {
@@ -423,7 +423,7 @@ internal struct XLAddress : IXLAddress, IEquatable<XLAddress>
             switch (referenceStyle)
             {
                 case XLReferenceStyle.A1:
-                    address = String.Concat(
+                    address = string.Concat(
                         '$',
                         this.ColumnLetter,
                         '$',
@@ -432,7 +432,7 @@ internal struct XLAddress : IXLAddress, IEquatable<XLAddress>
                     break;
 
                 case XLReferenceStyle.R1C1:
-                    address = String.Concat(
+                    address = string.Concat(
                         'R',
                         this._rowNumber.ToInvariantString(),
                         'C',
@@ -447,7 +447,7 @@ internal struct XLAddress : IXLAddress, IEquatable<XLAddress>
 
         if (includeSheet)
         {
-            return String.Concat(
+            return string.Concat(
                 this.WorksheetIsDeleted ? "#REF" : this.Worksheet.Name.EscapeSheetName(),
                 '!',
                 address
@@ -457,7 +457,7 @@ internal struct XLAddress : IXLAddress, IEquatable<XLAddress>
         return address;
     }
 
-    public String UniqueId =>
+    public string UniqueId =>
         this.RowNumber.ToString("0000000") + this.ColumnNumber.ToString("00000");
 
     public bool IsValid =>

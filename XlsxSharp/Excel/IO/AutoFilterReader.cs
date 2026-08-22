@@ -25,7 +25,7 @@ internal class AutoFilterReader
     {
         foreach (FilterColumn filterColumn in af.Elements<FilterColumn>())
         {
-            Int32 column = (int)filterColumn.ColumnId.Value + 1;
+            int column = (int)filterColumn.ColumnId.Value + 1;
             XLFilterColumn xlFilterColumn = autoFilter.Column(column);
             if (filterColumn.CustomFilters is { } customFilters)
             {
@@ -236,7 +236,7 @@ internal class AutoFilterReader
             SortCondition condition = sort.Elements<SortCondition>().FirstOrDefault();
             if (condition != null)
             {
-                Int32 column =
+                int column =
                     ws.Range(condition.Reference.Value).FirstCell().Address.ColumnNumber
                     - autoFilter.Range.FirstCell().Address.ColumnNumber
                     + 1;

@@ -36,9 +36,9 @@ internal class XLSheetView : IXLSheetView
         );
     }
 
-    public Boolean FreezePanes { get; set; }
-    public Int32 SplitColumn { get; set; }
-    public Int32 SplitRow { get; set; }
+    public bool FreezePanes { get; set; }
+    public int SplitColumn { get; set; }
+    public int SplitRow { get; set; }
 
     IXLAddress IXLSheetView.TopLeftCellAddress
     {
@@ -96,20 +96,20 @@ internal class XLSheetView : IXLSheetView
 
     public int ZoomScaleSheetLayoutView { get; set; }
 
-    public void Freeze(Int32 rows, Int32 columns)
+    public void Freeze(int rows, int columns)
     {
         this.SplitRow = rows;
         this.SplitColumn = columns;
         this.FreezePanes = true;
     }
 
-    public void FreezeColumns(Int32 columns)
+    public void FreezeColumns(int columns)
     {
         this.SplitColumn = columns;
         this.FreezePanes = true;
     }
 
-    public void FreezeRows(Int32 rows)
+    public void FreezeRows(int rows)
     {
         this.SplitRow = rows;
         this.FreezePanes = true;

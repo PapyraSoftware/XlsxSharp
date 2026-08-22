@@ -15,21 +15,21 @@ internal class XLAutoFilter : IXLAutoFilter
     /// <summary>
     /// Key is column number.
     /// </summary>
-    private readonly Dictionary<Int32, XLFilterColumn> _columns = new();
+    private readonly Dictionary<int, XLFilterColumn> _columns = new();
 
-    internal IReadOnlyDictionary<Int32, XLFilterColumn> Columns => this._columns;
+    internal IReadOnlyDictionary<int, XLFilterColumn> Columns => this._columns;
 
     #region IXLAutoFilter Members
 
     public IEnumerable<IXLRangeRow> HiddenRows => this.Range.Rows(r => r.WorksheetRow().IsHidden);
 
-    public Boolean IsEnabled { get; set; }
+    public bool IsEnabled { get; set; }
 
     public IXLRange Range { get; set; }
 
-    public Int32 SortColumn { get; set; }
+    public int SortColumn { get; set; }
 
-    public Boolean Sorted { get; set; }
+    public bool Sorted { get; set; }
 
     public XLSortOrder SortOrder { get; set; }
 
@@ -37,15 +37,15 @@ internal class XLAutoFilter : IXLAutoFilter
 
     IXLAutoFilter IXLAutoFilter.Clear() => this.Clear();
 
-    IXLFilterColumn IXLAutoFilter.Column(String columnLetter) => this.Column(columnLetter);
+    IXLFilterColumn IXLAutoFilter.Column(string columnLetter) => this.Column(columnLetter);
 
-    IXLFilterColumn IXLAutoFilter.Column(Int32 columnNumber) => this.Column(columnNumber);
+    IXLFilterColumn IXLAutoFilter.Column(int columnNumber) => this.Column(columnNumber);
 
     IXLAutoFilter IXLAutoFilter.Sort(
-        Int32 columnToSortBy,
+        int columnToSortBy,
         XLSortOrder sortOrder,
-        Boolean matchCase,
-        Boolean ignoreBlanks
+        bool matchCase,
+        bool ignoreBlanks
     ) => this.Sort(columnToSortBy, sortOrder, matchCase, ignoreBlanks);
 
     public IXLAutoFilter Reapply()
@@ -86,7 +86,7 @@ internal class XLAutoFilter : IXLAutoFilter
 
     #endregion IXLAutoFilter Members
 
-    internal XLFilterColumn Column(String columnLetter)
+    internal XLFilterColumn Column(string columnLetter)
     {
         int columnNumber = XlsxSharp.XLHelper.GetColumnNumberFromLetter(columnLetter);
         if (columnNumber < 1 || columnNumber > XlsxSharp.XLHelper.MaxColumnNumber)
@@ -100,7 +100,7 @@ internal class XLAutoFilter : IXLAutoFilter
         return this.Column(columnNumber);
     }
 
-    internal XLFilterColumn Column(Int32 columnNumber)
+    internal XLFilterColumn Column(int columnNumber)
     {
         if (columnNumber < 1 || columnNumber > XlsxSharp.XLHelper.MaxColumnNumber)
         {
@@ -158,10 +158,10 @@ internal class XLAutoFilter : IXLAutoFilter
     }
 
     internal XLAutoFilter Sort(
-        Int32 columnToSortBy,
+        int columnToSortBy,
         XLSortOrder sortOrder,
-        Boolean matchCase,
-        Boolean ignoreBlanks
+        bool matchCase,
+        bool ignoreBlanks
     )
     {
         if (!this.IsEnabled)

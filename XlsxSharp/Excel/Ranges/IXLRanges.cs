@@ -29,9 +29,9 @@ public interface IXLRanges : IEnumerable<IXLRange>
     /// row/column shifting events. Until ranges are unsubscribed they cannot be collected by GC.</param>
     void RemoveAll(Predicate<IXLRange>? match = null, bool releaseEventHandlers = true);
 
-    Int32 Count { get; }
+    int Count { get; }
 
-    Boolean Contains(IXLRange range);
+    bool Contains(IXLRange range);
 
     /// <summary>
     /// Filter ranges from a collection that intersect the specified address. Is much more efficient
@@ -67,7 +67,7 @@ public interface IXLRanges : IEnumerable<IXLRange>
     /// <para>The default scope for the named range is Workbook.</para>
     /// </summary>
     /// <param name="rangeName">Name of the range.</param>
-    IXLRanges AddToNamed(String rangeName);
+    IXLRanges AddToNamed(string rangeName);
 
     /// <summary>
     /// Creates a named range out of these ranges.
@@ -75,7 +75,7 @@ public interface IXLRanges : IEnumerable<IXLRange>
     /// <param name="rangeName">Name of the range.</param>
     /// <param name="scope">The scope for the named range.</param>
     /// </summary>
-    IXLRanges AddToNamed(String rangeName, XLScope scope);
+    IXLRanges AddToNamed(string rangeName, XLScope scope);
 
     /// <summary>
     /// Creates a named range out of these ranges.
@@ -84,7 +84,7 @@ public interface IXLRanges : IEnumerable<IXLRange>
     /// <param name="scope">The scope for the named range.</param>
     /// <param name="comment">The comments for the named range.</param>
     /// </summary>
-    IXLRanges AddToNamed(String rangeName, XLScope scope, String comment);
+    IXLRanges AddToNamed(string rangeName, XLScope scope, string comment);
 
     /// <summary>
     /// Sets the cells' value.

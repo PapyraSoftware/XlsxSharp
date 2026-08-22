@@ -6,7 +6,7 @@ using XlsxSharp.Extensions;
 
 namespace XlsxSharp.Excel.Misc;
 
-public class XLDictionary<T> : Dictionary<Int32, T>
+public class XLDictionary<T> : Dictionary<int, T>
 {
     public XLDictionary() { }
 

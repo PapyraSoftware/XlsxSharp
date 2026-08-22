@@ -6,7 +6,7 @@ namespace XlsxSharp.Examples.Misc;
 
 public class DataTypes : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook workbook = new();
         IXLWorksheet ws = workbook.Worksheets.Add("Data Types");

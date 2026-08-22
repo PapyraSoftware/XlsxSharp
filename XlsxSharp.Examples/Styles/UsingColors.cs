@@ -6,12 +6,12 @@ namespace XlsxSharp.Examples.Styles;
 
 public class UsingColors : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook wb = new();
         IXLWorksheet ws = wb.Worksheets.Add("Using Colors");
 
-        Int32 ro = 0;
+        int ro = 0;
 
         // From Known color
         ws.Cell(++ro, 1).Style.Fill.BackgroundColor = XLColor.Red;

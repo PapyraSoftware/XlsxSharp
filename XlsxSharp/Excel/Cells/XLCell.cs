@@ -150,7 +150,7 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
         }
     }
 
-    internal UInt32? CellMetaIndex
+    internal uint? CellMetaIndex
     {
         get => this._cellsCollection.MiscSlice[this._rowNumber, this._columnNumber].CellMetaIndex;
         set
@@ -172,7 +172,7 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
         }
     }
 
-    internal UInt32? ValueMetaIndex
+    internal uint? ValueMetaIndex
     {
         get => this._cellsCollection.MiscSlice[this._rowNumber, this._columnNumber].ValueMetaIndex;
         set
@@ -316,9 +316,9 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
         return this;
     }
 
-    public Boolean GetBoolean() => this.Value.GetBoolean();
+    public bool GetBoolean() => this.Value.GetBoolean();
 
-    public Double GetDouble() => this.Value.GetNumber();
+    public double GetDouble() => this.Value.GetNumber();
 
     public string GetText() => this.Value.GetText();
 
@@ -328,7 +328,7 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
 
     public TimeSpan GetTimeSpan() => this.Value.GetTimeSpan();
 
-    public Boolean TryGetValue<T>(out T value)
+    public bool TryGetValue<T>(out T value)
     {
         XLCellValue currentValue;
         try
@@ -369,7 +369,7 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
             return true;
         }
 
-        if (underlyingType == typeof(Boolean) && currentValue.TryConvert(out Boolean boolean))
+        if (underlyingType == typeof(bool) && currentValue.TryConvert(out bool boolean))
         {
             value = (T)(object)boolean;
             return true;
@@ -409,24 +409,21 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
         // T is a floating point numbers
         if (typeCode >= TypeCode.Single && typeCode <= TypeCode.Decimal)
         {
-            if (!currentValue.TryConvert(out Double doubleValue, culture))
+            if (!currentValue.TryConvert(out double doubleValue, culture))
             {
                 return false;
             }
 
-            if (
-                typeCode == TypeCode.Single
-                && doubleValue is < Single.MinValue or > Single.MaxValue
-            )
+            if (typeCode == TypeCode.Single && doubleValue is < float.MinValue or > float.MaxValue)
             {
                 return false;
             }
 
             value = typeCode switch
             {
-                TypeCode.Single => (T)(object)(Single)doubleValue,
+                TypeCode.Single => (T)(object)(float)doubleValue,
                 TypeCode.Double => (T)(object)doubleValue,
-                TypeCode.Decimal => (T)(object)(Decimal)doubleValue,
+                TypeCode.Decimal => (T)(object)(decimal)doubleValue,
                 _ => throw new NotSupportedException(),
             };
             return true;
@@ -435,7 +432,7 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
         // T is an integer
         if (typeCode >= TypeCode.SByte && typeCode <= TypeCode.UInt64)
         {
-            if (!currentValue.TryConvert(out Double doubleValue, culture))
+            if (!currentValue.TryConvert(out double doubleValue, culture))
             {
                 return false;
             }
@@ -447,14 +444,14 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
 
             bool valueIsWithinBounds = typeCode switch
             {
-                TypeCode.SByte => doubleValue >= SByte.MinValue && doubleValue <= SByte.MaxValue,
-                TypeCode.Byte => doubleValue >= Byte.MinValue && doubleValue <= Byte.MaxValue,
-                TypeCode.Int16 => doubleValue >= Int16.MinValue && doubleValue <= Int16.MaxValue,
-                TypeCode.UInt16 => doubleValue >= UInt16.MinValue && doubleValue <= UInt16.MaxValue,
-                TypeCode.Int32 => doubleValue >= Int32.MinValue && doubleValue <= Int32.MaxValue,
-                TypeCode.UInt32 => doubleValue >= UInt32.MinValue && doubleValue <= UInt32.MaxValue,
-                TypeCode.Int64 => doubleValue >= Int64.MinValue && doubleValue <= Int64.MaxValue,
-                TypeCode.UInt64 => doubleValue >= UInt64.MinValue && doubleValue <= UInt64.MaxValue,
+                TypeCode.SByte => doubleValue >= sbyte.MinValue && doubleValue <= sbyte.MaxValue,
+                TypeCode.Byte => doubleValue >= byte.MinValue && doubleValue <= byte.MaxValue,
+                TypeCode.Int16 => doubleValue >= short.MinValue && doubleValue <= short.MaxValue,
+                TypeCode.UInt16 => doubleValue >= ushort.MinValue && doubleValue <= ushort.MaxValue,
+                TypeCode.Int32 => doubleValue >= int.MinValue && doubleValue <= int.MaxValue,
+                TypeCode.UInt32 => doubleValue >= uint.MinValue && doubleValue <= uint.MaxValue,
+                TypeCode.Int64 => doubleValue >= long.MinValue && doubleValue <= long.MaxValue,
+                TypeCode.UInt64 => doubleValue >= ulong.MinValue && doubleValue <= ulong.MaxValue,
                 _ => throw new NotSupportedException(),
             };
             if (!valueIsWithinBounds)
@@ -464,14 +461,14 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
 
             value = typeCode switch
             {
-                TypeCode.SByte => (T)(object)(SByte)doubleValue,
-                TypeCode.Byte => (T)(object)(Byte)doubleValue,
-                TypeCode.Int16 => (T)(object)(Int16)doubleValue,
-                TypeCode.UInt16 => (T)(object)(UInt16)doubleValue,
-                TypeCode.Int32 => (T)(object)(Int32)doubleValue,
-                TypeCode.UInt32 => (T)(object)(UInt32)doubleValue,
-                TypeCode.Int64 => (T)(object)(Int64)doubleValue,
-                TypeCode.UInt64 => (T)(object)(UInt64)doubleValue,
+                TypeCode.SByte => (T)(object)(sbyte)doubleValue,
+                TypeCode.Byte => (T)(object)(byte)doubleValue,
+                TypeCode.Int16 => (T)(object)(short)doubleValue,
+                TypeCode.UInt16 => (T)(object)(ushort)doubleValue,
+                TypeCode.Int32 => (T)(object)(int)doubleValue,
+                TypeCode.UInt32 => (T)(object)(uint)doubleValue,
+                TypeCode.Int64 => (T)(object)(long)doubleValue,
+                TypeCode.UInt64 => (T)(object)(ulong)doubleValue,
                 _ => throw new NotSupportedException(),
             };
             return true;
@@ -482,7 +479,7 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
 
     private static bool TryGetStringValue<T>(out T value, XLCellValue currentValue)
     {
-        if (typeof(T) == typeof(String))
+        if (typeof(T) == typeof(string))
         {
             string s = currentValue.ToString(CultureInfo.CurrentCulture);
             MatchCollection matches = utfPattern.Matches(s);
@@ -531,7 +528,7 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
         );
     }
 
-    public String GetString() => this.Value.ToString(CultureInfo.CurrentCulture);
+    public string GetString() => this.Value.ToString(CultureInfo.CurrentCulture);
 
     public string GetFormattedString(CultureInfo culture = null)
     {
@@ -576,7 +573,7 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
     /// </summary>
     /// <param name="force">Flag indicating whether a recalculation must be performed even is cell does not need it.</param>
     /// <returns>Null if cell does not contain a formula. Calculated value otherwise.</returns>
-    public void Evaluate(Boolean force)
+    public void Evaluate(bool force)
     {
         if (this.Formula is null)
         {
@@ -638,15 +635,15 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
     public IXLTable InsertTable<T>(IEnumerable<T> data, string tableName) =>
         this.InsertTable(data, tableName, true);
 
-    public IXLTable InsertTable<T>(IEnumerable<T> data, String tableName, Boolean createTable) =>
+    public IXLTable InsertTable<T>(IEnumerable<T> data, string tableName, bool createTable) =>
         this.InsertTable(data, tableName, createTable, addHeadings: true, transpose: false);
 
     public IXLTable InsertTable<T>(
         IEnumerable<T> data,
-        String tableName,
-        Boolean createTable,
-        Boolean addHeadings,
-        Boolean transpose
+        string tableName,
+        bool createTable,
+        bool addHeadings,
+        bool transpose
     )
     {
         IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(data);
@@ -662,13 +659,13 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
 
     public IXLTable InsertTable(DataTable data) => this.InsertTable(data, null, true);
 
-    public IXLTable InsertTable(DataTable data, Boolean createTable) =>
+    public IXLTable InsertTable(DataTable data, bool createTable) =>
         this.InsertTable(data, null, createTable);
 
-    public IXLTable InsertTable(DataTable data, String tableName) =>
+    public IXLTable InsertTable(DataTable data, string tableName) =>
         this.InsertTable(data, tableName, true);
 
-    public IXLTable InsertTable(DataTable data, String tableName, Boolean createTable)
+    public IXLTable InsertTable(DataTable data, string tableName, bool createTable)
     {
         if (data == null || data.Columns.Count == 0)
         {
@@ -728,7 +725,7 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
 
     public IXLRange InsertData(IEnumerable data)
     {
-        if (data == null || data is String)
+        if (data == null || data is string)
         {
             return null;
         }
@@ -736,9 +733,9 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
         return this.InsertData(data, transpose: false);
     }
 
-    public IXLRange InsertData(IEnumerable data, Boolean transpose)
+    public IXLRange InsertData(IEnumerable data, bool transpose)
     {
-        if (data == null || data is String)
+        if (data == null || data is string)
         {
             return null;
         }
@@ -788,7 +785,7 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
             {
                 this.SetHyperlink(null);
                 this.SliceCellValue = Blank.Value;
-                this.FormulaA1 = String.Empty;
+                this.FormulaA1 = string.Empty;
             }
 
             if (clearOptions.HasFlag(XLClearOptions.NormalFormats))
@@ -831,7 +828,7 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
 
     public string FormulaA1
     {
-        get => this.Formula?.A1 ?? String.Empty;
+        get => this.Formula?.A1 ?? string.Empty;
         set
         {
             if (this.IsInferiorMergedCell())
@@ -840,7 +837,7 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
             }
 
             string formula = value?.TrimFormulaEqual();
-            if (!String.IsNullOrWhiteSpace(formula))
+            if (!string.IsNullOrWhiteSpace(formula))
             {
                 string fixedFunctionsFormula = FormulaTransformation.FixFutureFunctions(
                     formula,
@@ -860,7 +857,7 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
 
     public string FormulaR1C1
     {
-        get => this.Formula?.GetFormulaR1C1(this.Point) ?? String.Empty;
+        get => this.Formula?.GetFormulaR1C1(this.Point) ?? string.Empty;
         set
         {
             if (this.IsInferiorMergedCell())
@@ -869,7 +866,7 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
             }
 
             string formula = value?.TrimFormulaEqual();
-            if (!String.IsNullOrWhiteSpace(formula))
+            if (!string.IsNullOrWhiteSpace(formula))
             {
                 string formulaA1 = FormulaConverter.ToA1(
                     formula,
@@ -989,14 +986,14 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
 
     IXLComment IXLCell.CreateComment() => this.CreateComment(shapeId: null);
 
-    public Boolean IsMerged() => this.Worksheet.Internals.MergedRanges.Contains(this);
+    public bool IsMerged() => this.Worksheet.Internals.MergedRanges.Contains(this);
 
     public IXLRange MergedRange() =>
         this.Worksheet.Internals.MergedRanges.GetIntersectedRanges(this).FirstOrDefault();
 
-    public Boolean IsEmpty() => this.IsEmpty(XLCellsUsedOptions.AllContents);
+    public bool IsEmpty() => this.IsEmpty(XLCellsUsedOptions.AllContents);
 
-    public Boolean IsEmpty(XLCellsUsedOptions options)
+    public bool IsEmpty(XLCellsUsedOptions options)
     {
         bool isValueEmpty = this.SliceCellValue.Type switch
         {
@@ -1066,27 +1063,27 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
         return target;
     }
 
-    public IXLCell CopyTo(String target) => this.CopyTo(GetTargetCell(target, this.Worksheet));
+    public IXLCell CopyTo(string target) => this.CopyTo(GetTargetCell(target, this.Worksheet));
 
     public IXLCell CopyFrom(IXLCell otherCell) =>
         this.CopyFrom(otherCell as XLCell, XLCellCopyOptions.All);
 
-    public IXLCell CopyFrom(String otherCell) =>
+    public IXLCell CopyFrom(string otherCell) =>
         this.CopyFrom(GetTargetCell(otherCell, this.Worksheet));
 
-    public IXLCell SetFormulaA1(String formula)
+    public IXLCell SetFormulaA1(string formula)
     {
         this.FormulaA1 = formula;
         return this;
     }
 
-    public IXLCell SetFormulaR1C1(String formula)
+    public IXLCell SetFormulaR1C1(string formula)
     {
         this.FormulaR1C1 = formula;
         return this;
     }
 
-    public Boolean HasSparkline => this.Sparkline != null;
+    public bool HasSparkline => this.Sparkline != null;
 
     /// <summary> The sparkline assigned to the cell </summary>
     public IXLSparkline Sparkline => this.Worksheet.SparklineGroups.GetSparkline(this);
@@ -1094,7 +1091,7 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
     public IXLDataValidation GetDataValidation() =>
         this.FindDataValidation() ?? this.CreateDataValidation();
 
-    public Boolean HasDataValidation => this.FindDataValidation() != null;
+    public bool HasDataValidation => this.FindDataValidation() != null;
 
     /// <summary>
     /// Get the data validation rule containing current cell.
@@ -1118,7 +1115,7 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
 
     public IXLConditionalFormat AddConditionalFormat() => this.AsRange().AddConditionalFormat();
 
-    public Boolean Active
+    public bool Active
     {
         get => this.Worksheet.ActiveCell == this.Point;
         set
@@ -1134,16 +1131,16 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
         }
     }
 
-    public IXLCell SetActive(Boolean value = true)
+    public IXLCell SetActive(bool value = true)
     {
         this.Active = value;
         return this;
     }
 
-    public Boolean HasHyperlink => this.Worksheet.Hyperlinks.HasHyperlink(this.Point);
+    public bool HasHyperlink => this.Worksheet.Hyperlinks.HasHyperlink(this.Point);
 
     /// <inheritdoc />
-    public Boolean ShowPhonetic
+    public bool ShowPhonetic
     {
         get => this._cellsCollection.MiscSlice[this._rowNumber, this._columnNumber].HasPhonetic;
         set
@@ -1349,7 +1346,7 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
         }
     }
 
-    private static IXLCell GetTargetCell(String target, XLWorksheet defaultWorksheet)
+    private static IXLCell GetTargetCell(string target, XLWorksheet defaultWorksheet)
     {
         string[] pair = target.Split('!');
         if (pair.Length == 1)
@@ -1482,16 +1479,16 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
             rowsShifted
         );
 
-    internal static String ShiftFormulaRows(
-        String formulaA1,
+    internal static string ShiftFormulaRows(
+        string formulaA1,
         XLWorksheet worksheetInAction,
         XLRange shiftedRange,
         int rowsShifted
     )
     {
-        if (String.IsNullOrWhiteSpace(formulaA1))
+        if (string.IsNullOrWhiteSpace(formulaA1))
         {
-            return String.Empty;
+            return string.Empty;
         }
 
         string value = formulaA1;
@@ -1527,7 +1524,7 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
                     sheetName = worksheetInAction.Name;
                 }
 
-                if (String.Compare(sheetName, shiftedWsName, true) == 0)
+                if (string.Compare(sheetName, shiftedWsName, true) == 0)
                 {
                     string rangeAddress = matchString.Substring(matchString.IndexOf('!') + 1);
                     if (!A1ColumnRegex.IsMatch(rangeAddress))
@@ -1562,7 +1559,7 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
                                         "$"
                                         + (
                                             XlsxSharp.XLHelper.TrimRowNumber(
-                                                Int32.Parse(row1String.Substring(1)) + rowsShifted
+                                                int.Parse(row1String.Substring(1)) + rowsShifted
                                             )
                                         ).ToInvariantString();
                                 }
@@ -1570,7 +1567,7 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
                                 {
                                     row1 = (
                                         XlsxSharp.XLHelper.TrimRowNumber(
-                                            Int32.Parse(row1String) + rowsShifted
+                                            int.Parse(row1String) + rowsShifted
                                         )
                                     ).ToInvariantString();
                                 }
@@ -1582,7 +1579,7 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
                                         "$"
                                         + (
                                             XlsxSharp.XLHelper.TrimRowNumber(
-                                                Int32.Parse(row2String.Substring(1)) + rowsShifted
+                                                int.Parse(row2String.Substring(1)) + rowsShifted
                                             )
                                         ).ToInvariantString();
                                 }
@@ -1590,7 +1587,7 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
                                 {
                                     row2 = (
                                         XlsxSharp.XLHelper.TrimRowNumber(
-                                            Int32.Parse(row2String) + rowsShifted
+                                            int.Parse(row2String) + rowsShifted
                                         )
                                     ).ToInvariantString();
                                 }
@@ -1705,16 +1702,16 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
             columnsShifted
         );
 
-    internal static String ShiftFormulaColumns(
-        String formulaA1,
+    internal static string ShiftFormulaColumns(
+        string formulaA1,
         XLWorksheet worksheetInAction,
         XLRange shiftedRange,
         int columnsShifted
     )
     {
-        if (String.IsNullOrWhiteSpace(formulaA1))
+        if (string.IsNullOrWhiteSpace(formulaA1))
         {
-            return String.Empty;
+            return string.Empty;
         }
 
         string value = formulaA1;
@@ -1749,7 +1746,7 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
                     sheetName = worksheetInAction.Name;
                 }
 
-                if (String.Compare(sheetName, shiftedRange.Worksheet.Name, true) == 0)
+                if (string.Compare(sheetName, shiftedRange.Worksheet.Name, true) == 0)
                 {
                     string rangeAddress = matchString.Substring(matchString.IndexOf('!') + 1);
                     if (!A1RowRegex.IsMatch(rangeAddress))
@@ -1922,18 +1919,18 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
         return sb.ToString();
     }
 
-    private XLCell CellShift(Int32 rowsToShift, Int32 columnsToShift) =>
+    private XLCell CellShift(int rowsToShift, int columnsToShift) =>
         this.Worksheet.Cell(this._rowNumber + rowsToShift, this._columnNumber + columnsToShift);
 
     #region XLCell Above
 
     IXLCell IXLCell.CellAbove() => this.CellAbove();
 
-    IXLCell IXLCell.CellAbove(Int32 step) => this.CellAbove(step);
+    IXLCell IXLCell.CellAbove(int step) => this.CellAbove(step);
 
     public XLCell CellAbove() => this.CellAbove(1);
 
-    public XLCell CellAbove(Int32 step) => this.CellShift(step * -1, 0);
+    public XLCell CellAbove(int step) => this.CellShift(step * -1, 0);
 
     #endregion XLCell Above
 
@@ -1941,11 +1938,11 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
 
     IXLCell IXLCell.CellBelow() => this.CellBelow();
 
-    IXLCell IXLCell.CellBelow(Int32 step) => this.CellBelow(step);
+    IXLCell IXLCell.CellBelow(int step) => this.CellBelow(step);
 
     public XLCell CellBelow() => this.CellBelow(1);
 
-    public XLCell CellBelow(Int32 step) => this.CellShift(step, 0);
+    public XLCell CellBelow(int step) => this.CellShift(step, 0);
 
     #endregion XLCell Below
 
@@ -1953,11 +1950,11 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
 
     IXLCell IXLCell.CellLeft() => this.CellLeft();
 
-    IXLCell IXLCell.CellLeft(Int32 step) => this.CellLeft(step);
+    IXLCell IXLCell.CellLeft(int step) => this.CellLeft(step);
 
     public XLCell CellLeft() => this.CellLeft(1);
 
-    public XLCell CellLeft(Int32 step) => this.CellShift(0, step * -1);
+    public XLCell CellLeft(int step) => this.CellShift(0, step * -1);
 
     #endregion XLCell Left
 
@@ -1965,17 +1962,17 @@ internal sealed class XLCell : IXLCell, IXLFormatContainer
 
     IXLCell IXLCell.CellRight() => this.CellRight();
 
-    IXLCell IXLCell.CellRight(Int32 step) => this.CellRight(step);
+    IXLCell IXLCell.CellRight(int step) => this.CellRight(step);
 
     public XLCell CellRight() => this.CellRight(1);
 
-    public XLCell CellRight(Int32 step) => this.CellShift(0, step);
+    public XLCell CellRight(int step) => this.CellShift(0, step);
 
     #endregion XLCell Right
 
-    public Boolean HasFormula => this.Formula is not null;
+    public bool HasFormula => this.Formula is not null;
 
-    public Boolean HasArrayFormula => this.Formula?.Type == FormulaType.Array;
+    public bool HasArrayFormula => this.Formula?.Type == FormulaType.Array;
 
     public IXLRangeAddress FormulaReference
     {

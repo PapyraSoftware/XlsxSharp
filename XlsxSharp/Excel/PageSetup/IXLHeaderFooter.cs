@@ -32,7 +32,7 @@ public interface IXLHeaderFooter
     /// Gets the text of the specified header/footer occurrence.
     /// </summary>
     /// <param name="occurrence">The occurrence.</param>
-    String GetText(XLHFOccurrence occurrence);
+    string GetText(XLHFOccurrence occurrence);
 
     IXLHeaderFooter Clear(XLHFOccurrence occurrence = XLHFOccurrence.AllPages);
 }

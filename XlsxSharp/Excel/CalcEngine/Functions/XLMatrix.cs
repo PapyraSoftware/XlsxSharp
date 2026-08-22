@@ -23,7 +23,7 @@ internal class XLMatrix
         this.mat = new double[this.rows, this.cols];
     }
 
-    public XLMatrix(Double[,] arr, CalcContext ctx)
+    public XLMatrix(double[,] arr, CalcContext ctx)
         : this(arr.GetLength(0), arr.GetLength(1), ctx)
     {
         int roCount = arr.GetLength(0);
@@ -43,7 +43,7 @@ internal class XLMatrix
         set => this.mat[iRow, iCol] = value;
     }
 
-    public Boolean IsSingular()
+    public bool IsSingular()
     {
         for (int row = 0; row < this.rows; row++)
         {
@@ -61,7 +61,7 @@ internal class XLMatrix
         return false;
     }
 
-    public Boolean IsSquare() => (this.rows == this.cols);
+    public bool IsSquare() => (this.rows == this.cols);
 
     public void SetCol(XLMatrix v, int k)
     {

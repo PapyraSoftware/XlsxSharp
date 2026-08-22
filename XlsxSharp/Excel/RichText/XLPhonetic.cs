@@ -4,16 +4,16 @@ namespace XlsxSharp.Excel.RichText;
 
 internal class XLPhonetic : IXLPhonetic
 {
-    public XLPhonetic(String text, Int32 start, Int32 end)
+    public XLPhonetic(string text, int start, int end)
     {
         this.Text = text;
         this.Start = start;
         this.End = end;
     }
 
-    public String Text { get; }
-    public Int32 Start { get; }
-    public Int32 End { get; }
+    public string Text { get; }
+    public int Start { get; }
+    public int End { get; }
 
     public bool Equals(IXLPhonetic? other)
     {

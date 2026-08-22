@@ -8,9 +8,9 @@ internal class XLDrawingWeb : IXLDrawingWeb
 
     public XLDrawingWeb(IXLDrawingStyle style) => this._style = style;
 
-    public String? AlternateText { get; set; }
+    public string? AlternateText { get; set; }
 
-    public IXLDrawingStyle SetAlternateText(String? value)
+    public IXLDrawingStyle SetAlternateText(string? value)
     {
         this.AlternateText = value;
         return this._style;

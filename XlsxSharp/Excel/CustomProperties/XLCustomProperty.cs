@@ -9,13 +9,13 @@ internal class XLCustomProperty : IXLCustomProperty
 {
     private readonly XLWorkbook _workbook;
 
-    private String name;
+    private string name;
 
     public XLCustomProperty(XLWorkbook workbook) => this._workbook = workbook;
 
     #region IXLCustomProperty Members
 
-    public String Name
+    public string Name
     {
         get => this.name;
         set
@@ -28,7 +28,7 @@ internal class XLCustomProperty : IXLCustomProperty
             if (this._workbook.CustomProperties.Any(t => t.Name == value))
             {
                 throw new ArgumentException(
-                    String.Format(
+                    string.Format(
                         "This workbook already contains a custom property named '{0}'",
                         value
                     )
@@ -48,12 +48,12 @@ internal class XLCustomProperty : IXLCustomProperty
                 return XLCustomPropertyType.Date;
             }
 
-            if (this.Value is Boolean)
+            if (this.Value is bool)
             {
                 return XLCustomPropertyType.Boolean;
             }
 
-            if (Double.TryParse(this.Value.ToString(), out Double dTest))
+            if (double.TryParse(this.Value.ToString(), out double dTest))
             {
                 return XLCustomPropertyType.Number;
             }
@@ -62,7 +62,7 @@ internal class XLCustomProperty : IXLCustomProperty
         }
     }
 
-    public Object Value { get; set; }
+    public object Value { get; set; }
 
     public T GetValue<T>() => (T)Convert.ChangeType(this.Value, typeof(T));
 

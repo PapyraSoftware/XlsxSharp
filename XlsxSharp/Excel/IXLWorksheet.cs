@@ -31,24 +31,24 @@ public interface IXLWorksheet
     /// <summary>
     /// Gets or sets the default column width for this worksheet.
     /// </summary>
-    Double ColumnWidth { get; set; }
+    double ColumnWidth { get; set; }
 
     /// <summary>
     /// Gets or sets the default row height for this worksheet.
     /// </summary>
-    Double RowHeight { get; set; }
+    double RowHeight { get; set; }
 
     /// <summary>
     /// Gets or sets the name (caption) of this worksheet. The sheet rename also renames sheet
     /// in formulas and defined names.
     /// </summary>
-    String Name { get; set; }
+    string Name { get; set; }
 
     /// <summary>
     /// Gets or sets the position of the sheet.
     /// <para>When setting the Position all other sheets' positions are shifted accordingly.</para>
     /// </summary>
-    Int32 Position { get; set; }
+    int Position { get; set; }
 
     /// <summary>
     /// Gets an object to manipulate the sheet's print options.
@@ -140,21 +140,21 @@ public interface IXLWorksheet
     /// <para>e.g. Columns("G:H"), Columns("10:11,13:14"), Columns("P:Q,S:T"), Columns("V")</para>
     /// </summary>
     /// <param name="columns">The columns to return.</param>
-    IXLColumns Columns(String columns);
+    IXLColumns Columns(string columns);
 
     /// <summary>
     /// Gets a collection of the specified columns in this worksheet.
     /// </summary>
     /// <param name="firstColumn">The first column to return.</param>
     /// <param name="lastColumn">The last column to return.</param>
-    IXLColumns Columns(String firstColumn, String lastColumn);
+    IXLColumns Columns(string firstColumn, string lastColumn);
 
     /// <summary>
     /// Gets a collection of the specified columns in this worksheet.
     /// </summary>
     /// <param name="firstColumn">The first column to return.</param>
     /// <param name="lastColumn">The last column to return.</param>
-    IXLColumns Columns(Int32 firstColumn, Int32 lastColumn);
+    IXLColumns Columns(int firstColumn, int lastColumn);
 
     /// <summary>
     /// Gets a collection of all rows in this worksheet.
@@ -166,32 +166,32 @@ public interface IXLWorksheet
     /// <para>e.g. Rows("4:5"), Rows("7:8,10:11"), Rows("13")</para>
     /// </summary>
     /// <param name="rows">The rows to return.</param>
-    IXLRows Rows(String rows);
+    IXLRows Rows(string rows);
 
     /// <summary>
     /// Gets a collection of the specified rows in this worksheet.
     /// </summary>
     /// <param name="firstRow">The first row to return.</param>
     /// <param name="lastRow">The last row to return.</param>
-    IXLRows Rows(Int32 firstRow, Int32 lastRow);
+    IXLRows Rows(int firstRow, int lastRow);
 
     /// <summary>
     /// Gets the specified row of the worksheet.
     /// </summary>
     /// <param name="row">The worksheet's row.</param>
-    IXLRow Row(Int32 row);
+    IXLRow Row(int row);
 
     /// <summary>
     /// Gets the specified column of the worksheet.
     /// </summary>
     /// <param name="column">The worksheet's column.</param>
-    IXLColumn Column(Int32 column);
+    IXLColumn Column(int column);
 
     /// <summary>
     /// Gets the specified column of the worksheet.
     /// </summary>
     /// <param name="column">The worksheet's column.</param>
-    IXLColumn Column(String column);
+    IXLColumn Column(string column);
 
     /// <summary>
     /// Gets the cell at the specified row and column.
@@ -286,25 +286,25 @@ public interface IXLWorksheet
     /// Collapses the outlined rows of the specified level.
     /// </summary>
     /// <param name="outlineLevel">The outline level.</param>
-    IXLWorksheet CollapseRows(Int32 outlineLevel);
+    IXLWorksheet CollapseRows(int outlineLevel);
 
     /// <summary>
     /// Collapses the outlined columns of the specified level.
     /// </summary>
     /// <param name="outlineLevel">The outline level.</param>
-    IXLWorksheet CollapseColumns(Int32 outlineLevel);
+    IXLWorksheet CollapseColumns(int outlineLevel);
 
     /// <summary>
     /// Expands the outlined rows of the specified level.
     /// </summary>
     /// <param name="outlineLevel">The outline level.</param>
-    IXLWorksheet ExpandRows(Int32 outlineLevel);
+    IXLWorksheet ExpandRows(int outlineLevel);
 
     /// <summary>
     /// Expands the outlined columns of the specified level.
     /// </summary>
     /// <param name="outlineLevel">The outline level.</param>
-    IXLWorksheet ExpandColumns(Int32 outlineLevel);
+    IXLWorksheet ExpandColumns(int outlineLevel);
 
     /// <summary>
     /// Deletes this worksheet.
@@ -320,14 +320,14 @@ public interface IXLWorksheet
     IXLDefinedNames DefinedNames { get; }
 
     [Obsolete($"Use {nameof(DefinedName)} instead.")]
-    IXLDefinedName NamedRange(String rangeName);
+    IXLDefinedName NamedRange(string rangeName);
 
     /// <summary>
     /// Gets the specified defined name.
     /// </summary>
     /// <param name="name">Name identifier of defined name, without sheet name.</param>
     /// <exception cref="ArgumentException">Name wasn't found in sheets defined names.</exception>
-    IXLDefinedName DefinedName(String name);
+    IXLDefinedName DefinedName(string name);
 
     /// <summary>
     /// Gets an object to manage how the worksheet is going to displayed by Excel.
@@ -338,13 +338,13 @@ public interface IXLWorksheet
     /// Gets the Excel table of the given index
     /// </summary>
     /// <param name="index">Index of the table to return</param>
-    IXLTable Table(Int32 index);
+    IXLTable Table(int index);
 
     /// <summary>
     /// Gets the Excel table of the given name
     /// </summary>
     /// <param name="name">Name of the table to return</param>
-    IXLTable Table(String name);
+    IXLTable Table(string name);
 
     /// <summary>
     /// Gets an object to manage this worksheet's Excel tables
@@ -355,9 +355,9 @@ public interface IXLWorksheet
     /// Copies the
     /// </summary>
     /// <param name="newSheetName"></param>
-    IXLWorksheet CopyTo(String newSheetName);
+    IXLWorksheet CopyTo(string newSheetName);
 
-    IXLWorksheet CopyTo(String newSheetName, Int32 position);
+    IXLWorksheet CopyTo(string newSheetName, int position);
 
     IXLWorksheet CopyTo(XLWorkbook workbook);
 
@@ -367,9 +367,9 @@ public interface IXLWorksheet
     /// <param name="workbook">Workbook into which copy this sheet.</param>
     /// <param name="newSheetName">Name of new sheet in the <paramref name="workbook"/> where will the data be copied. Sheet will be in the last position.</param>
     /// <returns>Newly created sheet in the <paramref name="workbook"/>.</returns>
-    IXLWorksheet CopyTo(XLWorkbook workbook, String newSheetName);
+    IXLWorksheet CopyTo(XLWorkbook workbook, string newSheetName);
 
-    IXLWorksheet CopyTo(XLWorkbook workbook, String newSheetName, Int32 position);
+    IXLWorksheet CopyTo(XLWorkbook workbook, string newSheetName, int position);
 
     IXLRange? RangeUsed();
 
@@ -390,100 +390,100 @@ public interface IXLWorksheet
     IXLRange Sort();
 
     IXLRange Sort(
-        String columnsToSortBy,
+        string columnsToSortBy,
         XLSortOrder sortOrder = XLSortOrder.Ascending,
-        Boolean matchCase = false,
-        Boolean ignoreBlanks = true
+        bool matchCase = false,
+        bool ignoreBlanks = true
     );
 
     IXLRange Sort(
-        Int32 columnToSortBy,
+        int columnToSortBy,
         XLSortOrder sortOrder = XLSortOrder.Ascending,
-        Boolean matchCase = false,
-        Boolean ignoreBlanks = true
+        bool matchCase = false,
+        bool ignoreBlanks = true
     );
 
     IXLRange SortLeftToRight(
         XLSortOrder sortOrder = XLSortOrder.Ascending,
-        Boolean matchCase = false,
-        Boolean ignoreBlanks = true
+        bool matchCase = false,
+        bool ignoreBlanks = true
     );
 
     //IXLCharts Charts { get; }
 
-    Boolean ShowFormulas { get; set; }
+    bool ShowFormulas { get; set; }
 
-    Boolean ShowGridLines { get; set; }
+    bool ShowGridLines { get; set; }
 
-    Boolean ShowOutlineSymbols { get; set; }
+    bool ShowOutlineSymbols { get; set; }
 
-    Boolean ShowRowColHeaders { get; set; }
+    bool ShowRowColHeaders { get; set; }
 
-    Boolean ShowRuler { get; set; }
+    bool ShowRuler { get; set; }
 
-    Boolean ShowWhiteSpace { get; set; }
+    bool ShowWhiteSpace { get; set; }
 
-    Boolean ShowZeros { get; set; }
+    bool ShowZeros { get; set; }
 
     IXLWorksheet SetShowFormulas();
-    IXLWorksheet SetShowFormulas(Boolean value);
+    IXLWorksheet SetShowFormulas(bool value);
 
     IXLWorksheet SetShowGridLines();
-    IXLWorksheet SetShowGridLines(Boolean value);
+    IXLWorksheet SetShowGridLines(bool value);
 
     IXLWorksheet SetShowOutlineSymbols();
-    IXLWorksheet SetShowOutlineSymbols(Boolean value);
+    IXLWorksheet SetShowOutlineSymbols(bool value);
 
     IXLWorksheet SetShowRowColHeaders();
-    IXLWorksheet SetShowRowColHeaders(Boolean value);
+    IXLWorksheet SetShowRowColHeaders(bool value);
 
     IXLWorksheet SetShowRuler();
-    IXLWorksheet SetShowRuler(Boolean value);
+    IXLWorksheet SetShowRuler(bool value);
 
     IXLWorksheet SetShowWhiteSpace();
-    IXLWorksheet SetShowWhiteSpace(Boolean value);
+    IXLWorksheet SetShowWhiteSpace(bool value);
 
     IXLWorksheet SetShowZeros();
-    IXLWorksheet SetShowZeros(Boolean value);
+    IXLWorksheet SetShowZeros(bool value);
 
     XLColor TabColor { get; set; }
 
     IXLWorksheet SetTabColor(XLColor color);
 
-    Boolean TabSelected { get; set; }
+    bool TabSelected { get; set; }
 
-    Boolean TabActive { get; set; }
+    bool TabActive { get; set; }
 
     IXLWorksheet SetTabSelected();
-    IXLWorksheet SetTabSelected(Boolean value);
+    IXLWorksheet SetTabSelected(bool value);
 
     IXLWorksheet SetTabActive();
-    IXLWorksheet SetTabActive(Boolean value);
+    IXLWorksheet SetTabActive(bool value);
 
-    IXLPivotTable PivotTable(String name);
+    IXLPivotTable PivotTable(string name);
 
     IXLPivotTables PivotTables { get; }
 
-    Boolean RightToLeft { get; set; }
+    bool RightToLeft { get; set; }
 
     IXLWorksheet SetRightToLeft();
-    IXLWorksheet SetRightToLeft(Boolean value);
+    IXLWorksheet SetRightToLeft(bool value);
 
     IXLAutoFilter AutoFilter { get; }
 
     IXLRows RowsUsed(
         XLCellsUsedOptions options = XLCellsUsedOptions.AllContents,
-        Func<IXLRow, Boolean>? predicate = null
+        Func<IXLRow, bool>? predicate = null
     );
 
-    IXLRows RowsUsed(Func<IXLRow, Boolean>? predicate);
+    IXLRows RowsUsed(Func<IXLRow, bool>? predicate);
 
     IXLColumns ColumnsUsed(
         XLCellsUsedOptions options = XLCellsUsedOptions.AllContents,
-        Func<IXLColumn, Boolean>? predicate = null
+        Func<IXLColumn, bool>? predicate = null
     );
 
-    IXLColumns ColumnsUsed(Func<IXLColumn, Boolean>? predicate);
+    IXLColumns ColumnsUsed(Func<IXLColumn, bool>? predicate);
 
     IXLRanges MergedRanges { get; }
 
@@ -504,28 +504,28 @@ public interface IXLWorksheet
     /// <param name="expression">Formula to evaluate.</param>
     /// <param name="formulaAddress">A cell address that is used to provide context for formula calculation (mostly implicit intersection).</param>
     /// <exception cref="MissingContextException">If <paramref name="formulaAddress"/> was needed for some part of calculation.</exception>
-    XLCellValue Evaluate(String expression, string? formulaAddress = null);
+    XLCellValue Evaluate(string expression, string? formulaAddress = null);
 
     /// <summary>
     /// Force recalculation of all cell formulas in the sheet while leaving other sheets without change, even if their dirty cells.
     /// </summary>
     void RecalculateAllFormulas();
 
-    String Author { get; set; }
+    string Author { get; set; }
 
     IXLPictures Pictures { get; }
 
-    IXLPicture Picture(String pictureName);
+    IXLPicture Picture(string pictureName);
 
     IXLPicture AddPicture(Stream stream);
 
-    IXLPicture AddPicture(Stream stream, String name);
+    IXLPicture AddPicture(Stream stream, string name);
 
     IXLPicture AddPicture(Stream stream, XLPictureFormat format);
 
-    IXLPicture AddPicture(Stream stream, XLPictureFormat format, String name);
+    IXLPicture AddPicture(Stream stream, XLPictureFormat format, string name);
 
-    IXLPicture AddPicture(String imageFile);
+    IXLPicture AddPicture(string imageFile);
 
-    IXLPicture AddPicture(String imageFile, String name);
+    IXLPicture AddPicture(string imageFile, string name);
 }

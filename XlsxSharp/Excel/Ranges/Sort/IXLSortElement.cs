@@ -19,7 +19,7 @@ public interface IXLSortElement
     /// <summary>
     /// Column or row number whose values will be used for sorting.
     /// </summary>
-    Int32 ElementNumber { get; }
+    int ElementNumber { get; }
 
     /// <summary>
     /// Sorting order.
@@ -32,12 +32,12 @@ public interface IXLSortElement
     /// considered empty strings and are sorted among other cell values with a type
     /// <see cref="XLDataType.Text"/>.
     /// </summary>
-    Boolean IgnoreBlanks { get; }
+    bool IgnoreBlanks { get; }
 
     /// <summary>
     /// When cell value is a <see cref="XLDataType.Text"/>, should sorting be case insensitive
     /// (<c>false</c>, Excel default behavior) or case sensitive (<c>true</c>). Doesn't affect
     /// other cell value types.
     /// </summary>
-    Boolean MatchCase { get; }
+    bool MatchCase { get; }
 }

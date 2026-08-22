@@ -19,7 +19,7 @@ public interface IXLDataValidations : IEnumerable<IXLDataValidation>
     /// (may be a copy of the specified one).</returns>
     IXLDataValidation Add(IXLDataValidation dataValidation);
 
-    Boolean ContainsSingle(IXLRange range);
+    bool ContainsSingle(IXLRange range);
 
     void Delete(Predicate<IXLDataValidation> predicate);
 

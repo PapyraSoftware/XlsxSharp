@@ -7,7 +7,7 @@ namespace XlsxSharp.Examples.Delete;
 
 public class DeleteRows : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         #region Create case
         {

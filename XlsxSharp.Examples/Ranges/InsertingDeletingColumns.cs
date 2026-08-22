@@ -5,7 +5,7 @@ namespace XlsxSharp.Examples.Ranges;
 
 public class InsertingDeletingColumns : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook workbook = new();
         IXLWorksheet ws = workbook.Worksheets.Add("Inserting and Deleting Columns");

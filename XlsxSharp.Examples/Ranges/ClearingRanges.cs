@@ -6,7 +6,7 @@ namespace XlsxSharp.Examples.Ranges;
 
 public class ClearingRanges : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook workbook = new();
         IXLWorksheet ws = workbook.Worksheets.Add("Clearing Ranges");

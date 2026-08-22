@@ -35,7 +35,7 @@ public class PivotTables : IXLExample
         public DateTime? BakeDate { get; set; }
     }
 
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         List<Pastry> pastries =
         [

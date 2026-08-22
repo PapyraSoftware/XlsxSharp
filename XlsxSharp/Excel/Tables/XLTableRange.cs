@@ -17,19 +17,19 @@ internal class XLTableRange : XLRange, IXLTableRange
         this._range = range;
     }
 
-    IXLTableRow IXLTableRange.FirstRow(Func<IXLTableRow, Boolean> predicate) =>
+    IXLTableRow IXLTableRange.FirstRow(Func<IXLTableRow, bool> predicate) =>
         this.FirstRow(predicate);
 
-    public XLTableRow FirstRow(Func<IXLTableRow, Boolean> predicate = null)
+    public XLTableRow FirstRow(Func<IXLTableRow, bool> predicate = null)
     {
         if (predicate == null)
         {
             return new XLTableRow(this, (this._range.FirstRow()));
         }
 
-        Int32 rowCount = this._range.RowCount();
+        int rowCount = this._range.RowCount();
 
-        for (Int32 ro = 1; ro <= rowCount; ro++)
+        for (int ro = 1; ro <= rowCount; ro++)
         {
             XLTableRow row = new(this, (this._range.Row(ro)));
             if (predicate(row))
@@ -41,20 +41,20 @@ internal class XLTableRange : XLRange, IXLTableRange
         return null;
     }
 
-    IXLTableRow IXLTableRange.FirstRowUsed(Func<IXLTableRow, Boolean> predicate) =>
+    IXLTableRow IXLTableRange.FirstRowUsed(Func<IXLTableRow, bool> predicate) =>
         this.FirstRowUsed(XLCellsUsedOptions.AllContents, predicate);
 
-    public XLTableRow FirstRowUsed(Func<IXLTableRow, Boolean> predicate = null) =>
+    public XLTableRow FirstRowUsed(Func<IXLTableRow, bool> predicate = null) =>
         this.FirstRowUsed(XLCellsUsedOptions.AllContents, predicate);
 
     IXLTableRow IXLTableRange.FirstRowUsed(
         XLCellsUsedOptions options,
-        Func<IXLTableRow, Boolean> predicate
+        Func<IXLTableRow, bool> predicate
     ) => this.FirstRowUsed(options, predicate);
 
     internal XLTableRow FirstRowUsed(
         XLCellsUsedOptions options,
-        Func<IXLTableRow, Boolean> predicate = null
+        Func<IXLTableRow, bool> predicate = null
     )
     {
         if (predicate == null)
@@ -62,9 +62,9 @@ internal class XLTableRange : XLRange, IXLTableRange
             return new XLTableRow(this, (this._range.FirstRowUsed(options)));
         }
 
-        Int32 rowCount = this._range.RowCount();
+        int rowCount = this._range.RowCount();
 
-        for (Int32 ro = 1; ro <= rowCount; ro++)
+        for (int ro = 1; ro <= rowCount; ro++)
         {
             XLTableRow row = new(this, (this._range.Row(ro)));
 
@@ -77,19 +77,18 @@ internal class XLTableRange : XLRange, IXLTableRange
         return null;
     }
 
-    IXLTableRow IXLTableRange.LastRow(Func<IXLTableRow, Boolean> predicate) =>
-        this.LastRow(predicate);
+    IXLTableRow IXLTableRange.LastRow(Func<IXLTableRow, bool> predicate) => this.LastRow(predicate);
 
-    public XLTableRow LastRow(Func<IXLTableRow, Boolean> predicate = null)
+    public XLTableRow LastRow(Func<IXLTableRow, bool> predicate = null)
     {
         if (predicate == null)
         {
             return new XLTableRow(this, (this._range.LastRow()));
         }
 
-        Int32 rowCount = this._range.RowCount();
+        int rowCount = this._range.RowCount();
 
-        for (Int32 ro = rowCount; ro >= 1; ro--)
+        for (int ro = rowCount; ro >= 1; ro--)
         {
             XLTableRow row = new(this, (this._range.Row(ro)));
             if (predicate(row))
@@ -100,20 +99,20 @@ internal class XLTableRange : XLRange, IXLTableRange
         return null;
     }
 
-    IXLTableRow IXLTableRange.LastRowUsed(Func<IXLTableRow, Boolean> predicate) =>
+    IXLTableRow IXLTableRange.LastRowUsed(Func<IXLTableRow, bool> predicate) =>
         this.LastRowUsed(XLCellsUsedOptions.AllContents, predicate);
 
-    public XLTableRow LastRowUsed(Func<IXLTableRow, Boolean> predicate = null) =>
+    public XLTableRow LastRowUsed(Func<IXLTableRow, bool> predicate = null) =>
         this.LastRowUsed(XLCellsUsedOptions.AllContents, predicate);
 
     IXLTableRow IXLTableRange.LastRowUsed(
         XLCellsUsedOptions options,
-        Func<IXLTableRow, Boolean> predicate
+        Func<IXLTableRow, bool> predicate
     ) => this.LastRowUsed(options, predicate);
 
     internal XLTableRow LastRowUsed(
         XLCellsUsedOptions options,
-        Func<IXLTableRow, Boolean> predicate = null
+        Func<IXLTableRow, bool> predicate = null
     )
     {
         if (predicate == null)
@@ -121,9 +120,9 @@ internal class XLTableRange : XLRange, IXLTableRange
             return new XLTableRow(this, (this._range.LastRowUsed(options)));
         }
 
-        Int32 rowCount = this._range.RowCount();
+        int rowCount = this._range.RowCount();
 
-        for (Int32 ro = rowCount; ro >= 1; ro--)
+        for (int ro = rowCount; ro >= 1; ro--)
         {
             XLTableRow row = new(this, (this._range.Row(ro)));
 
@@ -147,7 +146,7 @@ internal class XLTableRange : XLRange, IXLTableRange
         {
             throw new ArgumentOutOfRangeException(
                 nameof(row),
-                String.Format(
+                string.Format(
                     "Row number must be between 1 and {0}",
                     XlsxSharp.XLHelper.MaxRowNumber + this.RangeAddress.FirstAddress.RowNumber - 1
                 )
@@ -157,10 +156,10 @@ internal class XLTableRange : XLRange, IXLTableRange
         return new XLTableRow(this, base.Row(row));
     }
 
-    public IXLTableRows Rows(Func<IXLTableRow, Boolean> predicate = null)
+    public IXLTableRows Rows(Func<IXLTableRow, bool> predicate = null)
     {
         XLTableRows retVal = new(this.Worksheet);
-        Int32 rowCount = this._range.RowCount();
+        int rowCount = this._range.RowCount();
 
         for (int r = 1; r <= rowCount; r++)
         {
@@ -191,8 +190,8 @@ internal class XLTableRange : XLRange, IXLTableRange
         string[] rowPairs = rows.Split(',');
         foreach (string tPair in rowPairs.Select(pair => pair.Trim()))
         {
-            String firstRow;
-            String lastRow;
+            string firstRow;
+            string lastRow;
             if (Enumerable.Contains(tPair, ':') || Enumerable.Contains(tPair, '-'))
             {
                 string[] rowRange = XlsxSharp.XLHelper.SplitRange(tPair);
@@ -205,7 +204,7 @@ internal class XLTableRange : XLRange, IXLTableRange
                 firstRow = tPair;
                 lastRow = tPair;
             }
-            foreach (IXLTableRow row in this.Rows(Int32.Parse(firstRow), Int32.Parse(lastRow)))
+            foreach (IXLTableRow row in this.Rows(int.Parse(firstRow), int.Parse(lastRow)))
             {
                 retVal.Add(row);
             }
@@ -215,18 +214,18 @@ internal class XLTableRange : XLRange, IXLTableRange
 
     IXLTableRows IXLTableRange.RowsUsed(
         XLCellsUsedOptions options,
-        Func<IXLTableRow, Boolean> predicate
+        Func<IXLTableRow, bool> predicate
     ) => this.RowsUsed(options, predicate);
 
     internal XLTableRows RowsUsed(
         XLCellsUsedOptions options,
-        Func<IXLTableRow, Boolean> predicate = null
+        Func<IXLTableRow, bool> predicate = null
     )
     {
         XLTableRows rows = new(this.Worksheet);
-        Int32 rowCount = this.RowCount();
+        int rowCount = this.RowCount();
 
-        for (Int32 ro = 1; ro <= rowCount; ro++)
+        for (int ro = 1; ro <= rowCount; ro++)
         {
             XLTableRow row = this.Row(ro);
 
@@ -238,10 +237,10 @@ internal class XLTableRange : XLRange, IXLTableRange
         return rows;
     }
 
-    IXLTableRows IXLTableRange.RowsUsed(Func<IXLTableRow, Boolean> predicate) =>
+    IXLTableRows IXLTableRange.RowsUsed(Func<IXLTableRow, bool> predicate) =>
         this.RowsUsed(predicate);
 
-    public IXLTableRows RowsUsed(Func<IXLTableRow, Boolean> predicate = null) =>
+    public IXLTableRows RowsUsed(Func<IXLTableRow, bool> predicate = null) =>
         this.RowsUsed(XLCellsUsedOptions.AllContents, predicate);
 
     IXLTable IXLTableRange.Table => this._table;
@@ -264,11 +263,11 @@ internal class XLTableRange : XLRange, IXLTableRange
             !this.Table.ShowTotalsRow
         );
 
-    public new IXLRangeColumn Column(String column)
+    public new IXLRangeColumn Column(string column)
     {
         if (XlsxSharp.XLHelper.IsValidColumn(column))
         {
-            Int32 coNum = XlsxSharp.XLHelper.GetColumnNumberFromLetter(column);
+            int coNum = XlsxSharp.XLHelper.GetColumnNumberFromLetter(column);
             return coNum > this.ColumnCount()
                 ? this.Column(this._table.GetFieldIndex(column) + 1)
                 : this.Column(coNum);

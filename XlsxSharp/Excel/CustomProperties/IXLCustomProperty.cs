@@ -14,8 +14,8 @@ public enum XLCustomPropertyType
 
 public interface IXLCustomProperty
 {
-    String Name { get; set; }
+    string Name { get; set; }
     XLCustomPropertyType Type { get; }
-    Object Value { get; set; }
+    object Value { get; set; }
     T GetValue<T>();
 }

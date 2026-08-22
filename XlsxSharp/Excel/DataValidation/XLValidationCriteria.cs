@@ -14,7 +14,7 @@ public abstract class XLValidationCriteria : IXLValidationCriteria
 
     #region IXLValidationCriteria Members
 
-    public void Between(String minValue, String maxValue)
+    public void Between(string minValue, string maxValue)
     {
         this.dataValidation.MinValue = minValue;
         this.dataValidation.MaxValue = maxValue;
@@ -28,7 +28,7 @@ public abstract class XLValidationCriteria : IXLValidationCriteria
         this.dataValidation.Operator = XLOperator.Between;
     }
 
-    public void EqualOrGreaterThan(String value)
+    public void EqualOrGreaterThan(string value)
     {
         this.dataValidation.Value = value;
         this.dataValidation.Operator = XLOperator.EqualOrGreaterThan;
@@ -40,7 +40,7 @@ public abstract class XLValidationCriteria : IXLValidationCriteria
         this.dataValidation.Operator = XLOperator.EqualOrGreaterThan;
     }
 
-    public void EqualOrLessThan(String value)
+    public void EqualOrLessThan(string value)
     {
         this.dataValidation.Value = value;
         this.dataValidation.Operator = XLOperator.EqualOrLessThan;
@@ -52,7 +52,7 @@ public abstract class XLValidationCriteria : IXLValidationCriteria
         this.dataValidation.Operator = XLOperator.EqualOrLessThan;
     }
 
-    public void EqualTo(String value)
+    public void EqualTo(string value)
     {
         this.dataValidation.Value = value;
         this.dataValidation.Operator = XLOperator.EqualTo;
@@ -64,7 +64,7 @@ public abstract class XLValidationCriteria : IXLValidationCriteria
         this.dataValidation.Operator = XLOperator.EqualTo;
     }
 
-    public void GreaterThan(String value)
+    public void GreaterThan(string value)
     {
         this.dataValidation.Value = value;
         this.dataValidation.Operator = XLOperator.GreaterThan;
@@ -76,7 +76,7 @@ public abstract class XLValidationCriteria : IXLValidationCriteria
         this.dataValidation.Operator = XLOperator.GreaterThan;
     }
 
-    public void LessThan(String value)
+    public void LessThan(string value)
     {
         this.dataValidation.Value = value;
         this.dataValidation.Operator = XLOperator.LessThan;
@@ -88,7 +88,7 @@ public abstract class XLValidationCriteria : IXLValidationCriteria
         this.dataValidation.Operator = XLOperator.LessThan;
     }
 
-    public void NotBetween(String minValue, String maxValue)
+    public void NotBetween(string minValue, string maxValue)
     {
         this.dataValidation.MinValue = minValue;
         this.dataValidation.MaxValue = maxValue;
@@ -102,7 +102,7 @@ public abstract class XLValidationCriteria : IXLValidationCriteria
         this.dataValidation.Operator = XLOperator.NotBetween;
     }
 
-    public void NotEqualTo(String value)
+    public void NotEqualTo(string value)
     {
         this.dataValidation.Value = value;
         this.dataValidation.Operator = XLOperator.NotEqualTo;

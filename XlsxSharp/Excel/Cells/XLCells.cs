@@ -13,14 +13,14 @@ internal class XLCells : IXLCells, IEnumerable<XLCell>
     private readonly XLWorkbook _workbook;
     private readonly List<XLRangeAddress> _rangeAddresses = [];
     private readonly bool _usedCellsOnly;
-    private readonly Func<XLCell, Boolean> _predicate;
+    private readonly Func<XLCell, bool> _predicate;
     private readonly XLCellsUsedOptions _options;
 
     public XLCells(
         XLWorksheet worksheet,
         bool usedCellsOnly,
         XLCellsUsedOptions options,
-        Func<XLCell, Boolean>? predicate = null
+        Func<XLCell, bool>? predicate = null
     )
         : this(worksheet.Workbook, usedCellsOnly, options, predicate) { }
 
@@ -28,7 +28,7 @@ internal class XLCells : IXLCells, IEnumerable<XLCell>
         XLWorkbook workbook,
         bool usedCellsOnly,
         XLCellsUsedOptions options,
-        Func<XLCell, Boolean>? predicate = null
+        Func<XLCell, bool>? predicate = null
     )
     {
         this._workbook = workbook;
@@ -235,12 +235,12 @@ internal class XLCells : IXLCells, IEnumerable<XLCell>
 
     public void DeleteSparklines() => this.ForEach<XLCell>(c => c.DeleteSparkline());
 
-    public String FormulaA1
+    public string FormulaA1
     {
         set => this.ForEach<XLCell>(c => c.FormulaA1 = value);
     }
 
-    public String FormulaR1C1
+    public string FormulaR1C1
     {
         set => this.ForEach<XLCell>(c => c.FormulaR1C1 = value);
     }

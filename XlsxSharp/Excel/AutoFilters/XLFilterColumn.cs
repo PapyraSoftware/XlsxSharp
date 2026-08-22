@@ -8,10 +8,10 @@ namespace XlsxSharp.Excel;
 internal class XLFilterColumn : IXLFilterColumn, IXLFilteredColumn, IEnumerable<XLFilter>
 {
     private readonly XLAutoFilter _autoFilter;
-    private readonly Int32 _column;
+    private readonly int _column;
     private readonly List<XLFilter> _filters = [];
 
-    public XLFilterColumn(XLAutoFilter autoFilter, Int32 column)
+    public XLFilterColumn(XLAutoFilter autoFilter, int column)
     {
         this._autoFilter = autoFilter;
         this._column = column;
@@ -47,61 +47,61 @@ internal class XLFilterColumn : IXLFilterColumn, IXLFilteredColumn, IEnumerable<
         return this;
     }
 
-    public void Top(Int32 value, XLTopBottomType type, bool reapply) =>
+    public void Top(int value, XLTopBottomType type, bool reapply) =>
         this.SetTopBottom(value, type, takeTop: true, reapply);
 
-    public void Bottom(Int32 value, XLTopBottomType type, bool reapply) =>
+    public void Bottom(int value, XLTopBottomType type, bool reapply) =>
         this.SetTopBottom(value, type, takeTop: false, reapply);
 
     public void AboveAverage(bool reapply) => this.SetAverage(aboveAverage: true, reapply);
 
     public void BelowAverage(bool reapply) => this.SetAverage(aboveAverage: false, reapply);
 
-    public IXLFilterConnector EqualTo(XLCellValue value, Boolean reapply) =>
+    public IXLFilterConnector EqualTo(XLCellValue value, bool reapply) =>
         this.AddCustomFilter(value.ToString(), true, reapply);
 
-    public IXLFilterConnector NotEqualTo(XLCellValue value, Boolean reapply) =>
+    public IXLFilterConnector NotEqualTo(XLCellValue value, bool reapply) =>
         this.AddCustomFilter(value.ToString(), false, reapply);
 
-    public IXLFilterConnector GreaterThan(XLCellValue value, Boolean reapply) =>
+    public IXLFilterConnector GreaterThan(XLCellValue value, bool reapply) =>
         this.AddCustomFilter(value, XLFilterOperator.GreaterThan, reapply);
 
-    public IXLFilterConnector LessThan(XLCellValue value, Boolean reapply) =>
+    public IXLFilterConnector LessThan(XLCellValue value, bool reapply) =>
         this.AddCustomFilter(value, XLFilterOperator.LessThan, reapply);
 
-    public IXLFilterConnector EqualOrGreaterThan(XLCellValue value, Boolean reapply) =>
+    public IXLFilterConnector EqualOrGreaterThan(XLCellValue value, bool reapply) =>
         this.AddCustomFilter(value, XLFilterOperator.EqualOrGreaterThan, reapply);
 
-    public IXLFilterConnector EqualOrLessThan(XLCellValue value, Boolean reapply) =>
+    public IXLFilterConnector EqualOrLessThan(XLCellValue value, bool reapply) =>
         this.AddCustomFilter(value, XLFilterOperator.EqualOrLessThan, reapply);
 
-    public void Between(XLCellValue minValue, XLCellValue maxValue, Boolean reapply) =>
+    public void Between(XLCellValue minValue, XLCellValue maxValue, bool reapply) =>
         this.EqualOrGreaterThan(minValue, false).And.EqualOrLessThan(maxValue, reapply);
 
-    public void NotBetween(XLCellValue minValue, XLCellValue maxValue, Boolean reapply) =>
+    public void NotBetween(XLCellValue minValue, XLCellValue maxValue, bool reapply) =>
         this.LessThan(minValue, false).Or.GreaterThan(maxValue, reapply);
 
-    public IXLFilterConnector BeginsWith(String value, Boolean reapply) =>
+    public IXLFilterConnector BeginsWith(string value, bool reapply) =>
         this.AddCustomFilter(value + "*", true, reapply);
 
-    public IXLFilterConnector NotBeginsWith(String value, Boolean reapply) =>
+    public IXLFilterConnector NotBeginsWith(string value, bool reapply) =>
         this.AddCustomFilter(value + "*", false, reapply);
 
-    public IXLFilterConnector EndsWith(String value, Boolean reapply) =>
+    public IXLFilterConnector EndsWith(string value, bool reapply) =>
         this.AddCustomFilter("*" + value, true, reapply);
 
-    public IXLFilterConnector NotEndsWith(String value, Boolean reapply) =>
+    public IXLFilterConnector NotEndsWith(string value, bool reapply) =>
         this.AddCustomFilter("*" + value, false, reapply);
 
-    public IXLFilterConnector Contains(String value, Boolean reapply) =>
+    public IXLFilterConnector Contains(string value, bool reapply) =>
         this.AddCustomFilter("*" + value + "*", true, reapply);
 
-    public IXLFilterConnector NotContains(String value, Boolean reapply) =>
+    public IXLFilterConnector NotContains(string value, bool reapply) =>
         this.AddCustomFilter("*" + value + "*", false, reapply);
 
     public XLFilterType FilterType { get; set; }
 
-    public Int32 TopBottomValue { get; set; }
+    public int TopBottomValue { get; set; }
     public XLTopBottomType TopBottomType { get; set; }
     public XLTopBottomPart TopBottomPart { get; set; }
 
@@ -110,7 +110,7 @@ internal class XLFilterColumn : IXLFilterColumn, IXLFilteredColumn, IEnumerable<
     /// <summary>
     /// Basically average for dynamic filters. Value is refreshed during filter reapply.
     /// </summary>
-    public Double DynamicValue { get; set; } = double.NaN;
+    public double DynamicValue { get; set; } = double.NaN;
 
     #endregion IXLFilterColumn Members
 
@@ -124,10 +124,10 @@ internal class XLFilterColumn : IXLFilterColumn, IXLFilteredColumn, IEnumerable<
     IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 
     private void SetTopBottom(
-        Int32 percentOrItemCount,
+        int percentOrItemCount,
         XLTopBottomType type,
-        Boolean takeTop,
-        Boolean reapply
+        bool takeTop,
+        bool reapply
     )
     {
         if (percentOrItemCount is < 1 or > 500)
@@ -176,14 +176,14 @@ internal class XLFilterColumn : IXLFilterColumn, IXLFilteredColumn, IEnumerable<
                 return materializedNumbers
                     .OrderBy(d => d, comparer)
                     .Take(itemCountByPercents)
-                    .DefaultIfEmpty(Double.NaN)
+                    .DefaultIfEmpty(double.NaN)
                     .LastOrDefault();
             default:
                 throw new NotSupportedException();
         }
     }
 
-    private void SetAverage(Boolean aboveAverage, Boolean reapply)
+    private void SetAverage(bool aboveAverage, bool reapply)
     {
         this.ResetFilter(XLFilterType.Dynamic);
         this.DynamicType = aboveAverage
@@ -202,15 +202,11 @@ internal class XLFilterColumn : IXLFilterColumn, IXLFilteredColumn, IEnumerable<
         return subColumn
             .CellsUsed(c => c.CachedValue.IsUnifiedNumber)
             .Select(c => c.CachedValue.GetUnifiedNumber())
-            .DefaultIfEmpty(Double.NaN)
+            .DefaultIfEmpty(double.NaN)
             .Average();
     }
 
-    private IXLFilterConnector AddCustomFilter(
-        XLCellValue value,
-        XLFilterOperator op,
-        Boolean reapply
-    )
+    private IXLFilterConnector AddCustomFilter(XLCellValue value, XLFilterOperator op, bool reapply)
     {
         this.ResetFilter(XLFilterType.Custom);
         this.AddFilter(XLFilter.CreateCustomFilter(value, op, XLConnector.Or), reapply);

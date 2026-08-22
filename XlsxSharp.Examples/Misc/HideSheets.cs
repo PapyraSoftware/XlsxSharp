@@ -5,7 +5,7 @@ namespace XlsxSharp.Examples.Misc;
 
 public class HideSheets : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook wb = new();
 

@@ -92,7 +92,7 @@ internal class VmlDrawingPartWriter
         int columnNumber = c.Address.ColumnNumber;
 
         XLComment comment = c.GetComment();
-        string shapeId = String.Concat("_x0000_s", comment.ShapeId);
+        string shapeId = string.Concat("_x0000_s", comment.ShapeId);
         // Unique per cell (workbook?), e.g.: "_x0000_s1026"
         Anchor anchor = GetAnchor(c);
         Vml.TextBox textBox = GetTextBox(comment.Style);
@@ -151,7 +151,7 @@ internal class VmlDrawingPartWriter
             Style = GetCommentStyle(c),
             FillColor = "#" + comment.Style.ColorsAndLines.FillColor.Color.ToHex().Substring(2),
             StrokeColor = "#" + comment.Style.ColorsAndLines.LineColor.Color.ToHex().Substring(2),
-            StrokeWeight = String.Concat(
+            StrokeWeight = string.Concat(
                 comment.Style.ColorsAndLines.LineWeight.ToInvariantString(),
                 "pt"
             ),
@@ -159,7 +159,7 @@ internal class VmlDrawingPartWriter
                 ? InsetMarginValues.Auto
                 : InsetMarginValues.Custom,
         };
-        if (!String.IsNullOrWhiteSpace(comment.Style.Web.AlternateText))
+        if (!string.IsNullOrWhiteSpace(comment.Style.Web.AlternateText))
         {
             shape.Alternate = comment.Style.Web.AlternateText;
         }
@@ -236,7 +236,7 @@ internal class VmlDrawingPartWriter
         IXLDrawingMargins dm = ds.Margins;
         if (!dm.Automatic)
         {
-            tb.Inset = String.Concat(
+            tb.Inset = string.Concat(
                 dm.Left.ToInvariantString(),
                 "in,",
                 dm.Top.ToInvariantString(),

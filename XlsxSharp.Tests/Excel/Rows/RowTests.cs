@@ -233,7 +233,7 @@ public class RowTests
     {
         XLWorkbook wb = new();
         IXLWorksheet ws = wb.Worksheets.Add("Sheet1");
-        Int32 count = 0;
+        int count = 0;
 
         foreach (IXLRow row in ws.RowsUsed())
         {

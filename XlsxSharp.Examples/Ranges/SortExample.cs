@@ -10,7 +10,7 @@ namespace XlsxSharp.Examples.Ranges;
 
 public class SortExample : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook wb = new();
 
@@ -18,7 +18,7 @@ public class SortExample : IXLExample
         IXLWorksheet wsTable = wb.Worksheets.Add("Table");
         AddTestTable(wsTable);
         IXLRow header = wsTable.Row(1).InsertRowsAbove(1).First();
-        for (Int32 co = 1; co <= wsTable.LastColumnUsed().ColumnNumber(); co++)
+        for (int co = 1; co <= wsTable.LastColumnUsed().ColumnNumber(); co++)
         {
             header.Cell(co).Value = "Column" + co.ToString();
         }

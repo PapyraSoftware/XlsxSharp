@@ -14,7 +14,7 @@ namespace XlsxSharp.Excel;
 /// </summary>
 internal class XLDefinedNames : IXLDefinedNames, IEnumerable<XLDefinedName>, ISheetListener
 {
-    private readonly Dictionary<String, XLDefinedName> _namedRanges = new(
+    private readonly Dictionary<string, XLDefinedName> _namedRanges = new(
         XlsxSharp.XLHelper.NameComparer
     );
 
@@ -40,11 +40,11 @@ internal class XLDefinedNames : IXLDefinedNames, IEnumerable<XLDefinedName>, ISh
     #region IXLNamedRanges Members
 
     [Obsolete]
-    IXLDefinedName IXLDefinedNames.NamedRange(String name) => this.DefinedName(name);
+    IXLDefinedName IXLDefinedNames.NamedRange(string name) => this.DefinedName(name);
 
-    IXLDefinedName IXLDefinedNames.DefinedName(String name) => this.DefinedName(name);
+    IXLDefinedName IXLDefinedNames.DefinedName(string name) => this.DefinedName(name);
 
-    internal XLDefinedName DefinedName(String name)
+    internal XLDefinedName DefinedName(string name)
     {
         if (this._namedRanges.TryGetValue(name, out XLDefinedName range))
         {
@@ -54,14 +54,14 @@ internal class XLDefinedNames : IXLDefinedNames, IEnumerable<XLDefinedName>, ISh
         throw new KeyNotFoundException($"Name {name} not found.");
     }
 
-    public IXLDefinedName Add(String name, String rangeAddress) =>
+    public IXLDefinedName Add(string name, string rangeAddress) =>
         this.Add(name, rangeAddress, null);
 
-    public IXLDefinedName Add(String name, IXLRange range) => this.Add(name, range, null);
+    public IXLDefinedName Add(string name, IXLRange range) => this.Add(name, range, null);
 
-    public IXLDefinedName Add(String name, IXLRanges ranges) => this.Add(name, ranges, null);
+    public IXLDefinedName Add(string name, IXLRanges ranges) => this.Add(name, ranges, null);
 
-    public IXLDefinedName Add(String name, String rangeAddress, String? comment) =>
+    public IXLDefinedName Add(string name, string rangeAddress, string? comment) =>
         this.Add(name, rangeAddress, comment, validateName: true, validateRangeAddress: true);
 
     /// <summary>
@@ -77,11 +77,11 @@ internal class XLDefinedNames : IXLDefinedNames, IEnumerable<XLDefinedName>, ISh
     /// For named ranges in the workbook scope, specify the sheet name in the reference.
     /// </exception>
     internal IXLDefinedName Add(
-        String name,
-        String rangeAddress,
-        String? comment,
-        Boolean validateName,
-        Boolean validateRangeAddress
+        string name,
+        string rangeAddress,
+        string? comment,
+        bool validateName,
+        bool validateRangeAddress
     )
     {
         // When loading named ranges from an existing file, we do not validate the range address or name.
@@ -140,13 +140,13 @@ internal class XLDefinedNames : IXLDefinedNames, IEnumerable<XLDefinedName>, ISh
         return namedRange;
     }
 
-    public IXLDefinedName Add(String name, IXLRange range, String? comment)
+    public IXLDefinedName Add(string name, IXLRange range, string? comment)
     {
         XLRanges ranges = new(this.Workbook) { range };
         return this.Add(name, ranges, comment);
     }
 
-    public IXLDefinedName Add(String name, IXLRanges ranges, String? comment)
+    public IXLDefinedName Add(string name, IXLRanges ranges, string? comment)
     {
         string formula = string.Join(
             ",",
@@ -157,15 +157,15 @@ internal class XLDefinedNames : IXLDefinedNames, IEnumerable<XLDefinedName>, ISh
         return namedRange;
     }
 
-    internal XLDefinedName Add(String name, XLDefinedName namedRange)
+    internal XLDefinedName Add(string name, XLDefinedName namedRange)
     {
         this._namedRanges.Add(name, namedRange);
         return namedRange;
     }
 
-    public void Delete(String rangeName) => this._namedRanges.Remove(rangeName);
+    public void Delete(string rangeName) => this._namedRanges.Remove(rangeName);
 
-    public void Delete(Int32 rangeIndex) =>
+    public void Delete(int rangeIndex) =>
         this._namedRanges.Remove(this._namedRanges.ElementAt(rangeIndex).Key);
 
     public void DeleteAll() => this._namedRanges.Clear();
@@ -198,7 +198,7 @@ internal class XLDefinedNames : IXLDefinedNames, IEnumerable<XLDefinedName>, ISh
 
     #endregion IEnumerable Members
 
-    public Boolean TryGetValue(String name, [NotNullWhen(true)] out IXLDefinedName? definedName)
+    public bool TryGetValue(string name, [NotNullWhen(true)] out IXLDefinedName? definedName)
     {
         if (this.TryGetScopedValue(name, out XLDefinedName? sheetDefinedName))
         {
@@ -212,10 +212,7 @@ internal class XLDefinedNames : IXLDefinedNames, IEnumerable<XLDefinedName>, ISh
         return definedName is not null;
     }
 
-    internal Boolean TryGetScopedValue(
-        String name,
-        [NotNullWhen(true)] out XLDefinedName? definedName
-    )
+    internal bool TryGetScopedValue(string name, [NotNullWhen(true)] out XLDefinedName? definedName)
     {
         if (this._namedRanges.TryGetValue(name, out definedName))
         {
@@ -225,7 +222,7 @@ internal class XLDefinedNames : IXLDefinedNames, IEnumerable<XLDefinedName>, ISh
         return false;
     }
 
-    public Boolean Contains(String name)
+    public bool Contains(string name)
     {
         if (this._namedRanges.ContainsKey(name))
         {

@@ -19,7 +19,7 @@ public class LoadFiles
         }
     }
 
-    private static void LoadAndSaveFile(String input, String output)
+    private static void LoadAndSaveFile(string input, string output)
     {
         XLWorkbook wb = new(input);
         wb.SaveAs(output);

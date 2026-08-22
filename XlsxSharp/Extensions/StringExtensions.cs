@@ -13,15 +13,15 @@ internal static class StringExtensions
 {
     private static readonly Regex RegexNewLine = new(@"((?<!\r)\n|\r\n)", RegexOptions.Compiled);
 
-    public static Int32 CharCount(this String instance, Char c) =>
+    public static int CharCount(this string instance, char c) =>
         instance.Length - instance.Replace(c.ToString(), "").Length;
 
-    public static String RemoveSpecialCharacters(this String str)
+    public static string RemoveSpecialCharacters(this string str)
     {
         StringBuilder sb = new();
         foreach (char c in str)
         {
-            if (Char.IsLetterOrDigit(c) || c == '.' || c == '_')
+            if (char.IsLetterOrDigit(c) || c == '.' || c == '_')
             {
                 sb.Append(c);
             }
@@ -29,22 +29,22 @@ internal static class StringExtensions
         return sb.ToString();
     }
 
-    internal static string EscapeSheetName(this String sheetName)
+    internal static string EscapeSheetName(this string sheetName)
     {
-        if (String.IsNullOrEmpty(sheetName))
+        if (string.IsNullOrEmpty(sheetName))
         {
             return sheetName;
         }
 
         bool needEscape =
-            (!Char.IsLetter(sheetName[0]) && sheetName[0] != '_')
+            (!char.IsLetter(sheetName[0]) && sheetName[0] != '_')
             || XlsxSharp.XLHelper.IsValidA1Address(sheetName)
             || XlsxSharp.XLHelper.IsValidRCAddress(sheetName)
             || sheetName.Any(c =>
-                (Char.IsPunctuation(c) && c != '.' && c != '_')
-                || Char.IsSeparator(c)
-                || Char.IsControl(c)
-                || Char.IsSymbol(c)
+                (char.IsPunctuation(c) && c != '.' && c != '_')
+                || char.IsSeparator(c)
+                || char.IsControl(c)
+                || char.IsSymbol(c)
             );
         if (needEscape)
         {
@@ -57,7 +57,7 @@ internal static class StringExtensions
     }
 
     internal static string AlwaysEscapeSheetName(this string sheetName) =>
-        String.Concat('\'', sheetName.Replace("'", "''"), '\'');
+        string.Concat('\'', sheetName.Replace("'", "''"), '\'');
 
     internal static string GetSheetDefinedName(this string name, string sheet)
     {
@@ -66,15 +66,15 @@ internal static class StringExtensions
         return escapedSheetName + '!' + name;
     }
 
-    internal static String FixNewLines(this String value) =>
+    internal static string FixNewLines(this string value) =>
         value.Contains("\n") ? RegexNewLine.Replace(value, Environment.NewLine) : value;
 
-    internal static Boolean PreserveSpaces(this String value) =>
+    internal static bool PreserveSpaces(this string value) =>
         value.StartsWith(' ')
         || value.EndsWith(' ')
         || value.AsSpan().IndexOfAny('\n', '\r', '\t') >= 0;
 
-    internal static String ToCamel(this String value)
+    internal static string ToCamel(this string value)
     {
         if (value.Length == 0)
         {
@@ -89,7 +89,7 @@ internal static class StringExtensions
         return value.Substring(0, 1).ToLower() + value.Substring(1);
     }
 
-    internal static String ToProper(this String value)
+    internal static string ToProper(this string value)
     {
         if (value.Length == 0)
         {
@@ -104,7 +104,7 @@ internal static class StringExtensions
         return value.Substring(0, 1).ToUpper() + value.Substring(1);
     }
 
-    internal static string UnescapeSheetName(this String sheetName) =>
+    internal static string UnescapeSheetName(this string sheetName) =>
         sheetName.Trim('\'').Replace("''", "'");
 
     /// <summary>
@@ -160,7 +160,7 @@ internal static class StringExtensions
     /// <summary>
     /// Convert a magic text to a number, where the first letter is in the highest byte of the number.
     /// </summary>
-    internal static UInt32 ToMagicNumber(this string magic)
+    internal static uint ToMagicNumber(this string magic)
     {
         if (magic.Length > 4)
         {
@@ -173,7 +173,7 @@ internal static class StringExtensions
             .Aggregate((acc, cur) => acc * 256 + cur);
     }
 
-    internal static String TrimFormulaEqual(this String text)
+    internal static string TrimFormulaEqual(this string text)
     {
         ReadOnlySpan<char> trimmed = text.AsSpan().Trim();
         if (trimmed.Length >= 1 && trimmed[0] == '=')

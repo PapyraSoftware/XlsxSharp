@@ -18,18 +18,14 @@ internal class XLSheetProtection : IXLSheetProtection
     public Algorithm Algorithm { get; internal set; }
     public XLSheetProtectionElements AllowedElements { get; set; }
 
-    public Boolean IsPasswordProtected =>
-        this.IsProtected && !String.IsNullOrEmpty(this.PasswordHash);
-    public Boolean IsProtected { get; internal set; }
+    public bool IsPasswordProtected => this.IsProtected && !string.IsNullOrEmpty(this.PasswordHash);
+    public bool IsProtected { get; internal set; }
 
-    internal String Base64EncodedSalt { get; set; }
-    internal String PasswordHash { get; set; }
-    internal UInt32 SpinCount { get; set; } = 100000;
+    internal string Base64EncodedSalt { get; set; }
+    internal string PasswordHash { get; set; }
+    internal uint SpinCount { get; set; } = 100000;
 
-    public IXLSheetProtection AllowElement(
-        XLSheetProtectionElements element,
-        Boolean allowed = true
-    )
+    public IXLSheetProtection AllowElement(XLSheetProtectionElements element, bool allowed = true)
     {
         if (!allowed)
         {
@@ -82,7 +78,7 @@ internal class XLSheetProtection : IXLSheetProtection
     }
 
     public IXLSheetProtection Protect(Algorithm algorithm = DefaultProtectionAlgorithm) =>
-        this.Protect(String.Empty, algorithm);
+        this.Protect(string.Empty, algorithm);
 
     public IXLSheetProtection Protect(XLSheetProtectionElements allowedElements) =>
         this.Protect(string.Empty, DefaultProtectionAlgorithm, allowedElements);
@@ -93,7 +89,7 @@ internal class XLSheetProtection : IXLSheetProtection
     ) => this.Protect(string.Empty, algorithm, allowedElements);
 
     public IXLSheetProtection Protect(
-        String password,
+        string password,
         Algorithm algorithm = DefaultProtectionAlgorithm,
         XLSheetProtectionElements allowedElements = XLSheetProtectionElements.SelectEverything
     )
@@ -123,9 +119,9 @@ internal class XLSheetProtection : IXLSheetProtection
         return this;
     }
 
-    public IXLSheetProtection Unprotect() => this.Unprotect(String.Empty);
+    public IXLSheetProtection Unprotect() => this.Unprotect(string.Empty);
 
-    public IXLSheetProtection Unprotect(String password)
+    public IXLSheetProtection Unprotect(string password)
     {
         if (this.IsProtected)
         {
@@ -147,8 +143,8 @@ internal class XLSheetProtection : IXLSheetProtection
             else
             {
                 this.IsProtected = false;
-                this.PasswordHash = String.Empty;
-                this.Base64EncodedSalt = String.Empty;
+                this.PasswordHash = string.Empty;
+                this.Base64EncodedSalt = string.Empty;
             }
         }
 
@@ -159,7 +155,7 @@ internal class XLSheetProtection : IXLSheetProtection
 
     IXLElementProtection<XLSheetProtectionElements> IXLElementProtection<XLSheetProtectionElements>.AllowElement(
         XLSheetProtectionElements element,
-        Boolean allowed
+        bool allowed
     ) => this.AllowElement(element, allowed);
 
     IXLElementProtection<XLSheetProtectionElements> IXLElementProtection<XLSheetProtectionElements>.AllowEverything() =>
@@ -181,7 +177,7 @@ internal class XLSheetProtection : IXLSheetProtection
     ) => this.Protect(algorithm);
 
     IXLElementProtection<XLSheetProtectionElements> IXLElementProtection<XLSheetProtectionElements>.Protect(
-        String password,
+        string password,
         Algorithm algorithm
     ) => this.Protect(password, algorithm);
 
@@ -194,7 +190,7 @@ internal class XLSheetProtection : IXLSheetProtection
     ) => this.Protect(algorithm, allowedElements);
 
     IXLSheetProtection IXLSheetProtection.Protect(
-        String password,
+        string password,
         Algorithm algorithm,
         XLSheetProtectionElements allowedElements
     ) => this.Protect(password, algorithm, allowedElements);
@@ -203,7 +199,7 @@ internal class XLSheetProtection : IXLSheetProtection
         this.Unprotect();
 
     IXLElementProtection<XLSheetProtectionElements> IXLElementProtection<XLSheetProtectionElements>.Unprotect(
-        String password
+        string password
     ) => this.Unprotect(password);
 
     #endregion IXLProtectable interface

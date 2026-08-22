@@ -38,7 +38,7 @@ public class InsertRows : IXLExample
     #region Methods
 
     // Public
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook workbook = new();
         IXLWorksheet ws = workbook.Worksheets.Add("Inserting Rows");

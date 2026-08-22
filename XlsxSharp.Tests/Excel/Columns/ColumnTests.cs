@@ -226,7 +226,7 @@ public class ColumnTests
     {
         XLWorkbook wb = new();
         IXLWorksheet ws = wb.Worksheets.Add("Sheet1");
-        Int32 count = 0;
+        int count = 0;
 
         foreach (IXLColumn row in ws.ColumnsUsed())
         {

@@ -10,7 +10,7 @@ namespace XlsxSharp.Utils;
 
 internal static class CryptographicAlgorithms
 {
-    public static String GenerateNewSalt(Algorithm algorithm)
+    public static string GenerateNewSalt(Algorithm algorithm)
     {
         if (RequiresSalt(algorithm))
         {
@@ -18,15 +18,15 @@ internal static class CryptographicAlgorithms
         }
         else
         {
-            return String.Empty;
+            return string.Empty;
         }
     }
 
-    public static String GetPasswordHash(
+    public static string GetPasswordHash(
         Algorithm algorithm,
-        String password,
-        String salt = "",
-        UInt32 spinCount = 0
+        string password,
+        string salt = "",
+        uint spinCount = 0
     )
     {
         ArgumentNullException.ThrowIfNull(password);
@@ -63,7 +63,7 @@ internal static class CryptographicAlgorithms
         }
     }
 
-    public static Boolean RequiresSalt(Algorithm algorithm)
+    public static bool RequiresSalt(Algorithm algorithm)
     {
         switch (algorithm)
         {
@@ -78,7 +78,7 @@ internal static class CryptographicAlgorithms
         }
     }
 
-    private static String GetDefaultPasswordHash(String password)
+    private static string GetDefaultPasswordHash(string password)
     {
         ArgumentNullException.ThrowIfNull(password);
 
@@ -105,7 +105,7 @@ internal static class CryptographicAlgorithms
         return Convert.ToString(hash, 16).ToUpperInvariant();
     }
 
-    private static String GetSha512PasswordHash(String password, String salt, UInt32 spinCount)
+    private static string GetSha512PasswordHash(string password, string salt, uint spinCount)
     {
         ArgumentNullException.ThrowIfNull(password);
 

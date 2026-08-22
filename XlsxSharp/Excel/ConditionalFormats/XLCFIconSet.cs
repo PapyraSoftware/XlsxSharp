@@ -15,7 +15,7 @@ internal class XLCFIconSet : IXLCFIconSet
 
     public IXLCFIconSet AddValue(
         XLCFIconSetOperator setOperator,
-        String value,
+        string value,
         XLCFContentType type
     )
     {
@@ -27,7 +27,7 @@ internal class XLCFIconSet : IXLCFIconSet
 
     public IXLCFIconSet AddValue(
         XLCFIconSetOperator setOperator,
-        Double value,
+        double value,
         XLCFContentType type
     ) => this.AddValue(setOperator, value.ToInvariantString(), type);
 }

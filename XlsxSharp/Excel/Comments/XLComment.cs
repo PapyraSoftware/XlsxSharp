@@ -52,9 +52,9 @@ internal class XLComment : XLFormattedText<IXLComment>, IXLComment
 
     #region IXLComment Members
 
-    public String Author { get; set; }
+    public string Author { get; set; }
 
-    public IXLComment SetAuthor(String value)
+    public IXLComment SetAuthor(string value)
     {
         this.Author = value;
         return this;
@@ -72,16 +72,16 @@ internal class XLComment : XLFormattedText<IXLComment>, IXLComment
 
     #region IXLDrawing
 
-    public String Name { get; set; }
-    public String Description { get; set; }
+    public string Name { get; set; }
+    public string Description { get; set; }
     public XLDrawingAnchor Anchor { get; set; }
-    public Boolean HorizontalFlip { get; set; }
-    public Boolean VerticalFlip { get; set; }
-    public Int32 Rotation { get; set; }
-    public Int32 ExtentLength { get; set; }
-    public Int32 ExtentWidth { get; set; }
-    public Int32 ShapeId { get; internal set; }
-    public Boolean Visible { get; set; }
+    public bool HorizontalFlip { get; set; }
+    public bool VerticalFlip { get; set; }
+    public int Rotation { get; set; }
+    public int ExtentLength { get; set; }
+    public int ExtentWidth { get; set; }
+    public int ShapeId { get; internal set; }
+    public bool Visible { get; set; }
 
     public IXLComment SetVisible()
     {
@@ -89,7 +89,7 @@ internal class XLComment : XLFormattedText<IXLComment>, IXLComment
         return this.Container;
     }
 
-    public IXLComment SetVisible(Boolean hidden)
+    public IXLComment SetVisible(bool hidden)
     {
         this.Visible = hidden;
         return this.Container;
@@ -97,9 +97,9 @@ internal class XLComment : XLFormattedText<IXLComment>, IXLComment
 
     public IXLDrawingPosition Position { get; private set; }
 
-    public Int32 ZOrder { get; set; }
+    public int ZOrder { get; set; }
 
-    public IXLComment SetZOrder(Int32 zOrder)
+    public IXLComment SetZOrder(int zOrder)
     {
         this.ZOrder = zOrder;
         return this.Container;
@@ -107,13 +107,13 @@ internal class XLComment : XLFormattedText<IXLComment>, IXLComment
 
     public IXLDrawingStyle Style { get; private set; }
 
-    public IXLComment SetName(String name)
+    public IXLComment SetName(string name)
     {
         this.Name = name;
         return this.Container;
     }
 
-    public IXLComment SetDescription(String description)
+    public IXLComment SetDescription(string description)
     {
         this.Description = description;
         return this.Container;
@@ -125,7 +125,7 @@ internal class XLComment : XLFormattedText<IXLComment>, IXLComment
         return this.Container;
     }
 
-    public IXLComment SetHorizontalFlip(Boolean horizontalFlip)
+    public IXLComment SetHorizontalFlip(bool horizontalFlip)
     {
         this.HorizontalFlip = horizontalFlip;
         return this.Container;
@@ -137,25 +137,25 @@ internal class XLComment : XLFormattedText<IXLComment>, IXLComment
         return this.Container;
     }
 
-    public IXLComment SetVerticalFlip(Boolean verticalFlip)
+    public IXLComment SetVerticalFlip(bool verticalFlip)
     {
         this.VerticalFlip = verticalFlip;
         return this.Container;
     }
 
-    public IXLComment SetRotation(Int32 rotation)
+    public IXLComment SetRotation(int rotation)
     {
         this.Rotation = rotation;
         return this.Container;
     }
 
-    public IXLComment SetExtentLength(Int32 extentLength)
+    public IXLComment SetExtentLength(int extentLength)
     {
         this.ExtentLength = extentLength;
         return this.Container;
     }
 
-    public IXLComment SetExtentWidth(Int32 extentWidth)
+    public IXLComment SetExtentWidth(int extentWidth)
     {
         this.ExtentWidth = extentWidth;
         return this.Container;
@@ -206,8 +206,8 @@ internal class XLComment : XLFormattedText<IXLComment>, IXLComment
         this.Container = this;
         this.Anchor = XLDrawingAnchor.MoveAndSizeWithCells;
         this.Style = new XLDrawingStyle();
-        Int32 previousRowNumber = cell.Address.RowNumber;
-        Double previousRowOffset = 0;
+        int previousRowNumber = cell.Address.RowNumber;
+        double previousRowOffset = 0;
 
         if (previousRowNumber > 1)
         {

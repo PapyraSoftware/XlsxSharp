@@ -450,7 +450,7 @@ public class XLPivotTableTests
     private void AssertPivotTablesAreEqual(
         XLPivotTable original,
         XLPivotTable copy,
-        Boolean compareName
+        bool compareName
     )
     {
         Assert.AreEqual(compareName, original.Name.Equals(copy.Name));

@@ -46,7 +46,7 @@ internal class XLFilter
     /// <summary>
     /// Value for <see cref="XLFilterType.Regular"/> filter.
     /// </summary>
-    public Object Value { get; set; }
+    public object Value { get; set; }
 
     internal static XLFilter CreateCustomFilter(
         XLCellValue value,
@@ -150,9 +150,9 @@ internal class XLFilter
                 && IsMatch(date, cachedValue.GetDateTime(), dateTimeGrouping);
         }
 
-        static Boolean IsMatch(DateTime date1, DateTime date2, XLDateTimeGrouping dateTimeGrouping)
+        static bool IsMatch(DateTime date1, DateTime date2, XLDateTimeGrouping dateTimeGrouping)
         {
-            Boolean isMatch = true;
+            bool isMatch = true;
             if (dateTimeGrouping >= XLDateTimeGrouping.Year)
             {
                 isMatch &= date1.Year.Equals(date2.Year);

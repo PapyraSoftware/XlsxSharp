@@ -8,7 +8,7 @@ namespace XlsxSharp.Examples.Ranges;
 
 public class AddingRowToTables : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         string tempFile = ExampleHelper.GetTempFilePath(filePath);
         try

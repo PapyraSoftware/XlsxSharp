@@ -9,13 +9,13 @@ internal class XLSparklineVerticalAxis : IXLSparklineVerticalAxis
 {
     #region Public Properties
 
-    public Double? ManualMax
+    public double? ManualMax
     {
         get => this._manualMax;
         set => this.SetManualMax(value);
     }
 
-    public Double? ManualMin
+    public double? ManualMin
     {
         get => this._manualMin;
         set => this.SetManualMin(value);
@@ -37,7 +37,7 @@ internal class XLSparklineVerticalAxis : IXLSparklineVerticalAxis
 
     #region Public Methods
 
-    public IXLSparklineVerticalAxis SetManualMax(Double? manualMax)
+    public IXLSparklineVerticalAxis SetManualMax(double? manualMax)
     {
         if (manualMax != null)
         {
@@ -48,7 +48,7 @@ internal class XLSparklineVerticalAxis : IXLSparklineVerticalAxis
         return this;
     }
 
-    public IXLSparklineVerticalAxis SetManualMin(Double? manualMin)
+    public IXLSparklineVerticalAxis SetManualMin(double? manualMin)
     {
         if (manualMin != null)
         {
@@ -85,8 +85,8 @@ internal class XLSparklineVerticalAxis : IXLSparklineVerticalAxis
 
     #region Private Fields
 
-    private Double? _manualMax;
-    private Double? _manualMin;
+    private double? _manualMax;
+    private double? _manualMin;
     private XLSparklineAxisMinMax _maxAxisType;
     private XLSparklineAxisMinMax _minAxisType;
 

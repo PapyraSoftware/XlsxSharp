@@ -10,7 +10,7 @@ namespace XlsxSharp.Excel;
 [DebuggerDisplay("{XLHelper.GetColumnLetterFromNumber(Column)+Row}")]
 internal readonly struct Point : IEquatable<Point>, IComparable<Point>
 {
-    public Point(Int32 row, Int32 column)
+    public Point(int row, int column)
     {
         this.Row = row;
         this.Column = column;
@@ -19,12 +19,12 @@ internal readonly struct Point : IEquatable<Point>, IComparable<Point>
     /// <summary>
     /// 1-based row number in a sheet.
     /// </summary>
-    public readonly Int32 Row;
+    public readonly int Row;
 
     /// <summary>
     /// 1-based column number in a sheet.
     /// </summary>
-    public readonly Int32 Column;
+    public readonly int Column;
 
     public static implicit operator Area(Point point) => new(point);
 
@@ -45,7 +45,7 @@ internal readonly struct Point : IEquatable<Point>, IComparable<Point>
         new(target.Row - origin.Row, target.Column - origin.Column);
 
     /// <inheritdoc cref="Parse(ReadOnlySpan{char})"/>
-    public static Point Parse(String text) => Parse(text.AsSpan());
+    public static Point Parse(string text) => Parse(text.AsSpan());
 
     /// <summary>
     /// Parse point per type <c>ST_CellRef</c> from
@@ -165,7 +165,7 @@ internal readonly struct Point : IEquatable<Point>, IComparable<Point>
         return formattedLength;
     }
 
-    public override String ToString()
+    public override string ToString()
     {
         Span<char> text = stackalloc char[10];
         int len = this.Format(text);

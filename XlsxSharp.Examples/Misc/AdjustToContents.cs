@@ -5,7 +5,7 @@ namespace XlsxSharp.Examples.Misc;
 
 public class AdjustToContents : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         using (XLWorkbook wb = new())
         {
@@ -47,7 +47,7 @@ public class AdjustToContents : IXLExample
 
             IXLWorksheet ws2 = wb.Worksheets.Add("Adjust Widths");
             ws2.Cell(1, 1).SetValue("Text to adjust - 255").Style.Alignment.TextRotation = 255;
-            for (Int32 co = 0; co < 90; co += 5)
+            for (int co = 0; co < 90; co += 5)
             {
                 ws2.Cell(1, (co / 5) + 2)
                     .SetValue("Text to adjust - " + co)
@@ -58,7 +58,7 @@ public class AdjustToContents : IXLExample
 
             IXLWorksheet ws4 = wb.Worksheets.Add("Adjust Widths 2");
             ws4.Cell(1, 1).SetValue("Text to adjust - 255").Style.Alignment.TextRotation = 255;
-            for (Int32 co = 0; co < 90; co += 5)
+            for (int co = 0; co < 90; co += 5)
             {
                 IXLCell c = ws4.Cell(1, (co / 5) + 2);
 
@@ -79,7 +79,7 @@ public class AdjustToContents : IXLExample
 
             IXLWorksheet ws3 = wb.Worksheets.Add("Adjust Heights");
             ws3.Cell(1, 1).SetValue("Text to adjust - 255").Style.Alignment.TextRotation = 255;
-            for (Int32 ro = 0; ro < 90; ro += 5)
+            for (int ro = 0; ro < 90; ro += 5)
             {
                 ws3.Cell((ro / 5) + 2, 1)
                     .SetValue("Text to adjust - " + ro)
@@ -90,7 +90,7 @@ public class AdjustToContents : IXLExample
 
             IXLWorksheet ws5 = wb.Worksheets.Add("Adjust Heights 2");
             ws5.Cell(1, 1).SetValue("Text to adjust - 255").Style.Alignment.TextRotation = 255;
-            for (Int32 ro = 0; ro < 90; ro += 5)
+            for (int ro = 0; ro < 90; ro += 5)
             {
                 IXLCell c = ws5.Cell((ro / 5) + 2, 1);
                 c.GetRichText().AddText("Text to adjust - " + ro).SetBold();

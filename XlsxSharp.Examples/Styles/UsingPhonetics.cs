@@ -5,7 +5,7 @@ namespace XlsxSharp.Examples.Styles;
 
 public class UsingPhonetics : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook wb = new();
         IXLWorksheet ws = wb.Worksheets.Add("Using Phonetics");

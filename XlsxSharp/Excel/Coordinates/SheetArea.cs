@@ -19,7 +19,7 @@ internal readonly struct SheetArea : IEquatable<SheetArea>, IEnumerable<SheetPoi
     /// </summary>
     public readonly Area Area;
 
-    public SheetArea(String name, Area area)
+    public SheetArea(string name, Area area)
     {
         if (string.IsNullOrEmpty(name))
         {

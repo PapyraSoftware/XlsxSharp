@@ -20,7 +20,7 @@ internal readonly struct Area : IEquatable<Area>, IEnumerable<Point>
         this.LastPoint = lastPoint;
     }
 
-    public Area(Int32 rowStart, Int32 columnStart, Int32 rowEnd, Int32 columnEnd)
+    public Area(int rowStart, int columnStart, int rowEnd, int columnEnd)
         : this(new Point(rowStart, columnStart), new Point(rowEnd, columnEnd)) { }
 
     /// <summary>
@@ -94,7 +94,7 @@ internal readonly struct Area : IEquatable<Area>, IEnumerable<Point>
     public static bool operator !=(Area left, Area right) => !(left == right);
 
     /// <inheritdoc cref="Parse(ReadOnlySpan{char})"/>
-    public static Area Parse(String input) => Parse(input.AsSpan());
+    public static Area Parse(string input) => Parse(input.AsSpan());
 
     /// <summary>
     /// Parse point per type <c>ST_Ref</c> from
@@ -167,7 +167,7 @@ internal readonly struct Area : IEquatable<Area>, IEnumerable<Point>
         return firstPointLen + 1 + lastPointLen;
     }
 
-    public override String ToString()
+    public override string ToString()
     {
         Span<char> text = stackalloc char[21];
         int len = this.Format(text);

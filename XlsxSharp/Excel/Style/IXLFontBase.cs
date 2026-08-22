@@ -6,17 +6,17 @@ namespace XlsxSharp.Excel;
 
 public interface IXLFontBase
 {
-    Boolean Bold { get; set; }
+    bool Bold { get; set; }
 
-    Boolean Italic { get; set; }
+    bool Italic { get; set; }
 
     XLFontUnderlineValues Underline { get; set; }
 
-    Boolean Strikethrough { get; set; }
+    bool Strikethrough { get; set; }
 
     XLFontVerticalTextAlignmentValues VerticalAlignment { get; set; }
 
-    Boolean Shadow { get; set; }
+    bool Shadow { get; set; }
 
     /// <summary>
     /// Get or set font size in points.
@@ -26,11 +26,11 @@ public interface IXLFontBase
     /// values are from 1pt to 409.55pt.
     /// </value>
     /// <exception cref="ArgumentOutOfRangeException">Value is outside of allowed values 1pt to 409.55pt.</exception>
-    Double FontSize { get; set; }
+    double FontSize { get; set; }
 
     XLColor FontColor { get; set; }
 
-    String FontName { get; set; }
+    string FontName { get; set; }
 
     XLFontFamilyNumberingValues FontFamilyNumbering { get; set; }
 

@@ -14,13 +14,13 @@ internal sealed class XLRow : XLRangeBase, IXLRow, IXLFormatContainer
     /// Don't use directly, use properties.
     /// </summary>
     private XlRowFlags _flags;
-    private Double _height;
-    private Int32 _outlineLevel;
+    private double _height;
+    private int _outlineLevel;
 
     /// <summary>
     /// The direct constructor should only be used in <see cref="XLWorksheet.RangeFactory"/>.
     /// </summary>
-    public XLRow(XLWorksheet worksheet, Int32 row)
+    public XLRow(XLWorksheet worksheet, int row)
         : base(XLRangeAddress.EntireRow(worksheet, row))
     {
         this.SetRowNumber(row);
@@ -32,7 +32,7 @@ internal sealed class XLRow : XLRangeBase, IXLRow, IXLFormatContainer
 
     public override XLRangeType RangeType => XLRangeType.Row;
 
-    public Boolean Collapsed
+    public bool Collapsed
     {
         get => this._flags.HasFlag(XlRowFlags.Collapsed);
         set
@@ -58,7 +58,7 @@ internal sealed class XLRow : XLRangeBase, IXLRow, IXLFormatContainer
     /// set to false. Custom height means no auto-sizing by Excel on load, so if row has this
     /// attribute, it stops Excel from auto-sizing the height of a row to fit the content on load.
     /// </remarks>
-    public Double? DyDescent { get; set; }
+    public double? DyDescent { get; set; }
 
     /// <summary>
     /// Should cells in the row display phonetic? This doesn't actually affect whether the phonetic are
@@ -67,7 +67,7 @@ internal sealed class XLRow : XLRangeBase, IXLRow, IXLFormatContainer
     /// (and also the state of the "Show or hide phonetic" in Excel when whole row is selected).
     /// Default is <c>false</c>.
     /// </summary>
-    public Boolean ShowPhonetic
+    public bool ShowPhonetic
     {
         get => this._flags.HasFlag(XlRowFlags.ShowPhonetic);
         set
@@ -83,7 +83,7 @@ internal sealed class XLRow : XLRangeBase, IXLRow, IXLFormatContainer
         }
     }
 
-    public Boolean Loading
+    public bool Loading
     {
         get => this._flags.HasFlag(XlRowFlags.Loading);
         set
@@ -102,7 +102,7 @@ internal sealed class XLRow : XLRangeBase, IXLRow, IXLFormatContainer
     /// <summary>
     /// Does row have an individual height or is it derived from the worksheet <see cref="XLWorksheet.RowHeight"/>?
     /// </summary>
-    public Boolean HeightChanged
+    public bool HeightChanged
     {
         get => this._flags.HasFlag(XlRowFlags.HeightChanged);
         private set
@@ -120,7 +120,7 @@ internal sealed class XLRow : XLRangeBase, IXLRow, IXLFormatContainer
 
     #region IXLRow Members
 
-    public Double Height
+    public double Height
     {
         get => this._height;
         set
@@ -134,10 +134,9 @@ internal sealed class XLRow : XLRangeBase, IXLRow, IXLFormatContainer
         }
     }
 
-    IXLCells IXLRow.Cells(String cellsInRow) => this.Cells(cellsInRow);
+    IXLCells IXLRow.Cells(string cellsInRow) => this.Cells(cellsInRow);
 
-    IXLCells IXLRow.Cells(Int32 firstColumn, Int32 lastColumn) =>
-        this.Cells(firstColumn, lastColumn);
+    IXLCells IXLRow.Cells(int firstColumn, int lastColumn) => this.Cells(firstColumn, lastColumn);
 
     public void ClearHeight()
     {
@@ -152,7 +151,7 @@ internal sealed class XLRow : XLRangeBase, IXLRow, IXLFormatContainer
         this.Worksheet.DeleteRow(rowNumber);
     }
 
-    public new IXLRows InsertRowsBelow(Int32 numberOfRows)
+    public new IXLRows InsertRowsBelow(int numberOfRows)
     {
         int rowNum = this.RowNumber();
         this.Worksheet.Internals.RowsCollection.ShiftRowsDown(rowNum + 1, numberOfRows);
@@ -173,7 +172,7 @@ internal sealed class XLRow : XLRangeBase, IXLRow, IXLFormatContainer
         return newRows;
     }
 
-    public new IXLRows InsertRowsAbove(Int32 numberOfRows)
+    public new IXLRows InsertRowsAbove(int numberOfRows)
     {
         int rowNum = this.RowNumber();
         if (rowNum > 1)
@@ -194,15 +193,15 @@ internal sealed class XLRow : XLRangeBase, IXLRow, IXLFormatContainer
         return this;
     }
 
-    public IXLCell Cell(Int32 columnNumber) => this.Cell(1, columnNumber);
+    public IXLCell Cell(int columnNumber) => this.Cell(1, columnNumber);
 
-    public override XLCell Cell(String columnLetter) => this.Cell(1, columnLetter);
+    public override XLCell Cell(string columnLetter) => this.Cell(1, columnLetter);
 
     IXLCell IXLRow.Cell(string columnLetter) => this.Cell(columnLetter);
 
     public override IXLCells Cells() => this.Cells(true, XLCellsUsedOptions.All);
 
-    public override XLCells Cells(Boolean usedCellsOnly)
+    public override XLCells Cells(bool usedCellsOnly)
     {
         if (usedCellsOnly)
         {
@@ -217,7 +216,7 @@ internal sealed class XLRow : XLRangeBase, IXLRow, IXLFormatContainer
         }
     }
 
-    public override XLCells Cells(String cellsInRow)
+    public override XLCells Cells(string cellsInRow)
     {
         XLCells retVal = new(this.Worksheet, false, XLCellsUsedOptions.AllContents);
         string[] rangePairs = cellsInRow.Split(',');
@@ -229,26 +228,26 @@ internal sealed class XLRow : XLRangeBase, IXLRow, IXLFormatContainer
         return retVal;
     }
 
-    public XLCells Cells(Int32 firstColumn, Int32 lastColumn) =>
+    public XLCells Cells(int firstColumn, int lastColumn) =>
         this.Cells(firstColumn + ":" + lastColumn);
 
-    public IXLCells Cells(String firstColumn, String lastColumn) =>
+    public IXLCells Cells(string firstColumn, string lastColumn) =>
         this.Cells(
             XlsxSharp.XLHelper.GetColumnNumberFromLetter(firstColumn)
                 + ":"
                 + XlsxSharp.XLHelper.GetColumnNumberFromLetter(lastColumn)
         );
 
-    public IXLRow AdjustToContents(Int32 startColumn) =>
+    public IXLRow AdjustToContents(int startColumn) =>
         this.AdjustToContents(startColumn, XlsxSharp.XLHelper.MaxColumnNumber);
 
-    public IXLRow AdjustToContents(Int32 startColumn, Int32 endColumn) =>
-        this.AdjustToContents(startColumn, endColumn, 0, Double.MaxValue);
+    public IXLRow AdjustToContents(int startColumn, int endColumn) =>
+        this.AdjustToContents(startColumn, endColumn, 0, double.MaxValue);
 
-    public IXLRow AdjustToContents(Double minHeight, Double maxHeight) =>
+    public IXLRow AdjustToContents(double minHeight, double maxHeight) =>
         this.AdjustToContents(1, XlsxSharp.XLHelper.MaxColumnNumber, minHeight, maxHeight);
 
-    public IXLRow AdjustToContents(Int32 startColumn, Double minHeight, Double maxHeight) =>
+    public IXLRow AdjustToContents(int startColumn, double minHeight, double maxHeight) =>
         this.AdjustToContents(
             startColumn,
             XlsxSharp.XLHelper.MaxColumnNumber,
@@ -257,10 +256,10 @@ internal sealed class XLRow : XLRangeBase, IXLRow, IXLFormatContainer
         );
 
     public IXLRow AdjustToContents(
-        Int32 startColumn,
-        Int32 endColumn,
-        Double minHeightPt,
-        Double maxHeightPt
+        int startColumn,
+        int endColumn,
+        double minHeightPt,
+        double maxHeightPt
     )
     {
         IXLGraphicEngine engine = this.Worksheet.Workbook.GraphicEngine;
@@ -382,7 +381,7 @@ internal sealed class XLRow : XLRangeBase, IXLRow, IXLFormatContainer
         return this;
     }
 
-    public Boolean IsHidden
+    public bool IsHidden
     {
         get => this._flags.HasFlag(XlRowFlags.IsHidden);
         set
@@ -398,7 +397,7 @@ internal sealed class XLRow : XLRangeBase, IXLRow, IXLFormatContainer
         }
     }
 
-    public Int32 OutlineLevel
+    public int OutlineLevel
     {
         get => this._outlineLevel;
         set
@@ -419,11 +418,11 @@ internal sealed class XLRow : XLRangeBase, IXLRow, IXLFormatContainer
 
     public IXLRow Group() => this.Group(false);
 
-    public IXLRow Group(Int32 outlineLevel) => this.Group(outlineLevel, false);
+    public IXLRow Group(int outlineLevel) => this.Group(outlineLevel, false);
 
     public IXLRow Ungroup() => this.Ungroup(false);
 
-    public IXLRow Group(Boolean collapse)
+    public IXLRow Group(bool collapse)
     {
         if (this.OutlineLevel < 8)
         {
@@ -434,14 +433,14 @@ internal sealed class XLRow : XLRangeBase, IXLRow, IXLFormatContainer
         return this;
     }
 
-    public IXLRow Group(Int32 outlineLevel, Boolean collapse)
+    public IXLRow Group(int outlineLevel, bool collapse)
     {
         this.OutlineLevel = outlineLevel;
         this.Collapsed = collapse;
         return this;
     }
 
-    public IXLRow Ungroup(Boolean ungroupFromAll)
+    public IXLRow Ungroup(bool ungroupFromAll)
     {
         if (ungroupFromAll)
         {
@@ -469,7 +468,7 @@ internal sealed class XLRow : XLRangeBase, IXLRow, IXLFormatContainer
         return this.Unhide();
     }
 
-    public Int32 CellCount() =>
+    public int CellCount() =>
         this.RangeAddress.LastAddress.ColumnNumber
         - this.RangeAddress.FirstAddress.ColumnNumber
         + 1;
@@ -478,8 +477,8 @@ internal sealed class XLRow : XLRangeBase, IXLRow, IXLFormatContainer
 
     public new IXLRow SortLeftToRight(
         XLSortOrder sortOrder = XLSortOrder.Ascending,
-        Boolean matchCase = false,
-        Boolean ignoreBlanks = true
+        bool matchCase = false,
+        bool ignoreBlanks = true
     )
     {
         base.SortLeftToRight(sortOrder, matchCase, ignoreBlanks);
@@ -517,12 +516,12 @@ internal sealed class XLRow : XLRangeBase, IXLRow, IXLFormatContainer
         return newRow;
     }
 
-    public IXLRangeRow Row(Int32 start, Int32 end) => this.Range(1, start, 1, end).Row(1);
+    public IXLRangeRow Row(int start, int end) => this.Range(1, start, 1, end).Row(1);
 
     public IXLRangeRow Row(IXLCell start, IXLCell end) =>
         this.Row(start.Address.ColumnNumber, end.Address.ColumnNumber);
 
-    public IXLRangeRows Rows(String rows)
+    public IXLRangeRows Rows(string rows)
     {
         XLRangeRows retVal = new(this.Worksheet);
         string[] rowPairs = rows.Split(',');
@@ -576,7 +575,7 @@ internal sealed class XLRow : XLRangeBase, IXLRow, IXLFormatContainer
         // rows are shifted by XLRowCollection
     }
 
-    internal void SetRowNumber(Int32 row) =>
+    internal void SetRowNumber(int row) =>
         this.RangeAddress = new XLRangeAddress(
             new XLAddress(
                 this.Worksheet,
@@ -594,9 +593,9 @@ internal sealed class XLRow : XLRangeBase, IXLRow, IXLFormatContainer
             )
         );
 
-    public override XLRange Range(String rangeAddressStr)
+    public override XLRange Range(string rangeAddressStr)
     {
-        String rangeAddressToUse;
+        string rangeAddressToUse;
         if (rangeAddressStr.Contains(':') || rangeAddressStr.Contains('-'))
         {
             if (rangeAddressStr.Contains('-'))
@@ -621,17 +620,17 @@ internal sealed class XLRow : XLRangeBase, IXLRow, IXLFormatContainer
 
     public IXLRow AdjustToContents() => this.AdjustToContents(1);
 
-    private XLRow RowShift(Int32 rowsToShift) => this.Worksheet.Row(this.RowNumber() + rowsToShift);
+    private XLRow RowShift(int rowsToShift) => this.Worksheet.Row(this.RowNumber() + rowsToShift);
 
     #region XLRow Above
 
     IXLRow IXLRow.RowAbove() => this.RowAbove();
 
-    IXLRow IXLRow.RowAbove(Int32 step) => this.RowAbove(step);
+    IXLRow IXLRow.RowAbove(int step) => this.RowAbove(step);
 
     public XLRow RowAbove() => this.RowAbove(1);
 
-    public XLRow RowAbove(Int32 step) => this.RowShift(step * -1);
+    public XLRow RowAbove(int step) => this.RowShift(step * -1);
 
     #endregion XLRow Above
 
@@ -639,17 +638,17 @@ internal sealed class XLRow : XLRangeBase, IXLRow, IXLFormatContainer
 
     IXLRow IXLRow.RowBelow() => this.RowBelow();
 
-    IXLRow IXLRow.RowBelow(Int32 step) => this.RowBelow(step);
+    IXLRow IXLRow.RowBelow(int step) => this.RowBelow(step);
 
     public XLRow RowBelow() => this.RowBelow(1);
 
-    public XLRow RowBelow(Int32 step) => this.RowShift(step);
+    public XLRow RowBelow(int step) => this.RowShift(step);
 
     #endregion XLRow Below
 
-    public override Boolean IsEmpty() => this.IsEmpty(XLCellsUsedOptions.AllContents);
+    public override bool IsEmpty() => this.IsEmpty(XLCellsUsedOptions.AllContents);
 
-    public override Boolean IsEmpty(XLCellsUsedOptions options)
+    public override bool IsEmpty(XLCellsUsedOptions options)
     {
         if (options.HasFlag(XLCellsUsedOptions.NormalFormats) && this.FormatValue is not null)
         {
@@ -659,9 +658,9 @@ internal sealed class XLRow : XLRangeBase, IXLRow, IXLFormatContainer
         return base.IsEmpty(options);
     }
 
-    public override Boolean IsEntireRow() => true;
+    public override bool IsEntireRow() => true;
 
-    public override Boolean IsEntireColumn() => false;
+    public override bool IsEntireColumn() => false;
 
     /// <summary>
     /// Flag enum to save space, instead of wasting byte for each flag.

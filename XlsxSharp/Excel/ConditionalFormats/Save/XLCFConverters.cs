@@ -34,7 +34,7 @@ internal class XLCFConverters
 
     public static ConditionalFormattingRule Convert(
         XLConditionalFormat conditionalFormat,
-        Int32 priority,
+        int priority,
         XLWorkbook.SaveContext context
     )
     {

@@ -17,7 +17,7 @@ internal class XLColumn : XLRangeBase, IXLColumn, IXLFormatContainer
     /// <summary>
     /// The direct constructor should only be used in <see cref="XLWorksheet.RangeFactory"/>.
     /// </summary>
-    public XLColumn(XLWorksheet worksheet, Int32 column)
+    public XLColumn(XLWorksheet worksheet, int column)
         : base(XLRangeAddress.EntireColumn(worksheet, column))
     {
         this.SetColumnNumber(column);
@@ -32,15 +32,15 @@ internal class XLColumn : XLRangeBase, IXLColumn, IXLFormatContainer
 
     public override XLRangeType RangeType => XLRangeType.Column;
 
-    public Boolean Collapsed { get; set; }
+    public bool Collapsed { get; set; }
 
     #region IXLColumn Members
 
-    public Double Width { get; set; }
+    public double Width { get; set; }
 
-    IXLCells IXLColumn.Cells(String cellsInColumn) => this.Cells(cellsInColumn);
+    IXLCells IXLColumn.Cells(string cellsInColumn) => this.Cells(cellsInColumn);
 
-    IXLCells IXLColumn.Cells(Int32 firstRow, Int32 lastRow) => this.Cells(firstRow, lastRow);
+    IXLCells IXLColumn.Cells(int firstRow, int lastRow) => this.Cells(firstRow, lastRow);
 
     public void Delete()
     {
@@ -55,9 +55,9 @@ internal class XLColumn : XLRangeBase, IXLColumn, IXLFormatContainer
         return this;
     }
 
-    public IXLCell Cell(Int32 rowNumber) => this.Cell(rowNumber, 1);
+    public IXLCell Cell(int rowNumber) => this.Cell(rowNumber, 1);
 
-    public override XLCells Cells(String cellsInColumn)
+    public override XLCells Cells(string cellsInColumn)
     {
         XLCells retVal = new(this.Worksheet, false, XLCellsUsedOptions.All);
         string[] rangePairs = cellsInColumn.Split(',');
@@ -71,7 +71,7 @@ internal class XLColumn : XLRangeBase, IXLColumn, IXLFormatContainer
 
     public override IXLCells Cells() => this.Cells(true, XLCellsUsedOptions.All);
 
-    public override XLCells Cells(Boolean usedCellsOnly)
+    public override XLCells Cells(bool usedCellsOnly)
     {
         if (usedCellsOnly)
         {
@@ -86,9 +86,9 @@ internal class XLColumn : XLRangeBase, IXLColumn, IXLFormatContainer
         }
     }
 
-    public XLCells Cells(Int32 firstRow, Int32 lastRow) => this.Cells(firstRow + ":" + lastRow);
+    public XLCells Cells(int firstRow, int lastRow) => this.Cells(firstRow + ":" + lastRow);
 
-    public new IXLColumns InsertColumnsAfter(Int32 numberOfColumns)
+    public new IXLColumns InsertColumnsAfter(int numberOfColumns)
     {
         int columnNum = this.ColumnNumber();
         this.Worksheet.Internals.ColumnsCollection.ShiftColumnsRight(
@@ -112,7 +112,7 @@ internal class XLColumn : XLRangeBase, IXLColumn, IXLFormatContainer
         return newColumns;
     }
 
-    public new IXLColumns InsertColumnsBefore(Int32 numberOfColumns)
+    public new IXLColumns InsertColumnsBefore(int numberOfColumns)
     {
         int columnNum = this.ColumnNumber();
         if (columnNum > 1)
@@ -128,23 +128,23 @@ internal class XLColumn : XLRangeBase, IXLColumn, IXLFormatContainer
 
     public IXLColumn AdjustToContents() => this.AdjustToContents(1);
 
-    public IXLColumn AdjustToContents(Int32 startRow) =>
+    public IXLColumn AdjustToContents(int startRow) =>
         this.AdjustToContents(startRow, XlsxSharp.XLHelper.MaxRowNumber);
 
-    public IXLColumn AdjustToContents(Int32 startRow, Int32 endRow) =>
-        this.AdjustToContents(startRow, endRow, 0, Double.MaxValue);
+    public IXLColumn AdjustToContents(int startRow, int endRow) =>
+        this.AdjustToContents(startRow, endRow, 0, double.MaxValue);
 
-    public IXLColumn AdjustToContents(Double minWidth, Double maxWidth) =>
+    public IXLColumn AdjustToContents(double minWidth, double maxWidth) =>
         this.AdjustToContents(1, XlsxSharp.XLHelper.MaxRowNumber, minWidth, maxWidth);
 
-    public IXLColumn AdjustToContents(Int32 startRow, Double minWidth, Double maxWidth) =>
+    public IXLColumn AdjustToContents(int startRow, double minWidth, double maxWidth) =>
         this.AdjustToContents(startRow, XlsxSharp.XLHelper.MaxRowNumber, minWidth, maxWidth);
 
     public IXLColumn AdjustToContents(
-        Int32 startRow,
-        Int32 endRow,
-        Double minWidthNoC,
-        Double maxWidthNoC
+        int startRow,
+        int endRow,
+        double minWidthNoC,
+        double maxWidthNoC
     )
     {
         IXLGraphicEngine engine = this.Worksheet.Workbook.GraphicEngine;
@@ -324,9 +324,9 @@ internal class XLColumn : XLRangeBase, IXLColumn, IXLFormatContainer
         return this;
     }
 
-    public Boolean IsHidden { get; set; }
+    public bool IsHidden { get; set; }
 
-    public Int32 OutlineLevel
+    public int OutlineLevel
     {
         get => this._outlineLevel;
         set
@@ -347,7 +347,7 @@ internal class XLColumn : XLRangeBase, IXLColumn, IXLFormatContainer
 
     public IXLColumn Group() => this.Group(false);
 
-    public IXLColumn Group(Boolean collapse)
+    public IXLColumn Group(bool collapse)
     {
         if (this.OutlineLevel < 8)
         {
@@ -358,9 +358,9 @@ internal class XLColumn : XLRangeBase, IXLColumn, IXLFormatContainer
         return this;
     }
 
-    public IXLColumn Group(Int32 outlineLevel) => this.Group(outlineLevel, false);
+    public IXLColumn Group(int outlineLevel) => this.Group(outlineLevel, false);
 
-    public IXLColumn Group(Int32 outlineLevel, Boolean collapse)
+    public IXLColumn Group(int outlineLevel, bool collapse)
     {
         this.OutlineLevel = outlineLevel;
         this.Collapsed = collapse;
@@ -369,7 +369,7 @@ internal class XLColumn : XLRangeBase, IXLColumn, IXLFormatContainer
 
     public IXLColumn Ungroup() => this.Ungroup(false);
 
-    public IXLColumn Ungroup(Boolean ungroupFromAll)
+    public IXLColumn Ungroup(bool ungroupFromAll)
     {
         if (ungroupFromAll)
         {
@@ -397,22 +397,22 @@ internal class XLColumn : XLRangeBase, IXLColumn, IXLFormatContainer
         return this.Unhide();
     }
 
-    public Int32 CellCount() =>
+    public int CellCount() =>
         this.RangeAddress.LastAddress.ColumnNumber
         - this.RangeAddress.FirstAddress.ColumnNumber
         + 1;
 
     public IXLColumn Sort(
         XLSortOrder sortOrder = XLSortOrder.Ascending,
-        Boolean matchCase = false,
-        Boolean ignoreBlanks = true
+        bool matchCase = false,
+        bool ignoreBlanks = true
     )
     {
         this.Sort(1, sortOrder, matchCase, ignoreBlanks);
         return this;
     }
 
-    IXLRangeColumn IXLColumn.Column(Int32 start, Int32 end) => this.Column(start, end);
+    IXLRangeColumn IXLColumn.Column(int start, int end) => this.Column(start, end);
 
     IXLRangeColumn IXLColumn.CopyTo(IXLCell target)
     {
@@ -441,12 +441,12 @@ internal class XLColumn : XLRangeBase, IXLColumn, IXLFormatContainer
         return newColumn;
     }
 
-    public XLRangeColumn Column(Int32 start, Int32 end) => this.Range(start, 1, end, 1).Column(1);
+    public XLRangeColumn Column(int start, int end) => this.Range(start, 1, end, 1).Column(1);
 
     public IXLRangeColumn Column(IXLCell start, IXLCell end) =>
         this.Column(start.Address.RowNumber, end.Address.RowNumber);
 
-    public IXLRangeColumns Columns(String columns)
+    public IXLRangeColumns Columns(string columns)
     {
         XLRangeColumns retVal = new(this.Worksheet);
         string[] columnPairs = columns.Split(',');
@@ -520,9 +520,9 @@ internal class XLColumn : XLRangeBase, IXLColumn, IXLFormatContainer
             )
         );
 
-    public override XLRange Range(String rangeAddressStr)
+    public override XLRange Range(string rangeAddressStr)
     {
-        String rangeAddressToUse;
+        string rangeAddressToUse;
         if (rangeAddressStr.Contains(':') || rangeAddressStr.Contains('-'))
         {
             if (rangeAddressStr.Contains('-'))
@@ -548,18 +548,18 @@ internal class XLColumn : XLRangeBase, IXLColumn, IXLFormatContainer
     public IXLRangeColumn Range(int firstRow, int lastRow) =>
         this.Range(firstRow, 1, lastRow, 1).Column(1);
 
-    private XLColumn ColumnShift(Int32 columnsToShift) =>
+    private XLColumn ColumnShift(int columnsToShift) =>
         this.Worksheet.Column(this.ColumnNumber() + columnsToShift);
 
     #region XLColumn Left
 
     IXLColumn IXLColumn.ColumnLeft() => this.ColumnLeft();
 
-    IXLColumn IXLColumn.ColumnLeft(Int32 step) => this.ColumnLeft(step);
+    IXLColumn IXLColumn.ColumnLeft(int step) => this.ColumnLeft(step);
 
     public XLColumn ColumnLeft() => this.ColumnLeft(1);
 
-    public XLColumn ColumnLeft(Int32 step) => this.ColumnShift(step * -1);
+    public XLColumn ColumnLeft(int step) => this.ColumnShift(step * -1);
 
     #endregion XLColumn Left
 
@@ -567,17 +567,17 @@ internal class XLColumn : XLRangeBase, IXLColumn, IXLFormatContainer
 
     IXLColumn IXLColumn.ColumnRight() => this.ColumnRight();
 
-    IXLColumn IXLColumn.ColumnRight(Int32 step) => this.ColumnRight(step);
+    IXLColumn IXLColumn.ColumnRight(int step) => this.ColumnRight(step);
 
     public XLColumn ColumnRight() => this.ColumnRight(1);
 
-    public XLColumn ColumnRight(Int32 step) => this.ColumnShift(step);
+    public XLColumn ColumnRight(int step) => this.ColumnShift(step);
 
     #endregion XLColumn Right
 
-    public override Boolean IsEmpty() => this.IsEmpty(XLCellsUsedOptions.AllContents);
+    public override bool IsEmpty() => this.IsEmpty(XLCellsUsedOptions.AllContents);
 
-    public override Boolean IsEmpty(XLCellsUsedOptions options)
+    public override bool IsEmpty(XLCellsUsedOptions options)
     {
         if (options.HasFlag(XLCellsUsedOptions.NormalFormats) && this.FormatValue is not null)
         {
@@ -587,7 +587,7 @@ internal class XLColumn : XLRangeBase, IXLColumn, IXLFormatContainer
         return base.IsEmpty(options);
     }
 
-    public override Boolean IsEntireRow() => false;
+    public override bool IsEntireRow() => false;
 
-    public override Boolean IsEntireColumn() => true;
+    public override bool IsEntireColumn() => true;
 }

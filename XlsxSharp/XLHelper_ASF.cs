@@ -95,9 +95,9 @@ public static partial class XLHelper
     /// </exception>
     ///
     // This method was ported from the POI project at https://github.com/apache/poi/blob/trunk/src/java/org/apache/poi/ss/util/WorkbookUtil.java
-    public static void ValidateSheetName(String sheetName)
+    public static void ValidateSheetName(string sheetName)
     {
-        if (String.IsNullOrWhiteSpace(sheetName))
+        if (string.IsNullOrWhiteSpace(sheetName))
         {
             throw new ArgumentException("sheetName must not be null or whitespace");
         }

@@ -25,7 +25,7 @@ public interface IXLRangeAddress
     /// <value>
     /// 	<c>true</c> if this instance is valid; otherwise, <c>false</c>.
     /// </value>
-    Boolean IsValid { get; }
+    bool IsValid { get; }
 
     /// <summary>
     /// Gets or sets the last address in the range.
@@ -51,7 +51,7 @@ public interface IXLRangeAddress
     /// <returns>Range of the address or null, if the range is not a valid address.</returns>
     IXLRange? AsRange();
 
-    Boolean Contains(IXLAddress address);
+    bool Contains(IXLAddress address);
 
     /// <summary>
     /// Returns the intersection of this range address with another range address on the same worksheet.
@@ -60,7 +60,7 @@ public interface IXLRangeAddress
     /// <returns>The intersection's range address</returns>
     IXLRangeAddress Intersection(IXLRangeAddress otherRangeAddress);
 
-    Boolean Intersects(IXLRangeAddress otherAddress);
+    bool Intersects(IXLRangeAddress otherAddress);
 
     /// <summary>
     /// Determines whether range address spans the entire column.
@@ -68,7 +68,7 @@ public interface IXLRangeAddress
     /// <returns>
     ///   <c>true</c> if is entire column; otherwise, <c>false</c>.
     /// </returns>
-    Boolean IsEntireColumn();
+    bool IsEntireColumn();
 
     /// <summary>
     /// Determines whether range address spans the entire row.
@@ -76,7 +76,7 @@ public interface IXLRangeAddress
     /// <returns>
     ///   <c>true</c> if is entire row; otherwise, <c>false</c>.
     /// </returns>
-    Boolean IsEntireRow();
+    bool IsEntireRow();
 
     /// <summary>
     /// Determines whether the range address spans the entire worksheet.
@@ -84,7 +84,7 @@ public interface IXLRangeAddress
     /// <returns>
     ///   <c>true</c> if is entire sheet; otherwise, <c>false</c>.
     /// </returns>
-    Boolean IsEntireSheet();
+    bool IsEntireSheet();
 
     /// <summary>
     /// Returns a range address so that its offset from the target base address is equal to the offset of the current range address to the source base address.
@@ -98,17 +98,17 @@ public interface IXLRangeAddress
         IXLRangeAddress targetRangeAddress
     );
 
-    String ToString(XLReferenceStyle referenceStyle);
+    string ToString(XLReferenceStyle referenceStyle);
 
-    String ToString(XLReferenceStyle referenceStyle, Boolean includeSheet);
+    string ToString(XLReferenceStyle referenceStyle, bool includeSheet);
 
-    String ToStringFixed();
+    string ToStringFixed();
 
-    String ToStringFixed(XLReferenceStyle referenceStyle);
+    string ToStringFixed(XLReferenceStyle referenceStyle);
 
-    String ToStringFixed(XLReferenceStyle referenceStyle, Boolean includeSheet);
+    string ToStringFixed(XLReferenceStyle referenceStyle, bool includeSheet);
 
-    String ToStringRelative();
+    string ToStringRelative();
 
-    String ToStringRelative(Boolean includeSheet);
+    string ToStringRelative(bool includeSheet);
 }

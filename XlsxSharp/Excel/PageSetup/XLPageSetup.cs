@@ -76,16 +76,16 @@ internal class XLPageSetup : IXLPageSetup
 
     public IXLPrintAreas PrintAreas { get; private set; }
 
-    public Int32 FirstRowToRepeatAtTop { get; private set; }
-    public Int32 LastRowToRepeatAtTop { get; private set; }
+    public int FirstRowToRepeatAtTop { get; private set; }
+    public int LastRowToRepeatAtTop { get; private set; }
 
-    public void SetRowsToRepeatAtTop(String range)
+    public void SetRowsToRepeatAtTop(string range)
     {
         string[] arrRange = range.Replace("$", "").Split(':');
-        this.SetRowsToRepeatAtTop(Int32.Parse(arrRange[0]), Int32.Parse(arrRange[1]));
+        this.SetRowsToRepeatAtTop(int.Parse(arrRange[0]), int.Parse(arrRange[1]));
     }
 
-    public void SetRowsToRepeatAtTop(Int32 firstRowToRepeatAtTop, Int32 lastRowToRepeatAtTop)
+    public void SetRowsToRepeatAtTop(int firstRowToRepeatAtTop, int lastRowToRepeatAtTop)
     {
         if (firstRowToRepeatAtTop <= 0)
         {
@@ -103,15 +103,15 @@ internal class XLPageSetup : IXLPageSetup
         this.LastRowToRepeatAtTop = lastRowToRepeatAtTop;
     }
 
-    public Int32 FirstColumnToRepeatAtLeft { get; private set; }
-    public Int32 LastColumnToRepeatAtLeft { get; private set; }
+    public int FirstColumnToRepeatAtLeft { get; private set; }
+    public int LastColumnToRepeatAtLeft { get; private set; }
 
-    public void SetColumnsToRepeatAtLeft(String range)
+    public void SetColumnsToRepeatAtLeft(string range)
     {
         string[] arrRange = range.Replace("$", "").Split(':');
-        if (Int32.TryParse(arrRange[0], out int iTest))
+        if (int.TryParse(arrRange[0], out int iTest))
         {
-            this.SetColumnsToRepeatAtLeft(Int32.Parse(arrRange[0]), Int32.Parse(arrRange[1]));
+            this.SetColumnsToRepeatAtLeft(int.Parse(arrRange[0]), int.Parse(arrRange[1]));
         }
         else
         {
@@ -120,8 +120,8 @@ internal class XLPageSetup : IXLPageSetup
     }
 
     public void SetColumnsToRepeatAtLeft(
-        String firstColumnToRepeatAtLeft,
-        String lastColumnToRepeatAtLeft
+        string firstColumnToRepeatAtLeft,
+        string lastColumnToRepeatAtLeft
     ) =>
         this.SetColumnsToRepeatAtLeft(
             XlsxSharp.XLHelper.GetColumnNumberFromLetter(firstColumnToRepeatAtLeft),
@@ -129,8 +129,8 @@ internal class XLPageSetup : IXLPageSetup
         );
 
     public void SetColumnsToRepeatAtLeft(
-        Int32 firstColumnToRepeatAtLeft,
-        Int32 lastColumnToRepeatAtLeft
+        int firstColumnToRepeatAtLeft,
+        int lastColumnToRepeatAtLeft
     )
     {
         if (firstColumnToRepeatAtLeft <= 0)
@@ -151,16 +151,16 @@ internal class XLPageSetup : IXLPageSetup
 
     public XLPageOrientation PageOrientation { get; set; }
     public XLPaperSize PaperSize { get; set; }
-    public Int32 HorizontalDpi { get; set; }
-    public Int32 VerticalDpi { get; set; }
-    public Int32? FirstPageNumber { get; set; }
-    public Boolean CenterHorizontally { get; set; }
-    public Boolean CenterVertically { get; set; }
+    public int HorizontalDpi { get; set; }
+    public int VerticalDpi { get; set; }
+    public int? FirstPageNumber { get; set; }
+    public bool CenterHorizontally { get; set; }
+    public bool CenterVertically { get; set; }
     public XLPrintErrorValues PrintErrorValue { get; set; }
     public IXLMargins Margins { get; set; }
 
-    private Int32 _pagesWide;
-    public Int32 PagesWide
+    private int _pagesWide;
+    public int PagesWide
     {
         get => this._pagesWide;
         set
@@ -173,8 +173,8 @@ internal class XLPageSetup : IXLPageSetup
         }
     }
 
-    private Int32 _pagesTall;
-    public Int32 PagesTall
+    private int _pagesTall;
+    public int PagesTall
     {
         get => this._pagesTall;
         set
@@ -187,8 +187,8 @@ internal class XLPageSetup : IXLPageSetup
         }
     }
 
-    private Int32 _scale;
-    public Int32 Scale
+    private int _scale;
+    public int Scale
     {
         get => this._scale;
         set
@@ -204,14 +204,14 @@ internal class XLPageSetup : IXLPageSetup
         }
     }
 
-    public void AdjustTo(Int32 percentageOfNormalSize)
+    public void AdjustTo(int percentageOfNormalSize)
     {
         this.Scale = percentageOfNormalSize;
         this._pagesWide = 0;
         this._pagesTall = 0;
     }
 
-    public void FitToPages(Int32 pagesWide, Int32 pagesTall)
+    public void FitToPages(int pagesWide, int pagesTall)
     {
         this._pagesWide = pagesWide;
         this._pagesTall = pagesTall;
@@ -221,21 +221,21 @@ internal class XLPageSetup : IXLPageSetup
     public IXLHeaderFooter Header { get; private set; }
     public IXLHeaderFooter Footer { get; private set; }
 
-    public Boolean ScaleHFWithDocument { get; set; }
-    public Boolean AlignHFWithMargins { get; set; }
+    public bool ScaleHFWithDocument { get; set; }
+    public bool AlignHFWithMargins { get; set; }
 
-    public Boolean ShowGridlines { get; set; }
-    public Boolean ShowRowAndColumnHeadings { get; set; }
-    public Boolean BlackAndWhite { get; set; }
-    public Boolean DraftQuality { get; set; }
+    public bool ShowGridlines { get; set; }
+    public bool ShowRowAndColumnHeadings { get; set; }
+    public bool BlackAndWhite { get; set; }
+    public bool DraftQuality { get; set; }
 
     public XLPageOrderValues PageOrder { get; set; }
     public XLShowCommentsValues ShowComments { get; set; }
 
-    public List<Int32> RowBreaks { get; private set; }
-    public List<Int32> ColumnBreaks { get; private set; }
+    public List<int> RowBreaks { get; private set; }
+    public List<int> ColumnBreaks { get; private set; }
 
-    public void AddHorizontalPageBreak(Int32 row)
+    public void AddHorizontalPageBreak(int row)
     {
         if (!this.RowBreaks.Contains(row))
         {
@@ -245,7 +245,7 @@ internal class XLPageSetup : IXLPageSetup
         this.RowBreaks.Sort();
     }
 
-    public void AddVerticalPageBreak(Int32 column)
+    public void AddVerticalPageBreak(int column)
     {
         if (!this.ColumnBreaks.Contains(column))
         {
@@ -273,37 +273,37 @@ internal class XLPageSetup : IXLPageSetup
         return this;
     }
 
-    public IXLPageSetup SetPagesWide(Int32 value)
+    public IXLPageSetup SetPagesWide(int value)
     {
         this.PagesWide = value;
         return this;
     }
 
-    public IXLPageSetup SetPagesTall(Int32 value)
+    public IXLPageSetup SetPagesTall(int value)
     {
         this.PagesTall = value;
         return this;
     }
 
-    public IXLPageSetup SetScale(Int32 value)
+    public IXLPageSetup SetScale(int value)
     {
         this.Scale = value;
         return this;
     }
 
-    public IXLPageSetup SetHorizontalDpi(Int32 value)
+    public IXLPageSetup SetHorizontalDpi(int value)
     {
         this.HorizontalDpi = value;
         return this;
     }
 
-    public IXLPageSetup SetVerticalDpi(Int32 value)
+    public IXLPageSetup SetVerticalDpi(int value)
     {
         this.VerticalDpi = value;
         return this;
     }
 
-    public IXLPageSetup SetFirstPageNumber(Int32? value)
+    public IXLPageSetup SetFirstPageNumber(int? value)
     {
         this.FirstPageNumber = value;
         return this;
@@ -315,7 +315,7 @@ internal class XLPageSetup : IXLPageSetup
         return this;
     }
 
-    public IXLPageSetup SetCenterHorizontally(Boolean value)
+    public IXLPageSetup SetCenterHorizontally(bool value)
     {
         this.CenterHorizontally = value;
         return this;
@@ -327,7 +327,7 @@ internal class XLPageSetup : IXLPageSetup
         return this;
     }
 
-    public IXLPageSetup SetCenterVertically(Boolean value)
+    public IXLPageSetup SetCenterVertically(bool value)
     {
         this.CenterVertically = value;
         return this;
@@ -345,7 +345,7 @@ internal class XLPageSetup : IXLPageSetup
         return this;
     }
 
-    public IXLPageSetup SetScaleHFWithDocument(Boolean value)
+    public IXLPageSetup SetScaleHFWithDocument(bool value)
     {
         this.ScaleHFWithDocument = value;
         return this;
@@ -357,7 +357,7 @@ internal class XLPageSetup : IXLPageSetup
         return this;
     }
 
-    public IXLPageSetup SetAlignHFWithMargins(Boolean value)
+    public IXLPageSetup SetAlignHFWithMargins(bool value)
     {
         this.AlignHFWithMargins = value;
         return this;
@@ -369,7 +369,7 @@ internal class XLPageSetup : IXLPageSetup
         return this;
     }
 
-    public IXLPageSetup SetShowGridlines(Boolean value)
+    public IXLPageSetup SetShowGridlines(bool value)
     {
         this.ShowGridlines = value;
         return this;
@@ -381,7 +381,7 @@ internal class XLPageSetup : IXLPageSetup
         return this;
     }
 
-    public IXLPageSetup SetShowRowAndColumnHeadings(Boolean value)
+    public IXLPageSetup SetShowRowAndColumnHeadings(bool value)
     {
         this.ShowRowAndColumnHeadings = value;
         return this;
@@ -393,7 +393,7 @@ internal class XLPageSetup : IXLPageSetup
         return this;
     }
 
-    public IXLPageSetup SetBlackAndWhite(Boolean value)
+    public IXLPageSetup SetBlackAndWhite(bool value)
     {
         this.BlackAndWhite = value;
         return this;
@@ -405,7 +405,7 @@ internal class XLPageSetup : IXLPageSetup
         return this;
     }
 
-    public IXLPageSetup SetDraftQuality(Boolean value)
+    public IXLPageSetup SetDraftQuality(bool value)
     {
         this.DraftQuality = value;
         return this;
@@ -429,21 +429,21 @@ internal class XLPageSetup : IXLPageSetup
         return this;
     }
 
-    public Boolean DifferentFirstPageOnHF { get; set; }
+    public bool DifferentFirstPageOnHF { get; set; }
 
     public IXLPageSetup SetDifferentFirstPageOnHF() => this.SetDifferentFirstPageOnHF(true);
 
-    public IXLPageSetup SetDifferentFirstPageOnHF(Boolean value)
+    public IXLPageSetup SetDifferentFirstPageOnHF(bool value)
     {
         this.DifferentFirstPageOnHF = value;
         return this;
     }
 
-    public Boolean DifferentOddEvenPagesOnHF { get; set; }
+    public bool DifferentOddEvenPagesOnHF { get; set; }
 
     public IXLPageSetup SetDifferentOddEvenPagesOnHF() => this.SetDifferentOddEvenPagesOnHF(true);
 
-    public IXLPageSetup SetDifferentOddEvenPagesOnHF(Boolean value)
+    public IXLPageSetup SetDifferentOddEvenPagesOnHF(bool value)
     {
         this.DifferentOddEvenPagesOnHF = value;
         return this;

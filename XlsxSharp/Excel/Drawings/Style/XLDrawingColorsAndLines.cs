@@ -18,9 +18,9 @@ internal class XLDrawingColorsAndLines : IXLDrawingColorsAndLines
         return this._style;
     }
 
-    public Double FillTransparency { get; set; }
+    public double FillTransparency { get; set; }
 
-    public IXLDrawingStyle SetFillTransparency(Double value)
+    public IXLDrawingStyle SetFillTransparency(double value)
     {
         this.FillTransparency = value;
         return this._style;
@@ -34,17 +34,17 @@ internal class XLDrawingColorsAndLines : IXLDrawingColorsAndLines
         return this._style;
     }
 
-    public Double LineTransparency { get; set; }
+    public double LineTransparency { get; set; }
 
-    public IXLDrawingStyle SetLineTransparency(Double value)
+    public IXLDrawingStyle SetLineTransparency(double value)
     {
         this.LineTransparency = value;
         return this._style;
     }
 
-    public Double LineWeight { get; set; }
+    public double LineWeight { get; set; }
 
-    public IXLDrawingStyle SetLineWeight(Double value)
+    public IXLDrawingStyle SetLineWeight(double value)
     {
         this.LineWeight = value;
         return this._style;

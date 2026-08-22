@@ -71,8 +71,8 @@ internal class XLRangeRow : XLRangeBase, IXLRangeRow
 
     public new IXLRangeRow SortLeftToRight(
         XLSortOrder sortOrder = XLSortOrder.Ascending,
-        Boolean matchCase = false,
-        Boolean ignoreBlanks = true
+        bool matchCase = false,
+        bool ignoreBlanks = true
     )
     {
         base.SortLeftToRight(sortOrder, matchCase, ignoreBlanks);
@@ -240,7 +240,7 @@ internal class XLRangeRow : XLRangeBase, IXLRangeRow
                         case XLDataType.Text:
                             comparison = e.MatchCase
                                 ? thisCell.GetText().CompareTo(otherCell.GetText())
-                                : String.Compare(thisCell.GetText(), otherCell.GetText(), true);
+                                : string.Compare(thisCell.GetText(), otherCell.GetText(), true);
                             break;
 
                         case XLDataType.TimeSpan:
@@ -271,7 +271,7 @@ internal class XLRangeRow : XLRangeBase, IXLRangeRow
                 }
                 else if (e.MatchCase)
                 {
-                    comparison = String.Compare(thisCell.GetString(), otherCell.GetString(), true);
+                    comparison = string.Compare(thisCell.GetString(), otherCell.GetString(), true);
                 }
                 else
                 {
@@ -288,9 +288,9 @@ internal class XLRangeRow : XLRangeBase, IXLRangeRow
         return 0;
     }
 
-    private XLRangeRow RowShift(Int32 rowsToShift)
+    private XLRangeRow RowShift(int rowsToShift)
     {
-        Int32 rowNum = this.RowNumber() + rowsToShift;
+        int rowNum = this.RowNumber() + rowsToShift;
 
         XLRange range = this.Worksheet.Range(
             rowNum,
@@ -306,11 +306,11 @@ internal class XLRangeRow : XLRangeBase, IXLRangeRow
 
     IXLRangeRow IXLRangeRow.RowAbove() => this.RowAbove();
 
-    IXLRangeRow IXLRangeRow.RowAbove(Int32 step) => this.RowAbove(step);
+    IXLRangeRow IXLRangeRow.RowAbove(int step) => this.RowAbove(step);
 
     public XLRangeRow RowAbove() => this.RowAbove(1);
 
-    public XLRangeRow RowAbove(Int32 step) => this.RowShift(step * -1);
+    public XLRangeRow RowAbove(int step) => this.RowShift(step * -1);
 
     #endregion XLRangeRow Above
 
@@ -318,11 +318,11 @@ internal class XLRangeRow : XLRangeBase, IXLRangeRow
 
     IXLRangeRow IXLRangeRow.RowBelow() => this.RowBelow();
 
-    IXLRangeRow IXLRangeRow.RowBelow(Int32 step) => this.RowBelow(step);
+    IXLRangeRow IXLRangeRow.RowBelow(int step) => this.RowBelow(step);
 
     public XLRangeRow RowBelow() => this.RowBelow(1);
 
-    public XLRangeRow RowBelow(Int32 step) => this.RowShift(step);
+    public XLRangeRow RowBelow(int step) => this.RowShift(step);
 
     #endregion XLRangeRow Below
 

@@ -16,12 +16,12 @@ internal class XLWorksheets : IXLWorksheets, IEnumerable<XLWorksheet>
     private readonly Dictionary<string, XLWorksheet> _worksheets = new(
         XlsxSharp.XLHelper.SheetComparer
     );
-    internal ICollection<String> Deleted { get; private set; }
+    internal ICollection<string> Deleted { get; private set; }
 
     /// <summary>
     /// SheetId that will be assigned to next created sheet.
     /// </summary>
-    private UInt32 _nextSheetId = 1;
+    private uint _nextSheetId = 1;
 
     #region Constructor
 
@@ -48,7 +48,7 @@ internal class XLWorksheets : IXLWorksheets, IEnumerable<XLWorksheet>
         get => this._worksheets.Count;
     }
 
-    public Boolean Contains(String sheetName) => this._worksheets.ContainsKey(sheetName);
+    public bool Contains(string sheetName) => this._worksheets.ContainsKey(sheetName);
 
     bool IXLWorksheets.TryGetWorksheet(
         string sheetName,
@@ -80,7 +80,7 @@ internal class XLWorksheets : IXLWorksheets, IEnumerable<XLWorksheet>
         return foundSheet;
     }
 
-    public IXLWorksheet Worksheet(Int32 position)
+    public IXLWorksheet Worksheet(int position)
     {
         int wsCount = this._worksheets.Values.Count(w => w.Position == position);
         if (wsCount == 0)
@@ -100,9 +100,9 @@ internal class XLWorksheets : IXLWorksheets, IEnumerable<XLWorksheet>
 
     public IXLWorksheet Add() => this.Add(this.GetNextWorksheetName());
 
-    public IXLWorksheet Add(Int32 position) => this.Add(this.GetNextWorksheetName(), position);
+    public IXLWorksheet Add(int position) => this.Add(this.GetNextWorksheetName(), position);
 
-    public IXLWorksheet Add(String sheetName)
+    public IXLWorksheet Add(string sheetName)
     {
         XLWorksheet sheet = new(sheetName, this._workbook, this.GetNextSheetId());
         this.Add(sheetName, sheet);
@@ -110,10 +110,10 @@ internal class XLWorksheets : IXLWorksheets, IEnumerable<XLWorksheet>
         return sheet;
     }
 
-    public IXLWorksheet Add(String sheetName, Int32 position) =>
+    public IXLWorksheet Add(string sheetName, int position) =>
         this.Add(sheetName, position, this.GetNextSheetId());
 
-    internal XLWorksheet Add(String sheetName, Int32 position, UInt32 sheetId)
+    internal XLWorksheet Add(string sheetName, int position, uint sheetId)
     {
         this._worksheets.Values.Where(w => w._position >= position).ForEach(w => w._position += 1);
         this._workbook.UnsupportedSheets.Where(w => w.Position >= position)
@@ -127,12 +127,12 @@ internal class XLWorksheets : IXLWorksheets, IEnumerable<XLWorksheet>
         return sheet;
     }
 
-    private void Add(String sheetName, XLWorksheet sheet)
+    private void Add(string sheetName, XLWorksheet sheet)
     {
         if (this._worksheets.ContainsKey(sheetName))
         {
             throw new ArgumentException(
-                String.Format(
+                string.Format(
                     "A worksheet with the same name ({0}) has already been added.",
                     sheetName
                 ),
@@ -145,9 +145,9 @@ internal class XLWorksheets : IXLWorksheets, IEnumerable<XLWorksheet>
         this._workbook.NotifyWorksheetAdded(sheet);
     }
 
-    public void Delete(String sheetName) => this.Delete(this._worksheets[sheetName].Position);
+    public void Delete(string sheetName) => this.Delete(this._worksheets[sheetName].Position);
 
-    public void Delete(Int32 position)
+    public void Delete(int position)
     {
         int wsCount = this._worksheets.Values.Count(w => w.Position == position);
         if (wsCount == 0)
@@ -163,7 +163,7 @@ internal class XLWorksheets : IXLWorksheets, IEnumerable<XLWorksheet>
         }
 
         XLWorksheet ws = this._worksheets.Values.Single(w => w.Position == position);
-        if (!String.IsNullOrWhiteSpace(ws.RelId) && !this.Deleted.Contains(ws.RelId))
+        if (!string.IsNullOrWhiteSpace(ws.RelId) && !this.Deleted.Contains(ws.RelId))
         {
             this.Deleted.Add(ws.RelId);
         }
@@ -183,10 +183,10 @@ internal class XLWorksheets : IXLWorksheets, IEnumerable<XLWorksheet>
 
     public IXLWorksheet Add(DataTable dataTable) => this.Add(dataTable, dataTable.TableName);
 
-    public IXLWorksheet Add(DataTable dataTable, String sheetName) =>
+    public IXLWorksheet Add(DataTable dataTable, string sheetName) =>
         this.Add(dataTable, sheetName, TableNameGenerator.GetNewTableName(this._workbook));
 
-    public IXLWorksheet Add(DataTable dataTable, String sheetName, string tableName)
+    public IXLWorksheet Add(DataTable dataTable, string sheetName, string tableName)
     {
         IXLWorksheet ws = this.Add(sheetName);
         ws.Cell(1, 1).InsertTable(dataTable, tableName);
@@ -203,10 +203,10 @@ internal class XLWorksheets : IXLWorksheets, IEnumerable<XLWorksheet>
 
     #endregion IXLWorksheets Members
 
-    public void Rename(String oldSheetName, String newSheetName)
+    public void Rename(string oldSheetName, string newSheetName)
     {
         if (
-            String.IsNullOrWhiteSpace(oldSheetName)
+            string.IsNullOrWhiteSpace(oldSheetName)
             || !this._worksheets.TryGetValue(oldSheetName, out XLWorksheet ws)
         )
         {
@@ -219,7 +219,7 @@ internal class XLWorksheets : IXLWorksheets, IEnumerable<XLWorksheet>
         )
         {
             throw new ArgumentException(
-                String.Format(
+                string.Format(
                     "A worksheet with the same name ({0}) has already been added.",
                     newSheetName
                 ),
@@ -263,7 +263,7 @@ internal class XLWorksheets : IXLWorksheets, IEnumerable<XLWorksheet>
         }
     }
 
-    private String GetNextWorksheetName()
+    private string GetNextWorksheetName()
     {
         int worksheetNumber = this.Count + 1;
         string sheetName = $"Sheet{worksheetNumber}";
@@ -279,7 +279,7 @@ internal class XLWorksheets : IXLWorksheets, IEnumerable<XLWorksheet>
         return sheetName;
     }
 
-    private UInt32 GetNextSheetId() => this._nextSheetId++;
+    private uint GetNextSheetId() => this._nextSheetId++;
 
     #endregion Private members
 }

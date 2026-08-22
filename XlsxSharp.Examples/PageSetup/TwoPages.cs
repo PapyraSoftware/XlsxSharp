@@ -6,7 +6,7 @@ namespace XlsxSharp.Examples.PageSetup;
 
 public class TwoPages : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook wb = new();
         IXLWorksheet ws = wb.Worksheets.Add("Sheet1");

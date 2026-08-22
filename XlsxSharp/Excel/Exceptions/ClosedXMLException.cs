@@ -9,9 +9,9 @@ public abstract class ClosedXMLException : Exception
     protected ClosedXMLException()
         : base() { }
 
-    protected ClosedXMLException(String message)
+    protected ClosedXMLException(string message)
         : base(message) { }
 
-    protected ClosedXMLException(String message, Exception innerException)
+    protected ClosedXMLException(string message, Exception innerException)
         : base(message, innerException) { }
 }

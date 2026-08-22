@@ -24,8 +24,8 @@ internal class XLCFIconSetConverter : IXLCFConverter
             Reverse = cf.ReverseIconOrder,
             IconSetValue = cf.IconSetStyle.ToOpenXml(),
         };
-        Int32 count = cf.Values.Count;
-        for (Int32 i = 1; i <= count; i++)
+        int count = cf.Values.Count;
+        for (int i = 1; i <= count; i++)
         {
             ConditionalFormatValueObject conditionalFormatValueObject = new()
             {

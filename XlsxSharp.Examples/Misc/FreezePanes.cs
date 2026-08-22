@@ -5,7 +5,7 @@ namespace XlsxSharp.Examples.Misc;
 
 public class FreezePanes : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         using (XLWorkbook wb = new())
         {

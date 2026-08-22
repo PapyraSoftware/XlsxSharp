@@ -31,13 +31,13 @@ internal class XLFormattedText<T> : IXLFormattedText<T>
 
     IXLPhonetics IXLFormattedText<T>.Phonetics => this.Phonetics;
 
-    public Int32 Count => this._richTexts.Count;
+    public int Count => this._richTexts.Count;
 
     public int Length { get; private set; }
 
-    public String Text => this.ToString();
+    public string Text => this.ToString();
 
-    public Boolean HasPhonetics => this._phonetics is not null;
+    public bool HasPhonetics => this._phonetics is not null;
 
     /// <inheritdoc cref="IXLFormattedText{T}.Phonetics"/>
     internal XLPhonetics Phonetics
@@ -52,7 +52,7 @@ internal class XLFormattedText<T> : IXLFormattedText<T>
         init => this._phonetics = value;
     }
 
-    public IXLRichString AddText(String text)
+    public IXLRichString AddText(string text)
     {
         XLRichString richText = new(
             text,
@@ -66,7 +66,7 @@ internal class XLFormattedText<T> : IXLFormattedText<T>
         return richText;
     }
 
-    public IXLRichString AddText(String text, IXLFontBase font)
+    public IXLRichString AddText(string text, IXLFontBase font)
     {
         XLFontFormatValue richFont = XLFontFormatValue.FromFontBase(font, this.Styles);
         XLRichString richText = new(text, richFont, this, this.Styles, this.OnContentChanged);
@@ -86,7 +86,7 @@ internal class XLFormattedText<T> : IXLFormattedText<T>
 
     public IXLFormattedText<T> ClearFont()
     {
-        String text = this.Text;
+        string text = this.Text;
         this.ClearContent();
         this.AddText(text);
         return this;
@@ -99,9 +99,9 @@ internal class XLFormattedText<T> : IXLFormattedText<T>
         return sb.ToString();
     }
 
-    public IXLFormattedText<T> Substring(Int32 index) => this.Substring(index, this.Length - index);
+    public IXLFormattedText<T> Substring(int index) => this.Substring(index, this.Length - index);
 
-    public IXLFormattedText<T> Substring(Int32 index, Int32 length)
+    public IXLFormattedText<T> Substring(int index, int length)
     {
         if (index + 1 > this.Length || (this.Length - index + 1) < length || length <= 0)
         {
@@ -210,11 +210,11 @@ internal class XLFormattedText<T> : IXLFormattedText<T>
     System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() =>
         this.GetEnumerator();
 
-    public Boolean Bold
+    public bool Bold
     {
         set => this._richTexts.ForEach(rt => rt.Bold = value);
     }
-    public Boolean Italic
+    public bool Italic
     {
         set => this._richTexts.ForEach(rt => rt.Italic = value);
     }
@@ -222,7 +222,7 @@ internal class XLFormattedText<T> : IXLFormattedText<T>
     {
         set => this._richTexts.ForEach(rt => rt.Underline = value);
     }
-    public Boolean Strikethrough
+    public bool Strikethrough
     {
         set => this._richTexts.ForEach(rt => rt.Strikethrough = value);
     }
@@ -230,11 +230,11 @@ internal class XLFormattedText<T> : IXLFormattedText<T>
     {
         set => this._richTexts.ForEach(rt => rt.VerticalAlignment = value);
     }
-    public Boolean Shadow
+    public bool Shadow
     {
         set => this._richTexts.ForEach(rt => rt.Shadow = value);
     }
-    public Double FontSize
+    public double FontSize
     {
         set => this._richTexts.ForEach(rt => rt.FontSize = value);
     }
@@ -242,7 +242,7 @@ internal class XLFormattedText<T> : IXLFormattedText<T>
     {
         set => this._richTexts.ForEach(rt => rt.FontColor = value);
     }
-    public String FontName
+    public string FontName
     {
         set => this._richTexts.ForEach(rt => rt.FontName = value);
     }
@@ -257,7 +257,7 @@ internal class XLFormattedText<T> : IXLFormattedText<T>
         return this;
     }
 
-    public IXLFormattedText<T> SetBold(Boolean value)
+    public IXLFormattedText<T> SetBold(bool value)
     {
         this.Bold = value;
         return this;
@@ -269,7 +269,7 @@ internal class XLFormattedText<T> : IXLFormattedText<T>
         return this;
     }
 
-    public IXLFormattedText<T> SetItalic(Boolean value)
+    public IXLFormattedText<T> SetItalic(bool value)
     {
         this.Italic = value;
         return this;
@@ -293,7 +293,7 @@ internal class XLFormattedText<T> : IXLFormattedText<T>
         return this;
     }
 
-    public IXLFormattedText<T> SetStrikethrough(Boolean value)
+    public IXLFormattedText<T> SetStrikethrough(bool value)
     {
         this.Strikethrough = value;
         return this;
@@ -311,13 +311,13 @@ internal class XLFormattedText<T> : IXLFormattedText<T>
         return this;
     }
 
-    public IXLFormattedText<T> SetShadow(Boolean value)
+    public IXLFormattedText<T> SetShadow(bool value)
     {
         this.Shadow = value;
         return this;
     }
 
-    public IXLFormattedText<T> SetFontSize(Double value)
+    public IXLFormattedText<T> SetFontSize(double value)
     {
         this.FontSize = value;
         return this;
@@ -329,7 +329,7 @@ internal class XLFormattedText<T> : IXLFormattedText<T>
         return this;
     }
 
-    public IXLFormattedText<T> SetFontName(String value)
+    public IXLFormattedText<T> SetFontName(string value)
     {
         this.FontName = value;
         return this;

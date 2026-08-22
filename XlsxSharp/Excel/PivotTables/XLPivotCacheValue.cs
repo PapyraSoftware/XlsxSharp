@@ -119,7 +119,7 @@ internal readonly struct XLPivotCacheValue
 
     internal double GetNumber() => this._value;
 
-    internal Boolean GetBoolean() => this._value != 0;
+    internal bool GetBoolean() => this._value != 0;
 
     internal XLError GetError() => (XLError)this._value;
 

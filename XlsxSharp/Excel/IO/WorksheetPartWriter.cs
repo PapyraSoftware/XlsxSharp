@@ -390,7 +390,7 @@ internal class WorksheetPartWriter
 
                 selection.SequenceOfReferences = new ListValue<StringValue>
                 {
-                    InnerText = String.Join(" ", seqRef.Distinct().ToArray()),
+                    InnerText = string.Join(" ", seqRef.Distinct().ToArray()),
                 };
 
                 sheetView.InsertAfter(
@@ -415,7 +415,7 @@ internal class WorksheetPartWriter
         }
         else
         {
-            sheetView.ZoomScale = (UInt32)
+            sheetView.ZoomScale = (uint)
                 Math.Max(10, Math.Min(400, xlWorksheet.SheetView.ZoomScale));
         }
 
@@ -425,7 +425,7 @@ internal class WorksheetPartWriter
         }
         else
         {
-            sheetView.ZoomScaleNormal = (UInt32)
+            sheetView.ZoomScaleNormal = (uint)
                 Math.Max(10, Math.Min(400, xlWorksheet.SheetView.ZoomScaleNormal));
         }
 
@@ -435,7 +435,7 @@ internal class WorksheetPartWriter
         }
         else
         {
-            sheetView.ZoomScalePageLayoutView = (UInt32)
+            sheetView.ZoomScalePageLayoutView = (uint)
                 Math.Max(10, Math.Min(400, xlWorksheet.SheetView.ZoomScalePageLayoutView));
         }
 
@@ -445,7 +445,7 @@ internal class WorksheetPartWriter
         }
         else
         {
-            sheetView.ZoomScaleSheetLayoutView = (UInt32)
+            sheetView.ZoomScaleSheetLayoutView = (uint)
                 Math.Max(10, Math.Min(400, xlWorksheet.SheetView.ZoomScaleSheetLayoutView));
         }
 
@@ -542,8 +542,8 @@ internal class WorksheetPartWriter
                 .ToDictionary(c => c.Min.Value, c => c);
             //Dictionary<UInt32, Column> sheetColumnsByMax = columns.Elements<Column>().ToDictionary(c => c.Max.Value, c => c);
 
-            Int32 minInColumnsCollection;
-            Int32 maxInColumnsCollection;
+            int minInColumnsCollection;
+            int maxInColumnsCollection;
             if (xlWorksheet.Internals.ColumnsCollection.Count > 0)
             {
                 minInColumnsCollection = xlWorksheet.Internals.ColumnsCollection.Keys.Min();
@@ -558,7 +558,7 @@ internal class WorksheetPartWriter
             if (minInColumnsCollection > 1)
             {
                 UInt32Value min = 1;
-                UInt32Value max = (UInt32)(minInColumnsCollection - 1);
+                UInt32Value max = (uint)(minInColumnsCollection - 1);
 
                 for (UInt32Value co = min; co <= max; co++)
                 {
@@ -577,8 +577,8 @@ internal class WorksheetPartWriter
 
             for (int co = minInColumnsCollection; co <= maxInColumnsCollection; co++)
             {
-                UInt32 styleId;
-                Double columnWidth;
+                uint styleId;
+                double columnWidth;
                 bool isHidden = false;
                 bool collapsed = false;
                 int outlineLevel = 0;
@@ -600,8 +600,8 @@ internal class WorksheetPartWriter
 
                 Column column = new()
                 {
-                    Min = (UInt32)co,
-                    Max = (UInt32)co,
+                    Min = (uint)co,
+                    Max = (uint)co,
                     Style = styleId,
                     Width = columnWidth,
                     CustomWidth = true,
@@ -629,7 +629,7 @@ internal class WorksheetPartWriter
             foreach (
                 Column col in columns
                     .Elements<Column>()
-                    .Where(c => c.Min > (UInt32)(collection))
+                    .Where(c => c.Min > (uint)(collection))
                     .OrderBy(c => c.Min.Value)
             )
             {
@@ -637,9 +637,9 @@ internal class WorksheetPartWriter
                 col.Width = worksheetColumnWidth;
                 col.CustomWidth = true;
 
-                if ((Int32)col.Max.Value > maxInColumnsCollection)
+                if ((int)col.Max.Value > maxInColumnsCollection)
                 {
-                    maxInColumnsCollection = (Int32)col.Max.Value;
+                    maxInColumnsCollection = (int)col.Max.Value;
                 }
             }
 
@@ -650,8 +650,8 @@ internal class WorksheetPartWriter
             {
                 Column column = new()
                 {
-                    Min = (UInt32)(maxInColumnsCollection + 1),
-                    Max = (UInt32)(XlsxSharp.XLHelper.MaxColumnNumber),
+                    Min = (uint)(maxInColumnsCollection + 1),
+                    Max = (uint)(XlsxSharp.XLHelper.MaxColumnNumber),
                     Style = worksheetStyleId,
                     Width = worksheetColumnWidth,
                     CustomWidth = true,
@@ -715,7 +715,7 @@ internal class WorksheetPartWriter
 
             if (protection.Algorithm == XLProtectionAlgorithm.Algorithm.SimpleHash)
             {
-                if (!String.IsNullOrWhiteSpace(protection.PasswordHash))
+                if (!string.IsNullOrWhiteSpace(protection.PasswordHash))
                 {
                     sheetProtection.Password = protection.PasswordHash;
                 }
@@ -854,7 +854,7 @@ internal class WorksheetPartWriter
                 mergeCells.AppendChild(mergeCell);
             }
 
-            mergeCells.Count = (UInt32)mergeCells.Count();
+            mergeCells.Count = (uint)mergeCells.Count();
         }
         else
         {
@@ -1340,7 +1340,7 @@ internal class WorksheetPartWriter
 
                 dataValidations.AppendChild(dataValidation);
             }
-            dataValidations.Count = (UInt32)dataValidationsStandard.Count;
+            dataValidations.Count = (uint)dataValidationsStandard.Count;
         }
 
         // Second phase, save all the data validations that reference other sheets into the worksheet extensions.
@@ -1438,7 +1438,7 @@ internal class WorksheetPartWriter
                 };
                 extensionDataValidations.AppendChild(dataValidation);
             }
-            extensionDataValidations.Count = (UInt32)dataValidationsExtension.Count;
+            extensionDataValidations.Count = (uint)dataValidationsExtension.Count;
         }
 
         #endregion DataValidations
@@ -1483,7 +1483,7 @@ internal class WorksheetPartWriter
                         Display = hl.Cell.GetFormattedString(),
                     };
                 }
-                if (!String.IsNullOrWhiteSpace(hl.Tooltip))
+                if (!string.IsNullOrWhiteSpace(hl.Tooltip))
                 {
                     hyperlink.Tooltip = hl.Tooltip;
                 }
@@ -1554,7 +1554,7 @@ internal class WorksheetPartWriter
         cm.SetElement(XLWorksheetContents.PageSetup, pageSetup);
 
         pageSetup.Orientation = xlWorksheet.PageSetup.PageOrientation.ToOpenXml();
-        pageSetup.PaperSize = (UInt32)xlWorksheet.PageSetup.PaperSize;
+        pageSetup.PaperSize = (uint)xlWorksheet.PageSetup.PaperSize;
         pageSetup.BlackAndWhite = xlWorksheet.PageSetup.BlackAndWhite;
         pageSetup.Draft = xlWorksheet.PageSetup.DraftQuality;
         pageSetup.PageOrder = xlWorksheet.PageSetup.PageOrder.ToOpenXml();
@@ -1577,7 +1577,7 @@ internal class WorksheetPartWriter
 
         if (xlWorksheet.PageSetup.HorizontalDpi > 0)
         {
-            pageSetup.HorizontalDpi = (UInt32)xlWorksheet.PageSetup.HorizontalDpi;
+            pageSetup.HorizontalDpi = (uint)xlWorksheet.PageSetup.HorizontalDpi;
         }
         else
         {
@@ -1586,7 +1586,7 @@ internal class WorksheetPartWriter
 
         if (xlWorksheet.PageSetup.VerticalDpi > 0)
         {
-            pageSetup.VerticalDpi = (UInt32)xlWorksheet.PageSetup.VerticalDpi;
+            pageSetup.VerticalDpi = (uint)xlWorksheet.PageSetup.VerticalDpi;
         }
         else
         {
@@ -1595,7 +1595,7 @@ internal class WorksheetPartWriter
 
         if (xlWorksheet.PageSetup.Scale > 0)
         {
-            pageSetup.Scale = (UInt32)xlWorksheet.PageSetup.Scale;
+            pageSetup.Scale = (uint)xlWorksheet.PageSetup.Scale;
             pageSetup.FitToWidth = null;
             pageSetup.FitToHeight = null;
         }
@@ -1605,12 +1605,12 @@ internal class WorksheetPartWriter
 
             if (xlWorksheet.PageSetup.PagesWide >= 0 && xlWorksheet.PageSetup.PagesWide != 1)
             {
-                pageSetup.FitToWidth = (UInt32)xlWorksheet.PageSetup.PagesWide;
+                pageSetup.FitToWidth = (uint)xlWorksheet.PageSetup.PagesWide;
             }
 
             if (xlWorksheet.PageSetup.PagesTall >= 0 && xlWorksheet.PageSetup.PagesTall != 1)
             {
-                pageSetup.FitToHeight = (UInt32)xlWorksheet.PageSetup.PagesTall;
+                pageSetup.FitToHeight = (uint)xlWorksheet.PageSetup.PagesTall;
             }
         }
 
@@ -1717,13 +1717,13 @@ internal class WorksheetPartWriter
                 !existingBreaks.Any(rb => rb.Id.HasValue && rb.Id.Value == xlRb)
             );
 
-            rowBreaks.Count = (UInt32)rowBreakCount;
-            rowBreaks.ManualBreakCount = (UInt32)rowBreakCount;
-            uint lastRowNum = (UInt32)xlWorksheet.RangeAddress.LastAddress.RowNumber;
+            rowBreaks.Count = (uint)rowBreakCount;
+            rowBreaks.ManualBreakCount = (uint)rowBreakCount;
+            uint lastRowNum = (uint)xlWorksheet.RangeAddress.LastAddress.RowNumber;
             foreach (
                 Break break1 in rowBreaksToAdd.Select(rb => new Break
                 {
-                    Id = (UInt32)rb,
+                    Id = (uint)rb,
                     Max = lastRowNum,
                     ManualPageBreak = true,
                 })
@@ -1775,13 +1775,13 @@ internal class WorksheetPartWriter
                 !existingBreaks.Any(cb => cb.Id.HasValue && cb.Id.Value == xlCb)
             );
 
-            columnBreaks.Count = (UInt32)columnBreakCount;
-            columnBreaks.ManualBreakCount = (UInt32)columnBreakCount;
-            uint maxColumnNumber = (UInt32)xlWorksheet.RangeAddress.LastAddress.ColumnNumber;
+            columnBreaks.Count = (uint)columnBreakCount;
+            columnBreaks.ManualBreakCount = (uint)columnBreakCount;
+            uint maxColumnNumber = (uint)xlWorksheet.RangeAddress.LastAddress.ColumnNumber;
             foreach (
                 Break break1 in columnBreaksToAdd.Select(cb => new Break
                 {
-                    Id = (UInt32)cb,
+                    Id = (uint)cb,
                     Max = maxColumnNumber,
                     ManualPageBreak = true,
                 })
@@ -1867,7 +1867,7 @@ internal class WorksheetPartWriter
         #region LegacyDrawing
 
         // Does worksheet have any comments (stored in legacy VML drawing)
-        if (!String.IsNullOrEmpty(xlWorksheet.LegacyDrawingId))
+        if (!string.IsNullOrEmpty(xlWorksheet.LegacyDrawingId))
         {
             worksheet.RemoveAllChildren<LegacyDrawing>();
             OpenXmlElement previousElement = cm.GetPreviousElementFor(
@@ -1989,14 +1989,14 @@ internal class WorksheetPartWriter
             throw new InvalidOperationException();
         }
 
-        static void WriteStringValue(XmlWriter w, String text)
+        static void WriteStringValue(XmlWriter w, string text)
         {
             w.WriteStartElement("v", Main2006SsNs);
             w.WriteString(text);
             w.WriteEndElement();
         }
 
-        static void WriteNumberValue(XmlWriter w, Double value)
+        static void WriteNumberValue(XmlWriter w, double value)
         {
             w.WriteStartElement("v", Main2006SsNs);
             w.WriteNumberValue(value);
@@ -2011,7 +2011,7 @@ internal class WorksheetPartWriter
 
         foreach ((int columnNumber, XLFilterColumn xlFilterColumn) in xlAutoFilter.Columns)
         {
-            FilterColumn filterColumn = new() { ColumnId = (UInt32)columnNumber - 1 };
+            FilterColumn filterColumn = new() { ColumnId = (uint)columnNumber - 1 };
 
             switch (xlFilterColumn.FilterType)
             {
@@ -2085,33 +2085,33 @@ internal class WorksheetPartWriter
                             DateTime d = (DateTime)filter.Value;
                             DateGroupItem dgi = new()
                             {
-                                Year = (UInt16)d.Year,
+                                Year = (ushort)d.Year,
                                 DateTimeGrouping = filter.DateTimeGrouping.ToOpenXml(),
                             };
 
                             if (filter.DateTimeGrouping >= XLDateTimeGrouping.Month)
                             {
-                                dgi.Month = (UInt16)d.Month;
+                                dgi.Month = (ushort)d.Month;
                             }
 
                             if (filter.DateTimeGrouping >= XLDateTimeGrouping.Day)
                             {
-                                dgi.Day = (UInt16)d.Day;
+                                dgi.Day = (ushort)d.Day;
                             }
 
                             if (filter.DateTimeGrouping >= XLDateTimeGrouping.Hour)
                             {
-                                dgi.Hour = (UInt16)d.Hour;
+                                dgi.Hour = (ushort)d.Hour;
                             }
 
                             if (filter.DateTimeGrouping >= XLDateTimeGrouping.Minute)
                             {
-                                dgi.Minute = (UInt16)d.Minute;
+                                dgi.Minute = (ushort)d.Minute;
                             }
 
                             if (filter.DateTimeGrouping >= XLDateTimeGrouping.Second)
                             {
-                                dgi.Second = (UInt16)d.Second;
+                                dgi.Second = (ushort)d.Second;
                             }
 
                             filters.Append(dgi);
@@ -2169,7 +2169,7 @@ internal class WorksheetPartWriter
 
     private static void CollapseColumns(Columns columns, Dictionary<uint, Column> sheetColumns)
     {
-        UInt32 lastMin = 1;
+        uint lastMin = 1;
         int count = sheetColumns.Count;
         KeyValuePair<uint, Column>[] arr = [.. sheetColumns.OrderBy(kp => kp.Key)];
         // sheetColumns[kp.Key + 1]
@@ -2317,7 +2317,7 @@ internal class WorksheetPartWriter
     // http://polymathprogrammer.com/2009/10/22/english-metric-units-and-open-xml/
     // http://archive.oreilly.com/pub/post/what_is_an_emu.html
     // https://en.wikipedia.org/wiki/Office_Open_XML_file_formats#DrawingML
-    private static Int64 ConvertToEnglishMetricUnits(Int32 pixels, Double resolution) =>
+    private static long ConvertToEnglishMetricUnits(int pixels, double resolution) =>
         Convert.ToInt64(914400L * pixels / resolution);
 
     private static void AddPictureAnchor(
@@ -2642,7 +2642,7 @@ internal class WorksheetPartWriter
             tableParts.AppendChild(new TablePart { Id = xlTable.RelId });
         }
 
-        tableParts.Count = (UInt32)xlTables.Count<XLTable>();
+        tableParts.Count = (uint)xlTables.Count<XLTable>();
     }
 
     /// <summary>
@@ -2916,10 +2916,10 @@ internal class WorksheetPartWriter
         static void WriteStartCell(
             XmlWriter w,
             XLCell xlCell,
-            Char[] reference,
+            char[] reference,
             int referenceLength,
-            String dataType,
-            UInt32 styleId
+            string dataType,
+            uint styleId
         )
         {
             w.WriteStartElement("c", Main2006SsNs);
@@ -2964,12 +2964,12 @@ internal class WorksheetPartWriter
         {
             uint styleId = context.GetStyleId(xlCell.GetFormat());
 
-            Span<Char> cellRefSpan = cellRef;
+            Span<char> cellRefSpan = cellRef;
             int cellRefLen = xlCell.Point.Format(cellRefSpan);
 
             if (xlCell.HasFormula)
             {
-                String dataType = null;
+                string dataType = null;
                 if (options.EvaluateFormulasBeforeSaving)
                 {
                     try
@@ -3072,7 +3072,7 @@ internal class WorksheetPartWriter
                 // If this is a cell in the totals row that contains a label (xor with function), write label
                 // Only label can be written. Total functions are basically formulas that use structured
                 // references and SR are not yet supported, so not yet possible to calculate total values.
-                if (!String.IsNullOrWhiteSpace(field.TotalsRowLabel))
+                if (!string.IsNullOrWhiteSpace(field.TotalsRowLabel))
                 {
                     // Excel requires that table totals row label attribute in tableColumn must match the cell
                     // string from SST. If they don't match, Excel will consider it a corrupt workbook.
@@ -3107,7 +3107,7 @@ internal class WorksheetPartWriter
     /// An array to convert data type for a formula cell. Key is <see cref="XLDataType"/>.
     /// It saves some performance through direct indexation instead of switch.
     /// </summary>
-    private static readonly String[] FormulaDataType =
+    private static readonly string[] FormulaDataType =
     [
         null, // blank
         "b", // boolean
@@ -3122,7 +3122,7 @@ internal class WorksheetPartWriter
     /// An array to convert data type for a cell that only contains a value. Key is <see cref="XLDataType"/>.
     /// It saves some performance through direct indexation instead of switch.
     /// </summary>
-    private static readonly String[] ValueDataType =
+    private static readonly string[] ValueDataType =
     [
         null, // blank
         "b", // boolean
@@ -3133,7 +3133,7 @@ internal class WorksheetPartWriter
         null, // timespan, saved as serialized date-time
     ];
 
-    private static String GetCellValueType(XLCell xlCell)
+    private static string GetCellValueType(XLCell xlCell)
     {
         XLDataType dataType = xlCell.DataType;
         if (dataType == XLDataType.Text && !xlCell.ShareString)
@@ -3144,7 +3144,7 @@ internal class WorksheetPartWriter
         return ValueDataType[(int)dataType];
     }
 
-    private static Int32 GetMaxColumn(XLWorksheet xlWorksheet)
+    private static int GetMaxColumn(XLWorksheet xlWorksheet)
     {
         int maxColumn = 0;
 

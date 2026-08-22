@@ -20,7 +20,7 @@ internal class XLTable : XLRange, IXLTable
 {
     private string _name;
     internal bool _showTotalsRow;
-    internal HashSet<String> _uniqueNames;
+    internal HashSet<string> _uniqueNames;
 
     /// <summary>
     /// The direct constructor should only be used in <see cref="XLWorksheet.RangeFactory"/>.
@@ -31,9 +31,9 @@ internal class XLTable : XLRange, IXLTable
     public override XLRangeType RangeType => XLRangeType.Table;
 
     private IXLRangeAddress _lastRangeAddress;
-    private Dictionary<String, XLTableField> _fieldNames = CreateFieldNames();
+    private Dictionary<string, XLTableField> _fieldNames = CreateFieldNames();
 
-    internal Dictionary<String, XLTableField> FieldNames
+    internal Dictionary<string, XLTableField> FieldNames
     {
         get
         {
@@ -66,7 +66,7 @@ internal class XLTable : XLRange, IXLTable
             Dictionary<string, XLTableField> oldFieldNames = this._fieldNames ?? CreateFieldNames();
             this._fieldNames = CreateFieldNames();
             XLRangeRow headersRow = this.HeadersRow(false);
-            Int32 cellPos = 0;
+            int cellPos = 0;
             foreach (XLCell cell in headersRow.Cells())
             {
                 XLCellValue cellValue = cell.CachedValue;
@@ -81,7 +81,7 @@ internal class XLTable : XLRange, IXLTable
                 }
 
                 // Be careful here. Fields names may actually be whitespace, but not empty
-                if (String.IsNullOrEmpty(name))
+                if (string.IsNullOrEmpty(name))
                 {
                     name = this.GetUniqueName("Column", cellPos + 1, true);
                 }
@@ -105,8 +105,8 @@ internal class XLTable : XLRange, IXLTable
         }
         else
         {
-            Int32 colCount = this.ColumnCount();
-            for (Int32 i = 1; i <= colCount; i++)
+            int colCount = this.ColumnCount();
+            for (int i = 1; i <= colCount; i++)
             {
                 if (this._fieldNames.Values.All(f => f.Index != i - 1))
                 {
@@ -125,7 +125,7 @@ internal class XLTable : XLRange, IXLTable
         return field;
     }
 
-    internal void RenameField(String oldName, String newName)
+    internal void RenameField(string oldName, string newName)
     {
         if (!this._fieldNames.TryGetValue(oldName, out XLTableField field))
         {
@@ -136,7 +136,7 @@ internal class XLTable : XLRange, IXLTable
         this._fieldNames.Add(newName, field);
     }
 
-    internal String RelId { get; set; }
+    internal string RelId { get; set; }
 
     public IXLTableRange DataRange
     {
@@ -198,14 +198,14 @@ internal class XLTable : XLRange, IXLTable
 
     #region IXLTable Members
 
-    public Boolean EmphasizeFirstColumn { get; set; }
-    public Boolean EmphasizeLastColumn { get; set; }
-    public Boolean ShowRowStripes { get; set; }
-    public Boolean ShowColumnStripes { get; set; }
+    public bool EmphasizeFirstColumn { get; set; }
+    public bool EmphasizeLastColumn { get; set; }
+    public bool ShowRowStripes { get; set; }
+    public bool ShowColumnStripes { get; set; }
 
-    private Boolean _showAutoFilter;
+    private bool _showAutoFilter;
 
-    public Boolean ShowAutoFilter
+    public bool ShowAutoFilter
     {
         get => this._showHeaderRow && this._showAutoFilter;
         set => this._showAutoFilter = value;
@@ -213,7 +213,7 @@ internal class XLTable : XLRange, IXLTable
 
     public XLTableTheme Theme { get; set; }
 
-    public String Name
+    public string Name
     {
         get => this._name;
         set
@@ -234,7 +234,7 @@ internal class XLTable : XLRange, IXLTable
                     value,
                     oldname,
                     tableNames,
-                    out String message
+                    out string message
                 )
             )
             {
@@ -250,8 +250,8 @@ internal class XLTable : XLRange, IXLTable
             }
 
             if (
-                !String.IsNullOrWhiteSpace(oldname)
-                && !String.Equals(oldname, this._name, StringComparison.OrdinalIgnoreCase)
+                !string.IsNullOrWhiteSpace(oldname)
+                && !string.Equals(oldname, this._name, StringComparison.OrdinalIgnoreCase)
             )
             {
                 this.Worksheet.Tables.Add(this);
@@ -263,7 +263,7 @@ internal class XLTable : XLRange, IXLTable
         }
     }
 
-    public Boolean ShowTotalsRow
+    public bool ShowTotalsRow
     {
         get => this._showTotalsRow;
         set
@@ -300,7 +300,7 @@ internal class XLTable : XLRange, IXLTable
 
     public IXLRangeRow HeadersRow() => this.HeadersRow(true);
 
-    internal XLRangeRow HeadersRow(Boolean scanForNewFieldsNames)
+    internal XLRangeRow HeadersRow(bool scanForNewFieldsNames)
     {
         if (!this.ShowHeaderRow)
         {
@@ -317,11 +317,11 @@ internal class XLTable : XLRange, IXLTable
 
     public IXLRangeRow TotalsRow() => this.ShowTotalsRow ? this.LastRow() : null;
 
-    public IXLTableField Field(String fieldName) => this.Field(this.GetFieldIndex(fieldName));
+    public IXLTableField Field(string fieldName) => this.Field(this.GetFieldIndex(fieldName));
 
-    IXLTableField IXLTable.Field(Int32 fieldIndex) => this.Field(fieldIndex);
+    IXLTableField IXLTable.Field(int fieldIndex) => this.Field(fieldIndex);
 
-    internal XLTableField Field(Int32 fieldIndex) =>
+    internal XLTableField Field(int fieldIndex) =>
         this.FieldNames.Values.First(f => f.Index == fieldIndex);
 
     IEnumerable<IXLTableField> IXLTable.Fields => this.Fields;
@@ -330,7 +330,7 @@ internal class XLTable : XLRange, IXLTable
     {
         get
         {
-            Int32 columnCount = this.ColumnCount();
+            int columnCount = this.ColumnCount();
             for (int co = 0; co < columnCount; co++)
             {
                 yield return this.Field(co);
@@ -453,7 +453,7 @@ internal class XLTable : XLRange, IXLTable
                     f.UpdateTableFieldTotalsRowFormula();
                     int fieldColumn = f.Index + 1;
                     IXLCell c = this.TotalsRow().Cell(fieldColumn);
-                    if (!String.IsNullOrWhiteSpace(f.TotalsRowLabel))
+                    if (!string.IsNullOrWhiteSpace(f.TotalsRowLabel))
                     {
                         //Remove previous row's label
                         XLCell oldTotalsCell = this.Worksheet.Cell(
@@ -483,7 +483,7 @@ internal class XLTable : XLRange, IXLTable
         return this;
     }
 
-    public IXLTable SetEmphasizeFirstColumn(Boolean value)
+    public IXLTable SetEmphasizeFirstColumn(bool value)
     {
         this.EmphasizeFirstColumn = value;
         return this;
@@ -495,7 +495,7 @@ internal class XLTable : XLRange, IXLTable
         return this;
     }
 
-    public IXLTable SetEmphasizeLastColumn(Boolean value)
+    public IXLTable SetEmphasizeLastColumn(bool value)
     {
         this.EmphasizeLastColumn = value;
         return this;
@@ -507,7 +507,7 @@ internal class XLTable : XLRange, IXLTable
         return this;
     }
 
-    public IXLTable SetShowRowStripes(Boolean value)
+    public IXLTable SetShowRowStripes(bool value)
     {
         this.ShowRowStripes = value;
         return this;
@@ -519,7 +519,7 @@ internal class XLTable : XLRange, IXLTable
         return this;
     }
 
-    public IXLTable SetShowColumnStripes(Boolean value)
+    public IXLTable SetShowColumnStripes(bool value)
     {
         this.ShowColumnStripes = value;
         return this;
@@ -531,7 +531,7 @@ internal class XLTable : XLRange, IXLTable
         return this;
     }
 
-    public IXLTable SetShowTotalsRow(Boolean value)
+    public IXLTable SetShowTotalsRow(bool value)
     {
         this.ShowTotalsRow = value;
         return this;
@@ -543,24 +543,24 @@ internal class XLTable : XLRange, IXLTable
         return this;
     }
 
-    public IXLTable SetShowAutoFilter(Boolean value)
+    public IXLTable SetShowAutoFilter(bool value)
     {
         this.ShowAutoFilter = value;
         return this;
     }
 
     public new IXLRange Sort(
-        String columnsToSortBy,
+        string columnsToSortBy,
         XLSortOrder sortOrder = XLSortOrder.Ascending,
-        Boolean matchCase = false,
-        Boolean ignoreBlanks = true
+        bool matchCase = false,
+        bool ignoreBlanks = true
     )
     {
         StringBuilder toSortBy = new();
         foreach (string coPairTrimmed in columnsToSortBy.Split(',').Select(coPair => coPair.Trim()))
         {
-            String coString;
-            String order;
+            string coString;
+            string order;
             if (coPairTrimmed.Contains(' '))
             {
                 string[] pair = coPairTrimmed.Split(' ');
@@ -573,7 +573,7 @@ internal class XLTable : XLRange, IXLTable
                 order = sortOrder == XLSortOrder.Ascending ? "ASC" : "DESC";
             }
 
-            if (!Int32.TryParse(coString, out Int32 co))
+            if (!int.TryParse(coString, out int co))
             {
                 co = this.Field(coString).Index + 1;
             }
@@ -600,7 +600,7 @@ internal class XLTable : XLRange, IXLTable
 
     #endregion IXLTable Members
 
-    private void InitializeValues(Boolean setAutofilter)
+    private void InitializeValues(bool setAutofilter)
     {
         this.ShowRowStripes = true;
         this._showHeaderRow = true;
@@ -621,7 +621,7 @@ internal class XLTable : XLRange, IXLTable
     internal void OnAddedToTables()
     {
         this._uniqueNames = [];
-        Int32 co = 1;
+        int co = 1;
         foreach (IXLCell c in this.Row(1).Cells())
         {
             // Be careful here. Fields names may actually be whitespace, but not empty
@@ -638,15 +638,15 @@ internal class XLTable : XLRange, IXLTable
     private static Dictionary<string, XLTableField> CreateFieldNames() =>
         new(StringComparer.CurrentCultureIgnoreCase);
 
-    private String GetUniqueName(String originalName, Int32 initialOffset, Boolean enforceOffset)
+    private string GetUniqueName(string originalName, int initialOffset, bool enforceOffset)
     {
-        String name = String.Concat(
+        string name = string.Concat(
             originalName,
             enforceOffset ? initialOffset.ToInvariantString() : string.Empty
         );
         if (this._uniqueNames?.Contains(name) ?? false)
         {
-            Int32 i = initialOffset;
+            int i = initialOffset;
             name = originalName + i.ToInvariantString();
             while (this._uniqueNames.Contains(name))
             {
@@ -658,7 +658,7 @@ internal class XLTable : XLRange, IXLTable
         return name;
     }
 
-    public Int32 GetFieldIndex(String name)
+    public int GetFieldIndex(string name)
     {
         // There is a discrepancy in the way headers with line breaks are stored.
         // The entry in the table definition will contain \r\n
@@ -674,9 +674,9 @@ internal class XLTable : XLRange, IXLTable
         );
     }
 
-    internal Boolean _showHeaderRow;
+    internal bool _showHeaderRow;
 
-    public Boolean ShowHeaderRow
+    public bool ShowHeaderRow
     {
         get => this._showHeaderRow;
         set
@@ -690,10 +690,10 @@ internal class XLTable : XLRange, IXLTable
             {
                 IXLRangeRow headersRow = this.HeadersRow();
                 this._uniqueNames = [];
-                Int32 co = 1;
+                int co = 1;
                 foreach (IXLCell c in headersRow.Cells())
                 {
-                    if (String.IsNullOrWhiteSpace(c.GetString()))
+                    if (string.IsNullOrWhiteSpace(c.GetString()))
                     {
                         c.Value = this.GetUniqueName("Column", co, true);
                     }
@@ -748,7 +748,7 @@ internal class XLTable : XLRange, IXLTable
                     this.RangeAddress = new XLRangeAddress(fAddress, this.RangeAddress.LastAddress);
                 }
 
-                Int32 co = 1;
+                int co = 1;
                 foreach (string name in this.FieldNames.Values.Select(f => f.Name))
                 {
                     rangeRow.Cell(co).SetValue(name);
@@ -765,13 +765,13 @@ internal class XLTable : XLRange, IXLTable
 
     public IXLTable SetShowHeaderRow() => this.SetShowHeaderRow(true);
 
-    public IXLTable SetShowHeaderRow(Boolean value)
+    public IXLTable SetShowHeaderRow(bool value)
     {
         this.ShowHeaderRow = value;
         return this;
     }
 
-    public void ExpandTableRows(Int32 rows) =>
+    public void ExpandTableRows(int rows) =>
         this.RangeAddress = new XLRangeAddress(
             this.RangeAddress.FirstAddress,
             new XLAddress(
@@ -842,10 +842,10 @@ internal class XLTable : XLRange, IXLTable
         return columns;
     }
 
-    IXLPivotTable IXLRangeBase.CreatePivotTable(IXLCell targetCell, String name) =>
+    IXLPivotTable IXLRangeBase.CreatePivotTable(IXLCell targetCell, string name) =>
         this.CreatePivotTable(targetCell, name);
 
-    internal new XLPivotTable CreatePivotTable(IXLCell targetCell, String name) =>
+    internal new XLPivotTable CreatePivotTable(IXLCell targetCell, string name) =>
         (XLPivotTable)targetCell.Worksheet.PivotTables.Add(name, targetCell, this);
 
     public IEnumerable<dynamic> AsDynamicEnumerable()
@@ -878,11 +878,11 @@ internal class XLTable : XLRange, IXLTable
                 switch (c.DataType)
                 {
                     case XLDataType.Text:
-                        type = typeof(String);
+                        type = typeof(string);
                         break;
 
                     case XLDataType.Boolean:
-                        type = typeof(Boolean);
+                        type = typeof(bool);
                         break;
 
                     case XLDataType.DateTime:
@@ -894,7 +894,7 @@ internal class XLTable : XLRange, IXLTable
                         break;
 
                     case XLDataType.Number:
-                        type = typeof(Double);
+                        type = typeof(double);
                         break;
                 }
             }
@@ -938,7 +938,7 @@ internal class XLTable : XLRange, IXLTable
             this.HeadersRow().CopyTo(targetRange.FirstRow());
         }
 
-        String tableName = this.Name;
+        string tableName = this.Name;
         XLTable newTable = (XLTable)targetSheet.Table(targetRange, tableName, true);
 
         newTable.RelId = null;
@@ -950,8 +950,8 @@ internal class XLTable : XLRange, IXLTable
         newTable.Theme = this.Theme;
         newTable._showTotalsRow = this.ShowTotalsRow;
 
-        Int32 fieldCount = this.ColumnCount();
-        for (Int32 f = 0; f < fieldCount; f++)
+        int fieldCount = this.ColumnCount();
+        for (int f = 0; f < fieldCount; f++)
         {
             XLTableField tableField = newTable.Field(f) as XLTableField;
             XLTableField tField = this.Field(f) as XLTableField;
@@ -965,17 +965,13 @@ internal class XLTable : XLRange, IXLTable
 
     #region Append and replace data
 
-    public IXLRange AppendData(IEnumerable data, Boolean propagateExtraColumns = false) =>
+    public IXLRange AppendData(IEnumerable data, bool propagateExtraColumns = false) =>
         this.AppendData(data, transpose: false, propagateExtraColumns: propagateExtraColumns);
 
-    public IXLRange AppendData(
-        IEnumerable data,
-        bool transpose,
-        Boolean propagateExtraColumns = false
-    )
+    public IXLRange AppendData(IEnumerable data, bool transpose, bool propagateExtraColumns = false)
     {
         object[] castedData = data?.Cast<object>().ToArray() ?? [];
-        if (!castedData.Any() || data is String)
+        if (!castedData.Any() || data is string)
         {
             return null;
         }
@@ -996,16 +992,16 @@ internal class XLTable : XLRange, IXLTable
         return insertedRange;
     }
 
-    public IXLRange AppendData(DataTable dataTable, Boolean propagateExtraColumns = false) =>
+    public IXLRange AppendData(DataTable dataTable, bool propagateExtraColumns = false) =>
         this.AppendData(
             dataTable.Rows.Cast<DataRow>(),
             propagateExtraColumns: propagateExtraColumns
         );
 
-    public IXLRange AppendData<T>(IEnumerable<T> data, Boolean propagateExtraColumns = false)
+    public IXLRange AppendData<T>(IEnumerable<T> data, bool propagateExtraColumns = false)
     {
         T[] materializedData = data?.ToArray() ?? [];
-        if (!materializedData.Any() || data is String)
+        if (!materializedData.Any() || data is string)
         {
             return null;
         }
@@ -1031,17 +1027,17 @@ internal class XLTable : XLRange, IXLTable
         return insertedRange;
     }
 
-    public IXLRange ReplaceData(IEnumerable data, Boolean propagateExtraColumns = false) =>
+    public IXLRange ReplaceData(IEnumerable data, bool propagateExtraColumns = false) =>
         this.ReplaceData(data, transpose: false, propagateExtraColumns: propagateExtraColumns);
 
     public IXLRange ReplaceData(
         IEnumerable data,
         bool transpose,
-        Boolean propagateExtraColumns = false
+        bool propagateExtraColumns = false
     )
     {
         object[] castedData = data?.Cast<object>().ToArray() ?? [];
-        if (!castedData.Any() || data is String)
+        if (!castedData.Any() || data is string)
         {
             throw new InvalidOperationException("Cannot replace table data with empty enumerable.");
         }
@@ -1083,16 +1079,16 @@ internal class XLTable : XLRange, IXLTable
         return replacedRange;
     }
 
-    public IXLRange ReplaceData(DataTable dataTable, Boolean propagateExtraColumns = false) =>
+    public IXLRange ReplaceData(DataTable dataTable, bool propagateExtraColumns = false) =>
         this.ReplaceData(
             dataTable.Rows.Cast<DataRow>(),
             propagateExtraColumns: propagateExtraColumns
         );
 
-    public IXLRange ReplaceData<T>(IEnumerable<T> data, Boolean propagateExtraColumns = false)
+    public IXLRange ReplaceData<T>(IEnumerable<T> data, bool propagateExtraColumns = false)
     {
         T[] materializedData = data?.ToArray() ?? [];
-        if (!materializedData.Any() || data is String)
+        if (!materializedData.Any() || data is string)
         {
             throw new InvalidOperationException("Cannot replace table data with empty enumerable.");
         }

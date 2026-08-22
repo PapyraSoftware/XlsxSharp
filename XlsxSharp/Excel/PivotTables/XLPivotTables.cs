@@ -9,7 +9,7 @@ namespace XlsxSharp.Excel;
 
 internal class XLPivotTables : IXLPivotTables, IEnumerable<XLPivotTable>
 {
-    private readonly Dictionary<String, XLPivotTable> _pivotTables = new(
+    private readonly Dictionary<string, XLPivotTable> _pivotTables = new(
         StringComparer.OrdinalIgnoreCase
     );
 
@@ -53,13 +53,13 @@ internal class XLPivotTables : IXLPivotTables, IEnumerable<XLPivotTable>
     public IXLPivotTable Add(string name, IXLCell targetCell, IXLTable table) =>
         this.Add(name, targetCell, (IXLRange)table);
 
-    public Boolean Contains(String name) => this._pivotTables.ContainsKey(name);
+    public bool Contains(string name) => this._pivotTables.ContainsKey(name);
 
-    public void Delete(String name) => this._pivotTables.Remove(name);
+    public void Delete(string name) => this._pivotTables.Remove(name);
 
     public void DeleteAll() => this._pivotTables.Clear();
 
-    IXLPivotTable IXLPivotTables.PivotTable(String name) => this.PivotTable(name);
+    IXLPivotTable IXLPivotTables.PivotTable(string name) => this.PivotTable(name);
 
     IEnumerator<IXLPivotTable> IEnumerable<IXLPivotTable>.GetEnumerator() => this.GetEnumerator();
 
@@ -71,9 +71,9 @@ internal class XLPivotTables : IXLPivotTables, IEnumerable<XLPivotTable>
     public Dictionary<string, XLPivotTable>.ValueCollection.Enumerator GetEnumerator() =>
         this._pivotTables.Values.GetEnumerator();
 
-    internal void Add(String name, IXLPivotTable pivotTable) =>
+    internal void Add(string name, IXLPivotTable pivotTable) =>
         this._pivotTables.Add(name, (XLPivotTable)pivotTable);
 
     /// <inheritdoc cref="IXLPivotTables.PivotTable"/>
-    internal XLPivotTable PivotTable(String name) => this._pivotTables[name];
+    internal XLPivotTable PivotTable(string name) => this._pivotTables[name];
 }

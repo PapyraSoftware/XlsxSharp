@@ -6,33 +6,33 @@ namespace XlsxSharp.Excel.Drawings;
 
 internal class XLDrawingPosition : IXLDrawingPosition
 {
-    public Int32 Column { get; set; }
+    public int Column { get; set; }
 
-    public IXLDrawingPosition SetColumn(Int32 column)
+    public IXLDrawingPosition SetColumn(int column)
     {
         this.Column = column;
         return this;
     }
 
-    public Double ColumnOffset { get; set; }
+    public double ColumnOffset { get; set; }
 
-    public IXLDrawingPosition SetColumnOffset(Double columnOffset)
+    public IXLDrawingPosition SetColumnOffset(double columnOffset)
     {
         this.ColumnOffset = columnOffset;
         return this;
     }
 
-    public Int32 Row { get; set; }
+    public int Row { get; set; }
 
-    public IXLDrawingPosition SetRow(Int32 row)
+    public IXLDrawingPosition SetRow(int row)
     {
         this.Row = row;
         return this;
     }
 
-    public Double RowOffset { get; set; }
+    public double RowOffset { get; set; }
 
-    public IXLDrawingPosition SetRowOffset(Double rowOffset)
+    public IXLDrawingPosition SetRowOffset(double rowOffset)
     {
         this.RowOffset = rowOffset;
         return this;

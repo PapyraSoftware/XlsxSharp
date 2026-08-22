@@ -20,7 +20,7 @@ public interface IXLElementProtection<T> : IXLElementProtection
     /// <param name="element">The element to add</param>
     /// <param name="allowed">Set to <c>true</c> to allow the element or <c>false</c> to disallow the element</param>
     /// <returns>The current protection instance</returns>
-    IXLElementProtection<T> AllowElement(T element, Boolean allowed = true);
+    IXLElementProtection<T> AllowElement(T element, bool allowed = true);
 
     /// <summary>Allows all elements to be edited.</summary>
     IXLElementProtection<T> AllowEverything();
@@ -48,7 +48,7 @@ public interface IXLElementProtection<T> : IXLElementProtection
     /// <param name="password">The password.</param>
     /// <param name="algorithm">The algorithm.</param>
     IXLElementProtection<T> Protect(
-        String password,
+        string password,
         Algorithm algorithm = DefaultProtectionAlgorithm
     );
 
@@ -57,7 +57,7 @@ public interface IXLElementProtection<T> : IXLElementProtection
 
     /// <summary>Unprotects this instance using the specified password.</summary>
     /// <param name="password">The password.</param>
-    IXLElementProtection<T> Unprotect(String password);
+    IXLElementProtection<T> Unprotect(string password);
 }
 
 public interface IXLElementProtection : ICloneable
@@ -70,11 +70,11 @@ public interface IXLElementProtection : ICloneable
     /// <value>
     ///   <c>true</c> if this instance is password protected; otherwise, <c>false</c>.
     /// </value>
-    Boolean IsPasswordProtected { get; }
+    bool IsPasswordProtected { get; }
 
     /// <summary>Gets a value indicating whether this instance is protected, either with or without a password.</summary>
     /// <value>
     ///   <c>true</c> if this instance is protected; otherwise, <c>false</c>.
     /// </value>
-    Boolean IsProtected { get; }
+    bool IsProtected { get; }
 }

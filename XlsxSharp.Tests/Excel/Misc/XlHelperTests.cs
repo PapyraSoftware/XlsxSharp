@@ -181,7 +181,7 @@ public class XlHelperTests
         //Extra check because we allow users to pass row col positions in as strings
         if (columnLetter[0] <= '9')
         {
-            retVal = Int32.Parse(columnLetter, XLHelper.NumberStyle, XLHelper.ParseCulture);
+            retVal = int.Parse(columnLetter, XLHelper.NumberStyle, XLHelper.ParseCulture);
             return retVal;
         }
 

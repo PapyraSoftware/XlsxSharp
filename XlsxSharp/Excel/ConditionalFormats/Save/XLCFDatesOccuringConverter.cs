@@ -42,7 +42,7 @@ internal class XLCFDatesOccurringConverter : IXLCFConverter
         conditionalFormattingRule.TimePeriod = cf.TimePeriod.ToOpenXml();
 
         string address = cf.Range.RangeAddress.FirstAddress.ToStringRelative(false);
-        Formula formula = new() { Text = String.Format(formulaTemplates[cf.TimePeriod], address) };
+        Formula formula = new() { Text = string.Format(formulaTemplates[cf.TimePeriod], address) };
 
         conditionalFormattingRule.Append(formula);
 

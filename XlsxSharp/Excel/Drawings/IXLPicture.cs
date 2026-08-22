@@ -19,38 +19,38 @@ public interface IXLPicture
     /// <summary>
     /// Current width of the picture in pixels.
     /// </summary>
-    Int32 Width { get; set; }
+    int Width { get; set; }
 
     /// <summary>
     /// Current height of the picture in pixels.
     /// </summary>
-    Int32 Height { get; set; }
+    int Height { get; set; }
 
-    Int32 Id { get; }
+    int Id { get; }
 
     MemoryStream ImageStream { get; }
 
-    Int32 Left { get; set; }
+    int Left { get; set; }
 
     /// <summary>
     /// Set the name of a picture.
     /// </summary>
     /// <exception cref="ArgumentException">Name is already used in the sheet, is null or empty.</exception>
-    String Name { get; set; }
+    string Name { get; set; }
 
     /// <summary>
     /// Original height of the picture in pixels.
     /// </summary>
-    Int32 OriginalHeight { get; }
+    int OriginalHeight { get; }
 
     /// <summary>
     /// Original width of the picture in pixels.
     /// </summary>
-    Int32 OriginalWidth { get; }
+    int OriginalWidth { get; }
 
     XLPicturePlacement Placement { get; set; }
 
-    Int32 Top { get; set; }
+    int Top { get; set; }
 
     IXLCell TopLeftCell { get; }
 
@@ -76,11 +76,11 @@ public interface IXLPicture
 
     System.Drawing.Point GetOffset(XLMarkerPosition position);
 
-    IXLPicture MoveTo(Int32 left, Int32 top);
+    IXLPicture MoveTo(int left, int top);
 
     IXLPicture MoveTo(IXLCell cell);
 
-    IXLPicture MoveTo(IXLCell cell, Int32 xOffset, Int32 yOffset);
+    IXLPicture MoveTo(IXLCell cell, int xOffset, int yOffset);
 
     IXLPicture MoveTo(IXLCell cell, System.Drawing.Point offset);
 
@@ -88,11 +88,11 @@ public interface IXLPicture
 
     IXLPicture MoveTo(
         IXLCell fromCell,
-        Int32 fromCellXOffset,
-        Int32 fromCellYOffset,
+        int fromCellXOffset,
+        int fromCellYOffset,
         IXLCell toCell,
-        Int32 toCellXOffset,
-        Int32 toCellYOffset
+        int toCellXOffset,
+        int toCellYOffset
     );
 
     IXLPicture MoveTo(
@@ -102,13 +102,13 @@ public interface IXLPicture
         System.Drawing.Point toOffset
     );
 
-    IXLPicture Scale(Double factor, Boolean relativeToOriginal = false);
+    IXLPicture Scale(double factor, bool relativeToOriginal = false);
 
-    IXLPicture ScaleHeight(Double factor, Boolean relativeToOriginal = false);
+    IXLPicture ScaleHeight(double factor, bool relativeToOriginal = false);
 
-    IXLPicture ScaleWidth(Double factor, Boolean relativeToOriginal = false);
+    IXLPicture ScaleWidth(double factor, bool relativeToOriginal = false);
 
     IXLPicture WithPlacement(XLPicturePlacement value);
 
-    IXLPicture WithSize(Int32 width, Int32 height);
+    IXLPicture WithSize(int width, int height);
 }

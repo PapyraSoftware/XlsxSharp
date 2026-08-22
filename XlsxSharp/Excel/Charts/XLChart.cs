@@ -34,7 +34,7 @@ internal class XLChart : XLDrawing<IXLChart>, IXLChart
     {
         this.Container = this;
         this.worksheet = worksheet;
-        Int32 zOrder;
+        int zOrder;
         if (worksheet.Charts.Any())
         {
             zOrder = worksheet.Charts.Max(c => c.ZOrder) + 1;
@@ -49,7 +49,7 @@ internal class XLChart : XLDrawing<IXLChart>, IXLChart
         this.RightAngleAxes = true;
     }
 
-    public Boolean RightAngleAxes { get; set; }
+    public bool RightAngleAxes { get; set; }
 
     public IXLChart SetRightAngleAxes()
     {
@@ -57,7 +57,7 @@ internal class XLChart : XLDrawing<IXLChart>, IXLChart
         return this;
     }
 
-    public IXLChart SetRightAngleAxes(Boolean rightAngleAxes)
+    public IXLChart SetRightAngleAxes(bool rightAngleAxes)
     {
         this.RightAngleAxes = rightAngleAxes;
         return this;

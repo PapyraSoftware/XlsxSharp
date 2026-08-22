@@ -36,13 +36,13 @@ internal class WorksheetPartReader
         "yyyy-MM-dd", // Formats accepted by Excel.
     ];
 
-    private readonly Dictionary<UInt32, String> _sharedFormulasR1C1 = new();
+    private readonly Dictionary<uint, string> _sharedFormulasR1C1 = new();
 
     /// <summary>
     /// Row number of last read <c>row</c> element.
     /// </summary>
-    private Int32 _lastRow;
-    private Int32 _lastColumnNumber;
+    private int _lastRow;
+    private int _lastColumnNumber;
 
     internal void LoadWorksheet(
         XLWorksheet ws,
@@ -288,7 +288,7 @@ internal class WorksheetPartReader
             XLColumns xlColumns = (XLColumns)ws.Columns(col.Min, col.Max);
             if (col.Width != null)
             {
-                Double width = col.Width - XLConstants.ColumnWidthOffset;
+                double width = col.Width - XLConstants.ColumnWidthOffset;
                 //if (width < 0) width = 0;
                 xlColumns.Width = width;
             }
@@ -411,7 +411,7 @@ internal class WorksheetPartReader
         SharedStringItem[] sharedStrings,
         XLWorksheet ws,
         OpenXmlPartReader reader,
-        Int32 rowIndex
+        int rowIndex
     )
     {
         Debug.Assert(reader.LocalName == "c" && reader.IsStartElement);
@@ -520,7 +520,7 @@ internal class WorksheetPartReader
                 }
                 else
                 {
-                    xlCell.SetOnlyValue(String.Empty);
+                    xlCell.SetOnlyValue(string.Empty);
                 }
 
                 // Move from end 'is' element to the end of a 'c' element.
@@ -713,11 +713,11 @@ internal class WorksheetPartReader
         {
             if (
                 cellValue is not null
-                && Int32.TryParse(
+                && int.TryParse(
                     cellValue,
                     XlsxSharp.XLHelper.NumberStyle,
                     XlsxSharp.XLHelper.ParseCulture,
-                    out Int32 sharedStringId
+                    out int sharedStringId
                 )
                 && sharedStringId >= 0
                 && sharedStringId < sharedStrings.Length
@@ -729,12 +729,12 @@ internal class WorksheetPartReader
             }
             else
             {
-                xlCell.SetOnlyValue(String.Empty);
+                xlCell.SetOnlyValue(string.Empty);
             }
         }
         else if (dataType == CellValues.String) // A plain string that is a result of a formula calculation
         {
-            xlCell.SetOnlyValue(cellValue ?? String.Empty);
+            xlCell.SetOnlyValue(cellValue ?? string.Empty);
         }
         else if (dataType == CellValues.Boolean)
         {
@@ -785,7 +785,7 @@ internal class WorksheetPartReader
         {
             hasRuns = true;
             RunProperties runProperties = run.RunProperties;
-            String text = run.Text.InnerText.FixNewLines();
+            string text = run.Text.InnerText.FixNewLines();
 
             if (runProperties == null)
             {
@@ -855,8 +855,8 @@ internal class WorksheetPartReader
                 .GetRichText()
                 .Phonetics.Add(
                     pr.Text.InnerText.FixNewLines(),
-                    (Int32)pr.BaseTextStartIndex.Value,
-                    (Int32)pr.EndingBaseIndex.Value
+                    (int)pr.BaseTextStartIndex.Value,
+                    (int)pr.EndingBaseIndex.Value
                 );
         }
     }
@@ -965,12 +965,12 @@ internal class WorksheetPartReader
         {
             if (pane.HorizontalSplit != null)
             {
-                ws.SheetView.SplitColumn = (Int32)pane.HorizontalSplit.Value;
+                ws.SheetView.SplitColumn = (int)pane.HorizontalSplit.Value;
             }
 
             if (pane.VerticalSplit != null)
             {
-                ws.SheetView.SplitRow = (Int32)pane.VerticalSplit.Value;
+                ws.SheetView.SplitRow = (int)pane.VerticalSplit.Value;
             }
         }
 
@@ -990,7 +990,7 @@ internal class WorksheetPartReader
         ws.Protection.IsProtected = OpenXmlHelper.GetBooleanValueAsBool(sp.Sheet, false);
 
         string algorithmName = sp.AlgorithmName?.Value ?? string.Empty;
-        if (String.IsNullOrEmpty(algorithmName))
+        if (string.IsNullOrEmpty(algorithmName))
         {
             ws.Protection.PasswordHash = sp.Password?.Value ?? string.Empty;
             ws.Protection.Base64EncodedSalt = string.Empty;
@@ -1116,7 +1116,7 @@ internal class WorksheetPartReader
             }
 
             conditionalFormat.ConditionalFormatType = fr.Type.Value.ToClosedXml();
-            conditionalFormat.Priority = fr.Priority?.Value ?? Int32.MaxValue;
+            conditionalFormat.Priority = fr.Priority?.Value ?? int.MaxValue;
 
             // Although formulas are directly used only by CellIs and Expression type, other
             // format types also write them for evaluation to the workbook, e.g. rule to
@@ -1131,7 +1131,7 @@ internal class WorksheetPartReader
                 List<XLFormula> nonEmptyFormulas =
                 [
                     .. fr.Elements<Formula>()
-                        .Where(static f => !String.IsNullOrEmpty(f.Text))
+                        .Where(static f => !string.IsNullOrEmpty(f.Text))
                         .Select<Formula, XLFormula>(f => GetFormula(f.Text)),
                 ];
                 if (conditionalFormat.Operator is XLCFOperator.Between or XLCFOperator.NotBetween)
@@ -1160,7 +1160,7 @@ internal class WorksheetPartReader
             else if (conditionalFormat.ConditionalFormatType == XLConditionalFormatType.Expression)
             {
                 Formula formula = fr.Elements<Formula>()
-                    .Where(static f => !String.IsNullOrEmpty(f.Text))
+                    .Where(static f => !string.IsNullOrEmpty(f.Text))
                     .FirstOrDefault();
 
                 if (formula is null)
@@ -1225,7 +1225,7 @@ internal class WorksheetPartReader
                 }
 
                 X14.Id id = fr.Descendants<X14.Id>().FirstOrDefault();
-                if (id != null && id.Text != null && !String.IsNullOrWhiteSpace(id.Text))
+                if (id != null && id.Text != null && !string.IsNullOrWhiteSpace(id.Text))
                 {
                     conditionalFormat.Id = new Guid(id.Text.Substring(1, id.Text.Length - 2));
                 }
@@ -1269,7 +1269,7 @@ internal class WorksheetPartReader
         }
     }
 
-    private static XLFormula GetFormula(String value)
+    private static XLFormula GetFormula(string value)
     {
         XLFormula formula = new();
         formula._value = value;
@@ -1328,8 +1328,8 @@ internal class WorksheetPartReader
             DocumentFormat.OpenXml.Spreadsheet.DataValidation dvs in dataValidations.Elements<DocumentFormat.OpenXml.Spreadsheet.DataValidation>()
         )
         {
-            String txt = dvs.SequenceOfReferences.InnerText;
-            if (String.IsNullOrWhiteSpace(txt))
+            string txt = dvs.SequenceOfReferences.InnerText;
+            if (string.IsNullOrWhiteSpace(txt))
             {
                 continue;
             }
@@ -1432,7 +1432,7 @@ internal class WorksheetPartReader
                 continue;
             }
 
-            String tooltip = hl.Tooltip != null ? hl.Tooltip.Value : String.Empty;
+            string tooltip = hl.Tooltip != null ? hl.Tooltip.Value : string.Empty;
             XLRange xlRange = ws.Range(hl.Reference.Value);
             foreach (XLCell xlCell in xlRange.Cells())
             {
@@ -1531,12 +1531,12 @@ internal class WorksheetPartReader
 
         if (pageSetup.PaperSize != null)
         {
-            ws.PageSetup.PaperSize = (XLPaperSize)Int32.Parse(pageSetup.PaperSize.InnerText);
+            ws.PageSetup.PaperSize = (XLPaperSize)int.Parse(pageSetup.PaperSize.InnerText);
         }
 
         if (pageSetup.Scale != null)
         {
-            ws.PageSetup.Scale = Int32.Parse(pageSetup.Scale.InnerText);
+            ws.PageSetup.Scale = int.Parse(pageSetup.Scale.InnerText);
         }
 
         if (
@@ -1551,7 +1551,7 @@ internal class WorksheetPartReader
             }
             else
             {
-                ws.PageSetup.PagesWide = Int32.Parse(pageSetup.FitToWidth.InnerText);
+                ws.PageSetup.PagesWide = int.Parse(pageSetup.FitToWidth.InnerText);
             }
 
             if (pageSetup.FitToHeight == null)
@@ -1560,7 +1560,7 @@ internal class WorksheetPartReader
             }
             else
             {
-                ws.PageSetup.PagesTall = Int32.Parse(pageSetup.FitToHeight.InnerText);
+                ws.PageSetup.PagesTall = int.Parse(pageSetup.FitToHeight.InnerText);
             }
         }
         if (pageSetup.PageOrder != null)
@@ -1595,12 +1595,12 @@ internal class WorksheetPartReader
 
         if (pageSetup.HorizontalDpi != null)
         {
-            ws.PageSetup.HorizontalDpi = (Int32)pageSetup.HorizontalDpi.Value;
+            ws.PageSetup.HorizontalDpi = (int)pageSetup.HorizontalDpi.Value;
         }
 
         if (pageSetup.VerticalDpi != null)
         {
-            ws.PageSetup.VerticalDpi = (Int32)pageSetup.VerticalDpi.Value;
+            ws.PageSetup.VerticalDpi = (int)pageSetup.VerticalDpi.Value;
         }
 
         if (pageSetup.FirstPageNumber?.HasValue ?? false)
@@ -1689,7 +1689,7 @@ internal class WorksheetPartReader
 
         foreach (Break rowBreak in rowBreaks.Elements<Break>())
         {
-            ws.PageSetup.RowBreaks.Add(Int32.Parse(rowBreak.Id.InnerText));
+            ws.PageSetup.RowBreaks.Add(int.Parse(rowBreak.Id.InnerText));
         }
     }
 
@@ -1706,7 +1706,7 @@ internal class WorksheetPartReader
                 .Where(columnBreak => columnBreak.Id != null)
         )
         {
-            ws.PageSetup.ColumnBreaks.Add(Int32.Parse(columnBreak.Id.InnerText));
+            ws.PageSetup.ColumnBreaks.Add(int.Parse(columnBreak.Id.InnerText));
         }
     }
 
@@ -1723,8 +1723,8 @@ internal class WorksheetPartReader
                 .SelectMany(dataValidations => dataValidations.Descendants<X14.DataValidation>())
         )
         {
-            String txt = dvs.ReferenceSequence.InnerText;
-            if (String.IsNullOrWhiteSpace(txt))
+            string txt = dvs.ReferenceSequence.InnerText;
+            if (string.IsNullOrWhiteSpace(txt))
             {
                 continue;
             }
@@ -1977,11 +1977,11 @@ internal class WorksheetPartReader
 
     private static void ApplyStyle(
         IXLFormatContainer container,
-        Int32 styleIndex,
+        int styleIndex,
         XLWorkbookStyles styles
     ) => container.FormatValue = styles.CellFormats[styleIndex];
 
-    private static void ApplyStyle(XLColumns columns, Int32 styleIndex, XLWorkbookStyles styles)
+    private static void ApplyStyle(XLColumns columns, int styleIndex, XLWorkbookStyles styles)
     {
         // When loading columns we must propagate style to each column but not deeper. In other cases we do not propagate at all.
         foreach (XLColumn col in columns)

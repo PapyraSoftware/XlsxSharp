@@ -6,44 +6,44 @@ namespace XlsxSharp.Excel.PageSetup;
 
 internal class XLMargins : IXLMargins
 {
-    public Double Left { get; set; }
-    public Double Right { get; set; }
-    public Double Top { get; set; }
-    public Double Bottom { get; set; }
-    public Double Header { get; set; }
-    public Double Footer { get; set; }
+    public double Left { get; set; }
+    public double Right { get; set; }
+    public double Top { get; set; }
+    public double Bottom { get; set; }
+    public double Header { get; set; }
+    public double Footer { get; set; }
 
-    public IXLMargins SetLeft(Double value)
+    public IXLMargins SetLeft(double value)
     {
         this.Left = value;
         return this;
     }
 
-    public IXLMargins SetRight(Double value)
+    public IXLMargins SetRight(double value)
     {
         this.Right = value;
         return this;
     }
 
-    public IXLMargins SetTop(Double value)
+    public IXLMargins SetTop(double value)
     {
         this.Top = value;
         return this;
     }
 
-    public IXLMargins SetBottom(Double value)
+    public IXLMargins SetBottom(double value)
     {
         this.Bottom = value;
         return this;
     }
 
-    public IXLMargins SetHeader(Double value)
+    public IXLMargins SetHeader(double value)
     {
         this.Header = value;
         return this;
     }
 
-    public IXLMargins SetFooter(Double value)
+    public IXLMargins SetFooter(double value)
     {
         this.Footer = value;
         return this;

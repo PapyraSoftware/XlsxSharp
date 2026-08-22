@@ -5,13 +5,13 @@ namespace XlsxSharp.Examples.Misc;
 
 public class Hyperlinks : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook wb = new();
         IXLWorksheet ws = wb.Worksheets.Add("Hyperlinks");
         wb.Worksheets.Add("Second Sheet");
 
-        Int32 ro = 0;
+        int ro = 0;
 
         // You can create a link with pretty much anything you can put on a
         // browser: http, ftp, mailto, gopher, news, nntp, etc.

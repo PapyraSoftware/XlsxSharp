@@ -5,7 +5,7 @@ namespace XlsxSharp.Examples;
 
 public class HelloWorld
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook workbook = new();
         IXLWorksheet worksheet = workbook.Worksheets.Add("Sample Sheet");

@@ -53,7 +53,7 @@ internal class CalculationChainPartWriter
                         CalculationCell cc = new()
                         {
                             CellReference = c.Address.ToString(),
-                            SheetId = (Int32)worksheet.SheetId,
+                            SheetId = (int)worksheet.SheetId,
                         };
 
                         cc.Array = true;
@@ -65,7 +65,7 @@ internal class CalculationChainPartWriter
                                 new CalculationCell
                                 {
                                     CellReference = childCell.Address.ToString(),
-                                    SheetId = (Int32)worksheet.SheetId,
+                                    SheetId = (int)worksheet.SheetId,
                                 }
                             );
                         }
@@ -77,7 +77,7 @@ internal class CalculationChainPartWriter
                         new CalculationCell
                         {
                             CellReference = c.Address.ToString(),
-                            SheetId = (Int32)worksheet.SheetId,
+                            SheetId = (int)worksheet.SheetId,
                         }
                     );
                 }

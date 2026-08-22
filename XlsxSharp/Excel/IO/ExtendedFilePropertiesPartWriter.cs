@@ -87,7 +87,7 @@ internal class ExtendedFilePropertiesPartWriter
             modifiedNamedRangesCount.ToInvariantString()
         );
 
-        vTVectorTwo.Size = (UInt32)(modifiedNamedRangesCount + modifiedWorksheetsCount);
+        vTVectorTwo.Size = (uint)(modifiedNamedRangesCount + modifiedWorksheetsCount);
 
         foreach (
             VTLPSTR vTlpstr3 in modifiedWorksheets
@@ -105,7 +105,7 @@ internal class ExtendedFilePropertiesPartWriter
 
         if (workbook.Properties.Manager != null)
         {
-            if (!String.IsNullOrWhiteSpace(workbook.Properties.Manager))
+            if (!string.IsNullOrWhiteSpace(workbook.Properties.Manager))
             {
                 if (properties.Manager == null)
                 {
@@ -125,7 +125,7 @@ internal class ExtendedFilePropertiesPartWriter
             return;
         }
 
-        if (!String.IsNullOrWhiteSpace(workbook.Properties.Company))
+        if (!string.IsNullOrWhiteSpace(workbook.Properties.Company))
         {
             if (properties.Company == null)
             {
@@ -140,12 +140,7 @@ internal class ExtendedFilePropertiesPartWriter
         }
     }
 
-    private static void InsertOnVtVector(
-        VTVector vTVector,
-        String property,
-        Int32 index,
-        String text
-    )
+    private static void InsertOnVtVector(VTVector vTVector, string property, int index, string text)
     {
         IEnumerable<Variant> m =
             from e1 in vTVector.Elements<Variant>()

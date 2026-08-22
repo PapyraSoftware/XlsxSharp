@@ -36,22 +36,22 @@ public class XLCellValueTests
         Assert.AreEqual(14.0, number.GetNumber());
     }
 
-    [TestCase(Double.NaN)]
-    [TestCase(Double.PositiveInfinity)]
-    [TestCase(Double.NegativeInfinity)]
-    public void CreationNumberCantBeNonNumber(Double nonNumber) =>
+    [TestCase(double.NaN)]
+    [TestCase(double.PositiveInfinity)]
+    [TestCase(double.NegativeInfinity)]
+    public void CreationNumberCantBeNonNumber(double nonNumber) =>
         Assert.Throws<ArgumentException>(() => _ = (XLCellValue)nonNumber);
 
     // Decimal is not allowed as a member of an attribute, so TestCase can't be used.
     private static readonly object[] DecimalTestCases =
     [
         new object[] { 5.875m, 5.875d },
-        new object[] { Decimal.MaxValue, 7.922816251426434E+28 },
+        new object[] { decimal.MaxValue, 7.922816251426434E+28 },
         new object[] { 1.0E-28m, 1.0000000000000001E-28d },
     ];
 
     [TestCaseSource(nameof(DecimalTestCases))]
-    public void CreationDecimal(Decimal decimalNumber, Double expectedNumber)
+    public void CreationDecimal(decimal decimalNumber, double expectedNumber)
     {
         XLCellValue cellValue = decimalNumber;
         Assert.True(cellValue.IsNumber);
@@ -432,7 +432,7 @@ public class XLCellValueTests
     public void ToStringRespectsCulture()
     {
         XLCellValue v = Blank.Value;
-        Assert.AreEqual(String.Empty, v.ToString());
+        Assert.AreEqual(string.Empty, v.ToString());
 
         v = true;
         Assert.AreEqual("TRUE", v.ToString());
@@ -463,7 +463,7 @@ public class XLCellValueTests
         Assert.True(value.TryConvert(out Blank blank));
         Assert.AreEqual(Blank.Value, blank);
 
-        value = String.Empty;
+        value = string.Empty;
         Assert.True(value.TryConvert(out blank));
         Assert.AreEqual(Blank.Value, blank);
     }
@@ -472,7 +472,7 @@ public class XLCellValueTests
     public void TryConvertBoolean()
     {
         XLCellValue value = true;
-        Assert.True(value.TryConvert(out Boolean boolean));
+        Assert.True(value.TryConvert(out bool boolean));
         Assert.True(boolean);
 
         value = "True";
@@ -497,7 +497,7 @@ public class XLCellValueTests
     {
         CultureInfo c = CultureInfo.GetCultureInfo("cs-CZ");
         XLCellValue value = 5;
-        Assert.True(value.TryConvert(out Double number, c));
+        Assert.True(value.TryConvert(out double number, c));
         Assert.AreEqual(5.0, number);
 
         value = "1,5";

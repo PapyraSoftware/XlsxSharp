@@ -13,16 +13,16 @@ namespace XlsxSharp.Excel;
 internal class XLDefinedName : IXLDefinedName, IWorkbookListener
 {
     private readonly XLDefinedNames _container;
-    private String _name;
-    private String _formula = null!;
+    private string _name;
+    private string _formula = null!;
     private FormulaReferences _references = null!;
 
     internal XLDefinedName(
         XLDefinedNames container,
-        String name,
-        Boolean validateName,
-        String formula,
-        String? comment
+        string name,
+        bool validateName,
+        string formula,
+        string? comment
     )
     {
         // Excel accepts invalid names per grammar (e.g. `[Foo]Bar`) as a valid name and they can
@@ -44,7 +44,7 @@ internal class XLDefinedName : IXLDefinedName, IWorkbookListener
 
     public bool IsValid => !this._references.ContainsRefError;
 
-    public String Name
+    public string Name
     {
         get => this._name;
         set
@@ -73,13 +73,13 @@ internal class XLDefinedName : IXLDefinedName, IWorkbookListener
     public IXLRanges Ranges =>
         this._references.GetExternalRanges(this._container.Workbook, new Point(1, 1));
 
-    public String? Comment { get; set; }
+    public string? Comment { get; set; }
 
-    public Boolean Visible { get; set; }
+    public bool Visible { get; set; }
 
     public XLNamedRangeScope Scope => this._container.Scope;
 
-    public String RefersTo
+    public string RefersTo
     {
         get => this._formula;
         set
@@ -118,7 +118,7 @@ internal class XLDefinedName : IXLDefinedName, IWorkbookListener
     /// Get sheet references found in the formula in A1. Doesn't return tables or name references,
     /// only what has col/row coordinates.
     /// </summary>
-    internal IReadOnlyList<String> SheetReferencesList =>
+    internal IReadOnlyList<string> SheetReferencesList =>
         this._references.SheetReferences.Select(x => x.GetA1()).ToList();
 
     internal XLDefinedName CopyTo(XLWorksheet targetSheet)
@@ -177,7 +177,7 @@ internal class XLDefinedName : IXLDefinedName, IWorkbookListener
         return this.SetRefersTo(unionFormula);
     }
 
-    public IXLDefinedName SetRefersTo(String formula)
+    public IXLDefinedName SetRefersTo(string formula)
     {
         this.RefersTo = formula;
         return this;
@@ -185,7 +185,7 @@ internal class XLDefinedName : IXLDefinedName, IWorkbookListener
 
     public override string ToString() => this._formula;
 
-    internal void Add(String rangeAddress)
+    internal void Add(string rangeAddress)
     {
         string[] byExclamation = rangeAddress.Split('!');
         string wsName = byExclamation[0].Replace("'", "");

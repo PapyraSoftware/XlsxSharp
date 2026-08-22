@@ -20,7 +20,7 @@ public interface IXLPivotCache
     /// source might differ from actual names of the columns
     /// in the data cells.
     /// </remarks>
-    IReadOnlyList<String> FieldNames { get; }
+    IReadOnlyList<string> FieldNames { get; }
 
     /// <summary>
     /// Gets the number of unused items in shared items to allow before discarding unused items.
@@ -36,7 +36,7 @@ public interface IXLPivotCache
     /// Will Excel refresh the cache when it opens the workbook.
     /// </summary>
     /// <value>Default value is <c>false</c>.</value>
-    Boolean RefreshDataOnOpen { get; set; }
+    bool RefreshDataOnOpen { get; set; }
 
     /// <summary>
     /// Should the cached values of the pivot source be saved into the workbook file?
@@ -44,7 +44,7 @@ public interface IXLPivotCache
     /// reference which might cause a change in the table values.
     /// </summary>
     /// <value>Default value is <c>true</c>.</value>
-    Boolean SaveSourceData { get; set; }
+    bool SaveSourceData { get; set; }
 
     /// <summary>
     /// Refresh data in the pivot source from the source reference data.
@@ -60,12 +60,12 @@ public interface IXLPivotCache
     IXLPivotCache SetRefreshDataOnOpen();
 
     /// <inheritdoc cref="RefreshDataOnOpen"/>
-    IXLPivotCache SetRefreshDataOnOpen(Boolean value);
+    IXLPivotCache SetRefreshDataOnOpen(bool value);
 
     /// <inheritdoc cref="SaveSourceData"/>
     /// <remarks>Sets the value to <c>true</c>.</remarks>
     IXLPivotCache SetSaveSourceData();
 
     /// <inheritdoc cref="SaveSourceData"/>
-    IXLPivotCache SetSaveSourceData(Boolean value);
+    IXLPivotCache SetSaveSourceData(bool value);
 }

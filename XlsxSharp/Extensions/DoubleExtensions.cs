@@ -7,12 +7,12 @@ namespace XlsxSharp.Extensions;
 
 internal static class DoubleExtensions
 {
-    public static Double SaveRound(this Double value) => Math.Round(value, 6);
+    public static double SaveRound(this double value) => Math.Round(value, 6);
 
-    public static TimeSpan ToSerialTimeSpan(this Double value) =>
+    public static TimeSpan ToSerialTimeSpan(this double value) =>
         XlsxSharp.XLHelper.GetTimeSpan(value);
 
-    public static DateTime ToSerialDateTime(this Double value)
+    public static DateTime ToSerialDateTime(this double value)
     {
         if (value >= 61.0)
         {
@@ -33,13 +33,13 @@ internal static class DoubleExtensions
     /// Round the number to the integer.
     /// </summary>
     /// <remarks>A helper method to avoid need to specify the midpoint rounding and casting each time.</remarks>
-    public static Int32 RoundToInt(this Double value) =>
+    public static int RoundToInt(this double value) =>
         (int)Math.Round(value, MidpointRounding.AwayFromZero);
 
     /// <summary>
     /// Round the number to specified number of digits.
     /// </summary>
     /// <remarks>A helper method to avoid need to specify the midpoint rounding each time.</remarks>
-    public static Double Round(this Double value, int digits) =>
+    public static double Round(this double value, int digits) =>
         Math.Round(value, digits, MidpointRounding.AwayFromZero);
 }

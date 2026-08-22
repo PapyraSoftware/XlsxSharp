@@ -32,7 +32,7 @@ internal class XLMarker
 
     public IXLCell Cell => this.rangeCell.FirstCell();
 
-    public Int32 ColumnNumber => this.rangeCell.RangeAddress.FirstAddress.ColumnNumber;
+    public int ColumnNumber => this.rangeCell.RangeAddress.FirstAddress.ColumnNumber;
     public System.Drawing.Point Offset { get; set; }
-    public Int32 RowNumber => this.rangeCell.RangeAddress.FirstAddress.RowNumber;
+    public int RowNumber => this.rangeCell.RangeAddress.FirstAddress.RowNumber;
 }

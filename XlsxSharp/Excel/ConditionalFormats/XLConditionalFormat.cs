@@ -207,7 +207,7 @@ internal class XLConditionalFormat : IXLDxfContainer, IXLConditionalFormat
     /// Priority of formatting rule. Lower values have higher priority than higher values.
     /// Minimum value is 1. It is basically used for ordering of CF during saving.
     /// </summary>
-    internal Int32 Priority { get; set; }
+    internal int Priority { get; set; }
 
     public XLDxfValue? FormatValue { get; set; }
 
@@ -256,17 +256,17 @@ internal class XLConditionalFormat : IXLDxfContainer, IXLConditionalFormat
 
     public XLCFOperator Operator { get; set; }
 
-    public Boolean Bottom { get; set; }
+    public bool Bottom { get; set; }
 
-    public Boolean Percent { get; set; }
+    public bool Percent { get; set; }
 
-    public Boolean ReverseIconOrder { get; set; }
+    public bool ReverseIconOrder { get; set; }
 
-    public Boolean ShowIconOnly { get; set; }
+    public bool ShowIconOnly { get; set; }
 
-    public Boolean ShowBarOnly { get; set; }
+    public bool ShowBarOnly { get; set; }
 
-    public Boolean StopIfTrue { get; set; }
+    public bool StopIfTrue { get; set; }
 
     internal XLAreaList Areas { get; set; }
 
@@ -323,7 +323,7 @@ internal class XLConditionalFormat : IXLDxfContainer, IXLConditionalFormat
         return this.Style;
     }
 
-    public IXLStyle WhenContains(String value)
+    public IXLStyle WhenContains(string value)
     {
         this.Values.Initialize(new XLFormula { Value = value });
         this.ConditionalFormatType = XLConditionalFormatType.ContainsText;
@@ -331,7 +331,7 @@ internal class XLConditionalFormat : IXLDxfContainer, IXLConditionalFormat
         return this.Style;
     }
 
-    public IXLStyle WhenNotContains(String value)
+    public IXLStyle WhenNotContains(string value)
     {
         this.Values.Initialize(new XLFormula { Value = value });
         this.ConditionalFormatType = XLConditionalFormatType.NotContainsText;
@@ -339,7 +339,7 @@ internal class XLConditionalFormat : IXLDxfContainer, IXLConditionalFormat
         return this.Style;
     }
 
-    public IXLStyle WhenStartsWith(String value)
+    public IXLStyle WhenStartsWith(string value)
     {
         this.Values.Initialize(new XLFormula { Value = value });
         this.ConditionalFormatType = XLConditionalFormatType.StartsWith;
@@ -347,7 +347,7 @@ internal class XLConditionalFormat : IXLDxfContainer, IXLConditionalFormat
         return this.Style;
     }
 
-    public IXLStyle WhenEndsWith(String value)
+    public IXLStyle WhenEndsWith(string value)
     {
         this.Values.Initialize(new XLFormula { Value = value });
         this.ConditionalFormatType = XLConditionalFormatType.EndsWith;
@@ -355,7 +355,7 @@ internal class XLConditionalFormat : IXLDxfContainer, IXLConditionalFormat
         return this.Style;
     }
 
-    public IXLStyle WhenEquals(String value)
+    public IXLStyle WhenEquals(string value)
     {
         this.Values.Initialize(new XLFormula { Value = value });
         this.Operator = XLCFOperator.Equal;
@@ -363,7 +363,7 @@ internal class XLConditionalFormat : IXLDxfContainer, IXLConditionalFormat
         return this.Style;
     }
 
-    public IXLStyle WhenNotEquals(String value)
+    public IXLStyle WhenNotEquals(string value)
     {
         this.Values.Initialize(new XLFormula { Value = value });
         this.Operator = XLCFOperator.NotEqual;
@@ -371,7 +371,7 @@ internal class XLConditionalFormat : IXLDxfContainer, IXLConditionalFormat
         return this.Style;
     }
 
-    public IXLStyle WhenGreaterThan(String value)
+    public IXLStyle WhenGreaterThan(string value)
     {
         this.Values.Initialize(new XLFormula { Value = value });
         this.Operator = XLCFOperator.GreaterThan;
@@ -379,7 +379,7 @@ internal class XLConditionalFormat : IXLDxfContainer, IXLConditionalFormat
         return this.Style;
     }
 
-    public IXLStyle WhenLessThan(String value)
+    public IXLStyle WhenLessThan(string value)
     {
         this.Values.Initialize(new XLFormula { Value = value });
         this.Operator = XLCFOperator.LessThan;
@@ -387,7 +387,7 @@ internal class XLConditionalFormat : IXLDxfContainer, IXLConditionalFormat
         return this.Style;
     }
 
-    public IXLStyle WhenEqualOrGreaterThan(String value)
+    public IXLStyle WhenEqualOrGreaterThan(string value)
     {
         this.Values.Initialize(new XLFormula { Value = value });
         this.Operator = XLCFOperator.EqualOrGreaterThan;
@@ -395,7 +395,7 @@ internal class XLConditionalFormat : IXLDxfContainer, IXLConditionalFormat
         return this.Style;
     }
 
-    public IXLStyle WhenEqualOrLessThan(String value)
+    public IXLStyle WhenEqualOrLessThan(string value)
     {
         this.Values.Initialize(new XLFormula { Value = value });
         this.Operator = XLCFOperator.EqualOrLessThan;
@@ -403,7 +403,7 @@ internal class XLConditionalFormat : IXLDxfContainer, IXLConditionalFormat
         return this.Style;
     }
 
-    public IXLStyle WhenBetween(String minValue, String maxValue)
+    public IXLStyle WhenBetween(string minValue, string maxValue)
     {
         this.Values.Initialize(new XLFormula { Value = minValue });
         this.Values.Add(new XLFormula { Value = maxValue });
@@ -412,7 +412,7 @@ internal class XLConditionalFormat : IXLDxfContainer, IXLConditionalFormat
         return this.Style;
     }
 
-    public IXLStyle WhenNotBetween(String minValue, String maxValue)
+    public IXLStyle WhenNotBetween(string minValue, string maxValue)
     {
         this.Values.Initialize(new XLFormula { Value = minValue });
         this.Values.Add(new XLFormula { Value = maxValue });
@@ -421,7 +421,7 @@ internal class XLConditionalFormat : IXLDxfContainer, IXLConditionalFormat
         return this.Style;
     }
 
-    public IXLStyle WhenEquals(Double value)
+    public IXLStyle WhenEquals(double value)
     {
         this.Values.Initialize(new XLFormula(value));
         this.Operator = XLCFOperator.Equal;
@@ -429,7 +429,7 @@ internal class XLConditionalFormat : IXLDxfContainer, IXLConditionalFormat
         return this.Style;
     }
 
-    public IXLStyle WhenNotEquals(Double value)
+    public IXLStyle WhenNotEquals(double value)
     {
         this.Values.Initialize(new XLFormula(value));
         this.Operator = XLCFOperator.NotEqual;
@@ -437,7 +437,7 @@ internal class XLConditionalFormat : IXLDxfContainer, IXLConditionalFormat
         return this.Style;
     }
 
-    public IXLStyle WhenGreaterThan(Double value)
+    public IXLStyle WhenGreaterThan(double value)
     {
         this.Values.Initialize(new XLFormula(value));
         this.Operator = XLCFOperator.GreaterThan;
@@ -445,7 +445,7 @@ internal class XLConditionalFormat : IXLDxfContainer, IXLConditionalFormat
         return this.Style;
     }
 
-    public IXLStyle WhenLessThan(Double value)
+    public IXLStyle WhenLessThan(double value)
     {
         this.Values.Initialize(new XLFormula(value));
         this.Operator = XLCFOperator.LessThan;
@@ -453,7 +453,7 @@ internal class XLConditionalFormat : IXLDxfContainer, IXLConditionalFormat
         return this.Style;
     }
 
-    public IXLStyle WhenEqualOrGreaterThan(Double value)
+    public IXLStyle WhenEqualOrGreaterThan(double value)
     {
         this.Values.Initialize(new XLFormula(value));
         this.Operator = XLCFOperator.EqualOrGreaterThan;
@@ -461,7 +461,7 @@ internal class XLConditionalFormat : IXLDxfContainer, IXLConditionalFormat
         return this.Style;
     }
 
-    public IXLStyle WhenEqualOrLessThan(Double value)
+    public IXLStyle WhenEqualOrLessThan(double value)
     {
         this.Values.Initialize(new XLFormula(value));
         this.Operator = XLCFOperator.EqualOrLessThan;
@@ -469,7 +469,7 @@ internal class XLConditionalFormat : IXLDxfContainer, IXLConditionalFormat
         return this.Style;
     }
 
-    public IXLStyle WhenBetween(Double minValue, Double maxValue)
+    public IXLStyle WhenBetween(double minValue, double maxValue)
     {
         this.Values.Initialize(new XLFormula(minValue));
         this.Values.Add(new XLFormula(maxValue));
@@ -478,7 +478,7 @@ internal class XLConditionalFormat : IXLDxfContainer, IXLConditionalFormat
         return this.Style;
     }
 
-    public IXLStyle WhenNotBetween(Double minValue, Double maxValue)
+    public IXLStyle WhenNotBetween(double minValue, double maxValue)
     {
         this.Values.Initialize(new XLFormula(minValue));
         this.Values.Add(new XLFormula(maxValue));
@@ -499,15 +499,15 @@ internal class XLConditionalFormat : IXLDxfContainer, IXLConditionalFormat
         return this.Style;
     }
 
-    public IXLStyle WhenIsTrue(String formula)
+    public IXLStyle WhenIsTrue(string formula)
     {
-        String f = formula.TrimStart()[0] == '=' ? formula : "=" + formula;
+        string f = formula.TrimStart()[0] == '=' ? formula : "=" + formula;
         this.Values.Initialize(new XLFormula { Value = f });
         this.ConditionalFormatType = XLConditionalFormatType.Expression;
         return this.Style;
     }
 
-    public IXLStyle WhenIsTop(Int32 value, XLTopBottomType topBottomType = XLTopBottomType.Items)
+    public IXLStyle WhenIsTop(int value, XLTopBottomType topBottomType = XLTopBottomType.Items)
     {
         this.Values.Initialize(new XLFormula(value));
         this.Percent = topBottomType == XLTopBottomType.Percent;
@@ -516,7 +516,7 @@ internal class XLConditionalFormat : IXLDxfContainer, IXLConditionalFormat
         return this.Style;
     }
 
-    public IXLStyle WhenIsBottom(Int32 value, XLTopBottomType topBottomType = XLTopBottomType.Items)
+    public IXLStyle WhenIsBottom(int value, XLTopBottomType topBottomType = XLTopBottomType.Items)
     {
         this.Values.Initialize(new XLFormula(value));
         this.Percent = topBottomType == XLTopBottomType.Percent;
@@ -531,7 +531,7 @@ internal class XLConditionalFormat : IXLDxfContainer, IXLConditionalFormat
         return new XLCFColorScaleMin(this);
     }
 
-    public IXLCFDataBarMin DataBar(XLColor color, Boolean showBarOnly = false)
+    public IXLCFDataBarMin DataBar(XLColor color, bool showBarOnly = false)
     {
         this.Colors.Initialize(color);
         this.ShowBarOnly = showBarOnly;
@@ -542,7 +542,7 @@ internal class XLConditionalFormat : IXLDxfContainer, IXLConditionalFormat
     public IXLCFDataBarMin DataBar(
         XLColor positiveColor,
         XLColor negativeColor,
-        Boolean showBarOnly = false
+        bool showBarOnly = false
     )
     {
         this.Colors.Initialize(positiveColor);
@@ -554,8 +554,8 @@ internal class XLConditionalFormat : IXLDxfContainer, IXLConditionalFormat
 
     public IXLCFIconSet IconSet(
         XLIconSetStyle iconSetStyle,
-        Boolean reverseIconOrder = false,
-        Boolean showIconOnly = false
+        bool reverseIconOrder = false,
+        bool showIconOnly = false
     )
     {
         this.IconSetOperators.Clear();

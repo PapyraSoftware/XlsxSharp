@@ -57,8 +57,8 @@ public sealed partial class XLWorkbook : IXLWorkbook
 
     #region Static
 
-    public static Double DefaultRowHeight { get; private set; }
-    public static Double DefaultColumnWidth { get; private set; }
+    public static double DefaultRowHeight { get; private set; }
+    public static double DefaultColumnWidth { get; private set; }
 
     public static IXLPageSetup DefaultPageOptions
     {
@@ -99,7 +99,7 @@ public sealed partial class XLWorkbook : IXLWorkbook
     /// </summary>
     public static XLCellSetValueBehavior CellSetValueBehavior { get; set; }
 
-    public static XLWorkbook OpenFromTemplate(String path) => new(path, asTemplate: true);
+    public static XLWorkbook OpenFromTemplate(string path) => new(path, asTemplate: true);
 
     #endregion Static
 
@@ -228,13 +228,13 @@ public sealed partial class XLWorkbook : IXLWorkbook
     ///   Gets or sets the default row height for the workbook.
     ///   <para>All new worksheets will use this row height.</para>
     /// </summary>
-    public Double RowHeight { get; set; }
+    public double RowHeight { get; set; }
 
     /// <summary>
     ///   Gets or sets the default column width for the workbook.
     ///   <para>All new worksheets will use this column width.</para>
     /// </summary>
-    public Double ColumnWidth { get; set; }
+    public double ColumnWidth { get; set; }
 
     /// <summary>
     ///   Gets or sets the default page options for the workbook.
@@ -294,10 +294,10 @@ public sealed partial class XLWorkbook : IXLWorkbook
     /// </summary>
     public XLCalculateMode CalculateMode { get; set; }
 
-    public Boolean CalculationOnSave { get; set; }
-    public Boolean ForceFullCalculation { get; set; }
-    public Boolean FullCalculationOnLoad { get; set; }
-    public Boolean FullPrecision { get; set; }
+    public bool CalculationOnSave { get; set; }
+    public bool ForceFullCalculation { get; set; }
+    public bool FullCalculationOnLoad { get; set; }
+    public bool FullPrecision { get; set; }
 
     /// <summary>
     ///   Gets or sets the workbook's reference style.
@@ -314,28 +314,28 @@ public sealed partial class XLWorkbook : IXLWorkbook
         private init;
     }
 
-    public Boolean ShowFormulas { get; set; }
-    public Boolean ShowGridLines { get; set; }
-    public Boolean ShowOutlineSymbols { get; set; }
-    public Boolean ShowRowColHeaders { get; set; }
-    public Boolean ShowRuler { get; set; }
-    public Boolean ShowWhiteSpace { get; set; }
-    public Boolean ShowZeros { get; set; }
-    public Boolean RightToLeft { get; set; }
+    public bool ShowFormulas { get; set; }
+    public bool ShowGridLines { get; set; }
+    public bool ShowOutlineSymbols { get; set; }
+    public bool ShowRowColHeaders { get; set; }
+    public bool ShowRuler { get; set; }
+    public bool ShowWhiteSpace { get; set; }
+    public bool ShowZeros { get; set; }
+    public bool RightToLeft { get; set; }
 
-    public Boolean DefaultShowFormulas => false;
+    public bool DefaultShowFormulas => false;
 
-    public Boolean DefaultShowGridLines => true;
+    public bool DefaultShowGridLines => true;
 
-    public Boolean DefaultShowOutlineSymbols => true;
+    public bool DefaultShowOutlineSymbols => true;
 
-    public Boolean DefaultShowRowColHeaders => true;
+    public bool DefaultShowRowColHeaders => true;
 
-    public Boolean DefaultShowRuler => true;
+    public bool DefaultShowRuler => true;
 
-    public Boolean DefaultShowWhiteSpace => true;
+    public bool DefaultShowWhiteSpace => true;
 
-    public Boolean DefaultShowZeros => true;
+    public bool DefaultShowZeros => true;
 
     public IXLFileSharing FileSharing
     {
@@ -346,7 +346,7 @@ public sealed partial class XLWorkbook : IXLWorkbook
         }
     } = new XLFileSharing();
 
-    public Boolean DefaultRightToLeft => false;
+    public bool DefaultRightToLeft => false;
 
     private void InitializeTheme() =>
         this.Theme = new XLTheme
@@ -367,10 +367,10 @@ public sealed partial class XLWorkbook : IXLWorkbook
 
 #nullable enable
     [Obsolete($"Use {nameof(DefinedName)} instead.")]
-    public IXLDefinedName? NamedRange(String name) => this.DefinedName(name);
+    public IXLDefinedName? NamedRange(string name) => this.DefinedName(name);
 
     /// <inheritdoc/>
-    public IXLDefinedName? DefinedName(String name)
+    public IXLDefinedName? DefinedName(string name)
     {
         this.ThrowIfDisposed();
         if (name.Contains("!"))
@@ -402,7 +402,7 @@ public sealed partial class XLWorkbook : IXLWorkbook
 
 #nullable disable
 
-    public Boolean TryGetWorksheet(String name, out IXLWorksheet worksheet)
+    public bool TryGetWorksheet(string name, out IXLWorksheet worksheet)
     {
         this.ThrowIfDisposed();
         if (this.TryGetWorksheet(name, out XLWorksheet foundSheet))
@@ -415,13 +415,13 @@ public sealed partial class XLWorkbook : IXLWorkbook
         return false;
     }
 
-    internal Boolean TryGetWorksheet(String name, [NotNullWhen(true)] out XLWorksheet worksheet)
+    internal bool TryGetWorksheet(string name, [NotNullWhen(true)] out XLWorksheet worksheet)
     {
         this.ThrowIfDisposed();
         return this.WorksheetsInternal.TryGetWorksheet(name, out worksheet);
     }
 
-    public IXLRange RangeFromFullAddress(String rangeAddress, out IXLWorksheet ws)
+    public IXLRange RangeFromFullAddress(string rangeAddress, out IXLWorksheet ws)
     {
         this.ThrowIfDisposed();
         if (!rangeAddress.Contains('!'))
@@ -442,7 +442,7 @@ public sealed partial class XLWorkbook : IXLWorkbook
         return null;
     }
 
-    public IXLCell CellFromFullAddress(String cellAddress, out IXLWorksheet ws)
+    public IXLCell CellFromFullAddress(string cellAddress, out IXLWorksheet ws)
     {
         this.ThrowIfDisposed();
         if (!cellAddress.Contains('!'))
@@ -479,7 +479,7 @@ public sealed partial class XLWorkbook : IXLWorkbook
     /// <summary>
     ///   Saves the current workbook and optionally performs validation
     /// </summary>
-    public void Save(Boolean validate, Boolean evaluateFormulae = false)
+    public void Save(bool validate, bool evaluateFormulae = false)
     {
         this.ThrowIfDisposed();
         this.Save(
@@ -516,7 +516,7 @@ public sealed partial class XLWorkbook : IXLWorkbook
     /// <summary>
     ///   Saves the current workbook to a file.
     /// </summary>
-    public void SaveAs(String file)
+    public void SaveAs(string file)
     {
         this.ThrowIfDisposed();
 #if DEBUG
@@ -529,7 +529,7 @@ public sealed partial class XLWorkbook : IXLWorkbook
     /// <summary>
     ///   Saves the current workbook to a file and optionally validates it.
     /// </summary>
-    public void SaveAs(String file, Boolean validate, Boolean evaluateFormulae = false)
+    public void SaveAs(string file, bool validate, bool evaluateFormulae = false)
     {
         this.ThrowIfDisposed();
         this.SaveAs(
@@ -543,7 +543,7 @@ public sealed partial class XLWorkbook : IXLWorkbook
         );
     }
 
-    public void SaveAs(String file, SaveOptions options)
+    public void SaveAs(string file, SaveOptions options)
     {
         this.ThrowIfDisposed();
         this.checkForWorksheetsPresent();
@@ -565,7 +565,7 @@ public sealed partial class XLWorkbook : IXLWorkbook
         }
         else if (this._loadSource == XLLoadSource.File)
         {
-            if (String.Compare(this._originalFile.Trim(), file.Trim(), true) != 0)
+            if (string.Compare(this._originalFile.Trim(), file.Trim(), true) != 0)
             {
                 File.Copy(this._originalFile, file, true);
                 File.SetAttributes(file, FileAttributes.Normal);
@@ -616,7 +616,7 @@ public sealed partial class XLWorkbook : IXLWorkbook
 
             default:
                 throw new ArgumentException(
-                    String.Format(
+                    string.Format(
                         "Extension '{0}' is not supported. Supported extensions are '.xlsx', '.xlsm', '.xltx' and '.xltm'.",
                         extension
                     )
@@ -648,7 +648,7 @@ public sealed partial class XLWorkbook : IXLWorkbook
     /// <summary>
     ///   Saves the current workbook to a stream and optionally validates it.
     /// </summary>
-    public void SaveAs(Stream stream, Boolean validate, Boolean evaluateFormulae = false)
+    public void SaveAs(Stream stream, bool validate, bool evaluateFormulae = false)
     {
         this.ThrowIfDisposed();
         this.SaveAs(
@@ -795,25 +795,25 @@ public sealed partial class XLWorkbook : IXLWorkbook
         return false;
     }
 
-    public IXLWorksheet Worksheet(String name)
+    public IXLWorksheet Worksheet(string name)
     {
         this.ThrowIfDisposed();
         return this.WorksheetsInternal.Worksheet(name);
     }
 
-    public IXLWorksheet Worksheet(Int32 position)
+    public IXLWorksheet Worksheet(int position)
     {
         this.ThrowIfDisposed();
         return this.WorksheetsInternal.Worksheet(position);
     }
 
-    public IXLCustomProperty CustomProperty(String name)
+    public IXLCustomProperty CustomProperty(string name)
     {
         this.ThrowIfDisposed();
         return this.CustomProperties.CustomProperty(name);
     }
 
-    public IXLCells FindCells(Func<IXLCell, Boolean> predicate)
+    public IXLCells FindCells(Func<IXLCell, bool> predicate)
     {
         this.ThrowIfDisposed();
         XLCells cells = new(this, false, XLCellsUsedOptions.AllContents);
@@ -830,7 +830,7 @@ public sealed partial class XLWorkbook : IXLWorkbook
         return cells;
     }
 
-    public IXLRows FindRows(Func<IXLRow, Boolean> predicate)
+    public IXLRows FindRows(Func<IXLRow, bool> predicate)
     {
         this.ThrowIfDisposed();
         XLRows rows = new(this, worksheet: null, defaultStyleSheet: null);
@@ -844,7 +844,7 @@ public sealed partial class XLWorkbook : IXLWorkbook
         return rows;
     }
 
-    public IXLColumns FindColumns(Func<IXLColumn, Boolean> predicate)
+    public IXLColumns FindColumns(Func<IXLColumn, bool> predicate)
     {
         this.ThrowIfDisposed();
         XLColumns columns = new(this, worksheet: null, defaultStyleSheet: null);
@@ -865,9 +865,9 @@ public sealed partial class XLWorkbook : IXLWorkbook
     /// <param name="compareOptions">The compare options.</param>
     /// <param name="searchFormulae">if set to <c>true</c> search formulae instead of cell values.</param>
     public IEnumerable<IXLCell> Search(
-        String searchText,
+        string searchText,
         CompareOptions compareOptions = CompareOptions.Ordinal,
-        Boolean searchFormulae = false
+        bool searchFormulae = false
     )
     {
         this.ThrowIfDisposed();
@@ -883,7 +883,7 @@ public sealed partial class XLWorkbook : IXLWorkbook
     #region Fields
 
     private XLLoadSource _loadSource = XLLoadSource.New;
-    private String _originalFile;
+    private string _originalFile;
     private Stream _originalStream;
     private XLWorkbookProtection _workbookProtection;
 
@@ -897,7 +897,7 @@ public sealed partial class XLWorkbook : IXLWorkbook
     public XLWorkbook()
         : this(new LoadOptions()) { }
 
-    internal XLWorkbook(String file, Boolean asTemplate)
+    internal XLWorkbook(string file, bool asTemplate)
         : this(new LoadOptions())
     {
         this.Styles = new XLWorkbookStyles();
@@ -908,10 +908,10 @@ public sealed partial class XLWorkbook : IXLWorkbook
     ///   Opens an existing workbook from a file.
     /// </summary>
     /// <param name = "file">The file to open.</param>
-    public XLWorkbook(String file)
+    public XLWorkbook(string file)
         : this(file, new LoadOptions()) { }
 
-    public XLWorkbook(String file, LoadOptions loadOptions)
+    public XLWorkbook(string file, LoadOptions loadOptions)
         : this(loadOptions)
     {
         this._loadSource = XLLoadSource.File;
@@ -993,14 +993,14 @@ public sealed partial class XLWorkbook : IXLWorkbook
 
     internal sealed class UnsupportedSheet
     {
-        public Boolean IsActive;
-        public UInt32 SheetId;
-        public Int32 Position;
+        public bool IsActive;
+        public uint SheetId;
+        public int Position;
     }
 
     #endregion Nested type: UnsupportedSheet
 
-    public IXLCell Cell(String namedCell)
+    public IXLCell Cell(string namedCell)
     {
         this.ThrowIfDisposed();
         IXLDefinedName namedRange = this.DefinedName(namedCell);
@@ -1014,13 +1014,13 @@ public sealed partial class XLWorkbook : IXLWorkbook
         }
     }
 
-    public IXLCells Cells(String namedCells)
+    public IXLCells Cells(string namedCells)
     {
         this.ThrowIfDisposed();
         return this.Ranges(namedCells).Cells();
     }
 
-    public IXLRange Range(String range)
+    public IXLRange Range(string range)
     {
         this.ThrowIfDisposed();
         IXLDefinedName namedRange = this.DefinedName(range);
@@ -1034,7 +1034,7 @@ public sealed partial class XLWorkbook : IXLWorkbook
         }
     }
 
-    public IXLRanges Ranges(String ranges)
+    public IXLRanges Ranges(string ranges)
     {
         this.ThrowIfDisposed();
         XLRanges retVal = new(this);
@@ -1079,11 +1079,11 @@ public sealed partial class XLWorkbook : IXLWorkbook
         this._disposed = true;
     }
 
-    public Boolean Use1904DateSystem { get; set; }
+    public bool Use1904DateSystem { get; set; }
 
     public XLWorkbook SetUse1904DateSystem() => this.SetUse1904DateSystem(true);
 
-    public XLWorkbook SetUse1904DateSystem(Boolean value)
+    public XLWorkbook SetUse1904DateSystem(bool value)
     {
         this.Use1904DateSystem = value;
         return this;
@@ -1095,19 +1095,19 @@ public sealed partial class XLWorkbook : IXLWorkbook
         return this.Worksheets.Add();
     }
 
-    public IXLWorksheet AddWorksheet(Int32 position)
+    public IXLWorksheet AddWorksheet(int position)
     {
         this.ThrowIfDisposed();
         return this.Worksheets.Add(position);
     }
 
-    public IXLWorksheet AddWorksheet(String sheetName)
+    public IXLWorksheet AddWorksheet(string sheetName)
     {
         this.ThrowIfDisposed();
         return this.Worksheets.Add(sheetName);
     }
 
-    public IXLWorksheet AddWorksheet(String sheetName, Int32 position)
+    public IXLWorksheet AddWorksheet(string sheetName, int position)
     {
         this.ThrowIfDisposed();
         return this.Worksheets.Add(sheetName, position);
@@ -1131,13 +1131,13 @@ public sealed partial class XLWorkbook : IXLWorkbook
         return this.Worksheets.Add(dataTable);
     }
 
-    public IXLWorksheet AddWorksheet(DataTable dataTable, String sheetName)
+    public IXLWorksheet AddWorksheet(DataTable dataTable, string sheetName)
     {
         this.ThrowIfDisposed();
         return this.Worksheets.Add(dataTable, sheetName);
     }
 
-    public IXLWorksheet AddWorksheet(DataTable dataTable, String sheetName, String tableName)
+    public IXLWorksheet AddWorksheet(DataTable dataTable, string sheetName, string tableName)
     {
         this.ThrowIfDisposed();
         return this.Worksheets.Add(dataTable, sheetName, tableName);
@@ -1148,7 +1148,7 @@ public sealed partial class XLWorkbook : IXLWorkbook
     internal XLCalcEngine CalcEngine =>
         this._calcEngine ??= new XLCalcEngine(CultureInfo.CurrentCulture);
 
-    public XLCellValue Evaluate(String expression)
+    public XLCellValue Evaluate(string expression)
     {
         this.ThrowIfDisposed();
         return this.CalcEngine.EvaluateFormula(expression, this).ToCellValue();
@@ -1177,18 +1177,18 @@ public sealed partial class XLWorkbook : IXLWorkbook
     /// <summary>
     /// Evaluate a formula and return a value. Formulas with references don't work and culture used for conversion is invariant.
     /// </summary>
-    public static XLCellValue EvaluateExpr(String expression) =>
+    public static XLCellValue EvaluateExpr(string expression) =>
         CalcEngineExpr.EvaluateFormula(expression).ToCellValue();
 
     /// <summary>
     /// Evaluate a formula and return a value. Use current culture.
     /// </summary>
-    internal static XLCellValue EvaluateExprCurrent(String expression) =>
+    internal static XLCellValue EvaluateExprCurrent(string expression) =>
         new XLCalcEngine(CultureInfo.CurrentCulture).EvaluateFormula(expression).ToCellValue();
 
-    public String Author { get; set; }
+    public string Author { get; set; }
 
-    public Boolean LockStructure
+    public bool LockStructure
     {
         get
         {
@@ -1210,14 +1210,14 @@ public sealed partial class XLWorkbook : IXLWorkbook
         }
     }
 
-    public XLWorkbook SetLockStructure(Boolean value)
+    public XLWorkbook SetLockStructure(bool value)
     {
         this.ThrowIfDisposed();
         this.LockStructure = value;
         return this;
     }
 
-    public Boolean LockWindows
+    public bool LockWindows
     {
         get
         {
@@ -1239,15 +1239,15 @@ public sealed partial class XLWorkbook : IXLWorkbook
         }
     }
 
-    public XLWorkbook SetLockWindows(Boolean value)
+    public XLWorkbook SetLockWindows(bool value)
     {
         this.ThrowIfDisposed();
         this.LockWindows = value;
         return this;
     }
 
-    public Boolean IsPasswordProtected => this.Protection.IsPasswordProtected;
-    public Boolean IsProtected => this.Protection.IsProtected;
+    public bool IsPasswordProtected => this.Protection.IsPasswordProtected;
+    public bool IsProtected => this.Protection.IsProtected;
 
     IXLWorkbookProtection IXLProtectable<
         IXLWorkbookProtection,
@@ -1302,7 +1302,7 @@ public sealed partial class XLWorkbook : IXLWorkbook
     }
 
     public IXLWorkbookProtection Protect(
-        String password,
+        string password,
         Algorithm algorithm = DefaultProtectionAlgorithm
     )
     {
@@ -1311,7 +1311,7 @@ public sealed partial class XLWorkbook : IXLWorkbook
     }
 
     public IXLWorkbookProtection Protect(
-        String password,
+        string password,
         Algorithm algorithm,
         XLWorkbookProtectionElements allowedElements
     )
@@ -1365,7 +1365,7 @@ public sealed partial class XLWorkbook : IXLWorkbook
         return this.Protection.Unprotect();
     }
 
-    public IXLWorkbookProtection Unprotect(String password)
+    public IXLWorkbookProtection Unprotect(string password)
     {
         this.ThrowIfDisposed();
         return this.Protection.Unprotect(password);
@@ -1377,7 +1377,7 @@ public sealed partial class XLWorkbook : IXLWorkbook
         return this.Unprotect();
     }
 
-    IXLElementProtection IXLProtectable.Unprotect(String password)
+    IXLElementProtection IXLProtectable.Unprotect(string password)
     {
         this.ThrowIfDisposed();
         return this.Unprotect(password);
@@ -1410,10 +1410,10 @@ public sealed partial class XLWorkbook : IXLWorkbook
                 return "XLWorkbook(new)";
 
             case XLLoadSource.File:
-                return String.Format("XLWorkbook({0})", this._originalFile);
+                return string.Format("XLWorkbook({0})", this._originalFile);
 
             case XLLoadSource.Stream:
-                return String.Format("XLWorkbook({0})", this._originalStream.ToString());
+                return string.Format("XLWorkbook({0})", this._originalStream.ToString());
 
             default:
                 throw new NotImplementedException();

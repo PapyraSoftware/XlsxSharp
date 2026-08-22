@@ -80,7 +80,7 @@ internal class XLRows : IXLRows
             Dictionary<IXLWorksheet, List<int>> toDelete = new();
             foreach (XLRow r in this.Rows)
             {
-                if (!toDelete.TryGetValue(r.Worksheet, out List<Int32> list))
+                if (!toDelete.TryGetValue(r.Worksheet, out List<int> list))
                 {
                     list = [];
                     toDelete.Add(r.Worksheet, list);
@@ -105,35 +105,35 @@ internal class XLRows : IXLRows
         return this;
     }
 
-    public IXLRows AdjustToContents(Int32 startColumn)
+    public IXLRows AdjustToContents(int startColumn)
     {
         this.Rows.ForEach(r => r.AdjustToContents(startColumn));
         return this;
     }
 
-    public IXLRows AdjustToContents(Int32 startColumn, Int32 endColumn)
+    public IXLRows AdjustToContents(int startColumn, int endColumn)
     {
         this.Rows.ForEach(r => r.AdjustToContents(startColumn, endColumn));
         return this;
     }
 
-    public IXLRows AdjustToContents(Double minHeight, Double maxHeight)
+    public IXLRows AdjustToContents(double minHeight, double maxHeight)
     {
         this.Rows.ForEach(r => r.AdjustToContents(minHeight, maxHeight));
         return this;
     }
 
-    public IXLRows AdjustToContents(Int32 startColumn, Double minHeight, Double maxHeight)
+    public IXLRows AdjustToContents(int startColumn, double minHeight, double maxHeight)
     {
         this.Rows.ForEach(r => r.AdjustToContents(startColumn, minHeight, maxHeight));
         return this;
     }
 
     public IXLRows AdjustToContents(
-        Int32 startColumn,
-        Int32 endColumn,
-        Double minHeight,
-        Double maxHeight
+        int startColumn,
+        int endColumn,
+        double minHeight,
+        double maxHeight
     )
     {
         this.Rows.ForEach(r => r.AdjustToContents(startColumn, endColumn, minHeight, maxHeight));
@@ -146,17 +146,16 @@ internal class XLRows : IXLRows
 
     public void Group() => this.Group(false);
 
-    public void Group(Int32 outlineLevel) => this.Group(outlineLevel, false);
+    public void Group(int outlineLevel) => this.Group(outlineLevel, false);
 
     public void Ungroup() => this.Ungroup(false);
 
-    public void Group(Boolean collapse) => this.Rows.ForEach(r => r.Group(collapse));
+    public void Group(bool collapse) => this.Rows.ForEach(r => r.Group(collapse));
 
-    public void Group(Int32 outlineLevel, Boolean collapse) =>
+    public void Group(int outlineLevel, bool collapse) =>
         this.Rows.ForEach(r => r.Group(outlineLevel, collapse));
 
-    public void Ungroup(Boolean ungroupFromAll) =>
-        this.Rows.ForEach(r => r.Ungroup(ungroupFromAll));
+    public void Ungroup(bool ungroupFromAll) => this.Rows.ForEach(r => r.Ungroup(ungroupFromAll));
 
     public void Collapse() => this.Rows.ForEach(r => r.Collapse());
 

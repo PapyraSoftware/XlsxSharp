@@ -16,7 +16,7 @@ public partial class XLHyperlink
         this.IsExternal = hyperlink.IsExternal;
     }
 
-    internal void SetValues(String address, String tooltip)
+    internal void SetValues(string address, string tooltip)
     {
         this.Tooltip = tooltip;
         if (address[0] == '.')
@@ -39,21 +39,21 @@ public partial class XLHyperlink
         }
     }
 
-    internal void SetValues(Uri uri, String tooltip)
+    internal void SetValues(Uri uri, string tooltip)
     {
         this.Tooltip = tooltip;
         this._externalAddress = uri;
         this.IsExternal = true;
     }
 
-    internal void SetValues(IXLCell cell, String tooltip)
+    internal void SetValues(IXLCell cell, string tooltip)
     {
         this.Tooltip = tooltip;
         this._internalAddress = cell.Address.ToString(XLReferenceStyle.A1, true);
         this.IsExternal = false;
     }
 
-    internal void SetValues(IXLRangeBase range, String tooltip)
+    internal void SetValues(IXLRangeBase range, string tooltip)
     {
         this.Tooltip = tooltip;
         this._internalAddress = range.RangeAddress.ToString(XLReferenceStyle.A1, true);

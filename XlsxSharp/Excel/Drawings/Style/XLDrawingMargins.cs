@@ -10,7 +10,7 @@ internal class XLDrawingMargins : IXLDrawingMargins
 
     public XLDrawingMargins(IXLDrawingStyle style) => this._style = style;
 
-    public Boolean Automatic { get; set; }
+    public bool Automatic { get; set; }
 
     public IXLDrawingStyle SetAutomatic()
     {
@@ -18,14 +18,14 @@ internal class XLDrawingMargins : IXLDrawingMargins
         return this._style;
     }
 
-    public IXLDrawingStyle SetAutomatic(Boolean value)
+    public IXLDrawingStyle SetAutomatic(bool value)
     {
         this.Automatic = value;
         return this._style;
     }
 
-    Double _left;
-    public Double Left
+    double _left;
+    public double Left
     {
         get => this._left;
         set
@@ -35,14 +35,14 @@ internal class XLDrawingMargins : IXLDrawingMargins
         }
     }
 
-    public IXLDrawingStyle SetLeft(Double value)
+    public IXLDrawingStyle SetLeft(double value)
     {
         this.Left = value;
         return this._style;
     }
 
-    Double _right;
-    public Double Right
+    double _right;
+    public double Right
     {
         get => this._right;
         set
@@ -52,14 +52,14 @@ internal class XLDrawingMargins : IXLDrawingMargins
         }
     }
 
-    public IXLDrawingStyle SetRight(Double value)
+    public IXLDrawingStyle SetRight(double value)
     {
         this.Right = value;
         return this._style;
     }
 
-    Double _top;
-    public Double Top
+    double _top;
+    public double Top
     {
         get => this._top;
         set
@@ -69,14 +69,14 @@ internal class XLDrawingMargins : IXLDrawingMargins
         }
     }
 
-    public IXLDrawingStyle SetTop(Double value)
+    public IXLDrawingStyle SetTop(double value)
     {
         this.Top = value;
         return this._style;
     }
 
-    Double _bottom;
-    public Double Bottom
+    double _bottom;
+    public double Bottom
     {
         get => this._bottom;
         set
@@ -86,13 +86,13 @@ internal class XLDrawingMargins : IXLDrawingMargins
         }
     }
 
-    public IXLDrawingStyle SetBottom(Double value)
+    public IXLDrawingStyle SetBottom(double value)
     {
         this.Bottom = value;
         return this._style;
     }
 
-    public Double All
+    public double All
     {
         set
         {
@@ -104,7 +104,7 @@ internal class XLDrawingMargins : IXLDrawingMargins
         }
     }
 
-    public IXLDrawingStyle SetAll(Double value)
+    public IXLDrawingStyle SetAll(double value)
     {
         this.All = value;
         return this._style;

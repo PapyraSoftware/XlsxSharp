@@ -84,7 +84,7 @@ public interface IXLRange : IXLRangeBase
     /// <summary>
     /// Gets the first column of the range.
     /// </summary>
-    IXLRangeColumn FirstColumn(Func<IXLRangeColumn, Boolean> predicate = null);
+    IXLRangeColumn FirstColumn(Func<IXLRangeColumn, bool> predicate = null);
 
     /// <summary>
     /// Gets the first non-empty column of the range that contains a cell with a value.
@@ -93,15 +93,15 @@ public interface IXLRange : IXLRangeBase
     /// <param name="predicate">The predicate to choose cells.</param>
     IXLRangeColumn FirstColumnUsed(
         XLCellsUsedOptions options,
-        Func<IXLRangeColumn, Boolean> predicate = null
+        Func<IXLRangeColumn, bool> predicate = null
     );
 
-    IXLRangeColumn FirstColumnUsed(Func<IXLRangeColumn, Boolean> predicate = null);
+    IXLRangeColumn FirstColumnUsed(Func<IXLRangeColumn, bool> predicate = null);
 
     /// <summary>
     /// Gets the last column of the range.
     /// </summary>
-    IXLRangeColumn LastColumn(Func<IXLRangeColumn, Boolean> predicate = null);
+    IXLRangeColumn LastColumn(Func<IXLRangeColumn, bool> predicate = null);
 
     /// <summary>
     /// Gets the last non-empty column of the range that contains a cell with a value.
@@ -110,15 +110,15 @@ public interface IXLRange : IXLRangeBase
     /// <param name="predicate">The predicate to choose cells.</param>
     IXLRangeColumn LastColumnUsed(
         XLCellsUsedOptions options,
-        Func<IXLRangeColumn, Boolean> predicate = null
+        Func<IXLRangeColumn, bool> predicate = null
     );
 
-    IXLRangeColumn LastColumnUsed(Func<IXLRangeColumn, Boolean> predicate = null);
+    IXLRangeColumn LastColumnUsed(Func<IXLRangeColumn, bool> predicate = null);
 
     /// <summary>
     /// Gets a collection of all columns in this range.
     /// </summary>
-    IXLRangeColumns Columns(Func<IXLRangeColumn, Boolean> predicate = null);
+    IXLRangeColumns Columns(Func<IXLRangeColumn, bool> predicate = null);
 
     /// <summary>
     /// Gets a collection of the specified columns in this range.
@@ -145,46 +145,40 @@ public interface IXLRange : IXLRangeBase
     /// <summary>
     /// Returns the first row that matches the given predicate
     /// </summary>
-    IXLRangeColumn FindColumn(Func<IXLRangeColumn, Boolean> predicate);
+    IXLRangeColumn FindColumn(Func<IXLRangeColumn, bool> predicate);
 
     /// <summary>
     /// Returns the first row that matches the given predicate
     /// </summary>
-    IXLRangeRow FindRow(Func<IXLRangeRow, Boolean> predicate);
+    IXLRangeRow FindRow(Func<IXLRangeRow, bool> predicate);
 
     /// <summary>
     /// Gets the first row of the range.
     /// </summary>
-    IXLRangeRow FirstRow(Func<IXLRangeRow, Boolean> predicate = null);
+    IXLRangeRow FirstRow(Func<IXLRangeRow, bool> predicate = null);
 
     /// <summary>
     /// Gets the first non-empty row of the range that contains a cell with a value.
     /// </summary>
     /// <param name="options">The options to determine whether a cell is used.</param>
     /// <param name="predicate">The predicate to choose cells.</param>
-    IXLRangeRow FirstRowUsed(
-        XLCellsUsedOptions options,
-        Func<IXLRangeRow, Boolean> predicate = null
-    );
+    IXLRangeRow FirstRowUsed(XLCellsUsedOptions options, Func<IXLRangeRow, bool> predicate = null);
 
-    IXLRangeRow FirstRowUsed(Func<IXLRangeRow, Boolean> predicate = null);
+    IXLRangeRow FirstRowUsed(Func<IXLRangeRow, bool> predicate = null);
 
     /// <summary>
     /// Gets the last row of the range.
     /// </summary>
-    IXLRangeRow LastRow(Func<IXLRangeRow, Boolean> predicate = null);
+    IXLRangeRow LastRow(Func<IXLRangeRow, bool> predicate = null);
 
     /// <summary>
     /// Gets the last non-empty row of the range that contains a cell with a value.
     /// </summary>
     /// <param name="options">The options to determine whether a cell is used.</param>
     /// <param name="predicate">The predicate to choose cells.</param>
-    IXLRangeRow LastRowUsed(
-        XLCellsUsedOptions options,
-        Func<IXLRangeRow, Boolean> predicate = null
-    );
+    IXLRangeRow LastRowUsed(XLCellsUsedOptions options, Func<IXLRangeRow, bool> predicate = null);
 
-    IXLRangeRow LastRowUsed(Func<IXLRangeRow, Boolean> predicate = null);
+    IXLRangeRow LastRowUsed(Func<IXLRangeRow, bool> predicate = null);
 
     /// <summary>
     /// Gets the specified row of the range.
@@ -193,7 +187,7 @@ public interface IXLRange : IXLRangeBase
     /// <returns>The relevant row</returns>
     IXLRangeRow Row(int row);
 
-    IXLRangeRows Rows(Func<IXLRangeRow, Boolean> predicate = null);
+    IXLRangeRows Rows(Func<IXLRangeRow, bool> predicate = null);
 
     /// <summary>
     /// Gets a collection of the specified rows in this range.
@@ -261,7 +255,7 @@ public interface IXLRange : IXLRangeBase
     /// <param name="numberOfColumns">Number of columns to insert.</param>
     IXLRangeColumns InsertColumnsAfter(int numberOfColumns);
 
-    IXLRangeColumns InsertColumnsAfter(int numberOfColumns, Boolean expandRange);
+    IXLRangeColumns InsertColumnsAfter(int numberOfColumns, bool expandRange);
 
     /// <summary>
     /// Inserts X number of columns to the left of this range.
@@ -270,7 +264,7 @@ public interface IXLRange : IXLRangeBase
     /// <param name="numberOfColumns">Number of columns to insert.</param>
     IXLRangeColumns InsertColumnsBefore(int numberOfColumns);
 
-    IXLRangeColumns InsertColumnsBefore(int numberOfColumns, Boolean expandRange);
+    IXLRangeColumns InsertColumnsBefore(int numberOfColumns, bool expandRange);
 
     /// <summary>
     /// Inserts X number of rows on top of this range.
@@ -279,7 +273,7 @@ public interface IXLRange : IXLRangeBase
     /// <param name="numberOfRows">Number of rows to insert.</param>
     IXLRangeRows InsertRowsAbove(int numberOfRows);
 
-    IXLRangeRows InsertRowsAbove(int numberOfRows, Boolean expandRange);
+    IXLRangeRows InsertRowsAbove(int numberOfRows, bool expandRange);
 
     /// <summary>
     /// Inserts X number of rows below this range.
@@ -288,7 +282,7 @@ public interface IXLRange : IXLRangeBase
     /// <param name="numberOfRows">Number of rows to insert.</param>
     IXLRangeRows InsertRowsBelow(int numberOfRows);
 
-    IXLRangeRows InsertRowsBelow(int numberOfRows, Boolean expandRange);
+    IXLRangeRows InsertRowsBelow(int numberOfRows, bool expandRange);
 
     /// <summary>
     /// Deletes this range and shifts the surrounding cells accordingly.
@@ -321,11 +315,11 @@ public interface IXLRange : IXLRangeBase
     ///     The AsTable method will use the first row of the range as a header row.<br/>
     ///     If this range contains only one row, then an empty data row will be inserted into the returned table.
     /// </remarks>
-    IXLTable AsTable(String name);
+    IXLTable AsTable(string name);
 
     IXLTable CreateTable();
 
-    IXLTable CreateTable(String name);
+    IXLTable CreateTable(string name);
 
     IXLRange RangeUsed();
 
@@ -390,10 +384,10 @@ public interface IXLRange : IXLRangeBase
     /// </param>
     /// <returns>This range.</returns>
     IXLRange Sort(
-        String columnsToSortBy,
+        string columnsToSortBy,
         XLSortOrder sortOrder = XLSortOrder.Ascending,
-        Boolean matchCase = false,
-        Boolean ignoreBlanks = true
+        bool matchCase = false,
+        bool ignoreBlanks = true
     );
 
     /// <summary>
@@ -405,10 +399,10 @@ public interface IXLRange : IXLRangeBase
     /// <param name="ignoreBlanks"><inheritdoc cref="Sort(String, XLSortOrder, bool, bool)"/></param>
     /// <returns>This range.</returns>
     IXLRange Sort(
-        Int32 columnToSortBy,
+        int columnToSortBy,
         XLSortOrder sortOrder = XLSortOrder.Ascending,
-        Boolean matchCase = false,
-        Boolean ignoreBlanks = true
+        bool matchCase = false,
+        bool ignoreBlanks = true
     );
 
     /// <summary>
@@ -420,8 +414,8 @@ public interface IXLRange : IXLRangeBase
     /// <returns>This range.</returns>
     IXLRange SortLeftToRight(
         XLSortOrder sortOrder = XLSortOrder.Ascending,
-        Boolean matchCase = false,
-        Boolean ignoreBlanks = true
+        bool matchCase = false,
+        bool ignoreBlanks = true
     );
 
     /// <summary>
@@ -430,14 +424,14 @@ public interface IXLRange : IXLRangeBase
     /// <param name="clearOptions">Specify what you want to clear.</param>
     new IXLRange Clear(XLClearOptions clearOptions = XLClearOptions.All);
 
-    IXLRangeRows RowsUsed(XLCellsUsedOptions options, Func<IXLRangeRow, Boolean> predicate = null);
+    IXLRangeRows RowsUsed(XLCellsUsedOptions options, Func<IXLRangeRow, bool> predicate = null);
 
-    IXLRangeRows RowsUsed(Func<IXLRangeRow, Boolean> predicate = null);
+    IXLRangeRows RowsUsed(Func<IXLRangeRow, bool> predicate = null);
 
     IXLRangeColumns ColumnsUsed(
         XLCellsUsedOptions options,
-        Func<IXLRangeColumn, Boolean> predicate = null
+        Func<IXLRangeColumn, bool> predicate = null
     );
 
-    IXLRangeColumns ColumnsUsed(Func<IXLRangeColumn, Boolean> predicate = null);
+    IXLRangeColumns ColumnsUsed(Func<IXLRangeColumn, bool> predicate = null);
 }

@@ -3,8 +3,8 @@ using System;
 namespace XlsxSharp.Excel.Sort;
 
 internal record XLSortElement(
-    Int32 ElementNumber,
+    int ElementNumber,
     XLSortOrder SortOrder,
-    Boolean IgnoreBlanks,
-    Boolean MatchCase
+    bool IgnoreBlanks,
+    bool MatchCase
 ) : IXLSortElement;

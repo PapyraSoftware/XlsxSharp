@@ -19,7 +19,7 @@ internal class XLHFItem : IXLHFItem
 
     private readonly Dictionary<XLHFOccurrence, List<XLHFText>> texts = new();
 
-    public String GetText(XLHFOccurrence occurrence)
+    public string GetText(XLHFOccurrence occurrence)
     {
         StringBuilder sb = new();
         if (this.texts.TryGetValue(occurrence, out List<XLHFText> hfTexts))
@@ -33,12 +33,12 @@ internal class XLHFItem : IXLHFItem
         return sb.ToString();
     }
 
-    public IXLRichString AddText(String text) => this.AddText(text, XLHFOccurrence.AllPages);
+    public IXLRichString AddText(string text) => this.AddText(text, XLHFOccurrence.AllPages);
 
     public IXLRichString AddText(XLHFPredefinedText predefinedText) =>
         this.AddText(predefinedText, XLHFOccurrence.AllPages);
 
-    public IXLRichString AddText(String text, XLHFOccurrence occurrence)
+    public IXLRichString AddText(string text, XLHFOccurrence occurrence)
     {
         // TODO Styles: This doesn't update source when API object changes
         XLRichString richText = new(
@@ -67,7 +67,7 @@ internal class XLHFItem : IXLHFItem
     public IXLRichString AddNewLine() => this.AddText(Environment.NewLine);
 
     public IXLRichString AddImage(
-        String imagePath,
+        string imagePath,
         XLHFOccurrence occurrence = XLHFOccurrence.AllPages
     ) => throw new NotImplementedException();
 
@@ -87,7 +87,7 @@ internal class XLHFItem : IXLHFItem
 
     public IXLRichString AddText(XLHFPredefinedText predefinedText, XLHFOccurrence occurrence)
     {
-        String hfText;
+        string hfText;
         switch (predefinedText)
         {
             case XLHFPredefinedText.PageNumber:

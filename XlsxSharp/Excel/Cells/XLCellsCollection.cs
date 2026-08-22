@@ -36,7 +36,7 @@ internal class XLCellsCollection : IWorkbookListener
 
     internal bool IsEmpty => this._slices.All(slice => slice.IsEmpty);
 
-    internal Int32 MaxColumnUsed
+    internal int MaxColumnUsed
     {
         get
         {
@@ -50,7 +50,7 @@ internal class XLCellsCollection : IWorkbookListener
         }
     }
 
-    internal Int32 MaxRowUsed
+    internal int MaxRowUsed
     {
         get
         {
@@ -124,24 +124,24 @@ internal class XLCellsCollection : IWorkbookListener
     /// <summary>
     /// Get all used cells in the worksheet that satisfy the predicate.
     /// </summary>
-    internal IEnumerable<XLCell> GetCells(Func<XLCell, Boolean> predicate) =>
+    internal IEnumerable<XLCell> GetCells(Func<XLCell, bool> predicate) =>
         this.GetCells(Area.Full, predicate);
 
     /// <summary>
     /// Get all used cells in the range that satisfy the predicate.
     /// </summary>
     internal IEnumerable<XLCell> GetCells(
-        Int32 rowStart,
-        Int32 columnStart,
-        Int32 rowEnd,
-        Int32 columnEnd,
-        Func<XLCell, Boolean>? predicate = null
+        int rowStart,
+        int columnStart,
+        int rowEnd,
+        int columnEnd,
+        Func<XLCell, bool>? predicate = null
     ) => this.GetCells(new Area(rowStart, columnStart, rowEnd, columnEnd), predicate);
 
     /// <summary>
     /// Get all used cells in the range that satisfy the predicate.
     /// </summary>
-    internal IEnumerable<XLCell> GetCells(Area range, Func<XLCell, Boolean>? predicate = null)
+    internal IEnumerable<XLCell> GetCells(Area range, Func<XLCell, bool>? predicate = null)
     {
         SlicesEnumerator enumerator = new(range, this);
 
@@ -156,10 +156,10 @@ internal class XLCellsCollection : IWorkbookListener
         }
     }
 
-    internal IEnumerable<XLCell> GetCellsInColumn(Int32 column) =>
+    internal IEnumerable<XLCell> GetCellsInColumn(int column) =>
         this.GetCells(1, column, XlsxSharp.XLHelper.MaxRowNumber, column);
 
-    internal IEnumerable<XLCell> GetCellsInRow(Int32 row) =>
+    internal IEnumerable<XLCell> GetCellsInRow(int row) =>
         this.GetCells(row, 1, row, XlsxSharp.XLHelper.MaxColumnNumber);
 
     /// <summary>
@@ -178,13 +178,13 @@ internal class XLCellsCollection : IWorkbookListener
     internal int FirstColumnUsed(
         Area searchRange,
         XLCellsUsedOptions options,
-        Func<IXLCell, Boolean>? predicate = null
+        Func<IXLCell, bool>? predicate = null
     ) => this.FindUsedColumn(searchRange, options, predicate, false);
 
     internal int FirstRowUsed(
         Area searchRange,
         XLCellsUsedOptions options,
-        Func<IXLCell, Boolean>? predicate = null
+        Func<IXLCell, bool>? predicate = null
     ) => this.FindUsedRow(searchRange, options, predicate, false);
 
     internal void InsertAreaAndShiftDown(Area insertedRange)
@@ -206,13 +206,13 @@ internal class XLCellsCollection : IWorkbookListener
     internal int LastColumnUsed(
         Area searchRange,
         XLCellsUsedOptions options,
-        Func<IXLCell, Boolean>? predicate = null
+        Func<IXLCell, bool>? predicate = null
     ) => this.FindUsedColumn(searchRange, options, predicate, true);
 
     internal int LastRowUsed(
         Area searchRange,
         XLCellsUsedOptions options,
-        Func<IXLCell, Boolean>? predicate = null
+        Func<IXLCell, bool>? predicate = null
     ) => this.FindUsedRow(searchRange, options, predicate, true);
 
     /// <summary>
@@ -324,7 +324,7 @@ internal class XLCellsCollection : IWorkbookListener
     private int FindUsedColumn(
         Area range,
         XLCellsUsedOptions options,
-        Func<IXLCell, Boolean>? predicate,
+        Func<IXLCell, bool>? predicate,
         bool descending
     )
     {
@@ -363,7 +363,7 @@ internal class XLCellsCollection : IWorkbookListener
     private int FindUsedRow(
         Area searchRange,
         XLCellsUsedOptions options,
-        Func<IXLCell, Boolean>? predicate,
+        Func<IXLCell, bool>? predicate,
         bool reverse
     )
     {

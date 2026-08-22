@@ -53,9 +53,9 @@ public enum XLThemeColor
 
 public partial class XLColor : IEquatable<XLColor>
 {
-    internal Boolean IsAuto => !this.HasValue;
+    internal bool IsAuto => !this.HasValue;
 
-    public Boolean HasValue { get; }
+    public bool HasValue { get; }
 
     public XLColorType ColorType => this.Key.ColorType;
 
@@ -79,7 +79,7 @@ public partial class XLColor : IEquatable<XLColor>
         }
     }
 
-    public Int32 Indexed
+    public int Indexed
     {
         get
         {
@@ -109,7 +109,7 @@ public partial class XLColor : IEquatable<XLColor>
         }
     }
 
-    public Double ThemeTint
+    public double ThemeTint
     {
         get
         {
@@ -165,7 +165,7 @@ public partial class XLColor : IEquatable<XLColor>
         return "Color Index: " + this.Indexed;
     }
 
-    public static Boolean operator ==(XLColor? left, XLColor? right)
+    public static bool operator ==(XLColor? left, XLColor? right)
     {
         // If both are null, or both are same instance, return true.
         if (ReferenceEquals(left, right))
@@ -174,7 +174,7 @@ public partial class XLColor : IEquatable<XLColor>
         }
 
         // If one is null, but not both, return false.
-        if ((left as object) == null || (right as Object) == null)
+        if ((left as object) == null || (right as object) == null)
         {
             return false;
         }
@@ -182,5 +182,5 @@ public partial class XLColor : IEquatable<XLColor>
         return left.Equals(right);
     }
 
-    public static Boolean operator !=(XLColor? left, XLColor? right) => !(left == right);
+    public static bool operator !=(XLColor? left, XLColor? right) => !(left == right);
 }

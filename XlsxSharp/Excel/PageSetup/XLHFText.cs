@@ -19,7 +19,7 @@ internal class XLHFText
 
     public XLRichString RichText { get; private set; }
 
-    public String GetHFText(String prevText)
+    public string GetHFText(string prevText)
     {
         IXLFont wsFont = this._hfItem.HeaderFooter.Worksheet.Style.Font;
 

@@ -41,14 +41,14 @@ public interface IXLDrawingAlignment
 {
     XLDrawingHorizontalAlignment Horizontal { get; set; }
     XLDrawingVerticalAlignment Vertical { get; set; }
-    Boolean AutomaticSize { get; set; }
+    bool AutomaticSize { get; set; }
     XLDrawingTextDirection Direction { get; set; }
     XLDrawingTextOrientation Orientation { get; set; }
 
     IXLDrawingStyle SetHorizontal(XLDrawingHorizontalAlignment value);
     IXLDrawingStyle SetVertical(XLDrawingVerticalAlignment value);
     IXLDrawingStyle SetAutomaticSize();
-    IXLDrawingStyle SetAutomaticSize(Boolean value);
+    IXLDrawingStyle SetAutomaticSize(bool value);
     IXLDrawingStyle SetDirection(XLDrawingTextDirection value);
     IXLDrawingStyle SetOrientation(XLDrawingTextOrientation value);
 }

@@ -77,7 +77,7 @@ internal class XLRichText : XLFormattedText<IXLRichText>, IXLRichText
         this._cell = cell;
     }
 
-    internal XLRichText(XLCell cell, XLFontFormatValue defaultFont, String text)
+    internal XLRichText(XLCell cell, XLFontFormatValue defaultFont, string text)
         : this(cell, defaultFont) =>
         this.AddText(new XLRichString(text, defaultFont, this, this.Styles, this.OnContentChanged));
 

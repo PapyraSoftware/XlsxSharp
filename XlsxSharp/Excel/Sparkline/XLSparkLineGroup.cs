@@ -30,11 +30,11 @@ internal class XLSparklineGroup : IXLSparklineGroup, ISheetListener
 
     public XLDisplayBlanksAsValues DisplayEmptyCellsAs { get; set; }
 
-    public Boolean DisplayHidden { get; set; }
+    public bool DisplayHidden { get; set; }
 
     public IXLSparklineHorizontalAxis HorizontalAxis { get; }
 
-    public Double LineWeight { get; set; }
+    public double LineWeight { get; set; }
 
     public XLSparklineMarkers ShowMarkers { get; set; }
 
@@ -322,13 +322,13 @@ internal class XLSparklineGroup : IXLSparklineGroup, ISheetListener
         return this;
     }
 
-    public IXLSparklineGroup SetDisplayHidden(Boolean displayHidden)
+    public IXLSparklineGroup SetDisplayHidden(bool displayHidden)
     {
         this.DisplayHidden = displayHidden;
         return this;
     }
 
-    public IXLSparklineGroup SetLineWeight(Double lineWeight)
+    public IXLSparklineGroup SetLineWeight(double lineWeight)
     {
         this.LineWeight = lineWeight;
         return this;

@@ -21,7 +21,7 @@ public class LoadOptions
     /// <summary>
     /// Should all formulas in a workbook be recalculated during load? Default value is <c>false</c>.
     /// </summary>
-    public Boolean RecalculateAllFormulas { get; set; } = false;
+    public bool RecalculateAllFormulas { get; set; } = false;
 
     /// <summary>
     /// Graphic engine used by the workbook.

@@ -269,8 +269,8 @@ internal static class Text
 
     private static AnyValue Find(
         CalcContext ctx,
-        String findText,
-        String withinText,
+        string findText,
+        string withinText,
         OneOf<double, Blank> startNum
     )
     {
@@ -523,8 +523,8 @@ internal static class Text
 
     private static AnyValue Search(
         CalcContext ctx,
-        String findText,
-        String withinText,
+        string findText,
+        string withinText,
         OneOf<double, Blank> startNum
     )
     {

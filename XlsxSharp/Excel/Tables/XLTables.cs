@@ -10,15 +10,15 @@ namespace XlsxSharp.Excel.Tables;
 
 internal class XLTables : IXLTables, IEnumerable<XLTable>
 {
-    private readonly Dictionary<String, XLTable> _tables;
+    private readonly Dictionary<string, XLTable> _tables;
 
     public XLTables()
     {
-        this._tables = new Dictionary<String, XLTable>(StringComparer.OrdinalIgnoreCase);
+        this._tables = new Dictionary<string, XLTable>(StringComparer.OrdinalIgnoreCase);
         this.Deleted = (HashSet<string>)[];
     }
 
-    internal ICollection<String> Deleted { get; }
+    internal ICollection<string> Deleted { get; }
 
     #region IXLTables Members
 
@@ -47,7 +47,7 @@ internal class XLTables : IXLTables, IEnumerable<XLTable>
         return this;
     }
 
-    public Boolean Contains(String name) => this._tables.ContainsKey(name);
+    public bool Contains(string name) => this._tables.ContainsKey(name);
 
     public Dictionary<string, XLTable>.ValueCollection.Enumerator GetEnumerator() =>
         this._tables.Values.GetEnumerator();
@@ -58,9 +58,9 @@ internal class XLTables : IXLTables, IEnumerable<XLTable>
 
     IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 
-    public void Remove(Int32 index) => this.Remove(this._tables.ElementAt(index).Key);
+    public void Remove(int index) => this.Remove(this._tables.ElementAt(index).Key);
 
-    public void Remove(String name)
+    public void Remove(string name)
     {
         if (!this._tables.TryGetValue(name, out XLTable table))
         {
@@ -80,9 +80,9 @@ internal class XLTables : IXLTables, IEnumerable<XLTable>
         }
     }
 
-    public IXLTable Table(Int32 index) => this._tables.ElementAt(index).Value;
+    public IXLTable Table(int index) => this._tables.ElementAt(index).Value;
 
-    public IXLTable Table(String name)
+    public IXLTable Table(string name)
     {
         if (this.TryGetTable(name, out XLTable table))
         {

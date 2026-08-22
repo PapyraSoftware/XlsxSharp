@@ -14,11 +14,11 @@ internal class XLTableRow : XLRangeRow, IXLTableRow
 
     #region IXLTableRow Members
 
-    public IXLCell Field(Int32 index) => this.Cell(index + 1);
+    public IXLCell Field(int index) => this.Cell(index + 1);
 
-    public IXLCell Field(String name)
+    public IXLCell Field(string name)
     {
-        Int32 fieldIndex = this._tableRange.Table.GetFieldIndex(name);
+        int fieldIndex = this._tableRange.Table.GetFieldIndex(name);
         return this.Cell(fieldIndex + 1);
     }
 
@@ -26,8 +26,8 @@ internal class XLTableRow : XLRangeRow, IXLTableRow
 
     public new IXLTableRow SortLeftToRight(
         XLSortOrder sortOrder = XLSortOrder.Ascending,
-        Boolean matchCase = false,
-        Boolean ignoreBlanks = true
+        bool matchCase = false,
+        bool ignoreBlanks = true
     )
     {
         base.SortLeftToRight(sortOrder, matchCase, ignoreBlanks);
@@ -36,7 +36,7 @@ internal class XLTableRow : XLRangeRow, IXLTableRow
 
     #endregion IXLTableRow Members
 
-    private XLTableRow RowShift(Int32 rowsToShift) =>
+    private XLTableRow RowShift(int rowsToShift) =>
         this._tableRange.Row(
             this.RowNumber() - this._tableRange.FirstRow().RowNumber() + 1 + rowsToShift
         );
@@ -45,11 +45,11 @@ internal class XLTableRow : XLRangeRow, IXLTableRow
 
     IXLTableRow IXLTableRow.RowAbove() => this.RowAbove();
 
-    IXLTableRow IXLTableRow.RowAbove(Int32 step) => this.RowAbove(step);
+    IXLTableRow IXLTableRow.RowAbove(int step) => this.RowAbove(step);
 
     public new XLTableRow RowAbove() => this.RowAbove(1);
 
-    public new XLTableRow RowAbove(Int32 step) => this.RowShift(step * -1);
+    public new XLTableRow RowAbove(int step) => this.RowShift(step * -1);
 
     #endregion XLTableRow Above
 
@@ -57,11 +57,11 @@ internal class XLTableRow : XLRangeRow, IXLTableRow
 
     IXLTableRow IXLTableRow.RowBelow() => this.RowBelow();
 
-    IXLTableRow IXLTableRow.RowBelow(Int32 step) => this.RowBelow(step);
+    IXLTableRow IXLTableRow.RowBelow(int step) => this.RowBelow(step);
 
     public new XLTableRow RowBelow() => this.RowBelow(1);
 
-    public new XLTableRow RowBelow(Int32 step) => this.RowShift(step);
+    public new XLTableRow RowBelow(int step) => this.RowShift(step);
 
     #endregion XLTableRow Below
 

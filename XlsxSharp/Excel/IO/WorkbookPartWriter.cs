@@ -80,7 +80,7 @@ internal class WorkbookPartWriter
             xlWorkbook.FileSharing.ReadOnlyRecommended,
             false
         );
-        workbook.FileSharing.UserName = String.IsNullOrWhiteSpace(xlWorkbook.FileSharing.UserName)
+        workbook.FileSharing.UserName = string.IsNullOrWhiteSpace(xlWorkbook.FileSharing.UserName)
             ? null
             : StringValue.FromString(xlWorkbook.FileSharing.UserName);
 
@@ -112,7 +112,7 @@ internal class WorkbookPartWriter
 
             if (protection.Algorithm == XLProtectionAlgorithm.Algorithm.SimpleHash)
             {
-                if (!String.IsNullOrWhiteSpace(protection.PasswordHash))
+                if (!string.IsNullOrWhiteSpace(protection.PasswordHash))
                 {
                     workbookProtection.WorkbookPassword = protection.PasswordHash;
                 }
@@ -163,7 +163,7 @@ internal class WorkbookPartWriter
 
         foreach (Sheet sheet in workbook.Sheets.Elements<Sheet>())
         {
-            int sheetId = (Int32)sheet.SheetId.Value;
+            int sheetId = (int)sheet.SheetId.Value;
 
             if (xlWorkbook.WorksheetsInternal.All<XLWorksheet>(w => w.SheetId != sheetId))
             {
@@ -184,7 +184,7 @@ internal class WorkbookPartWriter
         )
         {
             string rId;
-            if (String.IsNullOrWhiteSpace(xlSheet.RelId))
+            if (string.IsNullOrWhiteSpace(xlSheet.RelId))
             {
                 // Sheet isn't from loaded file and hasn't been saved yet.
                 rId = xlSheet.RelId = context.RelIdGenerator.GetNext(XLWorkbook.RelType.Workbook);
@@ -215,11 +215,11 @@ internal class WorkbookPartWriter
             orderby worksheet.Position
             select sheet;
 
-        UInt32 firstSheetVisible = 0;
+        uint firstSheetVisible = 0;
         uint activeTab = (
             from us in xlWorkbook.UnsupportedSheets
             where us.IsActive
-            select (UInt32)us.Position - 1
+            select (uint)us.Position - 1
         ).FirstOrDefault();
         bool foundVisible = false;
 
@@ -270,19 +270,19 @@ internal class WorkbookPartWriter
 
         if (activeTab == 0)
         {
-            UInt32? firstActiveTab = null;
-            UInt32? firstSelectedTab = null;
+            uint? firstActiveTab = null;
+            uint? firstSelectedTab = null;
             foreach (XLWorksheet ws in worksheets)
             {
                 if (ws.TabActive)
                 {
-                    firstActiveTab = (UInt32)(ws.Position - 1);
+                    firstActiveTab = (uint)(ws.Position - 1);
                     break;
                 }
 
                 if (ws.TabSelected)
                 {
-                    firstSelectedTab = (UInt32)(ws.Position - 1);
+                    firstSelectedTab = (uint)(ws.Position - 1);
                 }
             }
 
@@ -308,7 +308,7 @@ internal class WorkbookPartWriter
         foreach (XLWorksheet worksheet in xlWorkbook.WorksheetsInternal)
         {
             uint wsSheetId = worksheet.SheetId;
-            UInt32 sheetId = 0;
+            uint sheetId = 0;
             foreach (
                 Sheet s in workbook.Sheets.Elements<Sheet>().TakeWhile(s => s.SheetId != wsSheetId)
             )
@@ -325,7 +325,7 @@ internal class WorkbookPartWriter
                 };
                 string worksheetName = worksheet.Name;
                 string definedNameText = worksheet.PageSetup.PrintAreas.Aggregate(
-                    String.Empty,
+                    string.Empty,
                     (current, printArea) =>
                         current
                         + (
@@ -380,7 +380,7 @@ internal class WorkbookPartWriter
                     definedName.Hidden = BooleanValue.FromBoolean(true);
                 }
 
-                if (!String.IsNullOrWhiteSpace(xlDefinedName.Comment))
+                if (!string.IsNullOrWhiteSpace(xlDefinedName.Comment))
                 {
                     definedName.Comment = xlDefinedName.Comment;
                 }
@@ -388,8 +388,8 @@ internal class WorkbookPartWriter
                 definedNames.AppendChild(definedName);
             }
 
-            string definedNameTextRow = String.Empty;
-            string definedNameTextColumn = String.Empty;
+            string definedNameTextRow = string.Empty;
+            string definedNameTextColumn = string.Empty;
             if (worksheet.PageSetup.FirstRowToRepeatAtTop > 0)
             {
                 definedNameTextRow =
@@ -453,7 +453,7 @@ internal class WorkbookPartWriter
                 definedName.Hidden = BooleanValue.FromBoolean(true);
             }
 
-            if (!String.IsNullOrWhiteSpace(xlDefinedName.Comment))
+            if (!string.IsNullOrWhiteSpace(xlDefinedName.Comment))
             {
                 definedName.Comment = xlDefinedName.Comment;
             }

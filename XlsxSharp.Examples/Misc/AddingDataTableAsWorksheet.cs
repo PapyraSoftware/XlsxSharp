@@ -7,7 +7,7 @@ namespace XlsxSharp.Examples.Misc;
 
 public class AddingDataTableAsWorksheet : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook wb = new();
 
@@ -20,7 +20,7 @@ public class AddingDataTableAsWorksheet : IXLExample
         wb.SaveAs(filePath);
     }
 
-    private static DataTable GetTable(String tableName)
+    private static DataTable GetTable(string tableName)
     {
         DataTable table = new();
         table.TableName = tableName;

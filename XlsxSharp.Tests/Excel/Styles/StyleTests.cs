@@ -23,7 +23,7 @@ public class StyleTests
                 XLCell? cell = ws.FirstCell().CellRight() as XLCell;
 
                 Assert.IsTrue(cell.IsEmpty());
-                cell.Value = String.Empty;
+                cell.Value = string.Empty;
                 cell.Style.IncludeQuotePrefix = true;
 
                 Assert.IsTrue(cell.IsEmpty());

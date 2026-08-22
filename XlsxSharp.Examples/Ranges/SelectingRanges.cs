@@ -5,7 +5,7 @@ namespace XlsxSharp.Examples.Ranges;
 
 public class SelectingRanges : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook wb = new();
         IXLWorksheet wsActiveCell = wb.AddWorksheet("Set Active Cell");

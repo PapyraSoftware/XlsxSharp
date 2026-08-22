@@ -6,7 +6,7 @@ namespace XlsxSharp.Examples.Misc;
 
 public class ShowCase : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         // Creating a new workbook
         XLWorkbook wb = new();

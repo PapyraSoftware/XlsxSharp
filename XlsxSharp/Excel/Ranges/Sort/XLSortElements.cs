@@ -9,34 +9,30 @@ internal class XLSortElements : IXLSortElements
 {
     List<IXLSortElement> elements = [];
 
-    public void Add(Int32 elementNumber) => this.Add(elementNumber, XLSortOrder.Ascending);
+    public void Add(int elementNumber) => this.Add(elementNumber, XLSortOrder.Ascending);
 
-    public void Add(Int32 elementNumber, XLSortOrder sortOrder) =>
+    public void Add(int elementNumber, XLSortOrder sortOrder) =>
         this.Add(elementNumber, sortOrder, true);
 
-    public void Add(Int32 elementNumber, XLSortOrder sortOrder, Boolean ignoreBlanks) =>
+    public void Add(int elementNumber, XLSortOrder sortOrder, bool ignoreBlanks) =>
+        this.Add(elementNumber, sortOrder, ignoreBlanks, false);
+
+    public void Add(int elementNumber, XLSortOrder sortOrder, bool ignoreBlanks, bool matchCase) =>
+        this.elements.Add(new XLSortElement(elementNumber, sortOrder, ignoreBlanks, matchCase));
+
+    public void Add(string elementNumber) => this.Add(elementNumber, XLSortOrder.Ascending);
+
+    public void Add(string elementNumber, XLSortOrder sortOrder) =>
+        this.Add(elementNumber, sortOrder, true);
+
+    public void Add(string elementNumber, XLSortOrder sortOrder, bool ignoreBlanks) =>
         this.Add(elementNumber, sortOrder, ignoreBlanks, false);
 
     public void Add(
-        Int32 elementNumber,
+        string elementNumber,
         XLSortOrder sortOrder,
-        Boolean ignoreBlanks,
-        Boolean matchCase
-    ) => this.elements.Add(new XLSortElement(elementNumber, sortOrder, ignoreBlanks, matchCase));
-
-    public void Add(String elementNumber) => this.Add(elementNumber, XLSortOrder.Ascending);
-
-    public void Add(String elementNumber, XLSortOrder sortOrder) =>
-        this.Add(elementNumber, sortOrder, true);
-
-    public void Add(String elementNumber, XLSortOrder sortOrder, Boolean ignoreBlanks) =>
-        this.Add(elementNumber, sortOrder, ignoreBlanks, false);
-
-    public void Add(
-        String elementNumber,
-        XLSortOrder sortOrder,
-        Boolean ignoreBlanks,
-        Boolean matchCase
+        bool ignoreBlanks,
+        bool matchCase
     ) =>
         this.elements.Add(
             new XLSortElement(
@@ -54,7 +50,7 @@ internal class XLSortElements : IXLSortElements
 
     public void Clear() => this.elements.Clear();
 
-    public void Remove(Int32 elementNumber) => this.elements.RemoveAt(elementNumber - 1);
+    public void Remove(int elementNumber) => this.elements.RemoveAt(elementNumber - 1);
 
     internal void AddRange(IEnumerable<XLSortElement> sortElements) =>
         this.elements.AddRange(sortElements);

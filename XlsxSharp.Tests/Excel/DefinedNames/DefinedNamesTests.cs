@@ -701,18 +701,12 @@ public class DefinedNamesTests
         Assert.IsNotNull(wb.DefinedName("Sheet1!Name"));
         Assert.IsNull(wb.DefinedName("Sheet1!NameX"));
 
-        Boolean found1 = wb.DefinedNames.TryGetValue(
-            "Sheet1!Name",
-            out IXLDefinedName? definedName1
-        );
+        bool found1 = wb.DefinedNames.TryGetValue("Sheet1!Name", out IXLDefinedName? definedName1);
         Assert.IsTrue(found1);
         Assert.IsNotNull(definedName1);
         Assert.AreEqual(XLNamedRangeScope.Worksheet, definedName1.Scope);
 
-        Boolean found2 = wb.DefinedNames.TryGetValue(
-            "Sheet1!NameX",
-            out IXLDefinedName? definedName2
-        );
+        bool found2 = wb.DefinedNames.TryGetValue("Sheet1!NameX", out IXLDefinedName? definedName2);
         Assert.IsFalse(found2);
         Assert.IsNull(definedName2);
     }
@@ -730,11 +724,11 @@ public class DefinedNamesTests
         Assert.IsNotNull(wb.DefinedName("Name"));
         Assert.IsNull(wb.DefinedName("NameX"));
 
-        Boolean found1 = wb.DefinedNames.TryGetValue("Name", out IXLDefinedName? definedName1);
+        bool found1 = wb.DefinedNames.TryGetValue("Name", out IXLDefinedName? definedName1);
         Assert.IsTrue(found1);
         Assert.IsNotNull(definedName1);
 
-        Boolean found2 = wb.DefinedNames.TryGetValue("NameX", out IXLDefinedName? definedName2);
+        bool found2 = wb.DefinedNames.TryGetValue("NameX", out IXLDefinedName? definedName2);
         Assert.IsFalse(found2);
         Assert.IsNull(definedName2);
     }
@@ -752,11 +746,11 @@ public class DefinedNamesTests
         Assert.IsNotNull(ws.DefinedName("Name"));
         Assert.Throws<KeyNotFoundException>(() => ws.DefinedName("NameX"));
 
-        Boolean found1 = ws.DefinedNames.TryGetValue("Name", out IXLDefinedName? definedName1);
+        bool found1 = ws.DefinedNames.TryGetValue("Name", out IXLDefinedName? definedName1);
         Assert.IsTrue(found1);
         Assert.IsNotNull(definedName1);
 
-        Boolean found2 = ws.DefinedNames.TryGetValue("NameX", out IXLDefinedName? definedName2);
+        bool found2 = ws.DefinedNames.TryGetValue("NameX", out IXLDefinedName? definedName2);
         Assert.IsFalse(found2);
         Assert.IsNull(definedName2);
     }

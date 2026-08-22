@@ -115,9 +115,9 @@ public interface IXLBorder : IEquatable<IXLBorder>
     /// </remarks>
     XLColor BottomBorderColor { get; set; }
 
-    Boolean DiagonalUp { get; set; }
+    bool DiagonalUp { get; set; }
 
-    Boolean DiagonalDown { get; set; }
+    bool DiagonalDown { get; set; }
 
     /// <summary>
     /// Get or set style of the diagonal border.
@@ -195,10 +195,10 @@ public interface IXLBorder : IEquatable<IXLBorder>
     IXLStyle SetBottomBorderColor(XLColor value);
 
     IXLStyle SetDiagonalUp();
-    IXLStyle SetDiagonalUp(Boolean value);
+    IXLStyle SetDiagonalUp(bool value);
 
     IXLStyle SetDiagonalDown();
-    IXLStyle SetDiagonalDown(Boolean value);
+    IXLStyle SetDiagonalDown(bool value);
 
     /// <summary>
     /// Set style of the diagonal border.

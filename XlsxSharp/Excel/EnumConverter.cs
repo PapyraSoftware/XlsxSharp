@@ -46,7 +46,7 @@ internal static class EnumConverter
         }
     }
 
-    private static readonly String[] XLFontUnderlineValuesStrings =
+    private static readonly string[] XLFontUnderlineValuesStrings =
     [
         "double",
         "doubleAccounting",
@@ -94,19 +94,19 @@ internal static class EnumConverter
         }
     }
 
-    private static readonly String[] XLFontVerticalTextAlignmentValuesStrings =
+    private static readonly string[] XLFontVerticalTextAlignmentValuesStrings =
     [
         "baseline",
         "subscript",
         "superscript",
     ];
 
-    public static String ToOpenXmlString(this XLFontVerticalTextAlignmentValues value) =>
+    public static string ToOpenXmlString(this XLFontVerticalTextAlignmentValues value) =>
         XLFontVerticalTextAlignmentValuesStrings[(int)value];
 
-    private static readonly String[] XLFontSchemeStrings = ["none", "major", "minor"];
+    private static readonly string[] XLFontSchemeStrings = ["none", "major", "minor"];
 
-    public static String ToOpenXml(this XLFontScheme value) => XLFontSchemeStrings[(int)value];
+    public static string ToOpenXml(this XLFontScheme value) => XLFontSchemeStrings[(int)value];
 
     public static FontSchemeValues ToOpenXmlEnum(this XLFontScheme value) =>
         value switch
@@ -537,7 +537,7 @@ internal static class EnumConverter
         }
     }
 
-    private static readonly String[] XLPhoneticAlignmentStrings =
+    private static readonly string[] XLPhoneticAlignmentStrings =
     [
         "center",
         "distributed",
@@ -545,7 +545,7 @@ internal static class EnumConverter
         "noControl",
     ];
 
-    public static String ToOpenXmlString(this XLPhoneticAlignment value) =>
+    public static string ToOpenXmlString(this XLPhoneticAlignment value) =>
         XLPhoneticAlignmentStrings[(int)value];
 
     public static PhoneticValues ToOpenXml(this XLPhoneticType value)
@@ -569,7 +569,7 @@ internal static class EnumConverter
         }
     }
 
-    private static readonly String[] XLPhoneticTypeStrings =
+    private static readonly string[] XLPhoneticTypeStrings =
     [
         "fullwidthKatakana",
         "halfwidthKatakana",
@@ -577,7 +577,7 @@ internal static class EnumConverter
         "noConversion",
     ];
 
-    public static String ToOpenXmlString(this XLPhoneticType value) =>
+    public static string ToOpenXmlString(this XLPhoneticType value) =>
         XLPhoneticTypeStrings[(int)value];
 
     public static DataConsolidateFunctionValues ToOpenXml(this XLPivotSummary value)

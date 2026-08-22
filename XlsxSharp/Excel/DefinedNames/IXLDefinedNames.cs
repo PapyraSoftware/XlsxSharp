@@ -8,14 +8,14 @@ public interface IXLDefinedNames : IEnumerable<IXLDefinedName>
 {
     /// <inheritdoc cref="DefinedName"/>
     [Obsolete($"Use {nameof(DefinedName)} instead.")]
-    IXLDefinedName NamedRange(String name);
+    IXLDefinedName NamedRange(string name);
 
     /// <summary>
     /// Gets the specified defined name.
     /// </summary>
     /// <param name="name">Name identifier.</param>
     /// <exception cref="KeyNotFoundException">Name wasn't found.</exception>
-    IXLDefinedName DefinedName(String name);
+    IXLDefinedName DefinedName(string name);
 
     /// <summary>
     /// Adds a new defined name.
@@ -23,7 +23,7 @@ public interface IXLDefinedNames : IEnumerable<IXLDefinedName>
     /// <param name="name">Name identifier to add.</param>
     /// <param name="rangeAddress">The range address to add.</param>
     /// <exception cref="ArgumentException">The name or address is invalid.</exception>
-    IXLDefinedName Add(String name, String rangeAddress);
+    IXLDefinedName Add(string name, string rangeAddress);
 
     /// <summary>
     /// Adds a new defined name.
@@ -31,7 +31,7 @@ public interface IXLDefinedNames : IEnumerable<IXLDefinedName>
     /// <param name="name">Name identifier to add.</param>
     /// <param name="range">The range to add.</param>
     /// <exception cref="ArgumentException">The name is invalid.</exception>
-    IXLDefinedName Add(String name, IXLRange range);
+    IXLDefinedName Add(string name, IXLRange range);
 
     /// <summary>
     /// Adds a new defined name.
@@ -39,7 +39,7 @@ public interface IXLDefinedNames : IEnumerable<IXLDefinedName>
     /// <param name="name">Name identifier to add.</param>
     /// <param name="ranges">The ranges to add.</param>
     /// <exception cref="ArgumentException">The name is invalid.</exception>
-    IXLDefinedName Add(String name, IXLRanges ranges);
+    IXLDefinedName Add(string name, IXLRanges ranges);
 
     /// <summary>
     /// Adds a new defined name.
@@ -48,7 +48,7 @@ public interface IXLDefinedNames : IEnumerable<IXLDefinedName>
     /// <param name="rangeAddress">The range address to add.</param>
     /// <param name="comment">The comment for the new named range.</param>
     /// <exception cref="ArgumentException">The range name or address is invalid.</exception>
-    IXLDefinedName Add(String name, String rangeAddress, String? comment);
+    IXLDefinedName Add(string name, string rangeAddress, string? comment);
 
     /// <summary>
     /// Adds a new defined name.
@@ -57,7 +57,7 @@ public interface IXLDefinedNames : IEnumerable<IXLDefinedName>
     /// <param name="range">The range to add.</param>
     /// <param name="comment">The comment for the new named range.</param>
     /// <exception cref="ArgumentException">The range name is invalid.</exception>
-    IXLDefinedName Add(String name, IXLRange range, String? comment);
+    IXLDefinedName Add(string name, IXLRange range, string? comment);
 
     /// <summary>
     /// Adds a new defined name.
@@ -66,14 +66,14 @@ public interface IXLDefinedNames : IEnumerable<IXLDefinedName>
     /// <param name="ranges">The ranges to add.</param>
     /// <param name="comment">The comment for the new named range.</param>
     /// <exception cref="ArgumentException">The range name is invalid.</exception>
-    IXLDefinedName Add(String name, IXLRanges ranges, String? comment);
+    IXLDefinedName Add(string name, IXLRanges ranges, string? comment);
 
     /// <summary>
     /// Deletes the specified defined name.  Deleting defined name doesn't delete referenced
     /// cells.
     /// </summary>
     /// <param name="name">Name identifier to delete.</param>
-    void Delete(String name);
+    void Delete(string name);
 
     /// <summary>
     /// Deletes the specified defined name's index. Deleting defined name doesn't delete
@@ -81,7 +81,7 @@ public interface IXLDefinedNames : IEnumerable<IXLDefinedName>
     /// </summary>
     /// <param name="index">Index of the defined name to delete.</param>
     /// <exception cref="ArgumentOutOfRangeException">The index is outside of named ranges array.</exception>
-    void Delete(Int32 index);
+    void Delete(int index);
 
     /// <summary>
     /// Deletes all defined names of this collection, i.e. a workbook or a sheet. Deleting
@@ -89,9 +89,9 @@ public interface IXLDefinedNames : IEnumerable<IXLDefinedName>
     /// </summary>
     void DeleteAll();
 
-    Boolean TryGetValue(String name, [NotNullWhen(true)] out IXLDefinedName? range);
+    bool TryGetValue(string name, [NotNullWhen(true)] out IXLDefinedName? range);
 
-    Boolean Contains(String name);
+    bool Contains(string name);
 
     /// <summary>
     /// Returns a subset of defined names that do not have invalid references.

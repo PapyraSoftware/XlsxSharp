@@ -8,13 +8,13 @@ using XlsxSharp.Extensions;
 
 namespace XlsxSharp.Excel.Rows;
 
-internal class XLRowsCollection : IDictionary<Int32, XLRow>
+internal class XLRowsCollection : IDictionary<int, XLRow>
 {
-    private readonly Dictionary<Int32, XLRow> _dictionary = new();
+    private readonly Dictionary<int, XLRow> _dictionary = new();
 
-    public Dictionary<Int32, XLRow> Deleted { get; } = new();
+    public Dictionary<int, XLRow> Deleted { get; } = new();
 
-    public Int32 MaxRowUsed;
+    public int MaxRowUsed;
 
     #region IDictionary<int,XLRow> Members
 
@@ -93,7 +93,7 @@ internal class XLRowsCollection : IDictionary<Int32, XLRow>
 
     #endregion IDictionary<int,XLRow> Members
 
-    public void ShiftRowsDown(Int32 startingRow, Int32 rowsToShift)
+    public void ShiftRowsDown(int startingRow, int rowsToShift)
     {
         foreach (
             int ro in this._dictionary.Keys.Where(k => k >= startingRow).OrderByDescending(k => k)
@@ -101,7 +101,7 @@ internal class XLRowsCollection : IDictionary<Int32, XLRow>
         {
             XLRow rowToMove = this._dictionary[ro];
             this._dictionary.Remove(ro);
-            Int32 newRowNum = ro + rowsToShift;
+            int newRowNum = ro + rowsToShift;
             if (newRowNum <= XlsxSharp.XLHelper.MaxRowNumber)
             {
                 rowToMove.SetRowNumber(newRowNum);
@@ -110,7 +110,7 @@ internal class XLRowsCollection : IDictionary<Int32, XLRow>
         }
     }
 
-    public void RemoveAll(Func<XLRow, Boolean> predicate)
+    public void RemoveAll(Func<XLRow, bool> predicate)
     {
         foreach (
             XLRow row in this

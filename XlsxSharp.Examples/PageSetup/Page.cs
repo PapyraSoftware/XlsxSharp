@@ -6,7 +6,7 @@ namespace XlsxSharp.Examples.PageSetup;
 
 public class Page : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook workbook = new();
         IXLWorksheet ws1 = workbook.Worksheets.Add("Page Setup - Page1");

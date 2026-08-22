@@ -46,12 +46,12 @@ internal class CustomFilePropertiesPartWriter
             }
             else if (p.Type == XLCustomPropertyType.Number)
             {
-                VTDouble vTDouble1 = new() { Text = p.GetValue<Double>().ToInvariantString() };
+                VTDouble vTDouble1 = new() { Text = p.GetValue<double>().ToInvariantString() };
                 customDocumentProperty.AppendChild(vTDouble1);
             }
             else
             {
-                VTBool vTBool1 = new() { Text = p.GetValue<Boolean>().ToString().ToLower() };
+                VTBool vTBool1 = new() { Text = p.GetValue<bool>().ToString().ToLower() };
                 customDocumentProperty.AppendChild(vTBool1);
             }
             properties.AppendChild(customDocumentProperty);

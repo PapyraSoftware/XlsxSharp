@@ -11,29 +11,29 @@ namespace XlsxSharp.Excel;
 /// </summary>
 public interface IXLAddress : IEqualityComparer<IXLAddress>, IEquatable<IXLAddress>
 {
-    String ColumnLetter { get; }
-    Int32 ColumnNumber { get; }
-    Boolean FixedColumn { get; }
-    Boolean FixedRow { get; }
-    Int32 RowNumber { get; }
-    String UniqueId { get; }
+    string ColumnLetter { get; }
+    int ColumnNumber { get; }
+    bool FixedColumn { get; }
+    bool FixedRow { get; }
+    int RowNumber { get; }
+    string UniqueId { get; }
 
     /// <summary>
     /// Worksheet of the reference. Value is null for address without a worksheet.
     /// </summary>
     IXLWorksheet Worksheet { get; }
 
-    String ToString(XLReferenceStyle referenceStyle);
+    string ToString(XLReferenceStyle referenceStyle);
 
-    String ToString(XLReferenceStyle referenceStyle, Boolean includeSheet);
+    string ToString(XLReferenceStyle referenceStyle, bool includeSheet);
 
-    String ToStringFixed();
+    string ToStringFixed();
 
-    String ToStringFixed(XLReferenceStyle referenceStyle);
+    string ToStringFixed(XLReferenceStyle referenceStyle);
 
-    String ToStringFixed(XLReferenceStyle referenceStyle, Boolean includeSheet);
+    string ToStringFixed(XLReferenceStyle referenceStyle, bool includeSheet);
 
-    String ToStringRelative();
+    string ToStringRelative();
 
-    String ToStringRelative(Boolean includeSheet);
+    string ToStringRelative(bool includeSheet);
 }

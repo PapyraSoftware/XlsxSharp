@@ -5,7 +5,7 @@ namespace XlsxSharp.Examples.Misc;
 
 public class Formulas : IXLExample
 {
-    public virtual void Create(String filePath)
+    public virtual void Create(string filePath)
     {
         XLWorkbook wb = new();
         IXLWorksheet ws = wb.Worksheets.Add("Formulas");

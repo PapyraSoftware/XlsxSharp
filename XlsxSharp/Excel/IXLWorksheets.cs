@@ -11,25 +11,25 @@ public interface IXLWorksheets : IEnumerable<IXLWorksheet>
 
     IXLWorksheet Add();
 
-    IXLWorksheet Add(Int32 position);
+    IXLWorksheet Add(int position);
 
-    IXLWorksheet Add(String sheetName);
+    IXLWorksheet Add(string sheetName);
 
-    IXLWorksheet Add(String sheetName, Int32 position);
+    IXLWorksheet Add(string sheetName, int position);
 
     IXLWorksheet Add(DataTable dataTable);
 
-    IXLWorksheet Add(DataTable dataTable, String sheetName);
+    IXLWorksheet Add(DataTable dataTable, string sheetName);
 
-    IXLWorksheet Add(DataTable dataTable, String sheetName, String tableName);
+    IXLWorksheet Add(DataTable dataTable, string sheetName, string tableName);
 
     void Add(DataSet dataSet);
 
-    Boolean Contains(String sheetName);
+    bool Contains(string sheetName);
 
-    void Delete(String sheetName);
+    void Delete(string sheetName);
 
-    void Delete(Int32 position);
+    void Delete(int position);
 
     /// <summary>
     /// Try to get a sheet of a workbook with the specified name. Sheet names are case-insensitive.
@@ -47,5 +47,5 @@ public interface IXLWorksheets : IEnumerable<IXLWorksheet>
     /// <exception cref="KeyNotFoundException">When sheet with <paramref name="sheetName"/> isn't among the sheets.</exception>
     IXLWorksheet Worksheet(string sheetName);
 
-    IXLWorksheet Worksheet(Int32 position);
+    IXLWorksheet Worksheet(int position);
 }

@@ -76,35 +76,35 @@ public class LogicalTests
     [Test]
     public void If2ParamsTrue()
     {
-        Object actual = XLWorkbook.EvaluateExpr(@"if(1 = 1, ""T"")");
+        object actual = XLWorkbook.EvaluateExpr(@"if(1 = 1, ""T"")");
         Assert.AreEqual("T", actual);
     }
 
     [Test]
     public void If2ParamsFalse()
     {
-        Object actual = XLWorkbook.EvaluateExpr(@"if(1 = 2, ""T"")");
+        object actual = XLWorkbook.EvaluateExpr(@"if(1 = 2, ""T"")");
         Assert.AreEqual(false, actual);
     }
 
     [Test]
     public void If3ParamsTrue()
     {
-        Object actual = XLWorkbook.EvaluateExpr(@"if(1 = 1, ""T"", ""F"")");
+        object actual = XLWorkbook.EvaluateExpr(@"if(1 = 1, ""T"", ""F"")");
         Assert.AreEqual("T", actual);
     }
 
     [Test]
     public void If3ParamsFalse()
     {
-        Object actual = XLWorkbook.EvaluateExpr(@"if(1 = 2, ""T"", ""F"")");
+        object actual = XLWorkbook.EvaluateExpr(@"if(1 = 2, ""T"", ""F"")");
         Assert.AreEqual("F", actual);
     }
 
     [Test]
     public void IfComparingAgainstEmptyString()
     {
-        Object actual;
+        object actual;
         actual = XLWorkbook.EvaluateExpr(@"if(date(2016, 1, 1) = """", ""A"",""B"")");
         Assert.AreEqual("B", actual);
 
@@ -121,7 +121,7 @@ public class LogicalTests
     [Test]
     public void IfCaseInsensitivity()
     {
-        Object actual;
+        object actual;
         actual = XLWorkbook.EvaluateExpr(@"IF(""text""=""TEXT"", 1, 2)");
         Assert.AreEqual(1, actual);
     }

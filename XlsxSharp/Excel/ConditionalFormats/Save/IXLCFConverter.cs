@@ -7,7 +7,7 @@ internal interface IXLCFConverter
 {
     ConditionalFormattingRule Convert(
         XLConditionalFormat cf,
-        Int32 priority,
+        int priority,
         XLWorkbook.SaveContext context
     );
 }

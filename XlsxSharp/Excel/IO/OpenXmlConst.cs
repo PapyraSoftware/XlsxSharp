@@ -34,10 +34,10 @@ internal static class OpenXmlConst
     /// <summary>
     /// Valid and shorter than normal true.
     /// </summary>
-    public static readonly String TrueValue = "1";
+    public static readonly string TrueValue = "1";
 
     /// <summary>
     /// Valid and shorter than normal false.
     /// </summary>
-    public static readonly String FalseValue = "0";
+    public static readonly string FalseValue = "0";
 }

@@ -7,7 +7,7 @@ namespace XlsxSharp.Examples.Sparklines;
 
 public class SampleSparklines : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook workbook = new();
         IXLWorksheet ws1 = workbook.AddWorksheet("Linear");

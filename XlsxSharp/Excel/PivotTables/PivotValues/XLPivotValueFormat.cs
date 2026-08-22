@@ -9,7 +9,7 @@ internal class XLPivotValueFormat : IXLPivotValueFormat
 
     public XLPivotValueFormat(XLPivotDataField pivotValue) => this._pivotValue = pivotValue;
 
-    public Int32 NumberFormatId
+    public int NumberFormatId
     {
         get
         {
@@ -43,19 +43,19 @@ internal class XLPivotValueFormat : IXLPivotValueFormat
         }
     }
 
-    public String Format
+    public string Format
     {
         get => this._pivotValue.NumberFormatValue ?? string.Empty;
         set => this._pivotValue.NumberFormatValue = XLNumberFormat.Parse(value);
     }
 
-    public IXLPivotValue SetNumberFormatId(Int32 value)
+    public IXLPivotValue SetNumberFormatId(int value)
     {
         this.NumberFormatId = value;
         return this._pivotValue;
     }
 
-    public IXLPivotValue SetFormat(String value)
+    public IXLPivotValue SetFormat(string value)
     {
         this.Format = value;
         return this._pivotValue;

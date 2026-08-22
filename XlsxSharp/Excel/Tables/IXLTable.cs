@@ -11,8 +11,8 @@ public interface IXLTable : IXLRange
 {
     IXLAutoFilter AutoFilter { get; }
     IXLTableRange DataRange { get; }
-    Boolean EmphasizeFirstColumn { get; set; }
-    Boolean EmphasizeLastColumn { get; set; }
+    bool EmphasizeFirstColumn { get; set; }
+    bool EmphasizeLastColumn { get; set; }
     IEnumerable<IXLTableField> Fields { get; }
 
     /// <summary>
@@ -20,11 +20,11 @@ public interface IXLTable : IXLRange
     /// </summary>
     /// <exception cref="ArgumentException">If the new table name is already used by other table in the sheet.</exception>
     string Name { get; set; }
-    Boolean ShowAutoFilter { get; set; }
-    Boolean ShowColumnStripes { get; set; }
-    Boolean ShowHeaderRow { get; set; }
-    Boolean ShowRowStripes { get; set; }
-    Boolean ShowTotalsRow { get; set; }
+    bool ShowAutoFilter { get; set; }
+    bool ShowColumnStripes { get; set; }
+    bool ShowHeaderRow { get; set; }
+    bool ShowRowStripes { get; set; }
+    bool ShowTotalsRow { get; set; }
     XLTableTheme Theme { get; set; }
 
     /// <summary>
@@ -53,7 +53,7 @@ public interface IXLTable : IXLRange
     /// <returns>
     /// The range of the new rows.
     /// </returns>
-    IXLRange AppendData(IEnumerable data, Boolean propagateExtraColumns = false);
+    IXLRange AppendData(IEnumerable data, bool propagateExtraColumns = false);
 
     /// <summary>
     /// Appends the IEnumerable data elements and returns the range of the new rows.
@@ -64,7 +64,7 @@ public interface IXLTable : IXLRange
     /// <returns>
     /// The range of the new rows.
     /// </returns>
-    IXLRange AppendData(IEnumerable data, Boolean transpose, Boolean propagateExtraColumns = false);
+    IXLRange AppendData(IEnumerable data, bool transpose, bool propagateExtraColumns = false);
 
     /// <summary>
     /// Appends the data of a data table and returns the range of the new rows.
@@ -74,7 +74,7 @@ public interface IXLTable : IXLRange
     /// <returns>
     /// The range of the new rows.
     /// </returns>
-    IXLRange AppendData(DataTable dataTable, Boolean propagateExtraColumns = false);
+    IXLRange AppendData(DataTable dataTable, bool propagateExtraColumns = false);
 
     /// <summary>
     /// Appends the IEnumerable data elements and returns the range of the new rows.
@@ -85,7 +85,7 @@ public interface IXLTable : IXLRange
     /// <returns>
     /// The range of the new rows.
     /// </returns>
-    IXLRange AppendData<T>(IEnumerable<T> data, Boolean propagateExtraColumns = false);
+    IXLRange AppendData<T>(IEnumerable<T> data, bool propagateExtraColumns = false);
 
     /// <summary>
     /// Replaces the IEnumerable data elements and returns the table's data range.
@@ -95,7 +95,7 @@ public interface IXLTable : IXLRange
     /// <returns>
     /// The table's data range.
     /// </returns>
-    IXLRange ReplaceData(IEnumerable data, Boolean propagateExtraColumns = false);
+    IXLRange ReplaceData(IEnumerable data, bool propagateExtraColumns = false);
 
     /// <summary>
     /// Replaces the IEnumerable data elements and returns the table's data range.
@@ -106,11 +106,7 @@ public interface IXLTable : IXLRange
     /// <returns>
     /// The table's data range.
     /// </returns>
-    IXLRange ReplaceData(
-        IEnumerable data,
-        Boolean transpose,
-        Boolean propagateExtraColumns = false
-    );
+    IXLRange ReplaceData(IEnumerable data, bool transpose, bool propagateExtraColumns = false);
 
     /// <summary>
     /// Replaces the data from the records of a data table and returns the table's data range.
@@ -120,7 +116,7 @@ public interface IXLTable : IXLRange
     /// <returns>
     /// The table's data range.
     /// </returns>
-    IXLRange ReplaceData(DataTable dataTable, Boolean propagateExtraColumns = false);
+    IXLRange ReplaceData(DataTable dataTable, bool propagateExtraColumns = false);
 
     /// <summary>
     /// Replaces the IEnumerable data elements as a table and the table's data range.
@@ -131,7 +127,7 @@ public interface IXLTable : IXLRange
     /// <returns>
     /// The table's data range.
     /// </returns>
-    IXLRange ReplaceData<T>(IEnumerable<T> data, Boolean propagateExtraColumns = false);
+    IXLRange ReplaceData<T>(IEnumerable<T> data, bool propagateExtraColumns = false);
 
     /// <summary>
     /// Resizes the table to the specified range address.
@@ -185,31 +181,31 @@ public interface IXLTable : IXLRange
 
     IXLTable SetEmphasizeFirstColumn();
 
-    IXLTable SetEmphasizeFirstColumn(Boolean value);
+    IXLTable SetEmphasizeFirstColumn(bool value);
 
     IXLTable SetEmphasizeLastColumn();
 
-    IXLTable SetEmphasizeLastColumn(Boolean value);
+    IXLTable SetEmphasizeLastColumn(bool value);
 
     IXLTable SetShowAutoFilter();
 
-    IXLTable SetShowAutoFilter(Boolean value);
+    IXLTable SetShowAutoFilter(bool value);
 
     IXLTable SetShowColumnStripes();
 
-    IXLTable SetShowColumnStripes(Boolean value);
+    IXLTable SetShowColumnStripes(bool value);
 
     IXLTable SetShowHeaderRow();
 
-    IXLTable SetShowHeaderRow(Boolean value);
+    IXLTable SetShowHeaderRow(bool value);
 
     IXLTable SetShowRowStripes();
 
-    IXLTable SetShowRowStripes(Boolean value);
+    IXLTable SetShowRowStripes(bool value);
 
     IXLTable SetShowTotalsRow();
 
-    IXLTable SetShowTotalsRow(Boolean value);
+    IXLTable SetShowTotalsRow(bool value);
 
     IXLRangeRow TotalsRow();
 

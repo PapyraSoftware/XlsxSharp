@@ -70,7 +70,7 @@ internal class ObjectReader : IInsertDataReader
 
         MemberInfo memberInfo = this._members[propertyIndex];
         string? fieldName = XLColumnAttribute.GetHeader(memberInfo);
-        if (String.IsNullOrWhiteSpace(fieldName))
+        if (string.IsNullOrWhiteSpace(fieldName))
         {
             fieldName = memberInfo.Name;
         }

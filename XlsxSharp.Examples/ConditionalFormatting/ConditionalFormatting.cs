@@ -7,7 +7,7 @@ namespace XlsxSharp.Examples.ConditionalFormatting;
 
 public class CFColorScaleLowMidHigh : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook workbook = new();
         IXLWorksheet ws = workbook.AddWorksheet("Sheet1");
@@ -34,7 +34,7 @@ public class CFColorScaleLowMidHigh : IXLExample
 
 public class CFColorScaleLowHigh : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook workbook = new();
         IXLWorksheet ws = workbook.AddWorksheet("Sheet1");
@@ -60,7 +60,7 @@ public class CFColorScaleLowHigh : IXLExample
 
 public class CFColorScaleMinimumMaximum : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook workbook = new();
         IXLWorksheet ws = workbook.AddWorksheet("Sheet1");
@@ -86,7 +86,7 @@ public class CFColorScaleMinimumMaximum : IXLExample
 
 public class CFStartsWith : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook workbook = new();
         IXLWorksheet ws = workbook.AddWorksheet("Sheet1");
@@ -114,7 +114,7 @@ public class CFStartsWith : IXLExample
 
 public class CFEndsWith : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook workbook = new();
         IXLWorksheet ws = workbook.AddWorksheet("Sheet1");
@@ -139,7 +139,7 @@ public class CFEndsWith : IXLExample
 
 public class CFIsBlank : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook workbook = new();
         IXLWorksheet ws = workbook.AddWorksheet("Sheet1");
@@ -161,7 +161,7 @@ public class CFIsBlank : IXLExample
 
 public class CFNotBlank : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook workbook = new();
         IXLWorksheet ws = workbook.AddWorksheet("Sheet1");
@@ -183,7 +183,7 @@ public class CFNotBlank : IXLExample
 
 public class CFIsError : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook workbook = new();
         IXLWorksheet ws = workbook.AddWorksheet("Sheet1");
@@ -205,7 +205,7 @@ public class CFIsError : IXLExample
 
 public class CFNotError : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook workbook = new();
         IXLWorksheet ws = workbook.AddWorksheet("Sheet1");
@@ -227,7 +227,7 @@ public class CFNotError : IXLExample
 
 public class CFContains : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook workbook = new();
         IXLWorksheet ws = workbook.AddWorksheet("Sheet1");
@@ -252,7 +252,7 @@ public class CFContains : IXLExample
 
 public class CFNotContains : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook workbook = new();
         IXLWorksheet ws = workbook.AddWorksheet("Sheet1");
@@ -277,7 +277,7 @@ public class CFNotContains : IXLExample
 
 public class CFEqualsString : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook workbook = new();
         IXLWorksheet ws = workbook.AddWorksheet("Sheet1");
@@ -302,7 +302,7 @@ public class CFEqualsString : IXLExample
 
 public class CFEqualsNumber : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook workbook = new();
         IXLWorksheet ws = workbook.AddWorksheet("Sheet1");
@@ -324,7 +324,7 @@ public class CFEqualsNumber : IXLExample
 
 public class CFNotEqualsString : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook workbook = new();
         IXLWorksheet ws = workbook.AddWorksheet("Sheet1");
@@ -349,7 +349,7 @@ public class CFNotEqualsString : IXLExample
 
 public class CFNotEqualsNumber : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook workbook = new();
         IXLWorksheet ws = workbook.AddWorksheet("Sheet1");
@@ -371,7 +371,7 @@ public class CFNotEqualsNumber : IXLExample
 
 public class CFGreaterThan : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook workbook = new();
         IXLWorksheet ws = workbook.AddWorksheet("Sheet1");
@@ -396,7 +396,7 @@ public class CFGreaterThan : IXLExample
 
 public class CFEqualOrGreaterThan : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook workbook = new();
         IXLWorksheet ws = workbook.AddWorksheet("Sheet1");
@@ -421,7 +421,7 @@ public class CFEqualOrGreaterThan : IXLExample
 
 public class CFLessThan : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook workbook = new();
         IXLWorksheet ws = workbook.AddWorksheet("Sheet1");
@@ -446,7 +446,7 @@ public class CFLessThan : IXLExample
 
 public class CFEqualOrLessThan : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook workbook = new();
         IXLWorksheet ws = workbook.AddWorksheet("Sheet1");
@@ -471,7 +471,7 @@ public class CFEqualOrLessThan : IXLExample
 
 public class CFBetween : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook workbook = new();
         IXLWorksheet ws = workbook.AddWorksheet("Sheet1");
@@ -496,7 +496,7 @@ public class CFBetween : IXLExample
 
 public class CFNotBetween : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook workbook = new();
         IXLWorksheet ws = workbook.AddWorksheet("Sheet1");
@@ -521,7 +521,7 @@ public class CFNotBetween : IXLExample
 
 public class CFUnique : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook workbook = new();
         IXLWorksheet ws = workbook.AddWorksheet("Sheet1");
@@ -543,7 +543,7 @@ public class CFUnique : IXLExample
 
 public class CFDuplicate : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook workbook = new();
         IXLWorksheet ws = workbook.AddWorksheet("Sheet1");
@@ -568,7 +568,7 @@ public class CFDuplicate : IXLExample
 
 public class CFIsTrue : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook workbook = new();
         IXLWorksheet ws = workbook.AddWorksheet("Sheet1");
@@ -593,7 +593,7 @@ public class CFIsTrue : IXLExample
 
 public class CFTop : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook workbook = new();
         IXLWorksheet ws = workbook.AddWorksheet("Sheet1");
@@ -615,7 +615,7 @@ public class CFTop : IXLExample
 
 public class CFBottom : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook workbook = new();
         IXLWorksheet ws = workbook.AddWorksheet("Sheet1");
@@ -640,7 +640,7 @@ public class CFBottom : IXLExample
 
 public class CFDataBar : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook workbook = new();
         IXLWorksheet ws = workbook.AddWorksheet("Sheet1");
@@ -666,7 +666,7 @@ public class CFDataBar : IXLExample
 
 public class CFDataBarNegative : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook workbook = new();
         IXLWorksheet ws = workbook.AddWorksheet("Sheet1");
@@ -707,7 +707,7 @@ public class CFDataBarNegative : IXLExample
 
 public class CFIconSet : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook workbook = new();
         IXLWorksheet ws = workbook.AddWorksheet("Sheet1");
@@ -734,7 +734,7 @@ public class CFIconSet : IXLExample
 
 public class CFTwoConditions : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook workbook = new();
         IXLWorksheet ws = workbook.AddWorksheet("Sheet1");
@@ -766,7 +766,7 @@ public class CFTwoConditions : IXLExample
 
 public class CFInsertRows : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook workbook = new();
         IXLWorksheet ws = workbook.AddWorksheet("Sheet1");
@@ -790,7 +790,7 @@ public class CFInsertRows : IXLExample
 
 public class CFTest : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook workbook = new();
         IXLWorksheet ws = workbook.AddWorksheet("Sheet1");
@@ -818,7 +818,7 @@ public class CFTest : IXLExample
 
 public class CFMultipleConditions : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook workbook = new();
         IXLWorksheet ws = workbook.AddWorksheet("Sheet1");
@@ -834,7 +834,7 @@ public class CFMultipleConditions : IXLExample
 
 public class CFStopIfTrue : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook workbook = new();
         IXLWorksheet ws = workbook.AddWorksheet("Sheet1");
@@ -863,7 +863,7 @@ public class CFStopIfTrue : IXLExample
 
 public class CFDatesOccurring : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         using (XLWorkbook workbook = new())
         {

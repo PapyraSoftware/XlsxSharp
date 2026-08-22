@@ -9,9 +9,9 @@ public class EmptyTableException : ClosedXMLException
     public EmptyTableException()
         : base() { }
 
-    public EmptyTableException(String message)
+    public EmptyTableException(string message)
         : base(message) { }
 
-    public EmptyTableException(String message, Exception innerException)
+    public EmptyTableException(string message, Exception innerException)
         : base(message, innerException) { }
 }

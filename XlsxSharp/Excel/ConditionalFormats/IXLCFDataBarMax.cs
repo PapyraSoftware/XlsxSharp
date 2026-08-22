@@ -6,7 +6,7 @@ namespace XlsxSharp.Excel.ConditionalFormats;
 
 public interface IXLCFDataBarMax
 {
-    void Maximum(XLCFContentType type, String value);
-    void Maximum(XLCFContentType type, Double value);
+    void Maximum(XLCFContentType type, string value);
+    void Maximum(XLCFContentType type, double value);
     void HighestValue();
 }

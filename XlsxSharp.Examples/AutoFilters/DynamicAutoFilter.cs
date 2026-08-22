@@ -12,7 +12,7 @@ public class DynamicAutoFilter : IXLExample
         IXLWorksheet ws;
 
         #region Single Column Numbers
-        String singleColumnNumbers = "Single Column Numbers";
+        string singleColumnNumbers = "Single Column Numbers";
         ws = wb.Worksheets.Add(singleColumnNumbers);
 
         // Add a bunch of numbers to filter
@@ -39,7 +39,7 @@ public class DynamicAutoFilter : IXLExample
         #endregion
 
         #region Multi Column
-        String multiColumn = "Multi Column";
+        string multiColumn = "Multi Column";
         ws = wb.Worksheets.Add(multiColumn);
 
         ws.Cell("A1")

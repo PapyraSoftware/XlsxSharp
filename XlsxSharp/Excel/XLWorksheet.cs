@@ -25,19 +25,19 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
 {
     #region Fields
 
-    private readonly Dictionary<Int32, Int32> _columnOutlineCount = new();
-    private readonly Dictionary<Int32, Int32> _rowOutlineCount = new();
+    private readonly Dictionary<int, int> _columnOutlineCount = new();
+    private readonly Dictionary<int, int> _rowOutlineCount = new();
     private readonly XLRangeFactory _rangeFactory;
     private readonly XLRangeRepository _rangeRepository;
     private readonly List<IXLRangeIndex> _rangeIndices;
     private readonly XLRanges _selectedRanges;
 
-    internal Int32 ZOrder = 1;
-    private String _name;
-    internal Int32 _position;
+    internal int ZOrder = 1;
+    private string _name;
+    internal int _position;
 
-    private Double _rowHeight;
-    private Boolean _tabActive;
+    private double _rowHeight;
+    private bool _tabActive;
     private XLSheetProtection _protection;
 
     /// <summary>
@@ -49,7 +49,7 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
 
     #region Constructor
 
-    public XLWorksheet(String sheetName, XLWorkbook workbook, UInt32 sheetId)
+    public XLWorksheet(string sheetName, XLWorkbook workbook, uint sheetId)
         : base(
             new XLRangeAddress(
                 new XLAddress(
@@ -153,7 +153,7 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
     /// </summary>
     public string? LegacyDrawingId;
 
-    private Double _columnWidth;
+    private double _columnWidth;
 
     public XLWorksheetInternals Internals { get; }
 
@@ -161,9 +161,9 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
 
     public XLRangeFactory RangeFactory => this._rangeFactory;
 
-    internal Boolean RowHeightChanged { get; set; }
+    internal bool RowHeightChanged { get; set; }
 
-    internal Boolean ColumnWidthChanged { get; set; }
+    internal bool ColumnWidthChanged { get; set; }
 
     /// <summary>
     /// <para>
@@ -178,14 +178,14 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
     /// sheet renaming without any changes. Always &gt; 0 (Excel will crash on 0).
     /// </para>
     /// </summary>
-    internal UInt32 SheetId { get; set; }
+    internal uint SheetId { get; set; }
 
     /// <summary>
     /// A cached <c>r:id</c> of the sheet from the file. If the sheet is a new one (not
     /// yet saved), the value is null until workbook is saved. Use <see cref="SheetId"/>
     /// instead is possible. Mostly for removing deleted sheet parts during save.
     /// </summary>
-    internal String? RelId { get; set; }
+    internal string? RelId { get; set; }
 
     public XLDataValidations DataValidations { get; private set; }
 
@@ -222,7 +222,7 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
 
     public XLWorkbook Workbook { get; }
 
-    public Double ColumnWidth
+    public double ColumnWidth
     {
         get => this._columnWidth;
         set
@@ -232,7 +232,7 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
         }
     }
 
-    public Double RowHeight
+    public double RowHeight
     {
         get => this._rowHeight;
         set
@@ -242,7 +242,7 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
         }
     }
 
-    public String Name
+    public string Name
     {
         get => this._name;
         set
@@ -259,7 +259,7 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
         }
     }
 
-    public Int32 Position
+    public int Position
     {
         get => this._position;
         set
@@ -336,14 +336,14 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
         return retVal;
     }
 
-    public IXLColumns Columns(String columns)
+    public IXLColumns Columns(string columns)
     {
         XLColumns retVal = new(this.Workbook, null, this);
         string[] columnPairs = columns.Split(',');
         foreach (string tPair in columnPairs.Select(pair => pair.Trim()))
         {
-            String firstColumn;
-            String lastColumn;
+            string firstColumn;
+            string lastColumn;
             if (tPair.Contains(':') || tPair.Contains('-'))
             {
                 string[] columnRange = XlsxSharp.XLHelper.SplitRange(tPair);
@@ -356,10 +356,10 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
                 lastColumn = tPair;
             }
 
-            if (Int32.TryParse(firstColumn, out int tmp))
+            if (int.TryParse(firstColumn, out int tmp))
             {
                 foreach (
-                    IXLColumn col in this.Columns(Int32.Parse(firstColumn), Int32.Parse(lastColumn))
+                    IXLColumn col in this.Columns(int.Parse(firstColumn), int.Parse(lastColumn))
                 )
                 {
                     retVal.Add((XLColumn)col);
@@ -376,13 +376,13 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
         return retVal;
     }
 
-    public IXLColumns Columns(String firstColumn, String lastColumn) =>
+    public IXLColumns Columns(string firstColumn, string lastColumn) =>
         this.Columns(
             XlsxSharp.XLHelper.GetColumnNumberFromLetter(firstColumn),
             XlsxSharp.XLHelper.GetColumnNumberFromLetter(lastColumn)
         );
 
-    public IXLColumns Columns(Int32 firstColumn, Int32 lastColumn)
+    public IXLColumns Columns(int firstColumn, int lastColumn)
     {
         XLColumns retVal = new(this.Workbook, null, this);
 
@@ -405,14 +405,14 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
         return retVal;
     }
 
-    public IXLRows Rows(String rows)
+    public IXLRows Rows(string rows)
     {
         XLRows retVal = new(this.Workbook, null, this);
         string[] rowPairs = rows.Split(',');
         foreach (string tPair in rowPairs.Select(pair => pair.Trim()))
         {
-            String firstRow;
-            String lastRow;
+            string firstRow;
+            string lastRow;
             if (tPair.Contains(':') || tPair.Contains('-'))
             {
                 string[] rowRange = XlsxSharp.XLHelper.SplitRange(tPair);
@@ -425,13 +425,13 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
                 lastRow = tPair;
             }
 
-            this.Rows(Int32.Parse(firstRow), Int32.Parse(lastRow))
+            this.Rows(int.Parse(firstRow), int.Parse(lastRow))
                 .ForEach(row => retVal.Add((XLRow)row));
         }
         return retVal;
     }
 
-    public IXLRows Rows(Int32 firstRow, Int32 lastRow)
+    public IXLRows Rows(int firstRow, int lastRow)
     {
         XLRows retVal = new(this.Workbook, null, this);
 
@@ -443,11 +443,11 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
         return retVal;
     }
 
-    IXLRow IXLWorksheet.Row(Int32 row) => this.Row(row);
+    IXLRow IXLWorksheet.Row(int row) => this.Row(row);
 
-    IXLColumn IXLWorksheet.Column(Int32 column) => this.Column(column);
+    IXLColumn IXLWorksheet.Column(int column) => this.Column(column);
 
-    IXLColumn IXLWorksheet.Column(String column) => this.Column(column);
+    IXLColumn IXLWorksheet.Column(string column) => this.Column(column);
 
     IXLCell IXLWorksheet.Cell(int row, int column) => this.Cell(row, column);
 
@@ -483,7 +483,7 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
         int lastCellColumn
     ) => this.Range(firstCellRow, firstCellColumn, lastCellRow, lastCellColumn);
 
-    IXLRanges IXLWorksheet.Ranges(String ranges) => this.Ranges(ranges);
+    IXLRanges IXLWorksheet.Ranges(string ranges) => this.Ranges(ranges);
 
     public IXLWorksheet CollapseRows()
     {
@@ -509,7 +509,7 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
         return this;
     }
 
-    public IXLWorksheet CollapseRows(Int32 outlineLevel)
+    public IXLWorksheet CollapseRows(int outlineLevel)
     {
         if (outlineLevel < 1 || outlineLevel > 8)
         {
@@ -524,7 +524,7 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
         return this;
     }
 
-    public IXLWorksheet CollapseColumns(Int32 outlineLevel)
+    public IXLWorksheet CollapseColumns(int outlineLevel)
     {
         if (outlineLevel < 1 || outlineLevel > 8)
         {
@@ -539,7 +539,7 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
         return this;
     }
 
-    public IXLWorksheet ExpandRows(Int32 outlineLevel)
+    public IXLWorksheet ExpandRows(int outlineLevel)
     {
         if (outlineLevel < 1 || outlineLevel > 8)
         {
@@ -554,7 +554,7 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
         return this;
     }
 
-    public IXLWorksheet ExpandColumns(Int32 outlineLevel)
+    public IXLWorksheet ExpandColumns(int outlineLevel)
     {
         if (outlineLevel < 1 || outlineLevel > 8)
         {
@@ -578,11 +578,11 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
     }
 
     [Obsolete($"Used {nameof(DefinedName)} instead.")]
-    IXLDefinedName IXLWorksheet.NamedRange(String name) => this.DefinedName(name);
+    IXLDefinedName IXLWorksheet.NamedRange(string name) => this.DefinedName(name);
 
-    IXLDefinedName IXLWorksheet.DefinedName(String name) => this.DefinedName(name);
+    IXLDefinedName IXLWorksheet.DefinedName(string name) => this.DefinedName(name);
 
-    internal XLDefinedName DefinedName(String name) => this.DefinedNames.DefinedName(name);
+    internal XLDefinedName DefinedName(string name) => this.DefinedNames.DefinedName(name);
 
     IXLSheetView IXLWorksheet.SheetView => this.SheetView;
 
@@ -592,23 +592,23 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
 
     internal XLTables Tables { get; }
 
-    public IXLTable Table(Int32 index) => this.Tables.Table(index);
+    public IXLTable Table(int index) => this.Tables.Table(index);
 
-    public IXLTable Table(String name) => this.Tables.Table(name);
+    public IXLTable Table(string name) => this.Tables.Table(name);
 
-    public IXLWorksheet CopyTo(String newSheetName) =>
+    public IXLWorksheet CopyTo(string newSheetName) =>
         this.CopyTo(this.Workbook, newSheetName, this.Workbook.WorksheetsInternal.Count + 1);
 
-    public IXLWorksheet CopyTo(String newSheetName, Int32 position) =>
+    public IXLWorksheet CopyTo(string newSheetName, int position) =>
         this.CopyTo(this.Workbook, newSheetName, position);
 
     public IXLWorksheet CopyTo(XLWorkbook workbook) =>
         this.CopyTo(workbook, this.Name, workbook.WorksheetsInternal.Count + 1);
 
-    public IXLWorksheet CopyTo(XLWorkbook workbook, String newSheetName) =>
+    public IXLWorksheet CopyTo(XLWorkbook workbook, string newSheetName) =>
         this.CopyTo(workbook, newSheetName, workbook.WorksheetsInternal.Count + 1);
 
-    public IXLWorksheet CopyTo(XLWorkbook workbook, String newSheetName, Int32 position)
+    public IXLWorksheet CopyTo(XLWorkbook workbook, string newSheetName, int position)
     {
         if (this.IsDeleted)
         {
@@ -743,64 +743,64 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
     ) => this.Protection.Protect(algorithm, allowedElements);
 
     public IXLSheetProtection Protect(
-        String password,
+        string password,
         Algorithm algorithm = DefaultProtectionAlgorithm
     ) => this.Protection.Protect(password, algorithm, XLSheetProtectionElements.SelectEverything);
 
     public IXLSheetProtection Protect(
-        String password,
+        string password,
         Algorithm algorithm,
         XLSheetProtectionElements allowedElements
     ) => this.Protection.Protect(password, algorithm, allowedElements);
 
     IXLElementProtection IXLProtectable.Protect(Algorithm algorithm) => this.Protect(algorithm);
 
-    IXLElementProtection IXLProtectable.Protect(String password, Algorithm algorithm) =>
+    IXLElementProtection IXLProtectable.Protect(string password, Algorithm algorithm) =>
         this.Protect(password, algorithm);
 
     public IXLSheetProtection Unprotect() => this.Protection.Unprotect();
 
-    public IXLSheetProtection Unprotect(String password) => this.Protection.Unprotect(password);
+    public IXLSheetProtection Unprotect(string password) => this.Protection.Unprotect(password);
 
     IXLElementProtection IXLProtectable.Unprotect() => this.Unprotect();
 
-    IXLElementProtection IXLProtectable.Unprotect(String password) => this.Unprotect(password);
+    IXLElementProtection IXLProtectable.Unprotect(string password) => this.Unprotect(password);
 
     public new IXLRange Sort() => this.GetRangeForSort().Sort();
 
     public new IXLRange Sort(
-        String columnsToSortBy,
+        string columnsToSortBy,
         XLSortOrder sortOrder = XLSortOrder.Ascending,
-        Boolean matchCase = false,
-        Boolean ignoreBlanks = true
+        bool matchCase = false,
+        bool ignoreBlanks = true
     ) => this.GetRangeForSort().Sort(columnsToSortBy, sortOrder, matchCase, ignoreBlanks);
 
     public new IXLRange Sort(
-        Int32 columnToSortBy,
+        int columnToSortBy,
         XLSortOrder sortOrder = XLSortOrder.Ascending,
-        Boolean matchCase = false,
-        Boolean ignoreBlanks = true
+        bool matchCase = false,
+        bool ignoreBlanks = true
     ) => this.GetRangeForSort().Sort(columnToSortBy, sortOrder, matchCase, ignoreBlanks);
 
     public new IXLRange SortLeftToRight(
         XLSortOrder sortOrder = XLSortOrder.Ascending,
-        Boolean matchCase = false,
-        Boolean ignoreBlanks = true
+        bool matchCase = false,
+        bool ignoreBlanks = true
     ) => this.GetRangeForSort().SortLeftToRight(sortOrder, matchCase, ignoreBlanks);
 
-    public Boolean ShowFormulas { get; set; }
+    public bool ShowFormulas { get; set; }
 
-    public Boolean ShowGridLines { get; set; }
+    public bool ShowGridLines { get; set; }
 
-    public Boolean ShowOutlineSymbols { get; set; }
+    public bool ShowOutlineSymbols { get; set; }
 
-    public Boolean ShowRowColHeaders { get; set; }
+    public bool ShowRowColHeaders { get; set; }
 
-    public Boolean ShowRuler { get; set; }
+    public bool ShowRuler { get; set; }
 
-    public Boolean ShowWhiteSpace { get; set; }
+    public bool ShowWhiteSpace { get; set; }
 
-    public Boolean ShowZeros { get; set; }
+    public bool ShowZeros { get; set; }
 
     public IXLWorksheet SetShowFormulas()
     {
@@ -808,7 +808,7 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
         return this;
     }
 
-    public IXLWorksheet SetShowFormulas(Boolean value)
+    public IXLWorksheet SetShowFormulas(bool value)
     {
         this.ShowFormulas = value;
         return this;
@@ -820,7 +820,7 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
         return this;
     }
 
-    public IXLWorksheet SetShowGridLines(Boolean value)
+    public IXLWorksheet SetShowGridLines(bool value)
     {
         this.ShowGridLines = value;
         return this;
@@ -832,7 +832,7 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
         return this;
     }
 
-    public IXLWorksheet SetShowOutlineSymbols(Boolean value)
+    public IXLWorksheet SetShowOutlineSymbols(bool value)
     {
         this.ShowOutlineSymbols = value;
         return this;
@@ -844,7 +844,7 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
         return this;
     }
 
-    public IXLWorksheet SetShowRowColHeaders(Boolean value)
+    public IXLWorksheet SetShowRowColHeaders(bool value)
     {
         this.ShowRowColHeaders = value;
         return this;
@@ -856,7 +856,7 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
         return this;
     }
 
-    public IXLWorksheet SetShowRuler(Boolean value)
+    public IXLWorksheet SetShowRuler(bool value)
     {
         this.ShowRuler = value;
         return this;
@@ -868,7 +868,7 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
         return this;
     }
 
-    public IXLWorksheet SetShowWhiteSpace(Boolean value)
+    public IXLWorksheet SetShowWhiteSpace(bool value)
     {
         this.ShowWhiteSpace = value;
         return this;
@@ -880,7 +880,7 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
         return this;
     }
 
-    public IXLWorksheet SetShowZeros(Boolean value)
+    public IXLWorksheet SetShowZeros(bool value)
     {
         this.ShowZeros = value;
         return this;
@@ -894,9 +894,9 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
         return this;
     }
 
-    public Boolean TabSelected { get; set; }
+    public bool TabSelected { get; set; }
 
-    public Boolean TabActive
+    public bool TabActive
     {
         get => this._tabActive;
         set
@@ -918,7 +918,7 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
         return this;
     }
 
-    public IXLWorksheet SetTabSelected(Boolean value)
+    public IXLWorksheet SetTabSelected(bool value)
     {
         this.TabSelected = value;
         return this;
@@ -930,19 +930,19 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
         return this;
     }
 
-    public IXLWorksheet SetTabActive(Boolean value)
+    public IXLWorksheet SetTabActive(bool value)
     {
         this.TabActive = value;
         return this;
     }
 
-    IXLPivotTable IXLWorksheet.PivotTable(String name) => this.PivotTable(name);
+    IXLPivotTable IXLWorksheet.PivotTable(string name) => this.PivotTable(name);
 
     IXLPivotTables IXLWorksheet.PivotTables => this.PivotTables;
 
     public XLPivotTables PivotTables { get; }
 
-    public Boolean RightToLeft { get; set; }
+    public bool RightToLeft { get; set; }
 
     public IXLWorksheet SetRightToLeft()
     {
@@ -950,13 +950,13 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
         return this;
     }
 
-    public IXLWorksheet SetRightToLeft(Boolean value)
+    public IXLWorksheet SetRightToLeft(bool value)
     {
         this.RightToLeft = value;
         return this;
     }
 
-    public override XLRanges Ranges(String ranges)
+    public override XLRanges Ranges(string ranges)
     {
         XLRanges retVal = new(this.Workbook);
         foreach (string rangeAddressStr in ranges.Split(',').Select(s => s.Trim()))
@@ -996,7 +996,7 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
 
     public IXLRows RowsUsed(
         XLCellsUsedOptions options = XLCellsUsedOptions.AllContents,
-        Func<IXLRow, Boolean>? predicate = null
+        Func<IXLRow, bool>? predicate = null
     )
     {
         XLRows rows = new(this.Workbook, worksheet: null, this);
@@ -1020,12 +1020,12 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
         return rows;
     }
 
-    public IXLRows RowsUsed(Func<IXLRow, Boolean>? predicate = null) =>
+    public IXLRows RowsUsed(Func<IXLRow, bool>? predicate = null) =>
         this.RowsUsed(XLCellsUsedOptions.AllContents, predicate);
 
     public IXLColumns ColumnsUsed(
         XLCellsUsedOptions options = XLCellsUsedOptions.AllContents,
-        Func<IXLColumn, Boolean>? predicate = null
+        Func<IXLColumn, bool>? predicate = null
     )
     {
         XLColumns columns = new(this.Workbook, worksheet: null, defaultStyleSheet: this);
@@ -1043,7 +1043,7 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
         return columns;
     }
 
-    public IXLColumns ColumnsUsed(Func<IXLColumn, Boolean>? predicate = null) =>
+    public IXLColumns ColumnsUsed(Func<IXLColumn, bool>? predicate = null) =>
         this.ColumnsUsed(XLCellsUsedOptions.AllContents, predicate);
 
     internal void RegisterRangeIndex(IXLRangeIndex rangeIndex) =>
@@ -1065,14 +1065,14 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
 
     #region Outlines
 
-    public void IncrementColumnOutline(Int32 level)
+    public void IncrementColumnOutline(int level)
     {
         if (level <= 0)
         {
             return;
         }
 
-        if (this._columnOutlineCount.TryGetValue(level, out Int32 value))
+        if (this._columnOutlineCount.TryGetValue(level, out int value))
         {
             this._columnOutlineCount[level] = value + 1;
         }
@@ -1082,14 +1082,14 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
         }
     }
 
-    public void DecrementColumnOutline(Int32 level)
+    public void DecrementColumnOutline(int level)
     {
         if (level <= 0)
         {
             return;
         }
 
-        if (this._columnOutlineCount.TryGetValue(level, out Int32 value))
+        if (this._columnOutlineCount.TryGetValue(level, out int value))
         {
             if (value > 0)
             {
@@ -1102,20 +1102,20 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
         }
     }
 
-    public Int32 GetMaxColumnOutline()
+    public int GetMaxColumnOutline()
     {
         List<KeyValuePair<int, int>> list = [.. this._columnOutlineCount.Where(kp => kp.Value > 0)];
         return list.Count == 0 ? 0 : list.Max(kp => kp.Key);
     }
 
-    public void IncrementRowOutline(Int32 level)
+    public void IncrementRowOutline(int level)
     {
         if (level <= 0)
         {
             return;
         }
 
-        if (this._rowOutlineCount.TryGetValue(level, out Int32 value))
+        if (this._rowOutlineCount.TryGetValue(level, out int value))
         {
             this._rowOutlineCount[level] = value + 1;
         }
@@ -1125,14 +1125,14 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
         }
     }
 
-    public void DecrementRowOutline(Int32 level)
+    public void DecrementRowOutline(int level)
     {
         if (level <= 0)
         {
             return;
         }
 
-        if (this._rowOutlineCount.TryGetValue(level, out Int32 value))
+        if (this._rowOutlineCount.TryGetValue(level, out int value))
         {
             if (value > 0)
             {
@@ -1145,7 +1145,7 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
         }
     }
 
-    public Int32 GetMaxRowOutline() =>
+    public int GetMaxRowOutline() =>
         this._rowOutlineCount.Count == 0
             ? 0
             : this._rowOutlineCount.Where(kp => kp.Value > 0).Max(kp => kp.Key);
@@ -1196,9 +1196,9 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
             : null;
     }
 
-    public XLRow Row(Int32 row) => this.Row(row, true);
+    public XLRow Row(int row) => this.Row(row, true);
 
-    public XLColumn Column(Int32 columnNumber)
+    public XLColumn Column(int columnNumber)
     {
         if (columnNumber <= 0 || columnNumber > XlsxSharp.XLHelper.MaxColumnNumber)
         {
@@ -1225,7 +1225,7 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
         return column;
     }
 
-    public IXLColumn Column(String column) =>
+    public IXLColumn Column(string column) =>
         this.Column(XlsxSharp.XLHelper.GetColumnNumberFromLetter(column));
 
     public override XLRange AsRange() =>
@@ -1390,7 +1390,7 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
         }
     }
 
-    public void NotifyRangeShiftedRows(XLRange range, Int32 rowsShifted)
+    public void NotifyRangeShiftedRows(XLRange range, int rowsShifted)
     {
         List<XLRangeBase> rangesToShift =
         [
@@ -1426,7 +1426,7 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
         }
     }
 
-    public void NotifyRangeShiftedColumns(XLRange range, Int32 columnsShifted)
+    public void NotifyRangeShiftedColumns(XLRange range, int columnsShifted)
     {
         List<XLRangeBase> rangesToShift =
         [
@@ -1464,7 +1464,7 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
         }
     }
 
-    internal XLRow Row(Int32 rowNumber, Boolean pingCells)
+    internal XLRow Row(int rowNumber, bool pingCells)
     {
         if (rowNumber <= 0 || rowNumber > XlsxSharp.XLHelper.MaxRowNumber)
         {
@@ -1496,7 +1496,7 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
         return row;
     }
 
-    public IXLTable Table(XLRange range, Boolean addToTables, Boolean setAutofilter = true) =>
+    public IXLTable Table(XLRange range, bool addToTables, bool setAutofilter = true) =>
         this.Table(
             range,
             TableNameGenerator.GetNewTableName(this.Workbook),
@@ -1504,12 +1504,7 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
             setAutofilter
         );
 
-    public IXLTable Table(
-        XLRange range,
-        String name,
-        Boolean addToTables,
-        Boolean setAutofilter = true
-    )
+    public IXLTable Table(XLRange range, string name, bool addToTables, bool setAutofilter = true)
     {
         this.CheckRangeNotOverlappingOtherEntities(range);
         XLRangeAddress rangeAddress;
@@ -1581,11 +1576,11 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
         return range;
     }
 
-    public XLPivotTable PivotTable(String name) => (XLPivotTable)this.PivotTables.PivotTable(name);
+    public XLPivotTable PivotTable(string name) => (XLPivotTable)this.PivotTables.PivotTable(name);
 
     public override IXLCells Cells() => this.Cells(true, XLCellsUsedOptions.All);
 
-    public override XLCells Cells(Boolean usedCellsOnly)
+    public override XLCells Cells(bool usedCellsOnly)
     {
         if (usedCellsOnly)
         {
@@ -1601,7 +1596,7 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
         }
     }
 
-    public override XLCell? Cell(String cellAddressInRange)
+    public override XLCell? Cell(string cellAddressInRange)
     {
         XLCell? cell = base.Cell(cellAddressInRange);
         if (cell is not null)
@@ -1627,7 +1622,7 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
         return null;
     }
 
-    public override XLRange? Range(String rangeAddressStr)
+    public override XLRange? Range(string rangeAddressStr)
     {
         if (XlsxSharp.XLHelper.IsValidRangeAddress(rangeAddressStr))
         {
@@ -1693,7 +1688,7 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
 
     private XLCalcEngine CalcEngine => this.Workbook.CalcEngine;
 
-    public XLCellValue Evaluate(String expression, string? formulaAddress = null)
+    public XLCellValue Evaluate(string expression, string? formulaAddress = null)
     {
         IXLAddress? address = formulaAddress is not null ? XLAddress.Create(formulaAddress) : null;
         return this
@@ -1707,13 +1702,13 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
         this.Workbook.CalcEngine.Recalculate(this.Workbook, this.Name);
     }
 
-    public String Author { get; set; }
+    public string Author { get; set; }
 
     public override string ToString() => this.Name;
 
     IXLPictures IXLWorksheet.Pictures => this.Pictures;
 
-    public Boolean IsPasswordProtected => this.Protection.IsPasswordProtected;
+    public bool IsPasswordProtected => this.Protection.IsPasswordProtected;
 
     public bool IsProtected => this.Protection.IsProtected;
 
@@ -1739,17 +1734,17 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
     public IXLPicture AddPicture(string imageFile, string name) =>
         this.Pictures.Add(imageFile, name);
 
-    public override Boolean IsEntireRow() => true;
+    public override bool IsEntireRow() => true;
 
-    public override Boolean IsEntireColumn() => true;
+    public override bool IsEntireColumn() => true;
 
     internal IXLTable InsertTable(
         Point origin,
         IInsertDataReader reader,
-        String tableName,
-        Boolean createTable,
-        Boolean addHeadings,
-        Boolean transpose
+        string tableName,
+        bool createTable,
+        bool addHeadings,
+        bool transpose
     )
     {
         if (createTable && this.Tables.Any<XLTable>(t => t.Area.Contains(origin)))
@@ -1776,8 +1771,8 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
     internal XLRange InsertData(
         Point origin,
         IInsertDataReader reader,
-        Boolean addHeadings,
-        Boolean transpose
+        bool addHeadings,
+        bool transpose
     )
     {
         // Prepare data. Heading is basically just another row of data, so unify it.

@@ -43,7 +43,7 @@ public partial class XLWorkbook
         return shape.Descendants<Xdr.NonVisualDrawingProperties>().FirstOrDefault();
     }
 
-    internal static String GetImageRelIdFromAnchor(OpenXmlElement anchor)
+    internal static string GetImageRelIdFromAnchor(OpenXmlElement anchor)
     {
         if (!IsAllowedAnchor(anchor))
         {

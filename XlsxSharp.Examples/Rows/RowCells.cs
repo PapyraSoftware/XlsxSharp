@@ -6,7 +6,7 @@ namespace XlsxSharp.Examples.Rows;
 
 public class RowCells : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook workbook = new();
         IXLWorksheet ws = workbook.Worksheets.Add("Row Cells");

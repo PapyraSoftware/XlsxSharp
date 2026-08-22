@@ -75,14 +75,14 @@ internal sealed class XLCellFormula
     /// the data table is row or column).
     /// </para>
     /// </remarks>
-    internal Boolean IsRowDataTable => this._flags.HasFlag(FormulaFlags.Is1DRow);
+    internal bool IsRowDataTable => this._flags.HasFlag(FormulaFlags.Is1DRow);
 
     /// <summary>
     /// True, if data table is 2D and uses both inputs. Input1 is replaced by
     /// value from current row, input2 is replaced by a value from current column.
     /// This property is meaningless, if called for non-data-table formula.
     /// </summary>
-    internal Boolean Is2DDataTable => this._flags.HasFlag(FormulaFlags.Is2D);
+    internal bool Is2DDataTable => this._flags.HasFlag(FormulaFlags.Is2D);
 
     /// <summary>
     /// Returns a cell that data table formula uses as a variable to replace with values
@@ -104,13 +104,13 @@ internal sealed class XLCellFormula
     /// Returns true, if data table formula has its input1 deleted.
     /// This property is meaningless, if called for non-data-table formula.
     /// </summary>
-    internal Boolean Input1Deleted => this._flags.HasFlag(FormulaFlags.Input1Deleted);
+    internal bool Input1Deleted => this._flags.HasFlag(FormulaFlags.Input1Deleted);
 
     /// <summary>
     /// Returns true, if data table formula has its input1 deleted.
     /// This property is meaningless, if called for non-data-table formula.
     /// </summary>
-    internal Boolean Input2Deleted => this._flags.HasFlag(FormulaFlags.Input2Deleted);
+    internal bool Input2Deleted => this._flags.HasFlag(FormulaFlags.Input2Deleted);
 
     private XLCellFormula(string a1) => this.A1 = a1;
 
@@ -126,9 +126,9 @@ internal sealed class XLCellFormula
         Point cellAddress
     )
     {
-        if (String.IsNullOrWhiteSpace(strValue))
+        if (string.IsNullOrWhiteSpace(strValue))
         {
-            return String.Empty;
+            return string.Empty;
         }
 
         // Users and some producers might prefix formula with '=', but that is not a valid
@@ -197,8 +197,8 @@ internal sealed class XLCellFormula
         bool isRowDataTable
     )
     {
-        String rowInput;
-        String colInput;
+        string rowInput;
+        string colInput;
         if (isRowDataTable)
         {
             colInput = string.Empty;

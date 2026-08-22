@@ -8,7 +8,7 @@ namespace XlsxSharp.Examples.Misc;
 
 public class InsertingData : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         using (XLWorkbook wb = new())
         {
@@ -101,10 +101,10 @@ public class InsertingData : IXLExample
 
     private class Person
     {
-        public String House { get; set; }
-        public String Name { get; set; }
-        public Int32 Age { get; set; }
-        public static String ClassType => nameof(Person);
+        public string House { get; set; }
+        public string Name { get; set; }
+        public int Age { get; set; }
+        public static string ClassType => nameof(Person);
     }
 
     private static DataTable GetTable()

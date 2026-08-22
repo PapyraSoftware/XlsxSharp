@@ -33,6 +33,6 @@ internal static class XLErrorParser
         ["#NUM!"] = XLError.NumberInvalid,
     };
 
-    public static bool TryParseError(String input, out XLError error) =>
+    public static bool TryParseError(string input, out XLError error) =>
         ErrorMap.TryGetValue(input.Trim(), out error);
 }

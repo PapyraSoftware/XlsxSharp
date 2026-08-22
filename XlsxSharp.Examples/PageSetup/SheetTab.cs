@@ -6,7 +6,7 @@ namespace XlsxSharp.Examples.PageSetup;
 
 public class SheetTab : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook workbook = new();
         IXLWorksheet ws = workbook.Worksheets.Add("Sheet Tab");

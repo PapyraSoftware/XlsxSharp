@@ -5,7 +5,7 @@ namespace XlsxSharp.Examples.Misc;
 
 public class TabColors : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook wb = new();
 

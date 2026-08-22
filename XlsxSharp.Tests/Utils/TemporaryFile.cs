@@ -11,7 +11,7 @@ internal class TemporaryFile : IDisposable
     internal TemporaryFile(string path)
         : this(path, false) { }
 
-    internal TemporaryFile(String path, bool preserve)
+    internal TemporaryFile(string path, bool preserve)
     {
         this.Path = path;
         this.Preserve = preserve;

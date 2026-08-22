@@ -40,7 +40,7 @@ internal class XLRangeColumn : XLRangeBase, IXLRangeColumn
 
     public void Delete() => this.Delete(true);
 
-    internal void Delete(Boolean deleteTableField)
+    internal void Delete(bool deleteTableField)
     {
         if (deleteTableField && this.IsTableColumn())
         {
@@ -80,8 +80,8 @@ internal class XLRangeColumn : XLRangeBase, IXLRangeColumn
 
     public IXLRangeColumn Sort(
         XLSortOrder sortOrder = XLSortOrder.Ascending,
-        Boolean matchCase = false,
-        Boolean ignoreBlanks = true
+        bool matchCase = false,
+        bool ignoreBlanks = true
     )
     {
         base.Sort(1, sortOrder, matchCase, ignoreBlanks);
@@ -259,7 +259,7 @@ internal class XLRangeColumn : XLRangeBase, IXLRangeColumn
                     {
                         comparison = e.MatchCase
                             ? thisCell.GetText().CompareTo(otherCell.GetText())
-                            : String.Compare(thisCell.GetText(), otherCell.GetText(), true);
+                            : string.Compare(thisCell.GetText(), otherCell.GetText(), true);
                     }
                     else if (thisCell.DataType == XLDataType.Error)
                     {
@@ -274,7 +274,7 @@ internal class XLRangeColumn : XLRangeBase, IXLRangeColumn
                 }
                 else if (e.MatchCase)
                 {
-                    comparison = String.Compare(thisCell.GetString(), otherCell.GetString(), true);
+                    comparison = string.Compare(thisCell.GetString(), otherCell.GetString(), true);
                 }
                 else
                 {
@@ -291,9 +291,9 @@ internal class XLRangeColumn : XLRangeBase, IXLRangeColumn
         return 0;
     }
 
-    private XLRangeColumn ColumnShift(Int32 columnsToShift)
+    private XLRangeColumn ColumnShift(int columnsToShift)
     {
-        Int32 columnNumber = this.ColumnNumber() + columnsToShift;
+        int columnNumber = this.ColumnNumber() + columnsToShift;
         return this
             .Worksheet.Range(
                 this.RangeAddress.FirstAddress.RowNumber,
@@ -308,11 +308,11 @@ internal class XLRangeColumn : XLRangeBase, IXLRangeColumn
 
     IXLRangeColumn IXLRangeColumn.ColumnLeft() => this.ColumnLeft();
 
-    IXLRangeColumn IXLRangeColumn.ColumnLeft(Int32 step) => this.ColumnLeft(step);
+    IXLRangeColumn IXLRangeColumn.ColumnLeft(int step) => this.ColumnLeft(step);
 
     public XLRangeColumn ColumnLeft() => this.ColumnLeft(1);
 
-    public XLRangeColumn ColumnLeft(Int32 step) => this.ColumnShift(step * -1);
+    public XLRangeColumn ColumnLeft(int step) => this.ColumnShift(step * -1);
 
     #endregion XLRangeColumn Left
 
@@ -320,11 +320,11 @@ internal class XLRangeColumn : XLRangeBase, IXLRangeColumn
 
     IXLRangeColumn IXLRangeColumn.ColumnRight() => this.ColumnRight();
 
-    IXLRangeColumn IXLRangeColumn.ColumnRight(Int32 step) => this.ColumnRight(step);
+    IXLRangeColumn IXLRangeColumn.ColumnRight(int step) => this.ColumnRight(step);
 
     public XLRangeColumn ColumnRight() => this.ColumnRight(1);
 
-    public XLRangeColumn ColumnRight(Int32 step) => this.ColumnShift(step);
+    public XLRangeColumn ColumnRight(int step) => this.ColumnShift(step);
 
     #endregion XLRangeColumn Right
 
@@ -382,5 +382,5 @@ internal class XLRangeColumn : XLRangeBase, IXLRangeColumn
 
     internal IXLTable Table { get; set; }
 
-    public Boolean IsTableColumn() => this.Table != null;
+    public bool IsTableColumn() => this.Table != null;
 }

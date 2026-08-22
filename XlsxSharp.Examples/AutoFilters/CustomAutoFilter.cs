@@ -13,7 +13,7 @@ public class CustomAutoFilter : IXLExample
         IXLWorksheet ws;
 
         #region Single Column Numbers
-        String singleColumnNumbers = "Single Column Numbers";
+        string singleColumnNumbers = "Single Column Numbers";
         ws = wb.Worksheets.Add(singleColumnNumbers);
 
         // Add a bunch of numbers to filter
@@ -40,7 +40,7 @@ public class CustomAutoFilter : IXLExample
         #endregion
 
         #region Single Column Strings
-        String singleColumnStrings = "Single Column Strings";
+        string singleColumnStrings = "Single Column Strings";
         ws = wb.Worksheets.Add(singleColumnStrings);
 
         // Add a bunch of strings to filter
@@ -67,7 +67,7 @@ public class CustomAutoFilter : IXLExample
         #endregion
 
         #region Single Column Mixed
-        String singleColumnMixed = "Single Column Mixed";
+        string singleColumnMixed = "Single Column Mixed";
         ws = wb.Worksheets.Add(singleColumnMixed);
 
         // Add a bunch of items to filter
@@ -94,7 +94,7 @@ public class CustomAutoFilter : IXLExample
         #endregion
 
         #region Multi Column
-        String multiColumn = "Multi Column";
+        string multiColumn = "Multi Column";
         ws = wb.Worksheets.Add(multiColumn);
 
         ws.Cell("A1")

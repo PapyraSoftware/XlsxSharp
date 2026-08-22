@@ -13,7 +13,7 @@ internal class XLCFColorScaleMin : IXLCFColorScaleMin
     public XLCFColorScaleMin(XLConditionalFormat conditionalFormat) =>
         this._conditionalFormat = conditionalFormat;
 
-    public IXLCFColorScaleMid Minimum(XLCFContentType type, String value, XLColor color)
+    public IXLCFColorScaleMid Minimum(XLCFContentType type, string value, XLColor color)
     {
         this._conditionalFormat.Values.Initialize(new XLFormula { Value = value });
         this._conditionalFormat.Colors.Initialize(color);
@@ -21,7 +21,7 @@ internal class XLCFColorScaleMin : IXLCFColorScaleMin
         return new XLCFColorScaleMid(this._conditionalFormat);
     }
 
-    public IXLCFColorScaleMid Minimum(XLCFContentType type, Double value, XLColor color) =>
+    public IXLCFColorScaleMid Minimum(XLCFContentType type, double value, XLColor color) =>
         this.Minimum(type, value.ToInvariantString(), color);
 
     public IXLCFColorScaleMid LowestValue(XLColor color)

@@ -7,11 +7,11 @@ using XlsxSharp.Extensions;
 
 namespace XlsxSharp.Excel;
 
-internal class XLColumnsCollection : IDictionary<Int32, XLColumn>
+internal class XLColumnsCollection : IDictionary<int, XLColumn>
 {
-    private readonly Dictionary<Int32, XLColumn> _dictionary = new();
+    private readonly Dictionary<int, XLColumn> _dictionary = new();
 
-    public void ShiftColumnsRight(Int32 startingColumn, Int32 columnsToShift)
+    public void ShiftColumnsRight(int startingColumn, int columnsToShift)
     {
         foreach (
             int co in this
@@ -21,7 +21,7 @@ internal class XLColumnsCollection : IDictionary<Int32, XLColumn>
         {
             XLColumn columnToMove = this._dictionary[co];
             this._dictionary.Remove(co);
-            Int32 newColumnNum = co + columnsToShift;
+            int newColumnNum = co + columnsToShift;
             if (newColumnNum <= XlsxSharp.XLHelper.MaxColumnNumber)
             {
                 columnToMove.SetColumnNumber(newColumnNum);
@@ -70,6 +70,5 @@ internal class XLColumnsCollection : IDictionary<Int32, XLColumn>
     System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() =>
         this._dictionary.GetEnumerator();
 
-    public void RemoveAll(Func<XLColumn, Boolean> predicate) =>
-        this._dictionary.RemoveAll(predicate);
+    public void RemoveAll(Func<XLColumn, bool> predicate) => this._dictionary.RemoveAll(predicate);
 }

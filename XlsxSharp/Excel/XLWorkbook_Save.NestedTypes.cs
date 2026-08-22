@@ -109,9 +109,9 @@ public partial class XLWorkbook
 
     internal sealed class RelIdGenerator
     {
-        private readonly Dictionary<RelType, HashSet<String>> _relIds = new();
+        private readonly Dictionary<RelType, HashSet<string>> _relIds = new();
 
-        public void AddValues(IEnumerable<String> values, RelType relType)
+        public void AddValues(IEnumerable<string> values, RelType relType)
         {
             if (!this._relIds.TryGetValue(relType, out HashSet<string> set))
             {
@@ -131,14 +131,14 @@ public partial class XLWorkbook
             this.AddValues(
                 xlWorkbook
                     .WorksheetsInternal.Cast<XLWorksheet>()
-                    .Where(ws => !String.IsNullOrWhiteSpace(ws.RelId))
+                    .Where(ws => !string.IsNullOrWhiteSpace(ws.RelId))
                     .Select(ws => ws.RelId),
                 RelType.Workbook
             );
             this.AddValues(
                 xlWorkbook
                     .WorksheetsInternal.Cast<XLWorksheet>()
-                    .Where(ws => !String.IsNullOrWhiteSpace(ws.LegacyDrawingId))
+                    .Where(ws => !string.IsNullOrWhiteSpace(ws.LegacyDrawingId))
                     .Select(ws => ws.LegacyDrawingId),
                 RelType.Workbook
             );
@@ -146,7 +146,7 @@ public partial class XLWorkbook
                 xlWorkbook
                     .WorksheetsInternal.Cast<XLWorksheet>()
                     .SelectMany(ws => ws.Tables.Cast<XLTable>())
-                    .Where(t => !String.IsNullOrWhiteSpace(t.RelId))
+                    .Where(t => !string.IsNullOrWhiteSpace(t.RelId))
                     .Select(t => t.RelId),
                 RelType.Workbook
             );
@@ -178,7 +178,7 @@ public partial class XLWorkbook
             }
         }
 
-        public String GetNext(RelType relType)
+        public string GetNext(RelType relType)
         {
             if (!this._relIds.TryGetValue(relType, out HashSet<string> set))
             {
@@ -189,7 +189,7 @@ public partial class XLWorkbook
             int id = set.Count + 1;
             while (true)
             {
-                string relId = String.Concat("rId", id);
+                string relId = string.Concat("rId", id);
                 if (!set.Contains(relId))
                 {
                     set.Add(relId);

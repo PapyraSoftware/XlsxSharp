@@ -93,10 +93,9 @@ internal readonly struct ScalarValue
             _ => throw new InvalidOperationException(),
         };
 
-    public Boolean GetLogical() =>
-        this.IsLogical ? this._logical : throw new InvalidCastException();
+    public bool GetLogical() => this.IsLogical ? this._logical : throw new InvalidCastException();
 
-    public Double GetNumber() => this.IsNumber ? this._number : throw new InvalidCastException();
+    public double GetNumber() => this.IsNumber ? this._number : throw new InvalidCastException();
 
     public string GetText() => this.IsText ? this._text : throw new InvalidCastException();
 
@@ -219,7 +218,7 @@ internal readonly struct ScalarValue
             return Blank;
         }
 
-        if (text == String.Empty)
+        if (text == string.Empty)
         {
             return Blank;
         }
@@ -519,7 +518,7 @@ internal readonly struct ScalarValue
     /// Get the logical value, if it is either blank (false), logical or number (0 = false, otherwise true)a text <c>TRUE</c> or <c>FALSE</c> (case insensitive).
     /// </summary>
     /// <remarks>Used for coercion in functions.</remarks>
-    public bool TryCoerceLogicalOrBlankOrNumberOrText(out Boolean value, out XLError error)
+    public bool TryCoerceLogicalOrBlankOrNumberOrText(out bool value, out XLError error)
     {
         switch (this._index)
         {

@@ -12,9 +12,9 @@ namespace XlsxSharp.Attributes;
 )]
 public class XLColumnAttribute : Attribute
 {
-    public String? Header { get; set; }
-    public Boolean Ignore { get; set; }
-    public Int32 Order { get; set; }
+    public string? Header { get; set; }
+    public bool Ignore { get; set; }
+    public int Order { get; set; }
 
     private static XLColumnAttribute? GetXLColumnAttribute(MemberInfo mi)
     {
@@ -26,7 +26,7 @@ public class XLColumnAttribute : Attribute
         return mi.GetAttributes<XLColumnAttribute>().First();
     }
 
-    internal static String? GetHeader(MemberInfo mi)
+    internal static string? GetHeader(MemberInfo mi)
     {
         XLColumnAttribute? attribute = GetXLColumnAttribute(mi);
         if (attribute == null)
@@ -34,21 +34,21 @@ public class XLColumnAttribute : Attribute
             return null;
         }
 
-        return String.IsNullOrWhiteSpace(attribute.Header) ? null : attribute.Header;
+        return string.IsNullOrWhiteSpace(attribute.Header) ? null : attribute.Header;
     }
 
-    internal static Int32 GetOrder(MemberInfo mi)
+    internal static int GetOrder(MemberInfo mi)
     {
         XLColumnAttribute? attribute = GetXLColumnAttribute(mi);
         if (attribute == null)
         {
-            return Int32.MaxValue;
+            return int.MaxValue;
         }
 
         return attribute.Order;
     }
 
-    internal static Boolean IgnoreMember(MemberInfo mi)
+    internal static bool IgnoreMember(MemberInfo mi)
     {
         XLColumnAttribute? attribute = GetXLColumnAttribute(mi);
         if (attribute == null)

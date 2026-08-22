@@ -9,7 +9,7 @@ namespace XlsxSharp.Examples.Tables;
 
 public class InsertingTables : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         using (XLWorkbook wb = new())
         {
@@ -91,13 +91,13 @@ public class InsertingTables : IXLExample
     private class Person
     {
         [XLColumn(Header = "House Street")]
-        public String House { get; set; }
+        public string House { get; set; }
 
-        public String Name { get; set; }
-        public Int32 Age { get; set; }
+        public string Name { get; set; }
+        public int Age { get; set; }
 
         [XLColumn(Header = "Class Type")]
-        public static String ClassType => nameof(Person);
+        public static string ClassType => nameof(Person);
     }
 
     private static DataTable GetTable()

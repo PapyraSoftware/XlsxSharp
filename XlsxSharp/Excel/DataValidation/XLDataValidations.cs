@@ -51,9 +51,9 @@ internal class XLDataValidations : IXLDataValidations, IEnumerable<XLDataValidat
         return dv;
     }
 
-    public Boolean ContainsSingle(IXLRange range)
+    public bool ContainsSingle(IXLRange range)
     {
-        Int32 count = 0;
+        int count = 0;
         foreach (
             XLDataValidation xlDataValidation in this._dataValidations.Where(dv =>
                 dv.Ranges.Contains(range)

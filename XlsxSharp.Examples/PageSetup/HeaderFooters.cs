@@ -7,7 +7,7 @@ namespace XlsxSharp.Examples.PageSetup;
 
 public class HeaderFooters : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         using XLWorkbook workbook = new();
         IXLWorksheet ws = workbook.Worksheets.Add("Headers and Footers");

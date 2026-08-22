@@ -17,9 +17,9 @@ internal class WebpInfoReader : ImageInfoReader
     private const int Vp8ChunkMagicBytes = 0x9d012a;
     private const int Vp8LChunkMagicByte = 0x2F;
 
-    private static readonly UInt32 LossyVp8Code = "VP8 ".ToMagicNumber();
-    private static readonly UInt32 LosslessVp8Code = "VP8L".ToMagicNumber();
-    private static readonly UInt32 ExtendedV8Code = "VP8X".ToMagicNumber();
+    private static readonly uint LossyVp8Code = "VP8 ".ToMagicNumber();
+    private static readonly uint LosslessVp8Code = "VP8L".ToMagicNumber();
+    private static readonly uint ExtendedV8Code = "VP8X".ToMagicNumber();
 
     protected override bool CheckHeader(Stream stream)
     {

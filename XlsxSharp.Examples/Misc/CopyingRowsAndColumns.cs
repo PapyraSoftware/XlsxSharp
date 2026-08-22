@@ -6,7 +6,7 @@ namespace XlsxSharp.Examples.Misc;
 
 public class CopyingRowsAndColumns : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook workbook = new();
 

@@ -115,10 +115,9 @@ internal class XLRanges : IXLRanges, IEnumerable<XLRange>
 
     IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 
-    public Boolean Contains(IXLCell cell) =>
-        this.GetIntersectedRanges((XLAddress)cell.Address).Any();
+    public bool Contains(IXLCell cell) => this.GetIntersectedRanges((XLAddress)cell.Address).Any();
 
-    public Boolean Contains(IXLRange range) =>
+    public bool Contains(IXLRange range) =>
         this.GetIntersectedRanges((XLRangeAddress)range.RangeAddress).Any(r => r.Contains(range));
 
     /// <summary>
@@ -153,12 +152,12 @@ internal class XLRanges : IXLRanges, IEnumerable<XLRange>
     public IEnumerable<IXLDataValidation> DataValidation =>
         this.Ranges.Select(range => range.GetDataValidation()).Where(dv => dv != null);
 
-    public IXLRanges AddToNamed(String rangeName) => this.AddToNamed(rangeName, XLScope.Workbook);
+    public IXLRanges AddToNamed(string rangeName) => this.AddToNamed(rangeName, XLScope.Workbook);
 
-    public IXLRanges AddToNamed(String rangeName, XLScope scope) =>
+    public IXLRanges AddToNamed(string rangeName, XLScope scope) =>
         this.AddToNamed(rangeName, XLScope.Workbook, null);
 
-    public IXLRanges AddToNamed(String rangeName, XLScope scope, String? comment)
+    public IXLRanges AddToNamed(string rangeName, XLScope scope, string? comment)
     {
         this.Ranges.ForEach(r => r.AddToNamed(rangeName, scope, comment));
         return this;
@@ -212,7 +211,7 @@ internal class XLRanges : IXLRanges, IEnumerable<XLRange>
 
     public override string ToString()
     {
-        String retVal = this.Ranges.Aggregate(String.Empty, (agg, r) => agg + (r.ToString() + ","));
+        string retVal = this.Ranges.Aggregate(string.Empty, (agg, r) => agg + (r.ToString() + ","));
         if (retVal.Length > 0)
         {
             retVal = retVal.Substring(0, retVal.Length - 1);

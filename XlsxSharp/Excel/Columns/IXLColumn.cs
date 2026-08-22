@@ -14,7 +14,7 @@ public interface IXLColumn : IXLRangeBase
     /// NoC are a non-linear units displayed as a column width in Excel, next to pixels. NoC combined with default font
     /// of the workbook can express width of the column in pixels and other units.
     /// </remarks>
-    Double Width { get; set; }
+    double Width { get; set; }
 
     /// <summary>
     /// Deletes this column and shifts the columns at the right of this one accordingly.
@@ -25,46 +25,46 @@ public interface IXLColumn : IXLRangeBase
     /// <summary>
     /// Gets this column's number
     /// </summary>
-    Int32 ColumnNumber();
+    int ColumnNumber();
 
     /// <summary>
     /// Gets this column's letter
     /// </summary>
-    String ColumnLetter();
+    string ColumnLetter();
 
     /// <summary>
     /// Inserts X number of columns at the right of this one.
     /// <para>All columns at the right will be shifted accordingly.</para>
     /// </summary>
     /// <param name="numberOfColumns">The number of columns to insert.</param>
-    IXLColumns InsertColumnsAfter(Int32 numberOfColumns);
+    IXLColumns InsertColumnsAfter(int numberOfColumns);
 
     /// <summary>
     /// Inserts X number of columns at the left of this one.
     /// <para>This column and all at the right will be shifted accordingly.</para>
     /// </summary>
     /// <param name="numberOfColumns">The number of columns to insert.</param>
-    IXLColumns InsertColumnsBefore(Int32 numberOfColumns);
+    IXLColumns InsertColumnsBefore(int numberOfColumns);
 
     /// <summary>
     /// Gets the cell in the specified row.
     /// </summary>
     /// <param name="rowNumber">The cell's row.</param>
-    IXLCell Cell(Int32 rowNumber);
+    IXLCell Cell(int rowNumber);
 
     /// <summary>
     /// Returns the specified group of cells, separated by commas.
     /// <para>e.g. Cells("1"), Cells("1:5"), Cells("1,3:5")</para>
     /// </summary>
     /// <param name="cellsInColumn">The column cells to return.</param>
-    new IXLCells Cells(String cellsInColumn);
+    new IXLCells Cells(string cellsInColumn);
 
     /// <summary>
     /// Returns the specified group of cells.
     /// </summary>
     /// <param name="firstRow">The first row in the group of cells to return.</param>
     /// <param name="lastRow">The last row in the group of cells to return.</param>
-    IXLCells Cells(Int32 firstRow, Int32 lastRow);
+    IXLCells Cells(int firstRow, int lastRow);
 
     /// <summary>
     /// Adjusts the width of the column based on its contents.
@@ -75,18 +75,18 @@ public interface IXLColumn : IXLRangeBase
     /// Adjusts the width of the column based on its contents, starting from the startRow.
     /// </summary>
     /// <param name="startRow">The row to start calculating the column width.</param>
-    IXLColumn AdjustToContents(Int32 startRow);
+    IXLColumn AdjustToContents(int startRow);
 
     /// <summary>
     /// Adjusts the width of the column based on its contents, starting from the startRow and ending at endRow.
     /// </summary>
     /// <param name="startRow">The row to start calculating the column width.</param>
     /// <param name="endRow">The row to end calculating the column width.</param>
-    IXLColumn AdjustToContents(Int32 startRow, Int32 endRow);
+    IXLColumn AdjustToContents(int startRow, int endRow);
 
-    IXLColumn AdjustToContents(Double minWidth, Double maxWidth);
+    IXLColumn AdjustToContents(double minWidth, double maxWidth);
 
-    IXLColumn AdjustToContents(Int32 startRow, Double minWidth, Double maxWidth);
+    IXLColumn AdjustToContents(int startRow, double minWidth, double maxWidth);
 
     /// <summary>
     /// Adjust width of the column according to the content of the cells.
@@ -95,7 +95,7 @@ public interface IXLColumn : IXLRangeBase
     /// <param name="endRow">Number of a last row whose content is considered.</param>
     /// <param name="minWidth">Minimum width of adjusted column, in NoC.</param>
     /// <param name="maxWidth">Maximum width of adjusted column, in NoC.</param>
-    IXLColumn AdjustToContents(Int32 startRow, Int32 endRow, Double minWidth, Double maxWidth);
+    IXLColumn AdjustToContents(int startRow, int endRow, double minWidth, double maxWidth);
 
     /// <summary>
     /// Hides this column.
@@ -111,7 +111,7 @@ public interface IXLColumn : IXLRangeBase
     /// <value>
     ///   <c>true</c> if this column is hidden; otherwise, <c>false</c>.
     /// </value>
-    Boolean IsHidden { get; }
+    bool IsHidden { get; }
 
     /// <summary>
     /// Gets or sets the outline level of this column.
@@ -119,7 +119,7 @@ public interface IXLColumn : IXLRangeBase
     /// <value>
     /// The outline level of this column.
     /// </value>
-    Int32 OutlineLevel { get; set; }
+    int OutlineLevel { get; set; }
 
     /// <summary>
     /// Adds this column to the next outline level (Increments the outline level for this column by 1).
@@ -130,20 +130,20 @@ public interface IXLColumn : IXLRangeBase
     /// Adds this column to the next outline level (Increments the outline level for this column by 1).
     /// </summary>
     /// <param name="collapse">If set to <c>true</c> the column will be shown collapsed.</param>
-    IXLColumn Group(Boolean collapse);
+    IXLColumn Group(bool collapse);
 
     /// <summary>
     /// Sets outline level for this column.
     /// </summary>
     /// <param name="outlineLevel">The outline level.</param>
-    IXLColumn Group(Int32 outlineLevel);
+    IXLColumn Group(int outlineLevel);
 
     /// <summary>
     /// Sets outline level for this column.
     /// </summary>
     /// <param name="outlineLevel">The outline level.</param>
     /// <param name="collapse">If set to <c>true</c> the column will be shown collapsed.</param>
-    IXLColumn Group(Int32 outlineLevel, Boolean collapse);
+    IXLColumn Group(int outlineLevel, bool collapse);
 
     /// <summary>
     /// Adds this column to the previous outline level (decrements the outline level for this column by 1).
@@ -154,7 +154,7 @@ public interface IXLColumn : IXLRangeBase
     /// Adds this column to the previous outline level (decrements the outline level for this column by 1).
     /// </summary>
     /// <param name="fromAll">If set to <c>true</c> it will remove this column from all outline levels.</param>
-    IXLColumn Ungroup(Boolean fromAll);
+    IXLColumn Ungroup(bool fromAll);
 
     /// <summary>
     /// Show this column as collapsed.
@@ -164,7 +164,7 @@ public interface IXLColumn : IXLRangeBase
     /// <summary>Expands this column (if it's collapsed).</summary>
     IXLColumn Expand();
 
-    Int32 CellCount();
+    int CellCount();
 
     IXLRangeColumn CopyTo(IXLCell cell);
 
@@ -174,15 +174,15 @@ public interface IXLColumn : IXLRangeBase
 
     IXLColumn Sort(
         XLSortOrder sortOrder = XLSortOrder.Ascending,
-        Boolean matchCase = false,
-        Boolean ignoreBlanks = true
+        bool matchCase = false,
+        bool ignoreBlanks = true
     );
 
-    IXLRangeColumn Column(Int32 start, Int32 end);
+    IXLRangeColumn Column(int start, int end);
 
     IXLRangeColumn Column(IXLCell start, IXLCell end);
 
-    IXLRangeColumns Columns(String columns);
+    IXLRangeColumns Columns(string columns);
 
     /// <summary>
     /// Adds a vertical page break after this column.
@@ -191,11 +191,11 @@ public interface IXLColumn : IXLRangeBase
 
     IXLColumn ColumnLeft();
 
-    IXLColumn ColumnLeft(Int32 step);
+    IXLColumn ColumnLeft(int step);
 
     IXLColumn ColumnRight();
 
-    IXLColumn ColumnRight(Int32 step);
+    IXLColumn ColumnRight(int step);
 
     /// <summary>
     /// Clears the contents of this column.

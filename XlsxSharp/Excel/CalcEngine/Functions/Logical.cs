@@ -80,7 +80,7 @@ internal static class Logical
         return alternative.ToAnyValue();
     }
 
-    private static AnyValue Not(Boolean value) => !value;
+    private static AnyValue Not(bool value) => !value;
 
     private static AnyValue Or(CalcContext ctx, Span<AnyValue> args)
     {

@@ -34,11 +34,11 @@ namespace XlsxSharp.Excel;
 
 public partial class XLWorkbook
 {
-    private void Load(String file) => this.LoadSheets(file);
+    private void Load(string file) => this.LoadSheets(file);
 
     private void Load(Stream stream) => this.LoadSheets(stream);
 
-    private void LoadSheets(String fileName)
+    private void LoadSheets(string fileName)
     {
         using (SpreadsheetDocument dSpreadsheet = SpreadsheetDocument.Open(fileName, false))
         {
@@ -54,7 +54,7 @@ public partial class XLWorkbook
         }
     }
 
-    private void LoadSheetsFromTemplate(String fileName)
+    private void LoadSheetsFromTemplate(string fileName)
     {
         using (SpreadsheetDocument dSpreadsheet = SpreadsheetDocument.CreateFromTemplate(fileName))
         {
@@ -123,7 +123,7 @@ public partial class XLWorkbook
                 CustomDocumentProperty m in dSpreadsheet.CustomFilePropertiesPart.Properties.Elements<CustomDocumentProperty>()
             )
             {
-                String name = m.Name?.Value;
+                string name = m.Name?.Value;
 
                 if (string.IsNullOrWhiteSpace(name))
                 {
@@ -149,7 +149,7 @@ public partial class XLWorkbook
                 {
                     this.CustomProperties.Add(
                         name,
-                        Double.Parse(m.VTDouble.Text, CultureInfo.InvariantCulture)
+                        double.Parse(m.VTDouble.Text, CultureInfo.InvariantCulture)
                     );
                 }
                 else if (m.VTBool != null)
@@ -247,7 +247,7 @@ public partial class XLWorkbook
         // e.g. when reading calculations that reference other sheets, we know that those sheets always already exist.
         // That consistency point isn't required yet but could be taken advantage of in the future.
         Sheets sheets = workbookPart.Workbook.Sheets;
-        Int32 position = 0;
+        int position = 0;
         foreach (Sheet dSheet in sheets.OfType<Sheet>())
         {
             position++;
@@ -327,9 +327,9 @@ public partial class XLWorkbook
                 string relId = worksheetPart.GetIdOfPart(tableDefinitionPart);
                 Table dTable = tableDefinitionPart.Table;
 
-                String reference = dTable.Reference.Value;
-                String tableName = dTable.Name ?? dTable.DisplayName ?? string.Empty;
-                if (String.IsNullOrWhiteSpace(tableName))
+                string reference = dTable.Reference.Value;
+                string tableName = dTable.Name ?? dTable.DisplayName ?? string.Empty;
+                if (string.IsNullOrWhiteSpace(tableName))
                 {
                     throw new InvalidDataException("The table name is missing.");
                 }
@@ -524,7 +524,7 @@ public partial class XLWorkbook
                     foreach (Run run in runs)
                     {
                         RunProperties runProperties = run.RunProperties;
-                        String text = run.Text.InnerText.FixNewLines();
+                        string text = run.Text.InnerText.FixNewLines();
                         IXLRichString rt = xlComment.AddText(text);
                         OpenXmlHelper.LoadFont(runProperties, rt);
                     }
@@ -572,7 +572,7 @@ public partial class XLWorkbook
             else
             {
                 UnsupportedSheet unsupportedSheet = this.UnsupportedSheets.FirstOrDefault(us =>
-                    us.Position == (Int32)(workbookView.ActiveTab.Value + 1)
+                    us.Position == (int)(workbookView.ActiveTab.Value + 1)
                 );
                 if (unsupportedSheet != null)
                 {
@@ -580,7 +580,7 @@ public partial class XLWorkbook
                 }
                 else
                 {
-                    this.Worksheet((Int32)(workbookView.ActiveTab.Value + 1)).SetTabActive();
+                    this.Worksheet((int)(workbookView.ActiveTab.Value + 1)).SetTabActive();
                 }
             }
         }
@@ -743,7 +743,7 @@ public partial class XLWorkbook
         }
     }
 
-    private static Int32 ConvertFromEnglishMetricUnits(long emu, double resolution) =>
+    private static int ConvertFromEnglishMetricUnits(long emu, double resolution) =>
         Convert.ToInt32(emu * resolution / 914400);
 
     private static XLMarker LoadMarker(XLWorksheet ws, Xdr.MarkerType marker)
@@ -817,7 +817,7 @@ public partial class XLWorkbook
 
     #endregion Comment Helpers
 
-    private static String GetTableColumnName(string name) =>
+    private static string GetTableColumnName(string name) =>
         name.Replace("_x000a_", Environment.NewLine).Replace("_x005f_x000a_", "_x000a_");
 
     private void LoadColorsAndLines<T>(IXLDrawing<T> drawing, XElement shape)
@@ -846,18 +846,18 @@ public partial class XLWorkbook
             XAttribute opacity = fill.Attribute("opacity");
             if (opacity != null)
             {
-                String opacityVal = opacity.Value;
+                string opacityVal = opacity.Value;
                 if (opacityVal.EndsWith("f"))
                 {
                     drawing.Style.ColorsAndLines.FillTransparency =
-                        Double.Parse(
+                        double.Parse(
                             opacityVal.Substring(0, opacityVal.Length - 1),
                             CultureInfo.InvariantCulture
                         ) / 65536.0;
                 }
                 else
                 {
-                    drawing.Style.ColorsAndLines.FillTransparency = Double.Parse(
+                    drawing.Style.ColorsAndLines.FillTransparency = double.Parse(
                         opacityVal,
                         CultureInfo.InvariantCulture
                     );
@@ -871,18 +871,18 @@ public partial class XLWorkbook
             XAttribute opacity = stroke.Attribute("opacity");
             if (opacity != null)
             {
-                String opacityVal = opacity.Value;
+                string opacityVal = opacity.Value;
                 if (opacityVal.EndsWith("f"))
                 {
                     drawing.Style.ColorsAndLines.LineTransparency =
-                        Double.Parse(
+                        double.Parse(
                             opacityVal.Substring(0, opacityVal.Length - 1),
                             CultureInfo.InvariantCulture
                         ) / 65536.0;
                 }
                 else
                 {
-                    drawing.Style.ColorsAndLines.LineTransparency = Double.Parse(
+                    drawing.Style.ColorsAndLines.LineTransparency = double.Parse(
                         opacityVal,
                         CultureInfo.InvariantCulture
                     );
@@ -892,7 +892,7 @@ public partial class XLWorkbook
             XAttribute dashStyle = stroke.Attribute("dashstyle");
             if (dashStyle != null)
             {
-                String dashStyleVal = dashStyle.Value.ToLower();
+                string dashStyleVal = dashStyle.Value.ToLower();
                 if (dashStyleVal == "1 1" || dashStyleVal == "shortdot")
                 {
                     XAttribute endCap = stroke.Attribute("endcap");
@@ -931,7 +931,7 @@ public partial class XLWorkbook
             XAttribute lineStyle = stroke.Attribute("linestyle");
             if (lineStyle != null)
             {
-                String lineStyleVal = lineStyle.Value.ToLower();
+                string lineStyleVal = lineStyle.Value.ToLower();
                 switch (lineStyleVal)
                 {
                     case "single":
@@ -1011,7 +1011,7 @@ public partial class XLWorkbook
         {
             if (
                 unit.EndsWith(unitName)
-                && Double.TryParse(
+                && double.TryParse(
                     unit[..^unitName.Length],
                     NumberStyles.Float,
                     CultureInfo.InvariantCulture,
@@ -1032,7 +1032,7 @@ public partial class XLWorkbook
     {
         string style = attStyle.Value;
         string[] attributes = style.Split(';');
-        foreach (String pair in attributes)
+        foreach (string pair in attributes)
         {
             string[] split = pair.Split(':');
             if (split.Length != 2)
@@ -1042,7 +1042,7 @@ public partial class XLWorkbook
 
             string attribute = split[0].Trim().ToLower();
             string value = split[1].Trim();
-            Boolean isVertical = false;
+            bool isVertical = false;
             switch (attribute)
             {
                 case "mso-fit-shape-to-text":
@@ -1145,8 +1145,8 @@ public partial class XLWorkbook
         XElement lockTextElement = clientData
             .Elements()
             .FirstOrDefault(e => e.Name.LocalName == "LockText");
-        Boolean locked = lockedElement != null && lockedElement.Value.ToLower() == "true";
-        Boolean lockText = lockTextElement != null && lockTextElement.Value.ToLower() == "true";
+        bool locked = lockedElement != null && lockedElement.Value.ToLower() == "true";
+        bool lockText = lockTextElement != null && lockTextElement.Value.ToLower() == "true";
         drawing.Style.Protection.Locked = locked;
         drawing.Style.Protection.LockText = lockText;
     }
@@ -1159,10 +1159,10 @@ public partial class XLWorkbook
         XElement sizeWithCellsElement = clientData
             .Elements()
             .FirstOrDefault(e => e.Name.LocalName == "SizeWithCells");
-        Boolean moveWithCells = !(
+        bool moveWithCells = !(
             moveWithCellsElement != null && moveWithCellsElement.Value.ToLower() == "true"
         );
-        Boolean sizeWithCells = !(
+        bool sizeWithCells = !(
             sizeWithCellsElement != null && sizeWithCellsElement.Value.ToLower() == "true"
         );
         if (moveWithCells && !sizeWithCells)
@@ -1184,9 +1184,9 @@ public partial class XLWorkbook
         string[] location = anchor.Value.Split(',');
         drawing.Position.Column = int.Parse(location[0]) + 1;
         drawing.Position.ColumnOffset =
-            Double.Parse(location[1], CultureInfo.InvariantCulture) / 7.5;
+            double.Parse(location[1], CultureInfo.InvariantCulture) / 7.5;
         drawing.Position.Row = int.Parse(location[2]) + 1;
-        drawing.Position.RowOffset = Double.Parse(location[3], CultureInfo.InvariantCulture);
+        drawing.Position.RowOffset = double.Parse(location[3], CultureInfo.InvariantCulture);
     }
 
     private void LoadShapeProperties<T>(IXLDrawing<T> xlDrawing, XElement shape)
@@ -1231,7 +1231,7 @@ public partial class XLWorkbook
                     break;
 
                 case "z-index":
-                    if (Int32.TryParse(value, out int zOrder))
+                    if (int.TryParse(value, out int zOrder))
                     {
                         xlDrawing.ZOrder = zOrder;
                     }
@@ -1255,12 +1255,12 @@ public partial class XLWorkbook
 
         if (knownUnit.Key == null)
         {
-            return Double.TryParse(value, out result);
+            return double.TryParse(value, out result);
         }
 
-        value = value.Replace(knownUnit.Key, String.Empty);
+        value = value.Replace(knownUnit.Key, string.Empty);
 
-        if (Double.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out result))
+        if (double.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out result))
         {
             result *= knownUnit.Value;
             return true;
@@ -1309,7 +1309,7 @@ public partial class XLWorkbook
                     }
                     else
                     {
-                        ParseReference(area, out String sheetName, out String sheetArea);
+                        ParseReference(area, out string sheetName, out string sheetArea);
                         if (
                             !(
                                 sheetArea.Equals("#REF")
@@ -1370,7 +1370,7 @@ public partial class XLWorkbook
 
     private static Regex definedNameRegex = new(@"\A('?).*\1!.*\z", RegexOptions.Compiled);
 
-    private static IEnumerable<String> validateDefinedNames(IEnumerable<String> definedNames)
+    private static IEnumerable<string> validateDefinedNames(IEnumerable<string> definedNames)
     {
         StringBuilder sb = new();
         foreach (string testName in definedNames)
@@ -1410,7 +1410,7 @@ public partial class XLWorkbook
 
     private void SetColumnsOrRowsToRepeat(string area)
     {
-        ParseReference(area, out String sheetName, out String sheetArea);
+        ParseReference(area, out string sheetName, out string sheetArea);
         sheetArea = sheetArea.Replace("$", "");
 
         if (sheetArea.Equals("#REF"))
@@ -1539,7 +1539,7 @@ public partial class XLWorkbook
         wb.Protection.IsProtected = true;
 
         string algorithmName = wp.WorkbookAlgorithmName?.Value ?? string.Empty;
-        if (String.IsNullOrEmpty(algorithmName))
+        if (string.IsNullOrEmpty(algorithmName))
         {
             wb.Protection.PasswordHash = wp.WorkbookPassword?.Value ?? string.Empty;
             wb.Protection.Base64EncodedSalt = string.Empty;

@@ -7,7 +7,7 @@ namespace XlsxSharp.Examples.Tables;
 
 public class UsingTables : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         string tempFile = ExampleHelper.GetTempFilePath(filePath);
         try
@@ -49,8 +49,8 @@ public class UsingTables : IXLExample
                 table.Field("Age").TotalsRowFunction = XLTotalsRowFunction.Average;
 
                 // Copy all the headers
-                Int32 columnWithHeaders = lastCell.Address.ColumnNumber + 3;
-                Int32 currentRow = table.RangeAddress.FirstAddress.RowNumber;
+                int columnWithHeaders = lastCell.Address.ColumnNumber + 3;
+                int currentRow = table.RangeAddress.FirstAddress.RowNumber;
                 ws.Cell(currentRow, columnWithHeaders).Value = "Table Headers";
                 foreach (IXLCell cell in table.HeadersRow().Cells())
                 {
@@ -74,7 +74,7 @@ public class UsingTables : IXLExample
                     "CONCATENATE(\"Count: \", CountA(Headers[Table Headers]))";
 
                 // Copy the names
-                Int32 columnWithNames = columnWithHeaders + 2;
+                int columnWithNames = columnWithHeaders + 2;
                 currentRow = table.RangeAddress.FirstAddress.RowNumber; // reset the currentRow
                 ws.Cell(currentRow, columnWithNames).Value = "Names";
                 foreach (IXLTableRow row in table.DataRange.Rows())
@@ -82,7 +82,7 @@ public class UsingTables : IXLExample
                     currentRow++;
                     string fName = row.Field("FName").GetString(); // Notice how we're calling the cell by field name
                     string lName = row.Field("LName").GetString(); // Notice how we're calling the cell by field name
-                    string name = String.Format("{0} {1}", fName, lName);
+                    string name = string.Format("{0} {1}", fName, lName);
                     ws.Cell(currentRow, columnWithNames).Value = name;
                 }
 

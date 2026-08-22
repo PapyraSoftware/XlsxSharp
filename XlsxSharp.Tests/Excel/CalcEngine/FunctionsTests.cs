@@ -13,7 +13,7 @@ public class FunctionsTests
     [Test]
     public void Asc()
     {
-        Object actual;
+        object actual;
 
         actual = XLWorkbook.EvaluateExpr(@"Asc(""Text"")");
         Assert.AreEqual("Text", actual);
@@ -22,9 +22,9 @@ public class FunctionsTests
     [Test]
     public void Clean()
     {
-        Object actual;
+        object actual;
 
-        actual = XLWorkbook.EvaluateExpr(String.Format(@"Clean(""A{0}B"")", Environment.NewLine));
+        actual = XLWorkbook.EvaluateExpr(string.Format(@"Clean(""A{0}B"")", Environment.NewLine));
         Assert.AreEqual("AB", actual);
     }
 
@@ -72,7 +72,7 @@ public class FunctionsTests
     [Test]
     public void Fixed()
     {
-        Object actual;
+        object actual;
 
         actual = XLWorkbook.EvaluateExpr("Fixed(12345.123)");
         Assert.AreEqual("12,345.12", actual);

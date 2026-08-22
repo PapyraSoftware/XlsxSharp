@@ -13,7 +13,7 @@ public interface IXLSheetProtection : IXLElementProtection<XLSheetProtectionElem
     IXLSheetProtection Protect(Algorithm algorithm, XLSheetProtectionElements allowedElements);
 
     IXLSheetProtection Protect(
-        String password,
+        string password,
         Algorithm algorithm = DefaultProtectionAlgorithm,
         XLSheetProtectionElements allowedElements = XLSheetProtectionElements.SelectEverything
     );

@@ -30,15 +30,15 @@ internal class XLPhonetics : IXLPhonetics
         this._onChange = onChange;
     }
 
-    public Int32 Count => this._phonetics.Count;
+    public int Count => this._phonetics.Count;
 
-    public Boolean Bold
+    public bool Bold
     {
         get => this._font.Bold;
         set => this.ChangeFont(f => f with { Bold = value });
     }
 
-    public Boolean Italic
+    public bool Italic
     {
         get => this._font.Italic;
         set => this.ChangeFont(f => f with { Italic = value });
@@ -50,7 +50,7 @@ internal class XLPhonetics : IXLPhonetics
         set => this.ChangeFont(f => f with { Underline = value });
     }
 
-    public Boolean Strikethrough
+    public bool Strikethrough
     {
         get => this._font.Strikethrough;
         set => this.ChangeFont(f => f with { Strikethrough = value });
@@ -62,13 +62,13 @@ internal class XLPhonetics : IXLPhonetics
         set => this.ChangeFont(f => f with { VerticalAlignment = value });
     }
 
-    public Boolean Shadow
+    public bool Shadow
     {
         get => this._font.Shadow;
         set => this.ChangeFont(f => f with { Shadow = value });
     }
 
-    public Double FontSize
+    public double FontSize
     {
         get => this._font.Size.Points;
         set => this.ChangeFont(f => f with { Size = XLFontSize.FromPoints(value) });
@@ -80,7 +80,7 @@ internal class XLPhonetics : IXLPhonetics
         set => this.ChangeFont(f => f with { Color = value });
     }
 
-    public String FontName
+    public string FontName
     {
         get => this._font.Name.Text;
         set => this.ChangeFont(f => f with { Name = value });
@@ -132,7 +132,7 @@ internal class XLPhonetics : IXLPhonetics
         return this;
     }
 
-    public IXLPhonetics SetBold(Boolean value)
+    public IXLPhonetics SetBold(bool value)
     {
         this.Bold = value;
         return this;
@@ -144,7 +144,7 @@ internal class XLPhonetics : IXLPhonetics
         return this;
     }
 
-    public IXLPhonetics SetItalic(Boolean value)
+    public IXLPhonetics SetItalic(bool value)
     {
         this.Italic = value;
         return this;
@@ -168,7 +168,7 @@ internal class XLPhonetics : IXLPhonetics
         return this;
     }
 
-    public IXLPhonetics SetStrikethrough(Boolean value)
+    public IXLPhonetics SetStrikethrough(bool value)
     {
         this.Strikethrough = value;
         return this;
@@ -186,13 +186,13 @@ internal class XLPhonetics : IXLPhonetics
         return this;
     }
 
-    public IXLPhonetics SetShadow(Boolean value)
+    public IXLPhonetics SetShadow(bool value)
     {
         this.Shadow = value;
         return this;
     }
 
-    public IXLPhonetics SetFontSize(Double value)
+    public IXLPhonetics SetFontSize(double value)
     {
         this.FontSize = value;
         return this;
@@ -204,7 +204,7 @@ internal class XLPhonetics : IXLPhonetics
         return this;
     }
 
-    public IXLPhonetics SetFontName(String value)
+    public IXLPhonetics SetFontName(string value)
     {
         this.FontName = value;
         return this;
@@ -240,7 +240,7 @@ internal class XLPhonetics : IXLPhonetics
         return this;
     }
 
-    public IXLPhonetics Add(String text, Int32 start, Int32 end)
+    public IXLPhonetics Add(string text, int start, int end)
     {
         this._phonetics.Add(new XLPhonetic(text, start, end));
         this._onChange();

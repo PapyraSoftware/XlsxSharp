@@ -11,14 +11,14 @@ namespace XlsxSharp.Excel.Tables;
 internal class XLTableField : IXLTableField
 {
     internal XLTotalsRowFunction totalsRowFunction;
-    internal String? totalsRowLabel;
+    internal string? totalsRowLabel;
     private readonly XLTable table;
 
     private IXLRangeColumn? _column;
-    private Int32 index;
-    private String name;
+    private int index;
+    private string name;
 
-    public XLTableField(XLTable table, String name)
+    public XLTableField(XLTable table, string name)
     {
         this.table = table;
         this.name = name;
@@ -66,7 +66,7 @@ internal class XLTableField : IXLTableField
         }
     }
 
-    public Int32 Index
+    public int Index
     {
         get => this.index;
         internal set
@@ -81,7 +81,7 @@ internal class XLTableField : IXLTableField
         }
     }
 
-    public String Name
+    public string Name
     {
         get => this.name;
         set
@@ -120,7 +120,7 @@ internal class XLTableField : IXLTableField
         }
     }
 
-    public String TotalsRowFormulaA1
+    public string TotalsRowFormulaA1
     {
         get => this.table.TotalsRow().Cell(this.Index + 1).FormulaA1;
         set
@@ -130,7 +130,7 @@ internal class XLTableField : IXLTableField
         }
     }
 
-    public String TotalsRowFormulaR1C1
+    public string TotalsRowFormulaR1C1
     {
         get => this.table.TotalsRow().Cell(this.Index + 1).FormulaR1C1;
         set
@@ -150,7 +150,7 @@ internal class XLTableField : IXLTableField
         }
     }
 
-    public String? TotalsRowLabel
+    public string? TotalsRowLabel
     {
         get => this.totalsRowLabel;
         set
@@ -182,7 +182,7 @@ internal class XLTableField : IXLTableField
 
     public void Delete() => this.Delete(true);
 
-    internal void Delete(Boolean deleteUnderlyingRangeColumn)
+    internal void Delete(bool deleteUnderlyingRangeColumn)
     {
         XLTableField[] fields = [.. this.table.Fields.Cast<XLTableField>()];
 
@@ -214,7 +214,7 @@ internal class XLTableField : IXLTableField
         return distinctDataTypes.Count() == 1;
     }
 
-    public Boolean IsConsistentFormula()
+    public bool IsConsistentFormula()
     {
         IEnumerable<string> formulas = this
             .Column.Cells()
@@ -251,7 +251,7 @@ internal class XLTableField : IXLTableField
         return distinctStyles.Count() == 1;
     }
 
-    private static IEnumerable<String> QuotedTableFieldCharacters = new[] { "'", "#" };
+    private static IEnumerable<string> QuotedTableFieldCharacters = new[] { "'", "#" };
 
     internal void UpdateTableFieldTotalsRowFormula()
     {
@@ -261,7 +261,7 @@ internal class XLTableField : IXLTableField
         )
         {
             IXLCell cell = this.table.TotalsRow().Cell(this.Index + 1);
-            string formulaCode = String.Empty;
+            string formulaCode = string.Empty;
             switch (this.TotalsRowFunction)
             {
                 case XLTotalsRowFunction.Sum:

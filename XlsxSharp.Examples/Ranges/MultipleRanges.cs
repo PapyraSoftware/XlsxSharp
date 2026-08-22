@@ -5,7 +5,7 @@ namespace XlsxSharp.Examples.Ranges;
 
 public class MultipleRanges : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook workbook = new();
         IXLWorksheet ws = workbook.Worksheets.Add("Multiple Ranges");

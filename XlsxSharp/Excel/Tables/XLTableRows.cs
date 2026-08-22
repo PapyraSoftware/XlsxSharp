@@ -66,7 +66,7 @@ internal class XLTableRows : IXLTableRows
         return cells;
     }
 
-    public IXLCells CellsUsed(Boolean includeFormats) =>
+    public IXLCells CellsUsed(bool includeFormats) =>
         this.CellsUsed(includeFormats ? XLCellsUsedOptions.All : XLCellsUsedOptions.AllContents);
 
     public IXLCells CellsUsed(XLCellsUsedOptions options)

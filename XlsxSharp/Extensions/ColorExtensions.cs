@@ -28,7 +28,7 @@ internal static class ColorExtensions
         'F',
     ];
 
-    public static String ToHex(this Color color)
+    public static string ToHex(this Color color)
     {
         byte[] bytes = new byte[4];
 

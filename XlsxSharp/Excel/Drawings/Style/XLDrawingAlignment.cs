@@ -26,7 +26,7 @@ internal class XLDrawingAlignment : IXLDrawingAlignment
         return this._style;
     }
 
-    public Boolean AutomaticSize { get; set; }
+    public bool AutomaticSize { get; set; }
 
     public IXLDrawingStyle SetAutomaticSize()
     {
@@ -34,7 +34,7 @@ internal class XLDrawingAlignment : IXLDrawingAlignment
         return this._style;
     }
 
-    public IXLDrawingStyle SetAutomaticSize(Boolean value)
+    public IXLDrawingStyle SetAutomaticSize(bool value)
     {
         this.AutomaticSize = value;
         return this._style;

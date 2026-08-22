@@ -52,7 +52,7 @@ internal static class EnumerableExtensions
         }
     }
 
-    public static Boolean HasDuplicates<T>(this IEnumerable<T> source)
+    public static bool HasDuplicates<T>(this IEnumerable<T> source)
     {
         HashSet<T> distinctItems = [];
         foreach (T item in source)

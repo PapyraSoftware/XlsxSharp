@@ -85,7 +85,7 @@ public interface IXLPivotValue
     /// <example>
     /// Show values as a percent of a specific value of a different field, e.g. as a % of units sold from Q1 (quarts is a base field and Q1 is a base item).
     /// </example>
-    String BaseFieldName { get; set; }
+    string BaseFieldName { get; set; }
 
     /// <summary>
     /// The value of a base item to calculate a value to show in the pivot table. The base item is selected from values of a base field.
@@ -107,14 +107,14 @@ public interface IXLPivotValue
     /// Get custom name of pivot value. If custom name is not specified, return source name as
     /// a fallback.
     /// </summary>
-    String CustomName { get; set; }
+    string CustomName { get; set; }
 
     IXLPivotValueFormat NumberFormat { get; }
 
-    String SourceName { get; }
+    string SourceName { get; }
     XLPivotSummary SummaryFormula { get; set; }
 
-    IXLPivotValue SetBaseFieldName(String value);
+    IXLPivotValue SetBaseFieldName(string value);
 
     IXLPivotValue SetBaseItemValue(XLCellValue value);
 
@@ -124,15 +124,15 @@ public interface IXLPivotValue
 
     IXLPivotValue SetSummaryFormula(XLPivotSummary value);
 
-    IXLPivotValueCombination ShowAsDifferenceFrom(String fieldSourceName);
+    IXLPivotValueCombination ShowAsDifferenceFrom(string fieldSourceName);
 
     IXLPivotValue ShowAsIndex();
 
     IXLPivotValue ShowAsNormal();
 
-    IXLPivotValueCombination ShowAsPercentageDifferenceFrom(String fieldSourceName);
+    IXLPivotValueCombination ShowAsPercentageDifferenceFrom(string fieldSourceName);
 
-    IXLPivotValueCombination ShowAsPercentageFrom(String fieldSourceName);
+    IXLPivotValueCombination ShowAsPercentageFrom(string fieldSourceName);
 
     IXLPivotValue ShowAsPercentageOfColumn();
 
@@ -140,5 +140,5 @@ public interface IXLPivotValue
 
     IXLPivotValue ShowAsPercentageOfTotal();
 
-    IXLPivotValue ShowAsRunningTotalIn(String fieldSourceName);
+    IXLPivotValue ShowAsRunningTotalIn(string fieldSourceName);
 }

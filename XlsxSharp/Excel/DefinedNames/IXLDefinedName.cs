@@ -28,7 +28,7 @@ public interface IXLDefinedName
     /// <value>
     /// The comment for this named range.
     /// </value>
-    String? Comment { get; set; }
+    string? Comment { get; set; }
 
     /// <summary>
     /// Checks if the named range contains invalid references (#REF!).
@@ -48,7 +48,7 @@ public interface IXLDefinedName
     /// <exception cref="ArgumentException">Set value is not a valid name.</exception>
     /// <exception cref="InvalidOperationException">The name is colliding with a different name
     /// that is already defined in the collection.</exception>
-    String Name { get; set; }
+    string Name { get; set; }
 
     /// <summary>
     /// Gets the ranges associated with this named range.
@@ -65,7 +65,7 @@ public interface IXLDefinedName
     /// The value can't be empty and it must be a valid formula.
     /// </summary>
     /// <exception cref="ArgumentException">When passed formula is empty.</exception>
-    String RefersTo { get; set; }
+    string RefersTo { get; set; }
 
     /// <summary>
     /// Gets the scope of this named range.
@@ -78,7 +78,7 @@ public interface IXLDefinedName
     /// <value>
     ///   <c>true</c> if visible; otherwise, <c>false</c>.
     /// </value>
-    Boolean Visible { get; set; }
+    bool Visible { get; set; }
 
     /// <summary>
     /// Copy sheet-scoped defined name to a different sheet. The references to the original
@@ -100,7 +100,7 @@ public interface IXLDefinedName
     void Delete();
 
     /// <inheritdoc cref="RefersTo"/>
-    IXLDefinedName SetRefersTo(String formula);
+    IXLDefinedName SetRefersTo(string formula);
 
     IXLDefinedName SetRefersTo(IXLRangeBase range);
 

@@ -10,7 +10,7 @@ internal class XLDrawingSize : IXLDrawingSize
 
     public XLDrawingSize(IXLDrawingStyle style) => this._style = style;
 
-    public Boolean AutomaticSize
+    public bool AutomaticSize
     {
         get => this._style.Alignment.AutomaticSize;
         set => this._style.Alignment.AutomaticSize = value;
@@ -22,23 +22,23 @@ internal class XLDrawingSize : IXLDrawingSize
         return this._style;
     }
 
-    public IXLDrawingStyle SetAutomaticSize(Boolean value)
+    public IXLDrawingStyle SetAutomaticSize(bool value)
     {
         this.AutomaticSize = value;
         return this._style;
     }
 
-    public Double Height { get; set; }
+    public double Height { get; set; }
 
-    public IXLDrawingStyle SetHeight(Double value)
+    public IXLDrawingStyle SetHeight(double value)
     {
         this.Height = value;
         return this._style;
     }
 
-    public Double Width { get; set; }
+    public double Width { get; set; }
 
-    public IXLDrawingStyle SetWidth(Double value)
+    public IXLDrawingStyle SetWidth(double value)
     {
         this.Width = value;
         return this._style;

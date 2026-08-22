@@ -11,7 +11,7 @@ internal class XLCFStartsWithConverter : IXLCFConverter
         XLWorkbook.SaveContext context
     )
     {
-        String? val = cf.Values[1].Value;
+        string? val = cf.Values[1].Value;
         ConditionalFormattingRule conditionalFormattingRule = XLCFBaseConverter.ConvertWithDxf(
             cf,
             priority,

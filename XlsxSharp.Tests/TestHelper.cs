@@ -115,7 +115,7 @@ internal static class TestHelper
                     streamExpected,
                     out string message
                 );
-                string formattedMessage = String.Format(
+                string formattedMessage = string.Format(
                     "Actual file '{0}' is different than the expected file '{1}'. The difference is: '{2}'",
                     filePath2,
                     resourcePath,
@@ -193,7 +193,7 @@ internal static class TestHelper
                     streamExpected,
                     out string message
                 );
-                string formattedMessage = String.Format(
+                string formattedMessage = string.Format(
                     "Actual file '{0}' is different than the expected file '{1}'. The difference is: '{2}'",
                     filePath2,
                     resourcePath,
@@ -305,7 +305,7 @@ internal static class TestHelper
         }
     }
 
-    public static IEnumerable<String> ListResourceFiles(Func<String, Boolean> predicate = null) =>
+    public static IEnumerable<string> ListResourceFiles(Func<string, bool> predicate = null) =>
         _extractor.GetFileNames(predicate);
 
     /// <summary>

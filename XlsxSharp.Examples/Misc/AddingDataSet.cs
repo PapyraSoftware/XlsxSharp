@@ -6,7 +6,7 @@ namespace XlsxSharp.Examples.Misc;
 
 public class AddingDataSet : IXLExample
 {
-    public void Create(String filePath)
+    public void Create(string filePath)
     {
         XLWorkbook wb = new();
 
@@ -32,7 +32,7 @@ public class AddingDataSet : IXLExample
         return ds;
     }
 
-    private static DataTable GetTable(String tableName)
+    private static DataTable GetTable(string tableName)
     {
         DataTable table = new();
         table.TableName = tableName;

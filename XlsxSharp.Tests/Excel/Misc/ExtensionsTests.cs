@@ -20,14 +20,14 @@ public class ExtensionsTests
     [Test]
     public void DoubleSaveRound()
     {
-        Double value = 1234.1234567;
+        double value = 1234.1234567;
         Assert.AreEqual(value.SaveRound(), Math.Round(value, 6));
     }
 
     [Test]
     public void DoubleValueSaveRound()
     {
-        Double value = 1234.1234567;
+        double value = 1234.1234567;
         Assert.AreEqual(new DoubleValue(value).SaveRound().Value, Math.Round(value, 6));
     }
 

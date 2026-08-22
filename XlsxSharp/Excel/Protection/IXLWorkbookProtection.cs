@@ -16,7 +16,7 @@ public interface IXLWorkbookProtection : IXLElementProtection<XLWorkbookProtecti
     );
 
     IXLWorkbookProtection Protect(
-        String password,
+        string password,
         Algorithm algorithm = DefaultProtectionAlgorithm,
         XLWorkbookProtectionElements allowedElements = XLWorkbookProtectionElements.Windows
     );

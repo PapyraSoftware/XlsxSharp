@@ -17,8 +17,8 @@ public class AppendingAndReplacingTableDataTests
 {
     public class TestObjectWithoutAttributes
     {
-        public String Column1 { get; set; }
-        public String Column2 { get; set; }
+        public string Column1 { get; set; }
+        public string Column2 { get; set; }
     }
 
     public class Person
@@ -26,13 +26,13 @@ public class AppendingAndReplacingTableDataTests
         public int Age { get; set; }
 
         [XLColumn(Header = "Last name", Order = 2)]
-        public String LastName { get; set; }
+        public string LastName { get; set; }
 
         [XLColumn(Header = "First name", Order = 1)]
-        public String FirstName { get; set; }
+        public string FirstName { get; set; }
 
         [XLColumn(Header = "Full name", Order = 0)]
-        public String FullName => string.Concat(this.FirstName, " ", this.LastName);
+        public string FullName => string.Concat(this.FirstName, " ", this.LastName);
 
         [XLColumn(Order = 3)]
         public DateTime DateOfBirth { get; set; }

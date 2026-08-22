@@ -75,7 +75,7 @@ public partial class XLWorkbook
     }
 
     private void CreatePackage(
-        String filePath,
+        string filePath,
         SpreadsheetDocumentType spreadsheetDocumentType,
         SaveOptions options
     )
@@ -301,7 +301,7 @@ public partial class XLWorkbook
         );
 
         IEnumerable<string> cacheRelIds = this
-            .PivotCachesInternal.Select<XLPivotCache, String>(ps => ps.WorkbookCacheRelId)
+            .PivotCachesInternal.Select<XLPivotCache, string>(ps => ps.WorkbookCacheRelId)
             .Where(relId => !string.IsNullOrWhiteSpace(relId))
             .Distinct();
 
@@ -378,7 +378,7 @@ public partial class XLWorkbook
 
                 if (vmlDrawingPart == null)
                 {
-                    if (String.IsNullOrWhiteSpace(worksheet.LegacyDrawingId))
+                    if (string.IsNullOrWhiteSpace(worksheet.LegacyDrawingId))
                     {
                         worksheet.LegacyDrawingId = context.RelIdGenerator.GetNext(
                             RelType.Workbook
@@ -750,7 +750,7 @@ public partial class XLWorkbook
         foreach (XLPivotTable pt in xlWorksheet.PivotTables)
         {
             PivotTablePart pivotTablePart;
-            bool createNewPivotTablePart = String.IsNullOrWhiteSpace(pt.RelId);
+            bool createNewPivotTablePart = string.IsNullOrWhiteSpace(pt.RelId);
             if (createNewPivotTablePart)
             {
                 string relId = context.RelIdGenerator.GetNext(RelType.Workbook);

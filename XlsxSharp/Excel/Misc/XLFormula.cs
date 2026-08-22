@@ -16,27 +16,27 @@ public class XLFormula
         this.IsFormula = defaultFormula.IsFormula;
     }
 
-    public XLFormula(String value) => this.Value = value;
+    public XLFormula(string value) => this.Value = value;
 
     public XLFormula(double value) => this.Value = value.ToInvariantString();
 
     public XLFormula(int value) => this.Value = value.ToInvariantString();
 
-    internal String _value;
-    public String Value
+    internal string _value;
+    public string Value
     {
         get => this._value;
         set
         {
             if (value == null)
             {
-                this._value = String.Empty;
+                this._value = string.Empty;
             }
             else
             {
                 this._value = value.Trim();
                 this.IsFormula =
-                    !String.IsNullOrWhiteSpace(this._value) && this._value.TrimStart()[0] == '=';
+                    !string.IsNullOrWhiteSpace(this._value) && this._value.TrimStart()[0] == '=';
                 if (this.IsFormula)
                 {
                     this._value = this._value.Substring(1);
@@ -45,7 +45,7 @@ public class XLFormula
         }
     }
 
-    public Boolean IsFormula { get; internal set; }
+    public bool IsFormula { get; internal set; }
 
     internal XLFormula GetAdjustedCopy(Point sourceAnchor, Point targetAnchor)
     {

@@ -15,7 +15,7 @@ namespace XlsxSharp.Excel;
 internal class XLPivotTable : IXLPivotTable
 {
     private readonly XLWorksheet _worksheet;
-    private String _name;
+    private string _name;
 
     /// <summary>
     /// List of all fields in the pivot table, roughly represents <c>pivotTableDefinition.
@@ -257,7 +257,7 @@ internal class XLPivotTable : IXLPivotTable
         return newPivotTable;
     }
 
-    public String Name
+    public string Name
     {
         get => this._name;
         set
@@ -285,8 +285,8 @@ internal class XLPivotTable : IXLPivotTable
             this._name = value;
 
             if (
-                !String.IsNullOrWhiteSpace(oldname)
-                && !String.Equals(oldname, this._name, StringComparison.OrdinalIgnoreCase)
+                !string.IsNullOrWhiteSpace(oldname)
+                && !string.Equals(oldname, this._name, StringComparison.OrdinalIgnoreCase)
             )
             {
                 this.Worksheet.PivotTables.Delete(oldname);
@@ -295,35 +295,35 @@ internal class XLPivotTable : IXLPivotTable
         }
     }
 
-    public IXLPivotTable SetName(String value)
+    public IXLPivotTable SetName(string value)
     {
         this.Name = value;
         return this;
     }
 
-    public String Title { get; set; }
+    public string Title { get; set; }
 
-    public IXLPivotTable SetTitle(String value)
+    public IXLPivotTable SetTitle(string value)
     {
         this.Title = value;
         return this;
     }
 
-    public String Description { get; set; }
+    public string Description { get; set; }
 
-    public IXLPivotTable SetDescription(String value)
+    public IXLPivotTable SetDescription(string value)
     {
         this.Description = value;
         return this;
     }
 
-    public IXLPivotTable SetColumnHeaderCaption(String value)
+    public IXLPivotTable SetColumnHeaderCaption(string value)
     {
         this.ColumnHeaderCaption = value;
         return this;
     }
 
-    public IXLPivotTable SetRowHeaderCaption(String value)
+    public IXLPivotTable SetRowHeaderCaption(string value)
     {
         this.RowHeaderCaption = value;
         return this;
@@ -335,13 +335,13 @@ internal class XLPivotTable : IXLPivotTable
         return this;
     }
 
-    public IXLPivotTable SetMergeAndCenterWithLabels(Boolean value)
+    public IXLPivotTable SetMergeAndCenterWithLabels(bool value)
     {
         this.MergeAndCenterWithLabels = value;
         return this;
     }
 
-    public IXLPivotTable SetRowLabelIndent(Int32 value)
+    public IXLPivotTable SetRowLabelIndent(int value)
     {
         this.RowLabelIndent = value;
         return this;
@@ -353,19 +353,19 @@ internal class XLPivotTable : IXLPivotTable
         return this;
     }
 
-    public IXLPivotTable SetFilterFieldsPageWrap(Int32 value)
+    public IXLPivotTable SetFilterFieldsPageWrap(int value)
     {
         this.FilterFieldsPageWrap = value;
         return this;
     }
 
-    public IXLPivotTable SetErrorValueReplacement(String value)
+    public IXLPivotTable SetErrorValueReplacement(string value)
     {
         this.ErrorValueReplacement = value;
         return this;
     }
 
-    public String EmptyCellReplacement
+    public string EmptyCellReplacement
     {
         get
         {
@@ -391,7 +391,7 @@ internal class XLPivotTable : IXLPivotTable
         }
     }
 
-    public IXLPivotTable SetEmptyCellReplacement(String value)
+    public IXLPivotTable SetEmptyCellReplacement(string value)
     {
         this.EmptyCellReplacement = value;
         return this;
@@ -403,7 +403,7 @@ internal class XLPivotTable : IXLPivotTable
         return this;
     }
 
-    public IXLPivotTable SetAutofitColumns(Boolean value)
+    public IXLPivotTable SetAutofitColumns(bool value)
     {
         this.AutofitColumns = value;
         return this;
@@ -415,7 +415,7 @@ internal class XLPivotTable : IXLPivotTable
         return this;
     }
 
-    public IXLPivotTable SetPreserveCellFormatting(Boolean value)
+    public IXLPivotTable SetPreserveCellFormatting(bool value)
     {
         this.PreserveCellFormatting = value;
         return this;
@@ -427,7 +427,7 @@ internal class XLPivotTable : IXLPivotTable
         return this;
     }
 
-    public IXLPivotTable SetShowGrandTotalsRows(Boolean value)
+    public IXLPivotTable SetShowGrandTotalsRows(bool value)
     {
         this.ShowGrandTotalsRows = value;
         return this;
@@ -439,7 +439,7 @@ internal class XLPivotTable : IXLPivotTable
         return this;
     }
 
-    public IXLPivotTable SetShowGrandTotalsColumns(Boolean value)
+    public IXLPivotTable SetShowGrandTotalsColumns(bool value)
     {
         this.ShowGrandTotalsColumns = value;
         return this;
@@ -451,7 +451,7 @@ internal class XLPivotTable : IXLPivotTable
         return this;
     }
 
-    public IXLPivotTable SetFilteredItemsInSubtotals(Boolean value)
+    public IXLPivotTable SetFilteredItemsInSubtotals(bool value)
     {
         this.FilteredItemsInSubtotals = value;
         return this;
@@ -463,7 +463,7 @@ internal class XLPivotTable : IXLPivotTable
         return this;
     }
 
-    public IXLPivotTable SetAllowMultipleFilters(Boolean value)
+    public IXLPivotTable SetAllowMultipleFilters(bool value)
     {
         this.AllowMultipleFilters = value;
         return this;
@@ -475,7 +475,7 @@ internal class XLPivotTable : IXLPivotTable
         return this;
     }
 
-    public IXLPivotTable SetUseCustomListsForSorting(Boolean value)
+    public IXLPivotTable SetUseCustomListsForSorting(bool value)
     {
         this.UseCustomListsForSorting = value;
         return this;
@@ -487,7 +487,7 @@ internal class XLPivotTable : IXLPivotTable
         return this;
     }
 
-    public IXLPivotTable SetShowExpandCollapseButtons(Boolean value)
+    public IXLPivotTable SetShowExpandCollapseButtons(bool value)
     {
         this.ShowExpandCollapseButtons = value;
         return this;
@@ -499,7 +499,7 @@ internal class XLPivotTable : IXLPivotTable
         return this;
     }
 
-    public IXLPivotTable SetShowContextualTooltips(Boolean value)
+    public IXLPivotTable SetShowContextualTooltips(bool value)
     {
         this.ShowContextualTooltips = value;
         return this;
@@ -511,7 +511,7 @@ internal class XLPivotTable : IXLPivotTable
         return this;
     }
 
-    public IXLPivotTable SetShowPropertiesInTooltips(Boolean value)
+    public IXLPivotTable SetShowPropertiesInTooltips(bool value)
     {
         this.ShowPropertiesInTooltips = value;
         return this;
@@ -523,7 +523,7 @@ internal class XLPivotTable : IXLPivotTable
         return this;
     }
 
-    public IXLPivotTable SetDisplayCaptionsAndDropdowns(Boolean value)
+    public IXLPivotTable SetDisplayCaptionsAndDropdowns(bool value)
     {
         this.DisplayCaptionsAndDropdowns = value;
         return this;
@@ -535,13 +535,13 @@ internal class XLPivotTable : IXLPivotTable
         return this;
     }
 
-    public IXLPivotTable SetClassicPivotTableLayout(Boolean value)
+    public IXLPivotTable SetClassicPivotTableLayout(bool value)
     {
         this.ClassicPivotTableLayout = value;
         return this;
     }
 
-    public Boolean ShowValuesRow { get; set; }
+    public bool ShowValuesRow { get; set; }
 
     public IXLPivotTable SetShowValuesRow()
     {
@@ -549,7 +549,7 @@ internal class XLPivotTable : IXLPivotTable
         return this;
     }
 
-    public IXLPivotTable SetShowValuesRow(Boolean value)
+    public IXLPivotTable SetShowValuesRow(bool value)
     {
         this.ShowValuesRow = value;
         return this;
@@ -561,7 +561,7 @@ internal class XLPivotTable : IXLPivotTable
         return this;
     }
 
-    public IXLPivotTable SetShowEmptyItemsOnRows(Boolean value)
+    public IXLPivotTable SetShowEmptyItemsOnRows(bool value)
     {
         this.ShowEmptyItemsOnRows = value;
         return this;
@@ -573,7 +573,7 @@ internal class XLPivotTable : IXLPivotTable
         return this;
     }
 
-    public IXLPivotTable SetShowEmptyItemsOnColumns(Boolean value)
+    public IXLPivotTable SetShowEmptyItemsOnColumns(bool value)
     {
         this.ShowEmptyItemsOnColumns = value;
         return this;
@@ -585,7 +585,7 @@ internal class XLPivotTable : IXLPivotTable
         return this;
     }
 
-    public IXLPivotTable SetDisplayItemLabels(Boolean value)
+    public IXLPivotTable SetDisplayItemLabels(bool value)
     {
         this.DisplayItemLabels = value;
         return this;
@@ -597,7 +597,7 @@ internal class XLPivotTable : IXLPivotTable
         return this;
     }
 
-    public IXLPivotTable SetSortFieldsAtoZ(Boolean value)
+    public IXLPivotTable SetSortFieldsAtoZ(bool value)
     {
         this.SortFieldsAtoZ = value;
         return this;
@@ -609,7 +609,7 @@ internal class XLPivotTable : IXLPivotTable
         return this;
     }
 
-    public IXLPivotTable SetPrintExpandCollapsedButtons(Boolean value)
+    public IXLPivotTable SetPrintExpandCollapsedButtons(bool value)
     {
         this.PrintExpandCollapsedButtons = value;
         return this;
@@ -621,7 +621,7 @@ internal class XLPivotTable : IXLPivotTable
         return this;
     }
 
-    public IXLPivotTable SetRepeatRowLabels(Boolean value)
+    public IXLPivotTable SetRepeatRowLabels(bool value)
     {
         this.RepeatRowLabels = value;
         return this;
@@ -633,7 +633,7 @@ internal class XLPivotTable : IXLPivotTable
         return this;
     }
 
-    public IXLPivotTable SetPrintTitles(Boolean value)
+    public IXLPivotTable SetPrintTitles(bool value)
     {
         this.PrintTitles = value;
         return this;
@@ -645,13 +645,13 @@ internal class XLPivotTable : IXLPivotTable
         return this;
     }
 
-    public IXLPivotTable SetEnableShowDetails(Boolean value)
+    public IXLPivotTable SetEnableShowDetails(bool value)
     {
         this.EnableShowDetails = value;
         return this;
     }
 
-    public Boolean EnableCellEditing { get; set; }
+    public bool EnableCellEditing { get; set; }
 
     public IXLPivotTable SetEnableCellEditing()
     {
@@ -659,13 +659,13 @@ internal class XLPivotTable : IXLPivotTable
         return this;
     }
 
-    public IXLPivotTable SetEnableCellEditing(Boolean value)
+    public IXLPivotTable SetEnableCellEditing(bool value)
     {
         this.EnableCellEditing = value;
         return this;
     }
 
-    public Boolean ShowRowHeaders { get; set; }
+    public bool ShowRowHeaders { get; set; }
 
     public IXLPivotTable SetShowRowHeaders()
     {
@@ -673,13 +673,13 @@ internal class XLPivotTable : IXLPivotTable
         return this;
     }
 
-    public IXLPivotTable SetShowRowHeaders(Boolean value)
+    public IXLPivotTable SetShowRowHeaders(bool value)
     {
         this.ShowRowHeaders = value;
         return this;
     }
 
-    public Boolean ShowColumnHeaders { get; set; }
+    public bool ShowColumnHeaders { get; set; }
 
     public IXLPivotTable SetShowColumnHeaders()
     {
@@ -687,13 +687,13 @@ internal class XLPivotTable : IXLPivotTable
         return this;
     }
 
-    public IXLPivotTable SetShowColumnHeaders(Boolean value)
+    public IXLPivotTable SetShowColumnHeaders(bool value)
     {
         this.ShowColumnHeaders = value;
         return this;
     }
 
-    public Boolean ShowRowStripes { get; set; }
+    public bool ShowRowStripes { get; set; }
 
     public IXLPivotTable SetShowRowStripes()
     {
@@ -701,13 +701,13 @@ internal class XLPivotTable : IXLPivotTable
         return this;
     }
 
-    public IXLPivotTable SetShowRowStripes(Boolean value)
+    public IXLPivotTable SetShowRowStripes(bool value)
     {
         this.ShowRowStripes = value;
         return this;
     }
 
-    public Boolean ShowColumnStripes { get; set; }
+    public bool ShowColumnStripes { get; set; }
 
     public IXLPivotTable SetShowColumnStripes()
     {
@@ -715,7 +715,7 @@ internal class XLPivotTable : IXLPivotTable
         return this;
     }
 
-    public IXLPivotTable SetShowColumnStripes(Boolean value)
+    public IXLPivotTable SetShowColumnStripes(bool value)
     {
         this.ShowColumnStripes = value;
         return this;
@@ -724,7 +724,7 @@ internal class XLPivotTable : IXLPivotTable
     /// <summary>
     /// Part of the pivot table style.
     /// </summary>
-    internal Boolean ShowLastColumn { get; set; } = false;
+    internal bool ShowLastColumn { get; set; } = false;
 
     public XLPivotSubtotals Subtotals { get; set; }
 
@@ -768,7 +768,7 @@ internal class XLPivotTable : IXLPivotTable
         return this;
     }
 
-    public Boolean InsertBlankLines
+    public bool InsertBlankLines
     {
         set => this.ImplementedFields.ForEach(f => f.SetInsertBlankLines(value));
     }
@@ -779,14 +779,14 @@ internal class XLPivotTable : IXLPivotTable
         return this;
     }
 
-    public IXLPivotTable SetInsertBlankLines(Boolean value)
+    public IXLPivotTable SetInsertBlankLines(bool value)
     {
         this.InsertBlankLines = value;
         return this;
     }
 
-    internal String RelId { get; set; }
-    internal String CacheDefinitionRelId { get; set; }
+    internal string RelId { get; set; }
+    internal string CacheDefinitionRelId { get; set; }
 
     private void SetExcelDefaults()
     {
@@ -959,7 +959,7 @@ internal class XLPivotTable : IXLPivotTable
     /// <summary>
     /// Text to display when in cells that contain error.
     /// </summary>
-    public String? ErrorValueReplacement { get; set; }
+    public string? ErrorValueReplacement { get; set; }
 
     /// <summary>
     /// Flag indicating if <see cref="ErrorValueReplacement"/> should be shown when cell contain an error.
@@ -1053,17 +1053,17 @@ internal class XLPivotTable : IXLPivotTable
     /// table axes.
     /// </summary>
     /// <remarks>Also called ShowDrill.</remarks>
-    public Boolean ShowExpandCollapseButtons { get; set; } = true;
+    public bool ShowExpandCollapseButtons { get; set; } = true;
 
     /// <summary>
     /// A flag indicating whether collapse/expand (drill) buttons in pivot table axes should
     /// be printed.
     /// </summary>
     /// <remarks>Also called PrintDrill.</remarks>
-    public Boolean PrintExpandCollapsedButtons { get; set; } = false;
+    public bool PrintExpandCollapsedButtons { get; set; } = false;
 
     /// <remarks>OLAP only. Also called ShowMemberPropertyTips.</remarks>
-    public Boolean ShowPropertiesInTooltips { get; set; }
+    public bool ShowPropertiesInTooltips { get; set; }
 
     /// <summary>
     /// A flag indicating whether UI should display a tooltip on data items of pivot table. The
@@ -1072,7 +1072,7 @@ internal class XLPivotTable : IXLPivotTable
     /// tool tip, rather than the note.
     /// </summary>
     /// <remarks>Also called ShowDataTips.</remarks>
-    public Boolean ShowContextualTooltips { get; set; }
+    public bool ShowContextualTooltips { get; set; }
 
     /// <summary>
     /// A flag indicating whether UI should provide a mechanism to edit the pivot table. If the
@@ -1083,7 +1083,7 @@ internal class XLPivotTable : IXLPivotTable
     internal bool EnableEditingMechanism { get; set; } = true;
 
     /// <remarks>Likely OLAP only. Do not confuse with collapse/expand buttons.</remarks>
-    public Boolean EnableShowDetails { get; set; } = true;
+    public bool EnableShowDetails { get; set; } = true;
 
     /// <summary>
     /// A flag indicating whether the user is prevented from displaying PivotField properties.
@@ -1098,18 +1098,18 @@ internal class XLPivotTable : IXLPivotTable
     /// </summary>
     /// <remarks>Once again, ISO-29500 is buggy and says the opposite. Also called <em>
     /// PreserveFormatting</em></remarks>
-    public Boolean PreserveCellFormatting { get; set; } = true;
+    public bool PreserveCellFormatting { get; set; } = true;
 
     /// <summary>
     /// A flag that indicates whether legacy auto formatting has been applied to the PivotTable
     /// view.
     /// </summary>
     /// <remarks>Also called UseAutoFormatting.</remarks>
-    public Boolean AutofitColumns { get; set; } = false;
+    public bool AutofitColumns { get; set; } = false;
 
     /// <inheritdoc />
     /// <remarks>Also called PageWrap.</remarks>
-    public Int32 FilterFieldsPageWrap
+    public int FilterFieldsPageWrap
     {
         get => this._filterFieldsPageWrap;
         set
@@ -1142,26 +1142,26 @@ internal class XLPivotTable : IXLPivotTable
     /// A flag indicating whether grand totals should be displayed for the PivotTable rows.
     /// </summary>
     /// <remarks>Also called <em>RowGrandTotals</em>.</remarks>
-    public Boolean ShowGrandTotalsRows { get; set; } = true;
+    public bool ShowGrandTotalsRows { get; set; } = true;
 
     /// <summary>
     /// A flag indicating whether grand totals should be displayed for the PivotTable columns.
     /// </summary>
     /// <remarks>Also called <em>ColumnGrandTotals</em>.</remarks>
-    public Boolean ShowGrandTotalsColumns { get; set; } = true;
+    public bool ShowGrandTotalsColumns { get; set; } = true;
 
     /// <summary>
     /// A flag indicating whether when a field name should be printed on all pages.
     /// </summary>
     /// <remarks>Also called <em>FieldPrintTitles</em>.</remarks>
-    public Boolean PrintTitles { get; set; } = false;
+    public bool PrintTitles { get; set; } = false;
 
     /// <summary>
     /// A flag indicating whether whether PivotItem names should be repeated at the top of each
     /// printed page (e.g. if axis item spans multiple pages, it will be repeated an all pages).
     /// </summary>
     /// <remarks>Also called <em>ItemPrintTitles</em>.</remarks>
-    public Boolean RepeatRowLabels { get; set; } = false;
+    public bool RepeatRowLabels { get; set; } = false;
 
     /// <summary>
     /// A flag indicating whether row or column titles that span multiple cells should be
@@ -1169,7 +1169,7 @@ internal class XLPivotTable : IXLPivotTable
     /// don't span across multiple cells.
     /// </summary>
     /// <remarks>Also called <em>MergeItem</em>.</remarks>
-    public Boolean MergeAndCenterWithLabels { get; set; } = false;
+    public bool MergeAndCenterWithLabels { get; set; } = false;
 
     /// <summary>
     /// A flag indicating whether UI for the pivot table should display large text in field
@@ -1190,21 +1190,21 @@ internal class XLPivotTable : IXLPivotTable
     /// are characters.
     /// </summary>
     /// <remarks>Also called <em>Indent</em>.</remarks>
-    public Int32 RowLabelIndent { get; set; } = 1;
+    public int RowLabelIndent { get; set; } = 1;
 
     /// <summary>
     /// A flag indicating whether to include empty rows in the pivot table (i.e. row axis items
     /// are blank and data items are blank).
     /// </summary>
     /// <remarks>Also called <em>ShowEmptyRow</em>.</remarks>
-    public Boolean ShowEmptyItemsOnRows { get; set; } = false;
+    public bool ShowEmptyItemsOnRows { get; set; } = false;
 
     /// <summary>
     /// A flag indicating whether to include empty columns in the table (i.e. column axis items
     /// are blank and data items are blank).
     /// </summary>
     /// <remarks>Also called <em>ShowEmptyColumn</em>.</remarks>
-    public Boolean ShowEmptyItemsOnColumns { get; set; }
+    public bool ShowEmptyItemsOnColumns { get; set; }
 
     /// <summary>
     /// A flag indicating whether to show field names on axis. The axis items are still
@@ -1212,7 +1212,7 @@ internal class XLPivotTable : IXLPivotTable
     /// are also displayed/hidden based on the flag.
     /// </summary>
     /// <remarks>Also called <em>ShowHeaders</em>.</remarks>
-    public Boolean DisplayCaptionsAndDropdowns { get; set; } = true;
+    public bool DisplayCaptionsAndDropdowns { get; set; } = true;
 
     /// <summary>
     /// A flag indicating whether new fields should have their
@@ -1294,7 +1294,7 @@ internal class XLPivotTable : IXLPivotTable
     /// <see cref="ShowDropZones"/>).
     /// </summary>
     /// <remarks>Also called <em>GridDropZones</em>.</remarks>
-    public Boolean ClassicPivotTableLayout { get; set; } = false;
+    public bool ClassicPivotTableLayout { get; set; } = false;
 
     /// <summary>
     /// Likely a flag whether immersive reader should be turned off. Not sure if immersive
@@ -1313,7 +1313,7 @@ internal class XLPivotTable : IXLPivotTable
     /// </para>
     /// </summary>
     /// <remarks>Also called <em>multipleFieldFilters</em>.</remarks>
-    public Boolean AllowMultipleFilters { get; set; } = true;
+    public bool AllowMultipleFilters { get; set; } = true;
 
     /// <summary>
     /// Specifies the next pivot chart formatting identifier to use on the pivot table. First
@@ -1328,7 +1328,7 @@ internal class XLPivotTable : IXLPivotTable
     /// <see cref="DisplayCaptionsAndDropdowns"/> is set to <c>true</c>). Use localized text
     /// <em>Row labels</em> if property is not specified.
     /// </summary>
-    public String? RowHeaderCaption { get; set; } = null;
+    public string? RowHeaderCaption { get; set; } = null;
 
     /// <summary>
     /// The text that will be displayed in column header in compact mode. It is next to drop down
@@ -1336,7 +1336,7 @@ internal class XLPivotTable : IXLPivotTable
     /// <see cref="DisplayCaptionsAndDropdowns"/> is set to <c>true</c>). Use localized text
     /// <em>Column labels</em> if property is not specified.
     /// </summary>
-    public String? ColumnHeaderCaption { get; set; } = null;
+    public string? ColumnHeaderCaption { get; set; } = null;
 
     /// <summary>
     /// A flag that controls how are fields sorted in the field list UI. <c>true</c> will
@@ -1345,7 +1345,7 @@ internal class XLPivotTable : IXLPivotTable
     /// sorting.
     /// </summary>
     /// <remarks>Also called <em>fieldListSortAscending</em>.</remarks>
-    public Boolean SortFieldsAtoZ { get; set; } = false;
+    public bool SortFieldsAtoZ { get; set; } = false;
 
     /// <summary>
     /// A flag indicating whether MDX sub-queries are supported by OLAP data provider of this
@@ -1359,7 +1359,7 @@ internal class XLPivotTable : IXLPivotTable
     /// captions, and later when the user applies a sort.
     /// </summary>
     /// <remarks>Also called <em>customSortList</em>.</remarks>
-    public Boolean UseCustomListsForSorting { get; set; }
+    public bool UseCustomListsForSorting { get; set; }
 
     #endregion
 
@@ -1467,7 +1467,7 @@ internal class XLPivotTable : IXLPivotTable
         }
     }
 
-    internal bool TryGetSourceNameFieldIndex(String sourceName, out FieldIndex index)
+    internal bool TryGetSourceNameFieldIndex(string sourceName, out FieldIndex index)
     {
         if (
             XlsxSharp.XLHelper.NameComparer.Equals(
@@ -1490,7 +1490,7 @@ internal class XLPivotTable : IXLPivotTable
         return false;
     }
 
-    internal bool TryGetCustomNameFieldIndex(String customName, out FieldIndex index)
+    internal bool TryGetCustomNameFieldIndex(string customName, out FieldIndex index)
     {
         StringComparer comparer = XlsxSharp.XLHelper.NameComparer;
         if (comparer.Equals(customName, XLConstants.PivotTable.ValuesSentinalLabel))
