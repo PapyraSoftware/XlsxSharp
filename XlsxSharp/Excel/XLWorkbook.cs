@@ -373,11 +373,11 @@ public sealed partial class XLWorkbook : IXLWorkbook
     public IXLDefinedName? DefinedName(string name)
     {
         this.ThrowIfDisposed();
-        if (name.Contains("!"))
+        if (name.Contains('!'))
         {
             string[] split = name.Split('!');
             string first = split[0];
-            string wsName = first.StartsWith("'") ? first.Substring(1, first.Length - 2) : first;
+            string wsName = first.StartsWith('\'') ? first.Substring(1, first.Length - 2) : first;
             string sheetlessName = split[1];
             if (this.TryGetWorksheet(wsName, out XLWorksheet ws))
             {

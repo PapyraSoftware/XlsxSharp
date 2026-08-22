@@ -404,8 +404,8 @@ public static partial class XLHelper
     private static string ReplaceGroup(string value, string item)
     {
         string[] split = value.Split(':');
-        string ret1 = split[0].StartsWith("$") ? split[0] : item;
-        string ret2 = split[1].StartsWith("$") ? split[1] : item;
+        string ret1 = split[0].StartsWith('$') ? split[0] : item;
+        string ret2 = split[1].StartsWith('$') ? split[1] : item;
         return ret1 + ":" + ret2;
     }
 

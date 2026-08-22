@@ -1629,7 +1629,7 @@ internal class XLWorksheet : XLRangeBase, IXLWorksheet, IXLFormatContainer
             return this.Range(new XLRangeAddress(this.Worksheet, rangeAddressStr));
         }
 
-        if (rangeAddressStr.Contains("["))
+        if (rangeAddressStr.Contains('['))
         {
             return this.Table(rangeAddressStr.Substring(0, rangeAddressStr.IndexOf("[")))
                 as XLRange;

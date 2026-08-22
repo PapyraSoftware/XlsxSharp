@@ -1348,7 +1348,7 @@ internal sealed partial class XLCell : IXLCell, IXLFormatContainer
         }
 
         string wsName = pair[0];
-        if (wsName.StartsWith("'"))
+        if (wsName.StartsWith('\''))
         {
             wsName = wsName.Substring(1, wsName.Length - 2);
         }

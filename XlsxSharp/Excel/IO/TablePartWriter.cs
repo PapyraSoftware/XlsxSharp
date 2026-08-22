@@ -148,7 +148,7 @@ internal class TablePartWriter
                     .First()
                     .FormulaA1;
 
-                while (formula.StartsWith("=") && formula.Length > 1)
+                while (formula.StartsWith('=') && formula.Length > 1)
                 {
                     formula = formula.Substring(1);
                 }

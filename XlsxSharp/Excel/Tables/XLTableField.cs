@@ -294,12 +294,12 @@ internal class XLTableField : IXLTableField
                 modifiedName = modifiedName.Replace(c, "'" + c)
             );
 
-            if (modifiedName.StartsWith(" ") || modifiedName.EndsWith(" "))
+            if (modifiedName.StartsWith(' ') || modifiedName.EndsWith(' '))
             {
                 modifiedName = "[" + modifiedName + "]";
             }
 
-            bool prependTableName = modifiedName.Contains(" ");
+            bool prependTableName = modifiedName.Contains(' ');
 
             cell.FormulaA1 =
                 $"SUBTOTAL({formulaCode},{(prependTableName ? this.table.Name : string.Empty)}[{modifiedName}])";

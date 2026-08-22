@@ -847,7 +847,7 @@ public partial class XLWorkbook
             if (opacity != null)
             {
                 string opacityVal = opacity.Value;
-                if (opacityVal.EndsWith("f"))
+                if (opacityVal.EndsWith('f'))
                 {
                     drawing.Style.ColorsAndLines.FillTransparency =
                         double.Parse(
@@ -872,7 +872,7 @@ public partial class XLWorkbook
             if (opacity != null)
             {
                 string opacityVal = opacity.Value;
-                if (opacityVal.EndsWith("f"))
+                if (opacityVal.EndsWith('f'))
                 {
                     drawing.Style.ColorsAndLines.LineTransparency =
                         double.Parse(
@@ -1299,7 +1299,7 @@ public partial class XLWorkbook
                 IEnumerable<string> fixedNames = validateDefinedNames(definedName.Text.Split(','));
                 foreach (string area in fixedNames)
                 {
-                    if (area.Contains("["))
+                    if (area.Contains('['))
                     {
                         XLWorksheet ws = this.WorksheetsInternal.FirstOrDefault<XLWorksheet>(w =>
                             w.SheetId == (localSheetId + 1)

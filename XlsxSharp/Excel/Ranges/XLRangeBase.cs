@@ -496,7 +496,7 @@ internal abstract class XLRangeBase : IXLRangeBase
 
     public bool Contains(string rangeAddress)
     {
-        string addressToUse = rangeAddress.Contains("!")
+        string addressToUse = rangeAddress.Contains('!')
             ? rangeAddress.Substring(rangeAddress.IndexOf("!") + 1)
             : rangeAddress;
 
