@@ -1,4 +1,3 @@
-using MoreLinq;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.Comments;
 using XlsxSharp.Excel.Drawings;
@@ -50,8 +49,10 @@ public class AddingComments : IXLExample
             .Size.SetWidth(30); // The width is set in the same units as row.Width
 
         // Set all comments to visible
-        ws.CellsUsed(XLCellsUsedOptions.All, c => c.HasComment)
-            .ForEach(c => c.GetComment().SetVisible());
+        foreach (IXLCell cell in ws.CellsUsed(XLCellsUsedOptions.All, c => c.HasComment))
+        {
+            cell.GetComment().SetVisible();
+        }
     }
 
     private static void AddProtection(XLWorkbook wb)
@@ -109,8 +110,10 @@ public class AddingComments : IXLExample
             .ColorsAndLines.SetLineWeight(7.5);
 
         // Set all comments to visible
-        ws.CellsUsed(XLCellsUsedOptions.All, c => c.HasComment)
-            .ForEach(c => c.GetComment().SetVisible());
+        foreach (IXLCell cell in ws.CellsUsed(XLCellsUsedOptions.All, c => c.HasComment))
+        {
+            cell.GetComment().SetVisible();
+        }
     }
 
     private static void AddStyleAlignment(XLWorkbook wb)
@@ -163,8 +166,10 @@ public class AddingComments : IXLExample
             .Alignment.SetAutomaticSize();
 
         // Set all comments to visible
-        ws.CellsUsed(XLCellsUsedOptions.All, c => c.HasComment)
-            .ForEach(c => c.GetComment().SetVisible());
+        foreach (IXLCell cell in ws.CellsUsed(XLCellsUsedOptions.All, c => c.HasComment))
+        {
+            cell.GetComment().SetVisible();
+        }
     }
 
     private static void AddMiscComments(XLWorkbook wb)
@@ -235,11 +240,15 @@ public class AddingComments : IXLExample
         ws.Cell("A9").GetComment().SetAuthor("MDeLeon").AddSignature().AddText("Something");
         ws.Cell("A9").GetComment().SetBold().SetFontColor(XLColor.DarkBlue);
 
-        ws.CellsUsed(
+        foreach (
+            IXLCell cell in ws.CellsUsed(
                 XLCellsUsedOptions.All,
                 c => !c.Address.ToStringRelative().Equals("A1") && c.HasComment
             )
-            .ForEach(c => c.GetComment().SetVisible());
+        )
+        {
+            cell.GetComment().SetVisible();
+        }
     }
 
     private static void AddVisibilityComments(XLWorkbook wb)
@@ -261,8 +270,11 @@ public class AddingComments : IXLExample
         ws.Cell("A4").GetComment().SetZOrder(4).SetVisible().AddText("Underneath");
         ws.Cell("A4").GetComment().Style.Alignment.SetVertical(XLDrawingVerticalAlignment.Bottom);
 
-        // Alternatively you could set all comments to visible with the following line:
-        // ws.CellsUsed(true, c => c.HasComment).ForEach(c => c.Comment.SetVisible());
+        // Alternatively you could set all comments to visible with the following loop:
+        // foreach (IXLCell cell in ws.CellsUsed(XLCellsUsedOptions.All, c => c.HasComment))
+        // {
+        //     cell.GetComment().SetVisible();
+        // }
 
         ws.Columns().AdjustToContents();
     }
@@ -282,8 +294,10 @@ public class AddingComments : IXLExample
             .SetRowOffset(7.5); // The comment will start in the middle of the fifth row
 
         // Set all comments to visible
-        ws.CellsUsed(XLCellsUsedOptions.All, c => c.HasComment)
-            .ForEach(c => c.GetComment().SetVisible());
+        foreach (IXLCell cell in ws.CellsUsed(XLCellsUsedOptions.All, c => c.HasComment))
+        {
+            cell.GetComment().SetVisible();
+        }
     }
 
     private static void AddSignatures(XLWorkbook wb)
@@ -297,7 +311,9 @@ public class AddingComments : IXLExample
         ws.Cell("A2").GetComment().SetAuthor("MDeLeon").AddSignature().AddText("Hello World!");
 
         // Set all comments to visible
-        ws.CellsUsed(XLCellsUsedOptions.All, c => c.HasComment)
-            .ForEach(c => c.GetComment().SetVisible());
+        foreach (IXLCell cell in ws.CellsUsed(XLCellsUsedOptions.All, c => c.HasComment))
+        {
+            cell.GetComment().SetVisible();
+        }
     }
 }

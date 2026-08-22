@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using MoreLinq;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.Tables;
 
@@ -50,7 +49,11 @@ public class ResizingTables : IXLExample
             IXLTable table4 = ws4.Tables.First();
             table4.Field("String").Column.InsertColumnsAfter(1, true);
 
-            wb.Worksheets.ForEach(ws => ws.Columns().AdjustToContents());
+            foreach (IXLWorksheet ws in wb.Worksheets)
+            {
+                ws.Columns().AdjustToContents();
+            }
+
             wb.SaveAs(filePath);
         }
     }

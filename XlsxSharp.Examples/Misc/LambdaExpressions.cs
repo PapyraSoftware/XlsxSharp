@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using MoreLinq;
 using XlsxSharp.Excel;
 
 namespace XlsxSharp.Examples.Misc;
@@ -22,21 +21,17 @@ public class LambdaExpressions : IXLExample
             IXLCell lastDataCell = ws.LastCellUsed();
             IXLRange rngData = ws.Range(firstDataCell.Address, lastDataCell.Address);
 
-            // Delete all rows where Outcast = false (the 3rd column)
-            rngData
-                .Rows() // From all rows
-                .Where(r => !r.Cell(3).GetBoolean()) // where the 3rd cell of each row is false
-                .ForEach(r => r.Delete()); // delete the row and shift the cells up (the default for rows in a range)
+            // Delete all rows where Outcast = false (the 3rd column). Deleting a row of a range
+            // shifts the cells below it up, which is the default for rows in a range.
+            foreach (IXLRangeRow row in rngData.Rows().Where(r => !r.Cell(3).GetBoolean()))
+            {
+                row.Delete();
+            }
 
-            //// Put a light gray background to all text cells
-            //rngData.Cells() // From all cells
-            //        .Where(c => c.DataType == XLCellValues.Text) // where the data type is Text
-            //        .ForEach(c => c.Style.Fill.BackgroundColor = XLColor.LightGray); // Fill with a light gray
-
-            IXLCells cells = rngData.Cells();
-            IEnumerable<IXLCell> filtered = cells.Where(c => c.DataType == XLDataType.Text);
-            List<IXLCell> list = [.. filtered];
-            foreach (IXLCell c in list)
+            // Put a light gray background to all text cells, taken from the range before the
+            // styling starts.
+            List<IXLCell> textCells = [.. rngData.Cells().Where(c => c.DataType == XLDataType.Text)];
+            foreach (IXLCell c in textCells)
             {
                 c.Style.Fill.BackgroundColor = XLColor.LightGray;
             }

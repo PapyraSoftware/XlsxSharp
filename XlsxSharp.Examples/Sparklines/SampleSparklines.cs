@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using MoreLinq;
 using XlsxSharp.Excel;
 
 namespace XlsxSharp.Examples.Sparklines;
@@ -63,7 +62,10 @@ public class SampleSparklines : IXLExample
             .SetShowMarkers(XLSparklineMarkers.FirstPoint | XLSparklineMarkers.LastPoint);
 
         IXLWorksheet ws2 = ws1.CopyTo("Column");
-        ws2.SparklineGroups.ForEach(g => g.SetType(XLSparklineType.Column));
+        foreach (IXLSparklineGroup g in ws2.SparklineGroups)
+        {
+            g.SetType(XLSparklineType.Column);
+        }
 
         ws2.Cell("A2").Value = "Column, Colorful 1, All markers, SameForAll scale";
         ws2.Cell("A5").Value = "Column, Colorful 2, First+Last+High+Low, Automatic scale";
@@ -73,7 +75,10 @@ public class SampleSparklines : IXLExample
         ws2.Cell("A17").Value = "Column, Colorful 3, Different ranges";
 
         IXLWorksheet ws3 = ws1.CopyTo("Stacked");
-        ws3.SparklineGroups.ForEach(g => g.SetType(XLSparklineType.Stacked));
+        foreach (IXLSparklineGroup g in ws3.SparklineGroups)
+        {
+            g.SetType(XLSparklineType.Stacked);
+        }
 
         ws3.Cell("A2").Value = "Stacked, Colorful 1, All markers, SameForAll scale";
         ws3.Cell("A5").Value = "Stacked, Colorful 2, First+Last+High+Low, Automatic scale";
@@ -91,14 +96,17 @@ public class SampleSparklines : IXLExample
         ws.Column(1).Width = 30;
         ws.Column(2).Width = 30;
 
-        ws.Range("C1:P1")
-            .Cells()
-            .ForEach(c => c.Value = new DateTime(2016, 1, 1).AddDays(c.Address.ColumnNumber * 7));
+        foreach (IXLCell cell in ws.Range("C1:P1").Cells())
+        {
+            cell.Value = new DateTime(2016, 1, 1).AddDays(cell.Address.ColumnNumber * 7);
+        }
 
-        ws.Range("C2:P19")
-            .Cells()
-            .ForEach(c =>
-                c.Value = Math.Round(c.Address.RowNumber * Math.Sin(c.Address.ColumnNumber) * 10, 0)
+        foreach (IXLCell cell in ws.Range("C2:P19").Cells())
+        {
+            cell.Value = Math.Round(
+                cell.Address.RowNumber * Math.Sin(cell.Address.ColumnNumber) * 10,
+                0
             );
+        }
     }
 }
