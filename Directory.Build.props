@@ -49,10 +49,17 @@
   </PropertyGroup>
 
   <!-- SixLabors.Fonts 3.x validates a license before CoreCompile. On CI the key comes from the
-       SIXLABORS_LICENSE_KEY environment variable (a repository secret). Locally the property stays
-       unset, so the build falls back to a sixlabors.lic file if one is present. -->
+       SIXLABORS_LICENSE_KEY environment variable (a repository secret). -->
   <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
     <SixLaborsLicenseKey>$(SIXLABORS_LICENSE_KEY)</SixLaborsLicenseKey>
+  </PropertyGroup>
+
+  <!-- Locally the license comes from sixlabors.lic in the repository root (git ignored, so every
+       developer drops in their own). The package only searches '**/sixlabors.lic' relative to each
+       project directory and would never look at the repository root, hence the explicit path.
+       Guarded by Exists so that without the file the package's own search still applies. -->
+  <PropertyGroup Condition="'$(GITHUB_ACTIONS)' != 'true' And Exists('$(MSBuildThisFileDirectory)sixlabors.lic')">
+    <SixLaborsLicenseFile>$(MSBuildThisFileDirectory)sixlabors.lic</SixLaborsLicenseFile>
   </PropertyGroup>
 
   <ItemGroup>
