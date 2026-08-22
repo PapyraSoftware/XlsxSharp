@@ -2,6 +2,8 @@
   <!-- Set the repository root into a variable -->
   <PropertyGroup>
     <SourceRoot>$(MSBuildThisFileDirectory)</SourceRoot>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -10,18 +12,18 @@
 
   <!-- Set common properties regarding assembly information and nuget packages -->
   <PropertyGroup>
-    <Product>ClosedXML</Product>
+    <Product>XlsxSharp</Product>
 
-    <Authors>Jan Havlíček, Francois Botha, Aleksei Pankratev, Manuel de Leon, Amir Ghezelbash</Authors>
-    <Owners>Jan Havlíček, Francois Botha, Aleksei Pankratev</Owners>
+    <Authors>Stefan Nikolei</Authors>
+    <Owners>Stefan Nikolei</Owners>
 
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/ClosedXML/ClosedXML</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/XlsxSharp/XlsxSharp</PackageProjectUrl>
     <PackageIcon>nuget-logo.png</PackageIcon>
     <PackageTags>Excel OpenXml xlsx</PackageTags>
-    <Description>See release notes https://github.com/ClosedXML/ClosedXML/releases/tag/$(productVersion) ClosedXML is a .NET library for reading, manipulating and writing Excel 2007+ (.xlsx, .xlsm) files. It aims to provide an intuitive and user-friendly interface to dealing with the underlying OpenXML API.</Description>
-    <PackageReleaseNotes>See https://github.com/ClosedXML/ClosedXML/releases/tag/$(productVersion)</PackageReleaseNotes>
-    <RepositoryUrl>https://github.com/ClosedXML/ClosedXML</RepositoryUrl>
+    <Description>See release notes https://github.com/XlsxSharp/XlsxSharp/releases/tag/$(productVersion) XlsxSharp is a .NET library for reading, manipulating and writing Excel 2007+ (.xlsx, .xlsm) files. It aims to provide an intuitive and user-friendly interface to dealing with the underlying OpenXML API.</Description>
+    <PackageReleaseNotes>See https://github.com/XlsxSharp/XlsxSharp/releases/tag/$(productVersion)</PackageReleaseNotes>
+    <RepositoryUrl>https://github.com/XlsxSharp/XlsxSharp</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
 
     <!-- Sourcelink: https://github.com/dotnet/sourcelink/ -->
@@ -35,13 +37,10 @@
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
 
-    <LangVersion>9.0</LangVersion>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <LangVersion>latest</LangVersion>
+    <!--    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>-->
     <NoWarn>$(NoWarn);NU1605;CS1591</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>$(SourceRoot)/ClosedXML.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <!-- Make deterministic build (same binary is produced regardless of the machine building it) for CI -->
@@ -49,4 +48,7 @@
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="XlsxSharp.Tests" />
+  </ItemGroup>
 </Project>

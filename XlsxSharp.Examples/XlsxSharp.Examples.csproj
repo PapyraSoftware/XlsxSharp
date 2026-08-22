@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net462</TargetFrameworks>
+    <OutputType>Exe</OutputType>
+    <Nullable>annotations</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\*.jpg" />
+    <EmbeddedResource Include="Resources\*.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\.editorconfig" Link=".editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\XlsxSharp\XlsxSharp.csproj" />
+    <PackageReference Include="morelinq" Version="2.10.0" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,88 @@
+using ClosedXML.Parser;
+using XlsxSharp.Extensions;
+
+namespace XlsxSharp.Excel.CalcEngine.Visitors;
+
+/// <summary>
+/// A RefModVisitor that adjusts a reference in a formula when an area is deleted and shifted up/left.
+/// </summary>
+internal class ReferenceShiftOnDeleteRefModVisitor : CopyVisitor
+{
+    private readonly SheetArea _deletedBookArea;
+    private readonly XLShiftDeletedCells _shift;
+
+    public ReferenceShiftOnDeleteRefModVisitor(SheetArea deletedBookArea, XLShiftDeletedCells shift)
+    {
+        this._deletedBookArea = deletedBookArea;
+        this._shift = shift;
+    }
+
+    public override TransformedSymbol SheetReference(
+        ModContext ctx,
+        SymbolRange range,
+        string sheet,
+        ReferenceArea reference
+    )
+    {
+        return this.ShiftFormulaReferences(ctx, range, sheet, reference);
+    }
+
+    public override TransformedSymbol Reference(
+        ModContext ctx,
+        SymbolRange range,
+        ReferenceArea reference
+    )
+    {
+        return this.ShiftFormulaReferences(ctx, range, null, reference);
+    }
+
+    private TransformedSymbol ShiftFormulaReferences(
+        ModContext ctx,
+        SymbolRange range,
+        string? referenceSheetName,
+        ReferenceArea referenceToShift
+    )
+    {
+        if (
+            !XlsxSharp.XLHelper.SheetComparer.Equals(
+                this._deletedBookArea.Name,
+                referenceSheetName ?? ctx.Sheet
+            )
+        )
+        {
+            return TransformedSymbol.CopyOriginal(ctx.Formula, range);
+        }
+
+        bool wouldSplitArea =
+            this._shift == XLShiftDeletedCells.ShiftCellsUp
+                ? !referenceToShift.TryDeleteAndShiftUp(
+                    this._deletedBookArea.Area,
+                    out ReferenceArea? shiftedReference
+                )
+                : !referenceToShift.TryDeleteAndShiftLeft(
+                    this._deletedBookArea.Area,
+                    out shiftedReference
+                );
+
+        // Return original reference if the shift would cause a split
+        if (wouldSplitArea)
+        {
+            return TransformedSymbol.CopyOriginal(ctx.Formula, range);
+        }
+
+        // If reference was shifted out of sheet, return #REF!
+        if (shiftedReference is null)
+        {
+            return TransformedSymbol.ToText(ctx.Formula, range, XlsxSharp.XLHelper.RefError);
+        }
+
+        // Do not allocate a new string unless necessary
+        if (referenceToShift == shiftedReference.Value)
+        {
+            return TransformedSymbol.CopyOriginal(ctx.Formula, range);
+        }
+
+        string shiftedReferenceA1 = shiftedReference.Value.GetDisplayStringA1(referenceSheetName);
+        return TransformedSymbol.ToText(ctx.Formula, range, shiftedReferenceA1);
+    }
+}

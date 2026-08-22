@@ -1,0 +1,43 @@
+using System.IO;
+using XlsxSharp.Examples.Tables;
+using XlsxSharp.Excel;
+
+namespace XlsxSharp.Examples.Misc;
+
+public class CopyingWorksheets : IXLExample
+{
+    public void Create(string filePath)
+    {
+        string tempFile1 = ExampleHelper.GetTempFilePath(filePath);
+        string tempFile2 = ExampleHelper.GetTempFilePath(filePath);
+        try
+        {
+            new UsingTables().Create(tempFile1);
+            XLWorkbook wb = new(tempFile1);
+
+            IXLWorksheet wsSource = wb.Worksheet(1);
+            // Copy the worksheet to a new sheet in this workbook
+            wsSource.CopyTo("Copy");
+
+            // We're going to open another workbook to show that you can
+            // copy a sheet from one workbook to another:
+            new BasicTable().Create(tempFile2);
+            XLWorkbook wbSource = new(tempFile2);
+            wbSource.Worksheet(1).CopyTo(wb, "Copy From Other");
+
+            // Save the workbook with the 2 copies
+            wb.SaveAs(filePath);
+        }
+        finally
+        {
+            if (File.Exists(tempFile1))
+            {
+                File.Delete(tempFile1);
+            }
+            if (File.Exists(tempFile2))
+            {
+                File.Delete(tempFile2);
+            }
+        }
+    }
+}

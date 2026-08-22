@@ -1,0 +1,40 @@
+#nullable disable
+
+using System;
+
+namespace XlsxSharp.Excel.Drawings;
+
+internal class XLDrawingPosition : IXLDrawingPosition
+{
+    public Int32 Column { get; set; }
+
+    public IXLDrawingPosition SetColumn(Int32 column)
+    {
+        this.Column = column;
+        return this;
+    }
+
+    public Double ColumnOffset { get; set; }
+
+    public IXLDrawingPosition SetColumnOffset(Double columnOffset)
+    {
+        this.ColumnOffset = columnOffset;
+        return this;
+    }
+
+    public Int32 Row { get; set; }
+
+    public IXLDrawingPosition SetRow(Int32 row)
+    {
+        this.Row = row;
+        return this;
+    }
+
+    public Double RowOffset { get; set; }
+
+    public IXLDrawingPosition SetRowOffset(Double rowOffset)
+    {
+        this.RowOffset = rowOffset;
+        return this;
+    }
+}

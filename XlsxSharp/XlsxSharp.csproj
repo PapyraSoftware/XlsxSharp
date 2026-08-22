@@ -1,0 +1,43 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <NoWarn>$(NoWarn);NU1605;CS1591</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Graphics\Fonts\CarlitoBare-Bold.ttf" />
+    <EmbeddedResource Include="Graphics\Fonts\CarlitoBare-BoldItalic.ttf" />
+    <EmbeddedResource Include="Graphics\Fonts\CarlitoBare-Italic.ttf" />
+    <EmbeddedResource Include="Graphics\Fonts\CarlitoBare-Regular.ttf" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\.editorconfig" Link=".editorconfig" />
+    <None Include="..\resources\logo\nuget-logo.png" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DocumentFormat.OpenXml" Version="[3.1.1,4.0.0)" />
+    <PackageReference Include="ExcelNumberFormat" Version="1.1.0" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+    <PackageReference Include="Polyfill" Version="1.29.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="RBush.Signed" Version="4.0.0" />
+    <PackageReference Include="SixLabors.Fonts" Version="1.0.0" />
+    <PackageReference Include="ClosedXML.Parser" Version="2.0.0-preview1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\XlsxSharp.IO\XlsxSharp.IO.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+</Project>
