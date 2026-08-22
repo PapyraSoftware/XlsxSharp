@@ -66,8 +66,6 @@ git push origin v0.107.0
 
 The next version is always guessed as a patch bump, so the prereleases between two releases are named after a patch version even when the release eventually turns out to be a minor one. That is only a naming detail and does not restrict which tag can be set next; `MinVerAutoIncrement` in `Directory.Build.props` would change the guess to `minor`. `MinVerMinimumMajorMinor` is only a floor for the very first release and does not need to be touched per release.
 
-Packing a stable version warns with `NU5104` for as long as XlsxSharp depends on a prerelease of `ClosedXML.Parser`. This is expected and does not fail the build.
-
 `XlsxSharp.IO` has no package of its own. It is compiled into the `XlsxSharp` package, see the `IncludeXlsxSharpIoInPackage` target in `XlsxSharp/XlsxSharp.csproj`.
 
 Publishing uses [trusted publishing](https://learn.microsoft.com/nuget/nuget-org/trusted-publishing) instead of a stored API key, so nuget.org needs a policy for this repository and the `publish.yml` workflow. The repository needs the secrets `NUGET_USER` (the nuget.org account that owns the policy) and `SIXLABORS_LICENSE_KEY`.
