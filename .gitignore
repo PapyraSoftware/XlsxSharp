@@ -32,3 +32,6 @@ _ReSharper*/
 .idea/
 /ClosedXML.IO.CodeGen/Properties/launchSettings.json
 sixlabors.lic
+
+# BenchmarkDotNet run output
+BenchmarkDotNet.Artifacts/

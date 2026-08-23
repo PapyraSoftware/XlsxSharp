@@ -11,6 +11,7 @@
         <File Path=".editorconfig" />
         <File Path="Directory.Build.props" />
     </Folder>
+    <Project Path="XlsxSharp.Benchmarks\XlsxSharp.Benchmarks.csproj" />
     <Project Path="XlsxSharp.Examples\XlsxSharp.Examples.csproj" />
     <Project Path="XlsxSharp.IO.CodeGen\XlsxSharp.IO.CodeGen.csproj" />
     <Project Path="XlsxSharp.IO\XlsxSharp.IO.csproj" />

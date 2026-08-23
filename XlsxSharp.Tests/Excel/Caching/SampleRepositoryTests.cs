@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -32,16 +33,16 @@ public class BaseRepositoryTests
     {
 #if !DEBUG
         // Arrange
-        var key = 12345;
-        var sampleRepository = CreateSampleRepository();
+        int key = 12345;
+        SampleRepository sampleRepository = CreateSampleRepository();
 
         // Act
         // In net8, JIT could make a hidden temporary variable for created object that would prevent
         // GC collection. Therefore, make the reference in another method, so the hidden variable
         // doesn't get inlined. https://github.com/dotnet/runtime/issues/63568#issuecomment-1008602069
-        var storedEntityRef1 = AddEntityToRepository(sampleRepository, ref key);
+        WeakReference storedEntityRef1 = AddEntityToRepository(sampleRepository, ref key);
 
-        var count = 0;
+        int count = 0;
         do
         {
             System.Threading.Thread.Sleep(50);
@@ -51,7 +52,9 @@ public class BaseRepositoryTests
 
         // Assert
         if (count == 10)
+        {
             ClassicAssert.Fail("storedEntityRef1 was not GCed");
+        }
 
         ClassicAssert.IsFalse(sampleRepository.Any());
 
@@ -61,8 +64,6 @@ public class BaseRepositoryTests
         {
             return new System.WeakReference(repository.Store(ref key, new SampleEntity(key)));
         }
-#else
-        Assert.Ignore("Can't run in DEBUG");
 #endif
     }
 
@@ -82,7 +83,7 @@ public class BaseRepositoryTests
             }
         }
 
-        var sampleRepository = CreateSampleRepository();
+        SampleRepository sampleRepository = CreateSampleRepository();
 
         // Act
         Parallel.ForEach(
@@ -90,19 +91,17 @@ public class BaseRepositoryTests
             new ParallelOptions { MaxDegreeOfParallelism = 8 },
             e =>
             {
-                var key = e.Key;
+                int key = e.Key;
                 sampleRepository.Store(ref key, e);
             }
         );
 
         System.Threading.Thread.Sleep(50);
         System.GC.Collect();
-        var storedEntries = sampleRepository.ToList();
+        List<SampleEntity> storedEntries = sampleRepository.ToList();
 
         // Assert
         ClassicAssert.AreEqual(0, storedEntries.Count);
-#else
-        Assert.Ignore("Can't run in DEBUG");
 #endif
     }
 
