@@ -1,11 +1,9 @@
-﻿using System;
+using System;
 using System.Linq;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 
 namespace XlsxSharp.Tests.Excel.Sparklines;
 
-[TestFixture]
 public class SparklineShiftTests
 {
     [Test]
@@ -48,13 +46,13 @@ public class SparklineShiftTests
         ws.Cell("C2").Value = 2;
         IXLSparklineGroup sparklineGroup = ws.SparklineGroups.Add(sparklineAddress, "B2:C2");
         insertAction(ws);
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             expectedAddress,
             sparklineGroup.SingleOrDefault()?.Location.Address.ToString()
         );
         if (expectedAddress is null)
         {
-            Assert.IsEmpty(sparklineGroup);
+            ClassicAssert.IsEmpty(sparklineGroup);
         }
     }
 }

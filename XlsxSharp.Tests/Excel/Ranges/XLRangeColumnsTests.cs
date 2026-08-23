@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 
 namespace XlsxSharp.Tests.Excel.Ranges;
@@ -21,7 +20,7 @@ internal class XlRangeColumnsTests
         {
             string? address = cell.Address.ToString();
             int fontSize = expectedChangedCells.Contains(address) ? 20 : 11;
-            Assert.AreEqual(fontSize, cell.Style.Font.FontSize);
+            ClassicAssert.AreEqual(fontSize, cell.Style.Font.FontSize);
         }
     }
 }

@@ -1,36 +1,38 @@
 using System;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.CalcEngine;
 using XlsxSharp.Extensions;
 
 namespace XlsxSharp.Tests.Excel.CalcEngine;
 
-[TestFixture]
-[SetCulture("en-US")]
 public class InformationTests
 {
-    [TestCase("A1")] // blank
-    [TestCase("TRUE")]
-    [TestCase("14.5")]
-    [TestCase("\"text\"")]
+    [Test]
+    [Arguments("A1")] // blank
+    [Arguments("TRUE")]
+    [Arguments("14.5")]
+    [Arguments("\"text\"")]
     public void ErrorTypeNonErrorsAreNa(string argumentFormula)
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
-        Assert.AreEqual(XLError.NoValueAvailable, ws.Evaluate($"ERROR.TYPE({argumentFormula})"));
+        ClassicAssert.AreEqual(
+            XLError.NoValueAvailable,
+            ws.Evaluate($"ERROR.TYPE({argumentFormula})")
+        );
     }
 
-    [TestCase("#NULL!", 1)]
-    [TestCase("#DIV/0!", 2)]
-    [TestCase("#VALUE!", 3)]
-    [TestCase("#REF!", 4)]
-    [TestCase("#NAME?", 5)]
-    [TestCase("#NUM!", 6)]
-    [TestCase("#N/A", 7)]
+    [Test]
+    [Arguments("#NULL!", 1)]
+    [Arguments("#DIV/0!", 2)]
+    [Arguments("#VALUE!", 3)]
+    [Arguments("#REF!", 4)]
+    [Arguments("#NAME?", 5)]
+    [Arguments("#NUM!", 6)]
+    [Arguments("#N/A", 7)]
     //[TestCase("#GETTING_DATA", 8)] OLAP Cube not supported
     public void ErrorTypeReturnsNumberForError(string error, int expectedNumber) =>
-        Assert.AreEqual(expectedNumber, XLWorkbook.EvaluateExpr($"ERROR.TYPE({error})"));
+        ClassicAssert.AreEqual(expectedNumber, XLWorkbook.EvaluateExpr($"ERROR.TYPE({error})"));
 
     #region IsBlank Tests
 
@@ -40,7 +42,7 @@ public class InformationTests
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
         XLCellValue actual = ws.Evaluate("IsBlank(A1)");
-        Assert.AreEqual(true, actual);
+        ClassicAssert.AreEqual(true, actual);
     }
 
     [Test]
@@ -50,95 +52,101 @@ public class InformationTests
         IXLWorksheet ws = wb.AddWorksheet();
         ws.Cell("A1").Value = "1";
         XLCellValue actual = ws.Evaluate("IsBlank(A1)");
-        Assert.AreEqual(false, actual);
+        ClassicAssert.AreEqual(false, actual);
     }
 
-    [TestCase("FALSE")]
-    [TestCase("0")]
-    [TestCase("5")]
-    [TestCase("\"\"")]
-    [TestCase("\"Hello\"")]
-    [TestCase("#DIV/0!")]
+    [Test]
+    [Arguments("FALSE")]
+    [Arguments("0")]
+    [Arguments("5")]
+    [Arguments("\"\"")]
+    [Arguments("\"Hello\"")]
+    [Arguments("#DIV/0!")]
     public void IsBlankNonEmptyValueFalse(string value)
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr($"IsBlank({value})");
-        Assert.AreEqual(false, actual);
+        ClassicAssert.AreEqual(false, actual);
     }
 
     [Test]
     public void IsBlankInlineBlankTrue()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr("IsBlank(IF(TRUE,,))");
-        Assert.AreEqual(true, actual);
+        ClassicAssert.AreEqual(true, actual);
     }
 
     #endregion IsBlank Tests
 
-    [TestCase("IF(TRUE,,)")]
-    [TestCase("FALSE")]
-    [TestCase("0")]
-    [TestCase("\"\"")]
-    [TestCase("\"text\"")]
+    [Test]
+    [Arguments("IF(TRUE,,)")]
+    [Arguments("FALSE")]
+    [Arguments("0")]
+    [Arguments("\"\"")]
+    [Arguments("\"text\"")]
     public void IsErrNonErrorValuesFalse(string valueFormula)
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr($"IsErr({valueFormula})");
-        Assert.AreEqual(false, actual);
+        ClassicAssert.AreEqual(false, actual);
     }
 
-    [TestCase("#DIV/0!")]
-    [TestCase("#NAME?")]
-    [TestCase("#NULL!")]
-    [TestCase("#NUM!")]
-    [TestCase("#REF!")]
-    [TestCase("#VALUE!")]
+    [Test]
+    [Arguments("#DIV/0!")]
+    [Arguments("#NAME?")]
+    [Arguments("#NULL!")]
+    [Arguments("#NUM!")]
+    [Arguments("#REF!")]
+    [Arguments("#VALUE!")]
     public void IsErrErrorsExceptNaTrue(string valueFormula)
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr($"IsErr({valueFormula})");
-        Assert.AreEqual(true, actual);
+        ClassicAssert.AreEqual(true, actual);
     }
 
     [Test]
     public void IsErrNaFalse()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr("IsErr(#N/A)");
-        Assert.AreEqual(false, actual);
+        ClassicAssert.AreEqual(false, actual);
     }
 
-    [TestCase("#DIV/0!")]
-    [TestCase("#N/A")]
-    [TestCase("#NAME?")]
-    [TestCase("#NULL!")]
-    [TestCase("#NUM!")]
-    [TestCase("#REF!")]
-    [TestCase("#VALUE!")]
+    [Test]
+    [Arguments("#DIV/0!")]
+    [Arguments("#N/A")]
+    [Arguments("#NAME?")]
+    [Arguments("#NULL!")]
+    [Arguments("#NUM!")]
+    [Arguments("#REF!")]
+    [Arguments("#VALUE!")]
     public void IsErrorErrorsTrue(string error)
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr($"IsError({error})");
-        Assert.AreEqual(true, actual);
+        ClassicAssert.AreEqual(true, actual);
     }
 
-    [TestCase("IF(TRUE,,)")]
-    [TestCase("FALSE")]
-    [TestCase("0")]
-    [TestCase("\"\"")]
-    [TestCase("\"text\"")]
+    [Test]
+    [Arguments("IF(TRUE,,)")]
+    [Arguments("FALSE")]
+    [Arguments("0")]
+    [Arguments("\"\"")]
+    [Arguments("\"text\"")]
     public void IsErrorNonErrorsFalse(string valueFormula)
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr($"IsError({valueFormula})");
-        Assert.AreEqual(false, actual);
+        ClassicAssert.AreEqual(false, actual);
     }
 
     #region IsEven Tests
 
-    [TestCase("2")]
-    [TestCase("\"1 2/2\"")]
-    [TestCase("\"4 1/2\"")]
-    [TestCase("\"48:30:00\"")]
-    [TestCase("\"1900-01-02\"")]
+    [Test]
+    [Arguments("2")]
+    [Arguments("\"1 2/2\"")]
+    [Arguments("\"4 1/2\"")]
+    [Arguments("\"48:30:00\"")]
+    [Arguments("\"1900-01-02\"")]
     public void IsEvenNumberLikeValueConvertedThroughValueSemantic(string valueFormula)
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr($"IsEven({valueFormula})");
-        Assert.AreEqual(true, actual);
+        ClassicAssert.AreEqual(true, actual);
     }
 
     [Test]
@@ -152,22 +160,22 @@ public class InformationTests
         ws.Cell("A3").Value = -2.9;
 
         XLCellValue actual = ws.Evaluate("=IsEven(A1)");
-        Assert.AreEqual(true, actual);
+        ClassicAssert.AreEqual(true, actual);
 
         actual = ws.Evaluate("=IsEven(A2)");
-        Assert.AreEqual(true, actual);
+        ClassicAssert.AreEqual(true, actual);
 
         actual = ws.Evaluate("=IsEven(A3)");
-        Assert.AreEqual(true, actual);
+        ClassicAssert.AreEqual(true, actual);
 
         actual = ws.Evaluate("=IsEven(A4)");
-        Assert.AreEqual(true, actual);
+        ClassicAssert.AreEqual(true, actual);
     }
 
     [Test]
-    [Ignore("Arrays not yet implemented.")]
+    [Skip("Arrays not yet implemented.")]
     public void IsEvenArrayReturnsArray() =>
-        Assert.AreEqual(2.0, XLWorkbook.EvaluateExpr("SUM(N(IsEven({\"2.9\";2;1})))"));
+        ClassicAssert.AreEqual(2.0, XLWorkbook.EvaluateExpr("SUM(N(IsEven({\"2.9\";2;1})))"));
 
     [Test]
     public void IsEvenReferenceToMoreThanOneCellError()
@@ -175,43 +183,46 @@ public class InformationTests
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
         ws.Cell(1, 2).FormulaA1 = "IsEven(A1:A2)";
-        Assert.AreEqual(XLError.IncompatibleValue, ws.Cell(1, 2).Value);
+        ClassicAssert.AreEqual(XLError.IncompatibleValue, ws.Cell(1, 2).Value);
     }
 
-    [TestCase("TRUE", XLError.IncompatibleValue)]
-    [TestCase("FALSE", XLError.IncompatibleValue)]
-    [TestCase("\"\"", XLError.IncompatibleValue)]
-    [TestCase("\"test\"", XLError.IncompatibleValue)]
-    [TestCase("#DIV/0!", XLError.DivisionByZero)]
-    [TestCase("IF(TRUE,,)", XLError.NoValueAvailable)] // Behaves differently from a reference to a blank cell
+    [Test]
+    [Arguments("TRUE", XLError.IncompatibleValue)]
+    [Arguments("FALSE", XLError.IncompatibleValue)]
+    [Arguments("\"\"", XLError.IncompatibleValue)]
+    [Arguments("\"test\"", XLError.IncompatibleValue)]
+    [Arguments("#DIV/0!", XLError.DivisionByZero)]
+    [Arguments("IF(TRUE,,)", XLError.NoValueAvailable)] // Behaves differently from a reference to a blank cell
     public void IsEvenNonNumberValuesError(string valueFormula, XLError expectedError) =>
-        Assert.AreEqual(expectedError, XLWorkbook.EvaluateExpr($"IsEven({valueFormula})"));
+        ClassicAssert.AreEqual(expectedError, XLWorkbook.EvaluateExpr($"IsEven({valueFormula})"));
 
     #endregion IsEven Tests
 
     #region IsLogical Tests
 
-    [TestCase("TRUE")]
-    [TestCase("FALSE")]
+    [Test]
+    [Arguments("TRUE")]
+    [Arguments("FALSE")]
     public void IsLogicalOnlyLogicalTrue(string valueFormula)
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr($"IsLogical({valueFormula})");
-        Assert.AreEqual(true, actual);
+        ClassicAssert.AreEqual(true, actual);
     }
 
-    [TestCase("IF(TRUE,,)")]
-    [TestCase("0")]
-    [TestCase("1")]
-    [TestCase("\"\"")]
-    [TestCase("\"text\"")]
-    [TestCase("#NAME?")]
-    [TestCase("#N/A")]
-    [TestCase("#VALUE!")]
-    [TestCase("#REF!")]
+    [Test]
+    [Arguments("IF(TRUE,,)")]
+    [Arguments("0")]
+    [Arguments("1")]
+    [Arguments("\"\"")]
+    [Arguments("\"text\"")]
+    [Arguments("#NAME?")]
+    [Arguments("#N/A")]
+    [Arguments("#VALUE!")]
+    [Arguments("#REF!")]
     public void IsLogicalNonLogicalValueFalse(string valueFormula)
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr($"IsLogical({valueFormula})");
-        Assert.AreEqual(false, actual);
+        ClassicAssert.AreEqual(false, actual);
     }
 
     [Test]
@@ -223,7 +234,7 @@ public class InformationTests
         ws.Cell("A1").Value = true;
 
         XLCellValue actual = ws.Evaluate("IsLogical(A1)");
-        Assert.AreEqual(true, actual);
+        ClassicAssert.AreEqual(true, actual);
     }
 
     #endregion IsLogical Tests
@@ -232,19 +243,20 @@ public class InformationTests
     public void IsNanaTrue()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr("ISNA(#N/A)");
-        Assert.AreEqual(true, actual);
+        ClassicAssert.AreEqual(true, actual);
     }
 
-    [TestCase("IF(TRUE,,)")]
-    [TestCase("TRUE")]
-    [TestCase("0")]
-    [TestCase("\"\"")]
-    [TestCase("#REF!")]
-    [TestCase("\"#N/A\"")]
+    [Test]
+    [Arguments("IF(TRUE,,)")]
+    [Arguments("TRUE")]
+    [Arguments("0")]
+    [Arguments("\"\"")]
+    [Arguments("#REF!")]
+    [Arguments("\"#N/A\"")]
     public void IsNaNonNotAvailableValueFalse(string valueFormula)
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr($"ISNA({valueFormula})");
-        Assert.AreEqual(false, actual);
+        ClassicAssert.AreEqual(false, actual);
     }
 
     #region IsNotText Tests
@@ -255,19 +267,20 @@ public class InformationTests
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
         XLCellValue actual = ws.Evaluate("IsNonText(A1)");
-        Assert.AreEqual(true, actual);
+        ClassicAssert.AreEqual(true, actual);
     }
 
-    [TestCase("")]
-    [TestCase("  ")]
-    [TestCase("text")]
+    [Test]
+    [Arguments("")]
+    [Arguments("  ")]
+    [Arguments("text")]
     public void IsNotTextReferenceToStringCellFalse(string text)
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
         ws.Cell("A1").Value = text;
         XLCellValue actual = ws.Evaluate("IsNonText(A1)");
-        Assert.AreEqual(false, actual);
+        ClassicAssert.AreEqual(false, actual);
     }
 
     [Test]
@@ -281,13 +294,13 @@ public class InformationTests
         ws.Cell("A4").Value = XLError.IncompatibleValue; //Error value
 
         XLCellValue actual = ws.Evaluate("IsNonText(A1)");
-        Assert.AreEqual(true, actual);
+        ClassicAssert.AreEqual(true, actual);
         actual = ws.Evaluate("IsNonText(A2)");
-        Assert.AreEqual(true, actual);
+        ClassicAssert.AreEqual(true, actual);
         actual = ws.Evaluate("IsNonText(A3)");
-        Assert.AreEqual(true, actual);
+        ClassicAssert.AreEqual(true, actual);
         actual = ws.Evaluate("IsNonText(A4)");
-        Assert.AreEqual(true, actual);
+        ClassicAssert.AreEqual(true, actual);
     }
 
     #endregion IsNotText Tests
@@ -303,9 +316,9 @@ public class InformationTests
         ws.Cell("A2").Value = true; //Bool Value
 
         XLCellValue actual = ws.Evaluate("IsNumber(A1)");
-        Assert.AreEqual(false, actual);
+        ClassicAssert.AreEqual(false, actual);
         actual = ws.Evaluate("IsNumber(A2)");
-        Assert.AreEqual(false, actual);
+        ClassicAssert.AreEqual(false, actual);
     }
 
     [Test]
@@ -318,40 +331,41 @@ public class InformationTests
         ws.Cell("A3").Value = new TimeSpan(2, 30, 50); //TimeSpan Value
 
         XLCellValue actual = ws.Evaluate("=IsNumber(A1)");
-        Assert.AreEqual(true, actual);
+        ClassicAssert.AreEqual(true, actual);
         actual = ws.Evaluate("=IsNumber(A2)");
-        Assert.AreEqual(true, actual);
+        ClassicAssert.AreEqual(true, actual);
         actual = ws.Evaluate("=IsNumber(A3)");
-        Assert.AreEqual(true, actual);
+        ClassicAssert.AreEqual(true, actual);
     }
 
-    [TestCase("TRUE")]
-    [TestCase("FALSE")]
-    [TestCase("\"\"")]
-    [TestCase("#DIV/0!")]
-    [TestCase("#NULL!")]
-    [TestCase("#VALUE!")]
-    [TestCase("#N/A")]
+    [Test]
+    [Arguments("TRUE")]
+    [Arguments("FALSE")]
+    [Arguments("\"\"")]
+    [Arguments("#DIV/0!")]
+    [Arguments("#NULL!")]
+    [Arguments("#VALUE!")]
+    [Arguments("#N/A")]
     public void IsNumberNonNumberFalse(string nonNumberValue)
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr($"IsNumber({nonNumberValue})");
-        Assert.AreEqual(false, actual);
+        ClassicAssert.AreEqual(false, actual);
     }
 
     #endregion IsNumber Tests
 
     #region IsOdd Test
 
-    [SetCulture("en-US")]
-    [TestCase("1")]
-    [TestCase("\"2 3/3\"")]
-    [TestCase("\"5 1/3\"")]
-    [TestCase("\"25:30:00\"")]
-    [TestCase("\"1900-01-03\"")]
+    [Test]
+    [Arguments("1")]
+    [Arguments("\"2 3/3\"")]
+    [Arguments("\"5 1/3\"")]
+    [Arguments("\"25:30:00\"")]
+    [Arguments("\"1900-01-03\"")]
     public void IsOddSingleValueConvertedThroughValueSemantic(string valueFormula)
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr($"IsOdd({valueFormula})");
-        Assert.AreEqual(true, actual);
+        ClassicAssert.AreEqual(true, actual);
     }
 
     [Test]
@@ -365,23 +379,22 @@ public class InformationTests
         ws.Cell("A3").Value = -5.9;
 
         XLCellValue actual = ws.Evaluate("=IsOdd(A1)");
-        Assert.AreEqual(true, actual);
+        ClassicAssert.AreEqual(true, actual);
 
         actual = ws.Evaluate("=IsOdd(A2)");
-        Assert.AreEqual(true, actual);
+        ClassicAssert.AreEqual(true, actual);
 
         actual = ws.Evaluate("=IsOdd(A3)");
-        Assert.AreEqual(true, actual);
+        ClassicAssert.AreEqual(true, actual);
 
         actual = ws.Evaluate("=IsOdd(A4)");
-        Assert.AreEqual(false, actual);
+        ClassicAssert.AreEqual(false, actual);
     }
 
-    [SetCulture("en-US")]
     [Test]
-    [Ignore("Arrays not yet implemented.")]
+    [Skip("Arrays not yet implemented.")]
     public void IsOddArrayReturnsArray() =>
-        Assert.AreEqual(2.0, XLWorkbook.EvaluateExpr("SUM(N(IsOdd({\"3.2\",7,2})))"));
+        ClassicAssert.AreEqual(2.0, XLWorkbook.EvaluateExpr("SUM(N(IsOdd({\"3.2\",7,2})))"));
 
     [Test]
     public void IsOddReferenceToMoreThanOneCellError()
@@ -389,22 +402,24 @@ public class InformationTests
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
         ws.Cell(1, 2).FormulaA1 = "IsOdd(A1:A2)";
-        Assert.AreEqual(XLError.IncompatibleValue, ws.Cell(1, 2).Value);
+        ClassicAssert.AreEqual(XLError.IncompatibleValue, ws.Cell(1, 2).Value);
     }
 
-    [TestCase("TRUE", XLError.IncompatibleValue)]
-    [TestCase("FALSE", XLError.IncompatibleValue)]
-    [TestCase("\"\"", XLError.IncompatibleValue)]
-    [TestCase("\"test\"", XLError.IncompatibleValue)]
-    [TestCase("#DIV/0!", XLError.DivisionByZero)]
-    [TestCase("IF(TRUE,,)", XLError.NoValueAvailable)] // Behaves differently from a reference to a blank cell
+    [Test]
+    [Arguments("TRUE", XLError.IncompatibleValue)]
+    [Arguments("FALSE", XLError.IncompatibleValue)]
+    [Arguments("\"\"", XLError.IncompatibleValue)]
+    [Arguments("\"test\"", XLError.IncompatibleValue)]
+    [Arguments("#DIV/0!", XLError.DivisionByZero)]
+    [Arguments("IF(TRUE,,)", XLError.NoValueAvailable)] // Behaves differently from a reference to a blank cell
     public void IsOddNonNumberValuesError(string valueFormula, XLError expectedError) =>
-        Assert.AreEqual(expectedError, XLWorkbook.EvaluateExpr($"IsOdd({valueFormula})"));
+        ClassicAssert.AreEqual(expectedError, XLWorkbook.EvaluateExpr($"IsOdd({valueFormula})"));
 
     #endregion IsOdd Test
 
-    [TestCase("A1")]
-    [TestCase("(A1,A5)")]
+    [Test]
+    [Arguments("A1")]
+    [Arguments("(A1,A5)")]
     public void IsRefReferenceTrue(string reference)
     {
         using XLWorkbook wb = new();
@@ -413,16 +428,17 @@ public class InformationTests
 
         ws.Cell("B1").FormulaA1 = $"ISREF({reference})";
 
-        Assert.AreEqual(true, ws.Cell("B1").Value);
+        ClassicAssert.AreEqual(true, ws.Cell("B1").Value);
     }
 
-    [TestCase("IF(TRUE,,)")]
-    [TestCase("TRUE")]
-    [TestCase("0")]
-    [TestCase("\"\"")]
+    [Test]
+    [Arguments("IF(TRUE,,)")]
+    [Arguments("TRUE")]
+    [Arguments("0")]
+    [Arguments("\"\"")]
     // [TestCase("{1;2}")] Arrays not yet implemented
-    [TestCase("#N/A")]
-    [TestCase("#VALUE!")]
+    [Arguments("#N/A")]
+    [Arguments("#VALUE!")]
     public void IsRefNonReferenceFalse(string nonReference)
     {
         using XLWorkbook wb = new();
@@ -430,7 +446,7 @@ public class InformationTests
 
         ws.Cell("B1").FormulaA1 = $"ISREF({nonReference})";
 
-        Assert.AreEqual(false, ws.Cell("B1").Value);
+        ClassicAssert.AreEqual(false, ws.Cell("B1").Value);
     }
 
     #region IsText Tests
@@ -442,22 +458,24 @@ public class InformationTests
         IXLWorksheet ws = wb.AddWorksheet();
         ws.Cell("B1").FormulaA1 = "ISTEXT(A1)";
 
-        Assert.AreEqual(false, ws.Cell("B1").Value);
+        ClassicAssert.AreEqual(false, ws.Cell("B1").Value);
     }
 
-    [TestCase("0")]
-    [TestCase("123")]
-    [TestCase("TRUE")]
-    [TestCase("#DIV/0!")]
-    [TestCase("IF(TRUE,,)")]
+    [Test]
+    [Arguments("0")]
+    [Arguments("123")]
+    [Arguments("TRUE")]
+    [Arguments("#DIV/0!")]
+    [Arguments("IF(TRUE,,)")]
     public void IsTextNonTextFalse(string nonText)
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr($"ISTEXT({nonText})");
-        Assert.AreEqual(false, actual);
+        ClassicAssert.AreEqual(false, actual);
     }
 
-    [TestCase("")]
-    [TestCase("abc")]
+    [Test]
+    [Arguments("")]
+    [Arguments("abc")]
     public void IsTextCellWithTextTrue(string textValue)
     {
         using XLWorkbook wb = new();
@@ -466,7 +484,7 @@ public class InformationTests
         ws.Cell("A1").Value = textValue;
 
         XLCellValue actual = ws.Evaluate("IsText(A1)");
-        Assert.AreEqual(true, actual);
+        ClassicAssert.AreEqual(true, actual);
     }
 
     #endregion IsText Tests
@@ -479,7 +497,7 @@ public class InformationTests
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
         XLCellValue actual = ws.Evaluate("N(A1)");
-        Assert.AreEqual(0.0, actual);
+        ClassicAssert.AreEqual(0.0, actual);
     }
 
     [Test]
@@ -490,7 +508,7 @@ public class InformationTests
         DateTime testedDate = DateTime.Now;
         ws.Cell("A1").Value = testedDate;
         XLCellValue actual = ws.Evaluate("N(A1)");
-        Assert.AreEqual(testedDate.ToSerialDateTime(), actual);
+        ClassicAssert.AreEqual(testedDate.ToSerialDateTime(), actual);
     }
 
     [Test]
@@ -500,7 +518,7 @@ public class InformationTests
         IXLWorksheet ws = wb.AddWorksheet();
         ws.Cell("A1").Value = false;
         XLCellValue actual = ws.Evaluate("N(A1)");
-        Assert.AreEqual(0, actual);
+        ClassicAssert.AreEqual(0, actual);
     }
 
     [Test]
@@ -510,7 +528,7 @@ public class InformationTests
         IXLWorksheet ws = wb.AddWorksheet();
         ws.Cell("A1").Value = true;
         XLCellValue actual = ws.Evaluate("N(A1)");
-        Assert.AreEqual(1, actual);
+        ClassicAssert.AreEqual(1, actual);
     }
 
     [Test]
@@ -521,31 +539,33 @@ public class InformationTests
         int testedValue = 123;
         ws.Cell("A1").Value = testedValue;
         XLCellValue actual = ws.Evaluate("N(A1)");
-        Assert.AreEqual(testedValue, actual);
+        ClassicAssert.AreEqual(testedValue, actual);
     }
 
-    [TestCase("")]
-    [TestCase("abc")]
+    [Test]
+    [Arguments("")]
+    [Arguments("abc")]
     public void NStringZero(string text)
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
         ws.Cell("A1").Value = text;
         XLCellValue actual = ws.Evaluate("N(A1)");
-        Assert.AreEqual(0, actual);
+        ClassicAssert.AreEqual(0, actual);
     }
 
     [Test]
-    [Ignore("Array not implemented")]
+    [Skip("Array not implemented")]
     public void NArrayConvertsIndividualItems()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr("SUM(N({2,TRUE}))");
-        Assert.AreEqual(3, actual);
+        ClassicAssert.AreEqual(3, actual);
     }
 
-    [TestCase("A1")]
-    [TestCase("A1:B1")]
-    [TestCase("(A1, B1)")]
+    [Test]
+    [Arguments("A1")]
+    [Arguments("A1:B1")]
+    [Arguments("(A1, B1)")]
     public void NReferenceTakesFirstCellFromFirstArea(string reference)
     {
         using XLWorkbook wb = new();
@@ -554,51 +574,54 @@ public class InformationTests
         ws.Cell("B1").Value = 10;
 
         XLCellValue actual = ws.Evaluate($"SUM(N({reference}))");
-        Assert.AreEqual(5, actual);
+        ClassicAssert.AreEqual(5, actual);
     }
 
     #endregion N Tests
 
-    [TestCase("IF(TRUE,,)", 1)]
-    [TestCase("0", 1)]
-    [TestCase("1", 1)]
-    [TestCase("-5.2", 1)]
-    [TestCase("\"\"", 2)]
-    [TestCase("\"text\"", 2)]
-    [TestCase("\"1\"", 2)]
-    [TestCase("\"TRUE\"", 2)]
-    [TestCase("TRUE", 4)]
-    [TestCase("FALSE", 4)]
-    [TestCase("#DIV/0!", 16)]
-    [TestCase("1/0", 16)]
-    [TestCase("#N/A", 16)]
-    [TestCase("#VALUE!", 16)]
+    [Test]
+    [Arguments("IF(TRUE,,)", 1)]
+    [Arguments("0", 1)]
+    [Arguments("1", 1)]
+    [Arguments("-5.2", 1)]
+    [Arguments("\"\"", 2)]
+    [Arguments("\"text\"", 2)]
+    [Arguments("\"1\"", 2)]
+    [Arguments("\"TRUE\"", 2)]
+    [Arguments("TRUE", 4)]
+    [Arguments("FALSE", 4)]
+    [Arguments("#DIV/0!", 16)]
+    [Arguments("1/0", 16)]
+    [Arguments("#N/A", 16)]
+    [Arguments("#VALUE!", 16)]
     public void TypeNonReferenceScalarValues(string literalValues, double expectedNumber)
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
         ws.Cell("A1").FormulaA1 = $"TYPE({literalValues})";
-        Assert.AreEqual(expectedNumber, ws.Cell("A1").Value);
+        ClassicAssert.AreEqual(expectedNumber, ws.Cell("A1").Value);
     }
 
-    [Ignore("Arrays not implemented")]
-    [TestCase("{1}")]
-    [TestCase("{TRUE,#N/A}")]
-    [TestCase("{\"abc\";5}")]
+    [Test]
+    [Skip("Arrays not implemented")]
+    [Arguments("{1}")]
+    [Arguments("{TRUE,#N/A}")]
+    [Arguments("{\"abc\";5}")]
     public void TypeArrayHasValue64(string arrayLiteral)
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr($"TYPE({arrayLiteral})");
-        Assert.AreEqual(64.0, actual);
+        ClassicAssert.AreEqual(64.0, actual);
     }
 
-    [TestCase("A1:A2")]
+    [Test]
+    [Arguments("A1:A2")]
     // [TestCase("(A1:A3 A2:B3)")] Not implemented // Intersection results in a 1x2 block
     public void TypeReferenceToNonSingleCellBehavesLikeArray(string reference)
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
         ws.Cell("C1").FormulaA1 = $"TYPE({reference})";
-        Assert.AreEqual(64.0, ws.Cell("C1").Value);
+        ClassicAssert.AreEqual(64.0, ws.Cell("C1").Value);
     }
 
     [Test]
@@ -609,7 +632,7 @@ public class InformationTests
         ws.Cell("A1").Value = "text";
 
         ws.Cell("C1").FormulaA1 = "TYPE(A1)";
-        Assert.AreEqual(2.0, ws.Cell("C1").Value);
+        ClassicAssert.AreEqual(2.0, ws.Cell("C1").Value);
     }
 
     [Test]
@@ -620,6 +643,6 @@ public class InformationTests
         ws.Cell("A1").Value = "text";
 
         ws.Cell("C1").FormulaA1 = "TYPE((A1,A1))";
-        Assert.AreEqual(16.0, ws.Cell("C1").Value);
+        ClassicAssert.AreEqual(16.0, ws.Cell("C1").Value);
     }
 }

@@ -8,7 +8,6 @@ using System.Threading;
 using System.Xml.Linq;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
-using NUnit.Framework;
 using XlsxSharp.Examples;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.CalcEngine;
@@ -18,11 +17,11 @@ using XlsxSharp.Excel.Drawings;
 using XlsxSharp.Excel.IO;
 using XlsxSharp.Excel.Tables;
 using XlsxSharp.Tests.Utils;
+using Assembly = System.Reflection.Assembly;
 using SaveOptions = XlsxSharp.Excel.SaveOptions;
 
 namespace XlsxSharp.Tests.Excel.Saving;
 
-[TestFixture]
 public class SavingTests
 {
     [Test]
@@ -87,7 +86,7 @@ public class SavingTests
             using (XLWorkbook wb = new(ms))
             {
                 IXLWorksheet ws = wb.Worksheets.First();
-                Assert.AreEqual("Reserve_TT_A_BLOCAGE_CAG_x6904_2", ws.FirstCell().Value);
+                ClassicAssert.AreEqual("Reserve_TT_A_BLOCAGE_CAG_x6904_2", ws.FirstCell().Value);
             }
         }
     }
@@ -111,7 +110,7 @@ public class SavingTests
             using (XLWorkbook book2 = new(ms))
             {
                 IXLWorksheet ws = book2.Worksheet(1);
-                Assert.AreEqual("sheet1", ws.Name);
+                ClassicAssert.AreEqual("sheet1", ws.Name);
                 ws.Delete();
                 book2.Save();
                 book2.Save();
@@ -159,7 +158,7 @@ public class SavingTests
             {
                 IXLWorksheet ws = book2.Worksheet(1);
 
-                Assert.AreEqual(Blank.Value, ws.Cell("A2").CachedValue);
+                ClassicAssert.AreEqual(Blank.Value, ws.Cell("A2").CachedValue);
             }
         }
     }
@@ -185,9 +184,9 @@ public class SavingTests
             {
                 IXLWorksheet ws = book2.Worksheet(1);
 
-                Assert.AreEqual(1230, ws.Cell("A2").CachedValue);
+                ClassicAssert.AreEqual(1230, ws.Cell("A2").CachedValue);
 
-                Assert.AreEqual("1 230", ws.Cell("A3").CachedValue);
+                ClassicAssert.AreEqual("1 230", ws.Cell("A3").CachedValue);
             }
         }
     }
@@ -216,8 +215,10 @@ public class SavingTests
                     }
 
                     // Assert
-                    Assert.IsTrue(File.Exists(copy.Path));
-                    Assert.IsFalse(File.GetAttributes(copy.Path).HasFlag(FileAttributes.ReadOnly));
+                    ClassicAssert.IsTrue(File.Exists(copy.Path));
+                    ClassicAssert.IsFalse(
+                        File.GetAttributes(copy.Path).HasFlag(FileAttributes.ReadOnly)
+                    );
                 }
             }
             finally
@@ -244,15 +245,16 @@ public class SavingTests
             }
 
             // Assert
-            Assert.IsTrue(File.Exists(existing.Path));
-            Assert.Greater(new FileInfo(existing.Path).Length, 0);
+            ClassicAssert.IsTrue(File.Exists(existing.Path));
+            ClassicAssert.Greater(new FileInfo(existing.Path).Length, 0);
         }
     }
 
     [Test]
-    [Platform(Include = "Win")]
     public void CannotSaveAsOverwriteExistingReadOnlyFile()
     {
+        Skip.Unless(OperatingSystem.IsWindows(), "Windows only");
+
         using (TemporaryFile existing = new())
         {
             try
@@ -272,7 +274,7 @@ public class SavingTests
                 };
 
                 // Assert
-                Assert.Throws(typeof(UnauthorizedAccessException), saveAs);
+                ClassicAssert.Throws(typeof(UnauthorizedAccessException), saveAs);
             }
             finally
             {
@@ -302,8 +304,8 @@ public class SavingTests
             {
                 IXLWorksheet ws = wb2.Worksheets.First();
 
-                Assert.AreEqual(1, ws.PageSetup.ColumnBreaks.Count);
-                Assert.AreEqual(1, ws.PageSetup.RowBreaks.Count);
+                ClassicAssert.AreEqual(1, ws.PageSetup.ColumnBreaks.Count);
+                ClassicAssert.AreEqual(1, ws.PageSetup.RowBreaks.Count);
             }
         }
     }
@@ -359,10 +361,10 @@ public class SavingTests
         );
 
     [Test]
-    [TestCase("xlsx", SpreadsheetDocumentType.Workbook)]
-    [TestCase("xlsm", SpreadsheetDocumentType.MacroEnabledWorkbook)]
-    [TestCase("xltx", SpreadsheetDocumentType.Template)]
-    [TestCase("xltm", SpreadsheetDocumentType.MacroEnabledTemplate)]
+    [Arguments("xlsx", SpreadsheetDocumentType.Workbook)]
+    [Arguments("xlsm", SpreadsheetDocumentType.MacroEnabledWorkbook)]
+    [Arguments("xltx", SpreadsheetDocumentType.Template)]
+    [Arguments("xltm", SpreadsheetDocumentType.MacroEnabledTemplate)]
     public void SavesAsProperSpreadsheetDocumentType(
         string extension,
         SpreadsheetDocumentType expectedType
@@ -378,7 +380,7 @@ public class SavingTests
 
             using (SpreadsheetDocument package = SpreadsheetDocument.Open(tf.Path, false))
             {
-                Assert.AreEqual(expectedType, package.DocumentType);
+                ClassicAssert.AreEqual(expectedType, package.DocumentType);
             }
         }
     }
@@ -401,7 +403,7 @@ public class SavingTests
             }
             using (SpreadsheetDocument package = SpreadsheetDocument.Open(workbook.Path, false))
             {
-                Assert.AreEqual(SpreadsheetDocumentType.Workbook, package.DocumentType);
+                ClassicAssert.AreEqual(SpreadsheetDocumentType.Workbook, package.DocumentType);
             }
         }
     }
@@ -415,7 +417,7 @@ public class SavingTests
             wb.Worksheets.Add("Sheet1");
             TestDelegate action = () => wb.SaveAs(tf.Path);
 
-            Assert.Throws<ArgumentException>(action);
+            ClassicAssert.Throws<ArgumentException>(action);
         }
     }
 
@@ -428,7 +430,7 @@ public class SavingTests
             wb.Worksheets.Add("Sheet1");
             TestDelegate action = () => wb.SaveAs(tf.Path);
 
-            Assert.Throws<ArgumentException>(action);
+            ClassicAssert.Throws<ArgumentException>(action);
         }
     }
 
@@ -444,10 +446,10 @@ public class SavingTests
                 IXLWorksheet ws = wb.AddWorksheet("Sheet1");
                 IXLCell cell = ws.FirstCell();
                 cell.SetValue(quotedFormulaValue);
-                Assert.IsFalse(cell.HasFormula);
-                Assert.AreEqual(formulaValue, cell.Value);
-                Assert.AreEqual(XLDataType.Text, cell.DataType);
-                Assert.True(cell.Style.IncludeQuotePrefix);
+                ClassicAssert.IsFalse(cell.HasFormula);
+                ClassicAssert.AreEqual(formulaValue, cell.Value);
+                ClassicAssert.AreEqual(XLDataType.Text, cell.DataType);
+                ClassicAssert.True(cell.Style.IncludeQuotePrefix);
 
                 wb.SaveAs(ms);
             }
@@ -458,11 +460,11 @@ public class SavingTests
             {
                 IXLWorksheet ws = wb.Worksheets.First();
                 IXLCell cell = ws.FirstCell();
-                Assert.IsFalse(cell.HasFormula);
-                Assert.IsFalse(cell.HasFormula);
-                Assert.AreEqual(formulaValue, cell.Value);
-                Assert.AreEqual(XLDataType.Text, cell.DataType);
-                Assert.True(cell.Style.IncludeQuotePrefix);
+                ClassicAssert.IsFalse(cell.HasFormula);
+                ClassicAssert.IsFalse(cell.HasFormula);
+                ClassicAssert.AreEqual(formulaValue, cell.Value);
+                ClassicAssert.AreEqual(XLDataType.Text, cell.DataType);
+                ClassicAssert.True(cell.Style.IncludeQuotePrefix);
             }
         }
     }
@@ -492,10 +494,10 @@ public class SavingTests
                 {
                     IXLWorksheet ws = wb.Worksheet(sheetName);
 
-                    Assert.AreEqual(50, ws.Row(1).Height);
-                    Assert.AreEqual(0, ws.Row(2).Height);
-                    Assert.AreEqual(20, ws.Row(3).Height);
-                    Assert.AreEqual(100, ws.Row(4).Height);
+                    ClassicAssert.AreEqual(50, ws.Row(1).Height);
+                    ClassicAssert.AreEqual(0, ws.Row(2).Height);
+                    ClassicAssert.AreEqual(20, ws.Row(3).Height);
+                    ClassicAssert.AreEqual(100, ws.Row(4).Height);
                 }
             }
         }
@@ -525,10 +527,10 @@ public class SavingTests
                 {
                     IXLWorksheet ws = wb.Worksheet(sheetName);
 
-                    Assert.AreEqual(ws.ColumnWidth, ws.Column(1).Width);
-                    Assert.AreEqual(0, ws.Column(2).Width);
-                    Assert.AreEqual(20, ws.Column(3).Width);
-                    Assert.AreEqual(100, ws.Column(4).Width);
+                    ClassicAssert.AreEqual(ws.ColumnWidth, ws.Column(1).Width);
+                    ClassicAssert.AreEqual(0, ws.Column(2).Width);
+                    ClassicAssert.AreEqual(20, ws.Column(3).Width);
+                    ClassicAssert.AreEqual(100, ws.Column(4).Width);
                 }
             }
         }
@@ -551,7 +553,7 @@ public class SavingTests
 
             using (XLWorkbook wb = new(output))
             {
-                Assert.AreEqual(
+                ClassicAssert.AreEqual(
                     XLAlignmentHorizontalValues.Center,
                     wb.Worksheets.First().Cell("B1").Style.Alignment.Horizontal
                 );
@@ -593,17 +595,23 @@ public class SavingTests
                         x.Range.RangeAddress.FirstAddress.ColumnNumber
                     ),
                 ];
-                Assert.AreEqual(2, cf.Length);
-                Assert.AreEqual(XLConditionalFormatType.ColorScale, cf[0].ConditionalFormatType);
-                Assert.AreEqual(XLColor.Red, cf[0].Colors[1]);
-                Assert.AreEqual(XLCFContentType.Minimum, cf[0].ContentTypes[1]);
-                Assert.AreEqual(XLColor.Green, cf[0].Colors[2]);
-                Assert.AreEqual(XLCFContentType.Maximum, cf[0].ContentTypes[2]);
-                Assert.AreEqual(XLConditionalFormatType.ColorScale, cf[1].ConditionalFormatType);
-                Assert.AreEqual(XLColor.Alizarin, cf[1].Colors[1]);
-                Assert.AreEqual(XLCFContentType.Minimum, cf[1].ContentTypes[1]);
-                Assert.AreEqual(XLColor.Blue, cf[1].Colors[2]);
-                Assert.AreEqual(XLCFContentType.Maximum, cf[1].ContentTypes[2]);
+                ClassicAssert.AreEqual(2, cf.Length);
+                ClassicAssert.AreEqual(
+                    XLConditionalFormatType.ColorScale,
+                    cf[0].ConditionalFormatType
+                );
+                ClassicAssert.AreEqual(XLColor.Red, cf[0].Colors[1]);
+                ClassicAssert.AreEqual(XLCFContentType.Minimum, cf[0].ContentTypes[1]);
+                ClassicAssert.AreEqual(XLColor.Green, cf[0].Colors[2]);
+                ClassicAssert.AreEqual(XLCFContentType.Maximum, cf[0].ContentTypes[2]);
+                ClassicAssert.AreEqual(
+                    XLConditionalFormatType.ColorScale,
+                    cf[1].ConditionalFormatType
+                );
+                ClassicAssert.AreEqual(XLColor.Alizarin, cf[1].Colors[1]);
+                ClassicAssert.AreEqual(XLCFContentType.Minimum, cf[1].ContentTypes[1]);
+                ClassicAssert.AreEqual(XLColor.Blue, cf[1].Colors[2]);
+                ClassicAssert.AreEqual(XLCFContentType.Maximum, cf[1].ContentTypes[2]);
             }
         }
     }
@@ -626,7 +634,9 @@ public class SavingTests
                 foreach (IXLCell cell in numericCells)
                 {
                     cell.Clear(XLClearOptions.AllFormats);
-                    Assert.True(cell.Value.TryConvert(out double val, CultureInfo.CurrentCulture));
+                    ClassicAssert.True(
+                        cell.Value.TryConvert(out double val, CultureInfo.CurrentCulture)
+                    );
                     cell.Value = val;
                 }
 
@@ -649,7 +659,7 @@ public class SavingTests
         using (XLWorkbook wb = new(stream))
         using (MemoryStream ms = new())
         {
-            Assert.DoesNotThrow(() => wb.SaveAs(ms, false));
+            ClassicAssert.DoesNotThrow(() => wb.SaveAs(ms, false));
         }
     }
 
@@ -664,7 +674,7 @@ public class SavingTests
         using (XLWorkbook wb = new(stream))
         using (MemoryStream ms = new())
         {
-            Assert.DoesNotThrow(() => wb.SaveAs(ms, false));
+            ClassicAssert.DoesNotThrow(() => wb.SaveAs(ms, false));
         }
     }
 
@@ -706,22 +716,20 @@ public class SavingTests
                 IEnumerable<XElement> conditionalFormatting = sheet.Descendants(
                     XName.Get("conditionalFormatting", OpenXmlConst.Main2006SsNs)
                 );
-                Assert.That(
+                XmlAssert.MatchesXml(
                     conditionalFormatting,
-                    new MatchesXmlConstraint(
-                        $"""
-                        <conditionalFormatting xmlns="{OpenXmlConst.Main2006SsNs}"
-                                               pivot="1"
-                                               sqref="G2:G3">
-                          <cfRule type="cellIs"
-                                   dxfId="0"
-                                   priority="1"
-                                   operator="greaterThan">
-                            <formula>10</formula>
-                          </cfRule>
-                        </conditionalFormatting>
-                        """
-                    )
+                    $"""
+                    <conditionalFormatting xmlns="{OpenXmlConst.Main2006SsNs}"
+                                           pivot="1"
+                                           sqref="G2:G3">
+                      <cfRule type="cellIs"
+                               dxfId="0"
+                               priority="1"
+                               operator="greaterThan">
+                        <formula>10</formula>
+                      </cfRule>
+                    </conditionalFormatting>
+                    """
                 );
             },
             "/xl/styles.xml",
@@ -730,21 +738,19 @@ public class SavingTests
                 IEnumerable<XElement> dxfs = styles.Descendants(
                     XName.Get("dxfs", OpenXmlConst.Main2006SsNs)
                 );
-                Assert.That(
+                XmlAssert.MatchesXml(
                     dxfs,
-                    new MatchesXmlConstraint(
-                        $"""
-                        <dxfs count="1" xmlns="{OpenXmlConst.Main2006SsNs}">
-                          <dxf>
-                            <fill>
-                              <patternFill patternType="solid">
-                                <bgColor rgb="FF000000"/>
-                              </patternFill>
-                            </fill>
-                          </dxf>
-                        </dxfs>
-                        """
-                    )
+                    $"""
+                    <dxfs count="1" xmlns="{OpenXmlConst.Main2006SsNs}">
+                      <dxf>
+                        <fill>
+                          <patternFill patternType="solid">
+                            <bgColor rgb="FF000000"/>
+                          </patternFill>
+                        </fill>
+                      </dxf>
+                    </dxfs>
+                    """
                 );
             }
         );
@@ -761,7 +767,7 @@ public class SavingTests
         using (XLWorkbook wb = new(stream))
         using (MemoryStream ms = new())
         {
-            Assert.DoesNotThrow(() => wb.SaveAs(ms));
+            ClassicAssert.DoesNotThrow(() => wb.SaveAs(ms));
         }
     }
 
@@ -780,7 +786,7 @@ public class SavingTests
 
         using (SpreadsheetDocument wb = SpreadsheetDocument.Open(ms, false))
         {
-            Assert.IsTrue(wb.WorkbookPart.Workbook.WorkbookProperties.FilterPrivacy);
+            ClassicAssert.IsTrue(wb.WorkbookPart.Workbook.WorkbookProperties.FilterPrivacy);
         }
     }
 
@@ -799,7 +805,7 @@ public class SavingTests
 
         using (SpreadsheetDocument wb = SpreadsheetDocument.Open(ms, false))
         {
-            Assert.IsNull(wb.WorkbookPart.Workbook.WorkbookProperties.FilterPrivacy);
+            ClassicAssert.IsNull(wb.WorkbookPart.Workbook.WorkbookProperties.FilterPrivacy);
         }
     }
 
@@ -813,7 +819,7 @@ public class SavingTests
         )
         using (SpreadsheetDocument wb = SpreadsheetDocument.Open(stream, false))
         {
-            Assert.IsTrue(wb.WorkbookPart.Workbook.WorkbookProperties.FilterPrivacy);
+            ClassicAssert.IsTrue(wb.WorkbookPart.Workbook.WorkbookProperties.FilterPrivacy);
         }
     }
 
@@ -828,17 +834,17 @@ public class SavingTests
 
             ws.Row(1).InsertRowsAbove(1);
             IXLDataValidation[] dv = [.. ws.DataValidations];
-            Assert.AreEqual(1, dv.Length);
-            Assert.AreEqual("B5:B5", dv[0].Ranges.Single().RangeAddress.ToString());
+            ClassicAssert.AreEqual(1, dv.Length);
+            ClassicAssert.AreEqual("B5:B5", dv[0].Ranges.Single().RangeAddress.ToString());
 
-            Assert.DoesNotThrow(() => wb.SaveAs(ms));
+            ClassicAssert.DoesNotThrow(() => wb.SaveAs(ms));
 
             ws.Column(1).InsertColumnsBefore(1);
             dv = [.. ws.DataValidations];
-            Assert.AreEqual(1, dv.Length);
-            Assert.AreEqual("C5:C5", dv[0].Ranges.Single().RangeAddress.ToString());
+            ClassicAssert.AreEqual(1, dv.Length);
+            ClassicAssert.AreEqual("C5:C5", dv[0].Ranges.Single().RangeAddress.ToString());
 
-            Assert.DoesNotThrow(() => wb.SaveAs(ms));
+            ClassicAssert.DoesNotThrow(() => wb.SaveAs(ms));
         }
     }
 
@@ -853,7 +859,7 @@ public class SavingTests
         using XLWorkbook wb = new(stream);
         IXLWorksheet ws = wb.Worksheets.First();
         ws.Cell(1, 1).CreateComment().AddText("Test");
-        Assert.DoesNotThrow(() => wb.SaveAs(ms));
+        ClassicAssert.DoesNotThrow(() => wb.SaveAs(ms));
     }
 
     [Test]
@@ -864,7 +870,7 @@ public class SavingTests
         {
             using XLWorkbook wb = new();
             wb.AddWorksheet().FirstCell().SetValue("Hello, world!");
-            Assert.DoesNotThrow(() => wb.SaveAs(filename));
+            ClassicAssert.DoesNotThrow(() => wb.SaveAs(filename));
         }
         finally
         {
@@ -917,19 +923,19 @@ public class SavingTests
             using Stream stream = TestHelper.GetStreamFromResource(path);
 
             using XLWorkbook originalWorkbook = new(stream);
-            Assert.DoesNotThrow(() => originalWorkbook.SaveAs(filename1));
+            ClassicAssert.DoesNotThrow(() => originalWorkbook.SaveAs(filename1));
 
             using XLWorkbook workbook1 = new(filename1);
-            Assert.DoesNotThrow(() => workbook1.SaveAs(filename2));
+            ClassicAssert.DoesNotThrow(() => workbook1.SaveAs(filename2));
 
             using XLWorkbook workbook2 = new(filename2);
             IXLWorksheet ws = workbook2.Worksheet("UI Sheet");
             IXLCell B2 = ws.Cell("B2");
-            Assert.AreEqual(XLAllowedValues.List, B2.GetDataValidation().AllowedValues);
-            Assert.AreEqual("$E$1:$E$4", B2.GetDataValidation().Value);
+            ClassicAssert.AreEqual(XLAllowedValues.List, B2.GetDataValidation().AllowedValues);
+            ClassicAssert.AreEqual("$E$1:$E$4", B2.GetDataValidation().Value);
             IXLCell A2 = ws.Cell("A2");
-            Assert.AreEqual(XLAllowedValues.List, A2.GetDataValidation().AllowedValues);
-            Assert.AreEqual("ValuesSheet!$A$1:$A$4", A2.GetDataValidation().Value);
+            ClassicAssert.AreEqual(XLAllowedValues.List, A2.GetDataValidation().AllowedValues);
+            ClassicAssert.AreEqual("ValuesSheet!$A$1:$A$4", A2.GetDataValidation().Value);
         }
         finally
         {

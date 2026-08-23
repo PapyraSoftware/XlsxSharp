@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 
 namespace XlsxSharp.Tests.Excel.DefinedNames;
 
 internal class DefinedNameShiftTests
 {
-    [TestCaseSource(nameof(GetShiftTestCases))]
+    [Test]
+    [MethodDataSource(nameof(GetShiftTestCases))]
     public void Defined_name_shifts_references_in_formula_on_structural_changes(
         Action<IXLWorksheet> shiftAction,
         string expectedNameFormula
@@ -23,9 +23,9 @@ internal class DefinedNameShiftTests
 
         shiftAction(shiftSheet);
 
-        Assert.AreEqual(expectedNameFormula, workbookName.RefersTo);
-        Assert.AreEqual(expectedNameFormula, shiftName.RefersTo);
-        Assert.AreEqual("Other!$C$3:$D$5", otherName.RefersTo);
+        ClassicAssert.AreEqual(expectedNameFormula, workbookName.RefersTo);
+        ClassicAssert.AreEqual(expectedNameFormula, shiftName.RefersTo);
+        ClassicAssert.AreEqual("Other!$C$3:$D$5", otherName.RefersTo);
     }
 
     [Test]
@@ -42,7 +42,7 @@ internal class DefinedNameShiftTests
 
         lookupSheet.Row(1).Delete();
 
-        Assert.AreEqual("OFFSET(Lookup!$G$1,0,0,COUNTA(Lookup!$G:$G)-1,1)", name.RefersTo);
+        ClassicAssert.AreEqual("OFFSET(Lookup!$G$1,0,0,COUNTA(Lookup!$G:$G)-1,1)", name.RefersTo);
     }
 
     public static IEnumerable<object[]> GetShiftTestCases

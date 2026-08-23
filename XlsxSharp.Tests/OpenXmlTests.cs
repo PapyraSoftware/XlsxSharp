@@ -1,15 +1,13 @@
 using System.IO;
 using DocumentFormat.OpenXml.Packaging;
-using NUnit.Framework;
 
 namespace XlsxSharp.Tests;
 
-[TestFixture]
 public class OpenXmlTests
 {
     [Test]
-    [Ignore("Workaround has been included in XlsxSharp")]
-    public static void SetPackagePropertiesEntryToNullWithOpenXml()
+    [Skip("Workaround has been included in XlsxSharp")]
+    public void SetPackagePropertiesEntryToNullWithOpenXml()
     {
         // Fixed in .NET Standard 2.1
         // See:

@@ -1,61 +1,62 @@
-﻿using System;
-using NUnit.Framework;
+using System;
 using XlsxSharp.Excel;
 
 namespace XlsxSharp.Tests.Excel.Coordinates;
 
-[TestFixture]
 public class PointTests
 {
-    [TestCase("A1", 1, 1)]
-    [TestCase("AA1", 27, 1)]
-    [TestCase("AAA1", 703, 1)]
-    [TestCase("Z1", 26, 1)]
-    [TestCase("ZZ1", 702, 1)]
-    [TestCase("XFD1", 16384, 1)]
-    [TestCase("A1", 1, 1)]
-    [TestCase("A999", 1, 999)]
-    [TestCase("XFD1048576", 16384, 1048576)]
+    [Test]
+    [Arguments("A1", 1, 1)]
+    [Arguments("AA1", 27, 1)]
+    [Arguments("AAA1", 703, 1)]
+    [Arguments("Z1", 26, 1)]
+    [Arguments("ZZ1", 702, 1)]
+    [Arguments("XFD1", 16384, 1)]
+    [Arguments("A1", 1, 1)]
+    [Arguments("A999", 1, 999)]
+    [Arguments("XFD1048576", 16384, 1048576)]
     public void ParseCellRefsAccordingToGrammar(string cellRef, int columnNumber, int rowNumber)
     {
         Point sheetPoint = Point.Parse(cellRef.AsSpan());
-        Assert.AreEqual(columnNumber, sheetPoint.Column);
-        Assert.AreEqual(rowNumber, sheetPoint.Row);
+        ClassicAssert.AreEqual(columnNumber, sheetPoint.Column);
+        ClassicAssert.AreEqual(rowNumber, sheetPoint.Row);
     }
 
-    [TestCase("")]
-    [TestCase(" ")]
-    [TestCase("A")]
-    [TestCase("AA")]
-    [TestCase("1")]
-    [TestCase("11")]
-    [TestCase(" A1")]
-    [TestCase("A1 ")]
-    [TestCase("A 1")]
-    [TestCase("@1")] // @ is a char 'A' - 1
-    [TestCase("[1")] // [ is a char 'Z' + 1
-    [TestCase("A:")] // : is a char '9' + 1
-    [TestCase("A/")] // / is a char '0' - 1
-    [TestCase("A1:")]
-    [TestCase("A1/")]
-    [TestCase("A@1")]
-    [TestCase("A[1")]
-    [TestCase("XFE1")]
-    [TestCase("AAAA1")]
-    [TestCase("A1048577")]
-    [TestCase("A01")]
-    [TestCase("A0")]
-    [TestCase("A-1")]
+    [Test]
+    [Arguments("")]
+    [Arguments(" ")]
+    [Arguments("A")]
+    [Arguments("AA")]
+    [Arguments("1")]
+    [Arguments("11")]
+    [Arguments(" A1")]
+    [Arguments("A1 ")]
+    [Arguments("A 1")]
+    [Arguments("@1")] // @ is a char 'A' - 1
+    [Arguments("[1")] // [ is a char 'Z' + 1
+    [Arguments("A:")] // : is a char '9' + 1
+    [Arguments("A/")] // / is a char '0' - 1
+    [Arguments("A1:")]
+    [Arguments("A1/")]
+    [Arguments("A@1")]
+    [Arguments("A[1")]
+    [Arguments("XFE1")]
+    [Arguments("AAAA1")]
+    [Arguments("A1048577")]
+    [Arguments("A01")]
+    [Arguments("A0")]
+    [Arguments("A-1")]
     public void InvalidInputsAreNotParsed(string cellRef) =>
-        Assert.Throws<FormatException>(() => Point.Parse(cellRef.AsSpan()));
+        ClassicAssert.Throws<FormatException>(() => Point.Parse(cellRef.AsSpan()));
 
-    [TestCase("A1")]
-    [TestCase("DE1")]
-    [TestCase("D174")]
-    [TestCase("XFD1048576")]
+    [Test]
+    [Arguments("A1")]
+    [Arguments("DE1")]
+    [Arguments("D174")]
+    [Arguments("XFD1048576")]
     public void CanFormatToString(string cellRef)
     {
         Point r = Point.Parse(cellRef);
-        Assert.AreEqual(cellRef, r.ToString());
+        ClassicAssert.AreEqual(cellRef, r.ToString());
     }
 }

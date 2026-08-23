@@ -1,13 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.CalcEngine;
 
 namespace XlsxSharp.Tests.Excel.AutoFilters;
 
-[TestFixture]
 public class RegularFilterTests
 {
     [Test]
@@ -45,7 +43,7 @@ public class RegularFilterTests
         );
 
     [Test]
-    [SetCulture("cs-CZ")]
+    [Culture("cs-CZ")]
     public void RegularNumberValueIsComparedAsTextAgainstFormattedText() =>
         new AutoFilterTester(f => f.AddFilter(1.5))
             .Add(1.5, true)
@@ -61,7 +59,7 @@ public class RegularFilterTests
             .AssertVisibility();
 
     [Test]
-    [SetCulture("cs-CZ")]
+    [Culture("cs-CZ")]
     public void RegularLogicalValueIsComparedAsTextAgainstFormattedText() =>
         new AutoFilterTester(f => f.AddFilter(false))
             .Add(false, true)
@@ -73,7 +71,7 @@ public class RegularFilterTests
             .AssertVisibility();
 
     [Test]
-    [SetCulture("cs-CZ")]
+    [Culture("cs-CZ")]
     public void RegularErrorValueIsComparedAsTextAgainstFormattedText() =>
         new AutoFilterTester(f => f.AddFilter("#VALUE!"))
             .Add(XLError.IncompatibleValue, true)

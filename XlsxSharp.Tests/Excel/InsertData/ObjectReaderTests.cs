@@ -1,7 +1,6 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.CalcEngine;
 using XlsxSharp.Excel.InsertData;
@@ -58,62 +57,51 @@ public class ObjectReaderTests
         null,
     ];
 
-    [TestCaseSource(nameof(ObjectSourceNames))]
-    public string CanGetPropertyName<T>(IEnumerable<T> data, int propertyIndex)
+    [Test]
+    [MethodDataSource(nameof(ObjectSourceNames))]
+    public void CanGetPropertyName(IEnumerable data, int propertyIndex, string expected)
     {
         IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(data);
-        return reader.GetPropertyName(propertyIndex);
+        ClassicAssert.AreEqual(expected, reader.GetPropertyName(propertyIndex));
     }
 
-    private static IEnumerable<TestCaseData> ObjectSourceNames
+    internal static IEnumerable<(IEnumerable, int, string)> ObjectSourceNames()
     {
-        get
-        {
-            IEnumerable data = ObjectWithoutAttributes;
-            yield return new TestCaseData(data, 0).Returns("Column1");
-            yield return new TestCaseData(data, 1).Returns("Column2");
+        IEnumerable data = ObjectWithoutAttributes;
+        yield return (data, 0, "Column1");
+        yield return (data, 1, "Column2");
 
-            data = ObjectWithAttributes;
-            yield return new TestCaseData(data, 0).Returns("FirstColumn");
-            yield return new TestCaseData(data, 1).Returns("SecondColumn");
-            yield return new TestCaseData(data, 2).Returns("SomeFieldNotProperty");
-            yield return new TestCaseData(data, 3).Returns("UnOrderedColumn");
+        data = ObjectWithAttributes;
+        yield return (data, 0, "FirstColumn");
+        yield return (data, 1, "SecondColumn");
+        yield return (data, 2, "SomeFieldNotProperty");
+        yield return (data, 3, "UnOrderedColumn");
 
-            data = Structs;
-            yield return new TestCaseData(data, 0).Returns("X");
-            yield return new TestCaseData(data, 1).Returns("Y");
-            yield return new TestCaseData(data, 2).Returns("Z");
+        data = Structs;
+        yield return (data, 0, "X");
+        yield return (data, 1, "Y");
+        yield return (data, 2, "Z");
 
-            data = NullableStructs;
-            yield return new TestCaseData(data, 0).Returns("X");
-            yield return new TestCaseData(data, 1).Returns("Y");
-            yield return new TestCaseData(data, 2).Returns("Z");
-        }
+        data = NullableStructs;
+        yield return (data, 0, "X");
+        yield return (data, 1, "Y");
+        yield return (data, 2, "Z");
     }
 
-    [TestCaseSource(nameof(PropertyCounts))]
-    public int CanGetPropertiesCount(IEnumerable data)
+    [Test]
+    [MethodDataSource(nameof(PropertyCounts))]
+    public void CanGetPropertiesCount(IEnumerable data, int expected)
     {
         IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(data);
-        return reader.GetPropertiesCount();
+        ClassicAssert.AreEqual(expected, reader.GetPropertiesCount());
     }
 
-    private static IEnumerable<TestCaseData> PropertyCounts
+    internal static IEnumerable<(IEnumerable, int)> PropertyCounts()
     {
-        get
-        {
-            IEnumerable data = ObjectWithoutAttributes;
-            yield return new TestCaseData(data).Returns(2);
-
-            data = ObjectWithAttributes;
-            yield return new TestCaseData(data).Returns(4);
-
-            data = Structs;
-            yield return new TestCaseData(data).Returns(3);
-
-            data = NullableStructs;
-            yield return new TestCaseData(data).Returns(3);
-        }
+        yield return (ObjectWithoutAttributes, 2);
+        yield return (ObjectWithAttributes, 4);
+        yield return (Structs, 3);
+        yield return (NullableStructs, 3);
     }
 
     [Test]
@@ -122,7 +110,7 @@ public class ObjectReaderTests
         IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(
             ObjectWithAttributes
         );
-        Assert.AreEqual(2, reader.GetRecords().Count());
+        ClassicAssert.AreEqual(2, reader.GetRecords().Count());
     }
 
     [Test]
@@ -136,15 +124,15 @@ public class ObjectReaderTests
         XLCellValue[] firstRecord = [.. result.First()];
         XLCellValue[] lastRecord = [.. result.Last()];
 
-        Assert.AreEqual("Value 2", firstRecord[0]);
-        Assert.AreEqual("Value 1", firstRecord[1]);
-        Assert.AreEqual(4, firstRecord[2]);
-        Assert.AreEqual(3, firstRecord[3]);
+        ClassicAssert.AreEqual("Value 2", firstRecord[0]);
+        ClassicAssert.AreEqual("Value 1", firstRecord[1]);
+        ClassicAssert.AreEqual(4, firstRecord[2]);
+        ClassicAssert.AreEqual(3, firstRecord[3]);
 
-        Assert.AreEqual("Value 6", lastRecord[0]);
-        Assert.AreEqual("Value 5", lastRecord[1]);
-        Assert.AreEqual(8, lastRecord[2]);
-        Assert.AreEqual(7, lastRecord[3]);
+        ClassicAssert.AreEqual("Value 6", lastRecord[0]);
+        ClassicAssert.AreEqual("Value 5", lastRecord[1]);
+        ClassicAssert.AreEqual(8, lastRecord[2]);
+        ClassicAssert.AreEqual(7, lastRecord[3]);
     }
 
     [Test]
@@ -156,13 +144,13 @@ public class ObjectReaderTests
         XLCellValue[] firstRecord = [.. result.First()];
         XLCellValue[] lastRecord = [.. result.Last()];
 
-        Assert.AreEqual(1, firstRecord[0]);
-        Assert.AreEqual(2, firstRecord[1]);
-        Assert.AreEqual(3, firstRecord[2]);
+        ClassicAssert.AreEqual(1, firstRecord[0]);
+        ClassicAssert.AreEqual(2, firstRecord[1]);
+        ClassicAssert.AreEqual(3, firstRecord[2]);
 
-        Assert.AreEqual(0, lastRecord[0]);
-        Assert.AreEqual(0, lastRecord[1]);
-        Assert.AreEqual(Blank.Value, lastRecord[2]);
+        ClassicAssert.AreEqual(0, lastRecord[0]);
+        ClassicAssert.AreEqual(0, lastRecord[1]);
+        ClassicAssert.AreEqual(Blank.Value, lastRecord[2]);
     }
 
     [Test]
@@ -174,13 +162,13 @@ public class ObjectReaderTests
         XLCellValue[] firstRecord = [.. result.First()];
         XLCellValue[] lastRecord = [.. result.Last()];
 
-        Assert.AreEqual(1, firstRecord[0]);
-        Assert.AreEqual(2, firstRecord[1]);
-        Assert.AreEqual(3, firstRecord[2]);
+        ClassicAssert.AreEqual(1, firstRecord[0]);
+        ClassicAssert.AreEqual(2, firstRecord[1]);
+        ClassicAssert.AreEqual(3, firstRecord[2]);
 
-        Assert.AreEqual(Blank.Value, lastRecord[0]);
-        Assert.AreEqual(Blank.Value, lastRecord[1]);
-        Assert.AreEqual(Blank.Value, lastRecord[2]);
+        ClassicAssert.AreEqual(Blank.Value, lastRecord[0]);
+        ClassicAssert.AreEqual(Blank.Value, lastRecord[1]);
+        ClassicAssert.AreEqual(Blank.Value, lastRecord[2]);
     }
 
     [Test]
@@ -189,8 +177,8 @@ public class ObjectReaderTests
         TestClassWithIndexer[] data = [new()];
         IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(data);
 
-        Assert.AreEqual(1, reader.GetPropertiesCount());
-        Assert.AreEqual(nameof(TestClassWithIndexer.Value), reader.GetPropertyName(0));
+        ClassicAssert.AreEqual(1, reader.GetPropertiesCount());
+        ClassicAssert.AreEqual(nameof(TestClassWithIndexer.Value), reader.GetPropertyName(0));
     }
 
     private record TestClassWithIndexer

@@ -1,5 +1,4 @@
 using System;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.ConditionalFormats;
 
@@ -8,7 +7,6 @@ namespace XlsxSharp.Tests.Excel.Styles;
 /// <summary>
 /// Test of <see cref="XLDxFormat"/>.
 /// </summary>
-[TestFixture]
 internal class DxfFormatTests
 {
     [Test]
@@ -22,11 +20,11 @@ internal class DxfFormatTests
 
         target.Style = source.Style;
 
-        Assert.That(target.Style.Fill.BackgroundColor, Is.EqualTo(XLColor.Red));
+        ClassicAssert.AreEqual(XLColor.Red, target.Style.Fill.BackgroundColor);
 
         // Copy was deep, changes to the source don't affect the copy
         source.Style.Fill.BackgroundColor = XLColor.Green;
-        Assert.That(target.Style.Fill.BackgroundColor, Is.EqualTo(XLColor.Red));
+        ClassicAssert.AreEqual(XLColor.Red, target.Style.Fill.BackgroundColor);
     }
 
     [Test]
@@ -36,7 +34,7 @@ internal class DxfFormatTests
         IXLWorksheet ws = wb.AddWorksheet();
         IXLConditionalFormat cf = ws.Range("A1").AddConditionalFormat();
 
-        Assert.That(() => cf.Style = ws.Cell("B1").Style, Throws.TypeOf<NotSupportedException>());
+        ClassicAssert.Throws<NotSupportedException>(() => cf.Style = ws.Cell("B1").Style);
     }
 
     [Test]
@@ -45,7 +43,7 @@ internal class DxfFormatTests
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
         IXLConditionalFormat cf = ws.Range("A1").AddConditionalFormat();
-        Assert.IsFalse(cf.Style.IncludeQuotePrefix);
+        ClassicAssert.IsFalse(cf.Style.IncludeQuotePrefix);
     }
 
     [Test]
@@ -54,14 +52,12 @@ internal class DxfFormatTests
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
         IXLConditionalFormat cf = ws.Range("A1").AddConditionalFormat();
-        Assert.That(
-            () => cf.Style.IncludeQuotePrefix = true,
-            Throws.TypeOf<NotSupportedException>()
-        );
+        ClassicAssert.Throws<NotSupportedException>(() => cf.Style.IncludeQuotePrefix = true);
     }
 
-    [TestCase(-1, "$0.00")]
-    [TestCase(XLPredefinedFormat.Number.Integer, "0")]
+    [Test]
+    [Arguments(-1, "$0.00")]
+    [Arguments(XLPredefinedFormat.Number.Integer, "0")]
     public void NumberFormat_can_be_set_through_format(int numFmtId, string format)
     {
         using XLWorkbook wb = new();
@@ -70,11 +66,12 @@ internal class DxfFormatTests
 
         cf.Style.NumberFormat.SetFormat(format);
 
-        Assert.AreEqual(format, cf.Style.NumberFormat.Format);
-        Assert.AreEqual(numFmtId, cf.Style.NumberFormat.NumberFormatId);
+        ClassicAssert.AreEqual(format, cf.Style.NumberFormat.Format);
+        ClassicAssert.AreEqual(numFmtId, cf.Style.NumberFormat.NumberFormatId);
     }
 
-    [TestCase(XLPredefinedFormat.Number.Integer, "0")]
+    [Test]
+    [Arguments(XLPredefinedFormat.Number.Integer, "0")]
     public void NumberFormat_can_be_set_through_number_format_id(int numFmtId, string format)
     {
         using XLWorkbook wb = new();
@@ -83,12 +80,13 @@ internal class DxfFormatTests
 
         cf.Style.NumberFormat.SetNumberFormatId(numFmtId);
 
-        Assert.AreEqual(numFmtId, cf.Style.NumberFormat.NumberFormatId);
-        Assert.AreEqual(format, cf.Style.NumberFormat.Format);
+        ClassicAssert.AreEqual(numFmtId, cf.Style.NumberFormat.NumberFormatId);
+        ClassicAssert.AreEqual(format, cf.Style.NumberFormat.Format);
     }
 
-    [TestCase(-1, "$0.00")]
-    [TestCase(XLPredefinedFormat.Number.Integer, "0")]
+    [Test]
+    [Arguments(-1, "$0.00")]
+    [Arguments(XLPredefinedFormat.Number.Integer, "0")]
     public void NumberFormat_can_be_set_by_assigning_number_format(int numFmtId, string format)
     {
         using XLWorkbook wb = new();
@@ -101,8 +99,8 @@ internal class DxfFormatTests
 
         cf.Style.NumberFormat = numberFormat;
 
-        Assert.AreEqual(numFmtId, cf.Style.NumberFormat.NumberFormatId);
-        Assert.AreEqual(format, cf.Style.NumberFormat.Format);
+        ClassicAssert.AreEqual(numFmtId, cf.Style.NumberFormat.NumberFormatId);
+        ClassicAssert.AreEqual(format, cf.Style.NumberFormat.Format);
     }
 
     [Test]
@@ -113,7 +111,7 @@ internal class DxfFormatTests
         IXLConditionalFormat cf = ws.Range("A1").AddConditionalFormat();
         cf.Style.NumberFormat.SetFormat("00.0");
 
-        Assert.AreEqual("00.0", cf.Style.DateFormat.Format);
+        ClassicAssert.AreEqual("00.0", cf.Style.DateFormat.Format);
     }
 
     [Test]
@@ -123,8 +121,8 @@ internal class DxfFormatTests
         IXLWorksheet ws = wb.AddWorksheet();
         IXLProtection protection = ws.Range("A1").AddConditionalFormat().Style.Protection;
 
-        Assert.True(protection.Locked);
-        Assert.False(protection.Hidden);
+        ClassicAssert.True(protection.Locked);
+        ClassicAssert.False(protection.Hidden);
     }
 
     [Test]
@@ -135,7 +133,7 @@ internal class DxfFormatTests
         IXLConditionalFormat cf = ws.Range("A1").AddConditionalFormat();
 
         cf.Style.Protection.SetLocked(false);
-        Assert.False(cf.Style.Protection.Locked);
+        ClassicAssert.False(cf.Style.Protection.Locked);
     }
 
     [Test]
@@ -146,6 +144,6 @@ internal class DxfFormatTests
         IXLConditionalFormat cf = ws.Range("A1").AddConditionalFormat();
 
         cf.Style.Protection.SetHidden(true);
-        Assert.True(cf.Style.Protection.Hidden);
+        ClassicAssert.True(cf.Style.Protection.Hidden);
     }
 }

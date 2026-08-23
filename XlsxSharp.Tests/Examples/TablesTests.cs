@@ -1,9 +1,7 @@
-﻿using NUnit.Framework;
 using XlsxSharp.Examples.Tables;
 
 namespace XlsxSharp.Tests.Examples;
 
-[TestFixture]
 public class TablesTests
 {
     [Test]

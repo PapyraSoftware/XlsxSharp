@@ -1,9 +1,7 @@
-﻿using NUnit.Framework;
 using XlsxSharp.Excel;
 
 namespace XlsxSharp.Tests.Excel.PivotTables;
 
-[TestFixture]
 public class XlPivotTableFiltersTests
 {
     [Test]
@@ -23,22 +21,22 @@ public class XlPivotTableFiltersTests
         IXLPivotTable pt = ws.PivotTables.Add("pt", ws.Cell("E2"), data);
 
         // No filter, the table is at the original cell
-        Assert.AreEqual("E2", ((XLPivotTable)pt).Area.ToString());
+        ClassicAssert.AreEqual("E2", ((XLPivotTable)pt).Area.ToString());
 
         pt.ReportFilters.Add("City");
 
         // First filter also adds divider row between filter and the table.
-        Assert.AreEqual("E4", ((XLPivotTable)pt).Area.ToString());
+        ClassicAssert.AreEqual("E4", ((XLPivotTable)pt).Area.ToString());
 
         pt.ReportFilters.Add("Flavor");
 
         // When second filter is added, there is no need to add second divider row.
-        Assert.AreEqual("E5", ((XLPivotTable)pt).Area.ToString());
+        ClassicAssert.AreEqual("E5", ((XLPivotTable)pt).Area.ToString());
 
         pt.ReportFilters.Remove("City");
-        Assert.AreEqual("E4", ((XLPivotTable)pt).Area.ToString());
+        ClassicAssert.AreEqual("E4", ((XLPivotTable)pt).Area.ToString());
 
         pt.ReportFilters.Remove("Flavor");
-        Assert.AreEqual("E2", ((XLPivotTable)pt).Area.ToString());
+        ClassicAssert.AreEqual("E2", ((XLPivotTable)pt).Area.ToString());
     }
 }

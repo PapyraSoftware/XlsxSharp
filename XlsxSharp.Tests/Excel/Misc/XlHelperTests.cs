@@ -1,14 +1,12 @@
 using System;
 using System.Collections.Generic;
-using NUnit.Framework;
 
 namespace XlsxSharp.Tests.Excel.Misc;
 
-[TestFixture]
 public class XlHelperTests
 {
     private static void CheckColumnNumber(int column) =>
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             column,
             XLHelper.GetColumnNumberFromLetter(XLHelper.GetColumnLetterFromNumber(column))
         );
@@ -16,47 +14,47 @@ public class XlHelperTests
     [Test]
     public void InvalidA1Addresses()
     {
-        Assert.IsFalse(XLHelper.IsValidA1Address(""));
-        Assert.IsFalse(XLHelper.IsValidA1Address("A"));
-        Assert.IsFalse(XLHelper.IsValidA1Address("a"));
-        Assert.IsFalse(XLHelper.IsValidA1Address("1"));
-        Assert.IsFalse(XLHelper.IsValidA1Address("-1"));
-        Assert.IsFalse(XLHelper.IsValidA1Address("AAAA1"));
-        Assert.IsFalse(XLHelper.IsValidA1Address("XFG1"));
+        ClassicAssert.IsFalse(XLHelper.IsValidA1Address(""));
+        ClassicAssert.IsFalse(XLHelper.IsValidA1Address("A"));
+        ClassicAssert.IsFalse(XLHelper.IsValidA1Address("a"));
+        ClassicAssert.IsFalse(XLHelper.IsValidA1Address("1"));
+        ClassicAssert.IsFalse(XLHelper.IsValidA1Address("-1"));
+        ClassicAssert.IsFalse(XLHelper.IsValidA1Address("AAAA1"));
+        ClassicAssert.IsFalse(XLHelper.IsValidA1Address("XFG1"));
 
-        Assert.IsFalse(XLHelper.IsValidA1Address("@A1"));
-        Assert.IsFalse(XLHelper.IsValidA1Address("@AA1"));
-        Assert.IsFalse(XLHelper.IsValidA1Address("@AAA1"));
-        Assert.IsFalse(XLHelper.IsValidA1Address("[A1"));
-        Assert.IsFalse(XLHelper.IsValidA1Address("[AA1"));
-        Assert.IsFalse(XLHelper.IsValidA1Address("[AAA1"));
-        Assert.IsFalse(XLHelper.IsValidA1Address("{A1"));
-        Assert.IsFalse(XLHelper.IsValidA1Address("{AA1"));
-        Assert.IsFalse(XLHelper.IsValidA1Address("{AAA1"));
+        ClassicAssert.IsFalse(XLHelper.IsValidA1Address("@A1"));
+        ClassicAssert.IsFalse(XLHelper.IsValidA1Address("@AA1"));
+        ClassicAssert.IsFalse(XLHelper.IsValidA1Address("@AAA1"));
+        ClassicAssert.IsFalse(XLHelper.IsValidA1Address("[A1"));
+        ClassicAssert.IsFalse(XLHelper.IsValidA1Address("[AA1"));
+        ClassicAssert.IsFalse(XLHelper.IsValidA1Address("[AAA1"));
+        ClassicAssert.IsFalse(XLHelper.IsValidA1Address("{A1"));
+        ClassicAssert.IsFalse(XLHelper.IsValidA1Address("{AA1"));
+        ClassicAssert.IsFalse(XLHelper.IsValidA1Address("{AAA1"));
 
-        Assert.IsFalse(XLHelper.IsValidA1Address("A1@"));
-        Assert.IsFalse(XLHelper.IsValidA1Address("AA1@"));
-        Assert.IsFalse(XLHelper.IsValidA1Address("AAA1@"));
-        Assert.IsFalse(XLHelper.IsValidA1Address("A1["));
-        Assert.IsFalse(XLHelper.IsValidA1Address("AA1["));
-        Assert.IsFalse(XLHelper.IsValidA1Address("AAA1["));
-        Assert.IsFalse(XLHelper.IsValidA1Address("A1{"));
-        Assert.IsFalse(XLHelper.IsValidA1Address("AA1{"));
-        Assert.IsFalse(XLHelper.IsValidA1Address("AAA1{"));
+        ClassicAssert.IsFalse(XLHelper.IsValidA1Address("A1@"));
+        ClassicAssert.IsFalse(XLHelper.IsValidA1Address("AA1@"));
+        ClassicAssert.IsFalse(XLHelper.IsValidA1Address("AAA1@"));
+        ClassicAssert.IsFalse(XLHelper.IsValidA1Address("A1["));
+        ClassicAssert.IsFalse(XLHelper.IsValidA1Address("AA1["));
+        ClassicAssert.IsFalse(XLHelper.IsValidA1Address("AAA1["));
+        ClassicAssert.IsFalse(XLHelper.IsValidA1Address("A1{"));
+        ClassicAssert.IsFalse(XLHelper.IsValidA1Address("AA1{"));
+        ClassicAssert.IsFalse(XLHelper.IsValidA1Address("AAA1{"));
 
-        Assert.IsFalse(XLHelper.IsValidA1Address("@A1@"));
-        Assert.IsFalse(XLHelper.IsValidA1Address("@AA1@"));
-        Assert.IsFalse(XLHelper.IsValidA1Address("@AAA1@"));
-        Assert.IsFalse(XLHelper.IsValidA1Address("[A1["));
-        Assert.IsFalse(XLHelper.IsValidA1Address("[AA1["));
-        Assert.IsFalse(XLHelper.IsValidA1Address("[AAA1["));
-        Assert.IsFalse(XLHelper.IsValidA1Address("{A1{"));
-        Assert.IsFalse(XLHelper.IsValidA1Address("{AA1{"));
-        Assert.IsFalse(XLHelper.IsValidA1Address("{AAA1{"));
+        ClassicAssert.IsFalse(XLHelper.IsValidA1Address("@A1@"));
+        ClassicAssert.IsFalse(XLHelper.IsValidA1Address("@AA1@"));
+        ClassicAssert.IsFalse(XLHelper.IsValidA1Address("@AAA1@"));
+        ClassicAssert.IsFalse(XLHelper.IsValidA1Address("[A1["));
+        ClassicAssert.IsFalse(XLHelper.IsValidA1Address("[AA1["));
+        ClassicAssert.IsFalse(XLHelper.IsValidA1Address("[AAA1["));
+        ClassicAssert.IsFalse(XLHelper.IsValidA1Address("{A1{"));
+        ClassicAssert.IsFalse(XLHelper.IsValidA1Address("{AA1{"));
+        ClassicAssert.IsFalse(XLHelper.IsValidA1Address("{AAA1{"));
     }
 
     [Test]
-    public void PlusAa1IsNotAnAddress() => Assert.IsFalse(XLHelper.IsValidA1Address("+AA1"));
+    public void PlusAa1IsNotAnAddress() => ClassicAssert.IsFalse(XLHelper.IsValidA1Address("+AA1"));
 
     [Test]
     public void TestConvertColumnLetterToNumberAnd()
@@ -73,20 +71,22 @@ public class XlHelperTests
     [Test]
     public void ValidA1Addresses()
     {
-        Assert.IsTrue(XLHelper.IsValidA1Address("A1"));
-        Assert.IsTrue(XLHelper.IsValidA1Address("A" + XLHelper.MaxRowNumber));
-        Assert.IsTrue(XLHelper.IsValidA1Address("Z1"));
-        Assert.IsTrue(XLHelper.IsValidA1Address("Z" + XLHelper.MaxRowNumber));
+        ClassicAssert.IsTrue(XLHelper.IsValidA1Address("A1"));
+        ClassicAssert.IsTrue(XLHelper.IsValidA1Address("A" + XLHelper.MaxRowNumber));
+        ClassicAssert.IsTrue(XLHelper.IsValidA1Address("Z1"));
+        ClassicAssert.IsTrue(XLHelper.IsValidA1Address("Z" + XLHelper.MaxRowNumber));
 
-        Assert.IsTrue(XLHelper.IsValidA1Address("AA1"));
-        Assert.IsTrue(XLHelper.IsValidA1Address("AA" + XLHelper.MaxRowNumber));
-        Assert.IsTrue(XLHelper.IsValidA1Address("ZZ1"));
-        Assert.IsTrue(XLHelper.IsValidA1Address("ZZ" + XLHelper.MaxRowNumber));
+        ClassicAssert.IsTrue(XLHelper.IsValidA1Address("AA1"));
+        ClassicAssert.IsTrue(XLHelper.IsValidA1Address("AA" + XLHelper.MaxRowNumber));
+        ClassicAssert.IsTrue(XLHelper.IsValidA1Address("ZZ1"));
+        ClassicAssert.IsTrue(XLHelper.IsValidA1Address("ZZ" + XLHelper.MaxRowNumber));
 
-        Assert.IsTrue(XLHelper.IsValidA1Address("AAA1"));
-        Assert.IsTrue(XLHelper.IsValidA1Address("AAA" + XLHelper.MaxRowNumber));
-        Assert.IsTrue(XLHelper.IsValidA1Address(XLHelper.MaxColumnLetter + "1"));
-        Assert.IsTrue(XLHelper.IsValidA1Address(XLHelper.MaxColumnLetter + XLHelper.MaxRowNumber));
+        ClassicAssert.IsTrue(XLHelper.IsValidA1Address("AAA1"));
+        ClassicAssert.IsTrue(XLHelper.IsValidA1Address("AAA" + XLHelper.MaxRowNumber));
+        ClassicAssert.IsTrue(XLHelper.IsValidA1Address(XLHelper.MaxColumnLetter + "1"));
+        ClassicAssert.IsTrue(
+            XLHelper.IsValidA1Address(XLHelper.MaxColumnLetter + XLHelper.MaxRowNumber)
+        );
     }
 
     [Test]
@@ -98,37 +98,39 @@ public class XlHelperTests
             string columnLetter = NaiveGetColumnLetterFromNumber(c);
             columnLetters.Add(columnLetter);
 
-            Assert.AreEqual(columnLetter, XLHelper.GetColumnLetterFromNumber(c));
+            ClassicAssert.AreEqual(columnLetter, XLHelper.GetColumnLetterFromNumber(c));
         }
 
         foreach (string cl in columnLetters)
         {
             int columnNumber = NaiveGetColumnNumberFromLetter(cl);
-            Assert.AreEqual(columnNumber, XLHelper.GetColumnNumberFromLetter(cl));
+            ClassicAssert.AreEqual(columnNumber, XLHelper.GetColumnNumberFromLetter(cl));
         }
     }
 
-    [TestCase("R")]
-    [TestCase("C")]
-    [TestCase("RC")]
-    [TestCase("R111C222")]
-    [TestCase("R[]C")]
-    [TestCase("RC[]")]
-    [TestCase("R[]C[]")]
-    [TestCase("R[111]C222")]
-    [TestCase("R111C[222]")]
-    [TestCase("R[111]C[222]")]
-    [TestCase("R[-111]C[-222]")]
+    [Test]
+    [Arguments("R")]
+    [Arguments("C")]
+    [Arguments("RC")]
+    [Arguments("R111C222")]
+    [Arguments("R[]C")]
+    [Arguments("RC[]")]
+    [Arguments("R[]C[]")]
+    [Arguments("R[111]C222")]
+    [Arguments("R111C[222]")]
+    [Arguments("R[111]C[222]")]
+    [Arguments("R[-111]C[-222]")]
     public void ValidRcAddresses(string address) =>
-        Assert.IsTrue(XLHelper.IsValidRCAddress(address));
+        ClassicAssert.IsTrue(XLHelper.IsValidRCAddress(address));
 
-    [TestCase("RD")]
-    [TestCase("CC")]
-    [TestCase("R[-]C222")]
-    [TestCase("R[]C[-]")]
-    [TestCase("_R111C222")]
+    [Test]
+    [Arguments("RD")]
+    [Arguments("CC")]
+    [Arguments("R[-]C222")]
+    [Arguments("R[]C[-]")]
+    [Arguments("_R111C222")]
     public void InvalidRcAddresses(string address) =>
-        Assert.IsFalse(XLHelper.IsValidRCAddress(address));
+        ClassicAssert.IsFalse(XLHelper.IsValidRCAddress(address));
 
     #region Old XLHelper methods
 

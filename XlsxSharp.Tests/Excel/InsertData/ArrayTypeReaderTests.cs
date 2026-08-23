@@ -1,6 +1,5 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.InsertData;
 
@@ -14,21 +13,21 @@ public class ArrayTypeReaderTests
     public void GetPropertyNameReturnsNull()
     {
         IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(this.data);
-        Assert.IsNull(reader.GetPropertyName(0));
+        ClassicAssert.IsNull(reader.GetPropertyName(0));
     }
 
     [Test]
     public void CanGetPropertiesCount()
     {
         IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(this.data);
-        Assert.AreEqual(3, reader.GetPropertiesCount());
+        ClassicAssert.AreEqual(3, reader.GetPropertiesCount());
     }
 
     [Test]
     public void CanGetRecordsCount()
     {
         IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(this.data);
-        Assert.AreEqual(2, reader.GetRecords().Count());
+        ClassicAssert.AreEqual(2, reader.GetRecords().Count());
     }
 
     [Test]
@@ -37,9 +36,9 @@ public class ArrayTypeReaderTests
         IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(this.data);
         IEnumerable<IEnumerable<XLCellValue>> result = reader.GetRecords();
 
-        Assert.AreEqual(1, result.First().First());
-        Assert.AreEqual(3, result.First().Last());
-        Assert.AreEqual(4, result.Last().First());
-        Assert.AreEqual(6, result.Last().Last());
+        ClassicAssert.AreEqual(1, result.First().First());
+        ClassicAssert.AreEqual(3, result.First().Last());
+        ClassicAssert.AreEqual(4, result.Last().First());
+        ClassicAssert.AreEqual(6, result.Last().Last());
     }
 }

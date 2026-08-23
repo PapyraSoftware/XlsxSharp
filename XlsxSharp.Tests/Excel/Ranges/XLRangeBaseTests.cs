@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.CalcEngine;
 using XlsxSharp.Excel.Tables;
@@ -8,7 +7,6 @@ using XlsxSharp.Tests.Utils;
 
 namespace XlsxSharp.Tests.Excel.Ranges;
 
-[TestFixture]
 public class XlRangeBaseTests
 {
     [Test]
@@ -19,7 +17,7 @@ public class XlRangeBaseTests
         IXLRange range = ws.Range("A1:B2");
         bool actual = range.IsEmpty();
         bool expected = true;
-        Assert.AreEqual(expected, actual);
+        ClassicAssert.AreEqual(expected, actual);
     }
 
     [Test]
@@ -30,7 +28,7 @@ public class XlRangeBaseTests
         IXLRange range = ws.Range("A1:B2");
         bool actual = range.IsEmpty(XLCellsUsedOptions.All);
         bool expected = true;
-        Assert.AreEqual(expected, actual);
+        ClassicAssert.AreEqual(expected, actual);
     }
 
     [Test]
@@ -42,7 +40,7 @@ public class XlRangeBaseTests
         IXLRange range = ws.Range("A1:B2");
         bool actual = range.IsEmpty();
         bool expected = true;
-        Assert.AreEqual(expected, actual);
+        ClassicAssert.AreEqual(expected, actual);
     }
 
     [Test]
@@ -54,7 +52,7 @@ public class XlRangeBaseTests
         IXLRange range = ws.Range("A1:B2");
         bool actual = range.IsEmpty(XLCellsUsedOptions.AllContents);
         bool expected = true;
-        Assert.AreEqual(expected, actual);
+        ClassicAssert.AreEqual(expected, actual);
     }
 
     [Test]
@@ -66,7 +64,7 @@ public class XlRangeBaseTests
         IXLRange range = ws.Range("A1:B2");
         bool actual = range.IsEmpty(XLCellsUsedOptions.All);
         bool expected = false;
-        Assert.AreEqual(expected, actual);
+        ClassicAssert.AreEqual(expected, actual);
     }
 
     [Test]
@@ -78,7 +76,7 @@ public class XlRangeBaseTests
         IXLRange range = ws.Range("A1:B2");
         bool actual = range.IsEmpty();
         bool expected = false;
-        Assert.AreEqual(expected, actual);
+        ClassicAssert.AreEqual(expected, actual);
     }
 
     [Test]
@@ -89,8 +87,8 @@ public class XlRangeBaseTests
         ws.Cell(1, 1).Value = "Hello World!";
         wb.DefinedNames.Add("SingleCell", "Sheet1!$A$1");
         IXLRange range = wb.Range("SingleCell");
-        Assert.AreEqual(1, range.CellsUsed().Count());
-        Assert.AreEqual("Hello World!", range.CellsUsed().Single().GetText());
+        ClassicAssert.AreEqual(1, range.CellsUsed().Count());
+        ClassicAssert.AreEqual("Hello World!", range.CellsUsed().Single().GetText());
     }
 
     [Test]
@@ -107,8 +105,8 @@ public class XlRangeBaseTests
         wb.DefinedNames.Add("FNameColumn", string.Format("{0}[{1}]", table.Name, "FName"));
 
         IXLRange namedRange = wb.Range("FNameColumn");
-        Assert.AreEqual(3, namedRange.Cells().Count());
-        Assert.IsTrue(
+        ClassicAssert.AreEqual(3, namedRange.Cells().Count());
+        ClassicAssert.IsTrue(
             namedRange
                 .CellsUsed()
                 .Select(cell => cell.GetText())
@@ -122,7 +120,7 @@ public class XlRangeBaseTests
         XLWorkbook wb = new();
         IXLWorksheet ws = wb.Worksheets.Add("Sheet1");
         ws.Cell(1, 1).SetValue("Test").AddToNamed("TestCell", XLScope.Worksheet);
-        Assert.AreEqual("Test", ws.Cell("TestCell").GetText());
+        ClassicAssert.AreEqual("Test", ws.Cell("TestCell").GetText());
     }
 
     [Test]
@@ -133,8 +131,8 @@ public class XlRangeBaseTests
         ws.Cell(1, 1).SetValue("Test").AddToNamed("TestCell", XLScope.Worksheet);
         ws.Cell(2, 1).SetValue("B");
         IXLCells cells = ws.Cells("TestCell, A2");
-        Assert.AreEqual("Test", cells.First().GetText());
-        Assert.AreEqual("B", cells.Last().GetText());
+        ClassicAssert.AreEqual("Test", cells.First().GetText());
+        ClassicAssert.AreEqual("B", cells.Last().GetText());
     }
 
     [Test]
@@ -147,7 +145,10 @@ public class XlRangeBaseTests
         IXLRange original = ws.Range("A1:A2");
         original.AddToNamed("TestRange", XLScope.Worksheet);
         IXLRange named = ws.Range("TestRange");
-        Assert.AreEqual(original.RangeAddress.ToStringFixed(), named.RangeAddress.ToString());
+        ClassicAssert.AreEqual(
+            original.RangeAddress.ToStringFixed(),
+            named.RangeAddress.ToString()
+        );
     }
 
     [Test]
@@ -161,11 +162,11 @@ public class XlRangeBaseTests
         IXLRange original = ws.Range("A1:A2");
         original.AddToNamed("TestRange", XLScope.Worksheet);
         IXLRanges namedRanges = ws.Ranges("TestRange, A3");
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             original.RangeAddress.ToStringFixed(),
             namedRanges.First().RangeAddress.ToString()
         );
-        Assert.AreEqual("$A$3:$A$3", namedRanges.Last().RangeAddress.ToStringFixed());
+        ClassicAssert.AreEqual("$A$3:$A$3", namedRanges.Last().RangeAddress.ToStringFixed());
     }
 
     [Test]
@@ -176,8 +177,8 @@ public class XlRangeBaseTests
         ws.DefinedNames.Add("TestRange", "Sheet1!$A$1,Sheet1!$A$3");
         IXLRanges namedRanges = ws.Ranges("TestRange");
 
-        Assert.AreEqual("$A$1:$A$1", namedRanges.First().RangeAddress.ToStringFixed());
-        Assert.AreEqual("$A$3:$A$3", namedRanges.Last().RangeAddress.ToStringFixed());
+        ClassicAssert.AreEqual("$A$1:$A$1", namedRanges.First().RangeAddress.ToStringFixed());
+        ClassicAssert.AreEqual("$A$3:$A$3", namedRanges.Last().RangeAddress.ToStringFixed());
     }
 
     //[Test]
@@ -202,13 +203,19 @@ public class XlRangeBaseTests
         using (XLWorkbook wb = new())
         {
             IXLWorksheet ws = wb.AddWorksheet("Sheet1");
-            Assert.AreEqual("A1:B2", ws.Cell("A1").AsRange().Grow().RangeAddress.ToString());
-            Assert.AreEqual("A1:B3", ws.Cell("A2").AsRange().Grow().RangeAddress.ToString());
-            Assert.AreEqual("A1:C2", ws.Cell("B1").AsRange().Grow().RangeAddress.ToString());
+            ClassicAssert.AreEqual("A1:B2", ws.Cell("A1").AsRange().Grow().RangeAddress.ToString());
+            ClassicAssert.AreEqual("A1:B3", ws.Cell("A2").AsRange().Grow().RangeAddress.ToString());
+            ClassicAssert.AreEqual("A1:C2", ws.Cell("B1").AsRange().Grow().RangeAddress.ToString());
 
-            Assert.AreEqual("E4:G6", ws.Cell("F5").AsRange().Grow().RangeAddress.ToString());
-            Assert.AreEqual("D3:H7", ws.Cell("F5").AsRange().Grow(2).RangeAddress.ToString());
-            Assert.AreEqual("A1:DB105", ws.Cell("F5").AsRange().Grow(100).RangeAddress.ToString());
+            ClassicAssert.AreEqual("E4:G6", ws.Cell("F5").AsRange().Grow().RangeAddress.ToString());
+            ClassicAssert.AreEqual(
+                "D3:H7",
+                ws.Cell("F5").AsRange().Grow(2).RangeAddress.ToString()
+            );
+            ClassicAssert.AreEqual(
+                "A1:DB105",
+                ws.Cell("F5").AsRange().Grow(100).RangeAddress.ToString()
+            );
         }
     }
 
@@ -218,13 +225,16 @@ public class XlRangeBaseTests
         using (XLWorkbook wb = new())
         {
             IXLWorksheet ws = wb.AddWorksheet("Sheet1");
-            Assert.Null(ws.Cell("A1").AsRange().Shrink());
-            Assert.Null(ws.Range("B2:C3").Shrink());
-            Assert.AreEqual("C3:C3", ws.Range("B2:D4").Shrink().RangeAddress.ToString());
-            Assert.AreEqual("K11:P16", ws.Range("A1:Z26").Shrink(10).RangeAddress.ToString());
+            ClassicAssert.Null(ws.Cell("A1").AsRange().Shrink());
+            ClassicAssert.Null(ws.Range("B2:C3").Shrink());
+            ClassicAssert.AreEqual("C3:C3", ws.Range("B2:D4").Shrink().RangeAddress.ToString());
+            ClassicAssert.AreEqual(
+                "K11:P16",
+                ws.Range("A1:Z26").Shrink(10).RangeAddress.ToString()
+            );
 
             // Grow and shrink back
-            Assert.AreEqual(
+            ClassicAssert.AreEqual(
                 "Z26:Z26",
                 ws.Cell("Z26").AsRange().Grow(10).Shrink(10).RangeAddress.ToString()
             );
@@ -238,19 +248,19 @@ public class XlRangeBaseTests
         {
             IXLWorksheet ws = wb.AddWorksheet("Sheet1");
 
-            Assert.AreEqual(
+            ClassicAssert.AreEqual(
                 "D9:G11",
                 ws.Range("B9:I11").Intersection(ws.Range("D4:G16")).ToString()
             );
-            Assert.AreEqual(
+            ClassicAssert.AreEqual(
                 "E9:G11",
                 ws.Range("E9:I11").Intersection(ws.Range("D4:G16")).ToString()
             );
-            Assert.AreEqual(
+            ClassicAssert.AreEqual(
                 "E9:E9",
                 ws.Cell("E9").AsRange().Intersection(ws.Range("D4:G16")).ToString()
             );
-            Assert.AreEqual(
+            ClassicAssert.AreEqual(
                 "E9:E9",
                 ws.Range("D4:G16").Intersection(ws.Cell("E9").AsRange()).ToString()
             );
@@ -259,17 +269,17 @@ public class XlRangeBaseTests
 
             rangeAddress = (XLRangeAddress)
                 ws.Cell("C3").AsRange().Intersection(ws.Cell("A1").AsRange());
-            Assert.IsFalse(rangeAddress.IsValid);
+            ClassicAssert.IsFalse(rangeAddress.IsValid);
 
             rangeAddress = (XLRangeAddress)
                 ws.Cell("A1").AsRange().Intersection(ws.Cell("C3").AsRange());
-            Assert.IsFalse(rangeAddress.IsValid);
+            ClassicAssert.IsFalse(rangeAddress.IsValid);
 
-            Assert.Null(ws.Range("A1:C3").Intersection(null));
+            ClassicAssert.Null(ws.Range("A1:C3").Intersection(null));
 
             IXLWorksheet otherWs = wb.AddWorksheet("Sheet2");
-            Assert.Null(ws.Intersection(otherWs));
-            Assert.Null(ws.Cell("A1").AsRange().Intersection(otherWs.Cell("A2").AsRange()));
+            ClassicAssert.Null(ws.Intersection(otherWs));
+            ClassicAssert.Null(ws.Cell("A1").AsRange().Intersection(otherWs.Cell("A2").AsRange()));
         }
     }
 
@@ -280,18 +290,21 @@ public class XlRangeBaseTests
         {
             IXLWorksheet ws = wb.AddWorksheet("Sheet1");
 
-            Assert.AreEqual(64, ws.Range("B9:I11").Union(ws.Range("D4:G16")).Count());
-            Assert.AreEqual(58, ws.Range("E9:I11").Union(ws.Range("D4:G16")).Count());
-            Assert.AreEqual(52, ws.Cell("E9").AsRange().Union(ws.Range("D4:G16")).Count());
-            Assert.AreEqual(52, ws.Range("D4:G16").Union(ws.Cell("E9").AsRange()).Count());
+            ClassicAssert.AreEqual(64, ws.Range("B9:I11").Union(ws.Range("D4:G16")).Count());
+            ClassicAssert.AreEqual(58, ws.Range("E9:I11").Union(ws.Range("D4:G16")).Count());
+            ClassicAssert.AreEqual(52, ws.Cell("E9").AsRange().Union(ws.Range("D4:G16")).Count());
+            ClassicAssert.AreEqual(52, ws.Range("D4:G16").Union(ws.Cell("E9").AsRange()).Count());
 
-            Assert.AreEqual(2, ws.Cell("A1").AsRange().Union(ws.Cell("C3").AsRange()).Count());
+            ClassicAssert.AreEqual(
+                2,
+                ws.Cell("A1").AsRange().Union(ws.Cell("C3").AsRange()).Count()
+            );
 
-            Assert.AreEqual(9, ws.Range("A1:C3").Union(null).Count());
+            ClassicAssert.AreEqual(9, ws.Range("A1:C3").Union(null).Count());
 
             IXLWorksheet otherWs = wb.AddWorksheet("Sheet2");
-            Assert.False(ws.Union(otherWs).Any());
-            Assert.False(ws.Cell("A1").AsRange().Union(otherWs.Cell("A2").AsRange()).Any());
+            ClassicAssert.False(ws.Union(otherWs).Any());
+            ClassicAssert.False(ws.Cell("A1").AsRange().Union(otherWs.Cell("A2").AsRange()).Any());
         }
     }
 
@@ -302,18 +315,29 @@ public class XlRangeBaseTests
         {
             IXLWorksheet ws = wb.AddWorksheet("Sheet1");
 
-            Assert.AreEqual(12, ws.Range("B9:I11").Difference(ws.Range("D4:G16")).Count());
-            Assert.AreEqual(6, ws.Range("E9:I11").Difference(ws.Range("D4:G16")).Count());
-            Assert.AreEqual(0, ws.Cell("E9").AsRange().Difference(ws.Range("D4:G16")).Count());
-            Assert.AreEqual(51, ws.Range("D4:G16").Difference(ws.Cell("E9").AsRange()).Count());
+            ClassicAssert.AreEqual(12, ws.Range("B9:I11").Difference(ws.Range("D4:G16")).Count());
+            ClassicAssert.AreEqual(6, ws.Range("E9:I11").Difference(ws.Range("D4:G16")).Count());
+            ClassicAssert.AreEqual(
+                0,
+                ws.Cell("E9").AsRange().Difference(ws.Range("D4:G16")).Count()
+            );
+            ClassicAssert.AreEqual(
+                51,
+                ws.Range("D4:G16").Difference(ws.Cell("E9").AsRange()).Count()
+            );
 
-            Assert.AreEqual(1, ws.Cell("A1").AsRange().Difference(ws.Cell("C3").AsRange()).Count());
+            ClassicAssert.AreEqual(
+                1,
+                ws.Cell("A1").AsRange().Difference(ws.Cell("C3").AsRange()).Count()
+            );
 
-            Assert.AreEqual(9, ws.Range("A1:C3").Difference(null).Count());
+            ClassicAssert.AreEqual(9, ws.Range("A1:C3").Difference(null).Count());
 
             IXLWorksheet otherWs = wb.AddWorksheet("Sheet2");
-            Assert.False(ws.Difference(otherWs).Any());
-            Assert.False(ws.Cell("A1").AsRange().Difference(otherWs.Cell("A2").AsRange()).Any());
+            ClassicAssert.False(ws.Difference(otherWs).Any());
+            ClassicAssert.False(
+                ws.Cell("A1").AsRange().Difference(otherWs.Cell("A2").AsRange()).Any()
+            );
         }
     }
 
@@ -324,11 +348,11 @@ public class XlRangeBaseTests
         {
             IXLWorksheet ws = wb.AddWorksheet("Sheet1");
 
-            Assert.AreEqual(3, ws.FirstCell().AsRange().SurroundingCells().Count());
-            Assert.AreEqual(8, ws.Cell("C3").AsRange().SurroundingCells().Count());
-            Assert.AreEqual(16, ws.Range("C3:D6").AsRange().SurroundingCells().Count());
+            ClassicAssert.AreEqual(3, ws.FirstCell().AsRange().SurroundingCells().Count());
+            ClassicAssert.AreEqual(8, ws.Cell("C3").AsRange().SurroundingCells().Count());
+            ClassicAssert.AreEqual(16, ws.Range("C3:D6").AsRange().SurroundingCells().Count());
 
-            Assert.AreEqual(
+            ClassicAssert.AreEqual(
                 0,
                 ws.Range("C3:D6").AsRange().SurroundingCells(c => !c.IsEmpty()).Count()
             );
@@ -342,8 +366,8 @@ public class XlRangeBaseTests
         ws.Range("C3:D7").AddConditionalFormat();
         ws.Range("B2:E3").Clear(XLClearOptions.ConditionalFormats);
 
-        Assert.AreEqual(1, ws.ConditionalFormats.Count());
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(1, ws.ConditionalFormats.Count());
+        ClassicAssert.AreEqual(
             "C4:D7",
             ws.ConditionalFormats.Single().Range.RangeAddress.ToStringRelative()
         );
@@ -356,8 +380,8 @@ public class XlRangeBaseTests
         ws.Range("C3:D7").AddConditionalFormat();
         ws.Range("C3:D3").Clear(XLClearOptions.ConditionalFormats);
 
-        Assert.AreEqual(1, ws.ConditionalFormats.Count());
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(1, ws.ConditionalFormats.Count());
+        ClassicAssert.AreEqual(
             "C4:D7",
             ws.ConditionalFormats.Single().Range.RangeAddress.ToStringRelative()
         );
@@ -370,8 +394,8 @@ public class XlRangeBaseTests
         ws.Range("C3:D7").AddConditionalFormat();
         ws.Range("B7:E8").Clear(XLClearOptions.ConditionalFormats);
 
-        Assert.AreEqual(1, ws.ConditionalFormats.Count());
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(1, ws.ConditionalFormats.Count());
+        ClassicAssert.AreEqual(
             "C3:D6",
             ws.ConditionalFormats.Single().Range.RangeAddress.ToStringRelative()
         );
@@ -384,8 +408,8 @@ public class XlRangeBaseTests
         ws.Range("C3:D7").AddConditionalFormat();
         ws.Range("C7:D7").Clear(XLClearOptions.ConditionalFormats);
 
-        Assert.AreEqual(1, ws.ConditionalFormats.Count());
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(1, ws.ConditionalFormats.Count());
+        ClassicAssert.AreEqual(
             "C3:D6",
             ws.ConditionalFormats.Single().Range.RangeAddress.ToStringRelative()
         );
@@ -398,12 +422,12 @@ public class XlRangeBaseTests
         ws.Range("C3:D7").AddConditionalFormat();
         ws.Range("C5:E5").Clear(XLClearOptions.ConditionalFormats);
 
-        Assert.AreEqual(1, ws.ConditionalFormats.Count());
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(1, ws.ConditionalFormats.Count());
+        ClassicAssert.AreEqual(
             "C3:D4",
             ws.ConditionalFormats.First().Ranges.First().RangeAddress.ToStringRelative()
         );
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             "C6:D7",
             ws.ConditionalFormats.First().Ranges.Last().RangeAddress.ToStringRelative()
         );
@@ -416,12 +440,12 @@ public class XlRangeBaseTests
         ws.Range("C3:G4").AddConditionalFormat();
         ws.Range("E2:E4").Clear(XLClearOptions.ConditionalFormats);
 
-        Assert.AreEqual(1, ws.ConditionalFormats.Count());
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(1, ws.ConditionalFormats.Count());
+        ClassicAssert.AreEqual(
             "C3:D4",
             ws.ConditionalFormats.First().Ranges.First().RangeAddress.ToStringRelative()
         );
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             "F3:G4",
             ws.ConditionalFormats.First().Ranges.Last().RangeAddress.ToStringRelative()
         );
@@ -434,7 +458,7 @@ public class XlRangeBaseTests
         ws.Range("C3:G4").AddConditionalFormat();
         ws.Range("B2:G4").Clear(XLClearOptions.ConditionalFormats);
 
-        Assert.AreEqual(0, ws.ConditionalFormats.Count());
+        ClassicAssert.AreEqual(0, ws.ConditionalFormats.Count());
     }
 
     [Test]
@@ -444,8 +468,8 @@ public class XlRangeBaseTests
         ws.Range("C3:G4").AddConditionalFormat();
         ws.Range("C2:D3").Clear(XLClearOptions.ConditionalFormats);
 
-        Assert.AreEqual(1, ws.ConditionalFormats.Count());
-        Assert.AreEqual("E3:G3 C4:G4", ws.ConditionalFormats.Single().Ranges.ToSpaceList());
+        ClassicAssert.AreEqual(1, ws.ConditionalFormats.Count());
+        ClassicAssert.AreEqual("E3:G3 C4:G4", ws.ConditionalFormats.Single().Ranges.ToSpaceList());
     }
 
     [Test]
@@ -461,10 +485,10 @@ public class XlRangeBaseTests
         ranges.RemoveAll(null, false);
         ws.FirstColumn().InsertColumnsBefore(1);
 
-        Assert.AreEqual(0, ranges.Count);
+        ClassicAssert.AreEqual(0, ranges.Count);
         // if ranges were not disposed they addresses should change
-        Assert.AreEqual("B1:B2", rangesCopy.First().RangeAddress.ToString());
-        Assert.AreEqual("C1:C2", rangesCopy.Last().RangeAddress.ToString());
+        ClassicAssert.AreEqual("B1:B2", rangesCopy.First().RangeAddress.ToString());
+        ClassicAssert.AreEqual("C1:C2", rangesCopy.Last().RangeAddress.ToString());
     }
 
     [Test]
@@ -480,8 +504,8 @@ public class XlRangeBaseTests
 
         ranges.RemoveAll(r => r.Intersects(otherRange));
 
-        Assert.AreEqual(1, ranges.Count);
-        Assert.AreEqual("A1:A2", ranges.Single<IXLRange>().RangeAddress.ToString());
+        ClassicAssert.AreEqual(1, ranges.Count);
+        ClassicAssert.AreEqual("A1:A2", ranges.Single<IXLRange>().RangeAddress.ToString());
     }
 
     [Test]
@@ -515,10 +539,10 @@ public class XlRangeBaseTests
 
         List<IXLRange> actualRanges = [.. ranges];
 
-        Assert.AreEqual(expectedRanges.Count, actualRanges.Count);
+        ClassicAssert.AreEqual(expectedRanges.Count, actualRanges.Count);
         for (int i = 0; i < actualRanges.Count; i++)
         {
-            Assert.AreEqual(expectedRanges[i], actualRanges[i]);
+            ClassicAssert.AreEqual(expectedRanges[i], actualRanges[i]);
         }
     }
 
@@ -531,28 +555,29 @@ public class XlRangeBaseTests
         ws.Range("B1:C1").Clear();
         ws.Range("B2:C2").Clear(XLClearOptions.Sparklines);
 
-        Assert.AreEqual(1, ws.SparklineGroups.Single().Count());
-        Assert.IsFalse(ws.Cell("B1").HasSparkline);
-        Assert.IsFalse(ws.Cell("B2").HasSparkline);
-        Assert.IsTrue(ws.Cell("B3").HasSparkline);
+        ClassicAssert.AreEqual(1, ws.SparklineGroups.Single().Count());
+        ClassicAssert.IsFalse(ws.Cell("B1").HasSparkline);
+        ClassicAssert.IsFalse(ws.Cell("B2").HasSparkline);
+        ClassicAssert.IsTrue(ws.Cell("B3").HasSparkline);
     }
 
-    [TestCase("B2:G7", "D4:E5", true, "B2:G3,B4:C5,D4:E5,F4:G5,B6:G7")]
-    [TestCase("B2:G7", "D4:E5", false, "B2:G3,B4:C5,F4:G5,B6:G7")]
-    [TestCase("B2:G7", "B2:G7", true, "B2:G7")]
-    [TestCase("B2:G7", "B2:G7", false, "")]
-    [TestCase("B2:G7", "A1:H8", true, "B2:G7")]
-    [TestCase("B2:G7", "A1:H8", false, "")]
-    [TestCase("B2:G7", "A1:B2", true, "B2:B2,C2:G2,B3:G7")]
-    [TestCase("B2:G7", "A1:B2", false, "C2:G2,B3:G7")]
-    [TestCase("B2:G7", "E4:J5", true, "B2:G3,B4:D5,E4:G5,B6:G7")]
-    [TestCase("B2:G7", "E4:J5", false, "B2:G3,B4:D5,B6:G7")]
-    [TestCase("B2:G7", "A11:H18", true, "B2:G7")]
-    [TestCase("B2:G7", "A11:H18", false, "B2:G7")]
-    [TestCase("B2:G7", "A1:H1", true, "B2:G7")]
-    [TestCase("B2:G7", "A1:A12", true, "B2:G7")]
-    [TestCase("B2:G7", "A8:H8", true, "B2:G7")]
-    [TestCase("B2:G7", "H1:H8", true, "B2:G7")]
+    [Test]
+    [Arguments("B2:G7", "D4:E5", true, "B2:G3,B4:C5,D4:E5,F4:G5,B6:G7")]
+    [Arguments("B2:G7", "D4:E5", false, "B2:G3,B4:C5,F4:G5,B6:G7")]
+    [Arguments("B2:G7", "B2:G7", true, "B2:G7")]
+    [Arguments("B2:G7", "B2:G7", false, "")]
+    [Arguments("B2:G7", "A1:H8", true, "B2:G7")]
+    [Arguments("B2:G7", "A1:H8", false, "")]
+    [Arguments("B2:G7", "A1:B2", true, "B2:B2,C2:G2,B3:G7")]
+    [Arguments("B2:G7", "A1:B2", false, "C2:G2,B3:G7")]
+    [Arguments("B2:G7", "E4:J5", true, "B2:G3,B4:D5,E4:G5,B6:G7")]
+    [Arguments("B2:G7", "E4:J5", false, "B2:G3,B4:D5,B6:G7")]
+    [Arguments("B2:G7", "A11:H18", true, "B2:G7")]
+    [Arguments("B2:G7", "A11:H18", false, "B2:G7")]
+    [Arguments("B2:G7", "A1:H1", true, "B2:G7")]
+    [Arguments("B2:G7", "A1:A12", true, "B2:G7")]
+    [Arguments("B2:G7", "A8:H8", true, "B2:G7")]
+    [Arguments("B2:G7", "H1:H8", true, "B2:G7")]
     public void CanSplitRange(
         string rangeAddress,
         string splitBy,
@@ -569,7 +594,7 @@ public class XlRangeBaseTests
 
         string actualAddresses = string.Join(",", result.Select(r => r.RangeAddress.ToString()));
 
-        Assert.AreEqual(expectedResult, actualAddresses);
+        ClassicAssert.AreEqual(expectedResult, actualAddresses);
     }
 
     [Test]
@@ -599,32 +624,33 @@ public class XlRangeBaseTests
 
         range.Sort("3 DESC");
 
-        Assert.AreEqual(32, ws.Cell("A2").Value);
-        Assert.AreEqual(6, ws.Cell("A3").Value);
-        Assert.AreEqual(7, ws.Cell("A4").Value);
-        Assert.AreEqual(2, ws.Cell("A5").Value);
+        ClassicAssert.AreEqual(32, ws.Cell("A2").Value);
+        ClassicAssert.AreEqual(6, ws.Cell("A3").Value);
+        ClassicAssert.AreEqual(7, ws.Cell("A4").Value);
+        ClassicAssert.AreEqual(2, ws.Cell("A5").Value);
 
-        Assert.AreEqual(2, ws.Cell("B2").Value);
-        Assert.AreEqual(9, ws.Cell("B3").Value);
-        Assert.AreEqual(5, ws.Cell("B4").Value);
-        Assert.AreEqual(14, ws.Cell("B5").Value);
+        ClassicAssert.AreEqual(2, ws.Cell("B2").Value);
+        ClassicAssert.AreEqual(9, ws.Cell("B3").Value);
+        ClassicAssert.AreEqual(5, ws.Cell("B4").Value);
+        ClassicAssert.AreEqual(14, ws.Cell("B5").Value);
 
         // Formulas has been moved around and their coordinates fixed after move
-        Assert.AreEqual("A2*B2 & \"(Waffle)\"", ws.Cell("C2").FormulaA1);
-        Assert.AreEqual("A3*B3 & \"(Shortcake)\"", ws.Cell("C3").FormulaA1);
-        Assert.AreEqual("A4*B4 & \"(Cake)\"", ws.Cell("C4").FormulaA1);
-        Assert.AreEqual("A5*B5 & \"(Pie)\"", ws.Cell("C5").FormulaA1);
+        ClassicAssert.AreEqual("A2*B2 & \"(Waffle)\"", ws.Cell("C2").FormulaA1);
+        ClassicAssert.AreEqual("A3*B3 & \"(Shortcake)\"", ws.Cell("C3").FormulaA1);
+        ClassicAssert.AreEqual("A4*B4 & \"(Cake)\"", ws.Cell("C4").FormulaA1);
+        ClassicAssert.AreEqual("A5*B5 & \"(Pie)\"", ws.Cell("C5").FormulaA1);
     }
 
-    [TestCase("PY(4)", "_xlfn._xlws.PY(4)")]
-    [TestCase("2 + CHISQ.INV(0.6,2)", "2 + _xlfn.CHISQ.INV(0.6,2)")]
-    [TestCase("2 + _xlfn.CHISQ.INV(0.6,2)", "2 + _xlfn.CHISQ.INV(0.6,2)")]
+    [Test]
+    [Arguments("PY(4)", "_xlfn._xlws.PY(4)")]
+    [Arguments("2 + CHISQ.INV(0.6,2)", "2 + _xlfn.CHISQ.INV(0.6,2)")]
+    [Arguments("2 + _xlfn.CHISQ.INV(0.6,2)", "2 + _xlfn.CHISQ.INV(0.6,2)")]
     public void FormulaArrayA1AddsPrefixToFutureFunctions(string formula, string expected)
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
         ws.Range("A1:B2").FormulaArrayA1 = formula;
         string masterCellFormula = ws.Cell("A1").FormulaA1;
-        Assert.AreEqual(expected, masterCellFormula);
+        ClassicAssert.AreEqual(expected, masterCellFormula);
     }
 }

@@ -1,12 +1,10 @@
 using System.Linq;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.CalcEngine;
 using XlsxSharp.Extensions;
 
 namespace XlsxSharp.Tests.Excel.Ranges;
 
-[TestFixture]
 public class MergedRangesTests
 {
     [Test]
@@ -19,15 +17,16 @@ public class MergedRangesTests
         string first = ws.FirstCellUsed(XLCellsUsedOptions.All).Address.ToStringRelative();
         string last = ws.LastCellUsed(XLCellsUsedOptions.All).Address.ToStringRelative();
 
-        Assert.AreEqual("B2", first);
-        Assert.AreEqual("D4", last);
+        ClassicAssert.AreEqual("B2", first);
+        ClassicAssert.AreEqual("D4", last);
     }
 
-    [TestCase("A1:A2", "A1:A2")]
-    [TestCase("A2:B2", "A2:B2")]
-    [TestCase("A3:C3", "A3:E3")]
-    [TestCase("B4:B6", "B4:B6")]
-    [TestCase("C7:D7", "E7:F7")]
+    [Test]
+    [Arguments("A1:A2", "A1:A2")]
+    [Arguments("A2:B2", "A2:B2")]
+    [Arguments("A3:C3", "A3:E3")]
+    [Arguments("B4:B6", "B4:B6")]
+    [Arguments("C7:D7", "E7:F7")]
     public void MergedRangesShiftedOnColumnInsert(string originalRange, string expectedRange)
     {
         using (XLWorkbook wb = new())
@@ -38,17 +37,18 @@ public class MergedRangesTests
             ws.Column(2).InsertColumnsAfter(2);
 
             IXLRange[] mr = [.. ws.MergedRanges];
-            Assert.AreEqual(1, mr.Length);
-            Assert.AreSame(range, mr.Single());
-            Assert.AreEqual(expectedRange, range.RangeAddress.ToString());
+            ClassicAssert.AreEqual(1, mr.Length);
+            ClassicAssert.AreSame(range, mr.Single());
+            ClassicAssert.AreEqual(expectedRange, range.RangeAddress.ToString());
         }
     }
 
-    [TestCase("A1:B1", "A1:B1")]
-    [TestCase("B1:B2", "B1:B2")]
-    [TestCase("C1:C3", "C1:C5")]
-    [TestCase("D2:F2", "D2:F2")]
-    [TestCase("G4:G5", "G6:G7")]
+    [Test]
+    [Arguments("A1:B1", "A1:B1")]
+    [Arguments("B1:B2", "B1:B2")]
+    [Arguments("C1:C3", "C1:C5")]
+    [Arguments("D2:F2", "D2:F2")]
+    [Arguments("G4:G5", "G6:G7")]
     public void MergedRangesShiftedOnRowInsert(string originalRange, string expectedRange)
     {
         using (XLWorkbook wb = new())
@@ -59,17 +59,18 @@ public class MergedRangesTests
             ws.Row(2).InsertRowsBelow(2);
 
             IXLRange[] mr = [.. ws.MergedRanges];
-            Assert.AreEqual(1, mr.Length);
-            Assert.AreSame(range, mr.Single());
-            Assert.AreEqual(expectedRange, range.RangeAddress.ToString());
+            ClassicAssert.AreEqual(1, mr.Length);
+            ClassicAssert.AreSame(range, mr.Single());
+            ClassicAssert.AreEqual(expectedRange, range.RangeAddress.ToString());
         }
     }
 
-    [TestCase("A1:A2", true, "A1:A2")]
-    [TestCase("A2:B2", true, "A2:A2")]
-    [TestCase("A3:C3", true, "A3:B3")]
-    [TestCase("B4:B6", false, "")]
-    [TestCase("C7:D7", true, "B7:C7")]
+    [Test]
+    [Arguments("A1:A2", true, "A1:A2")]
+    [Arguments("A2:B2", true, "A2:A2")]
+    [Arguments("A3:C3", true, "A3:B3")]
+    [Arguments("B4:B6", false, "")]
+    [Arguments("C7:D7", true, "B7:C7")]
     public void MergedRangesShiftedOnColumnDelete(
         string originalRange,
         bool expectedExist,
@@ -86,23 +87,24 @@ public class MergedRangesTests
             IXLRange[] mr = [.. ws.MergedRanges];
             if (expectedExist)
             {
-                Assert.AreEqual(1, mr.Length);
-                Assert.AreSame(range, mr.Single());
-                Assert.AreEqual(expectedRange, range.RangeAddress.ToString());
+                ClassicAssert.AreEqual(1, mr.Length);
+                ClassicAssert.AreSame(range, mr.Single());
+                ClassicAssert.AreEqual(expectedRange, range.RangeAddress.ToString());
             }
             else
             {
-                Assert.AreEqual(0, mr.Length);
-                Assert.IsFalse(range.RangeAddress.IsValid);
+                ClassicAssert.AreEqual(0, mr.Length);
+                ClassicAssert.IsFalse(range.RangeAddress.IsValid);
             }
         }
     }
 
-    [TestCase("A1:B1", true, "A1:B1")]
-    [TestCase("B1:B2", true, "B1:B1")]
-    [TestCase("C1:C3", true, "C1:C2")]
-    [TestCase("D2:F2", false, "")]
-    [TestCase("G4:G5", true, "G3:G4")]
+    [Test]
+    [Arguments("A1:B1", true, "A1:B1")]
+    [Arguments("B1:B2", true, "B1:B1")]
+    [Arguments("C1:C3", true, "C1:C2")]
+    [Arguments("D2:F2", false, "")]
+    [Arguments("G4:G5", true, "G3:G4")]
     public void MergedRangesShiftedOnRowDelete(
         string originalRange,
         bool expectedExist,
@@ -119,14 +121,14 @@ public class MergedRangesTests
             IXLRange[] mr = [.. ws.MergedRanges];
             if (expectedExist)
             {
-                Assert.AreEqual(1, mr.Length);
-                Assert.AreSame(range, mr.Single());
-                Assert.AreEqual(expectedRange, range.RangeAddress.ToString());
+                ClassicAssert.AreEqual(1, mr.Length);
+                ClassicAssert.AreSame(range, mr.Single());
+                ClassicAssert.AreEqual(expectedRange, range.RangeAddress.ToString());
             }
             else
             {
-                Assert.AreEqual(0, mr.Length);
-                Assert.IsFalse(range.RangeAddress.IsValid);
+                ClassicAssert.AreEqual(0, mr.Length);
+                ClassicAssert.IsFalse(range.RangeAddress.IsValid);
             }
         }
     }
@@ -147,11 +149,11 @@ public class MergedRangesTests
             ws.Range("D3:E4").InsertColumnsAfter(2);
 
             IXLRange[] mr = [.. ws.MergedRanges];
-            Assert.AreEqual(4, mr.Length);
-            Assert.AreEqual("H1:I2", mr[0].RangeAddress.ToString());
-            Assert.AreEqual("B2:C3", mr[1].RangeAddress.ToString());
-            Assert.AreEqual("B4:C5", mr[2].RangeAddress.ToString());
-            Assert.AreEqual("H5:I6", mr[3].RangeAddress.ToString());
+            ClassicAssert.AreEqual(4, mr.Length);
+            ClassicAssert.AreEqual("H1:I2", mr[0].RangeAddress.ToString());
+            ClassicAssert.AreEqual("B2:C3", mr[1].RangeAddress.ToString());
+            ClassicAssert.AreEqual("B4:C5", mr[2].RangeAddress.ToString());
+            ClassicAssert.AreEqual("H5:I6", mr[3].RangeAddress.ToString());
         }
     }
 
@@ -171,11 +173,11 @@ public class MergedRangesTests
             ws.Range("D3:E4").Delete(XLShiftDeletedCells.ShiftCellsLeft);
 
             IXLRange[] mr = [.. ws.MergedRanges];
-            Assert.AreEqual(4, mr.Length);
-            Assert.AreEqual("H1:I2", mr[0].RangeAddress.ToString());
-            Assert.AreEqual("B2:C3", mr[1].RangeAddress.ToString());
-            Assert.AreEqual("B4:C5", mr[2].RangeAddress.ToString());
-            Assert.AreEqual("H5:I6", mr[3].RangeAddress.ToString());
+            ClassicAssert.AreEqual(4, mr.Length);
+            ClassicAssert.AreEqual("H1:I2", mr[0].RangeAddress.ToString());
+            ClassicAssert.AreEqual("B2:C3", mr[1].RangeAddress.ToString());
+            ClassicAssert.AreEqual("B4:C5", mr[2].RangeAddress.ToString());
+            ClassicAssert.AreEqual("H5:I6", mr[3].RangeAddress.ToString());
         }
     }
 
@@ -195,11 +197,11 @@ public class MergedRangesTests
             ws.Range("C4:D5").InsertRowsBelow(2);
 
             IXLRange[] mr = [.. ws.MergedRanges];
-            Assert.AreEqual(4, mr.Length);
-            Assert.AreEqual("B2:C3", mr[0].RangeAddress.ToString());
-            Assert.AreEqual("D2:E3", mr[1].RangeAddress.ToString());
-            Assert.AreEqual("A8:B9", mr[2].RangeAddress.ToString());
-            Assert.AreEqual("E8:F9", mr[3].RangeAddress.ToString());
+            ClassicAssert.AreEqual(4, mr.Length);
+            ClassicAssert.AreEqual("B2:C3", mr[0].RangeAddress.ToString());
+            ClassicAssert.AreEqual("D2:E3", mr[1].RangeAddress.ToString());
+            ClassicAssert.AreEqual("A8:B9", mr[2].RangeAddress.ToString());
+            ClassicAssert.AreEqual("E8:F9", mr[3].RangeAddress.ToString());
         }
     }
 
@@ -219,11 +221,11 @@ public class MergedRangesTests
             ws.Range("C4:D5").Delete(XLShiftDeletedCells.ShiftCellsUp);
 
             IXLRange[] mr = [.. ws.MergedRanges];
-            Assert.AreEqual(4, mr.Length);
-            Assert.AreEqual("B2:C3", mr[0].RangeAddress.ToString());
-            Assert.AreEqual("D2:E3", mr[1].RangeAddress.ToString());
-            Assert.AreEqual("A8:B9", mr[2].RangeAddress.ToString());
-            Assert.AreEqual("E8:F9", mr[3].RangeAddress.ToString());
+            ClassicAssert.AreEqual(4, mr.Length);
+            ClassicAssert.AreEqual("B2:C3", mr[0].RangeAddress.ToString());
+            ClassicAssert.AreEqual("D2:E3", mr[1].RangeAddress.ToString());
+            ClassicAssert.AreEqual("A8:B9", mr[2].RangeAddress.ToString());
+            ClassicAssert.AreEqual("E8:F9", mr[3].RangeAddress.ToString());
         }
     }
 
@@ -238,9 +240,9 @@ public class MergedRangesTests
             ws.Cell("A3").Style.Fill.BackgroundColor = XLColor.Green;
             ws.Range("A1:A3").Merge();
 
-            Assert.AreEqual(XLColor.Red, ws.Cell("A1").Style.Fill.BackgroundColor);
-            Assert.AreEqual(XLColor.Red, ws.Cell("A2").Style.Fill.BackgroundColor);
-            Assert.AreEqual(XLColor.Red, ws.Cell("A3").Style.Fill.BackgroundColor);
+            ClassicAssert.AreEqual(XLColor.Red, ws.Cell("A1").Style.Fill.BackgroundColor);
+            ClassicAssert.AreEqual(XLColor.Red, ws.Cell("A2").Style.Fill.BackgroundColor);
+            ClassicAssert.AreEqual(XLColor.Red, ws.Cell("A3").Style.Fill.BackgroundColor);
         }
     }
 
@@ -253,9 +255,9 @@ public class MergedRangesTests
             ws.Range("A1:A3").SetValue(100);
             ws.Range("A1:A3").Merge();
 
-            Assert.AreEqual(100, ws.Cell("A1").Value);
-            Assert.AreEqual(Blank.Value, ws.Cell("A2").Value);
-            Assert.AreEqual(Blank.Value, ws.Cell("A3").Value);
+            ClassicAssert.AreEqual(100, ws.Cell("A1").Value);
+            ClassicAssert.AreEqual(Blank.Value, ws.Cell("A2").Value);
+            ClassicAssert.AreEqual(Blank.Value, ws.Cell("A3").Value);
         }
     }
 
@@ -272,8 +274,8 @@ public class MergedRangesTests
 
             ws.Range("A1:A2").Merge();
 
-            Assert.AreEqual(1, ws.ConditionalFormats.Count());
-            Assert.AreEqual(
+            ClassicAssert.AreEqual(1, ws.ConditionalFormats.Count());
+            ClassicAssert.AreEqual(
                 "A1:A1",
                 ws.ConditionalFormats.Single().Ranges.Single().RangeAddress.ToString()
             );
@@ -291,10 +293,10 @@ public class MergedRangesTests
 
             ws.Range("A1:A2").Merge();
 
-            Assert.IsTrue(ws.Cell("A1").HasDataValidation);
-            Assert.AreEqual("1", ws.Cell("A1").GetDataValidation().MinValue);
-            Assert.AreEqual("2", ws.Cell("A1").GetDataValidation().MaxValue);
-            Assert.IsFalse(ws.Cell("A2").HasDataValidation);
+            ClassicAssert.IsTrue(ws.Cell("A1").HasDataValidation);
+            ClassicAssert.AreEqual("1", ws.Cell("A1").GetDataValidation().MinValue);
+            ClassicAssert.AreEqual("2", ws.Cell("A1").GetDataValidation().MaxValue);
+            ClassicAssert.IsFalse(ws.Cell("A2").HasDataValidation);
         }
     }
 
@@ -322,56 +324,121 @@ public class MergedRangesTests
             range.Merge();
             range.Unmerge();
 
-            Assert.IsTrue(range.Cells().All(c => c.Style.Fill.BackgroundColor == XLColor.Red));
-            Assert.IsTrue(
+            ClassicAssert.IsTrue(
+                range.Cells().All(c => c.Style.Fill.BackgroundColor == XLColor.Red)
+            );
+            ClassicAssert.IsTrue(
                 range.Cells().Where(c => !c.Equals(firstCell)).All(c => c.Value.Equals(Blank.Value))
             );
-            Assert.AreEqual("B2", firstCell.Value);
+            ClassicAssert.AreEqual("B2", firstCell.Value);
 
-            Assert.AreEqual(XLBorderStyleValues.Thick, ws.Cell("B2").Style.Border.TopBorder);
-            Assert.AreEqual(XLBorderStyleValues.None, ws.Cell("B2").Style.Border.RightBorder);
-            Assert.AreEqual(XLBorderStyleValues.None, ws.Cell("B2").Style.Border.BottomBorder);
-            Assert.AreEqual(XLBorderStyleValues.Thick, ws.Cell("B2").Style.Border.LeftBorder);
+            ClassicAssert.AreEqual(XLBorderStyleValues.Thick, ws.Cell("B2").Style.Border.TopBorder);
+            ClassicAssert.AreEqual(
+                XLBorderStyleValues.None,
+                ws.Cell("B2").Style.Border.RightBorder
+            );
+            ClassicAssert.AreEqual(
+                XLBorderStyleValues.None,
+                ws.Cell("B2").Style.Border.BottomBorder
+            );
+            ClassicAssert.AreEqual(
+                XLBorderStyleValues.Thick,
+                ws.Cell("B2").Style.Border.LeftBorder
+            );
 
-            Assert.AreEqual(XLBorderStyleValues.Thick, ws.Cell("C2").Style.Border.TopBorder);
-            Assert.AreEqual(XLBorderStyleValues.None, ws.Cell("C2").Style.Border.RightBorder);
-            Assert.AreEqual(XLBorderStyleValues.None, ws.Cell("C2").Style.Border.BottomBorder);
-            Assert.AreEqual(XLBorderStyleValues.None, ws.Cell("C2").Style.Border.LeftBorder);
+            ClassicAssert.AreEqual(XLBorderStyleValues.Thick, ws.Cell("C2").Style.Border.TopBorder);
+            ClassicAssert.AreEqual(
+                XLBorderStyleValues.None,
+                ws.Cell("C2").Style.Border.RightBorder
+            );
+            ClassicAssert.AreEqual(
+                XLBorderStyleValues.None,
+                ws.Cell("C2").Style.Border.BottomBorder
+            );
+            ClassicAssert.AreEqual(XLBorderStyleValues.None, ws.Cell("C2").Style.Border.LeftBorder);
 
-            Assert.AreEqual(XLBorderStyleValues.Thick, ws.Cell("D2").Style.Border.TopBorder);
-            Assert.AreEqual(XLBorderStyleValues.Thick, ws.Cell("D2").Style.Border.RightBorder);
-            Assert.AreEqual(XLBorderStyleValues.None, ws.Cell("D2").Style.Border.BottomBorder);
-            Assert.AreEqual(XLBorderStyleValues.None, ws.Cell("D2").Style.Border.LeftBorder);
+            ClassicAssert.AreEqual(XLBorderStyleValues.Thick, ws.Cell("D2").Style.Border.TopBorder);
+            ClassicAssert.AreEqual(
+                XLBorderStyleValues.Thick,
+                ws.Cell("D2").Style.Border.RightBorder
+            );
+            ClassicAssert.AreEqual(
+                XLBorderStyleValues.None,
+                ws.Cell("D2").Style.Border.BottomBorder
+            );
+            ClassicAssert.AreEqual(XLBorderStyleValues.None, ws.Cell("D2").Style.Border.LeftBorder);
 
-            Assert.AreEqual(XLBorderStyleValues.None, ws.Cell("B3").Style.Border.TopBorder);
-            Assert.AreEqual(XLBorderStyleValues.None, ws.Cell("B3").Style.Border.RightBorder);
-            Assert.AreEqual(XLBorderStyleValues.None, ws.Cell("B3").Style.Border.BottomBorder);
-            Assert.AreEqual(XLBorderStyleValues.Thick, ws.Cell("B3").Style.Border.LeftBorder);
+            ClassicAssert.AreEqual(XLBorderStyleValues.None, ws.Cell("B3").Style.Border.TopBorder);
+            ClassicAssert.AreEqual(
+                XLBorderStyleValues.None,
+                ws.Cell("B3").Style.Border.RightBorder
+            );
+            ClassicAssert.AreEqual(
+                XLBorderStyleValues.None,
+                ws.Cell("B3").Style.Border.BottomBorder
+            );
+            ClassicAssert.AreEqual(
+                XLBorderStyleValues.Thick,
+                ws.Cell("B3").Style.Border.LeftBorder
+            );
 
-            Assert.AreEqual(XLBorderStyleValues.None, ws.Cell("C3").Style.Border.TopBorder);
-            Assert.AreEqual(XLBorderStyleValues.None, ws.Cell("C3").Style.Border.RightBorder);
-            Assert.AreEqual(XLBorderStyleValues.None, ws.Cell("C3").Style.Border.BottomBorder);
-            Assert.AreEqual(XLBorderStyleValues.None, ws.Cell("C3").Style.Border.LeftBorder);
+            ClassicAssert.AreEqual(XLBorderStyleValues.None, ws.Cell("C3").Style.Border.TopBorder);
+            ClassicAssert.AreEqual(
+                XLBorderStyleValues.None,
+                ws.Cell("C3").Style.Border.RightBorder
+            );
+            ClassicAssert.AreEqual(
+                XLBorderStyleValues.None,
+                ws.Cell("C3").Style.Border.BottomBorder
+            );
+            ClassicAssert.AreEqual(XLBorderStyleValues.None, ws.Cell("C3").Style.Border.LeftBorder);
 
-            Assert.AreEqual(XLBorderStyleValues.None, ws.Cell("D3").Style.Border.TopBorder);
-            Assert.AreEqual(XLBorderStyleValues.Thick, ws.Cell("D3").Style.Border.RightBorder);
-            Assert.AreEqual(XLBorderStyleValues.None, ws.Cell("D3").Style.Border.BottomBorder);
-            Assert.AreEqual(XLBorderStyleValues.None, ws.Cell("D3").Style.Border.LeftBorder);
+            ClassicAssert.AreEqual(XLBorderStyleValues.None, ws.Cell("D3").Style.Border.TopBorder);
+            ClassicAssert.AreEqual(
+                XLBorderStyleValues.Thick,
+                ws.Cell("D3").Style.Border.RightBorder
+            );
+            ClassicAssert.AreEqual(
+                XLBorderStyleValues.None,
+                ws.Cell("D3").Style.Border.BottomBorder
+            );
+            ClassicAssert.AreEqual(XLBorderStyleValues.None, ws.Cell("D3").Style.Border.LeftBorder);
 
-            Assert.AreEqual(XLBorderStyleValues.None, ws.Cell("B4").Style.Border.TopBorder);
-            Assert.AreEqual(XLBorderStyleValues.None, ws.Cell("B4").Style.Border.RightBorder);
-            Assert.AreEqual(XLBorderStyleValues.Thick, ws.Cell("B4").Style.Border.BottomBorder);
-            Assert.AreEqual(XLBorderStyleValues.Thick, ws.Cell("B4").Style.Border.LeftBorder);
+            ClassicAssert.AreEqual(XLBorderStyleValues.None, ws.Cell("B4").Style.Border.TopBorder);
+            ClassicAssert.AreEqual(
+                XLBorderStyleValues.None,
+                ws.Cell("B4").Style.Border.RightBorder
+            );
+            ClassicAssert.AreEqual(
+                XLBorderStyleValues.Thick,
+                ws.Cell("B4").Style.Border.BottomBorder
+            );
+            ClassicAssert.AreEqual(
+                XLBorderStyleValues.Thick,
+                ws.Cell("B4").Style.Border.LeftBorder
+            );
 
-            Assert.AreEqual(XLBorderStyleValues.None, ws.Cell("C4").Style.Border.TopBorder);
-            Assert.AreEqual(XLBorderStyleValues.None, ws.Cell("C4").Style.Border.RightBorder);
-            Assert.AreEqual(XLBorderStyleValues.Thick, ws.Cell("C4").Style.Border.BottomBorder);
-            Assert.AreEqual(XLBorderStyleValues.None, ws.Cell("C4").Style.Border.LeftBorder);
+            ClassicAssert.AreEqual(XLBorderStyleValues.None, ws.Cell("C4").Style.Border.TopBorder);
+            ClassicAssert.AreEqual(
+                XLBorderStyleValues.None,
+                ws.Cell("C4").Style.Border.RightBorder
+            );
+            ClassicAssert.AreEqual(
+                XLBorderStyleValues.Thick,
+                ws.Cell("C4").Style.Border.BottomBorder
+            );
+            ClassicAssert.AreEqual(XLBorderStyleValues.None, ws.Cell("C4").Style.Border.LeftBorder);
 
-            Assert.AreEqual(XLBorderStyleValues.None, ws.Cell("D4").Style.Border.TopBorder);
-            Assert.AreEqual(XLBorderStyleValues.Thick, ws.Cell("D4").Style.Border.RightBorder);
-            Assert.AreEqual(XLBorderStyleValues.Thick, ws.Cell("D4").Style.Border.BottomBorder);
-            Assert.AreEqual(XLBorderStyleValues.None, ws.Cell("D4").Style.Border.LeftBorder);
+            ClassicAssert.AreEqual(XLBorderStyleValues.None, ws.Cell("D4").Style.Border.TopBorder);
+            ClassicAssert.AreEqual(
+                XLBorderStyleValues.Thick,
+                ws.Cell("D4").Style.Border.RightBorder
+            );
+            ClassicAssert.AreEqual(
+                XLBorderStyleValues.Thick,
+                ws.Cell("D4").Style.Border.BottomBorder
+            );
+            ClassicAssert.AreEqual(XLBorderStyleValues.None, ws.Cell("D4").Style.Border.LeftBorder);
         }
     }
 
@@ -386,7 +453,7 @@ public class MergedRangesTests
             ws.Cell("A3").Value = 1;
             ws.Cell("A4").Value = 1;
             ws.Cell("B1").FormulaA1 = "SUM(A:A)";
-            Assert.AreEqual(1, ws.Cell("B1").Value);
+            ClassicAssert.AreEqual(1, ws.Cell("B1").Value);
         }
 
         using (XLWorkbook workbook = new())
@@ -394,7 +461,7 @@ public class MergedRangesTests
             IXLWorksheet ws = workbook.AddWorksheet();
             ws.Range("A2:A4").Merge().SetValue(1);
             ws.Cell("B1").FormulaA1 = "SUM(A:A)";
-            Assert.AreEqual(1, ws.Cell("B1").Value);
+            ClassicAssert.AreEqual(1, ws.Cell("B1").Value);
         }
     }
 
@@ -409,7 +476,7 @@ public class MergedRangesTests
             ws.Cell("A3").FormulaA1 = "=1";
             ws.Cell("A4").FormulaA1 = "=1";
             ws.Cell("B1").FormulaA1 = "SUM(A:A)";
-            Assert.AreEqual(1, ws.Cell("B1").Value);
+            ClassicAssert.AreEqual(1, ws.Cell("B1").Value);
         }
 
         using (XLWorkbook workbook = new())
@@ -420,7 +487,7 @@ public class MergedRangesTests
             ws.Cell("A3").SetFormulaA1("=1");
             ws.Cell("A4").SetFormulaA1("=1");
             ws.Cell("B1").SetFormulaA1("SUM(A:A)");
-            Assert.AreEqual(1, ws.Cell("B1").Value);
+            ClassicAssert.AreEqual(1, ws.Cell("B1").Value);
         }
 
         using (XLWorkbook workbook = new())
@@ -431,7 +498,7 @@ public class MergedRangesTests
             ws.Cell("A3").FormulaR1C1 = "=1";
             ws.Cell("A4").FormulaR1C1 = "=1";
             ws.Cell("B1").FormulaR1C1 = "SUM(A:A)";
-            Assert.AreEqual(1, ws.Cell("B1").Value);
+            ClassicAssert.AreEqual(1, ws.Cell("B1").Value);
         }
 
         using (XLWorkbook workbook = new())
@@ -442,7 +509,7 @@ public class MergedRangesTests
             ws.Cell("A3").SetFormulaR1C1("=1");
             ws.Cell("A4").SetFormulaR1C1("=1");
             ws.Cell("B1").SetFormulaR1C1("SUM(A:A)");
-            Assert.AreEqual(1, ws.Cell("B1").Value);
+            ClassicAssert.AreEqual(1, ws.Cell("B1").Value);
         }
     }
 
@@ -455,7 +522,7 @@ public class MergedRangesTests
 
         range.Merge();
 
-        Assert.IsFalse(range.IsMerged());
-        Assert.AreEqual(0, ws.MergedRanges.Count);
+        ClassicAssert.IsFalse(range.IsMerged());
+        ClassicAssert.AreEqual(0, ws.MergedRanges.Count);
     }
 }

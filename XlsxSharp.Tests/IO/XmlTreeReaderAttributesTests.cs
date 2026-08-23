@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Text;
-using NUnit.Framework;
 using XlsxSharp.Excel.IO;
 using XlsxSharp.IO;
 using XlsxSharp.Utils;
@@ -17,48 +16,51 @@ internal class XmlTreeReaderAttributesTests
 {
     private const string AttributeName = "test";
 
-    [TestCase("true", true)]
-    [TestCase("1", true)]
-    [TestCase("false", false)]
-    [TestCase("0", false)]
-    [TestCase("some text", null)]
-    [TestCase("TRUE", null)] // xsd says case sensitive, for non-readable values return null
-    [TestCase("FALSE", null)]
+    [Test]
+    [Arguments("true", true)]
+    [Arguments("1", true)]
+    [Arguments("false", false)]
+    [Arguments("0", false)]
+    [Arguments("some text", null)]
+    [Arguments("TRUE", null)] // xsd says case sensitive, for non-readable values return null
+    [Arguments("FALSE", null)]
     public void GetOptionalBool_reads_xsd_compliant_bool_values(string xmlText, bool? expectedValue)
     {
         using XmlTreeReader reader = CreateReader(xmlText);
         bool? readValue = reader.GetOptionalBool(AttributeName);
 
-        Assert.That(readValue, Is.EqualTo(expectedValue));
+        ClassicAssert.AreEqual(expectedValue, readValue);
     }
 
-    [TestCase("0", 0)]
-    [TestCase("17", 17)]
-    [TestCase("2147483647", 2147483647)]
-    [TestCase("-2147483648", -2147483648)]
-    [TestCase("+7", 7)] // Canonical representation forbids plus sign or leading zeros, but they are readable
-    [TestCase("05", 5)]
-    [TestCase("", null)]
-    [TestCase("3.0", null)]
-    [TestCase("2147483648", null)]
-    [TestCase("-2147483649", null)]
-    [TestCase("one", null)]
+    [Test]
+    [Arguments("0", 0)]
+    [Arguments("17", 17)]
+    [Arguments("2147483647", 2147483647)]
+    [Arguments("-2147483648", -2147483648)]
+    [Arguments("+7", 7)] // Canonical representation forbids plus sign or leading zeros, but they are readable
+    [Arguments("05", 5)]
+    [Arguments("", null)]
+    [Arguments("3.0", null)]
+    [Arguments("2147483648", null)]
+    [Arguments("-2147483649", null)]
+    [Arguments("one", null)]
     public void GetOptionalInt_reads_xsd_compliant_int_values(string xmlText, int? expectedValue)
     {
         using XmlTreeReader reader = CreateReader(xmlText);
         int? readValue = reader.GetOptionalInt(AttributeName);
 
-        Assert.That(readValue, Is.EqualTo(expectedValue));
+        ClassicAssert.AreEqual(expectedValue, readValue);
     }
 
-    [TestCase("0", 0u)]
-    [TestCase("57", 57u)]
-    [TestCase("2147483647", 2147483647u)]
-    [TestCase("4294967295", 4294967295u)]
-    [TestCase("-7", null)]
-    [TestCase("value", null)]
-    [TestCase("4294967296", null)] // One above max value
-    [TestCase("9223372036854775808", null)]
+    [Test]
+    [Arguments("0", 0u)]
+    [Arguments("57", 57u)]
+    [Arguments("2147483647", 2147483647u)]
+    [Arguments("4294967295", 4294967295u)]
+    [Arguments("-7", null)]
+    [Arguments("value", null)]
+    [Arguments("4294967296", null)] // One above max value
+    [Arguments("9223372036854775808", null)]
     public void GetOptionalUint_reads_xsd_compliant_unsignedInt_values(
         string xmlText,
         uint? expectedValue
@@ -67,16 +69,17 @@ internal class XmlTreeReaderAttributesTests
         using XmlTreeReader reader = CreateReader(xmlText);
         uint? readValue = reader.GetOptionalUInt(AttributeName);
 
-        Assert.That(readValue, Is.EqualTo(expectedValue));
+        ClassicAssert.AreEqual(expectedValue, readValue);
     }
 
-    [TestCase("0", 0)]
-    [TestCase("1.75", 1.75)]
-    [TestCase("-1.75e+10", -1.75e+10)]
-    [TestCase("+1.75E+10", 1.75e+10)]
-    [TestCase("2E+308", null)]
-    [TestCase("-2E+308", null)]
-    [TestCase("number", null)]
+    [Test]
+    [Arguments("0", 0)]
+    [Arguments("1.75", 1.75)]
+    [Arguments("-1.75e+10", -1.75e+10)]
+    [Arguments("+1.75E+10", 1.75e+10)]
+    [Arguments("2E+308", null)]
+    [Arguments("-2E+308", null)]
+    [Arguments("number", null)]
     public void GetOptionalDouble_reads_xsd_compliant_double_values(
         string xmlText,
         double? expectedValue
@@ -87,12 +90,13 @@ internal class XmlTreeReaderAttributesTests
         using XmlTreeReader reader = CreateReader(xmlText);
         double? readValue = reader.GetOptionalDouble(AttributeName);
 
-        Assert.That(readValue, Is.EqualTo(expectedValue));
+        ClassicAssert.AreEqual(expectedValue, readValue);
     }
 
-    [TestCase("2025-10-25", "2025-10-25T00:00:00")]
-    [TestCase("2004-04-12T13:20:00Z", "2004-04-12T13:20:00Z")]
-    [TestCase("today", null)]
+    [Test]
+    [Arguments("2025-10-25", "2025-10-25T00:00:00")]
+    [Arguments("2004-04-12T13:20:00Z", "2004-04-12T13:20:00Z")]
+    [Arguments("today", null)]
     public void GetOptionalDateTime_reads_xsd_compliant_dateTime_values(
         string xmlText,
         string expectedString
@@ -104,7 +108,7 @@ internal class XmlTreeReaderAttributesTests
         using XmlTreeReader reader = CreateReader(xmlText);
         DateTime? readValue = reader.GetOptionalDateTime(AttributeName);
 
-        Assert.That(readValue, Is.EqualTo(expectedValue?.DateTime));
+        ClassicAssert.AreEqual(expectedValue?.DateTime, readValue);
     }
 
     [Test]
@@ -117,15 +121,16 @@ internal class XmlTreeReaderAttributesTests
         using XmlTreeReader reader = CreateReader(value);
         string? readValue = reader.GetOptionalString(AttributeName);
 
-        Assert.That(readValue, Is.EqualTo(@"Dear <user_name> _x0009_ - _x0057_elcome"));
+        ClassicAssert.AreEqual(@"Dear <user_name> _x0009_ - _x0057_elcome", readValue);
     }
 
-    [TestCase("def", BindingFlags.Default)]
-    [TestCase("ci", BindingFlags.IgnoreCase)]
-    [TestCase("CI", null)] // Enums names are case sensitive
-    [TestCase("Default", null)] // name is not matched, only configured string
-    [TestCase("", null)]
-    [TestCase("NonExpectedValue", null)]
+    [Test]
+    [Arguments("def", BindingFlags.Default)]
+    [Arguments("ci", BindingFlags.IgnoreCase)]
+    [Arguments("CI", null)] // Enums names are case sensitive
+    [Arguments("Default", null)] // name is not matched, only configured string
+    [Arguments("", null)]
+    [Arguments("NonExpectedValue", null)]
     public void GetOptionalEnum_returns_enum_parsed_by_enum_mapper(
         string xmlText,
         BindingFlags? enumValue
@@ -144,7 +149,7 @@ internal class XmlTreeReaderAttributesTests
         using XmlTreeReader reader = CreateReader(xmlText, mapper);
         BindingFlags? readValue = reader.GetOptionalEnum<BindingFlags>(AttributeName);
 
-        Assert.That(readValue, Is.EqualTo(enumValue));
+        ClassicAssert.AreEqual(enumValue, readValue);
     }
 
     private static XmlTreeReader CreateReader(string attributeValue, XmlToEnumMapper mapper = null)

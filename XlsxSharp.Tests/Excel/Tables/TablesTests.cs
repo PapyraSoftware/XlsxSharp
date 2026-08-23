@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
-using NUnit.Framework;
 using XlsxSharp.Attributes;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.CalcEngine;
@@ -13,7 +12,6 @@ using XlsxSharp.Extensions;
 
 namespace XlsxSharp.Tests.Excel.Tables;
 
-[TestFixture]
 public class TablesTests
 {
     public class TestObjectWithoutAttributes
@@ -64,7 +62,7 @@ public class TablesTests
             DataTable dt = new();
             IXLTable table = ws.FirstCell().InsertTable(dt);
 
-            Assert.AreEqual(null, table);
+            ClassicAssert.AreEqual(null, table);
         }
     }
 
@@ -93,8 +91,8 @@ public class TablesTests
             ws.FirstCell().SetValue("Title").CellBelow().SetValue("X");
             ws.Range("A1").CreateTable();
 
-            Assert.AreEqual(Blank.Value, ws.Cell("A2").Value);
-            Assert.AreEqual("X", ws.Cell("A3").GetText());
+            ClassicAssert.AreEqual(Blank.Value, ws.Cell("A2").Value);
+            ClassicAssert.AreEqual("X", ws.Cell("A3").GetText());
         }
     }
 
@@ -115,7 +113,7 @@ public class TablesTests
 
             IXLTable table = ws.RangeUsed().CreateTable();
             table.InsertColumnsAfter(1);
-            Assert.AreEqual("Column2", table.HeadersRow().LastCell().GetText());
+            ClassicAssert.AreEqual("Column2", table.HeadersRow().LastCell().GetText());
         }
     }
 
@@ -138,7 +136,7 @@ public class TablesTests
 
             ws.Rows("2:4").Delete();
 
-            Assert.IsNull(table.DataRange);
+            ClassicAssert.IsNull(table.DataRange);
         }
     }
 
@@ -158,7 +156,7 @@ public class TablesTests
                 IXLWorksheet ws2 = wb2.Worksheet(1);
                 IXLTable table2 = ws2.Table(0);
                 string fieldName = table2.Field(0).Name;
-                Assert.AreEqual("Line1\nLine2", fieldName);
+                ClassicAssert.AreEqual("Line1\nLine2", fieldName);
             }
         }
     }
@@ -181,7 +179,7 @@ public class TablesTests
 
             IXLTable table1 = ws.Table(0);
             string fieldName1 = table1.Field(0).Name;
-            Assert.AreEqual(columnName, fieldName1);
+            ClassicAssert.AreEqual(columnName, fieldName1);
 
             using (MemoryStream ms = new())
             {
@@ -190,7 +188,7 @@ public class TablesTests
                 IXLWorksheet ws2 = wb2.Worksheet(1);
                 IXLTable table2 = ws2.Table(0);
                 string fieldName2 = table2.Field(0).Name;
-                Assert.AreEqual("Line1\nLine2", fieldName2);
+                ClassicAssert.AreEqual("Line1\nLine2", fieldName2);
             }
         }
     }
@@ -206,7 +204,7 @@ public class TablesTests
         {
             IXLWorksheet ws = wb.AddWorksheet("Sheet1");
             ws.FirstCell().InsertTable(dt);
-            Assert.AreEqual(2, ws.Tables.First().ColumnCount());
+            ClassicAssert.AreEqual(2, ws.Tables.First().ColumnCount());
         }
     }
 
@@ -219,7 +217,7 @@ public class TablesTests
         {
             IXLWorksheet ws = wb.AddWorksheet("Sheet1");
             ws.FirstCell().InsertTable(l);
-            Assert.AreEqual(1, ws.Tables.First().ColumnCount());
+            ClassicAssert.AreEqual(1, ws.Tables.First().ColumnCount());
         }
     }
 
@@ -232,7 +230,7 @@ public class TablesTests
         {
             IXLWorksheet ws = wb.AddWorksheet("Sheet1");
             ws.FirstCell().InsertTable(l);
-            Assert.AreEqual(2, ws.Tables.First().ColumnCount());
+            ClassicAssert.AreEqual(2, ws.Tables.First().ColumnCount());
         }
     }
 
@@ -261,11 +259,14 @@ public class TablesTests
         {
             IXLWorksheet ws = wb.AddWorksheet("Sheet1");
             ws.FirstCell().InsertTable(l);
-            Assert.AreEqual(4, ws.Tables.First().ColumnCount());
-            Assert.AreEqual("FirstColumn", ws.FirstCell().Value);
-            Assert.AreEqual("SecondColumn", ws.FirstCell().CellRight().Value);
-            Assert.AreEqual("SomeFieldNotProperty", ws.FirstCell().CellRight().CellRight().Value);
-            Assert.AreEqual(
+            ClassicAssert.AreEqual(4, ws.Tables.First().ColumnCount());
+            ClassicAssert.AreEqual("FirstColumn", ws.FirstCell().Value);
+            ClassicAssert.AreEqual("SecondColumn", ws.FirstCell().CellRight().Value);
+            ClassicAssert.AreEqual(
+                "SomeFieldNotProperty",
+                ws.FirstCell().CellRight().CellRight().Value
+            );
+            ClassicAssert.AreEqual(
                 "UnOrderedColumn",
                 ws.FirstCell().CellRight().CellRight().CellRight().Value
             );
@@ -281,11 +282,14 @@ public class TablesTests
         {
             IXLWorksheet ws = wb.AddWorksheet("Sheet1");
             ws.FirstCell().InsertTable(l);
-            Assert.AreEqual(4, ws.Tables.First().ColumnCount());
-            Assert.AreEqual("FirstColumn", ws.FirstCell().Value);
-            Assert.AreEqual("SecondColumn", ws.FirstCell().CellRight().Value);
-            Assert.AreEqual("SomeFieldNotProperty", ws.FirstCell().CellRight().CellRight().Value);
-            Assert.AreEqual(
+            ClassicAssert.AreEqual(4, ws.Tables.First().ColumnCount());
+            ClassicAssert.AreEqual("FirstColumn", ws.FirstCell().Value);
+            ClassicAssert.AreEqual("SecondColumn", ws.FirstCell().CellRight().Value);
+            ClassicAssert.AreEqual(
+                "SomeFieldNotProperty",
+                ws.FirstCell().CellRight().CellRight().Value
+            );
+            ClassicAssert.AreEqual(
                 "UnOrderedColumn",
                 ws.FirstCell().CellRight().CellRight().CellRight().Value
             );
@@ -310,9 +314,9 @@ public class TablesTests
             row = table.DataRange.InsertRowsAbove(1).First();
             row.Field("Value").Value = 1;
 
-            Assert.AreEqual(1, ws.Cell(2, 1).GetDouble());
-            Assert.AreEqual(2, ws.Cell(3, 1).GetDouble());
-            Assert.AreEqual(3, ws.Cell(4, 1).GetDouble());
+            ClassicAssert.AreEqual(1, ws.Cell(2, 1).GetDouble());
+            ClassicAssert.AreEqual(2, ws.Cell(3, 1).GetDouble());
+            ClassicAssert.AreEqual(3, ws.Cell(4, 1).GetDouble());
         }
     }
 
@@ -334,9 +338,9 @@ public class TablesTests
             row = row.InsertRowsAbove(1).First();
             row.Field("Value").Value = 1;
 
-            Assert.AreEqual(1, ws.Cell(2, 1).GetDouble());
-            Assert.AreEqual(2, ws.Cell(3, 1).GetDouble());
-            Assert.AreEqual(3, ws.Cell(4, 1).GetDouble());
+            ClassicAssert.AreEqual(1, ws.Cell(2, 1).GetDouble());
+            ClassicAssert.AreEqual(2, ws.Cell(3, 1).GetDouble());
+            ClassicAssert.AreEqual(3, ws.Cell(4, 1).GetDouble());
         }
     }
 
@@ -358,9 +362,9 @@ public class TablesTests
             row = table.DataRange.InsertRowsBelow(1).First();
             row.Field("Value").Value = 3;
 
-            Assert.AreEqual(1, ws.Cell(2, 1).GetDouble());
-            Assert.AreEqual(2, ws.Cell(3, 1).GetDouble());
-            Assert.AreEqual(3, ws.Cell(4, 1).GetDouble());
+            ClassicAssert.AreEqual(1, ws.Cell(2, 1).GetDouble());
+            ClassicAssert.AreEqual(2, ws.Cell(3, 1).GetDouble());
+            ClassicAssert.AreEqual(3, ws.Cell(4, 1).GetDouble());
         }
     }
 
@@ -382,9 +386,9 @@ public class TablesTests
             row = row.InsertRowsBelow(1).First();
             row.Field("Value").Value = 3;
 
-            Assert.AreEqual(1, ws.Cell(2, 1).GetDouble());
-            Assert.AreEqual(2, ws.Cell(3, 1).GetDouble());
-            Assert.AreEqual(3, ws.Cell(4, 1).GetDouble());
+            ClassicAssert.AreEqual(1, ws.Cell(2, 1).GetDouble());
+            ClassicAssert.AreEqual(2, ws.Cell(3, 1).GetDouble());
+            ClassicAssert.AreEqual(3, ws.Cell(4, 1).GetDouble());
         }
     }
 
@@ -405,23 +409,23 @@ public class TablesTests
 
             IXLTable table = ws.RangeUsed().CreateTable();
 
-            Assert.AreEqual("Categories", table.Fields.First().Name);
+            ClassicAssert.AreEqual("Categories", table.Fields.First().Name);
 
             table.SetShowHeaderRow(false);
 
-            Assert.AreEqual("Categories", table.Fields.First().Name);
+            ClassicAssert.AreEqual("Categories", table.Fields.First().Name);
 
-            Assert.IsTrue(ws.Cell(1, 1).IsEmpty(XLCellsUsedOptions.All));
-            Assert.AreEqual(null, table.HeadersRow());
-            Assert.AreEqual("A", table.DataRange.FirstRow().Field("Categories").GetText());
-            Assert.AreEqual("C", table.DataRange.LastRow().Field("Categories").GetText());
-            Assert.AreEqual("A", table.DataRange.FirstCell().GetText());
-            Assert.AreEqual("C", table.DataRange.LastCell().GetText());
+            ClassicAssert.IsTrue(ws.Cell(1, 1).IsEmpty(XLCellsUsedOptions.All));
+            ClassicAssert.AreEqual(null, table.HeadersRow());
+            ClassicAssert.AreEqual("A", table.DataRange.FirstRow().Field("Categories").GetText());
+            ClassicAssert.AreEqual("C", table.DataRange.LastRow().Field("Categories").GetText());
+            ClassicAssert.AreEqual("A", table.DataRange.FirstCell().GetText());
+            ClassicAssert.AreEqual("C", table.DataRange.LastCell().GetText());
 
             table.SetShowHeaderRow();
             IXLRangeRow headerRow = table.HeadersRow();
-            Assert.AreNotEqual(null, headerRow);
-            Assert.AreEqual("Categories", headerRow.Cell(1).GetText());
+            ClassicAssert.AreNotEqual(null, headerRow);
+            ClassicAssert.AreEqual("Categories", headerRow.Cell(1).GetText());
 
             table.SetShowHeaderRow(false);
 
@@ -429,19 +433,20 @@ public class TablesTests
 
             table.SetShowHeaderRow();
 
-            Assert.AreEqual("x", ws.FirstCell().GetText());
-            Assert.AreEqual("Categories", ws.Cell("A2").GetText());
-            Assert.AreNotEqual(null, headerRow);
-            Assert.AreEqual("A", table.DataRange.FirstRow().Field("Categories").GetText());
-            Assert.AreEqual("C", table.DataRange.LastRow().Field("Categories").GetText());
-            Assert.AreEqual("A", table.DataRange.FirstCell().GetText());
-            Assert.AreEqual("C", table.DataRange.LastCell().GetText());
+            ClassicAssert.AreEqual("x", ws.FirstCell().GetText());
+            ClassicAssert.AreEqual("Categories", ws.Cell("A2").GetText());
+            ClassicAssert.AreNotEqual(null, headerRow);
+            ClassicAssert.AreEqual("A", table.DataRange.FirstRow().Field("Categories").GetText());
+            ClassicAssert.AreEqual("C", table.DataRange.LastRow().Field("Categories").GetText());
+            ClassicAssert.AreEqual("A", table.DataRange.FirstCell().GetText());
+            ClassicAssert.AreEqual("C", table.DataRange.LastCell().GetText());
         }
     }
 
-    [TestCase("Amount")]
-    [TestCase("AMOUNT")]
-    [TestCase("amount")]
+    [Test]
+    [Arguments("Amount")]
+    [Arguments("AMOUNT")]
+    [Arguments("amount")]
     public void FieldNamesOfXlTableAreCaseInsensitive(string fieldName)
     {
         using XLWorkbook wb = new();
@@ -449,7 +454,7 @@ public class TablesTests
         IXLTable table = ws.Cell("A1").InsertTable(new[] { new { Amount = 1 } });
 
         IXLTableField expectedField = table.Field(0);
-        Assert.AreSame(expectedField, table.Field(fieldName));
+        ClassicAssert.AreSame(expectedField, table.Field(fieldName));
     }
 
     [Test]
@@ -469,24 +474,24 @@ public class TablesTests
 
             string cellValue = ws.Cell("B1").GetText();
 
-            Assert.AreEqual("LName", nameBefore);
-            Assert.AreEqual("LastName", nameAfter);
-            Assert.AreEqual("LastName", cellValue);
+            ClassicAssert.AreEqual("LName", nameBefore);
+            ClassicAssert.AreEqual("LastName", nameAfter);
+            ClassicAssert.AreEqual("LastName", cellValue);
 
             tbl.ShowHeaderRow = false;
             tbl.Field(tbl.Fields.Last().Index).Name = "LastNameChanged";
             nameAfter = tbl.Field(tbl.Fields.Last().Index).Name;
-            Assert.AreEqual("LastNameChanged", nameAfter);
+            ClassicAssert.AreEqual("LastNameChanged", nameAfter);
 
             tbl.SetShowHeaderRow(true);
             nameAfter = (string)tbl.Cell("B1").Value;
-            Assert.AreEqual("LastNameChanged", nameAfter);
+            ClassicAssert.AreEqual("LastNameChanged", nameAfter);
 
             IXLTableField field = tbl.Field("LastNameChanged");
-            Assert.AreEqual("LastNameChanged", field.Name);
+            ClassicAssert.AreEqual("LastNameChanged", field.Name);
 
             tbl.Cell(1, 1).Value = "FirstName";
-            Assert.AreEqual("FirstName", tbl.Field(0).Name);
+            ClassicAssert.AreEqual("FirstName", tbl.Field(0).Name);
         }
     }
 
@@ -518,13 +523,13 @@ public class TablesTests
 
             table.Column("C").Delete();
 
-            Assert.AreEqual(3, table.Fields.Count());
+            ClassicAssert.AreEqual(3, table.Fields.Count());
 
-            Assert.AreEqual("FirstColumn", table.Fields.First().Name);
-            Assert.AreEqual(0, table.Fields.First().Index);
+            ClassicAssert.AreEqual("FirstColumn", table.Fields.First().Name);
+            ClassicAssert.AreEqual(0, table.Fields.First().Index);
 
-            Assert.AreEqual("UnOrderedColumn", table.Fields.Last().Name);
-            Assert.AreEqual(2, table.Fields.Last().Index);
+            ClassicAssert.AreEqual("UnOrderedColumn", table.Fields.Last().Name);
+            ClassicAssert.AreEqual(2, table.Fields.Last().Index);
         }
     }
 
@@ -554,30 +559,30 @@ public class TablesTests
             IXLWorksheet ws = wb.AddWorksheet("Sheet1");
             IXLTable table = ws.Cell("B2").InsertTable(l);
 
-            Assert.AreEqual(4, table.Fields.Count());
+            ClassicAssert.AreEqual(4, table.Fields.Count());
 
-            Assert.AreEqual("B2", table.Field(0).HeaderCell.Address.ToString());
-            Assert.AreEqual("C2", table.Field(1).HeaderCell.Address.ToString());
-            Assert.AreEqual("D2", table.Field(2).HeaderCell.Address.ToString());
-            Assert.AreEqual("E2", table.Field(3).HeaderCell.Address.ToString());
+            ClassicAssert.AreEqual("B2", table.Field(0).HeaderCell.Address.ToString());
+            ClassicAssert.AreEqual("C2", table.Field(1).HeaderCell.Address.ToString());
+            ClassicAssert.AreEqual("D2", table.Field(2).HeaderCell.Address.ToString());
+            ClassicAssert.AreEqual("E2", table.Field(3).HeaderCell.Address.ToString());
 
-            Assert.IsNull(table.Field(0).TotalsCell);
-            Assert.IsNull(table.Field(1).TotalsCell);
-            Assert.IsNull(table.Field(2).TotalsCell);
-            Assert.IsNull(table.Field(3).TotalsCell);
+            ClassicAssert.IsNull(table.Field(0).TotalsCell);
+            ClassicAssert.IsNull(table.Field(1).TotalsCell);
+            ClassicAssert.IsNull(table.Field(2).TotalsCell);
+            ClassicAssert.IsNull(table.Field(3).TotalsCell);
 
             table.SetShowTotalsRow();
 
-            Assert.AreEqual("B5", table.Field(0).TotalsCell.Address.ToString());
-            Assert.AreEqual("C5", table.Field(1).TotalsCell.Address.ToString());
-            Assert.AreEqual("D5", table.Field(2).TotalsCell.Address.ToString());
-            Assert.AreEqual("E5", table.Field(3).TotalsCell.Address.ToString());
+            ClassicAssert.AreEqual("B5", table.Field(0).TotalsCell.Address.ToString());
+            ClassicAssert.AreEqual("C5", table.Field(1).TotalsCell.Address.ToString());
+            ClassicAssert.AreEqual("D5", table.Field(2).TotalsCell.Address.ToString());
+            ClassicAssert.AreEqual("E5", table.Field(3).TotalsCell.Address.ToString());
 
             IXLTableField field = table.Fields.Last();
 
-            Assert.AreEqual("E2:E5", field.Column.RangeAddress.ToString());
-            Assert.AreEqual("E3", field.DataCells.First().Address.ToString());
-            Assert.AreEqual("E4", field.DataCells.Last().Address.ToString());
+            ClassicAssert.AreEqual("E2:E5", field.Column.RangeAddress.ToString());
+            ClassicAssert.AreEqual("E3", field.DataCells.First().Address.ToString());
+            ClassicAssert.AreEqual("E4", field.DataCells.Last().Address.ToString());
         }
     }
 
@@ -619,7 +624,7 @@ public class TablesTests
                 IXLTable table = ws.Tables.First();
 
                 ws.Tables.Remove(table.Name);
-                Assert.AreEqual(0, ws.Tables.Count());
+                ClassicAssert.AreEqual(0, ws.Tables.Count());
                 wb.Save();
             }
         }
@@ -635,16 +640,24 @@ public class TablesTests
         using (XLWorkbook wb = new())
         {
             IXLWorksheet ws = wb.AddWorksheet("Sheet1");
-            Assert.Throws<InvalidOperationException>(() =>
+            ClassicAssert.Throws<InvalidOperationException>(() =>
                 ws.Cell(1, 1).InsertTable(dt, "May2019")
             );
-            Assert.Throws<InvalidOperationException>(() => ws.Cell(1, 1).InsertTable(dt, "A1"));
-            Assert.Throws<InvalidOperationException>(() => ws.Cell(1, 1).InsertTable(dt, "R1C2"));
-            Assert.Throws<InvalidOperationException>(() => ws.Cell(1, 1).InsertTable(dt, "r3c2"));
-            Assert.Throws<InvalidOperationException>(() =>
+            ClassicAssert.Throws<InvalidOperationException>(() =>
+                ws.Cell(1, 1).InsertTable(dt, "A1")
+            );
+            ClassicAssert.Throws<InvalidOperationException>(() =>
+                ws.Cell(1, 1).InsertTable(dt, "R1C2")
+            );
+            ClassicAssert.Throws<InvalidOperationException>(() =>
+                ws.Cell(1, 1).InsertTable(dt, "r3c2")
+            );
+            ClassicAssert.Throws<InvalidOperationException>(() =>
                 ws.Cell(1, 1).InsertTable(dt, "R2C33333")
             );
-            Assert.Throws<InvalidOperationException>(() => ws.Cell(1, 1).InsertTable(dt, "RC"));
+            ClassicAssert.Throws<InvalidOperationException>(() =>
+                ws.Cell(1, 1).InsertTable(dt, "RC")
+            );
         }
     }
 
@@ -658,16 +671,16 @@ public class TablesTests
         using (XLWorkbook wb = new())
         {
             // Generated table name is used and should not be an issue
-            Assert.DoesNotThrow(() => wb.AddWorksheet(dt, "t1"));
+            ClassicAssert.DoesNotThrow(() => wb.AddWorksheet(dt, "t1"));
         }
 
         using (XLWorkbook wb = new())
         {
             // Should pass because t1 is a valid sheet name, and is not used for the tableName
-            Assert.DoesNotThrow(() => wb.AddWorksheet(dt, "t1", "table1"));
+            ClassicAssert.DoesNotThrow(() => wb.AddWorksheet(dt, "t1", "table1"));
 
-            Assert.AreEqual(1, wb.Worksheets.Count);
-            Assert.AreEqual(1, wb.Worksheet(1).Tables.Count());
+            ClassicAssert.AreEqual(1, wb.Worksheets.Count);
+            ClassicAssert.AreEqual(1, wb.Worksheet(1).Tables.Count());
         }
     }
 
@@ -697,19 +710,19 @@ public class TablesTests
             IXLWorksheet ws = wb.AddWorksheet("Sheet1");
             IXLTable table = ws.Cell("B2").InsertTable(l);
 
-            Assert.AreEqual("B2:E4", table.RangeAddress.ToString());
+            ClassicAssert.AreEqual("B2:E4", table.RangeAddress.ToString());
 
             table.Field("SomeFieldNotProperty").Delete();
 
-            Assert.AreEqual(3, table.Fields.Count());
+            ClassicAssert.AreEqual(3, table.Fields.Count());
 
-            Assert.AreEqual("FirstColumn", table.Fields.First().Name);
-            Assert.AreEqual(0, table.Fields.First().Index);
+            ClassicAssert.AreEqual("FirstColumn", table.Fields.First().Name);
+            ClassicAssert.AreEqual(0, table.Fields.First().Index);
 
-            Assert.AreEqual("UnOrderedColumn", table.Fields.Last().Name);
-            Assert.AreEqual(2, table.Fields.Last().Index);
+            ClassicAssert.AreEqual("UnOrderedColumn", table.Fields.Last().Name);
+            ClassicAssert.AreEqual(2, table.Fields.Last().Index);
 
-            Assert.AreEqual("B2:D4", table.RangeAddress.ToString());
+            ClassicAssert.AreEqual("B2:D4", table.RangeAddress.ToString());
         }
     }
 
@@ -753,16 +766,16 @@ public class TablesTests
             IXLWorksheet ws = wb.AddWorksheet("Sheet1");
             IXLTable table = ws.Cell("B2").InsertTable(l);
 
-            Assert.AreEqual("B2:E6", table.RangeAddress.ToString());
+            ClassicAssert.AreEqual("B2:E6", table.RangeAddress.ToString());
 
             table.DataRange.Rows(3, 4).Delete();
 
-            Assert.AreEqual(2, table.DataRange.Rows().Count());
+            ClassicAssert.AreEqual(2, table.DataRange.Rows().Count());
 
-            Assert.AreEqual("b", table.DataRange.FirstCell().Value);
-            Assert.AreEqual(777, table.DataRange.LastCell().Value);
+            ClassicAssert.AreEqual("b", table.DataRange.FirstCell().Value);
+            ClassicAssert.AreEqual(777, table.DataRange.LastCell().Value);
 
-            Assert.AreEqual("B2:E4", table.RangeAddress.ToString());
+            ClassicAssert.AreEqual("B2:E4", table.RangeAddress.ToString());
         }
     }
 
@@ -777,7 +790,7 @@ public class TablesTests
         {
             IXLWorksheet ws = wb.AddWorksheet("Sheet1");
             ws.FirstCell().InsertTable(dt, true);
-            Assert.Throws<InvalidOperationException>(() =>
+            ClassicAssert.Throws<InvalidOperationException>(() =>
                 ws.FirstCell().CellRight().InsertTable(dt, true)
             );
         }
@@ -795,10 +808,10 @@ public class TablesTests
         ws.Cell("A1").InsertData(new object[] { (XLError.IncompatibleValue, 7) });
 
         // The non-string data inserted to headers were converted to strings and used as a field names.
-        Assert.AreEqual("#VALUE!", table.Field(0).Name);
-        Assert.AreEqual("#VALUE!", ws.Cell("A1").Value);
-        Assert.AreEqual("7", table.Field(1).Name);
-        Assert.AreEqual("7", ws.Cell("B1").Value);
+        ClassicAssert.AreEqual("#VALUE!", table.Field(0).Name);
+        ClassicAssert.AreEqual("#VALUE!", ws.Cell("A1").Value);
+        ClassicAssert.AreEqual("7", table.Field(1).Name);
+        ClassicAssert.AreEqual("7", ws.Cell("B1").Value);
     }
 
     [Test]
@@ -836,12 +849,12 @@ public class TablesTests
             ws.FirstCell().CellBelow().InsertData(data2);
 
             table.Fields.ForEach(f =>
-                Assert.AreEqual(XLTotalsRowFunction.None, f.TotalsRowFunction)
+                ClassicAssert.AreEqual(XLTotalsRowFunction.None, f.TotalsRowFunction)
             );
 
-            Assert.AreEqual("11", table.Field(0).TotalsRowLabel);
-            Assert.AreEqual("K", table.Field(1).TotalsRowLabel);
-            Assert.AreEqual("bbbbbbbbbbb", table.Field(2).TotalsRowLabel);
+            ClassicAssert.AreEqual("11", table.Field(0).TotalsRowLabel);
+            ClassicAssert.AreEqual("K", table.Field(1).TotalsRowLabel);
+            ClassicAssert.AreEqual("bbbbbbbbbbb", table.Field(2).TotalsRowLabel);
         }
     }
 
@@ -872,29 +885,29 @@ public class TablesTests
             IXLTable table1 = ws.FirstCell().InsertTable(l);
             IXLTable table2 = ws.Cell("A10").InsertTable(l);
 
-            Assert.AreEqual("Table1", table1.Name);
-            Assert.AreEqual("Table2", table2.Name);
+            ClassicAssert.AreEqual("Table1", table1.Name);
+            ClassicAssert.AreEqual("Table2", table2.Name);
 
             table1.Name = "table1";
-            Assert.AreEqual("table1", table1.Name);
+            ClassicAssert.AreEqual("table1", table1.Name);
 
             table1.Name = "_table1";
-            Assert.AreEqual("_table1", table1.Name);
+            ClassicAssert.AreEqual("_table1", table1.Name);
 
             table1.Name = "\\table1";
-            Assert.AreEqual("\\table1", table1.Name);
+            ClassicAssert.AreEqual("\\table1", table1.Name);
 
-            Assert.Throws<ArgumentException>(() => table1.Name = "");
-            Assert.Throws<ArgumentException>(() => table1.Name = "R");
-            Assert.Throws<ArgumentException>(() => table1.Name = "C");
-            Assert.Throws<ArgumentException>(() => table1.Name = "r");
-            Assert.Throws<ArgumentException>(() => table1.Name = "c");
+            ClassicAssert.Throws<ArgumentException>(() => table1.Name = "");
+            ClassicAssert.Throws<ArgumentException>(() => table1.Name = "R");
+            ClassicAssert.Throws<ArgumentException>(() => table1.Name = "C");
+            ClassicAssert.Throws<ArgumentException>(() => table1.Name = "r");
+            ClassicAssert.Throws<ArgumentException>(() => table1.Name = "c");
 
-            Assert.Throws<ArgumentException>(() => table1.Name = "123");
-            Assert.Throws<ArgumentException>(() => table1.Name = new string('A', 256));
+            ClassicAssert.Throws<ArgumentException>(() => table1.Name = "123");
+            ClassicAssert.Throws<ArgumentException>(() => table1.Name = new string('A', 256));
 
-            Assert.Throws<ArgumentException>(() => table1.Name = "Table2");
-            Assert.Throws<ArgumentException>(() => table1.Name = "TABLE2");
+            ClassicAssert.Throws<ArgumentException>(() => table1.Name = "Table2");
+            ClassicAssert.Throws<ArgumentException>(() => table1.Name = "TABLE2");
         }
     }
 
@@ -933,12 +946,12 @@ public class TablesTests
             ws.FirstCell().CellBelow().InsertData(data2);
             table.Resize(table.FirstCell().Address, table.AsRange().LastCell().CellRight().Address);
 
-            Assert.AreEqual(4, table.Fields.Count());
+            ClassicAssert.AreEqual(4, table.Fields.Count());
 
-            Assert.AreEqual("Column4", table.Field(3).Name);
+            ClassicAssert.AreEqual("Column4", table.Field(3).Name);
 
             ws.Cell("D1").Value = "Integer";
-            Assert.AreEqual("Integer", table.Field(3).Name);
+            ClassicAssert.AreEqual("Integer", table.Field(3).Name);
         }
     }
 
@@ -970,7 +983,7 @@ public class TablesTests
 
             foreach (dynamic d in table.AsDynamicEnumerable())
             {
-                Assert.DoesNotThrow(() =>
+                ClassicAssert.DoesNotThrow(() =>
                 {
                     object value;
                     value = d.FirstColumn;
@@ -1008,28 +1021,28 @@ public class TablesTests
             IXLWorksheet ws = wb.AddWorksheet("Sheet1");
             DataTable table = ws.FirstCell().InsertTable(l).AsNativeDataTable();
 
-            Assert.AreEqual(4, table.Columns.Count);
-            Assert.AreEqual("FirstColumn", table.Columns[0].ColumnName);
-            Assert.AreEqual("SecondColumn", table.Columns[1].ColumnName);
-            Assert.AreEqual("SomeFieldNotProperty", table.Columns[2].ColumnName);
-            Assert.AreEqual("UnOrderedColumn", table.Columns[3].ColumnName);
+            ClassicAssert.AreEqual(4, table.Columns.Count);
+            ClassicAssert.AreEqual("FirstColumn", table.Columns[0].ColumnName);
+            ClassicAssert.AreEqual("SecondColumn", table.Columns[1].ColumnName);
+            ClassicAssert.AreEqual("SomeFieldNotProperty", table.Columns[2].ColumnName);
+            ClassicAssert.AreEqual("UnOrderedColumn", table.Columns[3].ColumnName);
 
-            Assert.AreEqual(typeof(string), table.Columns[0].DataType);
-            Assert.AreEqual(typeof(string), table.Columns[1].DataType);
-            Assert.AreEqual(typeof(double), table.Columns[2].DataType);
-            Assert.AreEqual(typeof(double), table.Columns[3].DataType);
+            ClassicAssert.AreEqual(typeof(string), table.Columns[0].DataType);
+            ClassicAssert.AreEqual(typeof(string), table.Columns[1].DataType);
+            ClassicAssert.AreEqual(typeof(double), table.Columns[2].DataType);
+            ClassicAssert.AreEqual(typeof(double), table.Columns[3].DataType);
 
             DataRow dr = table.Rows[0];
-            Assert.AreEqual("b", dr["FirstColumn"]);
-            Assert.AreEqual("a", dr["SecondColumn"]);
-            Assert.AreEqual(4, dr["SomeFieldNotProperty"]);
-            Assert.AreEqual(999, dr["UnOrderedColumn"]);
+            ClassicAssert.AreEqual("b", dr["FirstColumn"]);
+            ClassicAssert.AreEqual("a", dr["SecondColumn"]);
+            ClassicAssert.AreEqual(4, dr["SomeFieldNotProperty"]);
+            ClassicAssert.AreEqual(999, dr["UnOrderedColumn"]);
 
             dr = table.Rows[1];
-            Assert.AreEqual("d", dr["FirstColumn"]);
-            Assert.AreEqual("c", dr["SecondColumn"]);
-            Assert.AreEqual(5, dr["SomeFieldNotProperty"]);
-            Assert.AreEqual(777, dr["UnOrderedColumn"]);
+            ClassicAssert.AreEqual("d", dr["FirstColumn"]);
+            ClassicAssert.AreEqual("c", dr["SecondColumn"]);
+            ClassicAssert.AreEqual(5, dr["SomeFieldNotProperty"]);
+            ClassicAssert.AreEqual(777, dr["UnOrderedColumn"]);
         }
     }
 
@@ -1055,13 +1068,19 @@ public class TablesTests
                 .SetShowTotalsRow();
             table.Fields.First().TotalsRowFunction = XLTotalsRowFunction.Sum;
 
-            Assert.AreEqual(XLTableCellType.Header, table.HeadersRow().Cell(1).TableCellType());
-            Assert.AreEqual(
+            ClassicAssert.AreEqual(
+                XLTableCellType.Header,
+                table.HeadersRow().Cell(1).TableCellType()
+            );
+            ClassicAssert.AreEqual(
                 XLTableCellType.Data,
                 table.HeadersRow().Cell(1).CellBelow().TableCellType()
             );
-            Assert.AreEqual(XLTableCellType.Total, table.TotalsRow().Cell(1).TableCellType());
-            Assert.AreEqual(XLTableCellType.None, ws.Cell("Z100").TableCellType());
+            ClassicAssert.AreEqual(
+                XLTableCellType.Total,
+                table.TotalsRow().Cell(1).TableCellType()
+            );
+            ClassicAssert.AreEqual(XLTableCellType.None, ws.Cell("Z100").TableCellType());
         }
     }
 
@@ -1098,7 +1117,7 @@ public class TablesTests
             ws.Cell("D1").Value = "Normal";
 
             IXLTable table = ws.RangeUsed().CreateTable();
-            Assert.IsNotNull(table);
+            ClassicAssert.IsNotNull(table);
 
             table.ShowTotalsRow = true;
             table.Field(0).TotalsRowFunction = XLTotalsRowFunction.Count;
@@ -1106,13 +1125,19 @@ public class TablesTests
             table.Field(2).TotalsRowFunction = XLTotalsRowFunction.Sum;
             table.Field(3).TotalsRowFunction = XLTotalsRowFunction.Sum;
 
-            Assert.AreEqual("SUBTOTAL(103,Table1[[ABCD    ]])", table.Field(0).TotalsRowFormulaA1);
-            Assert.AreEqual("SUBTOTAL(103,Table1[[   '#BCD]])", table.Field(1).TotalsRowFormulaA1);
-            Assert.AreEqual(
+            ClassicAssert.AreEqual(
+                "SUBTOTAL(103,Table1[[ABCD    ]])",
+                table.Field(0).TotalsRowFormulaA1
+            );
+            ClassicAssert.AreEqual(
+                "SUBTOTAL(103,Table1[[   '#BCD]])",
+                table.Field(1).TotalsRowFormulaA1
+            );
+            ClassicAssert.AreEqual(
                 "SUBTOTAL(109,Table1[[   as''df   ]])",
                 table.Field(2).TotalsRowFormulaA1
             );
-            Assert.AreEqual("SUBTOTAL(109,[Normal])", table.Field(3).TotalsRowFormulaA1);
+            ClassicAssert.AreEqual("SUBTOTAL(109,[Normal])", table.Field(3).TotalsRowFormulaA1);
         }
     }
 
@@ -1141,7 +1166,7 @@ public class TablesTests
         {
             IXLWorksheet ws = wb.AddWorksheet("Sheet1");
             ws.FirstCell().InsertTable(l);
-            Assert.Throws<InvalidOperationException>(() => ws.RangeUsed().CreateTable());
+            ClassicAssert.Throws<InvalidOperationException>(() => ws.RangeUsed().CreateTable());
         }
     }
 
@@ -1156,7 +1181,7 @@ public class TablesTests
         ws.FirstCell().InsertTable(data, createTable: false);
         ws.RangeUsed().SetAutoFilter().Column(1).AddFilter(5);
 
-        Assert.Throws<InvalidOperationException>(() => ws.RangeUsed().CreateTable());
+        ClassicAssert.Throws<InvalidOperationException>(() => ws.RangeUsed().CreateTable());
     }
 
     [Test]
@@ -1169,7 +1194,7 @@ public class TablesTests
 
         TestDelegate action = () => table.CopyTo(ws1);
 
-        Assert.Throws(typeof(InvalidOperationException), action);
+        ClassicAssert.Throws(typeof(InvalidOperationException), action);
     }
 
     [Test]
@@ -1186,7 +1211,7 @@ public class TablesTests
 
         string actual = ws1.Cell("A2").GetDateTime().ToString(format);
         string expected = now.DateTime.ToString(format);
-        Assert.AreEqual(expected, actual);
+        ClassicAssert.AreEqual(expected, actual);
     }
 
     [Test]
@@ -1205,18 +1230,21 @@ public class TablesTests
 
         IXLTable copy = original.CopyTo(ws2);
 
-        Assert.AreEqual(0, ws1.Tables.Count()); // We did not add it
-        Assert.AreEqual(1, ws2.Tables.Count());
+        ClassicAssert.AreEqual(0, ws1.Tables.Count()); // We did not add it
+        ClassicAssert.AreEqual(1, ws2.Tables.Count());
 
         AssertTablesAreEqual(original, copy);
 
-        Assert.AreEqual("Sheet2!A1:C2", copy.RangeAddress.ToString(XLReferenceStyle.A1, true));
-        Assert.AreEqual("Custom column 1", ws2.Cell("A1").Value);
-        Assert.AreEqual("Custom column 2", ws2.Cell("B1").Value);
-        Assert.AreEqual("Custom column 3", ws2.Cell("C1").Value);
-        Assert.AreEqual("Value 1", ws2.Cell("A2").Value);
-        Assert.AreEqual(123.45, (double)ws2.Cell("B2").Value, XLHelper.Epsilon);
-        Assert.AreEqual(new DateTime(2018, 5, 10), ws2.Cell("C2").Value);
+        ClassicAssert.AreEqual(
+            "Sheet2!A1:C2",
+            copy.RangeAddress.ToString(XLReferenceStyle.A1, true)
+        );
+        ClassicAssert.AreEqual("Custom column 1", ws2.Cell("A1").Value);
+        ClassicAssert.AreEqual("Custom column 2", ws2.Cell("B1").Value);
+        ClassicAssert.AreEqual("Custom column 3", ws2.Cell("C1").Value);
+        ClassicAssert.AreEqual("Value 1", ws2.Cell("A2").Value);
+        ClassicAssert.AreEqual(123.45, (double)ws2.Cell("B2").Value, XLHelper.Epsilon);
+        ClassicAssert.AreEqual(new DateTime(2018, 5, 10), ws2.Cell("C2").Value);
     }
 
     [Test]
@@ -1236,20 +1264,23 @@ public class TablesTests
 
         original.CopyTo(ws2);
 
-        Assert.AreEqual(1, ws1.Tables.Count());
-        Assert.AreEqual(1, ws2.Tables.Count());
+        ClassicAssert.AreEqual(1, ws1.Tables.Count());
+        ClassicAssert.AreEqual(1, ws2.Tables.Count());
 
         IXLTable copy = ws2.Tables.First();
 
         AssertTablesAreEqual(original, copy);
 
-        Assert.AreEqual("Sheet2!A1:C2", copy.RangeAddress.ToString(XLReferenceStyle.A1, true));
-        Assert.AreEqual("Custom column 1", ws2.Cell("A1").Value);
-        Assert.AreEqual("Custom column 2", ws2.Cell("B1").Value);
-        Assert.AreEqual("Custom column 3", ws2.Cell("C1").Value);
-        Assert.AreEqual("Value 1", ws2.Cell("A2").Value);
-        Assert.AreEqual(123.45, (double)ws2.Cell("B2").Value, XLHelper.Epsilon);
-        Assert.AreEqual(new DateTime(2018, 5, 10), ws2.Cell("C2").Value);
+        ClassicAssert.AreEqual(
+            "Sheet2!A1:C2",
+            copy.RangeAddress.ToString(XLReferenceStyle.A1, true)
+        );
+        ClassicAssert.AreEqual("Custom column 1", ws2.Cell("A1").Value);
+        ClassicAssert.AreEqual("Custom column 2", ws2.Cell("B1").Value);
+        ClassicAssert.AreEqual("Custom column 3", ws2.Cell("C1").Value);
+        ClassicAssert.AreEqual("Value 1", ws2.Cell("A2").Value);
+        ClassicAssert.AreEqual(123.45, (double)ws2.Cell("B2").Value, XLHelper.Epsilon);
+        ClassicAssert.AreEqual(new DateTime(2018, 5, 10), ws2.Cell("C2").Value);
     }
 
     [Test]
@@ -1268,8 +1299,8 @@ public class TablesTests
                 ws.Cell("C2").Value = new DateTime(2018, 5, 10);
                 IXLTable original = ws.Range("A1:C2").CreateTable("Attached table");
 
-                Assert.AreEqual(1, ws.Tables.Count());
-                Assert.IsNull((original as XLTable).RelId);
+                ClassicAssert.AreEqual(1, ws.Tables.Count());
+                ClassicAssert.IsNull((original as XLTable).RelId);
 
                 wb.SaveAs(ms);
             }
@@ -1279,25 +1310,25 @@ public class TablesTests
                 IXLWorksheet ws = wb.Worksheets.Add("Sheet2");
                 IXLTable original = wb.Worksheets.First().Tables.First();
 
-                Assert.IsNotNull((original as XLTable).RelId);
+                ClassicAssert.IsNotNull((original as XLTable).RelId);
 
                 IXLTable copy = original.CopyTo(ws);
 
-                Assert.AreEqual(1, ws.Tables.Count());
-                Assert.IsNull((copy as XLTable).RelId);
+                ClassicAssert.AreEqual(1, ws.Tables.Count());
+                ClassicAssert.IsNull((copy as XLTable).RelId);
 
                 AssertTablesAreEqual(original, copy);
 
-                Assert.AreEqual(
+                ClassicAssert.AreEqual(
                     "Sheet2!A1:C2",
                     copy.RangeAddress.ToString(XLReferenceStyle.A1, true)
                 );
-                Assert.AreEqual("Custom column 1", ws.Cell("A1").Value);
-                Assert.AreEqual("Custom column 2", ws.Cell("B1").Value);
-                Assert.AreEqual("Custom column 3", ws.Cell("C1").Value);
-                Assert.AreEqual("Value 1", ws.Cell("A2").Value);
-                Assert.AreEqual(123.45, (double)ws.Cell("B2").Value, XLHelper.Epsilon);
-                Assert.AreEqual(new DateTime(2018, 5, 10), ws.Cell("C2").Value);
+                ClassicAssert.AreEqual("Custom column 1", ws.Cell("A1").Value);
+                ClassicAssert.AreEqual("Custom column 2", ws.Cell("B1").Value);
+                ClassicAssert.AreEqual("Custom column 3", ws.Cell("C1").Value);
+                ClassicAssert.AreEqual("Value 1", ws.Cell("A2").Value);
+                ClassicAssert.AreEqual(123.45, (double)ws.Cell("B2").Value, XLHelper.Epsilon);
+                ClassicAssert.AreEqual(new DateTime(2018, 5, 10), ws.Cell("C2").Value);
             }
         }
     }
@@ -1321,13 +1352,16 @@ public class TablesTests
 
         AssertTablesAreEqual(original, copy);
 
-        Assert.AreEqual("Sheet2!A1:C2", copy.RangeAddress.ToString(XLReferenceStyle.A1, true));
-        Assert.AreEqual("Custom column 1", ws2.Cell("A1").Value);
-        Assert.AreEqual("Custom column 2", ws2.Cell("B1").Value);
-        Assert.AreEqual("Custom column 3", ws2.Cell("C1").Value);
-        Assert.AreEqual(Blank.Value, ws2.Cell("A2").Value);
-        Assert.AreEqual(Blank.Value, ws2.Cell("B2").Value);
-        Assert.AreEqual(Blank.Value, ws2.Cell("C2").Value);
+        ClassicAssert.AreEqual(
+            "Sheet2!A1:C2",
+            copy.RangeAddress.ToString(XLReferenceStyle.A1, true)
+        );
+        ClassicAssert.AreEqual("Custom column 1", ws2.Cell("A1").Value);
+        ClassicAssert.AreEqual("Custom column 2", ws2.Cell("B1").Value);
+        ClassicAssert.AreEqual("Custom column 3", ws2.Cell("C1").Value);
+        ClassicAssert.AreEqual(Blank.Value, ws2.Cell("A2").Value);
+        ClassicAssert.AreEqual(Blank.Value, ws2.Cell("B2").Value);
+        ClassicAssert.AreEqual(Blank.Value, ws2.Cell("C2").Value);
     }
 
     [Test]
@@ -1356,8 +1390,8 @@ public class TablesTests
                 .ToList()
                 .ForEach(r => r.WorksheetRow().Delete());
 
-            Assert.IsNull(table.DataRange);
-            Assert.Throws<EmptyTableException>(() => wb.SaveAs(ms));
+            ClassicAssert.IsNull(table.DataRange);
+            ClassicAssert.Throws<EmptyTableException>(() => wb.SaveAs(ms));
         }
     }
 
@@ -1397,11 +1431,11 @@ public class TablesTests
 
             IXLTable table = ws.Range("A1:E3").CreateTable("Table1");
 
-            Assert.AreEqual("Header", table.Field(0).Name);
-            Assert.AreEqual(new string(' ', 1), table.Field(1).Name);
-            Assert.AreEqual(new string(' ', 2), table.Field(2).Name);
-            Assert.AreEqual(new string(' ', 3), table.Field(3).Name);
-            Assert.AreEqual("Column5", table.Field(4).Name);
+            ClassicAssert.AreEqual("Header", table.Field(0).Name);
+            ClassicAssert.AreEqual(new string(' ', 1), table.Field(1).Name);
+            ClassicAssert.AreEqual(new string(' ', 2), table.Field(2).Name);
+            ClassicAssert.AreEqual(new string(' ', 3), table.Field(3).Name);
+            ClassicAssert.AreEqual("Column5", table.Field(4).Name);
         }
     }
 
@@ -1411,8 +1445,8 @@ public class TablesTests
         using (XLWorkbook wb = new())
         {
             IXLWorksheet ws = wb.AddWorksheet("Sheet1");
-            Assert.Throws<ArgumentOutOfRangeException>(() => ws.Table("dummy"));
-            Assert.Throws<ArgumentOutOfRangeException>(() => wb.Table("dummy"));
+            ClassicAssert.Throws<ArgumentOutOfRangeException>(() => ws.Table("dummy"));
+            ClassicAssert.Throws<ArgumentOutOfRangeException>(() => wb.Table("dummy"));
         }
     }
 
@@ -1424,41 +1458,47 @@ public class TablesTests
             IXLWorksheet ws1 = wb.AddWorksheet();
             IXLTable t1 = ws1.FirstCell()
                 .InsertTable(Enumerable.Range(1, 10).Select(i => new { Number = i }));
-            Assert.AreEqual("Table1", t1.Name);
+            ClassicAssert.AreEqual("Table1", t1.Name);
 
             IXLWorksheet ws2 = wb.AddWorksheet();
             IXLTable t2 = ws2.FirstCell()
                 .InsertTable(Enumerable.Range(1, 10).Select(i => new { Number = i }));
-            Assert.AreEqual("Table2", t2.Name);
+            ClassicAssert.AreEqual("Table2", t2.Name);
         }
     }
 
     private static void AssertTablesAreEqual(IXLTable table1, IXLTable table2)
     {
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             table1.RangeAddress.ToString(XLReferenceStyle.A1, false),
             table2.RangeAddress.ToString(XLReferenceStyle.A1, false)
         );
-        Assert.AreEqual(table1.Fields.Count(), table2.Fields.Count());
+        ClassicAssert.AreEqual(table1.Fields.Count(), table2.Fields.Count());
         for (int j = 0; j < table1.Fields.Count(); j++)
         {
             IXLTableField originalField = table1.Fields.ElementAt(j);
             IXLTableField copyField = table2.Fields.ElementAt(j);
-            Assert.AreEqual(originalField.Name, copyField.Name);
+            ClassicAssert.AreEqual(originalField.Name, copyField.Name);
             if (table1.ShowTotalsRow)
             {
-                Assert.AreEqual(originalField.TotalsRowFormulaA1, copyField.TotalsRowFormulaA1);
-                Assert.AreEqual(originalField.TotalsRowFunction, copyField.TotalsRowFunction);
+                ClassicAssert.AreEqual(
+                    originalField.TotalsRowFormulaA1,
+                    copyField.TotalsRowFormulaA1
+                );
+                ClassicAssert.AreEqual(
+                    originalField.TotalsRowFunction,
+                    copyField.TotalsRowFunction
+                );
             }
         }
 
-        Assert.AreEqual(table1.Name, table2.Name);
-        Assert.AreEqual(table1.ShowAutoFilter, table2.ShowAutoFilter);
-        Assert.AreEqual(table1.ShowColumnStripes, table2.ShowColumnStripes);
-        Assert.AreEqual(table1.ShowHeaderRow, table2.ShowHeaderRow);
-        Assert.AreEqual(table1.ShowRowStripes, table2.ShowRowStripes);
-        Assert.AreEqual(table1.ShowTotalsRow, table2.ShowTotalsRow);
-        Assert.AreEqual(table1.Theme, table2.Theme);
+        ClassicAssert.AreEqual(table1.Name, table2.Name);
+        ClassicAssert.AreEqual(table1.ShowAutoFilter, table2.ShowAutoFilter);
+        ClassicAssert.AreEqual(table1.ShowColumnStripes, table2.ShowColumnStripes);
+        ClassicAssert.AreEqual(table1.ShowHeaderRow, table2.ShowHeaderRow);
+        ClassicAssert.AreEqual(table1.ShowRowStripes, table2.ShowRowStripes);
+        ClassicAssert.AreEqual(table1.ShowTotalsRow, table2.ShowTotalsRow);
+        ClassicAssert.AreEqual(table1.Theme, table2.Theme);
     }
 
     //TODO: Delete table (not underlying range)

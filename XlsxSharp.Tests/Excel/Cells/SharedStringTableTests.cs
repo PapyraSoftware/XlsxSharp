@@ -1,11 +1,9 @@
-﻿using System;
+using System;
 using System.Text;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 
 namespace XlsxSharp.Tests.Excel.Cells;
 
-[TestFixture]
 public class SharedStringTableTests
 {
     [Test]
@@ -16,12 +14,12 @@ public class SharedStringTableTests
         IXLWorksheet ws2 = wb.AddWorksheet();
         string txt1 = "Hello";
         string txt2 = new StringBuilder("Hel").Append("lo").ToString();
-        Assert.AreNotSame(txt1, txt2);
+        ClassicAssert.AreNotSame(txt1, txt2);
 
         ws1.Cell(1, 1).Value = txt1;
         ws2.Cell(1, 1).Value = txt2;
 
-        Assert.AreSame(ws1.Cell(1, 1).Value.GetText(), ws2.Cell(1, 1).Value.GetText());
+        ClassicAssert.AreSame(ws1.Cell(1, 1).Value.GetText(), ws2.Cell(1, 1).Value.GetText());
     }
 
     [Test]
@@ -29,8 +27,8 @@ public class SharedStringTableTests
     {
         SharedStringTable sst = new();
         int id = sst.IncreaseRef("test", false);
-        Assert.AreEqual("test", sst[id]);
-        Assert.AreEqual(1, sst.Count);
+        ClassicAssert.AreEqual("test", sst[id]);
+        ClassicAssert.AreEqual(1, sst.Count);
     }
 
     [Test]
@@ -40,11 +38,9 @@ public class SharedStringTableTests
         int id = sst.IncreaseRef("test", false);
         sst.DecreaseRef(id);
 
-        Assert.AreEqual(0, sst.Count);
-        Assert.That(
-            () => _ = sst[id],
-            Throws.ArgumentException.With.Message.EqualTo("Id 0 has no text.")
-        );
+        ClassicAssert.AreEqual(0, sst.Count);
+        ArgumentException ex = ClassicAssert.Throws<ArgumentException>(() => _ = sst[id]);
+        ClassicAssert.AreEqual("Id 0 has no text.", ex.Message);
     }
 
     [Test]
@@ -55,23 +51,23 @@ public class SharedStringTableTests
         int id = sst.IncreaseRef(text, false);
 
         sst.IncreaseRef(text, false);
-        Assert.AreEqual(text, sst[id]);
-        Assert.AreEqual(1, sst.Count);
+        ClassicAssert.AreEqual(text, sst[id]);
+        ClassicAssert.AreEqual(1, sst.Count);
 
         sst.DecreaseRef(id);
-        Assert.AreEqual(text, sst[id]);
-        Assert.AreEqual(1, sst.Count);
+        ClassicAssert.AreEqual(text, sst[id]);
+        ClassicAssert.AreEqual(1, sst.Count);
 
         sst.IncreaseRef(text, false);
-        Assert.AreEqual(text, sst[id]);
-        Assert.AreEqual(1, sst.Count);
+        ClassicAssert.AreEqual(text, sst[id]);
+        ClassicAssert.AreEqual(1, sst.Count);
 
         sst.DecreaseRef(id);
-        Assert.AreEqual(text, sst[id]);
-        Assert.AreEqual(1, sst.Count);
+        ClassicAssert.AreEqual(text, sst[id]);
+        ClassicAssert.AreEqual(1, sst.Count);
 
         sst.DecreaseRef(id);
-        Assert.Throws<ArgumentException>(() => _ = sst[id]);
+        ClassicAssert.Throws<ArgumentException>(() => _ = sst[id]);
     }
 
     [Test]
@@ -82,14 +78,14 @@ public class SharedStringTableTests
         int originalId = sst.IncreaseRef("original", false);
         int laterId = sst.IncreaseRef("two", false);
 
-        Assert.That(laterId, Is.GreaterThan(originalId));
+        ClassicAssert.Greater(laterId, originalId);
 
         sst.DecreaseRef(originalId);
-        Assert.Throws<ArgumentException>(() => _ = sst[originalId]);
+        ClassicAssert.Throws<ArgumentException>(() => _ = sst[originalId]);
 
         int replacementId = sst.IncreaseRef("replacement", false);
-        Assert.AreEqual(originalId, replacementId);
-        Assert.AreEqual("replacement", sst[replacementId]);
+        ClassicAssert.AreEqual(originalId, replacementId);
+        ClassicAssert.AreEqual("replacement", sst[replacementId]);
     }
 
     [Test]
@@ -98,7 +94,7 @@ public class SharedStringTableTests
         SharedStringTable sst = new();
         int id = sst.IncreaseRef("test", false);
         sst.DecreaseRef(id);
-        Assert.Throws<InvalidOperationException>(() => sst.DecreaseRef(id));
+        ClassicAssert.Throws<InvalidOperationException>(() => sst.DecreaseRef(id));
     }
 
     [Test]
@@ -110,8 +106,8 @@ public class SharedStringTableTests
             (_, ws) =>
             {
                 // Check that type is a empty string, just like in Excel.
-                Assert.AreEqual(2, ws.Evaluate("TYPE(B2)"));
-                Assert.IsEmpty(ws.Cell("B2").GetText());
+                ClassicAssert.AreEqual(2, ws.Evaluate("TYPE(B2)"));
+                ClassicAssert.IsEmpty(ws.Cell("B2").GetText());
             },
             @"Other\Cells\EmptySi.xlsx"
         );
@@ -129,8 +125,8 @@ public class SharedStringTableTests
             },
             (_, ws) =>
             {
-                Assert.AreEqual("", ws.Cell("B1").CachedValue);
-                Assert.AreEqual("", ws.Cell("B2").GetRichText().Text);
+                ClassicAssert.AreEqual("", ws.Cell("B1").CachedValue);
+                ClassicAssert.AreEqual("", ws.Cell("B2").GetRichText().Text);
             },
             @"Other\Cells\EmptyText.xlsx"
         );

@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
-using NUnit.Framework;
 using XlsxSharp.IO;
 using static XlsxSharp.IO.XmlTreeNodeType;
 
@@ -16,22 +15,22 @@ internal class MceXmlReaderTests
     private const string BarNs = "http://www.example.com/bar";
 
     [Test]
-    [TestCaseSource(typeof(MceTestCase), nameof(MceTestCase.ProcessingTestCases))]
+    [MethodDataSource<MceTestCase>(nameof(MceTestCase.ProcessingTestCases))]
     public void Processing_model_works_per_spec(MceTestCase test)
     {
         using MceXmlReader reader = CreateMceReader(test.Xml, test.AppConfig, test.Adee);
 
         foreach (IExpectedXmlNode expectedNode in test.ExpectedNodes)
         {
-            Assert.That(reader.Read(), Is.True);
+            ClassicAssert.IsTrue(reader.Read());
             expectedNode.AssertMatches(reader);
         }
 
-        Assert.That(reader.Read(), Is.False);
-        Assert.That(reader.NodeType, Is.EqualTo(None));
-        Assert.That(reader.Value, Is.Empty);
-        Assert.That(reader.LocalName, Is.Empty);
-        Assert.That(reader.NamespaceUri, Is.Empty);
+        ClassicAssert.IsFalse(reader.Read());
+        ClassicAssert.AreEqual(None, reader.NodeType);
+        ClassicAssert.IsEmpty(reader.Value);
+        ClassicAssert.IsEmpty(reader.LocalName);
+        ClassicAssert.IsEmpty(reader.NamespaceUri);
     }
 
     [Test]
@@ -63,26 +62,27 @@ internal class MceXmlReaderTests
         );
     }
 
-    [TestCase(
+    [Test]
+    [Arguments(
         """
             <nonIgnorableNode/>
             <mc:Choice Requires="foo"/>
             """
     )]
-    [TestCase(
+    [Arguments(
         """
             <mc:Choice Requires="bar"/>
             <nonIgnorableNode/>
             <mc:Choice Requires="foo"/>
             """
     )]
-    [TestCase(
+    [Arguments(
         """
             <nonIgnorableNode/>
             <mc:Fallback/>
             """
     )]
-    [TestCase(
+    [Arguments(
         """
             <mc:Fallback/>
             <nonIgnorableNode/>
@@ -194,10 +194,11 @@ internal class MceXmlReaderTests
         );
     }
 
-    [TestCase(":foo")]
-    [TestCase("foo:")]
-    [TestCase("foo:b:c")]
-    [TestCase("foo:b+c")]
+    [Test]
+    [Arguments(":foo")]
+    [Arguments("foo:")]
+    [Arguments("foo:b:c")]
+    [Arguments("foo:b+c")]
     public void ProcessContent_attribute_format_must_be_namespace_and_local_name(string value)
     {
         string xml =
@@ -222,10 +223,10 @@ internal class MceXmlReaderTests
         );
 
         reader.Read();
-        Assert.That(
-            reader.Read,
-            Throws.TypeOf<InvalidOperationException>().With.Message.EqualTo("Mismatch at 2:4")
+        InvalidOperationException ex = ClassicAssert.Throws<InvalidOperationException>(() =>
+            reader.Read()
         );
+        ClassicAssert.AreEqual("Mismatch at 2:4", ex.Message);
     }
 
     [Test]
@@ -242,10 +243,10 @@ internal class MceXmlReaderTests
             mismatch: info => throw new InvalidOperationException($"Mismatch at {info.LineInfo}")
         );
 
-        Assert.That(
-            reader.Read,
-            Throws.TypeOf<InvalidOperationException>().With.Message.EqualTo("Mismatch at 2:4")
+        InvalidOperationException ex = ClassicAssert.Throws<InvalidOperationException>(() =>
+            reader.Read()
         );
+        ClassicAssert.AreEqual("Mismatch at 2:4", ex.Message);
     }
 
     [Test]
@@ -262,10 +263,10 @@ internal class MceXmlReaderTests
             mismatch: info => throw new InvalidOperationException($"Mismatch at {info.LineInfo}")
         );
 
-        Assert.That(
-            reader.Read,
-            Throws.TypeOf<InvalidOperationException>().With.Message.EqualTo("Mismatch at 1:2")
+        InvalidOperationException ex = ClassicAssert.Throws<InvalidOperationException>(() =>
+            reader.Read()
         );
+        ClassicAssert.AreEqual("Mismatch at 1:2", ex.Message);
     }
 
     [Test]
@@ -283,10 +284,10 @@ internal class MceXmlReaderTests
             mismatch: info => throw new InvalidOperationException($"Mismatch at {info.LineInfo}")
         );
 
-        Assert.That(
-            reader.Read,
-            Throws.TypeOf<InvalidOperationException>().With.Message.EqualTo("Mismatch at 3:4")
+        InvalidOperationException ex = ClassicAssert.Throws<InvalidOperationException>(() =>
+            reader.Read()
         );
+        ClassicAssert.AreEqual("Mismatch at 3:4", ex.Message);
     }
 
     private static MceXmlReader CreateMceReader(
@@ -320,12 +321,12 @@ internal class MceXmlReaderTests
         return mceReader;
     }
 
-    private static void AssertReadThrows(MceXmlReader reader, string expectedMessage) =>
-        Assert.That(
-            reader.Read,
-            Throws
-                .Exception.TypeOf<PartStructureException>()
-                .With.Message.StartsWith("MCE")
-                .And.Message.EndsWith(expectedMessage)
+    private static void AssertReadThrows(MceXmlReader reader, string expectedMessage)
+    {
+        PartStructureException ex = ClassicAssert.Throws<PartStructureException>(() =>
+            reader.Read()
         );
+        StringAssert.StartsWith("MCE", ex.Message);
+        ClassicAssert.IsTrue(ex.Message.EndsWith(expectedMessage, StringComparison.Ordinal));
+    }
 }

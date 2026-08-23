@@ -1,11 +1,9 @@
-﻿using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.PivotStyleFormats;
 using XlsxSharp.Excel.PivotValues;
 
 namespace XlsxSharp.Tests.Excel.PivotTables.Style;
 
-[TestFixture]
 internal class XlPivotTableStyleFormatsTests
 {
     [Test]

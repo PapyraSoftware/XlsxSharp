@@ -1,16 +1,14 @@
 using System.Collections.Generic;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.ConditionalFormats;
 using XlsxSharp.Tests.Utils;
 
 namespace XlsxSharp.Tests.Excel.Styles;
 
-[TestFixture]
 public class XlFillTests
 {
     [Test]
-    [TestCaseSource(nameof(FillApiSetters))]
+    [MethodDataSource(nameof(FillApiSetters))]
     public void FillPropertyCanBeIndividuallySet(FormatTestCase<IXLFill> testCase)
     {
         using XLWorkbook wb = new();
@@ -26,11 +24,11 @@ public class XlFillTests
         {
             testCase.SetPropertyValue(cellFormat.Fill, testValue);
             object setValue = testCase.GetPropertyValue(cellFormat.Fill);
-            Assert.AreEqual(testValue, setValue);
+            ClassicAssert.AreEqual(testValue, setValue);
         }
     }
 
-    private static IEnumerable<FormatTestCase<IXLFill>> FillApiSetters()
+    internal static IEnumerable<FormatTestCase<IXLFill>> FillApiSetters()
     {
         XLFillPatternValues[] patternValues = EnumPolyfill.GetValues<XLFillPatternValues>();
         yield return FormatTestCase<IXLFill>.ForFill(
@@ -75,11 +73,11 @@ public class XlFillTests
         IXLWorksheet ws = wb.AddWorksheet();
         IXLFill fill = ws.Cell("A1").Style.Fill;
         fill.PatternType = XLFillPatternValues.LightGrid;
-        Assert.AreEqual(XLFillPatternValues.LightGrid, fill.PatternType);
+        ClassicAssert.AreEqual(XLFillPatternValues.LightGrid, fill.PatternType);
 
         fill.BackgroundColor = XLColor.Blue;
 
-        Assert.AreEqual(XLFillPatternValues.LightGrid, fill.PatternType);
+        ClassicAssert.AreEqual(XLFillPatternValues.LightGrid, fill.PatternType);
     }
 
     [Test]
@@ -88,11 +86,11 @@ public class XlFillTests
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
         IXLFill fill = ws.Cell("A1").Style.Fill;
-        Assert.AreEqual(XLFillPatternValues.None, fill.PatternType);
+        ClassicAssert.AreEqual(XLFillPatternValues.None, fill.PatternType);
 
         fill.BackgroundColor = XLColor.Blue;
 
-        Assert.AreEqual(XLFillPatternValues.Solid, fill.PatternType);
+        ClassicAssert.AreEqual(XLFillPatternValues.Solid, fill.PatternType);
     }
 
     [Test]
@@ -102,11 +100,11 @@ public class XlFillTests
         IXLWorksheet ws = wb.AddWorksheet();
         IXLFill fill = ws.Cell("A1").Style.Fill;
         fill.BackgroundColor = XLColor.Red;
-        Assert.AreEqual(XLFillPatternValues.Solid, fill.PatternType);
+        ClassicAssert.AreEqual(XLFillPatternValues.Solid, fill.PatternType);
 
         fill.BackgroundColor = XLColor.Automatic;
 
-        Assert.AreEqual(XLFillPatternValues.None, fill.PatternType);
+        ClassicAssert.AreEqual(XLFillPatternValues.None, fill.PatternType);
     }
 
     [Test]
@@ -120,8 +118,8 @@ public class XlFillTests
         IXLFill fill2 = ws.Cell("A2").Style.Fill;
         fill2.BackgroundColor = XLColor.Blue;
 
-        Assert.IsTrue(fill1.Equals(fill2));
-        Assert.AreEqual(fill1.GetHashCode(), fill2.GetHashCode());
+        ClassicAssert.IsTrue(fill1.Equals(fill2));
+        ClassicAssert.AreEqual(fill1.GetHashCode(), fill2.GetHashCode());
     }
 
     [Test]
@@ -138,7 +136,7 @@ public class XlFillTests
         fill2.PatternType = XLFillPatternValues.Solid;
         fill2.BackgroundColor = XLColor.Red;
 
-        Assert.IsFalse(fill1.Equals(fill2));
+        ClassicAssert.IsFalse(fill1.Equals(fill2));
     }
 
     [Test]
@@ -157,10 +155,10 @@ public class XlFillTests
             .Fill;
         IXLFill fill3 = ws.Cell("A3").Style.Fill.SetBackgroundColor(XLColor.Automatic).Fill;
 
-        Assert.IsTrue(fill1.Equals(fill2));
-        Assert.IsTrue(fill1.Equals(fill3));
-        Assert.AreEqual(fill1.GetHashCode(), fill2.GetHashCode());
-        Assert.AreEqual(fill1.GetHashCode(), fill3.GetHashCode());
+        ClassicAssert.IsTrue(fill1.Equals(fill2));
+        ClassicAssert.IsTrue(fill1.Equals(fill3));
+        ClassicAssert.AreEqual(fill1.GetHashCode(), fill2.GetHashCode());
+        ClassicAssert.AreEqual(fill1.GetHashCode(), fill3.GetHashCode());
     }
 
     [Test]
@@ -179,8 +177,8 @@ public class XlFillTests
         fill2.BackgroundColor = XLColor.Red;
         fill2.PatternColor = XLColor.Green;
 
-        Assert.IsTrue(fill1.Equals(fill2));
-        Assert.AreEqual(fill1.GetHashCode(), fill2.GetHashCode());
+        ClassicAssert.IsTrue(fill1.Equals(fill2));
+        ClassicAssert.AreEqual(fill1.GetHashCode(), fill2.GetHashCode());
     }
 
     [Test]
@@ -195,15 +193,15 @@ public class XlFillTests
             .Border.SetOutsideBorder(XLBorderStyleValues.Thick)
             .Border.SetOutsideBorderColor(XLColor.Blue);
 
-        Assert.AreEqual(style.Border.BottomBorder, XLBorderStyleValues.Thick);
-        Assert.AreEqual(style.Border.TopBorder, XLBorderStyleValues.Thick);
-        Assert.AreEqual(style.Border.LeftBorder, XLBorderStyleValues.Thick);
-        Assert.AreEqual(style.Border.RightBorder, XLBorderStyleValues.Thick);
+        ClassicAssert.AreEqual(style.Border.BottomBorder, XLBorderStyleValues.Thick);
+        ClassicAssert.AreEqual(style.Border.TopBorder, XLBorderStyleValues.Thick);
+        ClassicAssert.AreEqual(style.Border.LeftBorder, XLBorderStyleValues.Thick);
+        ClassicAssert.AreEqual(style.Border.RightBorder, XLBorderStyleValues.Thick);
 
-        Assert.AreEqual(style.Border.BottomBorderColor, XLColor.Blue);
-        Assert.AreEqual(style.Border.TopBorderColor, XLColor.Blue);
-        Assert.AreEqual(style.Border.LeftBorderColor, XLColor.Blue);
-        Assert.AreEqual(style.Border.RightBorderColor, XLColor.Blue);
+        ClassicAssert.AreEqual(style.Border.BottomBorderColor, XLColor.Blue);
+        ClassicAssert.AreEqual(style.Border.TopBorderColor, XLColor.Blue);
+        ClassicAssert.AreEqual(style.Border.LeftBorderColor, XLColor.Blue);
+        ClassicAssert.AreEqual(style.Border.RightBorderColor, XLColor.Blue);
     }
 
     [Test]

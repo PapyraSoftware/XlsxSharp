@@ -1,14 +1,12 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.CalcEngine;
 
 namespace XlsxSharp.Tests.Excel.CalcEngine;
 
-[TestFixture]
 public class FormulaCachingTests
 {
     [Test]
@@ -20,7 +18,7 @@ public class FormulaCachingTests
             IXLCell cell = sheet.Cell(1, 1);
             cell.Value = "1234567";
 
-            Assert.IsFalse(cell.NeedsRecalculation);
+            ClassicAssert.IsFalse(cell.NeedsRecalculation);
         }
     }
 
@@ -37,7 +35,7 @@ public class FormulaCachingTests
 
             cell.Value = "1234567";
 
-            Assert.IsTrue(dependentCell.NeedsRecalculation);
+            ClassicAssert.IsTrue(dependentCell.NeedsRecalculation);
         }
     }
 
@@ -60,8 +58,8 @@ public class FormulaCachingTests
             a2.FormulaA1 = "=A1*20";
             XLCellValue res2 = a4.Value;
 
-            Assert.AreEqual(15 + 150 + 1500, res1);
-            Assert.AreEqual(15 + 300 + 3000, res2);
+            ClassicAssert.AreEqual(15 + 150 + 1500, res1);
+            ClassicAssert.AreEqual(15 + 300 + 3000, res2);
         }
     }
 
@@ -84,8 +82,8 @@ public class FormulaCachingTests
             a2.FormulaR1C1 = "=R[-1]C*2";
             XLCellValue res2 = a4.Value;
 
-            Assert.AreEqual(15 + 150 + 1500, res1);
-            Assert.AreEqual(15 + 30 + 300, res2);
+            ClassicAssert.AreEqual(15 + 150 + 1500, res1);
+            ClassicAssert.AreEqual(15 + 30 + 300, res2);
         }
     }
 
@@ -98,11 +96,11 @@ public class FormulaCachingTests
             IXLCell a4 = sheet.Cell("A4");
             a4.FormulaA1 = "=COUNTBLANK(A1:A3)";
 
-            Assert.AreEqual(3, a4.Value);
+            ClassicAssert.AreEqual(3, a4.Value);
 
             sheet.Row(2).InsertRowsAbove(2);
 
-            Assert.AreEqual(5, sheet.Cell("A6").Value);
+            ClassicAssert.AreEqual(5, sheet.Cell("A6").Value);
         }
     }
 
@@ -115,13 +113,13 @@ public class FormulaCachingTests
             IXLCell original = sheet.Cell("A4");
             original.FormulaA1 = "=COUNTBLANK(A1:A3)";
 
-            Assert.AreEqual(3, original.Value);
+            ClassicAssert.AreEqual(3, original.Value);
 
             sheet.Row(2).Delete();
 
             IXLCell shifted = sheet.Cell("A3");
-            Assert.AreEqual("COUNTBLANK(A1:A2)", shifted.FormulaA1);
-            Assert.AreEqual(2, shifted.Value);
+            ClassicAssert.AreEqual("COUNTBLANK(A1:A2)", shifted.FormulaA1);
+            ClassicAssert.AreEqual(2, shifted.Value);
         }
     }
 
@@ -142,13 +140,13 @@ public class FormulaCachingTests
             a1.Value = 15;
             XLCellValue res = a4.Value;
 
-            Assert.AreEqual(15 + 150 + 1500, res);
-            Assert.IsFalse(a4.NeedsRecalculation);
-            Assert.IsFalse(a3.NeedsRecalculation);
-            Assert.IsFalse(a2.NeedsRecalculation);
-            Assert.AreEqual(150, a2.CachedValue);
-            Assert.AreEqual(1500, a3.CachedValue);
-            Assert.AreEqual(15 + 150 + 1500, a4.CachedValue);
+            ClassicAssert.AreEqual(15 + 150 + 1500, res);
+            ClassicAssert.IsFalse(a4.NeedsRecalculation);
+            ClassicAssert.IsFalse(a3.NeedsRecalculation);
+            ClassicAssert.IsFalse(a2.NeedsRecalculation);
+            ClassicAssert.AreEqual(150, a2.CachedValue);
+            ClassicAssert.AreEqual(1500, a3.CachedValue);
+            ClassicAssert.AreEqual(15 + 150 + 1500, a4.CachedValue);
         }
     }
 
@@ -171,17 +169,17 @@ public class FormulaCachingTests
             a1.Value = 20;
             XLCellValue res2 = a4.Value;
 
-            Assert.AreEqual(15 + 150 + 1500, res1);
-            Assert.AreEqual(20 + 200 + 2000, res2);
+            ClassicAssert.AreEqual(15 + 150 + 1500, res1);
+            ClassicAssert.AreEqual(20 + 200 + 2000, res2);
         }
     }
 
     [Test]
-    [TestCase("C4", new string[] { "C5" })]
-    [TestCase("D4", new string[] { })]
-    [TestCase("A1", new string[] { "A2", "A3", "A4", "C1", "C2", "C3", "C5" })]
-    [TestCase("B2", new string[] { "B3", "B4", "C2", "C3", "C5" })]
-    [TestCase("C2", new string[] { "C5" })]
+    [Arguments("C4", new string[] { "C5" })]
+    [Arguments("D4", new string[] { })]
+    [Arguments("A1", new string[] { "A2", "A3", "A4", "C1", "C2", "C3", "C5" })]
+    [Arguments("B2", new string[] { "B3", "B4", "C2", "C3", "C5" })]
+    [Arguments("C2", new string[] { "C5" })]
     public void EditingDoesNotAffectNonDependingCells(string changedCell, string[] affectedCells)
     {
         using (XLWorkbook wb = new())
@@ -203,10 +201,10 @@ public class FormulaCachingTests
             sheet.Cell(changedCell).Value = 100;
             IEnumerable<IXLCell> modifiedCells = allCells.Where(cell => cell.NeedsRecalculation);
 
-            Assert.AreEqual(affectedCells.Length, modifiedCells.Count());
+            ClassicAssert.AreEqual(affectedCells.Length, modifiedCells.Count());
             foreach (string cellAddress in affectedCells)
             {
-                Assert.IsTrue(
+                ClassicAssert.IsTrue(
                     modifiedCells.Any(cell => cell.Address.ToString() == cellAddress),
                     string.Format(
                         "Cell {0} is expected to need recalculation, but it does not",
@@ -238,10 +236,10 @@ public class FormulaCachingTests
             TestDelegate getValueA3 = new(() => _ = a3.Value);
             TestDelegate getValueA4 = new(() => _ = a4.Value);
 
-            Assert.Throws(typeof(InvalidOperationException), getValueA1);
-            Assert.Throws(typeof(InvalidOperationException), getValueA2);
-            Assert.Throws(typeof(InvalidOperationException), getValueA3);
-            Assert.Throws(typeof(InvalidOperationException), getValueA4);
+            ClassicAssert.Throws(typeof(InvalidOperationException), getValueA1);
+            ClassicAssert.Throws(typeof(InvalidOperationException), getValueA2);
+            ClassicAssert.Throws(typeof(InvalidOperationException), getValueA3);
+            ClassicAssert.Throws(typeof(InvalidOperationException), getValueA4);
         }
     }
 
@@ -267,10 +265,10 @@ public class FormulaCachingTests
             bool recalcNeededA3 = a3.NeedsRecalculation;
             bool recalcNeededA4 = a4.NeedsRecalculation;
 
-            Assert.IsTrue(recalcNeededA1);
-            Assert.IsTrue(recalcNeededA2);
-            Assert.IsTrue(recalcNeededA3);
-            Assert.IsTrue(recalcNeededA4);
+            ClassicAssert.IsTrue(recalcNeededA1);
+            ClassicAssert.IsTrue(recalcNeededA2);
+            ClassicAssert.IsTrue(recalcNeededA3);
+            ClassicAssert.IsTrue(recalcNeededA4);
         }
     }
 
@@ -290,8 +288,8 @@ public class FormulaCachingTests
             sheet2.Delete();
             XLCellValue valueAfterDeletion = sheet1_a1.Value;
 
-            Assert.AreEqual("TestValue", valueBeforeDeletion);
-            Assert.AreEqual(XLError.CellReference, valueAfterDeletion);
+            ClassicAssert.AreEqual("TestValue", valueBeforeDeletion);
+            ClassicAssert.AreEqual(XLError.CellReference, valueAfterDeletion);
         }
     }
 
@@ -307,21 +305,23 @@ public class FormulaCachingTests
         {
             IXLWorksheet ws = wb.Worksheets.First();
             IXLCell cell = ws.Cell("B2");
-            Assert.IsFalse(cell.NeedsRecalculation);
-            Assert.IsTrue(cell.HasFormula);
+            ClassicAssert.IsFalse(cell.NeedsRecalculation);
+            ClassicAssert.IsTrue(cell.HasFormula);
 
             // This will fail when we start supporting external links
-            Assert.IsTrue(cell.FormulaA1.StartsWith("[1]"));
+            ClassicAssert.IsTrue(cell.FormulaA1.StartsWith("[1]"));
 
-            Assert.AreEqual("hello world", cell.CachedValue);
-            Assert.AreEqual("hello world", cell.Value);
+            ClassicAssert.AreEqual("hello world", cell.CachedValue);
+            ClassicAssert.AreEqual("hello world", cell.Value);
 
-            Assert.AreEqual(11, ws.Evaluate("LEN(B2)"));
+            ClassicAssert.AreEqual(11, ws.Evaluate("LEN(B2)"));
 
-            Assert.Throws(
-                Is.TypeOf<NotImplementedException>()
-                    .And.Message.EqualTo("References from other files are not yet implemented."),
-                () => wb.RecalculateAllFormulas()
+            NotImplementedException ex = ClassicAssert.Throws<NotImplementedException>(() =>
+                wb.RecalculateAllFormulas()
+            );
+            ClassicAssert.AreEqual(
+                "References from other files are not yet implemented.",
+                ex.Message
             );
         }
     }
@@ -335,13 +335,13 @@ public class FormulaCachingTests
             IXLCell cell = ws.Cell(1, 1);
 
             cell.Value = "Hello";
-            Assert.AreEqual("Hello", cell.CachedValue);
+            ClassicAssert.AreEqual("Hello", cell.CachedValue);
 
             cell.Value = 74.0;
-            Assert.AreEqual(74.0, cell.CachedValue);
+            ClassicAssert.AreEqual(74.0, cell.CachedValue);
 
             cell.Value = new DateTime(2019, 1, 1, 14, 0, 0);
-            Assert.AreEqual(new DateTime(2019, 1, 1, 14, 0, 0), cell.CachedValue);
+            ClassicAssert.AreEqual(new DateTime(2019, 1, 1, 14, 0, 0), cell.CachedValue);
         }
     }
 }

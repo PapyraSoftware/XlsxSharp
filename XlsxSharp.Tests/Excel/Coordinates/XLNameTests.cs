@@ -1,9 +1,7 @@
-﻿using NUnit.Framework;
 using XlsxSharp.Excel;
 
 namespace XlsxSharp.Tests.Excel.Coordinates;
 
-[TestFixture]
 public class XlNameTests
 {
     [Test]
@@ -12,10 +10,10 @@ public class XlNameTests
         XLName lowerCase = new("name");
         XLName upperCase = new("NAME");
 
-        Assert.AreEqual(lowerCase, upperCase);
-        Assert.AreEqual(lowerCase.GetHashCode(), upperCase.GetHashCode());
+        ClassicAssert.AreEqual(lowerCase, upperCase);
+        ClassicAssert.AreEqual(lowerCase.GetHashCode(), upperCase.GetHashCode());
 
-        Assert.AreNotEqual(lowerCase, new XLName("different_name"));
+        ClassicAssert.AreNotEqual(lowerCase, new XLName("different_name"));
     }
 
     [Test]
@@ -24,10 +22,10 @@ public class XlNameTests
         XLName lowerCase = new("sheet", "name");
         XLName upperCase = new("SHEET", "NAME");
 
-        Assert.AreEqual(lowerCase, upperCase);
-        Assert.AreEqual(lowerCase.GetHashCode(), upperCase.GetHashCode());
+        ClassicAssert.AreEqual(lowerCase, upperCase);
+        ClassicAssert.AreEqual(lowerCase.GetHashCode(), upperCase.GetHashCode());
 
-        Assert.AreNotEqual(lowerCase, new XLName("Different sheet", "name"));
-        Assert.AreNotEqual(lowerCase, new XLName("sheet", "different_name"));
+        ClassicAssert.AreNotEqual(lowerCase, new XLName("Different sheet", "name"));
+        ClassicAssert.AreNotEqual(lowerCase, new XLName("sheet", "different_name"));
     }
 }

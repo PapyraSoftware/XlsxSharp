@@ -1,9 +1,7 @@
-using NUnit.Framework;
 using XlsxSharp.Examples.Delete;
 
 namespace XlsxSharp.Tests.Examples;
 
-[TestFixture]
 public class DeleteTests
 {
     [Test]

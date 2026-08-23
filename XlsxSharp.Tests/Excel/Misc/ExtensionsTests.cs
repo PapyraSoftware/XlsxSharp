@@ -1,79 +1,83 @@
-﻿using System;
+using System;
 using DocumentFormat.OpenXml;
-using NUnit.Framework;
 using XlsxSharp.Extensions;
 
 namespace XlsxSharp.Tests.Excel.Misc;
 
-[TestFixture]
 public class ExtensionsTests
 {
     [Test]
     public void FixNewLines()
     {
-        Assert.AreEqual("\n".FixNewLines(), Environment.NewLine);
-        Assert.AreEqual("\r\n".FixNewLines(), Environment.NewLine);
-        Assert.AreEqual("\rS\n".FixNewLines(), "\rS" + Environment.NewLine);
-        Assert.AreEqual("\r\n\n".FixNewLines(), Environment.NewLine + Environment.NewLine);
+        ClassicAssert.AreEqual("\n".FixNewLines(), Environment.NewLine);
+        ClassicAssert.AreEqual("\r\n".FixNewLines(), Environment.NewLine);
+        ClassicAssert.AreEqual("\rS\n".FixNewLines(), "\rS" + Environment.NewLine);
+        ClassicAssert.AreEqual("\r\n\n".FixNewLines(), Environment.NewLine + Environment.NewLine);
     }
 
     [Test]
     public void DoubleSaveRound()
     {
         double value = 1234.1234567;
-        Assert.AreEqual(value.SaveRound(), Math.Round(value, 6));
+        ClassicAssert.AreEqual(value.SaveRound(), Math.Round(value, 6));
     }
 
     [Test]
     public void DoubleValueSaveRound()
     {
         double value = 1234.1234567;
-        Assert.AreEqual(new DoubleValue(value).SaveRound().Value, Math.Round(value, 6));
+        ClassicAssert.AreEqual(new DoubleValue(value).SaveRound().Value, Math.Round(value, 6));
     }
 
-    [TestCase("NoEscaping", ExpectedResult = "NoEscaping")]
-    [TestCase("1", ExpectedResult = "'1'")]
-    [TestCase("AB-CD", ExpectedResult = "'AB-CD'")]
-    [TestCase(" AB", ExpectedResult = "' AB'")]
-    [TestCase("Test sheet", ExpectedResult = "'Test sheet'")]
-    [TestCase("O'Kelly", ExpectedResult = "'O''Kelly'")]
-    [TestCase("A2+3", ExpectedResult = "'A2+3'")]
-    [TestCase("A\"B", ExpectedResult = "'A\"B'")]
-    [TestCase("A!B", ExpectedResult = "'A!B'")]
-    [TestCase("A~B", ExpectedResult = "'A~B'")]
-    [TestCase("A^B", ExpectedResult = "'A^B'")]
-    [TestCase("A&B", ExpectedResult = "'A&B'")]
-    [TestCase("A>B", ExpectedResult = "'A>B'")]
-    [TestCase("A<B", ExpectedResult = "'A<B'")]
-    [TestCase("A.B", ExpectedResult = "A.B")]
-    [TestCase(".", ExpectedResult = "'.'")]
-    [TestCase("A_B", ExpectedResult = "A_B")]
-    [TestCase("_", ExpectedResult = "_")]
-    [TestCase("=", ExpectedResult = "'='")]
-    [TestCase("A,B", ExpectedResult = "'A,B'")]
-    [TestCase("A@B", ExpectedResult = "'A@B'")]
-    [TestCase("(Test)", ExpectedResult = "'(Test)'")]
-    [TestCase("A#", ExpectedResult = "'A#'")]
-    [TestCase("A$", ExpectedResult = "'A$'")]
-    [TestCase("A%", ExpectedResult = "'A%'")]
-    [TestCase("ABC1", ExpectedResult = "'ABC1'")]
-    [TestCase("ABCD1", ExpectedResult = "ABCD1")]
-    [TestCase("R1C1", ExpectedResult = "'R1C1'")]
-    [TestCase("A{", ExpectedResult = "'A{'")]
-    [TestCase("A}", ExpectedResult = "'A}'")]
-    [TestCase("A`", ExpectedResult = "'A`'")]
-    [TestCase("Русский", ExpectedResult = "Русский")]
-    [TestCase("日本語", ExpectedResult = "日本語")]
-    [TestCase("한국어", ExpectedResult = "한국어")]
-    [TestCase("Slovenščina", ExpectedResult = "Slovenščina")]
-    [TestCase("", ExpectedResult = "")]
-    [TestCase(null, ExpectedResult = null)]
-    public string CanEscapeSheetName(string sheetName) =>
-        StringExtensions.EscapeSheetName(sheetName);
+    [Test]
+    [Arguments("NoEscaping", "NoEscaping")]
+    [Arguments("1", "'1'")]
+    [Arguments("AB-CD", "'AB-CD'")]
+    [Arguments(" AB", "' AB'")]
+    [Arguments("Test sheet", "'Test sheet'")]
+    [Arguments("O'Kelly", "'O''Kelly'")]
+    [Arguments("A2+3", "'A2+3'")]
+    [Arguments("A\"B", "'A\"B'")]
+    [Arguments("A!B", "'A!B'")]
+    [Arguments("A~B", "'A~B'")]
+    [Arguments("A^B", "'A^B'")]
+    [Arguments("A&B", "'A&B'")]
+    [Arguments("A>B", "'A>B'")]
+    [Arguments("A<B", "'A<B'")]
+    [Arguments("A.B", "A.B")]
+    [Arguments(".", "'.'")]
+    [Arguments("A_B", "A_B")]
+    [Arguments("_", "_")]
+    [Arguments("=", "'='")]
+    [Arguments("A,B", "'A,B'")]
+    [Arguments("A@B", "'A@B'")]
+    [Arguments("(Test)", "'(Test)'")]
+    [Arguments("A#", "'A#'")]
+    [Arguments("A$", "'A$'")]
+    [Arguments("A%", "'A%'")]
+    [Arguments("ABC1", "'ABC1'")]
+    [Arguments("ABCD1", "ABCD1")]
+    [Arguments("R1C1", "'R1C1'")]
+    [Arguments("A{", "'A{'")]
+    [Arguments("A}", "'A}'")]
+    [Arguments("A`", "'A`'")]
+    [Arguments("Русский", "Русский")]
+    [Arguments("日本語", "日本語")]
+    [Arguments("한국어", "한국어")]
+    [Arguments("Slovenščina", "Slovenščina")]
+    [Arguments("", "")]
+    [Arguments(null, null)]
+    public void CanEscapeSheetName(string sheetName, string expected)
+    {
+        ClassicAssert.AreEqual(expected, StringExtensions.EscapeSheetName(sheetName));
+    }
 
-    [TestCase("TestSheet", ExpectedResult = "TestSheet")]
-    [TestCase("'Test sheet'", ExpectedResult = "Test sheet")]
-    [TestCase("'O''Kelly'", ExpectedResult = "O'Kelly")]
-    public string CanUnescapeSheetName(string sheetName) =>
-        StringExtensions.UnescapeSheetName(sheetName);
+    [Test]
+    [Arguments("TestSheet", "TestSheet")]
+    [Arguments("'Test sheet'", "Test sheet")]
+    [Arguments("'O''Kelly'", "O'Kelly")]
+    public void CanUnescapeSheetName(string sheetName, string expected)
+    {
+        ClassicAssert.AreEqual(expected, StringExtensions.UnescapeSheetName(sheetName));
+    }
 }

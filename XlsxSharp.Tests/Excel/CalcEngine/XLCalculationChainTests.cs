@@ -1,13 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.CalcEngine;
 
 namespace XlsxSharp.Tests.Excel.CalcEngine;
 
-[TestFixture]
 public class XlCalculationChainTests
 {
     [Test]
@@ -18,10 +16,10 @@ public class XlCalculationChainTests
     }
 
     [Test]
-    [TestCase(1)]
-    [TestCase(2)]
-    [TestCase(3)]
-    [TestCase(40)]
+    [Arguments(1)]
+    [Arguments(2)]
+    [Arguments(3)]
+    [Arguments(40)]
     public void EnumeratingWholeChain(int chainLength)
     {
         XLCalculationChain chain = new();
@@ -41,7 +39,7 @@ public class XlCalculationChainTests
     {
         XLCalculationChain chain = new();
 
-        Assert.Throws<InvalidOperationException>(() =>
+        ClassicAssert.Throws<InvalidOperationException>(() =>
             chain.Remove(new SheetPoint("sheet", new Point(1, 1)))
         );
     }
@@ -113,58 +111,58 @@ public class XlCalculationChainTests
         SheetPoint d1 = new("sheet", new Point(1, 4));
         chain.AddLast(d1);
 
-        Assert.True(chain.MoveAhead());
-        Assert.AreEqual(a1, chain.Current);
+        ClassicAssert.True(chain.MoveAhead());
+        ClassicAssert.AreEqual(a1, chain.Current);
 
         // a,b,c,d -> d,a,b,c
         chain.MoveToCurrent(d1);
-        Assert.AreEqual(d1, chain.Current);
-        Assert.AreEqual(new[] { d1, a1, b1, c1 }, GetPoints(chain));
+        ClassicAssert.AreEqual(d1, chain.Current);
+        ClassicAssert.AreEqual(new[] { d1, a1, b1, c1 }, GetPoints(chain));
 
         // d,a,b,c -> b,d,a,c
         chain.MoveToCurrent(b1);
-        Assert.AreEqual(b1, chain.Current);
-        Assert.AreEqual(new[] { b1, d1, a1, c1 }, GetPoints(chain));
+        ClassicAssert.AreEqual(b1, chain.Current);
+        ClassicAssert.AreEqual(new[] { b1, d1, a1, c1 }, GetPoints(chain));
 
-        Assert.True(chain.MoveAhead());
-        Assert.AreEqual(d1, chain.Current);
-        Assert.AreEqual(new[] { b1, d1, a1, c1 }, GetPoints(chain));
+        ClassicAssert.True(chain.MoveAhead());
+        ClassicAssert.AreEqual(d1, chain.Current);
+        ClassicAssert.AreEqual(new[] { b1, d1, a1, c1 }, GetPoints(chain));
 
         // d,a,c -> a,d,c
         chain.MoveToCurrent(a1);
-        Assert.AreEqual(a1, chain.Current);
-        Assert.AreEqual(new[] { b1, a1, d1, c1 }, GetPoints(chain));
+        ClassicAssert.AreEqual(a1, chain.Current);
+        ClassicAssert.AreEqual(new[] { b1, a1, d1, c1 }, GetPoints(chain));
 
         // Move A1 to front when it's already at front
         chain.MoveToCurrent(a1);
-        Assert.AreEqual(a1, chain.Current);
-        Assert.AreEqual(new[] { b1, a1, d1, c1 }, GetPoints(chain));
+        ClassicAssert.AreEqual(a1, chain.Current);
+        ClassicAssert.AreEqual(new[] { b1, a1, d1, c1 }, GetPoints(chain));
 
         // a,d,c -> c,a,d
         chain.MoveToCurrent(c1);
-        Assert.AreEqual(c1, chain.Current);
-        Assert.AreEqual(new[] { b1, c1, a1, d1 }, GetPoints(chain));
+        ClassicAssert.AreEqual(c1, chain.Current);
+        ClassicAssert.AreEqual(new[] { b1, c1, a1, d1 }, GetPoints(chain));
 
-        Assert.True(chain.MoveAhead());
-        Assert.AreEqual(a1, chain.Current);
-        Assert.AreEqual(new[] { b1, c1, a1, d1 }, GetPoints(chain));
+        ClassicAssert.True(chain.MoveAhead());
+        ClassicAssert.AreEqual(a1, chain.Current);
+        ClassicAssert.AreEqual(new[] { b1, c1, a1, d1 }, GetPoints(chain));
 
         // a,d -> d,a
         chain.MoveToCurrent(d1);
-        Assert.AreEqual(d1, chain.Current);
-        Assert.AreEqual(new[] { b1, c1, d1, a1 }, GetPoints(chain));
+        ClassicAssert.AreEqual(d1, chain.Current);
+        ClassicAssert.AreEqual(new[] { b1, c1, d1, a1 }, GetPoints(chain));
 
-        Assert.True(chain.MoveAhead());
-        Assert.AreEqual(a1, chain.Current);
-        Assert.AreEqual(new[] { b1, c1, d1, a1 }, GetPoints(chain));
+        ClassicAssert.True(chain.MoveAhead());
+        ClassicAssert.AreEqual(a1, chain.Current);
+        ClassicAssert.AreEqual(new[] { b1, c1, d1, a1 }, GetPoints(chain));
 
         // a -> a
         chain.MoveToCurrent(a1);
-        Assert.AreEqual(a1, chain.Current);
-        Assert.AreEqual(new[] { b1, c1, d1, a1 }, GetPoints(chain));
+        ClassicAssert.AreEqual(a1, chain.Current);
+        ClassicAssert.AreEqual(new[] { b1, c1, d1, a1 }, GetPoints(chain));
 
-        Assert.False(chain.MoveAhead());
-        Assert.AreEqual(new[] { b1, c1, d1, a1 }, GetPoints(chain));
+        ClassicAssert.False(chain.MoveAhead());
+        ClassicAssert.AreEqual(new[] { b1, c1, d1, a1 }, GetPoints(chain));
     }
 
     [Test]
@@ -182,7 +180,7 @@ public class XlCalculationChainTests
         chain.AddLast(c1);
 
         // Move to the first link.
-        Assert.True(chain.MoveAhead());
+        ClassicAssert.True(chain.MoveAhead());
 
         // Cycle a1, c1, when we first encounter c1, we don't know yet that it's a cycle
         chain.MoveToCurrent(c1);
@@ -197,13 +195,13 @@ public class XlCalculationChainTests
         chain.MoveToCurrent(a1);
         CollectionAssert.AreEqual(new[] { a1, c1, b1 }, GetPoints(chain));
         CollectionAssert.AreEqual(new[] { 1, 1, 0 }, GetPositions(chain));
-        Assert.True(chain.IsCurrentInCycle);
+        ClassicAssert.True(chain.IsCurrentInCycle);
 
         // When we encounter C1 again, it's obviously a cycle.
         chain.MoveToCurrent(c1);
         CollectionAssert.AreEqual(new[] { c1, a1, b1 }, GetPoints(chain));
         CollectionAssert.AreEqual(new[] { 1, 1, 0 }, GetPositions(chain));
-        Assert.True(chain.IsCurrentInCycle);
+        ClassicAssert.True(chain.IsCurrentInCycle);
 
         // Let's move on and get A1 to the current. Because the C1 has been
         // marked as done, A1 is no longer in cycle.
@@ -216,22 +214,22 @@ public class XlCalculationChainTests
 
         // A1 is no longer in a current, because current position is 2, but last position
         // of A1 was 1 => there has been a processed node in the meantime.
-        Assert.False(chain.IsCurrentInCycle);
+        ClassicAssert.False(chain.IsCurrentInCycle);
 
         chain.MoveToCurrent(b1);
         CollectionAssert.AreEqual(new[] { c1, b1, a1 }, GetPoints(chain));
         CollectionAssert.AreEqual(new[] { 0, 0, 2 }, GetPositions(chain));
-        Assert.False(chain.IsCurrentInCycle);
+        ClassicAssert.False(chain.IsCurrentInCycle);
 
         chain.MoveToCurrent(a1);
         CollectionAssert.AreEqual(new[] { c1, a1, b1 }, GetPoints(chain));
         CollectionAssert.AreEqual(new[] { 0, 2, 2 }, GetPositions(chain));
-        Assert.True(chain.IsCurrentInCycle);
+        ClassicAssert.True(chain.IsCurrentInCycle);
 
         chain.MoveAhead();
         CollectionAssert.AreEqual(new[] { c1, a1, b1 }, GetPoints(chain));
         CollectionAssert.AreEqual(new[] { 0, 0, 2 }, GetPositions(chain));
-        Assert.False(chain.IsCurrentInCycle);
+        ClassicAssert.False(chain.IsCurrentInCycle);
 
         chain.MoveAhead();
         CollectionAssert.AreEqual(new[] { c1, a1, b1 }, GetPoints(chain));
@@ -249,11 +247,11 @@ public class XlCalculationChainTests
         SheetPoint c1 = new("sheet", new Point(1, 3));
         chain.AddLast(c1);
 
-        Assert.True(chain.MoveAhead());
+        ClassicAssert.True(chain.MoveAhead());
 
         chain.MoveToCurrent(b1);
         chain.MoveToCurrent(a1);
-        Assert.True(chain.IsCurrentInCycle);
+        ClassicAssert.True(chain.IsCurrentInCycle);
         CollectionAssert.AreEqual(new[] { a1, b1, c1 }, GetPoints(chain));
         CollectionAssert.AreEqual(new[] { 1, 1, 0 }, GetPositions(chain));
 

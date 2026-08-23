@@ -1,17 +1,38 @@
-using System.Collections;
+using System.Collections.Generic;
 using System.Globalization;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 
 namespace XlsxSharp.Tests.Excel.Styles;
 
 internal class XlPredefinedFormatTests
 {
-    [TestCaseSource(nameof(FormattedStringTestCases))]
+    [Test]
+    [MethodDataSource(nameof(FormattedStringTestCases))]
+    [Arguments(
+        0.25,
+        (int)XLPredefinedFormat.DateTime.Hour12MinutesAmPm,
+        "cs-CZ",
+        "6:00 dop.",
+        Skip = "ExcelNumberFormat always uses invariant culture for AM/PM."
+    )]
+    [Arguments(
+        0.75,
+        (int)XLPredefinedFormat.DateTime.Hour12MinutesAmPm,
+        "cs-CZ",
+        "6:00 odp.",
+        Skip = "ExcelNumberFormat always uses invariant culture for AM/PM."
+    )]
+    [Arguments(
+        0.8,
+        (int)XLPredefinedFormat.DateTime.Hour12MinutesSecondsAmPm,
+        "cs-CZ",
+        "7:12:00 odp.",
+        Skip = "ExcelNumberFormat always uses invariant culture for AM/PM."
+    )]
     public void Predefined_formats_are_correctly_formatted(
         double value,
         int predefinedFormatId,
-        CultureInfo culture,
+        string cultureName,
         string expectedText
     )
     {
@@ -19,86 +40,50 @@ internal class XlPredefinedFormatTests
         IXLWorksheet ws = wb.AddWorksheet();
         ws.Cell("A1").SetValue(value).Style.NumberFormat.SetNumberFormatId(predefinedFormatId);
 
-        string formattedText = ws.Cell("A1").GetFormattedString(culture);
+        string formattedText = ws.Cell("A1")
+            .GetFormattedString(CultureInfo.GetCultureInfo(cultureName));
 
-        Assert.AreEqual(expectedText, formattedText);
+        ClassicAssert.AreEqual(expectedText, formattedText);
     }
 
-    public static IEnumerable FormattedStringTestCases
+    public static IEnumerable<(double, int, string, string)> FormattedStringTestCases()
     {
-        get
-        {
-            CultureInfo en = CultureInfo.GetCultureInfo("en-US");
-            CultureInfo cs = CultureInfo.GetCultureInfo("cs-CZ");
-            CultureInfo invariant = CultureInfo.InvariantCulture;
+        const string en = "en-US";
+        const string invariant = "";
 
-            yield return new TestCaseData(
-                14.25,
-                XLPredefinedFormat.DateTime.Hour12MinutesAmPm,
-                en,
-                "6:00 AM"
-            );
-            yield return new TestCaseData(
-                0.5,
-                XLPredefinedFormat.DateTime.Hour12MinutesAmPm,
-                en,
-                "12:00 PM"
-            );
-            yield return new TestCaseData(
-                14.75,
-                XLPredefinedFormat.DateTime.Hour12MinutesAmPm,
-                en,
-                "6:00 PM"
-            );
-            yield return new TestCaseData(
-                0.25,
-                XLPredefinedFormat.DateTime.Hour12MinutesAmPm,
-                cs,
-                "6:00 dop."
-            ).Ignore("ExcelNumberFormat always uses invariant culture for AM/PM.");
-            yield return new TestCaseData(
-                0.75,
-                XLPredefinedFormat.DateTime.Hour12MinutesAmPm,
-                cs,
-                "6:00 odp."
-            ).Ignore("ExcelNumberFormat always uses invariant culture for AM/PM.");
-            yield return new TestCaseData(
-                14.25,
-                XLPredefinedFormat.DateTime.Hour12MinutesAmPm,
-                invariant,
-                "6:00 AM"
-            );
+        yield return (14.25, (int)XLPredefinedFormat.DateTime.Hour12MinutesAmPm, en, "6:00 AM");
+        yield return (0.5, (int)XLPredefinedFormat.DateTime.Hour12MinutesAmPm, en, "12:00 PM");
+        yield return (14.75, (int)XLPredefinedFormat.DateTime.Hour12MinutesAmPm, en, "6:00 PM");
+        yield return (
+            14.25,
+            (int)XLPredefinedFormat.DateTime.Hour12MinutesAmPm,
+            invariant,
+            "6:00 AM"
+        );
 
-            yield return new TestCaseData(
-                7.123,
-                XLPredefinedFormat.DateTime.Hour12MinutesSecondsAmPm,
-                en,
-                "2:57:07 AM"
-            );
-            yield return new TestCaseData(
-                2.5,
-                XLPredefinedFormat.DateTime.Hour12MinutesSecondsAmPm,
-                en,
-                "12:00:00 PM"
-            );
-            yield return new TestCaseData(
-                2.99,
-                XLPredefinedFormat.DateTime.Hour12MinutesSecondsAmPm,
-                en,
-                "11:45:36 PM"
-            );
-            yield return new TestCaseData(
-                0.8,
-                XLPredefinedFormat.DateTime.Hour12MinutesSecondsAmPm,
-                cs,
-                "7:12:00 odp."
-            ).Ignore("ExcelNumberFormat always uses invariant culture for AM/PM.");
-            yield return new TestCaseData(
-                0.75,
-                XLPredefinedFormat.DateTime.Hour12MinutesSecondsAmPm,
-                invariant,
-                "6:00:00 PM"
-            );
-        }
+        yield return (
+            7.123,
+            (int)XLPredefinedFormat.DateTime.Hour12MinutesSecondsAmPm,
+            en,
+            "2:57:07 AM"
+        );
+        yield return (
+            2.5,
+            (int)XLPredefinedFormat.DateTime.Hour12MinutesSecondsAmPm,
+            en,
+            "12:00:00 PM"
+        );
+        yield return (
+            2.99,
+            (int)XLPredefinedFormat.DateTime.Hour12MinutesSecondsAmPm,
+            en,
+            "11:45:36 PM"
+        );
+        yield return (
+            0.75,
+            (int)XLPredefinedFormat.DateTime.Hour12MinutesSecondsAmPm,
+            invariant,
+            "6:00:00 PM"
+        );
     }
 }

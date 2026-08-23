@@ -1,9 +1,7 @@
-using NUnit.Framework;
 using XlsxSharp.Excel;
 
 namespace XlsxSharp.Tests.Excel.Cells;
 
-[TestFixture]
 public class SliceTests
 {
     [Test]
@@ -12,7 +10,7 @@ public class SliceTests
         Slice<int> slice = new();
         Point point = new(574, 241);
         slice.Set(point, 1);
-        Assert.AreEqual(1, slice[point]);
+        ClassicAssert.AreEqual(1, slice[point]);
     }
 
     [Test]
@@ -21,13 +19,13 @@ public class SliceTests
         Slice<int> slice = new();
         Point point = new(574, 241);
         slice.Set(point, 1);
-        Assert.AreEqual(574, slice.MaxRow);
-        Assert.AreEqual(241, slice.MaxColumn);
+        ClassicAssert.AreEqual(574, slice.MaxRow);
+        ClassicAssert.AreEqual(241, slice.MaxColumn);
 
         slice.Set(point, 0);
 
-        Assert.AreEqual(0, slice.MaxRow);
-        Assert.AreEqual(0, slice.MaxColumn);
+        ClassicAssert.AreEqual(0, slice.MaxRow);
+        ClassicAssert.AreEqual(0, slice.MaxColumn);
     }
 
     [Test]
@@ -38,30 +36,30 @@ public class SliceTests
         slice.Set(140, 32, 1);
         slice.Set(140, 72, 1);
 
-        Assert.AreEqual(140, slice.MaxRow);
-        Assert.AreEqual(72, slice.MaxColumn);
+        ClassicAssert.AreEqual(140, slice.MaxRow);
+        ClassicAssert.AreEqual(72, slice.MaxColumn);
 
         slice.Set(140, 72, 0);
 
-        Assert.AreEqual(140, slice.MaxRow);
-        Assert.AreEqual(32, slice.MaxColumn);
+        ClassicAssert.AreEqual(140, slice.MaxRow);
+        ClassicAssert.AreEqual(32, slice.MaxColumn);
 
         slice.Set(140, 32, 0);
 
-        Assert.AreEqual(54, slice.MaxRow);
-        Assert.AreEqual(32, slice.MaxColumn);
+        ClassicAssert.AreEqual(54, slice.MaxRow);
+        ClassicAssert.AreEqual(32, slice.MaxColumn);
 
         slice.Set(54, 32, 0);
 
-        Assert.AreEqual(0, slice.MaxRow);
-        Assert.AreEqual(0, slice.MaxColumn);
+        ClassicAssert.AreEqual(0, slice.MaxRow);
+        ClassicAssert.AreEqual(0, slice.MaxColumn);
     }
 
     [Test]
     public void KeepsTrackOfUsedRows()
     {
         Slice<int> slice = new();
-        Assert.IsEmpty(slice.UsedRows);
+        ClassicAssert.IsEmpty(slice.UsedRows);
 
         slice.Set(new Point(1, 1), 1);
         CollectionAssert.AreEquivalent(new[] { 1 }, slice.UsedRows);
@@ -85,14 +83,14 @@ public class SliceTests
         CollectionAssert.AreEquivalent(new[] { 70 }, slice.UsedRows);
 
         slice.Set(new Point(70, 1), 0);
-        Assert.IsEmpty(slice.UsedRows);
+        ClassicAssert.IsEmpty(slice.UsedRows);
     }
 
     [Test]
     public void KeepsTrackOfUsedColumns()
     {
         Slice<int> slice = new();
-        Assert.IsEmpty(slice.UsedColumns);
+        ClassicAssert.IsEmpty(slice.UsedColumns);
 
         slice.Set(new Point(1, 5), 1);
         CollectionAssert.AreEquivalent(new[] { 5 }, slice.UsedColumns);
@@ -116,7 +114,7 @@ public class SliceTests
         CollectionAssert.AreEquivalent(new[] { 90 }, slice.UsedColumns);
 
         slice.Set(new Point(1, 90), 0);
-        Assert.IsEmpty(slice.UsedColumns);
+        ClassicAssert.IsEmpty(slice.UsedColumns);
     }
 
     [Test]
@@ -133,10 +131,10 @@ public class SliceTests
         slice.Set(lastCorner, 1);
 
         slice.Clear(new Area(firstCorner, lastCorner));
-        Assert.AreEqual(1, slice[outsideAddress]);
-        Assert.AreEqual(0, slice[firstCorner]);
-        Assert.AreEqual(0, slice[insideAddress]);
-        Assert.AreEqual(0, slice[lastCorner]);
+        ClassicAssert.AreEqual(1, slice[outsideAddress]);
+        ClassicAssert.AreEqual(0, slice[firstCorner]);
+        ClassicAssert.AreEqual(0, slice[insideAddress]);
+        ClassicAssert.AreEqual(0, slice[lastCorner]);
     }
 
     [Test]
@@ -153,10 +151,10 @@ public class SliceTests
 
         slice.InsertAreaAndShiftDown(new Area(new Point(1, 1), new Point(2, 2)));
 
-        Assert.AreEqual(1, slice[3, 1]);
-        Assert.AreEqual(2, slice[5, 1]);
-        Assert.AreEqual(0, slice[XLHelper.MaxRowNumber, 2]);
-        Assert.AreEqual(4, slice[outsideAddress]);
+        ClassicAssert.AreEqual(1, slice[3, 1]);
+        ClassicAssert.AreEqual(2, slice[5, 1]);
+        ClassicAssert.AreEqual(0, slice[XLHelper.MaxRowNumber, 2]);
+        ClassicAssert.AreEqual(4, slice[outsideAddress]);
     }
 
     [Test]
@@ -173,10 +171,10 @@ public class SliceTests
 
         slice.InsertAreaAndShiftRight(new Area(new Point(1, 1), new Point(2, 2)));
 
-        Assert.AreEqual(1, slice[1, 3]);
-        Assert.AreEqual(2, slice[1, 5]);
-        Assert.AreEqual(0, slice[purgedAddress]);
-        Assert.AreEqual(4, slice[outsideAddress]);
+        ClassicAssert.AreEqual(1, slice[1, 3]);
+        ClassicAssert.AreEqual(2, slice[1, 5]);
+        ClassicAssert.AreEqual(0, slice[purgedAddress]);
+        ClassicAssert.AreEqual(4, slice[outsideAddress]);
     }
 
     [Test]
@@ -198,12 +196,12 @@ public class SliceTests
 
         Area deleteArea = new(firstCorner, secondCorner);
         slice.DeleteAreaAndShiftUp(deleteArea);
-        Assert.AreEqual(0, slice[firstCorner]);
-        Assert.AreEqual(0, slice[secondCorner]);
-        Assert.AreEqual(5, slice[belowAddress.Row - deleteArea.Height, belowAddress.Column]);
-        Assert.AreEqual(1, slice[aboveAddress]);
-        Assert.AreEqual(4, slice[rightAddress]);
-        Assert.AreEqual(6, slice[leftAddress]);
+        ClassicAssert.AreEqual(0, slice[firstCorner]);
+        ClassicAssert.AreEqual(0, slice[secondCorner]);
+        ClassicAssert.AreEqual(5, slice[belowAddress.Row - deleteArea.Height, belowAddress.Column]);
+        ClassicAssert.AreEqual(1, slice[aboveAddress]);
+        ClassicAssert.AreEqual(4, slice[rightAddress]);
+        ClassicAssert.AreEqual(6, slice[leftAddress]);
     }
 
     [Test]
@@ -225,12 +223,12 @@ public class SliceTests
 
         Area deleteArea = new(firstCorner, secondCorner);
         slice.DeleteAreaAndShiftLeft(deleteArea);
-        Assert.AreEqual(0, slice[firstCorner]);
-        Assert.AreEqual(0, slice[secondCorner]);
-        Assert.AreEqual(5, slice[rightAddress.Row, rightAddress.Column - deleteArea.Width]);
-        Assert.AreEqual(1, slice[leftAddress]);
-        Assert.AreEqual(4, slice[belowAddress]);
-        Assert.AreEqual(6, slice[aboveAddress]);
+        ClassicAssert.AreEqual(0, slice[firstCorner]);
+        ClassicAssert.AreEqual(0, slice[secondCorner]);
+        ClassicAssert.AreEqual(5, slice[rightAddress.Row, rightAddress.Column - deleteArea.Width]);
+        ClassicAssert.AreEqual(1, slice[leftAddress]);
+        ClassicAssert.AreEqual(4, slice[belowAddress]);
+        ClassicAssert.AreEqual(6, slice[aboveAddress]);
     }
 
     [Test]
@@ -246,8 +244,8 @@ public class SliceTests
         slice.Set(new Point(3, 6), 1);
         slice.Set(new Point(5, 4), 1);
 
-        Assert.That(slice.MaxColumn, Is.EqualTo(7));
-        Assert.That(slice.UsedColumns, Is.EquivalentTo([3, 4, 6, 7]));
+        ClassicAssert.AreEqual(7, slice.MaxColumn);
+        CollectionAssert.AreEquivalent(new[] { 3, 4, 6, 7 }, slice.UsedColumns);
 
         // Delete row with values at [3, 7]
         DeleteTopRow(6, [4, 6]);
@@ -270,8 +268,8 @@ public class SliceTests
             Area fullFirstRow = Area.Full.SliceFromTop(1);
             slice.DeleteAreaAndShiftUp(fullFirstRow);
 
-            Assert.That(slice.MaxColumn, Is.EqualTo(maxColumn));
-            Assert.That(slice.UsedColumns, Is.EquivalentTo(columnUsage));
+            ClassicAssert.AreEqual(maxColumn, slice.MaxColumn);
+            CollectionAssert.AreEquivalent(columnUsage, slice.UsedColumns);
         }
     }
 }

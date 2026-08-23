@@ -4,14 +4,12 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.Tables;
 using XlsxSharp.Extensions;
 
 namespace XlsxSharp.Tests.Excel.AutoFilters;
 
-[TestFixture]
 public class AutoFilterTests
 {
     [Test]
@@ -35,8 +33,8 @@ public class AutoFilterTests
             table.DataRange.InsertRowsBelow(listOfArr.Count - table.DataRange.RowCount());
             table.DataRange.FirstCell().InsertData(listOfArr);
 
-            Assert.AreEqual("A1:A5", table.AutoFilter.Range.RangeAddress.ToStringRelative());
-            Assert.AreEqual(5, table.AutoFilter.VisibleRows.Count());
+            ClassicAssert.AreEqual("A1:A5", table.AutoFilter.Range.RangeAddress.ToStringRelative());
+            ClassicAssert.AreEqual(5, table.AutoFilter.VisibleRows.Count());
         }
     }
 
@@ -56,7 +54,7 @@ public class AutoFilterTests
                 .CellBelow()
                 .SetValue("Dominic");
             ws.RangeUsed().SetAutoFilter().Sort();
-            Assert.AreEqual("Carlos", ws.Cell(4, 3).GetText());
+            ClassicAssert.AreEqual("Carlos", ws.Cell(4, 3).GetText());
         }
     }
 
@@ -71,13 +69,13 @@ public class AutoFilterTests
         ws.Cell("A4").Value = "Dagny";
 
         ws.AutoFilter.Clear(); // We should be able to clear a filter even if it hasn't been set.
-        Assert.That(!ws.AutoFilter.IsEnabled);
+        ClassicAssert.IsTrue(!ws.AutoFilter.IsEnabled);
 
         ws.RangeUsed().SetAutoFilter();
-        Assert.That(ws.AutoFilter.IsEnabled);
+        ClassicAssert.IsTrue(ws.AutoFilter.IsEnabled);
 
         ws.AutoFilter.Clear();
-        Assert.That(!ws.AutoFilter.IsEnabled);
+        ClassicAssert.IsTrue(!ws.AutoFilter.IsEnabled);
     }
 
     [Test]
@@ -92,13 +90,13 @@ public class AutoFilterTests
             ws.Cell("A4").Value = "Dagny";
 
             ws.SetAutoFilter(false);
-            Assert.That(!ws.AutoFilter.IsEnabled);
+            ClassicAssert.IsTrue(!ws.AutoFilter.IsEnabled);
 
             ws.RangeUsed().SetAutoFilter();
-            Assert.That(ws.AutoFilter.IsEnabled);
+            ClassicAssert.IsTrue(ws.AutoFilter.IsEnabled);
 
             ws.RangeUsed().SetAutoFilter(false);
-            Assert.That(!ws.AutoFilter.IsEnabled);
+            ClassicAssert.IsTrue(!ws.AutoFilter.IsEnabled);
         }
     }
 
@@ -127,7 +125,7 @@ public class AutoFilterTests
 
             using (XLWorkbook wb2 = new(ms2))
             {
-                Assert.IsTrue(wb2.Worksheets.First().AutoFilter.IsEnabled);
+                ClassicAssert.IsTrue(wb2.Worksheets.First().AutoFilter.IsEnabled);
             }
         }
     }
@@ -142,13 +140,13 @@ public class AutoFilterTests
         IXLWorksheet ws = wb.AddWorksheet();
         ws.FirstCell().InsertTable(data);
 
-        Assert.Throws<InvalidOperationException>(() => ws.RangeUsed().SetAutoFilter());
+        ClassicAssert.Throws<InvalidOperationException>(() => ws.RangeUsed().SetAutoFilter());
     }
 
     [Test]
-    [TestCase("A1:A4")]
-    [TestCase("A1:B4")]
-    [TestCase("A1:C4")]
+    [Arguments("A1:A4")]
+    [Arguments("A1:B4")]
+    [Arguments("A1:C4")]
     public void AutoFilterRangeRemainsValidOnInsertColumn(string rangeAddress)
     {
         //Arrange
@@ -171,7 +169,7 @@ public class AutoFilterTests
                 range.InsertColumnsBefore(1);
 
                 //Assert
-                Assert.IsTrue(ws.AutoFilter.Range.RangeAddress.IsValid);
+                ClassicAssert.IsTrue(ws.AutoFilter.Range.RangeAddress.IsValid);
             }
         }
     }
@@ -196,10 +194,10 @@ public class AutoFilterTests
 
             autoFilter.Column(1).AddFilter("Carlos");
 
-            Assert.AreEqual("Carlos", ws.Cell(5, 3).GetText());
-            Assert.AreEqual(2, autoFilter.VisibleRows.Count());
-            Assert.AreEqual(3, autoFilter.VisibleRows.First().WorksheetRow().RowNumber());
-            Assert.AreEqual(5, autoFilter.VisibleRows.Last().WorksheetRow().RowNumber());
+            ClassicAssert.AreEqual("Carlos", ws.Cell(5, 3).GetText());
+            ClassicAssert.AreEqual(2, autoFilter.VisibleRows.Count());
+            ClassicAssert.AreEqual(3, autoFilter.VisibleRows.First().WorksheetRow().RowNumber());
+            ClassicAssert.AreEqual(5, autoFilter.VisibleRows.Last().WorksheetRow().RowNumber());
         }
     }
 
@@ -225,14 +223,14 @@ public class AutoFilterTests
 
             autoFilter.Column(1).AddFilter("Carlos");
 
-            Assert.AreEqual(3, autoFilter.HiddenRows.Count());
+            ClassicAssert.AreEqual(3, autoFilter.HiddenRows.Count());
 
             // Unhide the rows so that the table is out of sync with the filter
             autoFilter.HiddenRows.ForEach(r => r.WorksheetRow().Unhide());
-            Assert.False(autoFilter.HiddenRows.Any());
+            ClassicAssert.False(autoFilter.HiddenRows.Any());
 
             autoFilter.Reapply();
-            Assert.AreEqual(3, autoFilter.HiddenRows.Count());
+            ClassicAssert.AreEqual(3, autoFilter.HiddenRows.Count());
         }
     }
 
@@ -269,14 +267,14 @@ public class AutoFilterTests
 
                 // Regular filter compares values as strings, doesn't convert to XLCellValue,
                 // so the value is read from the file as a text despite looking like a number.
-                Assert.AreEqual(
+                ClassicAssert.AreEqual(
                     "10 000.00",
                     ((XLAutoFilter)ws.AutoFilter).Column(1).Single().Value
                 );
-                Assert.AreEqual(2, ws.AutoFilter.VisibleRows.Count());
+                ClassicAssert.AreEqual(2, ws.AutoFilter.VisibleRows.Count());
 
                 ws.AutoFilter.Reapply();
-                Assert.AreEqual(2, ws.AutoFilter.VisibleRows.Count());
+                ClassicAssert.AreEqual(2, ws.AutoFilter.VisibleRows.Count());
             }
 
             Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("en-US");
@@ -291,7 +289,7 @@ public class AutoFilterTests
             using (XLWorkbook wb = new(stream))
             {
                 IXLWorksheet ws = wb.Worksheets.First();
-                Assert.AreEqual(
+                ClassicAssert.AreEqual(
                     "10 000.00",
                     ((XLAutoFilter)ws.AutoFilter).Column(1).Single().Value
                 );
@@ -300,10 +298,10 @@ public class AutoFilterTests
                 [
                     .. ws.AutoFilter.VisibleRows.Select(r => r.FirstCell().Value),
                 ];
-                Assert.AreEqual(2, ws.AutoFilter.VisibleRows.Count());
+                ClassicAssert.AreEqual(2, ws.AutoFilter.VisibleRows.Count());
 
                 ws.AutoFilter.Reapply();
-                Assert.AreEqual(1, ws.AutoFilter.VisibleRows.Count());
+                ClassicAssert.AreEqual(1, ws.AutoFilter.VisibleRows.Count());
             }
         }
         finally
@@ -330,7 +328,7 @@ public class AutoFilterTests
                 IXLAutoFilter autoFilter = ws.RangeUsed().SetAutoFilter();
 
                 autoFilter.Column(1).NotContains("String3");
-                Assert.AreEqual(1, autoFilter.HiddenRows.Count());
+                ClassicAssert.AreEqual(1, autoFilter.HiddenRows.Count());
 
                 wb.SaveAs(ms);
             }
@@ -342,16 +340,16 @@ public class AutoFilterTests
                 IXLAutoFilter autoFilter = ws.AutoFilter;
 
                 autoFilter.Reapply();
-                Assert.AreEqual(1, autoFilter.HiddenRows.Count());
+                ClassicAssert.AreEqual(1, autoFilter.HiddenRows.Count());
             }
         }
     }
 
     [Test]
-    [TestCase("ends")]
-    [TestCase("begins")]
-    [TestCase("equal")]
-    [TestCase("contains")]
+    [Arguments("ends")]
+    [Arguments("begins")]
+    [Arguments("equal")]
+    [Arguments("contains")]
     public void NotStringFilter(string type)
     {
         using (MemoryStream ms = new())
@@ -384,7 +382,7 @@ public class AutoFilterTests
                         autoFilter.Column(1).NotContains("3-");
                         break;
                 }
-                Assert.AreEqual(1, autoFilter.HiddenRows.Count());
+                ClassicAssert.AreEqual(1, autoFilter.HiddenRows.Count());
 
                 wb.SaveAs(ms);
             }
@@ -396,7 +394,7 @@ public class AutoFilterTests
                 IXLAutoFilter autoFilter = ws.AutoFilter;
 
                 autoFilter.Reapply();
-                Assert.AreEqual(1, autoFilter.HiddenRows.Count());
+                ClassicAssert.AreEqual(1, autoFilter.HiddenRows.Count());
             }
         }
     }

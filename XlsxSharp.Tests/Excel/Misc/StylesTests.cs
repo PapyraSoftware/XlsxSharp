@@ -1,11 +1,11 @@
-using NUnit.Framework;
+using System;
+using System.Collections.Generic;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.Rows;
 using XlsxSharp.Extensions;
 
 namespace XlsxSharp.Tests.Excel.Misc;
 
-[TestFixture]
 public class StylesTests
 {
     private static void SetupBorders(IXLRange range)
@@ -41,53 +41,59 @@ public class StylesTests
 
         IXLCell center = range.Cell(2, 2);
 
-        Assert.AreEqual(XLColor.Red, center.Style.Border.TopBorderColor);
-        Assert.AreEqual(XLColor.Red, center.Style.Border.BottomBorderColor);
-        Assert.AreEqual(XLColor.Red, center.Style.Border.LeftBorderColor);
-        Assert.AreEqual(XLColor.Red, center.Style.Border.RightBorderColor);
+        ClassicAssert.AreEqual(XLColor.Red, center.Style.Border.TopBorderColor);
+        ClassicAssert.AreEqual(XLColor.Red, center.Style.Border.BottomBorderColor);
+        ClassicAssert.AreEqual(XLColor.Red, center.Style.Border.LeftBorderColor);
+        ClassicAssert.AreEqual(XLColor.Red, center.Style.Border.RightBorderColor);
 
-        Assert.AreEqual(XLBorderStyleValues.None, range.FirstRow().Cell(1).Style.Border.TopBorder);
-        Assert.AreEqual(XLBorderStyleValues.Thick, range.FirstRow().Cell(2).Style.Border.TopBorder);
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
+            XLBorderStyleValues.None,
+            range.FirstRow().Cell(1).Style.Border.TopBorder
+        );
+        ClassicAssert.AreEqual(
+            XLBorderStyleValues.Thick,
+            range.FirstRow().Cell(2).Style.Border.TopBorder
+        );
+        ClassicAssert.AreEqual(
             XLBorderStyleValues.Double,
             range.FirstRow().Cell(3).Style.Border.TopBorder
         );
 
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             XLBorderStyleValues.None,
             range.LastRow().Cell(1).Style.Border.BottomBorder
         );
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             XLBorderStyleValues.Thick,
             range.LastRow().Cell(2).Style.Border.BottomBorder
         );
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             XLBorderStyleValues.Double,
             range.LastRow().Cell(3).Style.Border.BottomBorder
         );
 
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             XLBorderStyleValues.None,
             range.FirstColumn().Cell(1).Style.Border.LeftBorder
         );
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             XLBorderStyleValues.Thick,
             range.FirstColumn().Cell(2).Style.Border.LeftBorder
         );
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             XLBorderStyleValues.Double,
             range.FirstColumn().Cell(3).Style.Border.LeftBorder
         );
 
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             XLBorderStyleValues.None,
             range.LastColumn().Cell(1).Style.Border.RightBorder
         );
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             XLBorderStyleValues.Thick,
             range.LastColumn().Cell(2).Style.Border.RightBorder
         );
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             XLBorderStyleValues.Double,
             range.LastColumn().Cell(3).Style.Border.RightBorder
         );
@@ -100,20 +106,25 @@ public class StylesTests
         {
             string color;
             color = wb.Theme.ResolveThemeColor(XLThemeColor.Accent1).Color.ToHex();
-            Assert.AreEqual("FF4F81BD", color);
+            ClassicAssert.AreEqual("FF4F81BD", color);
 
             color = wb.Theme.ResolveThemeColor(XLThemeColor.Background1).Color.ToHex();
-            Assert.AreEqual("FFFFFFFF", color);
+            ClassicAssert.AreEqual("FFFFFFFF", color);
         }
     }
 
-    [Theory]
+    [Test]
+    [MethodDataSource(nameof(AllThemeColors))]
     public void CanResolveAllThemeColors(XLThemeColor themeColor)
     {
         IXLTheme theme = new XLWorkbook().Theme;
         XLColor color = theme.ResolveThemeColor(themeColor);
-        Assert.IsNotNull(color);
+        ClassicAssert.IsNotNull(color);
     }
+
+    // NUnit's [Theory] auto-generated one case per enum value for an otherwise-undecorated enum
+    // parameter; TUnit has no equivalent, so this replaces that data source explicitly.
+    internal static IEnumerable<XLThemeColor> AllThemeColors() => Enum.GetValues<XLThemeColor>();
 
     [Test]
     public void SetStyleViaRowReference()
@@ -130,9 +141,9 @@ public class StylesTests
 
             foreach (IXLCell cell in ws.CellsUsed())
             {
-                Assert.AreEqual(8, ws.Cell("A1").Style.Font.FontSize);
-                Assert.AreEqual(XLColor.Green, ws.Cell("B1").Style.Font.FontColor);
-                Assert.AreEqual(true, ws.Cell("C1").Style.Font.Bold);
+                ClassicAssert.AreEqual(8, ws.Cell("A1").Style.Font.FontSize);
+                ClassicAssert.AreEqual(XLColor.Green, ws.Cell("B1").Style.Font.FontColor);
+                ClassicAssert.AreEqual(true, ws.Cell("C1").Style.Font.Bold);
             }
         }
     }

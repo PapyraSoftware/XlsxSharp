@@ -1,7 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 
 namespace XlsxSharp.Tests.Excel.PivotTables;
@@ -9,7 +8,6 @@ namespace XlsxSharp.Tests.Excel.PivotTables;
 /// <summary>
 /// Test methods of interface <see cref="IXLPivotFields"/> implemented through <see cref="XLPivotTableAxis"/>.
 /// </summary>
-[TestFixture]
 internal class XlPivotTableAxisTests
 {
     #region IXLPivotFields methods
@@ -25,22 +23,22 @@ internal class XlPivotTableAxisTests
         IXLWorksheet ptSheet = wb.AddWorksheet();
         IXLPivotTable pt = ptSheet.PivotTables.Add("pt", ptSheet.Cell("A1"), range);
         XLPivotTable internalPt = (XLPivotTable)pt;
-        Assert.IsEmpty(internalPt.PivotFields[0].Items);
+        ClassicAssert.IsEmpty(internalPt.PivotFields[0].Items);
 
         IXLPivotField idField = pt
             .RowLabels.Add("ID", "Item ID")
             .AddSubtotal(XLSubtotalFunction.Automatic);
 
-        Assert.AreEqual("ID", idField.SourceName);
-        Assert.AreEqual("Item ID", idField.CustomName);
-        Assert.AreEqual("Item ID", pt.RowLabels.Single().CustomName);
+        ClassicAssert.AreEqual("ID", idField.SourceName);
+        ClassicAssert.AreEqual("Item ID", idField.CustomName);
+        ClassicAssert.AreEqual("Item ID", pt.RowLabels.Single().CustomName);
 
         // Adds values and default aggregation func to items of the field
         IReadOnlyList<XLPivotFieldItem> fieldItems = internalPt.PivotFields[0].Items;
-        Assert.AreEqual(2, fieldItems.Count);
-        Assert.AreEqual(XLPivotItemType.Data, fieldItems[0].ItemType);
-        Assert.AreEqual(0, fieldItems[0].ItemIndex);
-        Assert.AreEqual(XLPivotItemType.Default, fieldItems[1].ItemType);
+        ClassicAssert.AreEqual(2, fieldItems.Count);
+        ClassicAssert.AreEqual(XLPivotItemType.Data, fieldItems[0].ItemType);
+        ClassicAssert.AreEqual(0, fieldItems[0].ItemIndex);
+        ClassicAssert.AreEqual(XLPivotItemType.Default, fieldItems[1].ItemType);
     }
 
     [Test]
@@ -53,10 +51,10 @@ internal class XlPivotTableAxisTests
         IXLPivotTable pt = ptSheet.PivotTables.Add("pt", ptSheet.Cell("A1"), range);
         pt.RowLabels.Add("ID", "Item ID");
 
-        InvalidOperationException ex = Assert.Throws<InvalidOperationException>(() =>
+        InvalidOperationException ex = ClassicAssert.Throws<InvalidOperationException>(() =>
             pt.RowLabels.Add("ID", "Item ID")
         )!;
-        Assert.AreEqual("Custom name 'Item ID' is already used.", ex.Message);
+        ClassicAssert.AreEqual("Custom name 'Item ID' is already used.", ex.Message);
     }
 
     [Test]
@@ -67,12 +65,12 @@ internal class XlPivotTableAxisTests
         IXLRange range = data.Cell("A1").InsertData(new object[] { ("ID", "Count"), (1, 10) });
         IXLWorksheet ptSheet = wb.AddWorksheet();
         IXLPivotTable pt = ptSheet.PivotTables.Add("pt", ptSheet.Cell("A1"), range);
-        Assert.DoesNotThrow(() => pt.RowLabels.Add("ID", "Item ID"));
+        ClassicAssert.DoesNotThrow(() => pt.RowLabels.Add("ID", "Item ID"));
 
-        InvalidOperationException ex = Assert.Throws<InvalidOperationException>(() =>
+        InvalidOperationException ex = ClassicAssert.Throws<InvalidOperationException>(() =>
             pt.RowLabels.Add("nonexistent")
         )!;
-        Assert.AreEqual("Field 'nonexistent' not found in pivot cache.", ex.Message);
+        ClassicAssert.AreEqual("Field 'nonexistent' not found in pivot cache.", ex.Message);
     }
 
     #endregion
@@ -93,15 +91,15 @@ internal class XlPivotTableAxisTests
 
         pt.RowLabels.Clear();
 
-        Assert.IsEmpty(pt.RowLabels);
+        ClassicAssert.IsEmpty(pt.RowLabels);
 
         // Clear should also remove custom names and axis, otherwise there are problems loading
         // file with such remains in Excel.
         XLPivotTable internalPt = (XLPivotTable)pt;
-        Assert.Null(internalPt.PivotFields[0].Name);
-        Assert.Null(internalPt.PivotFields[0].Axis);
-        Assert.Null(internalPt.PivotFields[1].Name);
-        Assert.Null(internalPt.PivotFields[1].Axis);
+        ClassicAssert.Null(internalPt.PivotFields[0].Name);
+        ClassicAssert.Null(internalPt.PivotFields[0].Axis);
+        ClassicAssert.Null(internalPt.PivotFields[1].Name);
+        ClassicAssert.Null(internalPt.PivotFields[1].Axis);
     }
 
     #endregion
@@ -120,10 +118,10 @@ internal class XlPivotTableAxisTests
         IXLPivotField idField = pt.RowLabels.Add("ID", "Item ID");
         pt.ColumnLabels.Add("Color");
 
-        Assert.True(pt.RowLabels.Contains("id"));
-        Assert.True(pt.RowLabels.Contains(idField));
-        Assert.False(pt.RowLabels.Contains("color"));
-        Assert.False(pt.RowLabels.Contains("nonexistent"));
+        ClassicAssert.True(pt.RowLabels.Contains("id"));
+        ClassicAssert.True(pt.RowLabels.Contains(idField));
+        ClassicAssert.False(pt.RowLabels.Contains("color"));
+        ClassicAssert.False(pt.RowLabels.Contains("nonexistent"));
     }
 
     #endregion
@@ -142,11 +140,11 @@ internal class XlPivotTableAxisTests
         pt.RowLabels.Add("ID", "Item ID");
         pt.ColumnLabels.Add("Color");
 
-        Assert.AreEqual("ID", pt.RowLabels.Get("id").SourceName);
-        KeyNotFoundException ex = Assert.Throws<KeyNotFoundException>(() =>
+        ClassicAssert.AreEqual("ID", pt.RowLabels.Get("id").SourceName);
+        KeyNotFoundException ex = ClassicAssert.Throws<KeyNotFoundException>(() =>
             pt.RowLabels.Get("color")
         )!;
-        Assert.AreEqual("Field with source name 'color' not found in AxisRow.", ex.Message);
+        ClassicAssert.AreEqual("Field with source name 'color' not found in AxisRow.", ex.Message);
     }
 
     #endregion
@@ -165,9 +163,9 @@ internal class XlPivotTableAxisTests
         pt.RowLabels.Add("ID", "Item ID");
         pt.ColumnLabels.Add("Color");
 
-        Assert.AreEqual("ID", pt.RowLabels.Get(0).SourceName);
-        Assert.Throws<IndexOutOfRangeException>(() => pt.RowLabels.Get(-2));
-        Assert.Throws<IndexOutOfRangeException>(() => pt.RowLabels.Get(1));
+        ClassicAssert.AreEqual("ID", pt.RowLabels.Get(0).SourceName);
+        ClassicAssert.Throws<IndexOutOfRangeException>(() => pt.RowLabels.Get(-2));
+        ClassicAssert.Throws<IndexOutOfRangeException>(() => pt.RowLabels.Get(1));
     }
 
     #endregion
@@ -186,10 +184,10 @@ internal class XlPivotTableAxisTests
         IXLPivotField idField = pt.RowLabels.Add("ID", "Item ID");
         pt.ColumnLabels.Add("Color");
 
-        Assert.AreEqual(0, pt.RowLabels.IndexOf("ID"));
-        Assert.AreEqual(0, pt.RowLabels.IndexOf(idField));
-        Assert.AreEqual(-1, pt.RowLabels.IndexOf("item id"));
-        Assert.AreEqual(-1, pt.RowLabels.IndexOf("Color"));
+        ClassicAssert.AreEqual(0, pt.RowLabels.IndexOf("ID"));
+        ClassicAssert.AreEqual(0, pt.RowLabels.IndexOf(idField));
+        ClassicAssert.AreEqual(-1, pt.RowLabels.IndexOf("item id"));
+        ClassicAssert.AreEqual(-1, pt.RowLabels.IndexOf("Color"));
     }
 
     #endregion
@@ -210,7 +208,7 @@ internal class XlPivotTableAxisTests
         pt.RowLabels.Remove("id");
         pt.RowLabels.Remove("ID"); // Doesnt throw on already removed.
 
-        Assert.IsEmpty(pt.RowLabels);
+        ClassicAssert.IsEmpty(pt.RowLabels);
     }
 
     #endregion

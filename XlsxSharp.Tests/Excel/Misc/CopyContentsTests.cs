@@ -1,12 +1,10 @@
 using System;
 using System.Linq;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.Rows;
 
 namespace XlsxSharp.Tests.Excel.Misc;
 
-[TestFixture]
 public class CopyContentsTests
 {
     private static void CopyRowAsRange(
@@ -46,7 +44,7 @@ public class CopyContentsTests
             .WhenContains("1")
             .Fill.SetBackgroundColor(XLColor.Blue);
         ws.Cell("A2").CopyFrom(ws.FirstCell().AsRange());
-        Assert.AreEqual(2, ws.ConditionalFormats.Count());
+        ClassicAssert.AreEqual(2, ws.ConditionalFormats.Count());
     }
 
     [Test]
@@ -58,12 +56,12 @@ public class CopyContentsTests
         ws.Cell("B1").Value = "1";
         ws.Cell("A1").AddConditionalFormat().WhenEquals(1).Fill.SetBackgroundColor(XLColor.Blue);
         ws.Cell("A2").CopyFrom(ws.Cell("A1").AsRange());
-        Assert.IsTrue(
+        ClassicAssert.IsTrue(
             ws.ConditionalFormats.Any(cf =>
                 cf.Values.Any(v => v.Value.Value == "1" && !v.Value.IsFormula)
             )
         );
-        Assert.IsTrue(
+        ClassicAssert.IsTrue(
             ws.ConditionalFormats.Any(cf =>
                 cf.Values.Any(v => v.Value.Value == "1" && !v.Value.IsFormula)
             )
@@ -79,12 +77,12 @@ public class CopyContentsTests
         ws.Cell("B1").Value = "B";
         ws.Cell("A1").AddConditionalFormat().WhenEquals("A").Fill.SetBackgroundColor(XLColor.Blue);
         ws.Cell("A2").CopyFrom(ws.Cell("A1").AsRange());
-        Assert.IsTrue(
+        ClassicAssert.IsTrue(
             ws.ConditionalFormats.Any(cf =>
                 cf.Values.Any(v => v.Value.Value == "A" && !v.Value.IsFormula)
             )
         );
-        Assert.IsTrue(
+        ClassicAssert.IsTrue(
             ws.ConditionalFormats.Any(cf =>
                 cf.Values.Any(v => v.Value.Value == "A" && !v.Value.IsFormula)
             )
@@ -100,12 +98,12 @@ public class CopyContentsTests
         ws.Cell("B1").Value = "1";
         ws.Cell("A1").AddConditionalFormat().WhenEquals("1").Fill.SetBackgroundColor(XLColor.Blue);
         ws.Cell("A2").CopyFrom(ws.Cell("A1").AsRange());
-        Assert.IsTrue(
+        ClassicAssert.IsTrue(
             ws.ConditionalFormats.Any(cf =>
                 cf.Values.Any(v => v.Value.Value == "1" && !v.Value.IsFormula)
             )
         );
-        Assert.IsTrue(
+        ClassicAssert.IsTrue(
             ws.ConditionalFormats.Any(cf =>
                 cf.Values.Any(v => v.Value.Value == "1" && !v.Value.IsFormula)
             )
@@ -124,12 +122,12 @@ public class CopyContentsTests
             .WhenEquals("=B1")
             .Fill.SetBackgroundColor(XLColor.Blue);
         ws.Cell("A2").CopyFrom(ws.Cell("A1").AsRange());
-        Assert.IsTrue(
+        ClassicAssert.IsTrue(
             ws.ConditionalFormats.Any(cf =>
                 cf.Values.Any(v => v.Value.Value == "B1" && v.Value.IsFormula)
             )
         );
-        Assert.IsTrue(
+        ClassicAssert.IsTrue(
             ws.ConditionalFormats.Any(cf =>
                 cf.Values.Any(v => v.Value.Value == "B2" && v.Value.IsFormula)
             )
@@ -174,8 +172,8 @@ public class CopyContentsTests
 
             IXLWorksheet ws2 = ws1.CopyTo("Sheet2");
 
-            Assert.AreEqual("Sheet1", ws1.FirstCell().Address.Worksheet.Name);
-            Assert.AreEqual("Sheet2", ws2.FirstCell().Address.Worksheet.Name);
+            ClassicAssert.AreEqual("Sheet1", ws1.FirstCell().Address.Worksheet.Name);
+            ClassicAssert.AreEqual("Sheet2", ws2.FirstCell().Address.Worksheet.Name);
         }
     }
 
@@ -194,9 +192,9 @@ public class CopyContentsTests
         source.Cell("A1").AsRange().CopyTo(target.Cell("B7"));
 
         IXLCell cell = target.Cell("B7");
-        Assert.True(cell.HasHyperlink);
-        Assert.True(cell.GetHyperlink().IsExternal);
-        Assert.AreEqual(new Uri("https://example.com"), cell.GetHyperlink().ExternalAddress);
-        Assert.AreEqual("Test tooltip", cell.GetHyperlink().Tooltip);
+        ClassicAssert.True(cell.HasHyperlink);
+        ClassicAssert.True(cell.GetHyperlink().IsExternal);
+        ClassicAssert.AreEqual(new Uri("https://example.com"), cell.GetHyperlink().ExternalAddress);
+        ClassicAssert.AreEqual("Test tooltip", cell.GetHyperlink().Tooltip);
     }
 }

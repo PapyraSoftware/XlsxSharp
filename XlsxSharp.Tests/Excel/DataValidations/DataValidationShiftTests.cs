@@ -1,13 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.DataValidation;
 using XlsxSharp.Tests.Utils;
 
 namespace XlsxSharp.Tests.Excel.DataValidations;
 
-[TestFixture]
 public class DataValidationShiftTests
 {
     [Test]
@@ -25,12 +23,12 @@ public class DataValidationShiftTests
         ws.Column(2).InsertColumnsAfter(2);
         IXLDataValidation[] dv = [.. ws.DataValidations];
 
-        Assert.AreEqual(5, dv.Length);
-        Assert.AreEqual("A1:A1", dv[0].Ranges.Single().RangeAddress.ToString());
-        Assert.AreEqual("A2:D2", dv[1].Ranges.Single().RangeAddress.ToString());
-        Assert.AreEqual("A3:E3", dv[2].Ranges.Single().RangeAddress.ToString());
-        Assert.AreEqual("B4:D6", dv[3].Ranges.Single().RangeAddress.ToString());
-        Assert.AreEqual("E7:F7", dv[4].Ranges.Single().RangeAddress.ToString());
+        ClassicAssert.AreEqual(5, dv.Length);
+        ClassicAssert.AreEqual("A1:A1", dv[0].Ranges.Single().RangeAddress.ToString());
+        ClassicAssert.AreEqual("A2:D2", dv[1].Ranges.Single().RangeAddress.ToString());
+        ClassicAssert.AreEqual("A3:E3", dv[2].Ranges.Single().RangeAddress.ToString());
+        ClassicAssert.AreEqual("B4:D6", dv[3].Ranges.Single().RangeAddress.ToString());
+        ClassicAssert.AreEqual("E7:F7", dv[4].Ranges.Single().RangeAddress.ToString());
     }
 
     [Test]
@@ -48,12 +46,12 @@ public class DataValidationShiftTests
         ws.Row(2).InsertRowsBelow(2);
         IXLDataValidation[] dv = [.. ws.DataValidations];
 
-        Assert.AreEqual(5, dv.Length);
-        Assert.AreEqual("A1:A1", dv[0].Ranges.Single().RangeAddress.ToString());
-        Assert.AreEqual("B1:B4", dv[1].Ranges.Single().RangeAddress.ToString());
-        Assert.AreEqual("C1:C5", dv[2].Ranges.Single().RangeAddress.ToString());
-        Assert.AreEqual("D2:F4", dv[3].Ranges.Single().RangeAddress.ToString());
-        Assert.AreEqual("G6:G7", dv[4].Ranges.Single().RangeAddress.ToString());
+        ClassicAssert.AreEqual(5, dv.Length);
+        ClassicAssert.AreEqual("A1:A1", dv[0].Ranges.Single().RangeAddress.ToString());
+        ClassicAssert.AreEqual("B1:B4", dv[1].Ranges.Single().RangeAddress.ToString());
+        ClassicAssert.AreEqual("C1:C5", dv[2].Ranges.Single().RangeAddress.ToString());
+        ClassicAssert.AreEqual("D2:F4", dv[3].Ranges.Single().RangeAddress.ToString());
+        ClassicAssert.AreEqual("G6:G7", dv[4].Ranges.Single().RangeAddress.ToString());
     }
 
     [Test]
@@ -71,11 +69,11 @@ public class DataValidationShiftTests
         ws.Column(2).Delete();
         IXLDataValidation[] dv = [.. ws.DataValidations];
 
-        Assert.AreEqual(4, dv.Length);
-        Assert.AreEqual("A1:A1", dv[0].Ranges.Single().RangeAddress.ToString());
-        Assert.AreEqual("A2:A2", dv[1].Ranges.Single().RangeAddress.ToString());
-        Assert.AreEqual("A3:B3", dv[2].Ranges.Single().RangeAddress.ToString());
-        Assert.AreEqual("B7:C7", dv[3].Ranges.Single().RangeAddress.ToString());
+        ClassicAssert.AreEqual(4, dv.Length);
+        ClassicAssert.AreEqual("A1:A1", dv[0].Ranges.Single().RangeAddress.ToString());
+        ClassicAssert.AreEqual("A2:A2", dv[1].Ranges.Single().RangeAddress.ToString());
+        ClassicAssert.AreEqual("A3:B3", dv[2].Ranges.Single().RangeAddress.ToString());
+        ClassicAssert.AreEqual("B7:C7", dv[3].Ranges.Single().RangeAddress.ToString());
     }
 
     [Test]
@@ -93,16 +91,17 @@ public class DataValidationShiftTests
         ws.Row(2).Delete();
         IXLDataValidation[] dv = [.. ws.DataValidations];
 
-        Assert.AreEqual(4, dv.Length);
-        Assert.AreEqual("A1:A1", dv[0].Ranges.Single().RangeAddress.ToString());
-        Assert.AreEqual("B1:B1", dv[1].Ranges.Single().RangeAddress.ToString());
-        Assert.AreEqual("C1:C2", dv[2].Ranges.Single().RangeAddress.ToString());
-        Assert.AreEqual("G3:G4", dv[3].Ranges.Single().RangeAddress.ToString());
+        ClassicAssert.AreEqual(4, dv.Length);
+        ClassicAssert.AreEqual("A1:A1", dv[0].Ranges.Single().RangeAddress.ToString());
+        ClassicAssert.AreEqual("B1:B1", dv[1].Ranges.Single().RangeAddress.ToString());
+        ClassicAssert.AreEqual("C1:C2", dv[2].Ranges.Single().RangeAddress.ToString());
+        ClassicAssert.AreEqual("G3:G4", dv[3].Ranges.Single().RangeAddress.ToString());
     }
 
-    [TestCase(new[] { "A10:A11" }, "1-2", new[] { "A8:A9" })]
-    [TestCase(new[] { "A10,A11" }, "1-2", new[] { "A8:A8 A9:A9" })]
-    [TestCase(new[] { "A10", "A11" }, "1-2", new[] { "A8:A8", "A9:A9" })]
+    [Test]
+    [Arguments(new[] { "A10:A11" }, "1-2", new[] { "A8:A9" })]
+    [Arguments(new[] { "A10,A11" }, "1-2", new[] { "A8:A8 A9:A9" })]
+    [Arguments(new[] { "A10", "A11" }, "1-2", new[] { "A8:A8", "A9:A9" })]
     public void DataValidationsAreShiftedWhenRowsAboveAreDeleted(
         string[] initialDvs,
         string rowsToDelete,
@@ -119,7 +118,7 @@ public class DataValidationShiftTests
         ws.Rows(rowsToDelete).Delete();
 
         IEnumerable<string> resultDvs = ws.DataValidations.Select(dv => dv.Ranges.ToSpaceList());
-        Assert.AreEqual(shiftedDvs, resultDvs);
+        ClassicAssert.AreEqual(shiftedDvs, resultDvs);
     }
 
     [Test]
@@ -131,7 +130,7 @@ public class DataValidationShiftTests
 
         ws.Range("A10").Delete(XLShiftDeletedCells.ShiftCellsUp);
 
-        Assert.IsEmpty(ws.DataValidations);
+        ClassicAssert.IsEmpty(ws.DataValidations);
     }
 
     [Test]
@@ -143,7 +142,7 @@ public class DataValidationShiftTests
 
         ws.Range("B12").Delete(XLShiftDeletedCells.ShiftCellsUp);
 
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             "A10:C11 A12:A12 C12:C12",
             ws.DataValidations.Single().Ranges.ToSpaceList()
         );
@@ -158,11 +157,17 @@ public class DataValidationShiftTests
         IXLDataValidation dv = ws.DataValidations.Single();
 
         ws.Row(2).InsertRowsAbove(1);
-        Assert.IsTrue(dv.Ranges.Single().RangeAddress.IsValid);
-        Assert.AreEqual($"1:{XLHelper.MaxRowNumber}", dv.Ranges.Single().RangeAddress.ToString());
+        ClassicAssert.IsTrue(dv.Ranges.Single().RangeAddress.IsValid);
+        ClassicAssert.AreEqual(
+            $"1:{XLHelper.MaxRowNumber}",
+            dv.Ranges.Single().RangeAddress.ToString()
+        );
 
         ws.Column(2).InsertColumnsAfter(1);
-        Assert.IsTrue(dv.Ranges.Single().RangeAddress.IsValid);
-        Assert.AreEqual($"1:{XLHelper.MaxRowNumber}", dv.Ranges.Single().RangeAddress.ToString());
+        ClassicAssert.IsTrue(dv.Ranges.Single().RangeAddress.IsValid);
+        ClassicAssert.AreEqual(
+            $"1:{XLHelper.MaxRowNumber}",
+            dv.Ranges.Single().RangeAddress.ToString()
+        );
     }
 }

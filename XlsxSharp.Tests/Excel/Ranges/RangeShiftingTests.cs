@@ -1,4 +1,3 @@
-using NUnit.Framework;
 using XlsxSharp.Excel;
 
 namespace XlsxSharp.Tests.Excel.Ranges;
@@ -78,9 +77,9 @@ public class RangeShiftingTests
         }
     }
 
-    [Theory]
-    [TestCase("A5:F5")]
-    [TestCase("A5:F6")]
+    [Test]
+    [Arguments("A5:F5")]
+    [Arguments("A5:F6")]
     public void RangesBelowStayMergedAfterRangeDeleted(string deletedRangeAddress)
     {
         //There is an edge case when a merged range of same size as the deleted range got unmerged (see #2358)
@@ -99,13 +98,13 @@ public class RangeShiftingTests
 
         deletedRange.Delete(XLShiftDeletedCells.ShiftCellsUp);
 
-        Assert.IsTrue(mergedRange.IsMerged());
-        Assert.AreEqual(deletedRangeAddress, mergedRange.RangeAddress.ToString());
+        ClassicAssert.IsTrue(mergedRange.IsMerged());
+        ClassicAssert.AreEqual(deletedRangeAddress, mergedRange.RangeAddress.ToString());
     }
 
-    [Theory]
-    [TestCase("A5:A8")]
-    [TestCase("A5:B8")]
+    [Test]
+    [Arguments("A5:A8")]
+    [Arguments("A5:B8")]
     public void RangesToTheRightStayMergedAfterRangeDeleted(string deletedRangeAddress)
     {
         //There is an edge case when a merged range of same size as the deleted range got unmerged (see #2358)
@@ -126,8 +125,8 @@ public class RangeShiftingTests
 
         deletedRange.Delete(XLShiftDeletedCells.ShiftCellsLeft);
 
-        Assert.IsTrue(mergedRange.IsMerged());
-        Assert.AreEqual(deletedRangeAddress, mergedRange.RangeAddress.ToString());
+        ClassicAssert.IsTrue(mergedRange.IsMerged());
+        ClassicAssert.AreEqual(deletedRangeAddress, mergedRange.RangeAddress.ToString());
     }
 
     private static void SetContent(IXLCell cell)
@@ -139,9 +138,9 @@ public class RangeShiftingTests
 
     private static void AssertContent(IXLCell cell, string originalAddress)
     {
-        Assert.AreEqual($"\"Formula \" & \"{originalAddress}\"", cell.FormulaA1);
-        Assert.AreEqual(XLColor.Green, cell.Style.Fill.BackgroundColor);
-        Assert.True(cell.HasComment);
-        Assert.AreEqual($"Some comment {originalAddress}", cell.GetComment().Text);
+        ClassicAssert.AreEqual($"\"Formula \" & \"{originalAddress}\"", cell.FormulaA1);
+        ClassicAssert.AreEqual(XLColor.Green, cell.Style.Fill.BackgroundColor);
+        ClassicAssert.True(cell.HasComment);
+        ClassicAssert.AreEqual($"Some comment {originalAddress}", cell.GetComment().Text);
     }
 }

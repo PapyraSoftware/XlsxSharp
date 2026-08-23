@@ -1,13 +1,11 @@
 using System;
 using System.Linq;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.ConditionalFormats;
 using XlsxSharp.Tests.Utils;
 
 namespace XlsxSharp.Tests.Excel.ConditionalFormats;
 
-[TestFixture]
 public class ConditionalFormatCopyTests
 {
     [Test]
@@ -25,9 +23,9 @@ public class ConditionalFormatCopyTests
         XLWorkbook wb2 = new();
         IXLWorksheet ws2 = wb2.Worksheets.Add("Sheet2");
         ws2.FirstCell().CopyFrom(ws.FirstCell());
-        Assert.That(
-            ws2.ConditionalFormats.First().Style.Fill.BackgroundColor,
-            Is.EqualTo(XLColor.Blue)
+        ClassicAssert.AreEqual(
+            XLColor.Blue,
+            ws2.ConditionalFormats.First().Style.Fill.BackgroundColor
         ); //Added blue style
     }
 
@@ -45,8 +43,8 @@ public class ConditionalFormatCopyTests
 
         ws.Cell("A1").CopyTo("B2");
 
-        Assert.AreEqual(1, ws.ConditionalFormats.Count());
-        Assert.AreEqual("A1:A1 B2:B2", ws.ConditionalFormats.First().Ranges.ToSpaceList());
+        ClassicAssert.AreEqual(1, ws.ConditionalFormats.Count());
+        ClassicAssert.AreEqual("A1:A1 B2:B2", ws.ConditionalFormats.First().Ranges.ToSpaceList());
     }
 
     [Test]
@@ -63,8 +61,8 @@ public class ConditionalFormatCopyTests
 
         ws.Cell("A1").CopyTo("B2");
 
-        Assert.AreEqual(1, ws.ConditionalFormats.Count());
-        Assert.AreEqual("A1:C3", ws.ConditionalFormats.First().Ranges.ToSpaceList());
+        ClassicAssert.AreEqual(1, ws.ConditionalFormats.Count());
+        ClassicAssert.AreEqual("A1:C3", ws.ConditionalFormats.First().Ranges.ToSpaceList());
     }
 
     [Test]
@@ -83,11 +81,17 @@ public class ConditionalFormatCopyTests
 
         ws1.Cell("A1").CopyTo(otherCell);
 
-        Assert.AreEqual(1, ws1.ConditionalFormats.Count());
-        Assert.AreEqual("Sheet1!A1:A1", ws1.ConditionalFormats.First().Ranges.ToSpaceList(true));
+        ClassicAssert.AreEqual(1, ws1.ConditionalFormats.Count());
+        ClassicAssert.AreEqual(
+            "Sheet1!A1:A1",
+            ws1.ConditionalFormats.First().Ranges.ToSpaceList(true)
+        );
 
-        Assert.AreEqual(1, ws2.ConditionalFormats.Count());
-        Assert.AreEqual("Sheet2!B2:B2", ws2.ConditionalFormats.First().Ranges.ToSpaceList(true));
+        ClassicAssert.AreEqual(1, ws2.ConditionalFormats.Count());
+        ClassicAssert.AreEqual(
+            "Sheet2!B2:B2",
+            ws2.ConditionalFormats.First().Ranges.ToSpaceList(true)
+        );
     }
 
     [Test]
@@ -104,7 +108,7 @@ public class ConditionalFormatCopyTests
 
         TestDelegate action = () => format.CopyTo(ws1);
 
-        Assert.Throws(typeof(InvalidOperationException), action);
+        ClassicAssert.Throws(typeof(InvalidOperationException), action);
     }
 
     [Test]
@@ -122,10 +126,16 @@ public class ConditionalFormatCopyTests
 
         format.CopyTo(ws2);
 
-        Assert.AreEqual(1, ws1.ConditionalFormats.Count());
-        Assert.AreEqual("Sheet1!A1:C3", ws1.ConditionalFormats.First().Ranges.ToSpaceList(true));
+        ClassicAssert.AreEqual(1, ws1.ConditionalFormats.Count());
+        ClassicAssert.AreEqual(
+            "Sheet1!A1:C3",
+            ws1.ConditionalFormats.First().Ranges.ToSpaceList(true)
+        );
 
-        Assert.AreEqual(1, ws2.ConditionalFormats.Count());
-        Assert.AreEqual("Sheet2!A1:C3", ws2.ConditionalFormats.First().Ranges.ToSpaceList(true));
+        ClassicAssert.AreEqual(1, ws2.ConditionalFormats.Count());
+        ClassicAssert.AreEqual(
+            "Sheet2!A1:C3",
+            ws2.ConditionalFormats.First().Ranges.ToSpaceList(true)
+        );
     }
 }

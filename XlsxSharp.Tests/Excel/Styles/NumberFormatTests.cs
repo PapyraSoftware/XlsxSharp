@@ -3,7 +3,6 @@ using System.Data;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.Formatting;
 
@@ -28,11 +27,11 @@ public class NumberFormatTests
 
             ws.Column(1).Style.NumberFormat.Format = "yy-MM-dd";
             ws.Cell("A1").InsertData(table);
-            Assert.AreEqual("yy-MM-dd", ws.Cell("A5").Style.DateFormat.Format);
+            ClassicAssert.AreEqual("yy-MM-dd", ws.Cell("A5").Style.DateFormat.Format);
 
             ws.Row(1).Style.NumberFormat.Format = "yy-MM-dd";
             ws.Cell("A1").InsertData(table.Rows, true);
-            Assert.AreEqual("yy-MM-dd", ws.Cell("E1").Style.DateFormat.Format);
+            ClassicAssert.AreEqual("yy-MM-dd", ws.Cell("E1").Style.DateFormat.Format);
         }
     }
 
@@ -46,12 +45,11 @@ public class NumberFormatTests
 
             c.Style.NumberFormat.SetFormat("m/d/yy\\ h:mm;@");
 
-            Assert.AreEqual("10/26/13 21:00", c.GetFormattedString());
+            ClassicAssert.AreEqual("10/26/13 21:00", c.GetFormattedString());
         }
     }
 
     [Test]
-    [SetCulture("en-US")]
     public void CellValueIsFormattedByCurrentCultureUnlessSpecifiedOtherwise()
     {
         using XLWorkbook wb = new();
@@ -59,10 +57,10 @@ public class NumberFormatTests
         IXLCell cell = ws.Cell("A1").SetValue(10000.5);
 
         string currentCultureFormat = cell.GetFormattedString();
-        Assert.AreEqual("10000.5", currentCultureFormat);
+        ClassicAssert.AreEqual("10000.5", currentCultureFormat);
 
         string czechCultureFormat = cell.GetFormattedString(CultureInfo.GetCultureInfo("cs-CZ"));
-        Assert.AreEqual("10000,5", czechCultureFormat);
+        ClassicAssert.AreEqual("10000,5", czechCultureFormat);
     }
 
     [Test]
@@ -83,7 +81,7 @@ public class NumberFormatTests
             using (XLWorkbook wb = new(memoryStream))
             {
                 IXLColumn column = wb.Worksheets.Single().Column(1);
-                Assert.AreEqual("0.000", column.Style.NumberFormat.Format);
+                ClassicAssert.AreEqual("0.000", column.Style.NumberFormat.Format);
             }
         }
     }
@@ -94,7 +92,7 @@ public class NumberFormatTests
         XLNumberFormat numberFormatKey1 = new("MM");
         XLNumberFormat numberFormatKey2 = new("mm");
 
-        Assert.AreNotEqual(numberFormatKey1.GetHashCode(), numberFormatKey2.GetHashCode());
+        ClassicAssert.AreNotEqual(numberFormatKey1.GetHashCode(), numberFormatKey2.GetHashCode());
     }
 
     [Test]
@@ -103,7 +101,7 @@ public class NumberFormatTests
         XLNumberFormat numberFormatKey1 = new("MM");
         XLNumberFormat numberFormatKey2 = new("mm");
 
-        Assert.IsFalse(numberFormatKey1.Equals(numberFormatKey2));
+        ClassicAssert.IsFalse(numberFormatKey1.Equals(numberFormatKey2));
     }
 
     [Test]
@@ -133,8 +131,8 @@ public class NumberFormatTests
 
         cellFormat.NumberFormat.NumberFormatId = predefinedFormatId;
 
-        Assert.AreEqual(predefinedFormatId, cellFormat.NumberFormat.NumberFormatId);
-        Assert.AreEqual("0.00", cellFormat.NumberFormat.Format);
+        ClassicAssert.AreEqual(predefinedFormatId, cellFormat.NumberFormat.NumberFormatId);
+        ClassicAssert.AreEqual("0.00", cellFormat.NumberFormat.Format);
     }
 
     [Test]
@@ -143,13 +141,14 @@ public class NumberFormatTests
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
 
-        Assert.Throws<ArgumentOutOfRangeException>(() =>
+        ClassicAssert.Throws<ArgumentOutOfRangeException>(() =>
             ws.Cell("A1").Style.NumberFormat.NumberFormatId = 160
         );
     }
 
-    [TestCase("0.000000 Cute", -1)]
-    [TestCase("0.00", XLPredefinedFormat.Number.Precision2)]
+    [Test]
+    [Arguments("0.000000 Cute", -1)]
+    [Arguments("0.00", XLPredefinedFormat.Number.Precision2)]
     public void FormatSetsNumberFormat(string numberFormat, int numFmtId)
     {
         using XLWorkbook wb = new();
@@ -157,8 +156,8 @@ public class NumberFormatTests
 
         ws.Cell("A1").Style.NumberFormat.Format = numberFormat;
 
-        Assert.AreEqual(numberFormat, ws.Cell("A1").Style.NumberFormat.Format);
-        Assert.AreEqual(numFmtId, ws.Cell("A1").Style.NumberFormat.NumberFormatId);
+        ClassicAssert.AreEqual(numberFormat, ws.Cell("A1").Style.NumberFormat.Format);
+        ClassicAssert.AreEqual(numFmtId, ws.Cell("A1").Style.NumberFormat.NumberFormatId);
     }
 
     [Test]
@@ -170,7 +169,7 @@ public class NumberFormatTests
 
         ws.Cell("A2").Style.NumberFormat = ws.Cell("A1").Style.NumberFormat;
 
-        Assert.AreEqual("0.000", ws.Cell("A2").Style.NumberFormat.Format);
+        ClassicAssert.AreEqual("0.000", ws.Cell("A2").Style.NumberFormat.Format);
     }
 
     [Test]
@@ -181,6 +180,6 @@ public class NumberFormatTests
         ws.Cell("A1").Style.NumberFormat.Format = "0.000";
         ws.Cell("A2").Style.NumberFormat.Format = "0.000";
 
-        Assert.AreEqual(ws.Cell("A2").Style.NumberFormat, ws.Cell("A1").Style.NumberFormat);
+        ClassicAssert.AreEqual(ws.Cell("A2").Style.NumberFormat, ws.Cell("A1").Style.NumberFormat);
     }
 }

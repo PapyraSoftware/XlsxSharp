@@ -1,11 +1,9 @@
 using System.IO;
-using NUnit.Framework;
 using XlsxSharp.Examples;
 using XlsxSharp.Tests.Utils;
 
 namespace XlsxSharp.Tests;
 
-[TestFixture]
 public class ExcelDocsComparerTests
 {
     [Test]
@@ -17,7 +15,7 @@ public class ExcelDocsComparerTests
         {
             new BasicTable().Create(left);
             new BasicTable().Create(right);
-            Assert.IsTrue(ExcelDocsComparer.Compare(left, right, out string _));
+            ClassicAssert.IsTrue(ExcelDocsComparer.Compare(left, right, out string _));
         }
         finally
         {
@@ -42,7 +40,7 @@ public class ExcelDocsComparerTests
             new BasicTable().Create(left);
             new HelloWorld().Create(right);
 
-            Assert.IsFalse(ExcelDocsComparer.Compare(left, right, out string _));
+            ClassicAssert.IsFalse(ExcelDocsComparer.Compare(left, right, out string _));
         }
         finally
         {

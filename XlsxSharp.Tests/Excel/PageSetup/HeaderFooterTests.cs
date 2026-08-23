@@ -1,12 +1,10 @@
 using System.IO;
 using System.Linq;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.PageSetup;
 
 namespace XlsxSharp.Tests.Excel.PageSetup;
 
-[TestFixture]
 public class HeaderFooterTests
 {
     [Test]
@@ -32,11 +30,12 @@ public class HeaderFooterTests
         ws = wb.Worksheets.First();
 
         string newHeader = ws.PageSetup.Header.Center.GetText(XLHFOccurrence.EvenPages);
-        Assert.AreEqual("Changed header", newHeader);
+        ClassicAssert.AreEqual("Changed header", newHeader);
     }
 
-    [TestCase("")]
-    [TestCase("&L&C&\"Arial\"&9 19-10-2017 \n&9&\"Arial\" &P    &N &R")] // https://github.com/XlsxSharp/XlsxSharp/issues/563
+    [Test]
+    [Arguments("")]
+    [Arguments("&L&C&\"Arial\"&9 19-10-2017 \n&9&\"Arial\" &P    &N &R")] // https://github.com/XlsxSharp/XlsxSharp/issues/563
     public void CanSetHeaderFooter(string s)
     {
         using (XLWorkbook wb = new())

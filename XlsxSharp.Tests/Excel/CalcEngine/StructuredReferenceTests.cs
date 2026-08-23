@@ -1,8 +1,7 @@
-﻿#nullable enable
+#nullable enable
 
 using System.Collections.Generic;
 using System.Data;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.CalcEngine;
 using XlsxSharp.Excel.Tables;
@@ -12,10 +11,9 @@ namespace XlsxSharp.Tests.Excel.CalcEngine;
 /// <summary>
 /// Test cases per <em>[MS-OI29500] 3.2.3.1.1 Structure References</em>.
 /// </summary>
-[TestFixture]
 internal class StructuredReferenceTests
 {
-    private static IEnumerable<object[]> TestCases
+    internal static IEnumerable<object[]> TestCases
     {
         get
         {
@@ -97,7 +95,8 @@ internal class StructuredReferenceTests
         }
     }
 
-    [TestCaseSource(nameof(TestCases))]
+    [Test]
+    [MethodDataSource(nameof(TestCases))]
     public void Structured_reference_is_resolved_to_reference(
         string structuredReference,
         string expectedWithTotals,
@@ -139,9 +138,10 @@ internal class StructuredReferenceTests
         AssertRange(columnsFormula, "F10:G10", ws, "D10");
     }
 
-    [TestCase("TableName[[#This Row],[Second]]")]
-    [TestCase("TableName[[#This Row],[Second]:[Fourth]]")]
-    [TestCase("TableName[[#This Row],[Fourth]:[Second]]")]
+    [Test]
+    [Arguments("TableName[[#This Row],[Second]]")]
+    [Arguments("TableName[[#This Row],[Second]:[Fourth]]")]
+    [Arguments("TableName[[#This Row],[Fourth]:[Second]]")]
     public void This_row_outside_data_area_of_table_reference(string formula)
     {
         // table-name[[#This Row],[column-name]] and table-name[[#This Row],[column-name1]:[column-name2]]
@@ -153,16 +153,16 @@ internal class StructuredReferenceTests
         table.ShowTotalsRow = true;
 
         // Right above header row
-        Assert.AreEqual(XLError.IncompatibleValue, ws.Evaluate(formula, "D6"));
+        ClassicAssert.AreEqual(XLError.IncompatibleValue, ws.Evaluate(formula, "D6"));
 
         // Header row
-        Assert.AreEqual(XLError.IncompatibleValue, ws.Evaluate(formula, "D7"));
+        ClassicAssert.AreEqual(XLError.IncompatibleValue, ws.Evaluate(formula, "D7"));
 
         // Whether there is a totals row or not, the result is #VALUE!
-        Assert.AreEqual(XLError.IncompatibleValue, ws.Evaluate(formula, "D11"));
+        ClassicAssert.AreEqual(XLError.IncompatibleValue, ws.Evaluate(formula, "D11"));
 
         table.ShowTotalsRow = false;
-        Assert.AreEqual(XLError.IncompatibleValue, ws.Evaluate(formula, "D11"));
+        ClassicAssert.AreEqual(XLError.IncompatibleValue, ws.Evaluate(formula, "D11"));
     }
 
     [Test]
@@ -182,7 +182,7 @@ internal class StructuredReferenceTests
 
         formulaSheet.Cell("A1").FormulaA1 = "SUM(Pastries[Price])";
 
-        Assert.That(formulaSheet.Cell("A1").Value, Is.EqualTo(16));
+        ClassicAssert.AreEqual(16, formulaSheet.Cell("A1").Value);
     }
 
     private static IXLTable Add4X3Table(IXLWorksheet ws, string origin)
@@ -219,21 +219,27 @@ internal class StructuredReferenceTests
     {
         if (expectedArea == "#REF!")
         {
-            Assert.AreEqual(XLError.CellReference, ws.Evaluate(structureReference, formulaAddress));
+            ClassicAssert.AreEqual(
+                XLError.CellReference,
+                ws.Evaluate(structureReference, formulaAddress)
+            );
             return;
         }
 
         Area expected = Area.Parse(expectedArea);
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             expected.LeftColumn,
             ws.Evaluate($"COLUMN({structureReference})", formulaAddress)
         );
-        Assert.AreEqual(expected.TopRow, ws.Evaluate($"ROW({structureReference})", formulaAddress));
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
+            expected.TopRow,
+            ws.Evaluate($"ROW({structureReference})", formulaAddress)
+        );
+        ClassicAssert.AreEqual(
             expected.Height,
             ws.Evaluate($"ROWS({structureReference})", formulaAddress)
         );
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             expected.Width,
             ws.Evaluate($"COLUMNS({structureReference})", formulaAddress)
         );

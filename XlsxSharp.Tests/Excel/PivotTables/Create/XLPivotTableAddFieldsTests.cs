@@ -1,4 +1,3 @@
-﻿using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.PivotValues;
 
@@ -8,7 +7,6 @@ namespace XlsxSharp.Tests.Excel.PivotTables.Create;
 /// Tests that add fields to a new empty table. Doesn't test data.
 /// Expected: Make sure Excel can read the stuff we wrote.
 /// </summary>
-[TestFixture]
 internal class XlPivotTableAddFieldsTests
 {
     [Test]

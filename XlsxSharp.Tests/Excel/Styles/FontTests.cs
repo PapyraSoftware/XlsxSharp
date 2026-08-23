@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.ConditionalFormats;
 using XlsxSharp.Excel.Formatting;
@@ -19,8 +18,8 @@ public class FontTests
         XLFontFormatValue fontKey2 = this.defaultFormat with { Name = "Times New Roman" };
         XLFontFormatValue fontKey3 = this.defaultFormat with { Name = "TIMES NEW ROMAN" };
 
-        Assert.AreNotEqual(fontKey1.GetHashCode(), fontKey2.GetHashCode());
-        Assert.AreEqual(fontKey2.GetHashCode(), fontKey3.GetHashCode());
+        ClassicAssert.AreNotEqual(fontKey1.GetHashCode(), fontKey2.GetHashCode());
+        ClassicAssert.AreEqual(fontKey2.GetHashCode(), fontKey3.GetHashCode());
     }
 
     [Test]
@@ -30,12 +29,12 @@ public class FontTests
         XLFontFormatValue fontKey2 = this.defaultFormat with { Name = "Times New Roman" };
         XLFontFormatValue fontKey3 = this.defaultFormat with { Name = "TIMES NEW ROMAN" };
 
-        Assert.IsFalse(fontKey1.Equals(fontKey2));
-        Assert.IsTrue(fontKey2.Equals(fontKey3));
+        ClassicAssert.IsFalse(fontKey1.Equals(fontKey2));
+        ClassicAssert.IsTrue(fontKey2.Equals(fontKey3));
     }
 
     [Test]
-    [TestCaseSource(nameof(FontApiSetters))]
+    [MethodDataSource(nameof(FontApiSetters))]
     public void FontPropertyCanBeIndividuallySet(FormatTestCase<IXLFont> testCase)
     {
         using XLWorkbook wb = new();
@@ -47,12 +46,12 @@ public class FontTests
         {
             testCase.SetPropertyValue(cellsFormat.Font, testValue);
             object setValue = testCase.GetPropertyValue(cellFormat.Font);
-            Assert.AreEqual(testValue, setValue);
+            ClassicAssert.AreEqual(testValue, setValue);
         }
     }
 
     [Test]
-    [TestCaseSource(nameof(FontApiSetters))]
+    [MethodDataSource(nameof(FontApiSetters))]
     public void DxfFontPropertyCanBeIndividuallySet(FormatTestCase<IXLFont> testCase)
     {
         using XLWorkbook wb = new();
@@ -63,7 +62,7 @@ public class FontTests
         {
             testCase.SetPropertyValue(cf.Style.Font, testValue);
             object setValue = testCase.GetPropertyValue(cf.Style.Font);
-            Assert.AreEqual(testValue, setValue);
+            ClassicAssert.AreEqual(testValue, setValue);
         }
     }
 
@@ -92,21 +91,24 @@ public class FontTests
 
         // Assert
         IXLFont copiedFont = ws.Cell("A2").Style.Font;
-        Assert.IsTrue(copiedFont.Bold);
-        Assert.IsTrue(copiedFont.Italic);
-        Assert.AreEqual(XLFontUnderlineValues.DoubleAccounting, copiedFont.Underline);
-        Assert.IsTrue(copiedFont.Strikethrough);
-        Assert.AreEqual(
+        ClassicAssert.IsTrue(copiedFont.Bold);
+        ClassicAssert.IsTrue(copiedFont.Italic);
+        ClassicAssert.AreEqual(XLFontUnderlineValues.DoubleAccounting, copiedFont.Underline);
+        ClassicAssert.IsTrue(copiedFont.Strikethrough);
+        ClassicAssert.AreEqual(
             XLFontVerticalTextAlignmentValues.Superscript,
             copiedFont.VerticalAlignment
         );
-        Assert.IsTrue(copiedFont.Shadow);
-        Assert.AreEqual(25, copiedFont.FontSize);
-        Assert.AreEqual(XLColor.Red, copiedFont.FontColor);
-        Assert.AreEqual("Arial", copiedFont.FontName);
-        Assert.AreEqual(XLFontFamilyNumberingValues.Decorative, copiedFont.FontFamilyNumbering);
-        Assert.AreEqual(XLFontCharSet.Hangul, copiedFont.FontCharSet);
-        Assert.AreEqual(XLFontScheme.Minor, copiedFont.FontScheme);
+        ClassicAssert.IsTrue(copiedFont.Shadow);
+        ClassicAssert.AreEqual(25, copiedFont.FontSize);
+        ClassicAssert.AreEqual(XLColor.Red, copiedFont.FontColor);
+        ClassicAssert.AreEqual("Arial", copiedFont.FontName);
+        ClassicAssert.AreEqual(
+            XLFontFamilyNumberingValues.Decorative,
+            copiedFont.FontFamilyNumbering
+        );
+        ClassicAssert.AreEqual(XLFontCharSet.Hangul, copiedFont.FontCharSet);
+        ClassicAssert.AreEqual(XLFontScheme.Minor, copiedFont.FontScheme);
     }
 
     [Test]
@@ -117,7 +119,7 @@ public class FontTests
         IXLFont testFont = ws.Cell("A1").Style.Font;
         IXLFont equalFont = ws.Cell("A2").Style.Font;
 
-        Assert.AreEqual(testFont, equalFont);
+        ClassicAssert.AreEqual(testFont, equalFont);
         Action<IXLFont>[] makeDifferentFont =
         [
             x => x.Bold = !x.Bold,
@@ -137,12 +139,12 @@ public class FontTests
         foreach (Action<IXLFont> modify in makeDifferentFont)
         {
             modify(cell.Style.Font);
-            Assert.AreNotEqual(testFont, cell.Style.Font);
+            ClassicAssert.AreNotEqual(testFont, cell.Style.Font);
             cell = cell.CellRight();
         }
     }
 
-    private static IEnumerable<object> FontApiSetters()
+    internal static IEnumerable<object> FontApiSetters()
     {
         yield return FormatTestCase<IXLFont>.ForFont(
             font => font.Bold,

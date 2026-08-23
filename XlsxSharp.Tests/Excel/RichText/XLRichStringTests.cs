@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using System.Linq;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.RichText;
 
@@ -11,7 +10,6 @@ namespace XlsxSharp.Tests.Excel.RichText;
 ///     This is a test class for XLRichStringTests and is intended
 ///     to contain all XLRichStringTests Unit Tests
 /// </summary>
-[TestFixture]
 public class XlRichStringTests
 {
     [Test]
@@ -23,11 +21,11 @@ public class XlRichStringTests
 
         IXLRichText richText = cell.GetRichText();
 
-        Assert.AreEqual("12", richText.ToString());
+        ClassicAssert.AreEqual("12", richText.ToString());
 
         richText.AddText("34");
 
-        Assert.AreEqual("1234", cell.GetText());
+        ClassicAssert.AreEqual("1234", cell.GetText());
     }
 
     /// <summary>
@@ -43,14 +41,14 @@ public class XlRichStringTests
         string text = "Hello";
         richString.AddText(text).SetBold().SetFontColor(XLColor.Red);
 
-        Assert.AreEqual(cell.GetText(), text);
-        Assert.AreEqual(cell.GetRichText().First().Bold, true);
-        Assert.AreEqual(cell.GetRichText().First().FontColor, XLColor.Red);
+        ClassicAssert.AreEqual(cell.GetText(), text);
+        ClassicAssert.AreEqual(cell.GetRichText().First().Bold, true);
+        ClassicAssert.AreEqual(cell.GetRichText().First().FontColor, XLColor.Red);
 
-        Assert.AreEqual(1, richString.Count);
+        ClassicAssert.AreEqual(1, richString.Count);
 
         richString.AddText("World");
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             richString.First().Text,
             text,
             "Item in collection is not the same as the one returned"
@@ -68,14 +66,14 @@ public class XlRichStringTests
 
         string text = number.ToString();
 
-        Assert.AreEqual(cell.GetRichText().ToString(), text);
-        Assert.AreEqual(cell.GetRichText().First().Bold, true);
-        Assert.AreEqual(cell.GetRichText().First().FontColor, XLColor.Red);
+        ClassicAssert.AreEqual(cell.GetRichText().ToString(), text);
+        ClassicAssert.AreEqual(cell.GetRichText().First().Bold, true);
+        ClassicAssert.AreEqual(cell.GetRichText().First().FontColor, XLColor.Red);
 
-        Assert.AreEqual(1, cell.GetRichText().Count);
+        ClassicAssert.AreEqual(1, cell.GetRichText().Count);
 
         cell.GetRichText().AddText("World");
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             cell.GetRichText().First().Text,
             text,
             "Item in collection is not the same as the one returned"
@@ -93,14 +91,14 @@ public class XlRichStringTests
 
         string text = number.ToString();
 
-        Assert.AreEqual(cell.GetRichText().ToString(), text);
-        Assert.AreEqual(cell.GetRichText().First().Bold, true);
-        Assert.AreEqual(cell.GetRichText().First().FontColor, XLColor.Red);
+        ClassicAssert.AreEqual(cell.GetRichText().ToString(), text);
+        ClassicAssert.AreEqual(cell.GetRichText().First().Bold, true);
+        ClassicAssert.AreEqual(cell.GetRichText().First().FontColor, XLColor.Red);
 
-        Assert.AreEqual(1, cell.GetRichText().Count);
+        ClassicAssert.AreEqual(1, cell.GetRichText().Count);
 
         cell.GetRichText().AddText("World");
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             cell.GetRichText().First().Text,
             text,
             "Item in collection is not the same as the one returned"
@@ -123,9 +121,9 @@ public class XlRichStringTests
         richString.ClearText();
         string expected = string.Empty;
         string actual = richString.ToString();
-        Assert.AreEqual(expected, actual);
+        ClassicAssert.AreEqual(expected, actual);
 
-        Assert.AreEqual(0, richString.Count);
+        ClassicAssert.AreEqual(0, richString.Count);
     }
 
     [Test]
@@ -138,7 +136,7 @@ public class XlRichStringTests
         richString.AddText(" ");
         richString.AddText("World!");
 
-        Assert.AreEqual(3, richString.Count);
+        ClassicAssert.AreEqual(3, richString.Count);
     }
 
     [Test]
@@ -148,27 +146,27 @@ public class XlRichStringTests
         IXLCell cell = ws.Cell(1, 1);
         cell.GetRichText().AddText("123");
 
-        Assert.AreEqual(true, cell.HasRichText);
+        ClassicAssert.AreEqual(true, cell.HasRichText);
 
         cell.Value = "123";
 
-        Assert.AreEqual(false, cell.HasRichText);
+        ClassicAssert.AreEqual(false, cell.HasRichText);
 
         cell.GetRichText().AddText("123");
 
-        Assert.AreEqual(true, cell.HasRichText);
+        ClassicAssert.AreEqual(true, cell.HasRichText);
 
         cell.Value = 123;
 
-        Assert.AreEqual(false, cell.HasRichText);
+        ClassicAssert.AreEqual(false, cell.HasRichText);
 
         cell.GetRichText().AddText("123");
 
-        Assert.AreEqual(true, cell.HasRichText);
+        ClassicAssert.AreEqual(true, cell.HasRichText);
 
         cell.SetValue("123");
 
-        Assert.AreEqual(false, cell.HasRichText);
+        ClassicAssert.AreEqual(false, cell.HasRichText);
     }
 
     /// <summary>
@@ -185,13 +183,13 @@ public class XlRichStringTests
 
         IXLFormattedText<IXLRichText> actual = richString.Substring(0);
 
-        Assert.AreEqual(richString.First(), actual.First());
+        ClassicAssert.AreEqual(richString.First(), actual.First());
 
-        Assert.AreEqual(1, actual.Count);
+        ClassicAssert.AreEqual(1, actual.Count);
 
         actual.First().SetBold();
 
-        Assert.AreEqual(true, ws.Cell(1, 1).GetRichText().First().Bold);
+        ClassicAssert.AreEqual(true, ws.Cell(1, 1).GetRichText().First().Bold);
     }
 
     [Test]
@@ -207,18 +205,18 @@ public class XlRichStringTests
 
         IXLFormattedText<IXLRichText> actual = richString.Substring(0);
 
-        Assert.AreEqual(richString.ElementAt(0), actual.ElementAt(0));
-        Assert.AreEqual(richString.ElementAt(1), actual.ElementAt(1));
-        Assert.AreEqual(richString.ElementAt(2), actual.ElementAt(2));
+        ClassicAssert.AreEqual(richString.ElementAt(0), actual.ElementAt(0));
+        ClassicAssert.AreEqual(richString.ElementAt(1), actual.ElementAt(1));
+        ClassicAssert.AreEqual(richString.ElementAt(2), actual.ElementAt(2));
 
-        Assert.AreEqual(3, actual.Count);
-        Assert.AreEqual(3, richString.Count);
+        ClassicAssert.AreEqual(3, actual.Count);
+        ClassicAssert.AreEqual(3, richString.Count);
 
         actual.First().SetBold();
 
-        Assert.AreEqual(true, ws.Cell(1, 1).GetRichText().First().Bold);
-        Assert.AreEqual(false, ws.Cell(1, 1).GetRichText().ElementAt(1).Bold);
-        Assert.AreEqual(false, ws.Cell(1, 1).GetRichText().Last().Bold);
+        ClassicAssert.AreEqual(true, ws.Cell(1, 1).GetRichText().First().Bold);
+        ClassicAssert.AreEqual(false, ws.Cell(1, 1).GetRichText().ElementAt(1).Bold);
+        ClassicAssert.AreEqual(false, ws.Cell(1, 1).GetRichText().Last().Bold);
     }
 
     [Test]
@@ -231,33 +229,33 @@ public class XlRichStringTests
 
         IXLFormattedText<IXLRichText> actual = richString.Substring(2);
 
-        Assert.AreEqual(1, actual.Count); // substring was in one piece
+        ClassicAssert.AreEqual(1, actual.Count); // substring was in one piece
 
-        Assert.AreEqual(2, richString.Count); // The text was split because of the substring
+        ClassicAssert.AreEqual(2, richString.Count); // The text was split because of the substring
 
-        Assert.AreEqual("llo", actual.First().Text);
+        ClassicAssert.AreEqual("llo", actual.First().Text);
 
-        Assert.AreEqual("He", richString.First().Text);
-        Assert.AreEqual("llo", richString.Last().Text);
+        ClassicAssert.AreEqual("He", richString.First().Text);
+        ClassicAssert.AreEqual("llo", richString.Last().Text);
 
         actual.First().SetBold();
 
-        Assert.AreEqual(false, ws.Cell(1, 1).GetRichText().First().Bold);
-        Assert.AreEqual(true, ws.Cell(1, 1).GetRichText().Last().Bold);
+        ClassicAssert.AreEqual(false, ws.Cell(1, 1).GetRichText().First().Bold);
+        ClassicAssert.AreEqual(true, ws.Cell(1, 1).GetRichText().Last().Bold);
 
         richString.Last().SetItalic();
 
-        Assert.AreEqual(false, ws.Cell(1, 1).GetRichText().First().Italic);
-        Assert.AreEqual(true, ws.Cell(1, 1).GetRichText().Last().Italic);
+        ClassicAssert.AreEqual(false, ws.Cell(1, 1).GetRichText().First().Italic);
+        ClassicAssert.AreEqual(true, ws.Cell(1, 1).GetRichText().Last().Italic);
 
-        Assert.AreEqual(true, actual.First().Italic);
+        ClassicAssert.AreEqual(true, actual.First().Italic);
 
         richString.SetFontSize(20);
 
-        Assert.AreEqual(20, ws.Cell(1, 1).GetRichText().First().FontSize);
-        Assert.AreEqual(20, ws.Cell(1, 1).GetRichText().Last().FontSize);
+        ClassicAssert.AreEqual(20, ws.Cell(1, 1).GetRichText().First().FontSize);
+        ClassicAssert.AreEqual(20, ws.Cell(1, 1).GetRichText().Last().FontSize);
 
-        Assert.AreEqual(20, actual.First().FontSize);
+        ClassicAssert.AreEqual(20, actual.First().FontSize);
     }
 
     [Test]
@@ -270,37 +268,37 @@ public class XlRichStringTests
 
         IXLFormattedText<IXLRichText> actual = richString.Substring(2, 2);
 
-        Assert.AreEqual(1, actual.Count); // substring was in one piece
+        ClassicAssert.AreEqual(1, actual.Count); // substring was in one piece
 
-        Assert.AreEqual(3, richString.Count); // The text was split because of the substring
+        ClassicAssert.AreEqual(3, richString.Count); // The text was split because of the substring
 
-        Assert.AreEqual("ll", actual.First().Text);
+        ClassicAssert.AreEqual("ll", actual.First().Text);
 
-        Assert.AreEqual("He", richString.First().Text);
-        Assert.AreEqual("ll", richString.ElementAt(1).Text);
-        Assert.AreEqual("o", richString.Last().Text);
+        ClassicAssert.AreEqual("He", richString.First().Text);
+        ClassicAssert.AreEqual("ll", richString.ElementAt(1).Text);
+        ClassicAssert.AreEqual("o", richString.Last().Text);
 
         actual.First().SetBold();
 
-        Assert.AreEqual(false, ws.Cell(1, 1).GetRichText().First().Bold);
-        Assert.AreEqual(true, ws.Cell(1, 1).GetRichText().ElementAt(1).Bold);
-        Assert.AreEqual(false, ws.Cell(1, 1).GetRichText().Last().Bold);
+        ClassicAssert.AreEqual(false, ws.Cell(1, 1).GetRichText().First().Bold);
+        ClassicAssert.AreEqual(true, ws.Cell(1, 1).GetRichText().ElementAt(1).Bold);
+        ClassicAssert.AreEqual(false, ws.Cell(1, 1).GetRichText().Last().Bold);
 
         richString.Last().SetItalic();
 
-        Assert.AreEqual(false, ws.Cell(1, 1).GetRichText().First().Italic);
-        Assert.AreEqual(false, ws.Cell(1, 1).GetRichText().ElementAt(1).Italic);
-        Assert.AreEqual(true, ws.Cell(1, 1).GetRichText().Last().Italic);
+        ClassicAssert.AreEqual(false, ws.Cell(1, 1).GetRichText().First().Italic);
+        ClassicAssert.AreEqual(false, ws.Cell(1, 1).GetRichText().ElementAt(1).Italic);
+        ClassicAssert.AreEqual(true, ws.Cell(1, 1).GetRichText().Last().Italic);
 
-        Assert.AreEqual(false, actual.First().Italic);
+        ClassicAssert.AreEqual(false, actual.First().Italic);
 
         richString.SetFontSize(20);
 
-        Assert.AreEqual(20, ws.Cell(1, 1).GetRichText().First().FontSize);
-        Assert.AreEqual(20, ws.Cell(1, 1).GetRichText().ElementAt(1).FontSize);
-        Assert.AreEqual(20, ws.Cell(1, 1).GetRichText().Last().FontSize);
+        ClassicAssert.AreEqual(20, ws.Cell(1, 1).GetRichText().First().FontSize);
+        ClassicAssert.AreEqual(20, ws.Cell(1, 1).GetRichText().ElementAt(1).FontSize);
+        ClassicAssert.AreEqual(20, ws.Cell(1, 1).GetRichText().Last().FontSize);
 
-        Assert.AreEqual(20, actual.First().FontSize);
+        ClassicAssert.AreEqual(20, actual.First().FontSize);
     }
 
     [Test]
@@ -313,33 +311,33 @@ public class XlRichStringTests
 
         IXLFormattedText<IXLRichText> actual = richString.Substring(0, 2);
 
-        Assert.AreEqual(1, actual.Count); // substring was in one piece
+        ClassicAssert.AreEqual(1, actual.Count); // substring was in one piece
 
-        Assert.AreEqual(2, richString.Count); // The text was split because of the substring
+        ClassicAssert.AreEqual(2, richString.Count); // The text was split because of the substring
 
-        Assert.AreEqual("He", actual.First().Text);
+        ClassicAssert.AreEqual("He", actual.First().Text);
 
-        Assert.AreEqual("He", richString.First().Text);
-        Assert.AreEqual("llo", richString.Last().Text);
+        ClassicAssert.AreEqual("He", richString.First().Text);
+        ClassicAssert.AreEqual("llo", richString.Last().Text);
 
         actual.First().SetBold();
 
-        Assert.AreEqual(true, ws.Cell(1, 1).GetRichText().First().Bold);
-        Assert.AreEqual(false, ws.Cell(1, 1).GetRichText().Last().Bold);
+        ClassicAssert.AreEqual(true, ws.Cell(1, 1).GetRichText().First().Bold);
+        ClassicAssert.AreEqual(false, ws.Cell(1, 1).GetRichText().Last().Bold);
 
         richString.Last().SetItalic();
 
-        Assert.AreEqual(false, ws.Cell(1, 1).GetRichText().First().Italic);
-        Assert.AreEqual(true, ws.Cell(1, 1).GetRichText().Last().Italic);
+        ClassicAssert.AreEqual(false, ws.Cell(1, 1).GetRichText().First().Italic);
+        ClassicAssert.AreEqual(true, ws.Cell(1, 1).GetRichText().Last().Italic);
 
-        Assert.AreEqual(false, actual.First().Italic);
+        ClassicAssert.AreEqual(false, actual.First().Italic);
 
         richString.SetFontSize(20);
 
-        Assert.AreEqual(20, ws.Cell(1, 1).GetRichText().First().FontSize);
-        Assert.AreEqual(20, ws.Cell(1, 1).GetRichText().Last().FontSize);
+        ClassicAssert.AreEqual(20, ws.Cell(1, 1).GetRichText().First().FontSize);
+        ClassicAssert.AreEqual(20, ws.Cell(1, 1).GetRichText().Last().FontSize);
 
-        Assert.AreEqual(20, actual.First().FontSize);
+        ClassicAssert.AreEqual(20, actual.First().FontSize);
     }
 
     [Test]
@@ -354,41 +352,41 @@ public class XlRichStringTests
 
         IXLFormattedText<IXLRichText> actual = richString.Substring(21);
 
-        Assert.AreEqual(1, actual.Count); // substring was in one piece
+        ClassicAssert.AreEqual(1, actual.Count); // substring was in one piece
 
-        Assert.AreEqual(4, richString.Count); // The text was split because of the substring
+        ClassicAssert.AreEqual(4, richString.Count); // The text was split because of the substring
 
-        Assert.AreEqual("bors!", actual.First().Text);
+        ClassicAssert.AreEqual("bors!", actual.First().Text);
 
-        Assert.AreEqual("Good Morning", richString.ElementAt(0).Text);
-        Assert.AreEqual(" my ", richString.ElementAt(1).Text);
-        Assert.AreEqual("neigh", richString.ElementAt(2).Text);
-        Assert.AreEqual("bors!", richString.ElementAt(3).Text);
+        ClassicAssert.AreEqual("Good Morning", richString.ElementAt(0).Text);
+        ClassicAssert.AreEqual(" my ", richString.ElementAt(1).Text);
+        ClassicAssert.AreEqual("neigh", richString.ElementAt(2).Text);
+        ClassicAssert.AreEqual("bors!", richString.ElementAt(3).Text);
 
         actual.First().SetBold();
 
-        Assert.AreEqual(false, ws.Cell(1, 1).GetRichText().ElementAt(0).Bold);
-        Assert.AreEqual(false, ws.Cell(1, 1).GetRichText().ElementAt(1).Bold);
-        Assert.AreEqual(false, ws.Cell(1, 1).GetRichText().ElementAt(2).Bold);
-        Assert.AreEqual(true, ws.Cell(1, 1).GetRichText().ElementAt(3).Bold);
+        ClassicAssert.AreEqual(false, ws.Cell(1, 1).GetRichText().ElementAt(0).Bold);
+        ClassicAssert.AreEqual(false, ws.Cell(1, 1).GetRichText().ElementAt(1).Bold);
+        ClassicAssert.AreEqual(false, ws.Cell(1, 1).GetRichText().ElementAt(2).Bold);
+        ClassicAssert.AreEqual(true, ws.Cell(1, 1).GetRichText().ElementAt(3).Bold);
 
         richString.Last().SetItalic();
 
-        Assert.AreEqual(false, ws.Cell(1, 1).GetRichText().ElementAt(0).Italic);
-        Assert.AreEqual(false, ws.Cell(1, 1).GetRichText().ElementAt(1).Italic);
-        Assert.AreEqual(false, ws.Cell(1, 1).GetRichText().ElementAt(2).Italic);
-        Assert.AreEqual(true, ws.Cell(1, 1).GetRichText().ElementAt(3).Italic);
+        ClassicAssert.AreEqual(false, ws.Cell(1, 1).GetRichText().ElementAt(0).Italic);
+        ClassicAssert.AreEqual(false, ws.Cell(1, 1).GetRichText().ElementAt(1).Italic);
+        ClassicAssert.AreEqual(false, ws.Cell(1, 1).GetRichText().ElementAt(2).Italic);
+        ClassicAssert.AreEqual(true, ws.Cell(1, 1).GetRichText().ElementAt(3).Italic);
 
-        Assert.AreEqual(true, actual.First().Italic);
+        ClassicAssert.AreEqual(true, actual.First().Italic);
 
         richString.SetFontSize(20);
 
-        Assert.AreEqual(20, ws.Cell(1, 1).GetRichText().ElementAt(0).FontSize);
-        Assert.AreEqual(20, ws.Cell(1, 1).GetRichText().ElementAt(1).FontSize);
-        Assert.AreEqual(20, ws.Cell(1, 1).GetRichText().ElementAt(2).FontSize);
-        Assert.AreEqual(20, ws.Cell(1, 1).GetRichText().ElementAt(3).FontSize);
+        ClassicAssert.AreEqual(20, ws.Cell(1, 1).GetRichText().ElementAt(0).FontSize);
+        ClassicAssert.AreEqual(20, ws.Cell(1, 1).GetRichText().ElementAt(1).FontSize);
+        ClassicAssert.AreEqual(20, ws.Cell(1, 1).GetRichText().ElementAt(2).FontSize);
+        ClassicAssert.AreEqual(20, ws.Cell(1, 1).GetRichText().ElementAt(3).FontSize);
 
-        Assert.AreEqual(20, actual.First().FontSize);
+        ClassicAssert.AreEqual(20, actual.First().FontSize);
     }
 
     [Test]
@@ -403,44 +401,44 @@ public class XlRichStringTests
 
         IXLFormattedText<IXLRichText> actual = richString.Substring(13);
 
-        Assert.AreEqual(2, actual.Count);
+        ClassicAssert.AreEqual(2, actual.Count);
 
-        Assert.AreEqual(4, richString.Count); // The text was split because of the substring
+        ClassicAssert.AreEqual(4, richString.Count); // The text was split because of the substring
 
-        Assert.AreEqual("my ", actual.ElementAt(0).Text);
-        Assert.AreEqual("neighbors!", actual.ElementAt(1).Text);
+        ClassicAssert.AreEqual("my ", actual.ElementAt(0).Text);
+        ClassicAssert.AreEqual("neighbors!", actual.ElementAt(1).Text);
 
-        Assert.AreEqual("Good Morning", richString.ElementAt(0).Text);
-        Assert.AreEqual(" ", richString.ElementAt(1).Text);
-        Assert.AreEqual("my ", richString.ElementAt(2).Text);
-        Assert.AreEqual("neighbors!", richString.ElementAt(3).Text);
+        ClassicAssert.AreEqual("Good Morning", richString.ElementAt(0).Text);
+        ClassicAssert.AreEqual(" ", richString.ElementAt(1).Text);
+        ClassicAssert.AreEqual("my ", richString.ElementAt(2).Text);
+        ClassicAssert.AreEqual("neighbors!", richString.ElementAt(3).Text);
 
         actual.ElementAt(1).SetBold();
 
-        Assert.AreEqual(false, ws.Cell(1, 1).GetRichText().ElementAt(0).Bold);
-        Assert.AreEqual(false, ws.Cell(1, 1).GetRichText().ElementAt(1).Bold);
-        Assert.AreEqual(false, ws.Cell(1, 1).GetRichText().ElementAt(2).Bold);
-        Assert.AreEqual(true, ws.Cell(1, 1).GetRichText().ElementAt(3).Bold);
+        ClassicAssert.AreEqual(false, ws.Cell(1, 1).GetRichText().ElementAt(0).Bold);
+        ClassicAssert.AreEqual(false, ws.Cell(1, 1).GetRichText().ElementAt(1).Bold);
+        ClassicAssert.AreEqual(false, ws.Cell(1, 1).GetRichText().ElementAt(2).Bold);
+        ClassicAssert.AreEqual(true, ws.Cell(1, 1).GetRichText().ElementAt(3).Bold);
 
         richString.Last().SetItalic();
 
-        Assert.AreEqual(false, ws.Cell(1, 1).GetRichText().ElementAt(0).Italic);
-        Assert.AreEqual(false, ws.Cell(1, 1).GetRichText().ElementAt(1).Italic);
-        Assert.AreEqual(false, ws.Cell(1, 1).GetRichText().ElementAt(2).Italic);
-        Assert.AreEqual(true, ws.Cell(1, 1).GetRichText().ElementAt(3).Italic);
+        ClassicAssert.AreEqual(false, ws.Cell(1, 1).GetRichText().ElementAt(0).Italic);
+        ClassicAssert.AreEqual(false, ws.Cell(1, 1).GetRichText().ElementAt(1).Italic);
+        ClassicAssert.AreEqual(false, ws.Cell(1, 1).GetRichText().ElementAt(2).Italic);
+        ClassicAssert.AreEqual(true, ws.Cell(1, 1).GetRichText().ElementAt(3).Italic);
 
-        Assert.AreEqual(false, actual.ElementAt(0).Italic);
-        Assert.AreEqual(true, actual.ElementAt(1).Italic);
+        ClassicAssert.AreEqual(false, actual.ElementAt(0).Italic);
+        ClassicAssert.AreEqual(true, actual.ElementAt(1).Italic);
 
         richString.SetFontSize(20);
 
-        Assert.AreEqual(20, ws.Cell(1, 1).GetRichText().ElementAt(0).FontSize);
-        Assert.AreEqual(20, ws.Cell(1, 1).GetRichText().ElementAt(1).FontSize);
-        Assert.AreEqual(20, ws.Cell(1, 1).GetRichText().ElementAt(2).FontSize);
-        Assert.AreEqual(20, ws.Cell(1, 1).GetRichText().ElementAt(3).FontSize);
+        ClassicAssert.AreEqual(20, ws.Cell(1, 1).GetRichText().ElementAt(0).FontSize);
+        ClassicAssert.AreEqual(20, ws.Cell(1, 1).GetRichText().ElementAt(1).FontSize);
+        ClassicAssert.AreEqual(20, ws.Cell(1, 1).GetRichText().ElementAt(2).FontSize);
+        ClassicAssert.AreEqual(20, ws.Cell(1, 1).GetRichText().ElementAt(3).FontSize);
 
-        Assert.AreEqual(20, actual.ElementAt(0).FontSize);
-        Assert.AreEqual(20, actual.ElementAt(1).FontSize);
+        ClassicAssert.AreEqual(20, actual.ElementAt(0).FontSize);
+        ClassicAssert.AreEqual(20, actual.ElementAt(1).FontSize);
     }
 
     [Test]
@@ -455,18 +453,18 @@ public class XlRichStringTests
 
         IXLFormattedText<IXLRichText> actual = richString.Substring(5, 10);
 
-        Assert.AreEqual(2, actual.Count);
+        ClassicAssert.AreEqual(2, actual.Count);
 
-        Assert.AreEqual(5, richString.Count); // The text was split because of the substring
+        ClassicAssert.AreEqual(5, richString.Count); // The text was split because of the substring
 
-        Assert.AreEqual("Morning", actual.ElementAt(0).Text);
-        Assert.AreEqual(" my", actual.ElementAt(1).Text);
+        ClassicAssert.AreEqual("Morning", actual.ElementAt(0).Text);
+        ClassicAssert.AreEqual(" my", actual.ElementAt(1).Text);
 
-        Assert.AreEqual("Good ", richString.ElementAt(0).Text);
-        Assert.AreEqual("Morning", richString.ElementAt(1).Text);
-        Assert.AreEqual(" my", richString.ElementAt(2).Text);
-        Assert.AreEqual(" ", richString.ElementAt(3).Text);
-        Assert.AreEqual("neighbors!", richString.ElementAt(4).Text);
+        ClassicAssert.AreEqual("Good ", richString.ElementAt(0).Text);
+        ClassicAssert.AreEqual("Morning", richString.ElementAt(1).Text);
+        ClassicAssert.AreEqual(" my", richString.ElementAt(2).Text);
+        ClassicAssert.AreEqual(" ", richString.ElementAt(3).Text);
+        ClassicAssert.AreEqual("neighbors!", richString.ElementAt(4).Text);
     }
 
     [Test]
@@ -481,19 +479,19 @@ public class XlRichStringTests
 
         IXLFormattedText<IXLRichText> actual = richString.Substring(5, 15);
 
-        Assert.AreEqual(3, actual.Count);
+        ClassicAssert.AreEqual(3, actual.Count);
 
-        Assert.AreEqual(5, richString.Count); // The text was split because of the substring
+        ClassicAssert.AreEqual(5, richString.Count); // The text was split because of the substring
 
-        Assert.AreEqual("Morning", actual.ElementAt(0).Text);
-        Assert.AreEqual(" my ", actual.ElementAt(1).Text);
-        Assert.AreEqual("neig", actual.ElementAt(2).Text);
+        ClassicAssert.AreEqual("Morning", actual.ElementAt(0).Text);
+        ClassicAssert.AreEqual(" my ", actual.ElementAt(1).Text);
+        ClassicAssert.AreEqual("neig", actual.ElementAt(2).Text);
 
-        Assert.AreEqual("Good ", richString.ElementAt(0).Text);
-        Assert.AreEqual("Morning", richString.ElementAt(1).Text);
-        Assert.AreEqual(" my ", richString.ElementAt(2).Text);
-        Assert.AreEqual("neig", richString.ElementAt(3).Text);
-        Assert.AreEqual("hbors!", richString.ElementAt(4).Text);
+        ClassicAssert.AreEqual("Good ", richString.ElementAt(0).Text);
+        ClassicAssert.AreEqual("Morning", richString.ElementAt(1).Text);
+        ClassicAssert.AreEqual(" my ", richString.ElementAt(2).Text);
+        ClassicAssert.AreEqual("neig", richString.ElementAt(3).Text);
+        ClassicAssert.AreEqual("hbors!", richString.ElementAt(4).Text);
     }
 
     [Test]
@@ -508,41 +506,41 @@ public class XlRichStringTests
 
         IXLFormattedText<IXLRichText> actual = richString.Substring(0, 4);
 
-        Assert.AreEqual(1, actual.Count); // substring was in one piece
+        ClassicAssert.AreEqual(1, actual.Count); // substring was in one piece
 
-        Assert.AreEqual(4, richString.Count); // The text was split because of the substring
+        ClassicAssert.AreEqual(4, richString.Count); // The text was split because of the substring
 
-        Assert.AreEqual("Good", actual.First().Text);
+        ClassicAssert.AreEqual("Good", actual.First().Text);
 
-        Assert.AreEqual("Good", richString.ElementAt(0).Text);
-        Assert.AreEqual(" Morning", richString.ElementAt(1).Text);
-        Assert.AreEqual(" my ", richString.ElementAt(2).Text);
-        Assert.AreEqual("neighbors!", richString.ElementAt(3).Text);
+        ClassicAssert.AreEqual("Good", richString.ElementAt(0).Text);
+        ClassicAssert.AreEqual(" Morning", richString.ElementAt(1).Text);
+        ClassicAssert.AreEqual(" my ", richString.ElementAt(2).Text);
+        ClassicAssert.AreEqual("neighbors!", richString.ElementAt(3).Text);
 
         actual.First().SetBold();
 
-        Assert.AreEqual(true, ws.Cell(1, 1).GetRichText().ElementAt(0).Bold);
-        Assert.AreEqual(false, ws.Cell(1, 1).GetRichText().ElementAt(1).Bold);
-        Assert.AreEqual(false, ws.Cell(1, 1).GetRichText().ElementAt(2).Bold);
-        Assert.AreEqual(false, ws.Cell(1, 1).GetRichText().ElementAt(3).Bold);
+        ClassicAssert.AreEqual(true, ws.Cell(1, 1).GetRichText().ElementAt(0).Bold);
+        ClassicAssert.AreEqual(false, ws.Cell(1, 1).GetRichText().ElementAt(1).Bold);
+        ClassicAssert.AreEqual(false, ws.Cell(1, 1).GetRichText().ElementAt(2).Bold);
+        ClassicAssert.AreEqual(false, ws.Cell(1, 1).GetRichText().ElementAt(3).Bold);
 
         richString.First().SetItalic();
 
-        Assert.AreEqual(true, ws.Cell(1, 1).GetRichText().ElementAt(0).Italic);
-        Assert.AreEqual(false, ws.Cell(1, 1).GetRichText().ElementAt(1).Italic);
-        Assert.AreEqual(false, ws.Cell(1, 1).GetRichText().ElementAt(2).Italic);
-        Assert.AreEqual(false, ws.Cell(1, 1).GetRichText().ElementAt(3).Italic);
+        ClassicAssert.AreEqual(true, ws.Cell(1, 1).GetRichText().ElementAt(0).Italic);
+        ClassicAssert.AreEqual(false, ws.Cell(1, 1).GetRichText().ElementAt(1).Italic);
+        ClassicAssert.AreEqual(false, ws.Cell(1, 1).GetRichText().ElementAt(2).Italic);
+        ClassicAssert.AreEqual(false, ws.Cell(1, 1).GetRichText().ElementAt(3).Italic);
 
-        Assert.AreEqual(true, actual.First().Italic);
+        ClassicAssert.AreEqual(true, actual.First().Italic);
 
         richString.SetFontSize(20);
 
-        Assert.AreEqual(20, ws.Cell(1, 1).GetRichText().ElementAt(0).FontSize);
-        Assert.AreEqual(20, ws.Cell(1, 1).GetRichText().ElementAt(1).FontSize);
-        Assert.AreEqual(20, ws.Cell(1, 1).GetRichText().ElementAt(2).FontSize);
-        Assert.AreEqual(20, ws.Cell(1, 1).GetRichText().ElementAt(3).FontSize);
+        ClassicAssert.AreEqual(20, ws.Cell(1, 1).GetRichText().ElementAt(0).FontSize);
+        ClassicAssert.AreEqual(20, ws.Cell(1, 1).GetRichText().ElementAt(1).FontSize);
+        ClassicAssert.AreEqual(20, ws.Cell(1, 1).GetRichText().ElementAt(2).FontSize);
+        ClassicAssert.AreEqual(20, ws.Cell(1, 1).GetRichText().ElementAt(3).FontSize);
 
-        Assert.AreEqual(20, actual.First().FontSize);
+        ClassicAssert.AreEqual(20, actual.First().FontSize);
     }
 
     [Test]
@@ -557,44 +555,44 @@ public class XlRichStringTests
 
         IXLFormattedText<IXLRichText> actual = richString.Substring(0, 15);
 
-        Assert.AreEqual(2, actual.Count);
+        ClassicAssert.AreEqual(2, actual.Count);
 
-        Assert.AreEqual(4, richString.Count); // The text was split because of the substring
+        ClassicAssert.AreEqual(4, richString.Count); // The text was split because of the substring
 
-        Assert.AreEqual("Good Morning", actual.ElementAt(0).Text);
-        Assert.AreEqual(" my", actual.ElementAt(1).Text);
+        ClassicAssert.AreEqual("Good Morning", actual.ElementAt(0).Text);
+        ClassicAssert.AreEqual(" my", actual.ElementAt(1).Text);
 
-        Assert.AreEqual("Good Morning", richString.ElementAt(0).Text);
-        Assert.AreEqual(" my", richString.ElementAt(1).Text);
-        Assert.AreEqual(" ", richString.ElementAt(2).Text);
-        Assert.AreEqual("neighbors!", richString.ElementAt(3).Text);
+        ClassicAssert.AreEqual("Good Morning", richString.ElementAt(0).Text);
+        ClassicAssert.AreEqual(" my", richString.ElementAt(1).Text);
+        ClassicAssert.AreEqual(" ", richString.ElementAt(2).Text);
+        ClassicAssert.AreEqual("neighbors!", richString.ElementAt(3).Text);
 
         actual.ElementAt(1).SetBold();
 
-        Assert.AreEqual(false, ws.Cell(1, 1).GetRichText().ElementAt(0).Bold);
-        Assert.AreEqual(true, ws.Cell(1, 1).GetRichText().ElementAt(1).Bold);
-        Assert.AreEqual(false, ws.Cell(1, 1).GetRichText().ElementAt(2).Bold);
-        Assert.AreEqual(false, ws.Cell(1, 1).GetRichText().ElementAt(3).Bold);
+        ClassicAssert.AreEqual(false, ws.Cell(1, 1).GetRichText().ElementAt(0).Bold);
+        ClassicAssert.AreEqual(true, ws.Cell(1, 1).GetRichText().ElementAt(1).Bold);
+        ClassicAssert.AreEqual(false, ws.Cell(1, 1).GetRichText().ElementAt(2).Bold);
+        ClassicAssert.AreEqual(false, ws.Cell(1, 1).GetRichText().ElementAt(3).Bold);
 
         richString.First().SetItalic();
 
-        Assert.AreEqual(true, ws.Cell(1, 1).GetRichText().ElementAt(0).Italic);
-        Assert.AreEqual(false, ws.Cell(1, 1).GetRichText().ElementAt(1).Italic);
-        Assert.AreEqual(false, ws.Cell(1, 1).GetRichText().ElementAt(2).Italic);
-        Assert.AreEqual(false, ws.Cell(1, 1).GetRichText().ElementAt(3).Italic);
+        ClassicAssert.AreEqual(true, ws.Cell(1, 1).GetRichText().ElementAt(0).Italic);
+        ClassicAssert.AreEqual(false, ws.Cell(1, 1).GetRichText().ElementAt(1).Italic);
+        ClassicAssert.AreEqual(false, ws.Cell(1, 1).GetRichText().ElementAt(2).Italic);
+        ClassicAssert.AreEqual(false, ws.Cell(1, 1).GetRichText().ElementAt(3).Italic);
 
-        Assert.AreEqual(true, actual.ElementAt(0).Italic);
-        Assert.AreEqual(false, actual.ElementAt(1).Italic);
+        ClassicAssert.AreEqual(true, actual.ElementAt(0).Italic);
+        ClassicAssert.AreEqual(false, actual.ElementAt(1).Italic);
 
         richString.SetFontSize(20);
 
-        Assert.AreEqual(20, ws.Cell(1, 1).GetRichText().ElementAt(0).FontSize);
-        Assert.AreEqual(20, ws.Cell(1, 1).GetRichText().ElementAt(1).FontSize);
-        Assert.AreEqual(20, ws.Cell(1, 1).GetRichText().ElementAt(2).FontSize);
-        Assert.AreEqual(20, ws.Cell(1, 1).GetRichText().ElementAt(3).FontSize);
+        ClassicAssert.AreEqual(20, ws.Cell(1, 1).GetRichText().ElementAt(0).FontSize);
+        ClassicAssert.AreEqual(20, ws.Cell(1, 1).GetRichText().ElementAt(1).FontSize);
+        ClassicAssert.AreEqual(20, ws.Cell(1, 1).GetRichText().ElementAt(2).FontSize);
+        ClassicAssert.AreEqual(20, ws.Cell(1, 1).GetRichText().ElementAt(3).FontSize);
 
-        Assert.AreEqual(20, actual.ElementAt(0).FontSize);
-        Assert.AreEqual(20, actual.ElementAt(1).FontSize);
+        ClassicAssert.AreEqual(20, actual.ElementAt(0).FontSize);
+        ClassicAssert.AreEqual(20, actual.ElementAt(1).FontSize);
     }
 
     [Test]
@@ -605,7 +603,7 @@ public class XlRichStringTests
 
         richString.AddText("Hello");
 
-        Assert.That(() => richString.Substring(50), Throws.TypeOf<IndexOutOfRangeException>());
+        ClassicAssert.Throws<IndexOutOfRangeException>(() => richString.Substring(50));
     }
 
     [Test]
@@ -617,7 +615,7 @@ public class XlRichStringTests
         richString.AddText("Hello");
         richString.AddText("World");
 
-        Assert.That(() => richString.Substring(50), Throws.TypeOf<IndexOutOfRangeException>());
+        ClassicAssert.Throws<IndexOutOfRangeException>(() => richString.Substring(50));
     }
 
     [Test]
@@ -628,7 +626,7 @@ public class XlRichStringTests
 
         richString.AddText("Hello");
 
-        Assert.That(() => richString.Substring(1, 10), Throws.TypeOf<IndexOutOfRangeException>());
+        ClassicAssert.Throws<IndexOutOfRangeException>(() => richString.Substring(1, 10));
     }
 
     [Test]
@@ -640,7 +638,7 @@ public class XlRichStringTests
         richString.AddText("Hello");
         richString.AddText("World");
 
-        Assert.That(() => richString.Substring(5, 20), Throws.TypeOf<IndexOutOfRangeException>());
+        ClassicAssert.Throws<IndexOutOfRangeException>(() => richString.Substring(5, 20));
     }
 
     [Test]
@@ -661,10 +659,10 @@ public class XlRichStringTests
         IXLRichText otherRichText = otherCell.GetRichText();
         otherRichText.CopyFrom(original);
 
-        Assert.AreEqual("HelloWorld", otherCell.Value);
-        Assert.AreEqual(2, otherRichText.Count);
-        Assert.AreEqual(XLColor.Red, otherRichText.First().FontColor);
-        Assert.AreEqual(XLColor.Blue, otherRichText.Last().FontColor);
+        ClassicAssert.AreEqual("HelloWorld", otherCell.Value);
+        ClassicAssert.AreEqual(2, otherRichText.Count);
+        ClassicAssert.AreEqual(XLColor.Red, otherRichText.First().FontColor);
+        ClassicAssert.AreEqual(XLColor.Blue, otherRichText.Last().FontColor);
     }
 
     /// <summary>
@@ -681,20 +679,21 @@ public class XlRichStringTests
         richString.AddText("World");
         string expected = "Hello World";
         string actual = richString.ToString();
-        Assert.AreEqual(expected, actual);
+        ClassicAssert.AreEqual(expected, actual);
 
         richString.AddText("!");
         expected = "Hello World!";
         actual = richString.ToString();
-        Assert.AreEqual(expected, actual);
+        ClassicAssert.AreEqual(expected, actual);
 
         richString.ClearText();
         expected = string.Empty;
         actual = richString.ToString();
-        Assert.AreEqual(expected, actual);
+        ClassicAssert.AreEqual(expected, actual);
     }
 
-    [Test(Description = "See #1361")]
+    [Test]
+    [Property("Description", "See #1361")]
     public void CanClearInlinedRichText()
     {
         using (MemoryStream outputStream = new())
@@ -714,7 +713,7 @@ public class XlRichStringTests
 
             using (XLWorkbook wb = new(outputStream))
             {
-                Assert.AreEqual("", wb.Worksheets.First().Cell("A1").Value);
+                ClassicAssert.AreEqual("", wb.Worksheets.First().Cell("A1").Value);
             }
         }
     }
@@ -724,10 +723,10 @@ public class XlRichStringTests
     {
         static void AssertRichText(IXLRichText richText)
         {
-            Assert.IsNotNull(richText);
-            Assert.IsTrue(richText.Any());
-            Assert.AreEqual("3", richText.ElementAt(2).Text);
-            Assert.AreEqual(XLColor.Red, richText.ElementAt(2).FontColor);
+            ClassicAssert.IsNotNull(richText);
+            ClassicAssert.IsTrue(richText.Any());
+            ClassicAssert.AreEqual("3", richText.ElementAt(2).Text);
+            ClassicAssert.AreEqual(XLColor.Red, richText.ElementAt(2).FontColor);
         }
 
         using (MemoryStream outputStream = new())
@@ -750,10 +749,10 @@ public class XlRichStringTests
             using (XLWorkbook wb = new(outputStream))
             {
                 IXLCell cell = wb.Worksheets.First().Cell("A1");
-                Assert.IsFalse(cell.ShareString);
-                Assert.IsTrue(cell.HasRichText);
+                ClassicAssert.IsFalse(cell.ShareString);
+                ClassicAssert.IsTrue(cell.HasRichText);
                 IXLRichText rt = cell.GetRichText();
-                Assert.AreEqual("Year (range: 3 yrs) - changed", rt.ToString());
+                ClassicAssert.AreEqual("Year (range: 3 yrs) - changed", rt.ToString());
                 AssertRichText(rt);
             }
         }
@@ -807,20 +806,20 @@ public class XlRichStringTests
         IXLCell cell = ws.Cell(1, 1);
         IXLRichText richText = cell.GetRichText();
 
-        Assert.AreEqual(cell.Value, richText.Text);
+        ClassicAssert.AreEqual(cell.Value, richText.Text);
 
         richText.AddText("Hello");
-        Assert.AreEqual(cell.Value, "Hello");
+        ClassicAssert.AreEqual(cell.Value, "Hello");
 
         IXLRichString world = richText.AddText(" World");
-        Assert.AreEqual(cell.Value, "Hello World");
+        ClassicAssert.AreEqual(cell.Value, "Hello World");
 
         world.Text = " World!";
-        Assert.AreEqual(cell.Value, "Hello World!");
-        Assert.AreEqual(cell.GetRichText().Text, "Hello World!");
+        ClassicAssert.AreEqual(cell.Value, "Hello World!");
+        ClassicAssert.AreEqual(cell.GetRichText().Text, "Hello World!");
 
         richText.ClearText();
-        Assert.AreEqual(cell.Value, string.Empty);
+        ClassicAssert.AreEqual(cell.Value, string.Empty);
     }
 
     [Test]
@@ -832,7 +831,7 @@ public class XlRichStringTests
         IXLRichText richText = cell.GetRichText();
         cell.Value = 4;
 
-        Assert.Throws<InvalidOperationException>(
+        ClassicAssert.Throws<InvalidOperationException>(
             () => richText.AddText("Hello"),
             "The rich text isn't a content of a cell."
         );
@@ -856,8 +855,8 @@ public class XlRichStringTests
             {
                 IXLWorksheet ws = wb.Worksheets.First();
                 IXLRichText richText = ws.Cell(1, 1).GetRichText();
-                Assert.AreEqual(textWithSpaces, richText.First().Text);
-                Assert.AreEqual(phoneticsWithSpace, richText.Phonetics.First().Text);
+                ClassicAssert.AreEqual(textWithSpaces, richText.First().Text);
+                ClassicAssert.AreEqual(phoneticsWithSpace, richText.Phonetics.First().Text);
             }
         );
     }

@@ -1,9 +1,7 @@
-using NUnit.Framework;
 using XlsxSharp.Examples.Styles;
 
 namespace XlsxSharp.Tests.Examples;
 
-[TestFixture]
 public class StylesTests
 {
     [Test]

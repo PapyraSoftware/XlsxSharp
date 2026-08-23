@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.DataValidation;
 using XlsxSharp.Tests.Utils;
@@ -22,18 +21,18 @@ public class XlDataValidationsTests
 
             IXLDataValidation dv2 = ws2.DataValidations.Add(dv1);
 
-            Assert.AreEqual(1, ws1.DataValidations.Count());
-            Assert.AreEqual(1, ws2.DataValidations.Count());
+            ClassicAssert.AreEqual(1, ws1.DataValidations.Count());
+            ClassicAssert.AreEqual(1, ws2.DataValidations.Count());
 
-            Assert.AreNotSame(dv1, dv2);
+            ClassicAssert.AreNotSame(dv1, dv2);
 
-            Assert.AreSame(ws1, dv1.Ranges.Single().Worksheet);
-            Assert.AreSame(ws2, dv2.Ranges.Single().Worksheet);
+            ClassicAssert.AreSame(ws1, dv1.Ranges.Single().Worksheet);
+            ClassicAssert.AreSame(ws2, dv2.Ranges.Single().Worksheet);
         }
     }
 
     [Test]
-    [Description("Ensure one-dv-per-cell invariant")]
+    [Property("Description", "Ensure one-dv-per-cell invariant")]
     public void AddRangeReplacesIntersectingAreasOfValidation()
     {
         using XLWorkbook wb = new();
@@ -43,8 +42,8 @@ public class XlDataValidationsTests
 
         dv.AddRange(ws.Range("B1:D4"));
 
-        Assert.AreEqual("A1:A3 B1:D4", ToSpaceList(dv.Ranges));
-        Assert.AreEqual("10", dv.MinValue);
+        ClassicAssert.AreEqual("A1:A3 B1:D4", ToSpaceList(dv.Ranges));
+        ClassicAssert.AreEqual("10", dv.MinValue);
     }
 
     [Test]
@@ -57,12 +56,12 @@ public class XlDataValidationsTests
 
         dv.AddRange(ws.Range("A1:D4"));
 
-        Assert.AreEqual("A1:D4", ToSpaceList(dv.Ranges));
-        Assert.AreEqual("10", dv.MinValue);
+        ClassicAssert.AreEqual("A1:D4", ToSpaceList(dv.Ranges));
+        ClassicAssert.AreEqual("10", dv.MinValue);
     }
 
     [Test]
-    [Description("Ensure one-dv-per-cell invariant")]
+    [Property("Description", "Ensure one-dv-per-cell invariant")]
     public void AddRangeReplacesAreaOfOtherValidations()
     {
         // Arrange
@@ -79,8 +78,8 @@ public class XlDataValidationsTests
         dv1.AddRange(ws.Range("B1:D3"));
 
         // Assert
-        Assert.AreEqual("A1:A3 B1:D3", ToSpaceList(dv1.Ranges));
-        Assert.AreEqual("B4:D4", ToSpaceList(dv2.Ranges));
+        ClassicAssert.AreEqual("A1:A3 B1:D3", ToSpaceList(dv1.Ranges));
+        ClassicAssert.AreEqual("B4:D4", ToSpaceList(dv2.Ranges));
     }
 
     [Test]
@@ -100,21 +99,22 @@ public class XlDataValidationsTests
         dv1.AddRange(ws.Range("B1:B3"));
 
         // Assert
-        Assert.AreEqual(1, ws.DataValidations.Count());
+        ClassicAssert.AreEqual(1, ws.DataValidations.Count());
 
-        Assert.IsTrue(ws.DataValidations.Contains(dv1));
-        Assert.AreEqual("A1:A3 B1:B3", ToSpaceList(dv1.Ranges));
+        ClassicAssert.IsTrue(ws.DataValidations.Contains(dv1));
+        ClassicAssert.AreEqual("A1:A3 B1:B3", ToSpaceList(dv1.Ranges));
 
-        Assert.IsFalse(ws.DataValidations.Contains(dv2));
-        Assert.IsEmpty(ToSpaceList(dv2.Ranges));
+        ClassicAssert.IsFalse(ws.DataValidations.Contains(dv2));
+        ClassicAssert.IsEmpty(ToSpaceList(dv2.Ranges));
     }
 
-    [TestCase("A1:A1", true)]
-    [TestCase("A1:A3", true)]
-    [TestCase("A1:A4", false)]
-    [TestCase("C2:C2", true)]
-    [TestCase("C1:C3", true)]
-    [TestCase("A1:C3", false)]
+    [Test]
+    [Arguments("A1:A1", true)]
+    [Arguments("A1:A3", true)]
+    [Arguments("A1:A4", false)]
+    [Arguments("C2:C2", true)]
+    [Arguments("C1:C3", true)]
+    [Arguments("A1:C3", false)]
     public void CanFindDataValidationForRange(string searchAddress, bool expectedResult)
     {
         using (XLWorkbook wb = new())
@@ -127,25 +127,26 @@ public class XlDataValidationsTests
             XLRangeAddress address = new(ws as XLWorksheet, searchAddress);
 
             bool actualResult = ws.DataValidations.TryGet(address, out IXLDataValidation? foundDv);
-            Assert.AreEqual(expectedResult, actualResult);
+            ClassicAssert.AreEqual(expectedResult, actualResult);
             if (expectedResult)
             {
-                Assert.AreSame(dv, foundDv);
+                ClassicAssert.AreSame(dv, foundDv);
             }
             else
             {
-                Assert.IsNull(foundDv);
+                ClassicAssert.IsNull(foundDv);
             }
         }
     }
 
-    [TestCase("A1:A1", 1)]
-    [TestCase("A1:A3", 1)]
-    [TestCase("B1:B4", 0)]
-    [TestCase("A1:C3", 1)]
-    [TestCase("C2:C3", 1)]
-    [TestCase("C2:G6", 2)]
-    [TestCase("E2:E3", 0)]
+    [Test]
+    [Arguments("A1:A1", 1)]
+    [Arguments("A1:A3", 1)]
+    [Arguments("B1:B4", 0)]
+    [Arguments("A1:C3", 1)]
+    [Arguments("C2:C3", 1)]
+    [Arguments("C2:G6", 2)]
+    [Arguments("E2:E3", 0)]
     public void CanGetAllDataValidationsForRange(string searchAddress, int expectedCount)
     {
         using (XLWorkbook wb = new())
@@ -162,7 +163,7 @@ public class XlDataValidationsTests
 
             IEnumerable<IXLDataValidation> actualResult = ws.DataValidations.GetAllInRange(address);
 
-            Assert.AreEqual(expectedCount, actualResult.Count());
+            ClassicAssert.AreEqual(expectedCount, actualResult.Count());
         }
     }
 
@@ -178,8 +179,8 @@ public class XlDataValidationsTests
             IXLDataValidation dv2 = ws.Range("E4:G6").CreateDataValidation();
             dv2.MinValue = "100";
 
-            Assert.AreEqual(4, dv1.Ranges.Count());
-            Assert.AreEqual("B2:G3 B4:D6 B7:G7 C11:C13", dv1.Ranges.ToSpaceList());
+            ClassicAssert.AreEqual(4, dv1.Ranges.Count());
+            ClassicAssert.AreEqual("B2:G3 B4:D6 B7:G7 C11:C13", dv1.Ranges.ToSpaceList());
         }
     }
 
@@ -200,8 +201,8 @@ public class XlDataValidationsTests
                 range.RangeAddress,
                 out IXLDataValidation? foundDv
             );
-            Assert.IsFalse(actualResult);
-            Assert.IsNull(foundDv);
+            ClassicAssert.IsFalse(actualResult);
+            ClassicAssert.IsNull(foundDv);
         }
     }
 
@@ -221,9 +222,9 @@ public class XlDataValidationsTests
             dv2.AddRange(ws.Range("D1:D3"));
 
             IXLDataValidation consolidatedDv = ws.DataValidations.Single();
-            Assert.AreSame(dv1, consolidatedDv);
-            Assert.True(ws.Cell("C1").HasDataValidation);
-            Assert.False(ws.Cell("D1").HasDataValidation);
+            ClassicAssert.AreSame(dv1, consolidatedDv);
+            ClassicAssert.True(ws.Cell("C1").HasDataValidation);
+            ClassicAssert.False(ws.Cell("D1").HasDataValidation);
         }
     }
 

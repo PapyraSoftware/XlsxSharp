@@ -1,4 +1,3 @@
-﻿using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.CalcEngine;
 
@@ -7,7 +6,6 @@ namespace XlsxSharp.Tests.Excel.CalcEngine;
 /// <summary>
 /// Tests that calc engine adjusts its internal state in response to changes of workbook structure.
 /// </summary>
-[TestFixture]
 internal class CalcEngineListenerTests
 {
     [Test]
@@ -16,17 +14,17 @@ internal class CalcEngineListenerTests
         using XLWorkbook wb = new();
         IXLWorksheet sutWs = wb.AddWorksheet();
         sutWs.Cell("A1").FormulaA1 = "new!A1";
-        Assert.AreEqual(XLError.CellReference, sutWs.Cell("A1").Value);
+        ClassicAssert.AreEqual(XLError.CellReference, sutWs.Cell("A1").Value);
 
         IXLWorksheet newWs = wb.AddWorksheet("new");
         newWs.Cell("A1").Value = 5;
 
         // Cell contains last calculated value
-        Assert.AreEqual(XLError.CellReference, sutWs.Cell("A1").CachedValue);
+        ClassicAssert.AreEqual(XLError.CellReference, sutWs.Cell("A1").CachedValue);
 
         // But once asked for real value, it calculates it.
-        Assert.True(sutWs.Cell("A1").NeedsRecalculation);
-        Assert.AreEqual(5.0, sutWs.Cell("A1").Value);
+        ClassicAssert.True(sutWs.Cell("A1").NeedsRecalculation);
+        ClassicAssert.AreEqual(5.0, sutWs.Cell("A1").Value);
     }
 
     [Test]
@@ -38,16 +36,16 @@ internal class CalcEngineListenerTests
 
         deletedWs.Cell("A1").Value = 5;
         keptWs.Cell("A1").FormulaA1 = "deleted!A1";
-        Assert.AreEqual(5.0, keptWs.Cell("A1").Value);
+        ClassicAssert.AreEqual(5.0, keptWs.Cell("A1").Value);
 
         deletedWs.Delete();
 
         // Cell contains last calculated value
-        Assert.AreEqual(5.0, keptWs.Cell("A1").CachedValue);
+        ClassicAssert.AreEqual(5.0, keptWs.Cell("A1").CachedValue);
 
         // But once asked for real value, it calculates it.
-        Assert.True(keptWs.Cell("A1").NeedsRecalculation);
-        Assert.AreEqual(XLError.CellReference, keptWs.Cell("A1").Value);
+        ClassicAssert.True(keptWs.Cell("A1").NeedsRecalculation);
+        ClassicAssert.AreEqual(XLError.CellReference, keptWs.Cell("A1").Value);
     }
 
     [Test]
@@ -63,15 +61,15 @@ internal class CalcEngineListenerTests
 
         ws.Range("A1:B1").InsertRowsAbove(2);
 
-        Assert.AreEqual(12.0, ws.Cell("A3").Value);
-        Assert.False(ws.Cell("A3").NeedsRecalculation);
-        Assert.False(ws.Cell("B3").NeedsRecalculation);
+        ClassicAssert.AreEqual(12.0, ws.Cell("A3").Value);
+        ClassicAssert.False(ws.Cell("A3").NeedsRecalculation);
+        ClassicAssert.False(ws.Cell("B3").NeedsRecalculation);
 
         // Dependency tree should pick up the change
         ws.Cell("C1").FormulaA1 = "2+2";
-        Assert.True(ws.Cell("A3").NeedsRecalculation);
-        Assert.True(ws.Cell("B3").NeedsRecalculation);
-        Assert.AreEqual(16.0, ws.Cell("A3").Value);
+        ClassicAssert.True(ws.Cell("A3").NeedsRecalculation);
+        ClassicAssert.True(ws.Cell("B3").NeedsRecalculation);
+        ClassicAssert.AreEqual(16.0, ws.Cell("A3").Value);
     }
 
     [Test]
@@ -87,14 +85,14 @@ internal class CalcEngineListenerTests
 
         ws.Cell("A2").InsertCellsBefore(4);
 
-        Assert.AreEqual(12.0, ws.Cell("A1").Value);
-        Assert.False(ws.Cell("E2").NeedsRecalculation);
+        ClassicAssert.AreEqual(12.0, ws.Cell("A1").Value);
+        ClassicAssert.False(ws.Cell("E2").NeedsRecalculation);
 
         // Dependency tree should pick up the change
         ws.Cell("A3").FormulaA1 = "2+2";
-        Assert.True(ws.Cell("E2").NeedsRecalculation);
-        Assert.True(ws.Cell("A1").NeedsRecalculation);
-        Assert.AreEqual(16.0, ws.Cell("A1").Value);
+        ClassicAssert.True(ws.Cell("E2").NeedsRecalculation);
+        ClassicAssert.True(ws.Cell("A1").NeedsRecalculation);
+        ClassicAssert.AreEqual(16.0, ws.Cell("A1").Value);
     }
 
     [Test]
@@ -110,15 +108,15 @@ internal class CalcEngineListenerTests
 
         ws.Range("B2:C4").Delete(XLShiftDeletedCells.ShiftCellsUp);
 
-        Assert.AreEqual(12.0, ws.Cell("C2").Value);
-        Assert.False(ws.Cell("B2").NeedsRecalculation);
-        Assert.False(ws.Cell("A2").NeedsRecalculation);
+        ClassicAssert.AreEqual(12.0, ws.Cell("C2").Value);
+        ClassicAssert.False(ws.Cell("B2").NeedsRecalculation);
+        ClassicAssert.False(ws.Cell("A2").NeedsRecalculation);
 
         // Dependency tree should pick up the change
         ws.Cell("A5").FormulaA1 = "2+2";
-        Assert.True(ws.Cell("B2").NeedsRecalculation);
-        Assert.True(ws.Cell("C2").NeedsRecalculation);
-        Assert.AreEqual(16.0, ws.Cell("C2").Value);
+        ClassicAssert.True(ws.Cell("B2").NeedsRecalculation);
+        ClassicAssert.True(ws.Cell("C2").NeedsRecalculation);
+        ClassicAssert.AreEqual(16.0, ws.Cell("C2").Value);
     }
 
     [Test]
@@ -134,14 +132,14 @@ internal class CalcEngineListenerTests
 
         ws.Range("A1:C5").Delete(XLShiftDeletedCells.ShiftCellsLeft);
 
-        Assert.AreEqual(12.0, ws.Cell("A3").Value);
-        Assert.False(ws.Cell("B2").NeedsRecalculation);
-        Assert.False(ws.Cell("A1").NeedsRecalculation);
+        ClassicAssert.AreEqual(12.0, ws.Cell("A3").Value);
+        ClassicAssert.False(ws.Cell("B2").NeedsRecalculation);
+        ClassicAssert.False(ws.Cell("A1").NeedsRecalculation);
 
         // Dependency tree should pick up the change
         ws.Cell("A1").FormulaA1 = "2+2";
-        Assert.True(ws.Cell("B2").NeedsRecalculation);
-        Assert.True(ws.Cell("A3").NeedsRecalculation);
-        Assert.AreEqual(16.0, ws.Cell("A3").Value);
+        ClassicAssert.True(ws.Cell("B2").NeedsRecalculation);
+        ClassicAssert.True(ws.Cell("A3").NeedsRecalculation);
+        ClassicAssert.AreEqual(16.0, ws.Cell("A3").Value);
     }
 }

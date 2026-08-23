@@ -1,13 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using NUnit.Framework;
 using XlsxSharp.Excel.Caching;
 using XlsxSharp.Extensions;
 
 namespace XlsxSharp.Tests.Excel.Caching;
 
-[TestFixture]
 public class BaseRepositoryTests
 {
     [Test]
@@ -24,9 +22,9 @@ public class BaseRepositoryTests
         SampleEntity? storedEntity2 = sampleRepository.Store(ref key, entity2);
 
         // Assert
-        Assert.AreSame(entity1, storedEntity1);
-        Assert.AreSame(entity1, storedEntity2);
-        Assert.AreNotSame(entity2, storedEntity2);
+        ClassicAssert.AreSame(entity1, storedEntity1);
+        ClassicAssert.AreSame(entity1, storedEntity2);
+        ClassicAssert.AreNotSame(entity2, storedEntity2);
     }
 
     [Test]
@@ -53,9 +51,9 @@ public class BaseRepositoryTests
 
         // Assert
         if (count == 10)
-            Assert.Fail("storedEntityRef1 was not GCed");
+            ClassicAssert.Fail("storedEntityRef1 was not GCed");
 
-        Assert.IsFalse(sampleRepository.Any());
+        ClassicAssert.IsFalse(sampleRepository.Any());
 
         return;
 
@@ -102,7 +100,7 @@ public class BaseRepositoryTests
         var storedEntries = sampleRepository.ToList();
 
         // Assert
-        Assert.AreEqual(0, storedEntries.Count);
+        ClassicAssert.AreEqual(0, storedEntries.Count);
 #else
         Assert.Ignore("Can't run in DEBUG");
 #endif
@@ -138,8 +136,8 @@ public class BaseRepositoryTests
         List<SampleEntity> storedEntries = sampleRepository.ToList();
 
         // Assert
-        Assert.AreEqual(countUnique, storedEntries.Count);
-        Assert.NotNull(entities); // To protect them from GC
+        ClassicAssert.AreEqual(countUnique, storedEntries.Count);
+        ClassicAssert.NotNull(entities); // To protect them from GC
     }
 
     [Test]
@@ -159,10 +157,10 @@ public class BaseRepositoryTests
         SampleEntity storedEntity2 = sampleRepository.GetOrCreate(ref key2);
 
         // Assert
-        Assert.IsFalse(containsOld);
-        Assert.IsTrue(containsNew);
-        Assert.AreSame(entity, storedEntity1);
-        Assert.AreSame(entity, storedEntity2);
+        ClassicAssert.IsFalse(containsOld);
+        ClassicAssert.IsTrue(containsNew);
+        ClassicAssert.AreSame(entity, storedEntity1);
+        ClassicAssert.AreSame(entity, storedEntity2);
     }
 
     [Test]
@@ -180,7 +178,7 @@ public class BaseRepositoryTests
                 EditableEntity? val1 = sampleRepository.Replace(ref key, ref modifiedKey);
                 val1.Key = key + 2000;
                 EditableEntity val2 = sampleRepository.GetOrCreate(ref modifiedKey);
-                Assert.AreSame(val1, val2);
+                ClassicAssert.AreSame(val1, val2);
             }
         );
     }
@@ -198,8 +196,8 @@ public class BaseRepositoryTests
         sampleRepository.Replace(ref key2, ref key3);
         List<SampleEntity> all = sampleRepository.ToList();
 
-        Assert.AreEqual(1, all.Count);
-        Assert.AreSame(entity, all.First());
+        ClassicAssert.AreEqual(1, all.Count);
+        ClassicAssert.AreSame(entity, all.First());
     }
 
     private static SampleRepository CreateSampleRepository() => new();

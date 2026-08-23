@@ -1,9 +1,7 @@
-﻿using NUnit.Framework;
 using XlsxSharp.Excel;
 
 namespace XlsxSharp.Tests.Excel.Coordinates;
 
-[TestFixture]
 public class XlSheetAreaTests
 {
     [Test]
@@ -11,8 +9,8 @@ public class XlSheetAreaTests
     {
         SheetArea upperCase = new("NAME", new Area(1, 2, 3, 4));
         SheetArea lowerCase = new("name", new Area(1, 2, 3, 4));
-        Assert.AreEqual(upperCase.GetHashCode(), lowerCase.GetHashCode());
-        Assert.AreEqual(upperCase, lowerCase);
+        ClassicAssert.AreEqual(upperCase.GetHashCode(), lowerCase.GetHashCode());
+        ClassicAssert.AreEqual(upperCase, lowerCase);
     }
 
     [Test]
@@ -23,9 +21,9 @@ public class XlSheetAreaTests
         SheetArea otherSheetArea = new("Other", Area.Parse("B2:D4"));
 
         SheetArea? sameSheetIntersection = sheetArea1.Intersect(sheetArea2);
-        Assert.AreEqual(new SheetArea("sheet", Area.Parse("B2:C3")), sameSheetIntersection);
+        ClassicAssert.AreEqual(new SheetArea("sheet", Area.Parse("B2:C3")), sameSheetIntersection);
 
         SheetArea? differentSheetIntersection = sheetArea1.Intersect(otherSheetArea);
-        Assert.Null(differentSheetIntersection);
+        ClassicAssert.Null(differentSheetIntersection);
     }
 }

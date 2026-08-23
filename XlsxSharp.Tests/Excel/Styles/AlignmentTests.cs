@@ -1,13 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Tests.Utils;
 
 namespace XlsxSharp.Tests.Excel.Styles;
 
-[TestFixture]
 public class AlignmentTests
 {
     [Test]
@@ -36,22 +34,26 @@ public class AlignmentTests
             wb =>
             {
                 IXLWorksheet ws = wb.Worksheets.Single();
-                Assert.AreEqual(255, ws.Cell(1, 1).Style.Alignment.TextRotation);
+                ClassicAssert.AreEqual(255, ws.Cell(1, 1).Style.Alignment.TextRotation);
                 for (int column = 2; column < 21; ++column)
                 {
                     int expectedAngle = (column - 2) * 10 - 90;
-                    Assert.AreEqual(expectedAngle, ws.Cell(1, column).Style.Alignment.TextRotation);
+                    ClassicAssert.AreEqual(
+                        expectedAngle,
+                        ws.Cell(1, column).Style.Alignment.TextRotation
+                    );
                 }
             },
             @"Other\Styles\Alignment\TextRotation.xlsx"
         );
 
-    [TestCase(91)]
-    [TestCase(-91)]
-    [TestCase(254)]
-    [TestCase(256)]
+    [Test]
+    [Arguments(91)]
+    [Arguments(-91)]
+    [Arguments(254)]
+    [Arguments(256)]
     public void TextRotationOutsideBoundsThrowsException(int textRotation) =>
-        Assert.Throws<ArgumentOutOfRangeException>(() =>
+        ClassicAssert.Throws<ArgumentOutOfRangeException>(() =>
         {
             using XLWorkbook wb = new();
             IXLWorksheet ws = wb.AddWorksheet();
@@ -59,7 +61,7 @@ public class AlignmentTests
         });
 
     [Test]
-    [TestCaseSource(nameof(AlignmentApiSetters))]
+    [MethodDataSource(nameof(AlignmentApiSetters))]
     public void AlignmentPropertyCanBeIndividuallySet(FormatTestCase<IXLAlignment> testCase)
     {
         using XLWorkbook wb = new();
@@ -70,26 +72,25 @@ public class AlignmentTests
         {
             testCase.SetPropertyValue(cellFormat.Alignment, testValue);
             object setValue = testCase.GetPropertyValue(cellFormat.Alignment);
-            Assert.AreEqual(testValue, setValue);
+            ClassicAssert.AreEqual(testValue, setValue);
         }
     }
 
     [Test]
-    [TestCaseSource(nameof(AlignmentApiSettersLimits))]
-    public void AlignmentPropertyLimitsThrowException<T>(
-        Action<IXLAlignment, T> setter,
-        params T[] invalidValues
+    [MethodDataSource(nameof(AlignmentApiSettersLimits))]
+    public void AlignmentPropertyLimitsThrowException(
+        Action<IXLAlignment, int> setter,
+        int[] invalidValues
     )
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
         IXLAlignment alignment = ws.Cell("A1").Style.Alignment;
 
-        foreach (T invalidValue in invalidValues)
+        foreach (int invalidValue in invalidValues)
         {
-            Assert.That(
-                () => setter(alignment, invalidValue),
-                Throws.TypeOf<ArgumentOutOfRangeException>()
+            ClassicAssert.Throws<ArgumentOutOfRangeException>(() =>
+                setter(alignment, invalidValue)
             );
         }
     }
@@ -102,19 +103,19 @@ public class AlignmentTests
         IXLAlignment alignment = ws.Cell("A1").Style.Alignment;
 
         alignment.TopToBottom = true;
-        Assert.AreEqual(255, alignment.TextRotation);
+        ClassicAssert.AreEqual(255, alignment.TextRotation);
 
         alignment.TopToBottom = false;
-        Assert.AreEqual(0, alignment.TextRotation);
+        ClassicAssert.AreEqual(0, alignment.TextRotation);
 
         alignment.TextRotation = 0;
-        Assert.IsFalse(alignment.TopToBottom);
+        ClassicAssert.IsFalse(alignment.TopToBottom);
 
         alignment.TextRotation = 10;
-        Assert.IsFalse(alignment.TopToBottom);
+        ClassicAssert.IsFalse(alignment.TopToBottom);
 
         alignment.TextRotation = 255;
-        Assert.IsTrue(alignment.TopToBottom);
+        ClassicAssert.IsTrue(alignment.TopToBottom);
     }
 
     [Test]
@@ -136,15 +137,18 @@ public class AlignmentTests
         ws.Cell("A2").Style.Alignment = source.Alignment;
 
         IXLAlignment targetAlignment = ws.Cell("A2").Style.Alignment;
-        Assert.AreEqual(XLAlignmentHorizontalValues.Right, targetAlignment.Horizontal);
-        Assert.AreEqual(XLAlignmentVerticalValues.Top, targetAlignment.Vertical);
-        Assert.AreEqual(2, targetAlignment.Indent);
-        Assert.IsTrue(targetAlignment.JustifyLastLine);
-        Assert.AreEqual(XLAlignmentReadingOrderValues.LeftToRight, targetAlignment.ReadingOrder);
-        Assert.AreEqual(3, targetAlignment.RelativeIndent);
-        Assert.IsTrue(targetAlignment.ShrinkToFit);
-        Assert.AreEqual(12, targetAlignment.TextRotation);
-        Assert.IsTrue(targetAlignment.WrapText);
+        ClassicAssert.AreEqual(XLAlignmentHorizontalValues.Right, targetAlignment.Horizontal);
+        ClassicAssert.AreEqual(XLAlignmentVerticalValues.Top, targetAlignment.Vertical);
+        ClassicAssert.AreEqual(2, targetAlignment.Indent);
+        ClassicAssert.IsTrue(targetAlignment.JustifyLastLine);
+        ClassicAssert.AreEqual(
+            XLAlignmentReadingOrderValues.LeftToRight,
+            targetAlignment.ReadingOrder
+        );
+        ClassicAssert.AreEqual(3, targetAlignment.RelativeIndent);
+        ClassicAssert.IsTrue(targetAlignment.ShrinkToFit);
+        ClassicAssert.AreEqual(12, targetAlignment.TextRotation);
+        ClassicAssert.IsTrue(targetAlignment.WrapText);
     }
 
     [Test]
@@ -170,13 +174,13 @@ public class AlignmentTests
             IXLAlignment source = ws.Cell("A1").Style.Alignment;
             IXLAlignment target = ws.Cell("A2").Style.Alignment;
 
-            Assert.AreEqual(source, target);
+            ClassicAssert.AreEqual(source, target);
             changeProperty(source);
-            Assert.AreNotEqual(source, target);
+            ClassicAssert.AreNotEqual(source, target);
         }
     }
 
-    private static IEnumerable<FormatTestCase<IXLAlignment>> AlignmentApiSetters()
+    internal static IEnumerable<FormatTestCase<IXLAlignment>> AlignmentApiSetters()
     {
         XLAlignmentHorizontalValues[] hAlignValues =
             EnumPolyfill.GetValues<XLAlignmentHorizontalValues>();
@@ -310,15 +314,9 @@ public class AlignmentTests
         );
     }
 
-    private static IEnumerable<TestCaseData> AlignmentApiSettersLimits()
+    internal static IEnumerable<(Action<IXLAlignment, int>, int[])> AlignmentApiSettersLimits()
     {
-        yield return MakeCase((align, value) => align.Indent = value, -1, 256);
-        yield return MakeCase((align, value) => align.TextRotation = value, -91, 91, 254, 256);
-        yield break;
-
-        static TestCaseData MakeCase<T>(Action<IXLAlignment, T> setter, params T[] invalidValues)
-        {
-            return new TestCaseData(setter, invalidValues);
-        }
+        yield return ((align, value) => align.Indent = value, [-1, 256]);
+        yield return ((align, value) => align.TextRotation = value, [-91, 91, 254, 256]);
     }
 }

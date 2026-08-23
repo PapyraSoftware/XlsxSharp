@@ -1,7 +1,7 @@
-﻿using System;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.CalcEngine;
 using XlsxSharp.Excel.InsertData;
@@ -12,39 +12,35 @@ public class SimpleNullableTypeReaderTests
 {
     private readonly int?[] data = [1, 2, null];
 
-    [TestCaseSource(nameof(SimpleNullableSourceNames))]
-    public string CanGetPropertyName<T>(IEnumerable<T> data)
+    [Test]
+    [MethodDataSource(nameof(SimpleNullableSourceNames))]
+    public void CanGetPropertyName(IEnumerable data, string expected)
     {
         IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(data);
-        return reader.GetPropertyName(0);
+        ClassicAssert.AreEqual(expected, reader.GetPropertyName(0));
     }
 
-    private static IEnumerable<TestCaseData> SimpleNullableSourceNames
+    internal static IEnumerable<(IEnumerable, string)> SimpleNullableSourceNames()
     {
-        get
-        {
-            yield return new TestCaseData(new int?[] { 1, 2, null }).Returns("Int32");
-            yield return new TestCaseData(new List<double?> { 1.0, 2.0, null }).Returns("Double");
-            yield return new TestCaseData(new decimal?[] { 1.0m, 2.0m, null }).Returns("Decimal");
-            yield return new TestCaseData(new char?[] { 'A', 'B', null }).Returns("Char");
-            yield return new TestCaseData(
-                new DateTime?[] { new DateTime(2020, 1, 1), null }
-            ).Returns("DateTime");
-        }
+        yield return (new int?[] { 1, 2, null }, "Int32");
+        yield return (new List<double?> { 1.0, 2.0, null }, "Double");
+        yield return (new decimal?[] { 1.0m, 2.0m, null }, "Decimal");
+        yield return (new char?[] { 'A', 'B', null }, "Char");
+        yield return (new DateTime?[] { new DateTime(2020, 1, 1), null }, "DateTime");
     }
 
     [Test]
     public void CanGetPropertiesCount()
     {
         IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(this.data);
-        Assert.AreEqual(1, reader.GetPropertiesCount());
+        ClassicAssert.AreEqual(1, reader.GetPropertiesCount());
     }
 
     [Test]
     public void CanGetRecordsCount()
     {
         IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(this.data);
-        Assert.AreEqual(3, reader.GetRecords().Count());
+        ClassicAssert.AreEqual(3, reader.GetRecords().Count());
     }
 
     [Test]
@@ -53,7 +49,7 @@ public class SimpleNullableTypeReaderTests
         IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(this.data);
         IEnumerable<IEnumerable<XLCellValue>> result = reader.GetRecords();
 
-        Assert.AreEqual(1, result.First().Single());
-        Assert.AreEqual(Blank.Value, result.Last().Single());
+        ClassicAssert.AreEqual(1, result.First().Single());
+        ClassicAssert.AreEqual(Blank.Value, result.Last().Single());
     }
 }

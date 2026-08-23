@@ -1,10 +1,9 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
-using NUnit.Framework;
 using XlsxSharp.Attributes;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.Tables;
@@ -12,7 +11,6 @@ using XlsxSharp.Extensions;
 
 namespace XlsxSharp.Tests.Excel.Tables;
 
-[TestFixture]
 public class AppendingAndReplacingTableDataTests
 {
     public class TestObjectWithoutAttributes
@@ -142,16 +140,16 @@ public class AppendingAndReplacingTableDataTests
             IXLTable table = ws.Tables.First();
 
             IEnumerable<Person> personEnumerable = null;
-            Assert.AreEqual(null, table.AppendData(personEnumerable));
+            ClassicAssert.AreEqual(null, table.AppendData(personEnumerable));
 
             personEnumerable = new Person[] { };
-            Assert.AreEqual(null, table.AppendData(personEnumerable));
+            ClassicAssert.AreEqual(null, table.AppendData(personEnumerable));
 
             IEnumerable enumerable = null;
-            Assert.AreEqual(null, table.AppendData(enumerable));
+            ClassicAssert.AreEqual(null, table.AppendData(enumerable));
 
             enumerable = new Person[] { };
-            Assert.AreEqual(null, table.AppendData(enumerable));
+            ClassicAssert.AreEqual(null, table.AppendData(enumerable));
         }
     }
 
@@ -165,16 +163,20 @@ public class AppendingAndReplacingTableDataTests
             IXLTable table = ws.Tables.First();
 
             IEnumerable<Person> personEnumerable = null;
-            Assert.Throws<InvalidOperationException>(() => table.ReplaceData(personEnumerable));
+            ClassicAssert.Throws<InvalidOperationException>(() =>
+                table.ReplaceData(personEnumerable)
+            );
 
             personEnumerable = new Person[] { };
-            Assert.Throws<InvalidOperationException>(() => table.ReplaceData(personEnumerable));
+            ClassicAssert.Throws<InvalidOperationException>(() =>
+                table.ReplaceData(personEnumerable)
+            );
 
             IEnumerable enumerable = null;
-            Assert.Throws<InvalidOperationException>(() => table.ReplaceData(enumerable));
+            ClassicAssert.Throws<InvalidOperationException>(() => table.ReplaceData(enumerable));
 
             enumerable = new Person[] { };
-            Assert.Throws<InvalidOperationException>(() => table.ReplaceData(enumerable));
+            ClassicAssert.Throws<InvalidOperationException>(() => table.ReplaceData(enumerable));
         }
     }
 
@@ -192,7 +194,7 @@ public class AppendingAndReplacingTableDataTests
                 IEnumerable<Person> personEnumerable = NewData;
                 IXLRange addedRange = table.AppendData(personEnumerable);
 
-                Assert.AreEqual("B6:G7", addedRange.RangeAddress.ToString());
+                ClassicAssert.AreEqual("B6:G7", addedRange.RangeAddress.ToString());
                 ws.Columns().AdjustToContents();
 
                 wb.SaveAs(ms);
@@ -202,8 +204,8 @@ public class AppendingAndReplacingTableDataTests
             {
                 IXLTable table = wb.Worksheets.SelectMany(ws => ws.Tables).First();
 
-                Assert.AreEqual(5, table.DataRange.RowCount());
-                Assert.AreEqual(6, table.DataRange.ColumnCount());
+                ClassicAssert.AreEqual(5, table.DataRange.RowCount());
+                ClassicAssert.AreEqual(6, table.DataRange.ColumnCount());
             }
         }
     }
@@ -224,7 +226,7 @@ public class AppendingAndReplacingTableDataTests
                 IEnumerable<Person> personEnumerable = NewData;
                 IXLRange addedRange = table.AppendData(personEnumerable);
 
-                Assert.AreEqual("B6:G7", addedRange.RangeAddress.ToString());
+                ClassicAssert.AreEqual("B6:G7", addedRange.RangeAddress.ToString());
                 ws.Columns().AdjustToContents();
 
                 wb.SaveAs(ms);
@@ -234,8 +236,8 @@ public class AppendingAndReplacingTableDataTests
             {
                 IXLTable table = wb.Worksheets.SelectMany(ws => ws.Tables).First();
 
-                Assert.AreEqual(5, table.DataRange.RowCount());
-                Assert.AreEqual(6, table.DataRange.ColumnCount());
+                ClassicAssert.AreEqual(5, table.DataRange.RowCount());
+                ClassicAssert.AreEqual(6, table.DataRange.ColumnCount());
             }
         }
     }
@@ -260,7 +262,7 @@ public class AppendingAndReplacingTableDataTests
                 IEnumerable<Person> personEnumerable = NewData;
                 IXLRange addedRange = table.AppendData(personEnumerable);
 
-                Assert.AreEqual("B6:G7", addedRange.RangeAddress.ToString());
+                ClassicAssert.AreEqual("B6:G7", addedRange.RangeAddress.ToString());
                 ws.Columns().AdjustToContents();
 
                 wb.SaveAs(ms);
@@ -273,11 +275,11 @@ public class AppendingAndReplacingTableDataTests
                 IXLTable table = ws.Tables.First();
 
                 IXLCell cell = ws.Cell(address);
-                Assert.AreEqual("de Beer", cell.Value);
-                Assert.AreEqual(5, table.DataRange.RowCount());
-                Assert.AreEqual(6, table.DataRange.ColumnCount());
+                ClassicAssert.AreEqual("de Beer", cell.Value);
+                ClassicAssert.AreEqual(5, table.DataRange.RowCount());
+                ClassicAssert.AreEqual(6, table.DataRange.ColumnCount());
 
-                Assert.AreEqual(value, cell.CellBelow(NewData.Length).Value);
+                ClassicAssert.AreEqual(value, cell.CellBelow(NewData.Length).Value);
             }
         }
     }
@@ -298,7 +300,7 @@ public class AppendingAndReplacingTableDataTests
 
                 IXLRange addedRange = table.AppendData(list);
 
-                Assert.AreEqual("B6:G7", addedRange.RangeAddress.ToString());
+                ClassicAssert.AreEqual("B6:G7", addedRange.RangeAddress.ToString());
 
                 ws.Columns().AdjustToContents();
 
@@ -309,8 +311,8 @@ public class AppendingAndReplacingTableDataTests
             {
                 IXLTable table = wb.Worksheets.SelectMany(ws => ws.Tables).First();
 
-                Assert.AreEqual(5, table.DataRange.RowCount());
-                Assert.AreEqual(6, table.DataRange.ColumnCount());
+                ClassicAssert.AreEqual(5, table.DataRange.RowCount());
+                ClassicAssert.AreEqual(6, table.DataRange.ColumnCount());
             }
         }
     }
@@ -335,7 +337,7 @@ public class AppendingAndReplacingTableDataTests
 
                 IXLRange addedRange = table.AppendData(dataTable);
 
-                Assert.AreEqual("B6:G7", addedRange.RangeAddress.ToString());
+                ClassicAssert.AreEqual("B6:G7", addedRange.RangeAddress.ToString());
                 ws.Columns().AdjustToContents();
 
                 wb.SaveAs(ms);
@@ -345,8 +347,8 @@ public class AppendingAndReplacingTableDataTests
             {
                 IXLTable table = wb.Worksheets.SelectMany(ws => ws.Tables).First();
 
-                Assert.AreEqual(5, table.DataRange.RowCount());
-                Assert.AreEqual(6, table.DataRange.ColumnCount());
+                ClassicAssert.AreEqual(5, table.DataRange.RowCount());
+                ClassicAssert.AreEqual(6, table.DataRange.ColumnCount());
             }
         }
     }
@@ -365,7 +367,7 @@ public class AppendingAndReplacingTableDataTests
                 IEnumerable<Person> personEnumerable = NewData;
                 IXLRange replacedRange = table.ReplaceData(personEnumerable);
 
-                Assert.AreEqual("B3:G4", replacedRange.RangeAddress.ToString());
+                ClassicAssert.AreEqual("B3:G4", replacedRange.RangeAddress.ToString());
                 ws.Columns().AdjustToContents();
 
                 wb.SaveAs(ms);
@@ -375,8 +377,8 @@ public class AppendingAndReplacingTableDataTests
             {
                 IXLTable table = wb.Worksheets.SelectMany(ws => ws.Tables).First();
 
-                Assert.AreEqual(2, table.DataRange.RowCount());
-                Assert.AreEqual(6, table.DataRange.ColumnCount());
+                ClassicAssert.AreEqual(2, table.DataRange.RowCount());
+                ClassicAssert.AreEqual(6, table.DataRange.ColumnCount());
             }
         }
     }
@@ -397,7 +399,7 @@ public class AppendingAndReplacingTableDataTests
 
                 IXLRange replacedRange = table.ReplaceData(list);
 
-                Assert.AreEqual("B3:G4", replacedRange.RangeAddress.ToString());
+                ClassicAssert.AreEqual("B3:G4", replacedRange.RangeAddress.ToString());
 
                 ws.Columns().AdjustToContents();
 
@@ -408,8 +410,8 @@ public class AppendingAndReplacingTableDataTests
             {
                 IXLTable table = wb.Worksheets.SelectMany(ws => ws.Tables).First();
 
-                Assert.AreEqual(2, table.DataRange.RowCount());
-                Assert.AreEqual(6, table.DataRange.ColumnCount());
+                ClassicAssert.AreEqual(2, table.DataRange.RowCount());
+                ClassicAssert.AreEqual(6, table.DataRange.ColumnCount());
             }
         }
     }
@@ -434,7 +436,7 @@ public class AppendingAndReplacingTableDataTests
 
                 IXLRange replacedRange = table.ReplaceData(dataTable);
 
-                Assert.AreEqual("B3:G4", replacedRange.RangeAddress.ToString());
+                ClassicAssert.AreEqual("B3:G4", replacedRange.RangeAddress.ToString());
                 ws.Columns().AdjustToContents();
 
                 wb.SaveAs(ms);
@@ -444,8 +446,8 @@ public class AppendingAndReplacingTableDataTests
             {
                 IXLTable table = wb.Worksheets.SelectMany(ws => ws.Tables).First();
 
-                Assert.AreEqual(2, table.DataRange.RowCount());
-                Assert.AreEqual(6, table.DataRange.ColumnCount());
+                ClassicAssert.AreEqual(2, table.DataRange.RowCount());
+                ClassicAssert.AreEqual(6, table.DataRange.ColumnCount());
             }
         }
     }
@@ -467,7 +469,7 @@ public class AppendingAndReplacingTableDataTests
                 IEnumerable<Person> personEnumerable = NewData.Union(NewData).Union(NewData);
                 IXLRange replacedRange = table.ReplaceData(personEnumerable);
 
-                Assert.AreEqual("B3:G8", replacedRange.RangeAddress.ToString());
+                ClassicAssert.AreEqual("B3:G8", replacedRange.RangeAddress.ToString());
                 ws.Columns().AdjustToContents();
 
                 wb.SaveAs(ms);
@@ -477,8 +479,8 @@ public class AppendingAndReplacingTableDataTests
             {
                 IXLTable table = wb.Worksheets.SelectMany(ws => ws.Tables).First();
 
-                Assert.AreEqual(6, table.DataRange.RowCount());
-                Assert.AreEqual(6, table.DataRange.ColumnCount());
+                ClassicAssert.AreEqual(6, table.DataRange.RowCount());
+                ClassicAssert.AreEqual(6, table.DataRange.ColumnCount());
             }
         }
     }
@@ -500,7 +502,7 @@ public class AppendingAndReplacingTableDataTests
                 IEnumerable<Person> personEnumerable = NewData.Take(1);
                 IXLRange replacedRange = table.ReplaceData(personEnumerable);
 
-                Assert.AreEqual("B3:G3", replacedRange.RangeAddress.ToString());
+                ClassicAssert.AreEqual("B3:G3", replacedRange.RangeAddress.ToString());
                 ws.Columns().AdjustToContents();
 
                 wb.SaveAs(ms);
@@ -510,8 +512,8 @@ public class AppendingAndReplacingTableDataTests
             {
                 IXLTable table = wb.Worksheets.SelectMany(ws => ws.Tables).First();
 
-                Assert.AreEqual(1, table.DataRange.RowCount());
-                Assert.AreEqual(6, table.DataRange.ColumnCount());
+                ClassicAssert.AreEqual(1, table.DataRange.RowCount());
+                ClassicAssert.AreEqual(6, table.DataRange.ColumnCount());
             }
         }
     }
@@ -532,7 +534,7 @@ public class AppendingAndReplacingTableDataTests
 
                 IXLRange replacedRange = table.ReplaceData(list, propagateExtraColumns: true);
 
-                Assert.AreEqual("B3:G6", replacedRange.RangeAddress.ToString());
+                ClassicAssert.AreEqual("B3:G6", replacedRange.RangeAddress.ToString());
 
                 ws.Columns().AdjustToContents();
 
@@ -543,26 +545,26 @@ public class AppendingAndReplacingTableDataTests
             {
                 IXLTable table = wb.Worksheets.SelectMany(ws => ws.Tables).First();
 
-                Assert.AreEqual(4, table.DataRange.RowCount());
-                Assert.AreEqual(10, table.DataRange.ColumnCount());
+                ClassicAssert.AreEqual(4, table.DataRange.RowCount());
+                ClassicAssert.AreEqual(10, table.DataRange.ColumnCount());
 
-                Assert.AreEqual("SUM($G$3:G5)", table.Worksheet.Cell("H5").FormulaA1);
-                Assert.AreEqual("SUM($G$3:G6)", table.Worksheet.Cell("H6").FormulaA1);
-                Assert.AreEqual(100, table.Worksheet.Cell("H5").Value);
-                Assert.AreEqual(130, table.Worksheet.Cell("H6").Value);
+                ClassicAssert.AreEqual("SUM($G$3:G5)", table.Worksheet.Cell("H5").FormulaA1);
+                ClassicAssert.AreEqual("SUM($G$3:G6)", table.Worksheet.Cell("H6").FormulaA1);
+                ClassicAssert.AreEqual(100, table.Worksheet.Cell("H5").Value);
+                ClassicAssert.AreEqual(130, table.Worksheet.Cell("H6").Value);
 
-                Assert.AreEqual("LEN(B5)", table.Worksheet.Cell("I5").FormulaA1);
-                Assert.AreEqual("LEN(B6)", table.Worksheet.Cell("I6").FormulaA1);
-                Assert.AreEqual(16, table.Worksheet.Cell("I5").Value);
-                Assert.AreEqual(21, table.Worksheet.Cell("I6").Value);
+                ClassicAssert.AreEqual("LEN(B5)", table.Worksheet.Cell("I5").FormulaA1);
+                ClassicAssert.AreEqual("LEN(B6)", table.Worksheet.Cell("I6").FormulaA1);
+                ClassicAssert.AreEqual(16, table.Worksheet.Cell("I5").Value);
+                ClassicAssert.AreEqual(21, table.Worksheet.Cell("I6").Value);
 
-                Assert.AreEqual("G5>=40", table.Worksheet.Cell("J5").FormulaA1);
-                Assert.AreEqual("G6>=40", table.Worksheet.Cell("J6").FormulaA1);
-                Assert.AreEqual(false, table.Worksheet.Cell("J5").Value);
-                Assert.AreEqual(false, table.Worksheet.Cell("J6").Value);
+                ClassicAssert.AreEqual("G5>=40", table.Worksheet.Cell("J5").FormulaA1);
+                ClassicAssert.AreEqual("G6>=40", table.Worksheet.Cell("J6").FormulaA1);
+                ClassicAssert.AreEqual(false, table.Worksheet.Cell("J5").Value);
+                ClassicAssert.AreEqual(false, table.Worksheet.Cell("J6").Value);
 
-                Assert.AreEqual("40 is not old!", table.Worksheet.Cell("K5").Value);
-                Assert.AreEqual("40 is not old!", table.Worksheet.Cell("K6").Value);
+                ClassicAssert.AreEqual("40 is not old!", table.Worksheet.Cell("K5").Value);
+                ClassicAssert.AreEqual("40 is not old!", table.Worksheet.Cell("K6").Value);
             }
         }
     }
@@ -584,7 +586,7 @@ public class AppendingAndReplacingTableDataTests
                     propagateExtraColumns: true
                 );
 
-                Assert.AreEqual("B3:G6", replacedRange.RangeAddress.ToString());
+                ClassicAssert.AreEqual("B3:G6", replacedRange.RangeAddress.ToString());
                 ws.Columns().AdjustToContents();
 
                 wb.SaveAs(ms);
@@ -594,32 +596,33 @@ public class AppendingAndReplacingTableDataTests
             {
                 IXLTable table = wb.Worksheets.SelectMany(ws => ws.Tables).First();
 
-                Assert.AreEqual(4, table.DataRange.RowCount());
-                Assert.AreEqual(10, table.DataRange.ColumnCount());
+                ClassicAssert.AreEqual(4, table.DataRange.RowCount());
+                ClassicAssert.AreEqual(10, table.DataRange.ColumnCount());
 
-                Assert.AreEqual("SUM($G$3:G5)", table.Worksheet.Cell("H5").FormulaA1);
-                Assert.AreEqual("SUM($G$3:G6)", table.Worksheet.Cell("H6").FormulaA1);
-                Assert.AreEqual(95, table.Worksheet.Cell("H5").Value);
-                Assert.AreEqual(130, table.Worksheet.Cell("H6").Value);
+                ClassicAssert.AreEqual("SUM($G$3:G5)", table.Worksheet.Cell("H5").FormulaA1);
+                ClassicAssert.AreEqual("SUM($G$3:G6)", table.Worksheet.Cell("H6").FormulaA1);
+                ClassicAssert.AreEqual(95, table.Worksheet.Cell("H5").Value);
+                ClassicAssert.AreEqual(130, table.Worksheet.Cell("H6").Value);
 
-                Assert.AreEqual("LEN(B5)", table.Worksheet.Cell("I5").FormulaA1);
-                Assert.AreEqual("LEN(B6)", table.Worksheet.Cell("I6").FormulaA1);
-                Assert.AreEqual(16, table.Worksheet.Cell("I5").Value);
-                Assert.AreEqual(16, table.Worksheet.Cell("I6").Value);
+                ClassicAssert.AreEqual("LEN(B5)", table.Worksheet.Cell("I5").FormulaA1);
+                ClassicAssert.AreEqual("LEN(B6)", table.Worksheet.Cell("I6").FormulaA1);
+                ClassicAssert.AreEqual(16, table.Worksheet.Cell("I5").Value);
+                ClassicAssert.AreEqual(16, table.Worksheet.Cell("I6").Value);
 
-                Assert.AreEqual("G5>=40", table.Worksheet.Cell("J5").FormulaA1);
-                Assert.AreEqual("G6>=40", table.Worksheet.Cell("J6").FormulaA1);
-                Assert.AreEqual(false, table.Worksheet.Cell("J5").Value);
-                Assert.AreEqual(false, table.Worksheet.Cell("J6").Value);
+                ClassicAssert.AreEqual("G5>=40", table.Worksheet.Cell("J5").FormulaA1);
+                ClassicAssert.AreEqual("G6>=40", table.Worksheet.Cell("J6").FormulaA1);
+                ClassicAssert.AreEqual(false, table.Worksheet.Cell("J5").Value);
+                ClassicAssert.AreEqual(false, table.Worksheet.Cell("J6").Value);
 
-                Assert.AreEqual("40 is not old!", table.Worksheet.Cell("K5").Value);
-                Assert.AreEqual("40 is not old!", table.Worksheet.Cell("K6").Value);
+                ClassicAssert.AreEqual("40 is not old!", table.Worksheet.Cell("K5").Value);
+                ClassicAssert.AreEqual("40 is not old!", table.Worksheet.Cell("K6").Value);
             }
         }
     }
 
-    [TestCase("ListOfPeople[Age]")] // Defined name formula without a A1 reference
-    [TestCase("ListOfPeople!A1")] // Defined name formula with an A1 reference
+    [Test]
+    [Arguments("ListOfPeople[Age]")] // Defined name formula without a A1 reference
+    [Arguments("ListOfPeople!A1")] // Defined name formula with an A1 reference
     public void CanReplaceTableDataWhenWorksheetHasDefinedNames(string nameFormula)
     {
         // When table data are replaced, the size of a table is modified. That
@@ -639,7 +642,7 @@ public class AppendingAndReplacingTableDataTests
                 IEnumerable<Person> personEnumerable = NewData;
                 IXLRange replacedRange = table.ReplaceData(personEnumerable);
 
-                Assert.AreEqual("B3:G4", replacedRange.RangeAddress.ToString());
+                ClassicAssert.AreEqual("B3:G4", replacedRange.RangeAddress.ToString());
 
                 wb.SaveAs(ms);
             }
@@ -648,8 +651,8 @@ public class AppendingAndReplacingTableDataTests
             {
                 IXLTable table = wb.Worksheets.SelectMany(ws => ws.Tables).First();
 
-                Assert.AreEqual(2, table.DataRange.RowCount());
-                Assert.AreEqual(6, table.DataRange.ColumnCount());
+                ClassicAssert.AreEqual(2, table.DataRange.RowCount());
+                ClassicAssert.AreEqual(6, table.DataRange.ColumnCount());
             }
         }
     }
@@ -670,7 +673,7 @@ public class AppendingAndReplacingTableDataTests
 
                 IXLRange appendedRange = table.AppendData(list, propagateExtraColumns: true);
 
-                Assert.AreEqual("B6:G9", appendedRange.RangeAddress.ToString());
+                ClassicAssert.AreEqual("B6:G9", appendedRange.RangeAddress.ToString());
 
                 ws.Columns().AdjustToContents();
 
@@ -681,26 +684,26 @@ public class AppendingAndReplacingTableDataTests
             {
                 IXLTable table = wb.Worksheets.SelectMany(ws => ws.Tables).First();
 
-                Assert.AreEqual(7, table.DataRange.RowCount());
-                Assert.AreEqual(10, table.DataRange.ColumnCount());
+                ClassicAssert.AreEqual(7, table.DataRange.RowCount());
+                ClassicAssert.AreEqual(10, table.DataRange.ColumnCount());
 
-                Assert.AreEqual("SUM($G$3:G8)", table.Worksheet.Cell("H8").FormulaA1);
-                Assert.AreEqual("SUM($G$3:G9)", table.Worksheet.Cell("H9").FormulaA1);
-                Assert.AreEqual(220, table.Worksheet.Cell("H8").Value);
-                Assert.AreEqual(250, table.Worksheet.Cell("H9").Value);
+                ClassicAssert.AreEqual("SUM($G$3:G8)", table.Worksheet.Cell("H8").FormulaA1);
+                ClassicAssert.AreEqual("SUM($G$3:G9)", table.Worksheet.Cell("H9").FormulaA1);
+                ClassicAssert.AreEqual(220, table.Worksheet.Cell("H8").Value);
+                ClassicAssert.AreEqual(250, table.Worksheet.Cell("H9").Value);
 
-                Assert.AreEqual("LEN(B8)", table.Worksheet.Cell("I8").FormulaA1);
-                Assert.AreEqual("LEN(B9)", table.Worksheet.Cell("I9").FormulaA1);
-                Assert.AreEqual(16, table.Worksheet.Cell("I8").Value);
-                Assert.AreEqual(21, table.Worksheet.Cell("I9").Value);
+                ClassicAssert.AreEqual("LEN(B8)", table.Worksheet.Cell("I8").FormulaA1);
+                ClassicAssert.AreEqual("LEN(B9)", table.Worksheet.Cell("I9").FormulaA1);
+                ClassicAssert.AreEqual(16, table.Worksheet.Cell("I8").Value);
+                ClassicAssert.AreEqual(21, table.Worksheet.Cell("I9").Value);
 
-                Assert.AreEqual("G8>=40", table.Worksheet.Cell("J8").FormulaA1);
-                Assert.AreEqual("G9>=40", table.Worksheet.Cell("J9").FormulaA1);
-                Assert.AreEqual(false, table.Worksheet.Cell("J8").Value);
-                Assert.AreEqual(false, table.Worksheet.Cell("J9").Value);
+                ClassicAssert.AreEqual("G8>=40", table.Worksheet.Cell("J8").FormulaA1);
+                ClassicAssert.AreEqual("G9>=40", table.Worksheet.Cell("J9").FormulaA1);
+                ClassicAssert.AreEqual(false, table.Worksheet.Cell("J8").Value);
+                ClassicAssert.AreEqual(false, table.Worksheet.Cell("J9").Value);
 
-                Assert.AreEqual("40 is not old!", table.Worksheet.Cell("K8").Value);
-                Assert.AreEqual("40 is not old!", table.Worksheet.Cell("K9").Value);
+                ClassicAssert.AreEqual("40 is not old!", table.Worksheet.Cell("K8").Value);
+                ClassicAssert.AreEqual("40 is not old!", table.Worksheet.Cell("K9").Value);
             }
         }
     }
@@ -723,7 +726,7 @@ public class AppendingAndReplacingTableDataTests
 
                 IXLRange addedRange = table.AppendData(personEnumerable);
 
-                Assert.AreEqual("B6:G11", addedRange.RangeAddress.ToString());
+                ClassicAssert.AreEqual("B6:G11", addedRange.RangeAddress.ToString());
                 ws.Columns().AdjustToContents();
 
                 wb.SaveAs(ms);
@@ -733,26 +736,26 @@ public class AppendingAndReplacingTableDataTests
             {
                 IXLTable table = wb.Worksheets.SelectMany(ws => ws.Tables).First();
 
-                Assert.AreEqual(9, table.DataRange.RowCount());
-                Assert.AreEqual(10, table.DataRange.ColumnCount());
+                ClassicAssert.AreEqual(9, table.DataRange.RowCount());
+                ClassicAssert.AreEqual(10, table.DataRange.ColumnCount());
 
-                Assert.AreEqual("SUM($G$3:G10)", table.Worksheet.Cell("H10").FormulaA1);
-                Assert.AreEqual("SUM($G$3:G11)", table.Worksheet.Cell("H11").FormulaA1);
-                Assert.AreEqual(280, table.Worksheet.Cell("H10").Value);
-                Assert.AreEqual(315, table.Worksheet.Cell("H11").Value);
+                ClassicAssert.AreEqual("SUM($G$3:G10)", table.Worksheet.Cell("H10").FormulaA1);
+                ClassicAssert.AreEqual("SUM($G$3:G11)", table.Worksheet.Cell("H11").FormulaA1);
+                ClassicAssert.AreEqual(280, table.Worksheet.Cell("H10").Value);
+                ClassicAssert.AreEqual(315, table.Worksheet.Cell("H11").Value);
 
-                Assert.AreEqual("LEN(B10)", table.Worksheet.Cell("I10").FormulaA1);
-                Assert.AreEqual("LEN(B11)", table.Worksheet.Cell("I11").FormulaA1);
-                Assert.AreEqual(16, table.Worksheet.Cell("I10").Value);
-                Assert.AreEqual(16, table.Worksheet.Cell("I11").Value);
+                ClassicAssert.AreEqual("LEN(B10)", table.Worksheet.Cell("I10").FormulaA1);
+                ClassicAssert.AreEqual("LEN(B11)", table.Worksheet.Cell("I11").FormulaA1);
+                ClassicAssert.AreEqual(16, table.Worksheet.Cell("I10").Value);
+                ClassicAssert.AreEqual(16, table.Worksheet.Cell("I11").Value);
 
-                Assert.AreEqual("G10>=40", table.Worksheet.Cell("J10").FormulaA1);
-                Assert.AreEqual("G11>=40", table.Worksheet.Cell("J11").FormulaA1);
-                Assert.AreEqual(false, table.Worksheet.Cell("J10").Value);
-                Assert.AreEqual(false, table.Worksheet.Cell("J11").Value);
+                ClassicAssert.AreEqual("G10>=40", table.Worksheet.Cell("J10").FormulaA1);
+                ClassicAssert.AreEqual("G11>=40", table.Worksheet.Cell("J11").FormulaA1);
+                ClassicAssert.AreEqual(false, table.Worksheet.Cell("J10").Value);
+                ClassicAssert.AreEqual(false, table.Worksheet.Cell("J11").Value);
 
-                Assert.AreEqual("40 is not old!", table.Worksheet.Cell("K10").Value);
-                Assert.AreEqual("40 is not old!", table.Worksheet.Cell("K11").Value);
+                ClassicAssert.AreEqual("40 is not old!", table.Worksheet.Cell("K10").Value);
+                ClassicAssert.AreEqual("40 is not old!", table.Worksheet.Cell("K11").Value);
             }
         }
     }

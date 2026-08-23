@@ -1,18 +1,16 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.CalcEngine;
 
 namespace XlsxSharp.Tests.Excel.CalcEngine;
 
-[TestFixture]
 internal class DependencyTreeTests
 {
     #region Add formula to dependency tree
 
     [Test]
-    [TestCaseSource(nameof(AreaDependenciesTestCases))]
+    [MethodDataSource(nameof(AreaDependenciesTestCases))]
     public void Area_dependencies_are_extracted_from_formula(
         string formula,
         IReadOnlyList<SheetArea> expectedAreas
@@ -23,7 +21,7 @@ internal class DependencyTreeTests
     }
 
     [Test]
-    [TestCaseSource(nameof(NameDependenciesTestCases))]
+    [MethodDataSource(nameof(NameDependenciesTestCases))]
     public void Name_dependencies_are_kept_for_dependencies_update(
         string formula,
         IReadOnlyList<XLName> expectedNames
@@ -129,7 +127,7 @@ internal class DependencyTreeTests
     }
 
     [Test]
-    [Ignore("A1 to R1C1 conversion not yet implemented and the name formula must be parsed")]
+    [Skip("A1 to R1C1 conversion not yet implemented and the name formula must be parsed")]
     public void Name_range_that_uses_relative_reference_determines_actual_precedent_areas_through_cell_location()
     {
         FormulaDependencies dependencies = GetDependencies(
@@ -162,16 +160,16 @@ internal class DependencyTreeTests
         DependencyTree tree = new();
         tree.AddSheetTree(ws);
         XLCellFormula cellFormula = AddFormula(tree, ws, "B3", "=C4");
-        Assert.False(tree.IsEmpty);
+        ClassicAssert.False(tree.IsEmpty);
 
         // Remove inserted formula removes the dependent and also removes the precedent
         // area from the tree because there is no formula depending on it.
         tree.RemoveFormula(cellFormula);
-        Assert.True(tree.IsEmpty);
+        ClassicAssert.True(tree.IsEmpty);
 
         // Removing already removed formula doesn't throw.
-        Assert.DoesNotThrow(() => tree.RemoveFormula(cellFormula));
-        Assert.True(tree.IsEmpty);
+        ClassicAssert.DoesNotThrow(() => tree.RemoveFormula(cellFormula));
+        ClassicAssert.True(tree.IsEmpty);
     }
 
     [Test]
@@ -183,16 +181,16 @@ internal class DependencyTreeTests
         tree.AddSheetTree(ws);
         XLCellFormula cellFormulaA1 = AddFormula(tree, ws, "A1", "=C4 + B1");
         XLCellFormula cellFormulaA2 = AddFormula(tree, ws, "A2", "=B1 / C4");
-        Assert.False(tree.IsEmpty);
+        ClassicAssert.False(tree.IsEmpty);
 
         // Remove first formula, but the precedent area is still used
         // by second formula so it is not removed.
         tree.RemoveFormula(cellFormulaA1);
-        Assert.False(tree.IsEmpty);
+        ClassicAssert.False(tree.IsEmpty);
 
         // Remove second formula
         tree.RemoveFormula(cellFormulaA2);
-        Assert.True(tree.IsEmpty);
+        ClassicAssert.True(tree.IsEmpty);
     }
 
     #endregion
@@ -352,50 +350,50 @@ internal class DependencyTreeTests
 
         renamedSheet.Name = "Renamed";
 
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             "SUM(Renamed!A1:A2, A3, Unchanged!A1:A2)",
             renamedSheet.Cell("A4").FormulaA1
         );
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             "SUM(Unchanged!A1:A2, A3, Renamed!A1:A2)",
             unchangedSheet.Cell("A4").FormulaA1
         );
 
         Recalculate();
-        Assert.False(renamedSheet.Cell("A4").NeedsRecalculation);
-        Assert.False(unchangedSheet.Cell("A4").NeedsRecalculation);
+        ClassicAssert.False(renamedSheet.Cell("A4").NeedsRecalculation);
+        ClassicAssert.False(unchangedSheet.Cell("A4").NeedsRecalculation);
 
         // Both depend on Unchanged!A1
         unchangedSheet.Cell("A1").Value = 110;
-        Assert.True(renamedSheet.Cell("A4").NeedsRecalculation);
-        Assert.True(unchangedSheet.Cell("A4").NeedsRecalculation);
+        ClassicAssert.True(renamedSheet.Cell("A4").NeedsRecalculation);
+        ClassicAssert.True(unchangedSheet.Cell("A4").NeedsRecalculation);
         Recalculate();
-        Assert.AreEqual(136, renamedSheet.Cell("A4").CachedValue);
-        Assert.AreEqual(163, unchangedSheet.Cell("A4").CachedValue);
+        ClassicAssert.AreEqual(136, renamedSheet.Cell("A4").CachedValue);
+        ClassicAssert.AreEqual(163, unchangedSheet.Cell("A4").CachedValue);
 
         // Both depend on Renamed!A1
         renamedSheet.Cell("A1").Value = 201;
-        Assert.True(renamedSheet.Cell("A4").NeedsRecalculation);
-        Assert.True(unchangedSheet.Cell("A4").NeedsRecalculation);
+        ClassicAssert.True(renamedSheet.Cell("A4").NeedsRecalculation);
+        ClassicAssert.True(unchangedSheet.Cell("A4").NeedsRecalculation);
         Recalculate();
-        Assert.AreEqual(336, renamedSheet.Cell("A4").CachedValue);
-        Assert.AreEqual(363, unchangedSheet.Cell("A4").CachedValue);
+        ClassicAssert.AreEqual(336, renamedSheet.Cell("A4").CachedValue);
+        ClassicAssert.AreEqual(363, unchangedSheet.Cell("A4").CachedValue);
 
         // Only unchanged depends on Unchanged!A3. The renamed formula keeps value.
         unchangedSheet.Cell("A3").Value = 330;
-        Assert.False(renamedSheet.Cell("A4").NeedsRecalculation);
-        Assert.True(unchangedSheet.Cell("A4").NeedsRecalculation);
+        ClassicAssert.False(renamedSheet.Cell("A4").NeedsRecalculation);
+        ClassicAssert.True(unchangedSheet.Cell("A4").NeedsRecalculation);
         Recalculate();
-        Assert.AreEqual(336, renamedSheet.Cell("A4").CachedValue);
-        Assert.AreEqual(663, unchangedSheet.Cell("A4").CachedValue);
+        ClassicAssert.AreEqual(336, renamedSheet.Cell("A4").CachedValue);
+        ClassicAssert.AreEqual(663, unchangedSheet.Cell("A4").CachedValue);
 
         // Only renamed depends on Renamed!A3. The unchanged formula keeps value.
         renamedSheet.Cell("A3").Value = 403;
-        Assert.True(renamedSheet.Cell("A4").NeedsRecalculation);
-        Assert.False(unchangedSheet.Cell("A4").NeedsRecalculation);
+        ClassicAssert.True(renamedSheet.Cell("A4").NeedsRecalculation);
+        ClassicAssert.False(unchangedSheet.Cell("A4").NeedsRecalculation);
         Recalculate();
-        Assert.AreEqual(736, renamedSheet.Cell("A4").CachedValue);
-        Assert.AreEqual(663, unchangedSheet.Cell("A4").CachedValue);
+        ClassicAssert.AreEqual(736, renamedSheet.Cell("A4").CachedValue);
+        ClassicAssert.AreEqual(663, unchangedSheet.Cell("A4").CachedValue);
 
         void Recalculate()
         {
@@ -445,7 +443,7 @@ internal class DependencyTreeTests
         {
             foreach (XLCell dirtyCell in ws.Cells(dirtyRange))
             {
-                Assert.AreEqual(expectedDirtyFlag, dirtyCell.Formula?.IsDirty);
+                ClassicAssert.AreEqual(expectedDirtyFlag, dirtyCell.Formula?.IsDirty);
             }
         }
     }

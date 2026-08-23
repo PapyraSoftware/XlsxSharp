@@ -1,9 +1,7 @@
-using NUnit.Framework;
 using XlsxSharp.Excel;
 
 namespace XlsxSharp.Tests.Excel.Coordinates;
 
-[TestFixture]
 public class XlAddressTests
 {
     [Test]
@@ -12,22 +10,25 @@ public class XlAddressTests
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         IXLAddress address = ws.Cell(1, 1).Address;
 
-        Assert.AreEqual("A1", address.ToString());
-        Assert.AreEqual("A1", address.ToString(XLReferenceStyle.A1));
-        Assert.AreEqual("R1C1", address.ToString(XLReferenceStyle.R1C1));
-        Assert.AreEqual("A1", address.ToString(XLReferenceStyle.Default));
-        Assert.AreEqual("Sheet1!A1", address.ToString(XLReferenceStyle.Default, true));
+        ClassicAssert.AreEqual("A1", address.ToString());
+        ClassicAssert.AreEqual("A1", address.ToString(XLReferenceStyle.A1));
+        ClassicAssert.AreEqual("R1C1", address.ToString(XLReferenceStyle.R1C1));
+        ClassicAssert.AreEqual("A1", address.ToString(XLReferenceStyle.Default));
+        ClassicAssert.AreEqual("Sheet1!A1", address.ToString(XLReferenceStyle.Default, true));
 
-        Assert.AreEqual("A1", address.ToStringRelative());
-        Assert.AreEqual("Sheet1!A1", address.ToStringRelative(true));
+        ClassicAssert.AreEqual("A1", address.ToStringRelative());
+        ClassicAssert.AreEqual("Sheet1!A1", address.ToStringRelative(true));
 
-        Assert.AreEqual("$A$1", address.ToStringFixed());
-        Assert.AreEqual("$A$1", address.ToStringFixed(XLReferenceStyle.A1));
-        Assert.AreEqual("R1C1", address.ToStringFixed(XLReferenceStyle.R1C1));
-        Assert.AreEqual("$A$1", address.ToStringFixed(XLReferenceStyle.Default));
-        Assert.AreEqual("Sheet1!$A$1", address.ToStringFixed(XLReferenceStyle.A1, true));
-        Assert.AreEqual("Sheet1!R1C1", address.ToStringFixed(XLReferenceStyle.R1C1, true));
-        Assert.AreEqual("Sheet1!$A$1", address.ToStringFixed(XLReferenceStyle.Default, true));
+        ClassicAssert.AreEqual("$A$1", address.ToStringFixed());
+        ClassicAssert.AreEqual("$A$1", address.ToStringFixed(XLReferenceStyle.A1));
+        ClassicAssert.AreEqual("R1C1", address.ToStringFixed(XLReferenceStyle.R1C1));
+        ClassicAssert.AreEqual("$A$1", address.ToStringFixed(XLReferenceStyle.Default));
+        ClassicAssert.AreEqual("Sheet1!$A$1", address.ToStringFixed(XLReferenceStyle.A1, true));
+        ClassicAssert.AreEqual("Sheet1!R1C1", address.ToStringFixed(XLReferenceStyle.R1C1, true));
+        ClassicAssert.AreEqual(
+            "Sheet1!$A$1",
+            address.ToStringFixed(XLReferenceStyle.Default, true)
+        );
     }
 
     [Test]
@@ -36,22 +37,28 @@ public class XlAddressTests
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet 1");
         IXLAddress address = ws.Cell(1, 1).Address;
 
-        Assert.AreEqual("A1", address.ToString());
-        Assert.AreEqual("A1", address.ToString(XLReferenceStyle.A1));
-        Assert.AreEqual("R1C1", address.ToString(XLReferenceStyle.R1C1));
-        Assert.AreEqual("A1", address.ToString(XLReferenceStyle.Default));
-        Assert.AreEqual("'Sheet 1'!A1", address.ToString(XLReferenceStyle.Default, true));
+        ClassicAssert.AreEqual("A1", address.ToString());
+        ClassicAssert.AreEqual("A1", address.ToString(XLReferenceStyle.A1));
+        ClassicAssert.AreEqual("R1C1", address.ToString(XLReferenceStyle.R1C1));
+        ClassicAssert.AreEqual("A1", address.ToString(XLReferenceStyle.Default));
+        ClassicAssert.AreEqual("'Sheet 1'!A1", address.ToString(XLReferenceStyle.Default, true));
 
-        Assert.AreEqual("A1", address.ToStringRelative());
-        Assert.AreEqual("'Sheet 1'!A1", address.ToStringRelative(true));
+        ClassicAssert.AreEqual("A1", address.ToStringRelative());
+        ClassicAssert.AreEqual("'Sheet 1'!A1", address.ToStringRelative(true));
 
-        Assert.AreEqual("$A$1", address.ToStringFixed());
-        Assert.AreEqual("$A$1", address.ToStringFixed(XLReferenceStyle.A1));
-        Assert.AreEqual("R1C1", address.ToStringFixed(XLReferenceStyle.R1C1));
-        Assert.AreEqual("$A$1", address.ToStringFixed(XLReferenceStyle.Default));
-        Assert.AreEqual("'Sheet 1'!$A$1", address.ToStringFixed(XLReferenceStyle.A1, true));
-        Assert.AreEqual("'Sheet 1'!R1C1", address.ToStringFixed(XLReferenceStyle.R1C1, true));
-        Assert.AreEqual("'Sheet 1'!$A$1", address.ToStringFixed(XLReferenceStyle.Default, true));
+        ClassicAssert.AreEqual("$A$1", address.ToStringFixed());
+        ClassicAssert.AreEqual("$A$1", address.ToStringFixed(XLReferenceStyle.A1));
+        ClassicAssert.AreEqual("R1C1", address.ToStringFixed(XLReferenceStyle.R1C1));
+        ClassicAssert.AreEqual("$A$1", address.ToStringFixed(XLReferenceStyle.Default));
+        ClassicAssert.AreEqual("'Sheet 1'!$A$1", address.ToStringFixed(XLReferenceStyle.A1, true));
+        ClassicAssert.AreEqual(
+            "'Sheet 1'!R1C1",
+            address.ToStringFixed(XLReferenceStyle.R1C1, true)
+        );
+        ClassicAssert.AreEqual(
+            "'Sheet 1'!$A$1",
+            address.ToStringFixed(XLReferenceStyle.Default, true)
+        );
     }
 
     [Test]
@@ -59,11 +66,11 @@ public class XlAddressTests
     {
         IXLAddress address = ProduceInvalidAddress();
 
-        Assert.AreEqual("#REF!", address.ToString());
-        Assert.AreEqual("#REF!", address.ToString(XLReferenceStyle.A1));
-        Assert.AreEqual("#REF!", address.ToString(XLReferenceStyle.R1C1));
-        Assert.AreEqual("#REF!", address.ToString(XLReferenceStyle.Default));
-        Assert.AreEqual("'Sheet 1'!#REF!", address.ToString(XLReferenceStyle.Default, true));
+        ClassicAssert.AreEqual("#REF!", address.ToString());
+        ClassicAssert.AreEqual("#REF!", address.ToString(XLReferenceStyle.A1));
+        ClassicAssert.AreEqual("#REF!", address.ToString(XLReferenceStyle.R1C1));
+        ClassicAssert.AreEqual("#REF!", address.ToString(XLReferenceStyle.Default));
+        ClassicAssert.AreEqual("'Sheet 1'!#REF!", address.ToString(XLReferenceStyle.Default, true));
     }
 
     [Test]
@@ -71,13 +78,19 @@ public class XlAddressTests
     {
         IXLAddress address = ProduceInvalidAddress();
 
-        Assert.AreEqual("#REF!", address.ToStringFixed());
-        Assert.AreEqual("#REF!", address.ToStringFixed(XLReferenceStyle.A1));
-        Assert.AreEqual("#REF!", address.ToStringFixed(XLReferenceStyle.R1C1));
-        Assert.AreEqual("#REF!", address.ToStringFixed(XLReferenceStyle.Default));
-        Assert.AreEqual("'Sheet 1'!#REF!", address.ToStringFixed(XLReferenceStyle.A1, true));
-        Assert.AreEqual("'Sheet 1'!#REF!", address.ToStringFixed(XLReferenceStyle.R1C1, true));
-        Assert.AreEqual("'Sheet 1'!#REF!", address.ToStringFixed(XLReferenceStyle.Default, true));
+        ClassicAssert.AreEqual("#REF!", address.ToStringFixed());
+        ClassicAssert.AreEqual("#REF!", address.ToStringFixed(XLReferenceStyle.A1));
+        ClassicAssert.AreEqual("#REF!", address.ToStringFixed(XLReferenceStyle.R1C1));
+        ClassicAssert.AreEqual("#REF!", address.ToStringFixed(XLReferenceStyle.Default));
+        ClassicAssert.AreEqual("'Sheet 1'!#REF!", address.ToStringFixed(XLReferenceStyle.A1, true));
+        ClassicAssert.AreEqual(
+            "'Sheet 1'!#REF!",
+            address.ToStringFixed(XLReferenceStyle.R1C1, true)
+        );
+        ClassicAssert.AreEqual(
+            "'Sheet 1'!#REF!",
+            address.ToStringFixed(XLReferenceStyle.Default, true)
+        );
     }
 
     [Test]
@@ -85,8 +98,8 @@ public class XlAddressTests
     {
         IXLAddress address = ProduceInvalidAddress();
 
-        Assert.AreEqual("#REF!", address.ToStringRelative());
-        Assert.AreEqual("'Sheet 1'!#REF!", address.ToStringRelative(true));
+        ClassicAssert.AreEqual("#REF!", address.ToStringRelative());
+        ClassicAssert.AreEqual("'Sheet 1'!#REF!", address.ToStringRelative(true));
     }
 
     [Test]
@@ -94,11 +107,11 @@ public class XlAddressTests
     {
         IXLAddress address = ProduceAddressOnDeletedWorksheet();
 
-        Assert.AreEqual("A1", address.ToString());
-        Assert.AreEqual("A1", address.ToString(XLReferenceStyle.A1));
-        Assert.AreEqual("R1C1", address.ToString(XLReferenceStyle.R1C1));
-        Assert.AreEqual("A1", address.ToString(XLReferenceStyle.Default));
-        Assert.AreEqual("#REF!A1", address.ToString(XLReferenceStyle.Default, true));
+        ClassicAssert.AreEqual("A1", address.ToString());
+        ClassicAssert.AreEqual("A1", address.ToString(XLReferenceStyle.A1));
+        ClassicAssert.AreEqual("R1C1", address.ToString(XLReferenceStyle.R1C1));
+        ClassicAssert.AreEqual("A1", address.ToString(XLReferenceStyle.Default));
+        ClassicAssert.AreEqual("#REF!A1", address.ToString(XLReferenceStyle.Default, true));
     }
 
     [Test]
@@ -106,13 +119,13 @@ public class XlAddressTests
     {
         IXLAddress address = ProduceAddressOnDeletedWorksheet();
 
-        Assert.AreEqual("$A$1", address.ToStringFixed());
-        Assert.AreEqual("$A$1", address.ToStringFixed(XLReferenceStyle.A1));
-        Assert.AreEqual("R1C1", address.ToStringFixed(XLReferenceStyle.R1C1));
-        Assert.AreEqual("$A$1", address.ToStringFixed(XLReferenceStyle.Default));
-        Assert.AreEqual("#REF!$A$1", address.ToStringFixed(XLReferenceStyle.A1, true));
-        Assert.AreEqual("#REF!R1C1", address.ToStringFixed(XLReferenceStyle.R1C1, true));
-        Assert.AreEqual("#REF!$A$1", address.ToStringFixed(XLReferenceStyle.Default, true));
+        ClassicAssert.AreEqual("$A$1", address.ToStringFixed());
+        ClassicAssert.AreEqual("$A$1", address.ToStringFixed(XLReferenceStyle.A1));
+        ClassicAssert.AreEqual("R1C1", address.ToStringFixed(XLReferenceStyle.R1C1));
+        ClassicAssert.AreEqual("$A$1", address.ToStringFixed(XLReferenceStyle.Default));
+        ClassicAssert.AreEqual("#REF!$A$1", address.ToStringFixed(XLReferenceStyle.A1, true));
+        ClassicAssert.AreEqual("#REF!R1C1", address.ToStringFixed(XLReferenceStyle.R1C1, true));
+        ClassicAssert.AreEqual("#REF!$A$1", address.ToStringFixed(XLReferenceStyle.Default, true));
     }
 
     [Test]
@@ -120,8 +133,8 @@ public class XlAddressTests
     {
         IXLAddress address = ProduceAddressOnDeletedWorksheet();
 
-        Assert.AreEqual("A1", address.ToStringRelative());
-        Assert.AreEqual("#REF!A1", address.ToStringRelative(true));
+        ClassicAssert.AreEqual("A1", address.ToStringRelative());
+        ClassicAssert.AreEqual("#REF!A1", address.ToStringRelative(true));
     }
 
     [Test]
@@ -129,11 +142,11 @@ public class XlAddressTests
     {
         IXLAddress address = this.ProduceInvalidAddressOnDeletedWorksheet();
 
-        Assert.AreEqual("#REF!", address.ToString());
-        Assert.AreEqual("#REF!", address.ToString(XLReferenceStyle.A1));
-        Assert.AreEqual("#REF!", address.ToString(XLReferenceStyle.R1C1));
-        Assert.AreEqual("#REF!", address.ToString(XLReferenceStyle.Default));
-        Assert.AreEqual("#REF!#REF!", address.ToString(XLReferenceStyle.Default, true));
+        ClassicAssert.AreEqual("#REF!", address.ToString());
+        ClassicAssert.AreEqual("#REF!", address.ToString(XLReferenceStyle.A1));
+        ClassicAssert.AreEqual("#REF!", address.ToString(XLReferenceStyle.R1C1));
+        ClassicAssert.AreEqual("#REF!", address.ToString(XLReferenceStyle.Default));
+        ClassicAssert.AreEqual("#REF!#REF!", address.ToString(XLReferenceStyle.Default, true));
     }
 
     [Test]
@@ -141,13 +154,13 @@ public class XlAddressTests
     {
         IXLAddress address = this.ProduceInvalidAddressOnDeletedWorksheet();
 
-        Assert.AreEqual("#REF!", address.ToStringFixed());
-        Assert.AreEqual("#REF!", address.ToStringFixed(XLReferenceStyle.A1));
-        Assert.AreEqual("#REF!", address.ToStringFixed(XLReferenceStyle.R1C1));
-        Assert.AreEqual("#REF!", address.ToStringFixed(XLReferenceStyle.Default));
-        Assert.AreEqual("#REF!#REF!", address.ToStringFixed(XLReferenceStyle.A1, true));
-        Assert.AreEqual("#REF!#REF!", address.ToStringFixed(XLReferenceStyle.R1C1, true));
-        Assert.AreEqual("#REF!#REF!", address.ToStringFixed(XLReferenceStyle.Default, true));
+        ClassicAssert.AreEqual("#REF!", address.ToStringFixed());
+        ClassicAssert.AreEqual("#REF!", address.ToStringFixed(XLReferenceStyle.A1));
+        ClassicAssert.AreEqual("#REF!", address.ToStringFixed(XLReferenceStyle.R1C1));
+        ClassicAssert.AreEqual("#REF!", address.ToStringFixed(XLReferenceStyle.Default));
+        ClassicAssert.AreEqual("#REF!#REF!", address.ToStringFixed(XLReferenceStyle.A1, true));
+        ClassicAssert.AreEqual("#REF!#REF!", address.ToStringFixed(XLReferenceStyle.R1C1, true));
+        ClassicAssert.AreEqual("#REF!#REF!", address.ToStringFixed(XLReferenceStyle.Default, true));
     }
 
     [Test]
@@ -155,8 +168,8 @@ public class XlAddressTests
     {
         IXLAddress address = this.ProduceInvalidAddressOnDeletedWorksheet();
 
-        Assert.AreEqual("#REF!", address.ToStringRelative());
-        Assert.AreEqual("#REF!#REF!", address.ToStringRelative(true));
+        ClassicAssert.AreEqual("#REF!", address.ToStringRelative());
+        ClassicAssert.AreEqual("#REF!#REF!", address.ToStringRelative(true));
     }
 
     #region Private Methods

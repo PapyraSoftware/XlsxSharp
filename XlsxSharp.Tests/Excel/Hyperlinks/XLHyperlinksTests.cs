@@ -1,16 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 
 namespace XlsxSharp.Tests.Excel.Hyperlinks;
 
-[TestFixture]
-[TestOf(typeof(XLHyperlinks))]
 public class XlHyperlinksTests
 {
-    [TestCaseSource(nameof(StructuralChangeCases))]
+    [Test]
+    [MethodDataSource(nameof(StructuralChangeCases))]
     public void HyperlinkIsMovedOnSheetStructureChange(
         string hyperlinkPosition,
         Action<IXLWorksheet> structuralChange,
@@ -24,8 +22,8 @@ public class XlHyperlinksTests
 
         structuralChange(ws);
 
-        Assert.False(ws.Cell(hyperlinkPosition).HasHyperlink);
-        Assert.AreSame(ws.Cell(expectedPosition).GetHyperlink(), hyperlink);
+        ClassicAssert.False(ws.Cell(hyperlinkPosition).HasHyperlink);
+        ClassicAssert.AreSame(ws.Cell(expectedPosition).GetHyperlink(), hyperlink);
     }
 
     public static IEnumerable<object[]> StructuralChangeCases =>
@@ -55,11 +53,11 @@ public class XlHyperlinksTests
 
         // Original problem was that linkA1 was shifted to A2, but linkA2 wasn't yet shifted to A3.
         // Thus original dictionary threw "An item with the same key has already been added"
-        Assert.DoesNotThrow(() => ws.Row(1).InsertRowsAbove(1));
+        ClassicAssert.DoesNotThrow(() => ws.Row(1).InsertRowsAbove(1));
 
-        Assert.IsFalse(ws.Cell("A1").HasHyperlink);
-        Assert.AreSame(linkA1, ws.Cell("A2").GetHyperlink());
-        Assert.AreSame(linkA2, ws.Cell("A3").GetHyperlink());
+        ClassicAssert.IsFalse(ws.Cell("A1").HasHyperlink);
+        ClassicAssert.AreSame(linkA1, ws.Cell("A2").GetHyperlink());
+        ClassicAssert.AreSame(linkA2, ws.Cell("A3").GetHyperlink());
     }
 
     [Test]
@@ -75,11 +73,11 @@ public class XlHyperlinksTests
         bool deleted = ws.Hyperlinks.Delete(link);
 
         // Assert
-        Assert.IsTrue(deleted);
-        Assert.AreEqual(ws.Style.Font.FontColor, ws.Cell("A1").Style.Font.FontColor);
-        Assert.AreEqual(ws.Style.Font.Underline, ws.Cell("A1").Style.Font.Underline);
-        Assert.IsNull(link.Container);
-        Assert.IsFalse(ws.Hyperlinks.TryGet(ws.Cell("A1").Address, out _));
+        ClassicAssert.IsTrue(deleted);
+        ClassicAssert.AreEqual(ws.Style.Font.FontColor, ws.Cell("A1").Style.Font.FontColor);
+        ClassicAssert.AreEqual(ws.Style.Font.Underline, ws.Cell("A1").Style.Font.Underline);
+        ClassicAssert.IsNull(link.Container);
+        ClassicAssert.IsFalse(ws.Hyperlinks.TryGet(ws.Cell("A1").Address, out _));
     }
 
     [Test]
@@ -95,11 +93,11 @@ public class XlHyperlinksTests
         bool deleted = ws.Hyperlinks.Delete(ws.Cell("A1").Address);
 
         // Assert
-        Assert.IsTrue(deleted);
-        Assert.AreEqual(ws.Style.Font.FontColor, ws.Cell("A1").Style.Font.FontColor);
-        Assert.AreEqual(ws.Style.Font.Underline, ws.Cell("A1").Style.Font.Underline);
-        Assert.IsNull(link.Container);
-        Assert.IsFalse(ws.Hyperlinks.TryGet(ws.Cell("A1").Address, out _));
+        ClassicAssert.IsTrue(deleted);
+        ClassicAssert.AreEqual(ws.Style.Font.FontColor, ws.Cell("A1").Style.Font.FontColor);
+        ClassicAssert.AreEqual(ws.Style.Font.Underline, ws.Cell("A1").Style.Font.Underline);
+        ClassicAssert.IsNull(link.Container);
+        ClassicAssert.IsFalse(ws.Hyperlinks.TryGet(ws.Cell("A1").Address, out _));
     }
 
     [Test]
@@ -113,7 +111,7 @@ public class XlHyperlinksTests
         bool wasDeleted = ws.Hyperlinks.Delete(ws.Cell("A1").Address);
 
         // Assert
-        Assert.IsFalse(wasDeleted);
+        ClassicAssert.IsFalse(wasDeleted);
     }
 
     [Test]
@@ -130,7 +128,7 @@ public class XlHyperlinksTests
         bool deleted = ws1.Hyperlinks.Delete(ws2.Cell("A1").Address);
 
         // Assert
-        Assert.IsFalse(deleted);
+        ClassicAssert.IsFalse(deleted);
     }
 
     [Test]
@@ -146,7 +144,7 @@ public class XlHyperlinksTests
         XLHyperlink foundLink = ws.Hyperlinks.Get(ws.Cell("A1").Address);
 
         // Assert
-        Assert.AreSame(link, foundLink);
+        ClassicAssert.AreSame(link, foundLink);
     }
 
     [Test]
@@ -168,7 +166,7 @@ public class XlHyperlinksTests
             }
         )
         {
-            Assert.Throws<KeyNotFoundException>(() => ws.Hyperlinks.Get(addressWithoutLink));
+            ClassicAssert.Throws<KeyNotFoundException>(() => ws.Hyperlinks.Get(addressWithoutLink));
         }
     }
 
@@ -182,7 +180,7 @@ public class XlHyperlinksTests
         IXLWorksheet ws2 = wb.AddWorksheet();
         IXLAddress wrongSheetAddress = ws2.Cell("A1").Address;
 
-        Assert.Throws<KeyNotFoundException>(() => ws1.Hyperlinks.Get(wrongSheetAddress));
+        ClassicAssert.Throws<KeyNotFoundException>(() => ws1.Hyperlinks.Get(wrongSheetAddress));
     }
 
     [Test]
@@ -198,8 +196,8 @@ public class XlHyperlinksTests
         bool wasFound = ws.Hyperlinks.TryGet(ws.Cell("A1").Address, out XLHyperlink? foundLink);
 
         // Assert
-        Assert.IsTrue(wasFound);
-        Assert.AreSame(link, foundLink);
+        ClassicAssert.IsTrue(wasFound);
+        ClassicAssert.AreSame(link, foundLink);
     }
 
     [Test]
@@ -221,7 +219,7 @@ public class XlHyperlinksTests
             }
         )
         {
-            Assert.IsFalse(ws.Hyperlinks.TryGet(addressWithoutLink, out _));
+            ClassicAssert.IsFalse(ws.Hyperlinks.TryGet(addressWithoutLink, out _));
         }
     }
 }
