@@ -273,7 +273,6 @@ internal sealed class XLImmutableRichText : IEquatable<XLImmutableRichText>
         public override bool Equals(object? obj) =>
             obj is PhoneticProperties other && this.Equals(other);
 
-        public override int GetHashCode() =>
-            HashCode.Combine(this.Font, this.Type, this.Alignment);
+        public override int GetHashCode() => HashCode.Combine(this.Font, this.Type, this.Alignment);
     }
 }

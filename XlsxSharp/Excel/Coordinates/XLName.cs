@@ -68,11 +68,13 @@ internal readonly struct XLName : IEquatable<XLName>
     {
         // Both parts are hashed through their comparer so that they match the case insensitive
         // Equals.
-        int sheetHashCode =
-            this.SheetName is not null
-                ? XlsxSharp.XLHelper.SheetComparer.GetHashCode(this.SheetName)
-                : 0;
-        return HashCode.Combine(sheetHashCode, XlsxSharp.XLHelper.NameComparer.GetHashCode(this.Name));
+        int sheetHashCode = this.SheetName is not null
+            ? XlsxSharp.XLHelper.SheetComparer.GetHashCode(this.SheetName)
+            : 0;
+        return HashCode.Combine(
+            sheetHashCode,
+            XlsxSharp.XLHelper.NameComparer.GetHashCode(this.Name)
+        );
     }
 
     public override string ToString()

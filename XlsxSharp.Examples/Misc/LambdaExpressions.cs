@@ -30,7 +30,10 @@ public class LambdaExpressions : IXLExample
 
             // Put a light gray background to all text cells, taken from the range before the
             // styling starts.
-            List<IXLCell> textCells = [.. rngData.Cells().Where(c => c.DataType == XLDataType.Text)];
+            List<IXLCell> textCells =
+            [
+                .. rngData.Cells().Where(c => c.DataType == XLDataType.Text),
+            ];
             foreach (IXLCell c in textCells)
             {
                 c.Style.Fill.BackgroundColor = XLColor.LightGray;

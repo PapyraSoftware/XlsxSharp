@@ -12,6 +12,28 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  format:
+    name: Format
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.x'
+
+      # CSharpier only parses the sources, so this job needs neither a restore, a build nor the
+      # SixLabors license, and formatting does not differ per platform - hence a single runner
+      # instead of the matrix below.
+      - name: Restore .NET tools
+        run: dotnet tool restore
+
+      - name: Check formatting
+        run: dotnet csharpier check .
+
   build:
     name: Build & Test
     runs-on: ${{ matrix.os }}

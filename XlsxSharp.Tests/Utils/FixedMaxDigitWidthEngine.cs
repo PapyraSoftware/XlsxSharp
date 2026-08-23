@@ -29,8 +29,7 @@ internal sealed class FixedMaxDigitWidthEngine(double maxDigitWidth) : IXLGraphi
     public double GetTextWidth(string text, IXLFontBase font, double dpiX) =>
         this._engine.GetTextWidth(text, font, dpiX);
 
-    public double GetDescent(IXLFontBase font, double dpiY) =>
-        this._engine.GetDescent(font, dpiY);
+    public double GetDescent(IXLFontBase font, double dpiY) => this._engine.GetDescent(font, dpiY);
 
     public GlyphBox GetGlyphBox(ReadOnlySpan<int> graphemeCluster, IXLFontBase font, Dpi dpi) =>
         this._engine.GetGlyphBox(graphemeCluster, font, dpi);

@@ -45,7 +45,11 @@ public class IntegerExtensionsTests
     {
         foreach (uint value in SampleValues())
         {
-            Assert.That(value.GetHighestSetBit(), Is.EqualTo(RefHighestSetBit(value)), $"{value:X8}");
+            Assert.That(
+                value.GetHighestSetBit(),
+                Is.EqualTo(RefHighestSetBit(value)),
+                $"{value:X8}"
+            );
         }
     }
 
