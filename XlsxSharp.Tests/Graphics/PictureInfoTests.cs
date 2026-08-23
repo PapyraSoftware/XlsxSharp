@@ -12,7 +12,13 @@ public class PictureInfoTests
 {
     [Test]
     public async Task CanReadPng() =>
-        await AssertRasterImage("SampleImagePng.png", XLPictureFormat.Png, new Size(252, 152), 96, 96);
+        await AssertRasterImage(
+            "SampleImagePng.png",
+            XLPictureFormat.Png,
+            new Size(252, 152),
+            96,
+            96
+        );
 
     [Test]
     [Arguments("SampleImageJfif.jpg", 176, 270, 96, 96)]
@@ -28,15 +34,33 @@ public class PictureInfoTests
 
     [Test]
     public async Task CanReadExif() =>
-        await AssertRasterImage("SampleImageExif.jpg", XLPictureFormat.Jpeg, new Size(252, 152), 0, 0);
+        await AssertRasterImage(
+            "SampleImageExif.jpg",
+            XLPictureFormat.Jpeg,
+            new Size(252, 152),
+            0,
+            0
+        );
 
     [Test]
     public async Task CanReadGif87Image() =>
-        await AssertRasterImage("SampleImageGif87a.gif", XLPictureFormat.Gif, new Size(500, 200), 0, 0);
+        await AssertRasterImage(
+            "SampleImageGif87a.gif",
+            XLPictureFormat.Gif,
+            new Size(500, 200),
+            0,
+            0
+        );
 
     [Test]
     public async Task CanReadGif89Image() =>
-        await AssertRasterImage("SampleImageGif89a.gif", XLPictureFormat.Gif, new Size(500, 200), 0, 0);
+        await AssertRasterImage(
+            "SampleImageGif89a.gif",
+            XLPictureFormat.Gif,
+            new Size(500, 200),
+            0,
+            0
+        );
 
     [Test]
     [Arguments("SampleImageBmpWin24bit.bmp")]
@@ -44,11 +68,23 @@ public class PictureInfoTests
     [Arguments("SampleImageBmpWin4bit.bmp")]
     [Arguments("SampleImageBmpWin24bit.bmp")]
     public async Task CanReadBmpImageV3AndFurther(string imageName) =>
-        await AssertRasterImage(imageName, XLPictureFormat.Bmp, new Size(167, 51), 80.645d, 80.645d);
+        await AssertRasterImage(
+            imageName,
+            XLPictureFormat.Bmp,
+            new Size(167, 51),
+            80.645d,
+            80.645d
+        );
 
     [Test]
     public async Task CanReadBmpV1() =>
-        await AssertRasterImage("SampleImageBmpV1.bmp", XLPictureFormat.Bmp, new Size(150, 50), 0, 0);
+        await AssertRasterImage(
+            "SampleImageBmpV1.bmp",
+            XLPictureFormat.Bmp,
+            new Size(150, 50),
+            0,
+            0
+        );
 
     [Test]
     public async Task CanReadTiffWithBigEndianEncoding() =>
@@ -72,15 +108,29 @@ public class PictureInfoTests
 
     [Test]
     public async Task CanReadPcx() =>
-        await AssertRasterImage("SampleImagePcx.pcx", XLPictureFormat.Pcx, new Size(100, 50), 96, 96);
+        await AssertRasterImage(
+            "SampleImagePcx.pcx",
+            XLPictureFormat.Pcx,
+            new Size(100, 50),
+            96,
+            96
+        );
 
     [Test]
     public async Task CanReadWmfWithPlaceableHeader() =>
-        await AssertVectorImage("SampleImagePlaceableWmf.wmf", XLPictureFormat.Wmf, new Size(1000, 500));
+        await AssertVectorImage(
+            "SampleImagePlaceableWmf.wmf",
+            XLPictureFormat.Wmf,
+            new Size(1000, 500)
+        );
 
     [Test]
     public async Task CanReadWmfWithOriginalHeader() =>
-        await AssertVectorImage("SampleImageOriginalWmf.wmf", XLPictureFormat.Wmf, new Size(12496, 6247));
+        await AssertVectorImage(
+            "SampleImageOriginalWmf.wmf",
+            XLPictureFormat.Wmf,
+            new Size(12496, 6247)
+        );
 
     [Test]
     public async Task CanReadEmf() =>
