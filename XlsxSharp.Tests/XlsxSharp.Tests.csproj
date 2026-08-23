@@ -34,6 +34,8 @@
     <!-- Custom global usings added in the csproj file -->
     <Using Include="TUnit.Core" />
     <Using Include="TUnit.Core.Executors" />
+    <Using Include="TUnit.Assertions" />
+    <Using Include="TUnit.Assertions.Extensions" />
     <Using Include="XlsxSharp.Tests.Utils" />
   </ItemGroup>
 </Project>

@@ -1,6 +1,7 @@
 using System.Drawing;
 using System.IO;
 using System.Reflection;
+using System.Threading.Tasks;
 using XlsxSharp.Excel.Drawings;
 using XlsxSharp.Graphics;
 using Assembly = System.Reflection.Assembly;
@@ -10,14 +11,14 @@ namespace XlsxSharp.Tests.Graphics;
 public class PictureInfoTests
 {
     [Test]
-    public void CanReadPng() =>
-        AssertRasterImage("SampleImagePng.png", XLPictureFormat.Png, new Size(252, 152), 96, 96);
+    public async Task CanReadPng() =>
+        await AssertRasterImage("SampleImagePng.png", XLPictureFormat.Png, new Size(252, 152), 96, 96);
 
     [Test]
     [Arguments("SampleImageJfif.jpg", 176, 270, 96, 96)]
     [Arguments("jpeg-rgb.jpg", 200, 200, 0, 0)] // Adobe JPG, has APP14 marker right after SOI instead of APP0
-    public void CanReadJfif(string filename, int widthPx, int heightPx, int dpiX, int dpiY) =>
-        AssertRasterImage(
+    public async Task CanReadJfif(string filename, int widthPx, int heightPx, int dpiX, int dpiY) =>
+        await AssertRasterImage(
             $"Jpg.{filename}",
             XLPictureFormat.Jpeg,
             new Size(widthPx, heightPx),
@@ -26,32 +27,32 @@ public class PictureInfoTests
         );
 
     [Test]
-    public void CanReadExif() =>
-        AssertRasterImage("SampleImageExif.jpg", XLPictureFormat.Jpeg, new Size(252, 152), 0, 0);
+    public async Task CanReadExif() =>
+        await AssertRasterImage("SampleImageExif.jpg", XLPictureFormat.Jpeg, new Size(252, 152), 0, 0);
 
     [Test]
-    public void CanReadGif87Image() =>
-        AssertRasterImage("SampleImageGif87a.gif", XLPictureFormat.Gif, new Size(500, 200), 0, 0);
+    public async Task CanReadGif87Image() =>
+        await AssertRasterImage("SampleImageGif87a.gif", XLPictureFormat.Gif, new Size(500, 200), 0, 0);
 
     [Test]
-    public void CanReadGif89Image() =>
-        AssertRasterImage("SampleImageGif89a.gif", XLPictureFormat.Gif, new Size(500, 200), 0, 0);
+    public async Task CanReadGif89Image() =>
+        await AssertRasterImage("SampleImageGif89a.gif", XLPictureFormat.Gif, new Size(500, 200), 0, 0);
 
     [Test]
     [Arguments("SampleImageBmpWin24bit.bmp")]
     [Arguments("SampleImageBmpWin8bit.bmp")]
     [Arguments("SampleImageBmpWin4bit.bmp")]
     [Arguments("SampleImageBmpWin24bit.bmp")]
-    public void CanReadBmpImageV3AndFurther(string imageName) =>
-        AssertRasterImage(imageName, XLPictureFormat.Bmp, new Size(167, 51), 80.645d, 80.645d);
+    public async Task CanReadBmpImageV3AndFurther(string imageName) =>
+        await AssertRasterImage(imageName, XLPictureFormat.Bmp, new Size(167, 51), 80.645d, 80.645d);
 
     [Test]
-    public void CanReadBmpV1() =>
-        AssertRasterImage("SampleImageBmpV1.bmp", XLPictureFormat.Bmp, new Size(150, 50), 0, 0);
+    public async Task CanReadBmpV1() =>
+        await AssertRasterImage("SampleImageBmpV1.bmp", XLPictureFormat.Bmp, new Size(150, 50), 0, 0);
 
     [Test]
-    public void CanReadTiffWithBigEndianEncoding() =>
-        AssertRasterImage(
+    public async Task CanReadTiffWithBigEndianEncoding() =>
+        await AssertRasterImage(
             "SampleImageTiffBigEndian.tiff",
             XLPictureFormat.Tiff,
             new Size(130, 45),
@@ -60,8 +61,8 @@ public class PictureInfoTests
         );
 
     [Test]
-    public void CanReadTiffWithLittleEndianEncoding() =>
-        AssertRasterImage(
+    public async Task CanReadTiffWithLittleEndianEncoding() =>
+        await AssertRasterImage(
             "SampleImageTiffLittleEndian.tiff",
             XLPictureFormat.Tiff,
             new Size(130, 45),
@@ -70,24 +71,24 @@ public class PictureInfoTests
         );
 
     [Test]
-    public void CanReadPcx() =>
-        AssertRasterImage("SampleImagePcx.pcx", XLPictureFormat.Pcx, new Size(100, 50), 96, 96);
+    public async Task CanReadPcx() =>
+        await AssertRasterImage("SampleImagePcx.pcx", XLPictureFormat.Pcx, new Size(100, 50), 96, 96);
 
     [Test]
-    public void CanReadWmfWithPlaceableHeader() =>
-        AssertVectorImage("SampleImagePlaceableWmf.wmf", XLPictureFormat.Wmf, new Size(1000, 500));
+    public async Task CanReadWmfWithPlaceableHeader() =>
+        await AssertVectorImage("SampleImagePlaceableWmf.wmf", XLPictureFormat.Wmf, new Size(1000, 500));
 
     [Test]
-    public void CanReadWmfWithOriginalHeader() =>
-        AssertVectorImage("SampleImageOriginalWmf.wmf", XLPictureFormat.Wmf, new Size(12496, 6247));
+    public async Task CanReadWmfWithOriginalHeader() =>
+        await AssertVectorImage("SampleImageOriginalWmf.wmf", XLPictureFormat.Wmf, new Size(12496, 6247));
 
     [Test]
-    public void CanReadEmf() =>
-        AssertVectorImage("SampleImageEmf.emf", XLPictureFormat.Emf, new Size(28844, 28938));
+    public async Task CanReadEmf() =>
+        await AssertVectorImage("SampleImageEmf.emf", XLPictureFormat.Emf, new Size(28844, 28938));
 
     [Test]
-    public void CanReadExtendedWebp() =>
-        AssertRasterImage(
+    public async Task CanReadExtendedWebp() =>
+        await AssertRasterImage(
             "SampleImageWebpExtendedFormat.webp",
             XLPictureFormat.Webp,
             new Size(188, 231),
@@ -96,8 +97,8 @@ public class PictureInfoTests
         );
 
     [Test]
-    public void CanReadLossyWebp() =>
-        AssertRasterImage(
+    public async Task CanReadLossyWebp() =>
+        await AssertRasterImage(
             "SampleImageWebpLossy.webp",
             XLPictureFormat.Webp,
             new Size(278, 90),
@@ -106,8 +107,8 @@ public class PictureInfoTests
         );
 
     [Test]
-    public void CanReadLosslessWebp() =>
-        AssertRasterImage(
+    public async Task CanReadLosslessWebp() =>
+        await AssertRasterImage(
             "SampleImageWebpLossless.webp",
             XLPictureFormat.Webp,
             new Size(395, 136),
@@ -115,14 +116,14 @@ public class PictureInfoTests
             72
         );
 
-    private static void AssertRasterImage(
+    private static async Task AssertRasterImage(
         string imageName,
         XLPictureFormat expectedFormat,
         Size expectedPxSize,
         double expectedDpiX,
         double expectedDpiY
     ) =>
-        AssertImage(
+        await AssertImage(
             imageName,
             expectedFormat,
             expectedPxSize,
@@ -131,13 +132,13 @@ public class PictureInfoTests
             expectedDpiY
         );
 
-    private static void AssertVectorImage(
+    private static async Task AssertVectorImage(
         string imageName,
         XLPictureFormat expectedFormat,
         Size expectedHiMetricSize
-    ) => AssertImage(imageName, expectedFormat, Size.Empty, expectedHiMetricSize, 0, 0);
+    ) => await AssertImage(imageName, expectedFormat, Size.Empty, expectedHiMetricSize, 0, 0);
 
-    private static void AssertImage(
+    private static async Task AssertImage(
         string imageName,
         XLPictureFormat expectedFormat,
         Size expectedPxSize,
@@ -154,12 +155,12 @@ public class PictureInfoTests
             XLPictureFormat.Unknown
         );
 
-        ClassicAssert.AreEqual(expectedFormat, info.Format);
-        ClassicAssert.AreEqual(expectedPxSize, info.SizePx);
-        ClassicAssert.AreEqual(expectedHiMetricSize, info.SizePhys);
+        await Assert.That(info.Format).IsEqualTo(expectedFormat);
+        await Assert.That(info.SizePx).IsEqualTo(expectedPxSize);
+        await Assert.That(info.SizePhys).IsEqualTo(expectedHiMetricSize);
 
         // Some DPI is stored as pixels per meter, causing a rounding errors.
-        ClassicAssert.AreEqual(expectedDpiX, info.DpiX, 0.02);
-        ClassicAssert.AreEqual(expectedDpiY, info.DpiY, 0.02);
+        await Assert.That(info.DpiX).IsCloseTo(expectedDpiX, 0.02);
+        await Assert.That(info.DpiY).IsCloseTo(expectedDpiY, 0.02);
     }
 }
