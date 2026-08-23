@@ -7,7 +7,10 @@ namespace XlsxSharp.Extensions;
 
 internal static class IntegerExtensions
 {
-    public static bool Between(this int val, int from, int to) => val >= from && val <= to;
+    // Casting the offsets to uint turns two comparisons into one: a negative (val - from)
+    // wraps around to a huge unsigned value, which is automatically > (to - from).
+    public static bool Between(this int val, int from, int to) =>
+        (uint)(val - from) <= (uint)(to - from);
 
     /// <summary>
     /// Get index of highest set bit &lt;= to <paramref name="maximalIndex"/> or -1 if no such bit.
