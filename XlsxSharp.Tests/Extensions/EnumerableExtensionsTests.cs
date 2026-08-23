@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -52,13 +52,13 @@ public class EnumerableExtensionsTests
     [Test]
     public void SkipLastSkipsLastElementOfEnumerable()
     {
-        IEnumerable<int> empty = Array.Empty<int>().SkipLast();
+        IEnumerable<int> empty = Array.Empty<int>().SkipLast(1);
         CollectionAssert.IsEmpty(empty);
 
-        IEnumerable<int> oneElement = new[] { 1 }.SkipLast();
+        IEnumerable<int> oneElement = new[] { 1 }.SkipLast(1);
         CollectionAssert.IsEmpty(oneElement);
 
-        IEnumerable<int> twoElements = new[] { 1, 2 }.SkipLast();
+        IEnumerable<int> twoElements = new[] { 1, 2 }.SkipLast(1);
         CollectionAssert.AreEqual(new[] { 1 }, twoElements);
     }
 
