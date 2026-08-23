@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using XlsxSharp.Extensions;
 
 namespace XlsxSharp.Tests.Extensions;
@@ -46,18 +47,18 @@ public class ReflectionExtensionTests
     [Arguments(nameof(TestClass.InstanceField), false)]
     [Arguments(nameof(TestClass.InstanceEvent), false)]
     [Arguments(nameof(TestClass.InstanceMethod), false)]
-    public void IsStatic(string memberName, bool expectedIsStatic)
+    public async Task IsStatic(string memberName, bool expectedIsStatic)
     {
         MemberInfo member = typeof(TestClass).GetMember(memberName).Single();
-        ClassicAssert.AreEqual(expectedIsStatic, member.IsStatic());
+        await Assert.That(member.IsStatic()).IsEqualTo(expectedIsStatic);
     }
 
     [Test]
     [Arguments(BindingFlags.Static | BindingFlags.NonPublic, true)]
     [Arguments(BindingFlags.Instance | BindingFlags.Public, false)]
-    public void ConstructorIsStatic(BindingFlags flag, bool expectedIsStatic)
+    public async Task ConstructorIsStatic(BindingFlags flag, bool expectedIsStatic)
     {
         ConstructorInfo[] constructors = typeof(TestClass).GetConstructors(flag);
-        ClassicAssert.AreEqual(expectedIsStatic, constructors.Single().IsStatic());
+        await Assert.That(constructors.Single().IsStatic()).IsEqualTo(expectedIsStatic);
     }
 }

@@ -13,8 +13,7 @@ internal static partial class StringExtensions
     [GeneratedRegex(@"((?<!\r)\n|\r\n)")]
     private static partial Regex RegexNewLine { get; }
 
-    public static int CharCount(this string instance, char c) =>
-        instance.Length - instance.Replace(c.ToString(), "").Length;
+    public static int CharCount(this string instance, char c) => instance.AsSpan().Count(c);
 
     public static string RemoveSpecialCharacters(this string str)
     {
@@ -81,12 +80,15 @@ internal static partial class StringExtensions
             return value;
         }
 
-        if (value.Length == 1)
-        {
-            return value.ToLower();
-        }
-
-        return value.Substring(0, 1).ToLower() + value.Substring(1);
+        return string.Create(
+            value.Length,
+            value,
+            static (span, source) =>
+            {
+                source.AsSpan().CopyTo(span);
+                span[0] = char.ToLower(span[0]);
+            }
+        );
     }
 
     internal static string ToProper(this string value)
@@ -96,12 +98,15 @@ internal static partial class StringExtensions
             return value;
         }
 
-        if (value.Length == 1)
-        {
-            return value.ToUpper();
-        }
-
-        return value.Substring(0, 1).ToUpper() + value.Substring(1);
+        return string.Create(
+            value.Length,
+            value,
+            static (span, source) =>
+            {
+                source.AsSpan().CopyTo(span);
+                span[0] = char.ToUpper(span[0]);
+            }
+        );
     }
 
     internal static string UnescapeSheetName(this string sheetName) =>
@@ -167,10 +172,16 @@ internal static partial class StringExtensions
             throw new ArgumentException();
         }
 
-        return Encoding
-            .ASCII.GetBytes(magic)
-            .Select(x => (uint)x)
-            .Aggregate((acc, cur) => acc * 256 + cur);
+        Span<byte> bytes = stackalloc byte[4];
+        int written = Encoding.ASCII.GetBytes(magic, bytes);
+
+        uint result = 0;
+        for (int i = 0; i < written; i++)
+        {
+            result = result * 256 + bytes[i];
+        }
+
+        return result;
     }
 
     internal static string TrimFormulaEqual(this string text)
