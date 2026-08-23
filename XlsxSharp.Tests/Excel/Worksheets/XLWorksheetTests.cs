@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using NUnit.Framework;
 using XlsxSharp.Examples;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.CalcEngine;
@@ -15,10 +14,10 @@ using XlsxSharp.Excel.PageSetup;
 using XlsxSharp.Excel.Tables;
 using XlsxSharp.Extensions;
 using XlsxSharp.Tests.Utils;
+using Assembly = System.Reflection.Assembly;
 
 namespace XlsxSharp.Tests.Excel.Worksheets;
 
-[TestFixture]
 public class XlWorksheetTests
 {
     private static readonly char[] IllegalWorksheetCharacters =
@@ -32,7 +31,7 @@ public class XlWorksheetTests
         DateTime start = DateTime.Now;
         ws.ColumnCount();
         DateTime end = DateTime.Now;
-        Assert.IsTrue((end - start).TotalMilliseconds < 500);
+        ClassicAssert.IsTrue((end - start).TotalMilliseconds < 500);
     }
 
     [Test]
@@ -46,7 +45,7 @@ public class XlWorksheetTests
             .Fill.SetBackgroundColor(XLColor.Blue);
         ws.Range("A1:C3").Value = 1;
         IXLWorksheet ws2 = ws.CopyTo("Sheet2");
-        Assert.AreEqual(1, ws2.ConditionalFormats.Count());
+        ClassicAssert.AreEqual(1, ws2.ConditionalFormats.Count());
     }
 
     [Test]
@@ -56,7 +55,7 @@ public class XlWorksheetTests
         IXLWorksheet ws = wb.AddWorksheet("Sheet1");
         ws.Columns(10, 20).Hide();
         ws.CopyTo("Sheet2");
-        Assert.IsTrue(wb.Worksheet("Sheet2").Column(10).IsHidden);
+        ClassicAssert.IsTrue(wb.Worksheet("Sheet2").Column(10).IsHidden);
     }
 
     [Test]
@@ -66,7 +65,7 @@ public class XlWorksheetTests
         IXLWorksheet ws = wb.AddWorksheet("Sheet1");
         ws.Rows(2, 5).Hide();
         ws.CopyTo("Sheet2");
-        Assert.IsTrue(wb.Worksheet("Sheet2").Row(4).IsHidden);
+        ClassicAssert.IsTrue(wb.Worksheet("Sheet2").Row(4).IsHidden);
     }
 
     [Test]
@@ -79,9 +78,9 @@ public class XlWorksheetTests
 
         wb.Worksheet("Sheet3").Delete();
 
-        Assert.AreEqual("Sheet1", wb.Worksheet(1).Name);
-        Assert.AreEqual("Sheet2", wb.Worksheet(2).Name);
-        Assert.AreEqual(2, wb.Worksheets.Count);
+        ClassicAssert.AreEqual("Sheet1", wb.Worksheet(1).Name);
+        ClassicAssert.AreEqual("Sheet2", wb.Worksheet(2).Name);
+        ClassicAssert.AreEqual(2, wb.Worksheets.Count);
     }
 
     [Test]
@@ -92,9 +91,9 @@ public class XlWorksheetTests
         wb.Worksheets.Add("Sheet2");
         wb.Worksheets.Add("Sheet3");
 
-        Assert.AreEqual("Sheet1", wb.Worksheet(1).Name);
-        Assert.AreEqual("Sheet2", wb.Worksheet(2).Name);
-        Assert.AreEqual("Sheet3", wb.Worksheet(3).Name);
+        ClassicAssert.AreEqual("Sheet1", wb.Worksheet(1).Name);
+        ClassicAssert.AreEqual("Sheet2", wb.Worksheet(2).Name);
+        ClassicAssert.AreEqual("Sheet3", wb.Worksheet(3).Name);
     }
 
     [Test]
@@ -105,9 +104,9 @@ public class XlWorksheetTests
         wb.Worksheets.Add("Sheet1", 1);
         wb.Worksheets.Add("Sheet3");
 
-        Assert.AreEqual("Sheet1", wb.Worksheet(1).Name);
-        Assert.AreEqual("Sheet2", wb.Worksheet(2).Name);
-        Assert.AreEqual("Sheet3", wb.Worksheet(3).Name);
+        ClassicAssert.AreEqual("Sheet1", wb.Worksheet(1).Name);
+        ClassicAssert.AreEqual("Sheet2", wb.Worksheet(2).Name);
+        ClassicAssert.AreEqual("Sheet3", wb.Worksheet(3).Name);
     }
 
     [Test]
@@ -118,9 +117,9 @@ public class XlWorksheetTests
         wb.Worksheets.Add("Sheet2", 1);
         wb.Worksheets.Add("Sheet1", 1);
 
-        Assert.AreEqual("Sheet1", wb.Worksheet(1).Name);
-        Assert.AreEqual("Sheet2", wb.Worksheet(2).Name);
-        Assert.AreEqual("Sheet3", wb.Worksheet(3).Name);
+        ClassicAssert.AreEqual("Sheet1", wb.Worksheet(1).Name);
+        ClassicAssert.AreEqual("Sheet2", wb.Worksheet(2).Name);
+        ClassicAssert.AreEqual("Sheet3", wb.Worksheet(3).Name);
     }
 
     [Test]
@@ -129,20 +128,20 @@ public class XlWorksheetTests
         XLWorkbook wb = new();
         IXLWorksheet ws1 = wb.Worksheets.Add();
 
-        Assert.AreEqual("Sheet1", ws1.Name);
+        ClassicAssert.AreEqual("Sheet1", ws1.Name);
         ws1.Name = "shEEt1";
 
         IXLWorksheet ws2 = wb.Worksheets.Add();
-        Assert.AreEqual("Sheet2", ws2.Name);
+        ClassicAssert.AreEqual("Sheet2", ws2.Name);
 
         wb.Worksheets.Add("SHEET4");
 
-        Assert.AreEqual("Sheet5", wb.Worksheets.Add().Name);
-        Assert.AreEqual("Sheet6", wb.Worksheets.Add().Name);
+        ClassicAssert.AreEqual("Sheet5", wb.Worksheets.Add().Name);
+        ClassicAssert.AreEqual("Sheet6", wb.Worksheets.Add().Name);
 
         wb.Worksheets.Add(1);
 
-        Assert.AreEqual("Sheet7", wb.Worksheet(1).Name);
+        ClassicAssert.AreEqual("Sheet7", wb.Worksheet(1).Name);
     }
 
     [Test]
@@ -153,13 +152,13 @@ public class XlWorksheetTests
         XLWorksheet ws2 = (XLWorksheet)wb.AddWorksheet();
         XLWorksheet ws3 = (XLWorksheet)wb.AddWorksheet();
 
-        Assert.AreEqual(1, ws1.SheetId);
-        Assert.AreEqual(2, ws2.SheetId);
-        Assert.AreEqual(3, ws3.SheetId);
+        ClassicAssert.AreEqual(1, ws1.SheetId);
+        ClassicAssert.AreEqual(2, ws2.SheetId);
+        ClassicAssert.AreEqual(3, ws3.SheetId);
 
         ws3.Delete();
         XLWorksheet ws4 = (XLWorksheet)wb.AddWorksheet();
-        Assert.AreEqual(4, ws4.SheetId);
+        ClassicAssert.AreEqual(4, ws4.SheetId);
     }
 
     [Test]
@@ -170,10 +169,10 @@ public class XlWorksheetTests
             IXLWorksheet ws;
             ws = wb.AddWorksheet("Sheet1");
 
-            Assert.Throws<ArgumentException>(() => wb.AddWorksheet("Sheet1"));
+            ClassicAssert.Throws<ArgumentException>(() => wb.AddWorksheet("Sheet1"));
 
             //Sheet names are case insensitive
-            Assert.Throws<ArgumentException>(() => wb.AddWorksheet("sheet1"));
+            ClassicAssert.Throws<ArgumentException>(() => wb.AddWorksheet("sheet1"));
         }
     }
 
@@ -185,14 +184,20 @@ public class XlWorksheetTests
         ws.Range("C1:D3").Merge();
         ws.Range("D2:E2").Merge();
 
-        Assert.AreEqual(2, ws.MergedRanges.Count);
-        Assert.AreEqual("A1:B2", ws.MergedRanges.First().RangeAddress.ToStringRelative());
-        Assert.AreEqual("D2:E2", ws.MergedRanges.Last().RangeAddress.ToStringRelative());
+        ClassicAssert.AreEqual(2, ws.MergedRanges.Count);
+        ClassicAssert.AreEqual("A1:B2", ws.MergedRanges.First().RangeAddress.ToStringRelative());
+        ClassicAssert.AreEqual("D2:E2", ws.MergedRanges.Last().RangeAddress.ToStringRelative());
 
-        Assert.AreEqual("A1:B2", ws.Cell("A2").MergedRange().RangeAddress.ToStringRelative());
-        Assert.AreEqual("D2:E2", ws.Cell("D2").MergedRange().RangeAddress.ToStringRelative());
+        ClassicAssert.AreEqual(
+            "A1:B2",
+            ws.Cell("A2").MergedRange().RangeAddress.ToStringRelative()
+        );
+        ClassicAssert.AreEqual(
+            "D2:E2",
+            ws.Cell("D2").MergedRange().RangeAddress.ToStringRelative()
+        );
 
-        Assert.AreEqual(null, ws.Cell("Z10").MergedRange());
+        ClassicAssert.AreEqual(null, ws.Cell("Z10").MergedRange());
     }
 
     [Test]
@@ -203,7 +208,7 @@ public class XlWorksheetTests
         DateTime start = DateTime.Now;
         ws.RowCount();
         DateTime end = DateTime.Now;
-        Assert.IsTrue((end - start).TotalMilliseconds < 500);
+        ClassicAssert.IsTrue((end - start).TotalMilliseconds < 500);
     }
 
     [Test]
@@ -224,7 +229,7 @@ public class XlWorksheetTests
             );
 
             XLCellValue value = ws.FirstCell().Value;
-            Assert.AreEqual(6, value);
+            ClassicAssert.AreEqual(6, value);
         }
     }
 
@@ -237,12 +242,12 @@ public class XlWorksheetTests
             IXLWorksheet ws2 = wb.AddWorksheet("Sheet2");
 
             ws1.Name = "New sheet name";
-            Assert.AreEqual("New sheet name", ws1.Name);
+            ClassicAssert.AreEqual("New sheet name", ws1.Name);
 
             ws2.Name = "sheet2";
-            Assert.AreEqual("sheet2", ws2.Name);
+            ClassicAssert.AreEqual("sheet2", ws2.Name);
 
-            Assert.Throws<ArgumentException>(() => ws1.Name = "SHEET2");
+            ClassicAssert.Throws<ArgumentException>(() => ws1.Name = "SHEET2");
         }
     }
 
@@ -255,15 +260,15 @@ public class XlWorksheetTests
             wb.AddWorksheet("Sheet2");
 
             IXLWorksheet ws;
-            Assert.IsTrue(wb.Worksheets.TryGetWorksheet("Sheet1", out ws));
-            Assert.IsTrue(wb.Worksheets.TryGetWorksheet("sheet1", out ws));
-            Assert.IsTrue(wb.Worksheets.TryGetWorksheet("sHEeT1", out ws));
-            Assert.IsFalse(wb.Worksheets.TryGetWorksheet("Sheeeet2", out ws));
+            ClassicAssert.IsTrue(wb.Worksheets.TryGetWorksheet("Sheet1", out ws));
+            ClassicAssert.IsTrue(wb.Worksheets.TryGetWorksheet("sheet1", out ws));
+            ClassicAssert.IsTrue(wb.Worksheets.TryGetWorksheet("sHEeT1", out ws));
+            ClassicAssert.IsFalse(wb.Worksheets.TryGetWorksheet("Sheeeet2", out ws));
 
-            Assert.IsTrue(wb.TryGetWorksheet("Sheet1", out ws));
-            Assert.IsTrue(wb.TryGetWorksheet("sheet1", out ws));
-            Assert.IsTrue(wb.TryGetWorksheet("sHEeT1", out ws));
-            Assert.IsFalse(wb.TryGetWorksheet("Sheeeet2", out ws));
+            ClassicAssert.IsTrue(wb.TryGetWorksheet("Sheet1", out ws));
+            ClassicAssert.IsTrue(wb.TryGetWorksheet("sheet1", out ws));
+            ClassicAssert.IsTrue(wb.TryGetWorksheet("sHEeT1", out ws));
+            ClassicAssert.IsFalse(wb.TryGetWorksheet("Sheeeet2", out ws));
         }
     }
 
@@ -282,11 +287,11 @@ public class XlWorksheetTests
             // unhide the hidden sheet
             using (XLWorkbook wb = new(ms))
             {
-                Assert.AreEqual(
+                ClassicAssert.AreEqual(
                     XLWorksheetVisibility.Visible,
                     wb.Worksheet("VisibleSheet").Visibility
                 );
-                Assert.AreEqual(
+                ClassicAssert.AreEqual(
                     XLWorksheetVisibility.Hidden,
                     wb.Worksheet("HiddenSheet").Visibility
                 );
@@ -294,18 +299,18 @@ public class XlWorksheetTests
                 IXLWorksheet ws = wb.Worksheet("HiddenSheet");
                 ws.Unhide().Name = "NoAlsoVisible";
 
-                Assert.AreEqual(XLWorksheetVisibility.Visible, ws.Visibility);
+                ClassicAssert.AreEqual(XLWorksheetVisibility.Visible, ws.Visibility);
 
                 wb.Save();
             }
 
             using (XLWorkbook wb = new(ms))
             {
-                Assert.AreEqual(
+                ClassicAssert.AreEqual(
                     XLWorksheetVisibility.Visible,
                     wb.Worksheet("VisibleSheet").Visibility
                 );
-                Assert.AreEqual(
+                ClassicAssert.AreEqual(
                     XLWorksheetVisibility.Visible,
                     wb.Worksheet("NoAlsoVisible").Visibility
                 );
@@ -345,7 +350,7 @@ public class XlWorksheetTests
             IXLWorksheet ws = wb.AddWorksheet("Sheet2");
 
             ws.Delete();
-            Assert.Throws<InvalidOperationException>(() => ws.CopyTo("Copy of Sheet2"));
+            ClassicAssert.Throws<InvalidOperationException>(() => ws.CopyTo("Copy of Sheet2"));
         }
     }
 
@@ -361,7 +366,7 @@ public class XlWorksheetTests
             }
         };
 
-        Assert.Throws(typeof(ArgumentException), addWorksheet);
+        ClassicAssert.Throws(typeof(ArgumentException), addWorksheet);
     }
 
     [Test]
@@ -376,18 +381,19 @@ public class XlWorksheetTests
             }
         };
 
-        Assert.Throws(typeof(ArgumentException), addWorksheet);
+        ClassicAssert.Throws(typeof(ArgumentException), addWorksheet);
     }
 
     [Test]
     public void WorksheetNameCannotBeEmpty() =>
-        Assert.Throws<ArgumentException>(() => new XLWorkbook().AddWorksheet(" "));
+        ClassicAssert.Throws<ArgumentException>(() => new XLWorkbook().AddWorksheet(" "));
 
-    [TestCaseSource(nameof(IllegalWorksheetCharacters))]
+    [Test]
+    [MethodDataSource(nameof(IllegalWorksheetCharacters))]
     public void WorksheetNameCannotContainIllegalCharacters(char c)
     {
         string proposedName = $"Sheet{c}Name";
-        Assert.Throws<ArgumentException>(() => new XLWorkbook().AddWorksheet(proposedName));
+        ClassicAssert.Throws<ArgumentException>(() => new XLWorkbook().AddWorksheet(proposedName));
     }
 
     [Test]
@@ -413,8 +419,8 @@ public class XlWorksheetTests
             }
         };
 
-        Assert.DoesNotThrow(saveAndOpenWorkbook);
-        Assert.AreEqual(title, savedTitle);
+        ClassicAssert.DoesNotThrow(saveAndOpenWorkbook);
+        ClassicAssert.AreEqual(title, savedTitle);
     }
 
     [Test]
@@ -431,9 +437,9 @@ public class XlWorksheetTests
 
             IXLWorksheet ws2 = ws1.CopyTo(wb2, "Copy");
 
-            Assert.AreEqual("A1 value", ws2.Cell("A1").Value);
-            Assert.AreEqual(100, ws2.Cell("A2").Value);
-            Assert.AreEqual(new DateTime(2018, 5, 1), ws2.Cell("D4").Value);
+            ClassicAssert.AreEqual("A1 value", ws2.Cell("A1").Value);
+            ClassicAssert.AreEqual(100, ws2.Cell("A2").Value);
+            ClassicAssert.AreEqual(new DateTime(2018, 5, 1), ws2.Cell("D4").Value);
         }
     }
 
@@ -450,8 +456,8 @@ public class XlWorksheetTests
 
             IXLWorksheet ws2 = ws1.CopyTo(wb2, "Copy");
 
-            Assert.AreEqual("10*10", ws2.Cell("A1").FormulaA1);
-            Assert.AreEqual("A1 * 2", ws2.Cell("A2").FormulaA1);
+            ClassicAssert.AreEqual("10*10", ws2.Cell("A1").FormulaA1);
+            ClassicAssert.AreEqual("A1 * 2", ws2.Cell("A2").FormulaA1);
         }
     }
 
@@ -469,10 +475,10 @@ public class XlWorksheetTests
 
                 IXLWorksheet ws2 = ws1.CopyTo(wb2, "Copy");
 
-                Assert.AreEqual(ws1.RowHeight, ws2.RowHeight);
+                ClassicAssert.AreEqual(ws1.RowHeight, ws2.RowHeight);
                 for (int i = 1; i <= 3; i++)
                 {
-                    Assert.AreEqual(ws1.Row(i).Height, ws2.Row(i).Height);
+                    ClassicAssert.AreEqual(ws1.Row(i).Height, ws2.Row(i).Height);
                 }
             }
         }
@@ -492,10 +498,10 @@ public class XlWorksheetTests
 
                 IXLWorksheet ws2 = ws1.CopyTo(wb2, "Copy");
 
-                Assert.AreEqual(ws1.ColumnWidth, ws2.ColumnWidth);
+                ClassicAssert.AreEqual(ws1.ColumnWidth, ws2.ColumnWidth);
                 for (int i = 1; i <= 3; i++)
                 {
-                    Assert.AreEqual(ws1.Column(i).Width, ws2.Column(i).Width);
+                    ClassicAssert.AreEqual(ws1.Column(i).Width, ws2.Column(i).Width);
                 }
             }
         }
@@ -514,10 +520,10 @@ public class XlWorksheetTests
 
             IXLWorksheet ws2 = ws1.CopyTo(wb2, "Copy");
 
-            Assert.AreEqual(ws1.MergedRanges.Count, ws2.MergedRanges.Count);
+            ClassicAssert.AreEqual(ws1.MergedRanges.Count, ws2.MergedRanges.Count);
             for (int i = 0; i < ws1.MergedRanges.Count; i++)
             {
-                Assert.AreEqual(
+                ClassicAssert.AreEqual(
                     ws1.MergedRanges.ElementAt(i).RangeAddress.ToString(),
                     ws2.MergedRanges.ElementAt(i).RangeAddress.ToString()
                 );
@@ -538,16 +544,16 @@ public class XlWorksheetTests
 
             IXLWorksheet ws2 = ws1.CopyTo(wb2, "Copy");
 
-            Assert.AreEqual(ws1.DefinedNames.Count(), ws2.DefinedNames.Count());
+            ClassicAssert.AreEqual(ws1.DefinedNames.Count(), ws2.DefinedNames.Count());
             for (int i = 0; i < ws1.DefinedNames.Count(); i++)
             {
                 IXLDefinedName nr1 = ws1.DefinedNames.ElementAt(i);
                 IXLDefinedName nr2 = ws2.DefinedNames.ElementAt(i);
-                Assert.AreEqual(nr1.Ranges.ToString(), nr2.Ranges.ToString());
-                Assert.AreEqual(nr1.Scope, nr2.Scope);
-                Assert.AreEqual(nr1.Name, nr2.Name);
-                Assert.AreEqual(nr1.Visible, nr2.Visible);
-                Assert.AreEqual(nr1.Comment, nr2.Comment);
+                ClassicAssert.AreEqual(nr1.Ranges.ToString(), nr2.Ranges.ToString());
+                ClassicAssert.AreEqual(nr1.Scope, nr2.Scope);
+                ClassicAssert.AreEqual(nr1.Name, nr2.Name);
+                ClassicAssert.AreEqual(nr1.Visible, nr2.Visible);
+                ClassicAssert.AreEqual(nr1.Comment, nr2.Comment);
             }
         }
     }
@@ -564,18 +570,18 @@ public class XlWorksheetTests
 
             IXLWorksheet ws2 = ws1.CopyTo("Copy");
 
-            Assert.AreEqual(ws1.DefinedNames.Count(), ws2.DefinedNames.Count());
+            ClassicAssert.AreEqual(ws1.DefinedNames.Count(), ws2.DefinedNames.Count());
             for (int i = 0; i < ws1.DefinedNames.Count(); i++)
             {
                 IXLDefinedName nr1 = ws1.DefinedNames.ElementAt(i);
                 IXLDefinedName nr2 = ws2.DefinedNames.ElementAt(i);
 
-                Assert.AreEqual(XLScope.Worksheet, nr2.Scope);
+                ClassicAssert.AreEqual(XLScope.Worksheet, nr2.Scope);
 
-                Assert.AreEqual(nr1.Ranges.ToString(), nr2.Ranges.ToString());
-                Assert.AreEqual(nr1.Name, nr2.Name);
-                Assert.AreEqual(nr1.Visible, nr2.Visible);
-                Assert.AreEqual(nr1.Comment, nr2.Comment);
+                ClassicAssert.AreEqual(nr1.Ranges.ToString(), nr2.Ranges.ToString());
+                ClassicAssert.AreEqual(nr1.Name, nr2.Name);
+                ClassicAssert.AreEqual(nr1.Visible, nr2.Visible);
+                ClassicAssert.AreEqual(nr1.Comment, nr2.Comment);
             }
         }
     }
@@ -610,9 +616,10 @@ public class XlWorksheetTests
 
         void AssertStylesAreEqual(IXLWorksheet ws1, IXLWorksheet ws2)
         {
-            Assert.That(
+            ClassicAssert.IsNotNull(((XLWorksheet)ws1).FormatValue, "Worksheet styles differ");
+            ClassicAssert.AreEqual(
+                ((XLWorksheet)ws2).FormatValue,
                 ((XLWorksheet)ws1).FormatValue,
-                Is.Not.Null.And.EqualTo(((XLWorksheet)ws2).FormatValue),
                 "Worksheet styles differ"
             );
             IXLCells cellsUsed = ws1.Range(ws1.FirstCell(), ws1.LastCellUsed()).Cells();
@@ -620,7 +627,7 @@ public class XlWorksheetTests
             {
                 XLCellFormatValue? style1 = ((XLCell)cell).FormatValue;
                 XLCellFormatValue? style2 = ((XLCell)ws2.Cell(cell.Address.ToString())).FormatValue;
-                Assert.AreEqual(style1, style2, $"Cell {cell.Address} styles differ");
+                ClassicAssert.AreEqual(style1, style2, $"Cell {cell.Address} styles differ");
             }
         }
     }
@@ -643,17 +650,17 @@ public class XlWorksheetTests
 
             IXLWorksheet ws2 = ws1.CopyTo(wb2, "Copy");
 
-            Assert.AreEqual(ws1.ConditionalFormats.Count(), ws2.ConditionalFormats.Count());
+            ClassicAssert.AreEqual(ws1.ConditionalFormats.Count(), ws2.ConditionalFormats.Count());
             for (int i = 0; i < ws1.ConditionalFormats.Count(); i++)
             {
                 IXLConditionalFormat original = ws1.ConditionalFormats.ElementAt(i);
                 IXLConditionalFormat copy = ws2.ConditionalFormats.ElementAt(i);
-                Assert.AreEqual(original.Ranges.ToSpaceList(), copy.Ranges.ToSpaceList());
-                Assert.AreEqual(
+                ClassicAssert.AreEqual(original.Ranges.ToSpaceList(), copy.Ranges.ToSpaceList());
+                ClassicAssert.AreEqual(
                     ((XLConditionalFormat)original).FormatValue,
                     ((XLConditionalFormat)copy).FormatValue
                 );
-                Assert.AreEqual(
+                ClassicAssert.AreEqual(
                     original.Values.Single().Value.Value,
                     copy.Values.Single().Value.Value
                 );
@@ -690,32 +697,38 @@ public class XlWorksheetTests
 
             IXLWorksheet ws2 = ws1.CopyTo(wb2, "Copy");
 
-            Assert.AreEqual(ws1.Tables.Count(), ws2.Tables.Count());
+            ClassicAssert.AreEqual(ws1.Tables.Count(), ws2.Tables.Count());
             for (int i = 0; i < ws1.Tables.Count(); i++)
             {
                 IXLTable original = ws1.Tables.ElementAt(i);
                 IXLTable copy = ws2.Tables.ElementAt(i);
-                Assert.AreEqual(
+                ClassicAssert.AreEqual(
                     original.RangeAddress.ToString(XLReferenceStyle.A1, false),
                     copy.RangeAddress.ToString(XLReferenceStyle.A1, false)
                 );
-                Assert.AreEqual(original.Fields.Count(), copy.Fields.Count());
+                ClassicAssert.AreEqual(original.Fields.Count(), copy.Fields.Count());
                 for (int j = 0; j < original.Fields.Count(); j++)
                 {
                     IXLTableField originalField = original.Fields.ElementAt(j);
                     IXLTableField copyField = copy.Fields.ElementAt(j);
-                    Assert.AreEqual(originalField.Name, copyField.Name);
-                    Assert.AreEqual(originalField.TotalsRowFormulaA1, copyField.TotalsRowFormulaA1);
-                    Assert.AreEqual(originalField.TotalsRowFunction, copyField.TotalsRowFunction);
+                    ClassicAssert.AreEqual(originalField.Name, copyField.Name);
+                    ClassicAssert.AreEqual(
+                        originalField.TotalsRowFormulaA1,
+                        copyField.TotalsRowFormulaA1
+                    );
+                    ClassicAssert.AreEqual(
+                        originalField.TotalsRowFunction,
+                        copyField.TotalsRowFunction
+                    );
                 }
 
-                Assert.AreEqual(original.Name, copy.Name);
-                Assert.AreEqual(original.ShowAutoFilter, copy.ShowAutoFilter);
-                Assert.AreEqual(original.ShowColumnStripes, copy.ShowColumnStripes);
-                Assert.AreEqual(original.ShowHeaderRow, copy.ShowHeaderRow);
-                Assert.AreEqual(original.ShowRowStripes, copy.ShowRowStripes);
-                Assert.AreEqual(original.ShowTotalsRow, copy.ShowTotalsRow);
-                Assert.AreEqual(original.Theme, copy.Theme);
+                ClassicAssert.AreEqual(original.Name, copy.Name);
+                ClassicAssert.AreEqual(original.ShowAutoFilter, copy.ShowAutoFilter);
+                ClassicAssert.AreEqual(original.ShowColumnStripes, copy.ShowColumnStripes);
+                ClassicAssert.AreEqual(original.ShowHeaderRow, copy.ShowHeaderRow);
+                ClassicAssert.AreEqual(original.ShowRowStripes, copy.ShowRowStripes);
+                ClassicAssert.AreEqual(original.ShowTotalsRow, copy.ShowTotalsRow);
+                ClassicAssert.AreEqual(original.Theme, copy.Theme);
             }
         }
     }
@@ -748,7 +761,7 @@ public class XlWorksheetTests
 
             IXLWorksheet ws2 = ws1.CopyTo(wb2, "Copy");
 
-            Assert.AreEqual(ws1.DataValidations.Count(), ws2.DataValidations.Count());
+            ClassicAssert.AreEqual(ws1.DataValidations.Count(), ws2.DataValidations.Count());
             for (int i = 0; i < ws1.DataValidations.Count(); i++)
             {
                 IXLDataValidation original = ws1.DataValidations.ElementAt(i);
@@ -763,12 +776,12 @@ public class XlWorksheetTests
                     original.Ranges.Select(r => r.RangeAddress.ToString())
                 );
 
-                Assert.AreEqual(originalRanges, copyRanges);
-                Assert.AreEqual(original.AllowedValues, copy.AllowedValues);
-                Assert.AreEqual(original.Operator, copy.Operator);
-                Assert.AreEqual(original.ErrorStyle, copy.ErrorStyle);
-                Assert.AreEqual(original.ErrorTitle, copy.ErrorTitle);
-                Assert.AreEqual(original.ErrorMessage, copy.ErrorMessage);
+                ClassicAssert.AreEqual(originalRanges, copyRanges);
+                ClassicAssert.AreEqual(original.AllowedValues, copy.AllowedValues);
+                ClassicAssert.AreEqual(original.Operator, copy.Operator);
+                ClassicAssert.AreEqual(original.ErrorStyle, copy.ErrorStyle);
+                ClassicAssert.AreEqual(original.ErrorTitle, copy.ErrorTitle);
+                ClassicAssert.AreEqual(original.ErrorMessage, copy.ErrorMessage);
             }
         }
     }
@@ -807,27 +820,27 @@ public class XlWorksheetTests
 
         void AssertPicturesAreEqual(IXLWorksheet ws1, IXLWorksheet ws2)
         {
-            Assert.AreEqual(ws1.Pictures.Count, ws2.Pictures.Count);
+            ClassicAssert.AreEqual(ws1.Pictures.Count, ws2.Pictures.Count);
 
             for (int i = 0; i < ws1.Pictures.Count; i++)
             {
                 IXLPicture original = ws1.Pictures.ElementAt(i);
                 IXLPicture copy = ws2.Pictures.ElementAt(i);
-                Assert.AreEqual(ws2, copy.Worksheet);
+                ClassicAssert.AreEqual(ws2, copy.Worksheet);
 
-                Assert.AreEqual(original.Format, copy.Format);
-                Assert.AreEqual(original.Height, copy.Height);
-                Assert.AreEqual(original.Id, copy.Id);
-                Assert.AreEqual(original.Left, copy.Left);
-                Assert.AreEqual(original.Name, copy.Name);
-                Assert.AreEqual(original.Placement, copy.Placement);
-                Assert.AreEqual(original.Top, copy.Top);
-                Assert.AreEqual(
+                ClassicAssert.AreEqual(original.Format, copy.Format);
+                ClassicAssert.AreEqual(original.Height, copy.Height);
+                ClassicAssert.AreEqual(original.Id, copy.Id);
+                ClassicAssert.AreEqual(original.Left, copy.Left);
+                ClassicAssert.AreEqual(original.Name, copy.Name);
+                ClassicAssert.AreEqual(original.Placement, copy.Placement);
+                ClassicAssert.AreEqual(original.Top, copy.Top);
+                ClassicAssert.AreEqual(
                     original.TopLeftCell.Address.ToString(),
                     copy.TopLeftCell.Address.ToString()
                 );
-                Assert.AreEqual(original.Width, copy.Width);
-                Assert.AreEqual(
+                ClassicAssert.AreEqual(original.Width, copy.Width);
+                ClassicAssert.AreEqual(
                     original.ImageStream.ToArray(),
                     copy.ImageStream.ToArray(),
                     "Image streams differ"
@@ -870,7 +883,7 @@ public class XlWorksheetTests
 
         void AssertPivotTablesAreEqual(IXLWorksheet ws1, IXLWorksheet ws2)
         {
-            Assert.AreEqual(ws1.PivotTables.Count(), ws2.PivotTables.Count());
+            ClassicAssert.AreEqual(ws1.PivotTables.Count(), ws2.PivotTables.Count());
 
             PivotTableComparer comparer = new();
 
@@ -879,9 +892,9 @@ public class XlWorksheetTests
                 XLPivotTable original = ws1.PivotTables.ElementAt(i).CastTo<XLPivotTable>();
                 XLPivotTable copy = ws2.PivotTables.ElementAt(i).CastTo<XLPivotTable>();
 
-                Assert.AreEqual(ws2, copy.Worksheet);
+                ClassicAssert.AreEqual(ws2, copy.Worksheet);
 
-                Assert.IsTrue(comparer.Equals(original, copy));
+                ClassicAssert.IsTrue(comparer.Equals(original, copy));
             }
         }
     }
@@ -901,10 +914,10 @@ public class XlWorksheetTests
 
             IXLWorksheet ws2 = ws1.CopyTo(wb2, "Copy");
 
-            Assert.AreEqual(ws1.SelectedRanges.Count, ws2.SelectedRanges.Count);
+            ClassicAssert.AreEqual(ws1.SelectedRanges.Count, ws2.SelectedRanges.Count);
             for (int i = 0; i < ws1.SelectedRanges.Count; i++)
             {
-                Assert.AreEqual(
+                ClassicAssert.AreEqual(
                     ws1.SelectedRanges.ElementAt(i).RangeAddress.ToString(),
                     ws2.SelectedRanges.ElementAt(i).RangeAddress.ToString()
                 );
@@ -951,55 +964,70 @@ public class XlWorksheetTests
 
             IXLWorksheet ws2 = ws1.CopyTo(wb2, "Copy");
 
-            Assert.AreEqual(
+            ClassicAssert.AreEqual(
                 ws1.PageSetup.FirstRowToRepeatAtTop,
                 ws2.PageSetup.FirstRowToRepeatAtTop
             );
-            Assert.AreEqual(ws1.PageSetup.LastRowToRepeatAtTop, ws2.PageSetup.LastRowToRepeatAtTop);
-            Assert.AreEqual(
+            ClassicAssert.AreEqual(
+                ws1.PageSetup.LastRowToRepeatAtTop,
+                ws2.PageSetup.LastRowToRepeatAtTop
+            );
+            ClassicAssert.AreEqual(
                 ws1.PageSetup.FirstColumnToRepeatAtLeft,
                 ws2.PageSetup.FirstColumnToRepeatAtLeft
             );
-            Assert.AreEqual(
+            ClassicAssert.AreEqual(
                 ws1.PageSetup.LastColumnToRepeatAtLeft,
                 ws2.PageSetup.LastColumnToRepeatAtLeft
             );
-            Assert.AreEqual(ws1.PageSetup.PageOrientation, ws2.PageSetup.PageOrientation);
-            Assert.AreEqual(ws1.PageSetup.PagesWide, ws2.PageSetup.PagesWide);
-            Assert.AreEqual(ws1.PageSetup.PagesTall, ws2.PageSetup.PagesTall);
-            Assert.AreEqual(ws1.PageSetup.Scale, ws2.PageSetup.Scale);
-            Assert.AreEqual(ws1.PageSetup.HorizontalDpi, ws2.PageSetup.HorizontalDpi);
-            Assert.AreEqual(ws1.PageSetup.VerticalDpi, ws2.PageSetup.VerticalDpi);
-            Assert.AreEqual(ws1.PageSetup.FirstPageNumber, ws2.PageSetup.FirstPageNumber);
-            Assert.AreEqual(ws1.PageSetup.CenterHorizontally, ws2.PageSetup.CenterHorizontally);
-            Assert.AreEqual(ws1.PageSetup.CenterVertically, ws2.PageSetup.CenterVertically);
-            Assert.AreEqual(ws1.PageSetup.PaperSize, ws2.PageSetup.PaperSize);
-            Assert.AreEqual(ws1.PageSetup.Margins.Bottom, ws2.PageSetup.Margins.Bottom);
-            Assert.AreEqual(ws1.PageSetup.Margins.Top, ws2.PageSetup.Margins.Top);
-            Assert.AreEqual(ws1.PageSetup.Margins.Left, ws2.PageSetup.Margins.Left);
-            Assert.AreEqual(ws1.PageSetup.Margins.Right, ws2.PageSetup.Margins.Right);
-            Assert.AreEqual(ws1.PageSetup.Margins.Footer, ws2.PageSetup.Margins.Footer);
-            Assert.AreEqual(ws1.PageSetup.Margins.Header, ws2.PageSetup.Margins.Header);
-            Assert.AreEqual(ws1.PageSetup.ScaleHFWithDocument, ws2.PageSetup.ScaleHFWithDocument);
-            Assert.AreEqual(ws1.PageSetup.AlignHFWithMargins, ws2.PageSetup.AlignHFWithMargins);
-            Assert.AreEqual(ws1.PageSetup.ShowGridlines, ws2.PageSetup.ShowGridlines);
-            Assert.AreEqual(
+            ClassicAssert.AreEqual(ws1.PageSetup.PageOrientation, ws2.PageSetup.PageOrientation);
+            ClassicAssert.AreEqual(ws1.PageSetup.PagesWide, ws2.PageSetup.PagesWide);
+            ClassicAssert.AreEqual(ws1.PageSetup.PagesTall, ws2.PageSetup.PagesTall);
+            ClassicAssert.AreEqual(ws1.PageSetup.Scale, ws2.PageSetup.Scale);
+            ClassicAssert.AreEqual(ws1.PageSetup.HorizontalDpi, ws2.PageSetup.HorizontalDpi);
+            ClassicAssert.AreEqual(ws1.PageSetup.VerticalDpi, ws2.PageSetup.VerticalDpi);
+            ClassicAssert.AreEqual(ws1.PageSetup.FirstPageNumber, ws2.PageSetup.FirstPageNumber);
+            ClassicAssert.AreEqual(
+                ws1.PageSetup.CenterHorizontally,
+                ws2.PageSetup.CenterHorizontally
+            );
+            ClassicAssert.AreEqual(ws1.PageSetup.CenterVertically, ws2.PageSetup.CenterVertically);
+            ClassicAssert.AreEqual(ws1.PageSetup.PaperSize, ws2.PageSetup.PaperSize);
+            ClassicAssert.AreEqual(ws1.PageSetup.Margins.Bottom, ws2.PageSetup.Margins.Bottom);
+            ClassicAssert.AreEqual(ws1.PageSetup.Margins.Top, ws2.PageSetup.Margins.Top);
+            ClassicAssert.AreEqual(ws1.PageSetup.Margins.Left, ws2.PageSetup.Margins.Left);
+            ClassicAssert.AreEqual(ws1.PageSetup.Margins.Right, ws2.PageSetup.Margins.Right);
+            ClassicAssert.AreEqual(ws1.PageSetup.Margins.Footer, ws2.PageSetup.Margins.Footer);
+            ClassicAssert.AreEqual(ws1.PageSetup.Margins.Header, ws2.PageSetup.Margins.Header);
+            ClassicAssert.AreEqual(
+                ws1.PageSetup.ScaleHFWithDocument,
+                ws2.PageSetup.ScaleHFWithDocument
+            );
+            ClassicAssert.AreEqual(
+                ws1.PageSetup.AlignHFWithMargins,
+                ws2.PageSetup.AlignHFWithMargins
+            );
+            ClassicAssert.AreEqual(ws1.PageSetup.ShowGridlines, ws2.PageSetup.ShowGridlines);
+            ClassicAssert.AreEqual(
                 ws1.PageSetup.ShowRowAndColumnHeadings,
                 ws2.PageSetup.ShowRowAndColumnHeadings
             );
-            Assert.AreEqual(ws1.PageSetup.BlackAndWhite, ws2.PageSetup.BlackAndWhite);
-            Assert.AreEqual(ws1.PageSetup.DraftQuality, ws2.PageSetup.DraftQuality);
-            Assert.AreEqual(ws1.PageSetup.PageOrder, ws2.PageSetup.PageOrder);
-            Assert.AreEqual(ws1.PageSetup.ShowComments, ws2.PageSetup.ShowComments);
-            Assert.AreEqual(ws1.PageSetup.PrintErrorValue, ws2.PageSetup.PrintErrorValue);
+            ClassicAssert.AreEqual(ws1.PageSetup.BlackAndWhite, ws2.PageSetup.BlackAndWhite);
+            ClassicAssert.AreEqual(ws1.PageSetup.DraftQuality, ws2.PageSetup.DraftQuality);
+            ClassicAssert.AreEqual(ws1.PageSetup.PageOrder, ws2.PageSetup.PageOrder);
+            ClassicAssert.AreEqual(ws1.PageSetup.ShowComments, ws2.PageSetup.ShowComments);
+            ClassicAssert.AreEqual(ws1.PageSetup.PrintErrorValue, ws2.PageSetup.PrintErrorValue);
 
-            Assert.AreEqual(ws1.PageSetup.PrintAreas.Count(), ws2.PageSetup.PrintAreas.Count());
+            ClassicAssert.AreEqual(
+                ws1.PageSetup.PrintAreas.Count(),
+                ws2.PageSetup.PrintAreas.Count()
+            );
 
-            Assert.AreEqual(
+            ClassicAssert.AreEqual(
                 ws1.PageSetup.Header.Left.GetText(XLHFOccurrence.AllPages),
                 ws2.PageSetup.Header.Left.GetText(XLHFOccurrence.AllPages)
             );
-            Assert.AreEqual(
+            ClassicAssert.AreEqual(
                 ws1.PageSetup.Footer.Right.GetText(XLHFOccurrence.OddPages),
                 ws2.PageSetup.Footer.Right.GetText(XLHFOccurrence.OddPages)
             );
@@ -1029,51 +1057,63 @@ public class XlWorksheetTests
 
             IXLWorksheet ws2 = ws1.CopyTo(wb2, "Copy");
 
-            Assert.AreEqual(1, ws2.SparklineGroups.Count());
+            ClassicAssert.AreEqual(1, ws2.SparklineGroups.Count());
             IXLSparklineGroup copy = ws2.SparklineGroups.Single();
 
-            Assert.AreEqual(original.Count(), copy.Count());
+            ClassicAssert.AreEqual(original.Count(), copy.Count());
             for (int i = 0; i < original.Count(); i++)
             {
-                Assert.AreSame(ws2, copy.ElementAt(i).Location.Worksheet);
-                Assert.AreSame(ws2, copy.ElementAt(i).SourceData.Worksheet);
-                Assert.AreEqual(
+                ClassicAssert.AreSame(ws2, copy.ElementAt(i).Location.Worksheet);
+                ClassicAssert.AreSame(ws2, copy.ElementAt(i).SourceData.Worksheet);
+                ClassicAssert.AreEqual(
                     original.ElementAt(i).Location.Address.ToString(),
                     copy.ElementAt(i).Location.Address.ToString()
                 );
-                Assert.AreEqual(
+                ClassicAssert.AreEqual(
                     original.ElementAt(i).SourceData.RangeAddress.ToString(),
                     copy.ElementAt(i).SourceData.RangeAddress.ToString()
                 );
             }
 
-            Assert.AreEqual(
+            ClassicAssert.AreEqual(
                 original.DateRange.RangeAddress.ToString(),
                 copy.DateRange.RangeAddress.ToString()
             );
-            Assert.AreSame(ws2, copy.DateRange.Worksheet);
+            ClassicAssert.AreSame(ws2, copy.DateRange.Worksheet);
 
-            Assert.AreEqual(original.DisplayEmptyCellsAs, copy.DisplayEmptyCellsAs);
-            Assert.AreEqual(original.DisplayHidden, copy.DisplayHidden);
-            Assert.AreEqual(original.LineWeight, copy.LineWeight, XLHelper.Epsilon);
-            Assert.AreEqual(original.ShowMarkers, copy.ShowMarkers);
-            Assert.AreEqual(original.Style, copy.Style);
-            Assert.AreNotSame(original.Style, copy.Style);
-            Assert.AreEqual(original.Type, copy.Type);
+            ClassicAssert.AreEqual(original.DisplayEmptyCellsAs, copy.DisplayEmptyCellsAs);
+            ClassicAssert.AreEqual(original.DisplayHidden, copy.DisplayHidden);
+            ClassicAssert.AreEqual(original.LineWeight, copy.LineWeight, XLHelper.Epsilon);
+            ClassicAssert.AreEqual(original.ShowMarkers, copy.ShowMarkers);
+            ClassicAssert.AreEqual(original.Style, copy.Style);
+            ClassicAssert.AreNotSame(original.Style, copy.Style);
+            ClassicAssert.AreEqual(original.Type, copy.Type);
 
-            Assert.AreEqual(original.HorizontalAxis.Color, copy.HorizontalAxis.Color);
-            Assert.AreEqual(original.HorizontalAxis.DateAxis, copy.HorizontalAxis.DateAxis);
-            Assert.AreEqual(original.HorizontalAxis.IsVisible, copy.HorizontalAxis.IsVisible);
-            Assert.AreEqual(original.HorizontalAxis.RightToLeft, copy.HorizontalAxis.RightToLeft);
+            ClassicAssert.AreEqual(original.HorizontalAxis.Color, copy.HorizontalAxis.Color);
+            ClassicAssert.AreEqual(original.HorizontalAxis.DateAxis, copy.HorizontalAxis.DateAxis);
+            ClassicAssert.AreEqual(
+                original.HorizontalAxis.IsVisible,
+                copy.HorizontalAxis.IsVisible
+            );
+            ClassicAssert.AreEqual(
+                original.HorizontalAxis.RightToLeft,
+                copy.HorizontalAxis.RightToLeft
+            );
 
-            Assert.AreEqual(original.VerticalAxis.ManualMax, copy.VerticalAxis.ManualMax);
-            Assert.AreEqual(original.VerticalAxis.ManualMin, copy.VerticalAxis.ManualMin);
-            Assert.AreEqual(original.VerticalAxis.MaxAxisType, copy.VerticalAxis.MaxAxisType);
-            Assert.AreEqual(original.VerticalAxis.MinAxisType, copy.VerticalAxis.MinAxisType);
+            ClassicAssert.AreEqual(original.VerticalAxis.ManualMax, copy.VerticalAxis.ManualMax);
+            ClassicAssert.AreEqual(original.VerticalAxis.ManualMin, copy.VerticalAxis.ManualMin);
+            ClassicAssert.AreEqual(
+                original.VerticalAxis.MaxAxisType,
+                copy.VerticalAxis.MaxAxisType
+            );
+            ClassicAssert.AreEqual(
+                original.VerticalAxis.MinAxisType,
+                copy.VerticalAxis.MinAxisType
+            );
         }
     }
 
-    [Test, Ignore("Muted until #836 is fixed")]
+    [Test, Skip("Muted until #836 is fixed")]
     public void CopyWorksheetChangesAbsoluteReferencesInFormulae()
     {
         using (XLWorkbook wb1 = new())
@@ -1086,7 +1126,7 @@ public class XlWorksheetTests
 
             IXLWorksheet ws2 = ws1.CopyTo(wb2, "Copy");
 
-            Assert.AreEqual("Copy!A1 * 3", ws2.Cell("A2").FormulaA1);
+            ClassicAssert.AreEqual("Copy!A1 * 3", ws2.Cell("A2").FormulaA1);
         }
     }
 
@@ -1102,9 +1142,9 @@ public class XlWorksheetTests
 
         ws.Name = "Renamed";
 
-        Assert.AreEqual("Renamed!A1 * 3", ws.Cell("A2").FormulaA1);
-        Assert.True(ws.Cell("A2").NeedsRecalculation);
-        Assert.AreEqual(300, ws.Cell("A2").Value);
+        ClassicAssert.AreEqual("Renamed!A1 * 3", ws.Cell("A2").FormulaA1);
+        ClassicAssert.True(ws.Cell("A2").NeedsRecalculation);
+        ClassicAssert.AreEqual(300, ws.Cell("A2").Value);
     }
 
     [Test]
@@ -1118,7 +1158,7 @@ public class XlWorksheetTests
 
             ws2.Delete();
 
-            Assert.AreEqual("#REF!A1:B2", range.RangeAddress.ToString());
+            ClassicAssert.AreEqual("#REF!A1:B2", range.RangeAddress.ToString());
         }
     }
 
@@ -1128,11 +1168,13 @@ public class XlWorksheetTests
         using (XLWorkbook wb = new())
         {
             IXLWorksheet ws = wb.AddWorksheet("Sheet1");
-            Assert.Throws<ArgumentOutOfRangeException>(() => ws.Row(-1));
-            Assert.Throws<ArgumentOutOfRangeException>(() => ws.Row(XLHelper.MaxRowNumber + 1));
+            ClassicAssert.Throws<ArgumentOutOfRangeException>(() => ws.Row(-1));
+            ClassicAssert.Throws<ArgumentOutOfRangeException>(() =>
+                ws.Row(XLHelper.MaxRowNumber + 1)
+            );
 
-            Assert.Throws<ArgumentOutOfRangeException>(() => ws.Column(-1));
-            Assert.Throws<ArgumentOutOfRangeException>(() =>
+            ClassicAssert.Throws<ArgumentOutOfRangeException>(() => ws.Column(-1));
+            ClassicAssert.Throws<ArgumentOutOfRangeException>(() =>
                 ws.Column(XLHelper.MaxColumnNumber + 1)
             );
         }
@@ -1153,8 +1195,8 @@ public class XlWorksheetTests
 
             ws.Row(4).Delete();
 
-            Assert.IsFalse(range2.RangeAddress.IsValid);
-            Assert.AreEqual(range1, ws.SelectedRanges.Single());
+            ClassicAssert.IsFalse(range2.RangeAddress.IsValid);
+            ClassicAssert.AreEqual(range1, ws.SelectedRanges.Single());
         }
     }
 
@@ -1170,7 +1212,7 @@ public class XlWorksheetTests
 
             ws.Column(1).InsertColumnsBefore(1);
 
-            Assert.AreEqual(
+            ClassicAssert.AreEqual(
                 originalCount,
                 ((XLWorksheet)ws).Internals.CellsCollection.GetCells().Count()
             );
@@ -1189,7 +1231,7 @@ public class XlWorksheetTests
 
             ws.Row(1).InsertRowsAbove(1);
 
-            Assert.AreEqual(
+            ClassicAssert.AreEqual(
                 originalCount,
                 ((XLWorksheet)ws).Internals.CellsCollection.GetCells().Count()
             );
@@ -1208,7 +1250,7 @@ public class XlWorksheetTests
 
             a1.InsertCellsBefore(1);
 
-            Assert.AreEqual(
+            ClassicAssert.AreEqual(
                 originalCount,
                 ((XLWorksheet)ws).Internals.CellsCollection.GetCells().Count()
             );
@@ -1227,7 +1269,7 @@ public class XlWorksheetTests
 
             a1.InsertCellsAbove(1);
 
-            Assert.AreEqual(
+            ClassicAssert.AreEqual(
                 originalCount,
                 ((XLWorksheet)ws).Internals.CellsCollection.GetCells().Count()
             );
@@ -1246,9 +1288,15 @@ public class XlWorksheetTests
 
             a1.InsertCellsBefore(1);
 
-            Assert.AreEqual(2, ((XLWorksheet)ws).Internals.CellsCollection.GetCells().Count());
+            ClassicAssert.AreEqual(
+                2,
+                ((XLWorksheet)ws).Internals.CellsCollection.GetCells().Count()
+            );
             ws.Column(1).InsertColumnsBefore(1);
-            Assert.AreEqual(1, ((XLWorksheet)ws).Internals.CellsCollection.GetCells().Count());
+            ClassicAssert.AreEqual(
+                1,
+                ((XLWorksheet)ws).Internals.CellsCollection.GetCells().Count()
+            );
         }
     }
 
@@ -1264,9 +1312,15 @@ public class XlWorksheetTests
 
             a1.InsertCellsAbove(1);
 
-            Assert.AreEqual(2, ((XLWorksheet)ws).Internals.CellsCollection.GetCells().Count());
+            ClassicAssert.AreEqual(
+                2,
+                ((XLWorksheet)ws).Internals.CellsCollection.GetCells().Count()
+            );
             ws.Row(1).InsertRowsAbove(1);
-            Assert.AreEqual(1, ((XLWorksheet)ws).Internals.CellsCollection.GetCells().Count());
+            ClassicAssert.AreEqual(
+                1,
+                ((XLWorksheet)ws).Internals.CellsCollection.GetCells().Count()
+            );
         }
     }
 
@@ -1281,7 +1335,7 @@ public class XlWorksheetTests
 
             ws.Column(XLHelper.MaxColumnNumber).Delete();
 
-            Assert.AreEqual(3, ((XLWorksheet)ws).Internals.CellsCollection.MaxColumnUsed);
+            ClassicAssert.AreEqual(3, ((XLWorksheet)ws).Internals.CellsCollection.MaxColumnUsed);
         }
     }
 
@@ -1296,7 +1350,7 @@ public class XlWorksheetTests
 
             ws.Row(XLHelper.MaxRowNumber).Delete();
 
-            Assert.AreEqual(3, ((XLWorksheet)ws).Internals.CellsCollection.MaxRowUsed);
+            ClassicAssert.AreEqual(3, ((XLWorksheet)ws).Internals.CellsCollection.MaxRowUsed);
         }
     }
 
@@ -1310,8 +1364,8 @@ public class XlWorksheetTests
             ws.Column(2).Style.Font.SetBold(true);
             ws.Row(2).Style.Font.SetItalic(true);
 
-            Assert.IsTrue(ws.Cell("B2").Style.Font.Bold);
-            Assert.IsTrue(ws.Cell("B2").Style.Font.Italic);
+            ClassicAssert.IsTrue(ws.Cell("B2").Style.Font.Bold);
+            ClassicAssert.IsTrue(ws.Cell("B2").Style.Font.Italic);
         }
     }
 
@@ -1325,8 +1379,8 @@ public class XlWorksheetTests
             ws.Row(2).Style.Font.SetItalic(true);
             ws.Column(2).Style.Font.SetBold(true);
 
-            Assert.IsTrue(ws.Cell("B2").Style.Font.Bold);
-            Assert.IsTrue(ws.Cell("B2").Style.Font.Italic);
+            ClassicAssert.IsTrue(ws.Cell("B2").Style.Font.Bold);
+            ClassicAssert.IsTrue(ws.Cell("B2").Style.Font.Italic);
         }
     }
 
@@ -1348,17 +1402,18 @@ public class XlWorksheetTests
                 IXLWorksheet ws1 = wb.Worksheets.First();
                 IXLWorksheet ws2 = wb.Worksheets.Last();
 
-                Assert.IsFalse(ws1.TabActive);
-                Assert.IsFalse(ws1.TabSelected);
-                Assert.IsTrue(ws2.TabActive);
-                Assert.IsTrue(ws2.TabSelected);
+                ClassicAssert.IsFalse(ws1.TabActive);
+                ClassicAssert.IsFalse(ws1.TabSelected);
+                ClassicAssert.IsTrue(ws2.TabActive);
+                ClassicAssert.IsTrue(ws2.TabSelected);
             }
         }
     }
 
-    [TestCase("noactive_noselected.xlsx")]
-    [TestCase("noactive_twoselected.xlsx")]
-    [TestCase("noactive_negativeId.xlsx")]
+    [Test]
+    [Arguments("noactive_noselected.xlsx")]
+    [Arguments("noactive_twoselected.xlsx")]
+    [Arguments("noactive_negativeId.xlsx")]
     public void FirstSheetIsActiveWhenNotSpecified(string fileName)
     {
         using (
@@ -1368,13 +1423,14 @@ public class XlWorksheetTests
         )
         using (XLWorkbook wb = new(stream))
         {
-            Assert.IsTrue(wb.Worksheets.First().TabActive);
-            Assert.AreEqual(XLWorksheetVisibility.Visible, wb.Worksheets.First().Visibility);
+            ClassicAssert.IsTrue(wb.Worksheets.First().TabActive);
+            ClassicAssert.AreEqual(XLWorksheetVisibility.Visible, wb.Worksheets.First().Visibility);
         }
     }
 
-    [TestCase(XLCellsUsedOptions.NormalFormats, 42)]
-    [TestCase(XLCellsUsedOptions.Contents, 100)]
+    [Test]
+    [Arguments(XLCellsUsedOptions.NormalFormats, 42)]
+    [Arguments(XLCellsUsedOptions.Contents, 100)]
     public void FirstColumnUsedReturnsFirstColumnWithUsedCell(
         XLCellsUsedOptions options,
         int expectedColumn
@@ -1386,7 +1442,7 @@ public class XlWorksheetTests
         ws.Cell(1, 100).SetValue(5);
 
         IXLColumn? column = ws.FirstColumnUsed(options);
-        Assert.AreEqual(expectedColumn, column.ColumnNumber());
+        ClassicAssert.AreEqual(expectedColumn, column.ColumnNumber());
     }
 
     [Test]
@@ -1398,34 +1454,34 @@ public class XlWorksheetTests
 
         other.Cell("A1").Value = 7;
         other.Cell("A2").FormulaA1 = "A1+3";
-        Assert.AreEqual(10.0, other.Cell("A2").Value);
+        ClassicAssert.AreEqual(10.0, other.Cell("A2").Value);
 
         // Change the supporting value, but without recalculation of dependent
         // formula, thus the value stays the same.
         other.Cell("A1").Value = 5;
 
-        Assert.True(other.Cell("A2").NeedsRecalculation);
-        Assert.AreEqual(10.0, other.Cell("A2").CachedValue);
+        ClassicAssert.True(other.Cell("A2").NeedsRecalculation);
+        ClassicAssert.AreEqual(10.0, other.Cell("A2").CachedValue);
 
         // Tested formula depends on a dirty formula from other sheet.
         sut.Cell("A1").FormulaA1 = "other!A2+5";
         sut.Cell("A2").FormulaA1 = "1+2";
 
-        Assert.AreEqual(Blank.Value, sut.Cell("A1").CachedValue);
-        Assert.AreEqual(Blank.Value, sut.Cell("A2").CachedValue);
+        ClassicAssert.AreEqual(Blank.Value, sut.Cell("A1").CachedValue);
+        ClassicAssert.AreEqual(Blank.Value, sut.Cell("A2").CachedValue);
 
         sut.RecalculateAllFormulas();
 
         // Formulas in other sheets kept the value - not affected by recalculation of a sut sheet.
-        Assert.True(other.Cell("A2").NeedsRecalculation);
-        Assert.AreEqual(10.0, other.Cell("A2").CachedValue);
+        ClassicAssert.True(other.Cell("A2").NeedsRecalculation);
+        ClassicAssert.AreEqual(10.0, other.Cell("A2").CachedValue);
 
         // Formulas in test sheet were recalculated - they are affected by recalculation of a sut sheet.
-        Assert.False(sut.Cell("A1").NeedsRecalculation);
-        Assert.AreEqual(15.0, sut.Cell("A1").CachedValue);
+        ClassicAssert.False(sut.Cell("A1").NeedsRecalculation);
+        ClassicAssert.AreEqual(15.0, sut.Cell("A1").CachedValue);
 
-        Assert.False(sut.Cell("A2").NeedsRecalculation);
-        Assert.AreEqual(3.0, sut.Cell("A2").CachedValue);
+        ClassicAssert.False(sut.Cell("A2").NeedsRecalculation);
+        ClassicAssert.AreEqual(3.0, sut.Cell("A2").CachedValue);
     }
 
     [Test]
@@ -1438,8 +1494,8 @@ public class XlWorksheetTests
         IXLCell cellB4 = ws.Cell("B4");
         IXLCell firstCellOfRange = ws.Cell("test_range");
 
-        Assert.AreEqual("B4", cellB4.Address.ToString());
-        Assert.AreEqual("C2", firstCellOfRange.Address.ToString());
+        ClassicAssert.AreEqual("B4", cellB4.Address.ToString());
+        ClassicAssert.AreEqual("C2", firstCellOfRange.Address.ToString());
     }
 
     [Test]
@@ -1448,8 +1504,8 @@ public class XlWorksheetTests
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
 
-        Assert.Throws<ArgumentException>(() => _ = ws.Cell("XFF1"));
-        Assert.Throws<ArgumentException>(() => _ = ws.Cell("nonexistent_range"));
+        ClassicAssert.Throws<ArgumentException>(() => _ = ws.Cell("XFF1"));
+        ClassicAssert.Throws<ArgumentException>(() => _ = ws.Cell("nonexistent_range"));
     }
 
     [Test]
@@ -1465,10 +1521,10 @@ public class XlWorksheetTests
         IXLRange bookNamedRange = ws.Range("book_range");
         IXLRange sheetNamedRange = ws.Range("sheet_range");
 
-        Assert.AreEqual("B4:B4", singleCellRange.RangeAddress.ToString());
-        Assert.AreEqual("B4:D7", areaCellRange.RangeAddress.ToString());
-        Assert.AreEqual("$C$2:$G$5", bookNamedRange.RangeAddress.ToString());
-        Assert.AreEqual("$B$1:$D$3", sheetNamedRange.RangeAddress.ToString());
+        ClassicAssert.AreEqual("B4:B4", singleCellRange.RangeAddress.ToString());
+        ClassicAssert.AreEqual("B4:D7", areaCellRange.RangeAddress.ToString());
+        ClassicAssert.AreEqual("$C$2:$G$5", bookNamedRange.RangeAddress.ToString());
+        ClassicAssert.AreEqual("$B$1:$D$3", sheetNamedRange.RangeAddress.ToString());
     }
 
     [Test]
@@ -1477,15 +1533,16 @@ public class XlWorksheetTests
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
 
-        Assert.Throws<ArgumentException>(() => _ = ws.Range("DEAD1"));
-        Assert.Throws<ArgumentException>(() => _ = ws.Range("DEAD4:BEEF10"));
-        Assert.Throws<ArgumentException>(() => _ = ws.Range("nonexistent_range"));
+        ClassicAssert.Throws<ArgumentException>(() => _ = ws.Range("DEAD1"));
+        ClassicAssert.Throws<ArgumentException>(() => _ = ws.Range("DEAD4:BEEF10"));
+        ClassicAssert.Throws<ArgumentException>(() => _ = ws.Range("nonexistent_range"));
     }
 
-    [TestCase("Sheet1", "Sheet1")]
-    [TestCase("Sheet1", "SHEET1")]
-    [TestCase("Baker's Paradise", "BAKER'S PARADISE")]
-    [TestCase("XXX''XXX", "XXX''XXX")]
+    [Test]
+    [Arguments("Sheet1", "Sheet1")]
+    [Arguments("Sheet1", "SHEET1")]
+    [Arguments("Baker's Paradise", "BAKER'S PARADISE")]
+    [Arguments("XXX''XXX", "XXX''XXX")]
     public void WorksheetByNameReturnsWorksheetWithTheSameCaseInsensitiveName(
         string sheetName,
         string searchedSheetName
@@ -1494,7 +1551,7 @@ public class XlWorksheetTests
         using XLWorkbook wb = new();
         IXLWorksheet sheet = wb.AddWorksheet(sheetName);
 
-        Assert.That(wb.Worksheets.Worksheet(searchedSheetName), Is.SameAs(sheet));
+        ClassicAssert.AreSame(sheet, wb.Worksheets.Worksheet(searchedSheetName));
     }
 
     [Test]
@@ -1503,18 +1560,16 @@ public class XlWorksheetTests
         using XLWorkbook wb = new();
         wb.AddWorksheet("Sheet");
 
-        Assert.That(
-            () => wb.Worksheets.Worksheet("Nonexistent"),
-            Throws.TypeOf<KeyNotFoundException>()
-        );
+        ClassicAssert.Throws<KeyNotFoundException>(() => wb.Worksheets.Worksheet("Nonexistent"));
     }
 
-    [TestCase("Sheet1", "Sheet1", true)]
-    [TestCase("Sheet1", "SHEET1", true)]
-    [TestCase("Sheet1", "Sheet", false)]
-    [TestCase("Sheet1", " Sheet1", false)]
-    [TestCase("Baker's Paradise", "BAKER'S PARADISE", true)]
-    [TestCase("XXX''XXX", "XXX''XXX", true)]
+    [Test]
+    [Arguments("Sheet1", "Sheet1", true)]
+    [Arguments("Sheet1", "SHEET1", true)]
+    [Arguments("Sheet1", "Sheet", false)]
+    [Arguments("Sheet1", " Sheet1", false)]
+    [Arguments("Baker's Paradise", "BAKER'S PARADISE", true)]
+    [Arguments("XXX''XXX", "XXX''XXX", true)]
     public void TryGetWorksheetFindsWorksheetWithTheSameCaseInsensitiveName(
         string sheetName,
         string searchedSheetName,
@@ -1526,7 +1581,14 @@ public class XlWorksheetTests
 
         bool found = wb.Worksheets.TryGetWorksheet(searchedSheetName, out IXLWorksheet? foundSheet);
 
-        Assert.AreEqual(expectedFound, found);
-        Assert.That(foundSheet, found ? Is.SameAs(sheet) : Is.Null);
+        ClassicAssert.AreEqual(expectedFound, found);
+        if (found)
+        {
+            ClassicAssert.AreSame(sheet, foundSheet);
+        }
+        else
+        {
+            ClassicAssert.IsNull(foundSheet);
+        }
     }
 }

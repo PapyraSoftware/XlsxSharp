@@ -1,9 +1,7 @@
-﻿using NUnit.Framework;
 using XlsxSharp.Excel;
 
 namespace XlsxSharp.Tests.Excel.Cells;
 
-[TestFixture]
 public class ValueSliceTests
 {
     [Test]
@@ -17,12 +15,12 @@ public class ValueSliceTests
         removedWs.Cell("A1").Value = "Double referenced text";
         removedWs.Cell("B1").Value = "Single referenced text";
 
-        Assert.AreEqual(2, sst.Count);
+        ClassicAssert.AreEqual(2, sst.Count);
 
         wb.Worksheets.Delete(removedWs.Name);
 
-        Assert.AreEqual(1, sst.Count);
-        Assert.AreEqual("Double referenced text", keptWs.Cell(1, 1).Value);
+        ClassicAssert.AreEqual(1, sst.Count);
+        ClassicAssert.AreEqual("Double referenced text", keptWs.Cell(1, 1).Value);
     }
 
     [Test]
@@ -35,10 +33,10 @@ public class ValueSliceTests
         ws.Cell("B2").Value = "Double referenced text";
         ws.Cell("C2").Value = "Single referenced text";
 
-        Assert.AreEqual(2, sst.Count);
+        ClassicAssert.AreEqual(2, sst.Count);
         ((XLWorksheet)ws).Internals.CellsCollection.ValueSlice.Clear(new Area(2, 2, 2, 3));
-        Assert.AreEqual(1, sst.Count);
-        Assert.AreEqual("Double referenced text", ws.Cell("A1").Value);
+        ClassicAssert.AreEqual(1, sst.Count);
+        ClassicAssert.AreEqual("Double referenced text", ws.Cell("A1").Value);
     }
 
     [Test]
@@ -56,9 +54,9 @@ public class ValueSliceTests
             new Area(2, 2, 3, 3)
         );
 
-        Assert.AreEqual(2, sst.Count);
-        Assert.AreEqual("Kept Single Reference", sst[1]);
-        Assert.AreEqual("Kept Double Reference", sst[2]);
+        ClassicAssert.AreEqual(2, sst.Count);
+        ClassicAssert.AreEqual("Kept Single Reference", sst[1]);
+        ClassicAssert.AreEqual("Kept Double Reference", sst[2]);
     }
 
     [Test]
@@ -76,9 +74,9 @@ public class ValueSliceTests
             new Area(2, 2, 3, 3)
         );
 
-        Assert.AreEqual(2, sst.Count);
-        Assert.AreEqual("Kept Single Reference", sst[1]);
-        Assert.AreEqual("Kept Double Reference", sst[2]);
+        ClassicAssert.AreEqual(2, sst.Count);
+        ClassicAssert.AreEqual("Kept Single Reference", sst[1]);
+        ClassicAssert.AreEqual("Kept Double Reference", sst[2]);
     }
 
     [Test]
@@ -96,9 +94,9 @@ public class ValueSliceTests
             new Area(3, 2, 4, 3)
         );
 
-        Assert.AreEqual(2, sst.Count);
-        Assert.AreEqual("Kept Single Reference", sst[0]);
-        Assert.AreEqual("Kept Double Reference", sst[2]);
+        ClassicAssert.AreEqual(2, sst.Count);
+        ClassicAssert.AreEqual("Kept Single Reference", sst[0]);
+        ClassicAssert.AreEqual("Kept Double Reference", sst[2]);
     }
 
     [Test]
@@ -116,8 +114,8 @@ public class ValueSliceTests
             new Area(2, 3, 3, 4)
         );
 
-        Assert.AreEqual(2, sst.Count);
-        Assert.AreEqual("Kept Single Reference", sst[0]);
-        Assert.AreEqual("Kept Double Reference", sst[2]);
+        ClassicAssert.AreEqual(2, sst.Count);
+        ClassicAssert.AreEqual("Kept Single Reference", sst[0]);
+        ClassicAssert.AreEqual("Kept Double Reference", sst[2]);
     }
 }

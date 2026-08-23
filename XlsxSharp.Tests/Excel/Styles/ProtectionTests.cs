@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 
 namespace XlsxSharp.Tests.Excel.Styles;
@@ -8,7 +7,7 @@ namespace XlsxSharp.Tests.Excel.Styles;
 public class ProtectionTests
 {
     [Test]
-    [TestCaseSource(nameof(ProtectionApiSetters))]
+    [MethodDataSource(nameof(ProtectionApiSetters))]
     public void ProtectionPropertyCanBeIndividuallySet(FormatTestCase<IXLProtection> testCase)
     {
         using XLWorkbook wb = new();
@@ -19,7 +18,7 @@ public class ProtectionTests
         {
             testCase.SetPropertyValue(cellFormat.Protection, testValue);
             object setValue = testCase.GetPropertyValue(cellFormat.Protection);
-            Assert.AreEqual(testValue, setValue);
+            ClassicAssert.AreEqual(testValue, setValue);
         }
     }
 
@@ -29,16 +28,16 @@ public class ProtectionTests
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
         IXLProtection targetProtection = ws.Cell("A2").Style.Protection;
-        Assert.IsTrue(targetProtection.Locked);
-        Assert.IsFalse(targetProtection.Hidden);
+        ClassicAssert.IsTrue(targetProtection.Locked);
+        ClassicAssert.IsFalse(targetProtection.Hidden);
         IXLStyle source = ws.Cell("A1")
             .Style.Protection.SetLocked(false)
             .Protection.SetHidden(true);
 
         targetProtection = source.Protection;
 
-        Assert.IsFalse(targetProtection.Locked);
-        Assert.IsTrue(targetProtection.Hidden);
+        ClassicAssert.IsFalse(targetProtection.Locked);
+        ClassicAssert.IsTrue(targetProtection.Hidden);
     }
 
     [Test]
@@ -57,13 +56,13 @@ public class ProtectionTests
             IXLProtection lhs = ws.Cell("A1").Style.Protection;
             IXLProtection rhs = ws.Cell("A2").Style.Protection;
 
-            Assert.AreEqual(lhs, rhs);
+            ClassicAssert.AreEqual(lhs, rhs);
             changeProperty(lhs);
-            Assert.AreNotEqual(lhs, rhs);
+            ClassicAssert.AreNotEqual(lhs, rhs);
         }
     }
 
-    private static IEnumerable<object> ProtectionApiSetters()
+    internal static IEnumerable<object> ProtectionApiSetters()
     {
         bool[] boolValues = [false, true];
         yield return FormatTestCase<IXLProtection>.ForProtection(

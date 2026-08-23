@@ -1,9 +1,7 @@
-using NUnit.Framework;
 using XlsxSharp.Examples.PageSetup;
 
 namespace XlsxSharp.Tests.Examples;
 
-[TestFixture]
 public class PageSetupTests
 {
     [Test]

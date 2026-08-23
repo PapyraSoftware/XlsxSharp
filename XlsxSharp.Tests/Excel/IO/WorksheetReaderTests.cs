@@ -1,9 +1,7 @@
 using System.Linq;
-using NUnit.Framework;
 
 namespace XlsxSharp.Tests.Excel.IO;
 
-[TestFixture]
 internal class WorksheetReaderTests
 {
     [Test]
@@ -19,13 +17,16 @@ internal class WorksheetReaderTests
                 // Cells that depend on tracked row number have their addresses determined correctly
                 foreach (int row in new[] { 1, 2, 3, 4, 7, 8 })
                 {
-                    Assert.AreEqual(row, ws.Cell(row, 1).Value);
+                    ClassicAssert.AreEqual(row, ws.Cell(row, 1).Value);
                 }
 
                 // Check that rows numbers determined correctly. Row 9 doesn't have any cells
                 foreach (int row in new[] { 1, 2, 3, 4, 7, 8, 9 })
                 {
-                    Assert.AreEqual(40 + row, ws.Rows().Single(x => x.RowNumber() == row).Height);
+                    ClassicAssert.AreEqual(
+                        40 + row,
+                        ws.Rows().Single(x => x.RowNumber() == row).Height
+                    );
                 }
             },
             "Other.IO.Worksheet.OmittedRowNumber.xlsx"
@@ -42,13 +43,13 @@ internal class WorksheetReaderTests
                 // tracking restarts after last know cell ref.
                 foreach (string column in new[] { "A", "B", "C", "D", "G", "H" })
                 {
-                    Assert.AreEqual(column, ws.Cell($"{column}1").Value);
+                    ClassicAssert.AreEqual(column, ws.Cell($"{column}1").Value);
                 }
 
                 // When reader encounters a new row, the tracked tracked colum is reset back to 'A'
                 foreach (string column in new[] { "A", "B" })
                 {
-                    Assert.AreEqual(column, ws.Cell($"{column}2").Value);
+                    ClassicAssert.AreEqual(column, ws.Cell($"{column}2").Value);
                 }
             },
             "Other.IO.Worksheet.OmittedCellReference.xlsx"

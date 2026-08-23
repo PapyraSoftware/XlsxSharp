@@ -1,13 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.CalcEngine;
 
 namespace XlsxSharp.Tests.Excel.AutoFilters;
 
-[TestFixture]
 public class Top10FilterTests
 {
     [Test]
@@ -110,10 +108,11 @@ public class Top10FilterTests
             .AddFalse(2, 3)
             .AssertVisibility();
 
-    [TestCase(0, true)]
-    [TestCase(501, true)]
-    [TestCase(0, false)]
-    [TestCase(501, false)]
+    [Test]
+    [Arguments(0, true)]
+    [Arguments(501, true)]
+    [Arguments(0, false)]
+    [Arguments(501, false)]
     public void TopAndBottomFilterValueMustBeBetween1And500(int value, bool top)
     {
         using XLWorkbook wb = new();
@@ -123,7 +122,7 @@ public class Top10FilterTests
         IXLAutoFilter autoFilter = ws.Range("A1:A2").SetAutoFilter();
         IXLFilterColumn filterColumn = autoFilter.Column(1);
 
-        ArgumentOutOfRangeException ex = Assert.Throws<ArgumentOutOfRangeException>(() =>
+        ArgumentOutOfRangeException ex = ClassicAssert.Throws<ArgumentOutOfRangeException>(() =>
         {
             if (top)
             {

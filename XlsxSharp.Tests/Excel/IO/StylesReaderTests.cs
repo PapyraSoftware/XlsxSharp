@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.Formatting;
 using XlsxSharp.Excel.IO;
@@ -12,7 +11,6 @@ using StylesReader = XlsxSharp.Excel.IO.StylesReader;
 
 namespace XlsxSharp.Tests.Excel.IO;
 
-[TestFixture]
 internal class StylesReaderTests
 {
     [Test]
@@ -24,7 +22,7 @@ internal class StylesReaderTests
             styles =>
             {
                 XLNumberFormat formatCode = styles.NumberFormats[164];
-                Assert.AreEqual("\"$\"#,##0.00", formatCode);
+                ClassicAssert.AreEqual("\"$\"#,##0.00", formatCode);
             }
         );
 
@@ -37,22 +35,22 @@ internal class StylesReaderTests
             {
                 XLFontFormatValue font = styles.Fonts[0];
                 XLFontFormatValue defaultFont = XLFontFormatValue.Default;
-                Assert.AreNotSame(defaultFont, font);
-                Assert.AreEqual(defaultFont.Name, font.Name);
-                Assert.AreEqual(defaultFont.Charset, font.Charset);
-                Assert.AreEqual(defaultFont.Family, font.Family);
-                Assert.AreEqual(defaultFont.Bold, font.Bold);
-                Assert.AreEqual(defaultFont.Italic, font.Italic);
-                Assert.AreEqual(defaultFont.Strikethrough, font.Strikethrough);
-                Assert.AreEqual(defaultFont.Outline, font.Outline);
-                Assert.AreEqual(defaultFont.Shadow, font.Shadow);
-                Assert.AreEqual(defaultFont.Condense, font.Condense);
-                Assert.AreEqual(defaultFont.Extend, font.Extend);
-                Assert.AreEqual(defaultFont.Color, font.Color);
-                Assert.AreEqual(defaultFont.Size, font.Size);
-                Assert.AreEqual(defaultFont.Underline, font.Underline);
-                Assert.AreEqual(defaultFont.VerticalAlignment, font.VerticalAlignment);
-                Assert.AreEqual(defaultFont.Scheme, font.Scheme);
+                ClassicAssert.AreNotSame(defaultFont, font);
+                ClassicAssert.AreEqual(defaultFont.Name, font.Name);
+                ClassicAssert.AreEqual(defaultFont.Charset, font.Charset);
+                ClassicAssert.AreEqual(defaultFont.Family, font.Family);
+                ClassicAssert.AreEqual(defaultFont.Bold, font.Bold);
+                ClassicAssert.AreEqual(defaultFont.Italic, font.Italic);
+                ClassicAssert.AreEqual(defaultFont.Strikethrough, font.Strikethrough);
+                ClassicAssert.AreEqual(defaultFont.Outline, font.Outline);
+                ClassicAssert.AreEqual(defaultFont.Shadow, font.Shadow);
+                ClassicAssert.AreEqual(defaultFont.Condense, font.Condense);
+                ClassicAssert.AreEqual(defaultFont.Extend, font.Extend);
+                ClassicAssert.AreEqual(defaultFont.Color, font.Color);
+                ClassicAssert.AreEqual(defaultFont.Size, font.Size);
+                ClassicAssert.AreEqual(defaultFont.Underline, font.Underline);
+                ClassicAssert.AreEqual(defaultFont.VerticalAlignment, font.VerticalAlignment);
+                ClassicAssert.AreEqual(defaultFont.Scheme, font.Scheme);
             }
         );
 
@@ -81,29 +79,30 @@ internal class StylesReaderTests
             styles =>
             {
                 XLFontFormatValue font = styles.Fonts[0];
-                Assert.AreEqual("Calibri", font.Name);
-                Assert.AreEqual(XLFontCharSet.ShiftJIS, font.Charset);
-                Assert.AreEqual(XLFontFamilyNumberingValues.Swiss, font.Family);
-                Assert.IsTrue(font.Bold);
-                Assert.IsTrue(font.Italic);
-                Assert.IsTrue(font.Strikethrough);
-                Assert.IsTrue(font.Outline);
-                Assert.IsTrue(font.Shadow);
-                Assert.IsTrue(font.Condense);
-                Assert.IsTrue(font.Extend);
-                Assert.AreEqual(XLColor.FromRgb(0x802010), font.Color);
-                Assert.AreEqual(8.5, font.Size);
-                Assert.AreEqual(XLFontUnderlineValues.Double, font.Underline);
-                Assert.AreEqual(
+                ClassicAssert.AreEqual("Calibri", font.Name);
+                ClassicAssert.AreEqual(XLFontCharSet.ShiftJIS, font.Charset);
+                ClassicAssert.AreEqual(XLFontFamilyNumberingValues.Swiss, font.Family);
+                ClassicAssert.IsTrue(font.Bold);
+                ClassicAssert.IsTrue(font.Italic);
+                ClassicAssert.IsTrue(font.Strikethrough);
+                ClassicAssert.IsTrue(font.Outline);
+                ClassicAssert.IsTrue(font.Shadow);
+                ClassicAssert.IsTrue(font.Condense);
+                ClassicAssert.IsTrue(font.Extend);
+                ClassicAssert.AreEqual(XLColor.FromRgb(0x802010), font.Color);
+                ClassicAssert.AreEqual(8.5, font.Size);
+                ClassicAssert.AreEqual(XLFontUnderlineValues.Double, font.Underline);
+                ClassicAssert.AreEqual(
                     XLFontVerticalTextAlignmentValues.Superscript,
                     font.VerticalAlignment
                 );
-                Assert.AreEqual(XLFontScheme.None, font.Scheme);
+                ClassicAssert.AreEqual(XLFontScheme.None, font.Scheme);
             }
         );
 
-    [TestCase(6)]
-    [TestCase(14)]
+    [Test]
+    [Arguments(6)]
+    [Arguments(14)]
     public void Interprets_undefined_font_family_values_as_unknown_font_family(int fontFamily) =>
         // Deal with serious difference between standard and Excel. Standard only defines range of
         // numerical values, but there is no meaning assigned. Thus it makes sense to take font
@@ -118,7 +117,7 @@ internal class StylesReaderTests
             styles =>
             {
                 XLFontFormatValue font = styles.Fonts[0];
-                Assert.AreEqual(XLFontFamilyNumberingValues.NotApplicable, font.Family);
+                ClassicAssert.AreEqual(XLFontFamilyNumberingValues.NotApplicable, font.Family);
             }
         );
 
@@ -137,8 +136,8 @@ internal class StylesReaderTests
             styles =>
             {
                 XLFontFormatValue font = styles.Fonts[0];
-                Assert.AreEqual("Second Font", font.Name);
-                Assert.IsFalse(font.Bold);
+                ClassicAssert.AreEqual("Second Font", font.Name);
+                ClassicAssert.IsFalse(font.Bold);
             }
         );
 
@@ -149,9 +148,9 @@ internal class StylesReaderTests
             styles =>
             {
                 XLFillFormatValue fill = styles.Fills[0];
-                Assert.Null(fill.Pattern);
-                Assert.Null(fill.LinearGradient);
-                Assert.Null(fill.PathGradient);
+                ClassicAssert.Null(fill.Pattern);
+                ClassicAssert.Null(fill.LinearGradient);
+                ClassicAssert.Null(fill.PathGradient);
             }
         );
 
@@ -168,10 +167,10 @@ internal class StylesReaderTests
             styles =>
             {
                 XLFillFormatValue fill = styles.Fills[0];
-                Assert.NotNull(fill.Pattern);
-                Assert.AreEqual(XLFillPatternValues.LightGrid, fill.Pattern.PatternType);
-                Assert.AreEqual(XLColor.Automatic, fill.Pattern.PatternColor);
-                Assert.AreEqual(XLColor.FromRgb(0x804000), fill.Pattern.BackgroundColor);
+                ClassicAssert.NotNull(fill.Pattern);
+                ClassicAssert.AreEqual(XLFillPatternValues.LightGrid, fill.Pattern.PatternType);
+                ClassicAssert.AreEqual(XLColor.Automatic, fill.Pattern.PatternColor);
+                ClassicAssert.AreEqual(XLColor.FromRgb(0x804000), fill.Pattern.BackgroundColor);
             }
         );
 
@@ -193,17 +192,15 @@ internal class StylesReaderTests
             styles =>
             {
                 XLLinearGradientFill? linearGradient = styles.Fills[0].LinearGradient;
-                Assert.NotNull(linearGradient);
-                Assert.AreEqual(90, linearGradient.Degrees);
-                Assert.That(
-                    linearGradient.Stops,
-                    Is.EquivalentTo(
-                        new Dictionary<FractionOfOne, XLColor>
-                        {
-                            { 0, XLColor.FromRgb(0x92D050) },
-                            { 1, XLColor.FromRgb(0x0070C0) },
-                        }
-                    )
+                ClassicAssert.NotNull(linearGradient);
+                ClassicAssert.AreEqual(90, linearGradient.Degrees);
+                CollectionAssert.AreEquivalent(
+                    new Dictionary<FractionOfOne, XLColor>
+                    {
+                        { 0, XLColor.FromRgb(0x92D050) },
+                        { 1, XLColor.FromRgb(0x0070C0) },
+                    },
+                    linearGradient.Stops
                 );
             }
         );
@@ -226,20 +223,18 @@ internal class StylesReaderTests
             styles =>
             {
                 XLPathGradientFill? pathGradient = styles.Fills[0].PathGradient;
-                Assert.NotNull(pathGradient);
-                Assert.AreEqual(0.5, pathGradient.InnerLeft);
-                Assert.AreEqual(0.25, pathGradient.InnerRight);
-                Assert.AreEqual(0.125, pathGradient.InnerTop);
-                Assert.AreEqual(0.75, pathGradient.InnerBottom);
-                Assert.That(
-                    pathGradient.Stops,
-                    Is.EquivalentTo(
-                        new Dictionary<FractionOfOne, XLColor>
-                        {
-                            { 0, XLColor.FromTheme(XLThemeColor.Background1) },
-                            { 1, XLColor.FromTheme(XLThemeColor.Accent1) },
-                        }
-                    )
+                ClassicAssert.NotNull(pathGradient);
+                ClassicAssert.AreEqual(0.5, pathGradient.InnerLeft);
+                ClassicAssert.AreEqual(0.25, pathGradient.InnerRight);
+                ClassicAssert.AreEqual(0.125, pathGradient.InnerTop);
+                ClassicAssert.AreEqual(0.75, pathGradient.InnerBottom);
+                CollectionAssert.AreEquivalent(
+                    new Dictionary<FractionOfOne, XLColor>
+                    {
+                        { 0, XLColor.FromTheme(XLThemeColor.Background1) },
+                        { 1, XLColor.FromTheme(XLThemeColor.Accent1) },
+                    },
+                    pathGradient.Stops
                 );
             }
         );
@@ -262,16 +257,19 @@ internal class StylesReaderTests
             styles =>
             {
                 XLAlignmentFormatValue alignment = styles.CellFormats[0].Alignment;
-                Assert.NotNull(alignment);
-                Assert.AreEqual(XLAlignmentHorizontalValues.Center, alignment.Horizontal);
-                Assert.AreEqual(XLAlignmentVerticalValues.Top, alignment.Vertical);
-                Assert.AreEqual(45, alignment.TextRotation.Value);
-                Assert.IsTrue(alignment.WrapText);
-                Assert.AreEqual(7, alignment.Indent);
-                Assert.AreEqual(4, alignment.RelativeIndent);
-                Assert.IsTrue(alignment.JustifyLastLine);
-                Assert.IsTrue(alignment.ShrinkToFit);
-                Assert.AreEqual(XLAlignmentReadingOrderValues.RightToLeft, alignment.ReadingOrder);
+                ClassicAssert.NotNull(alignment);
+                ClassicAssert.AreEqual(XLAlignmentHorizontalValues.Center, alignment.Horizontal);
+                ClassicAssert.AreEqual(XLAlignmentVerticalValues.Top, alignment.Vertical);
+                ClassicAssert.AreEqual(45, alignment.TextRotation.Value);
+                ClassicAssert.IsTrue(alignment.WrapText);
+                ClassicAssert.AreEqual(7, alignment.Indent);
+                ClassicAssert.AreEqual(4, alignment.RelativeIndent);
+                ClassicAssert.IsTrue(alignment.JustifyLastLine);
+                ClassicAssert.IsTrue(alignment.ShrinkToFit);
+                ClassicAssert.AreEqual(
+                    XLAlignmentReadingOrderValues.RightToLeft,
+                    alignment.ReadingOrder
+                );
             }
         );
 
@@ -284,9 +282,9 @@ internal class StylesReaderTests
             styles =>
             {
                 XLProtectionFormatValue protection = styles.CellFormats[0].Protection;
-                Assert.NotNull(protection);
-                Assert.IsFalse(protection.Locked);
-                Assert.IsTrue(protection.Hidden);
+                ClassicAssert.NotNull(protection);
+                ClassicAssert.IsFalse(protection.Locked);
+                ClassicAssert.IsTrue(protection.Hidden);
             }
         );
 
@@ -328,22 +326,25 @@ internal class StylesReaderTests
             styles =>
             {
                 XLCellFormatValue format = styles.CellFormats[0];
-                Assert.NotNull(format.Alignment);
-                Assert.AreEqual(XLAlignmentHorizontalValues.Left, format.Alignment.Horizontal);
+                ClassicAssert.NotNull(format.Alignment);
+                ClassicAssert.AreEqual(
+                    XLAlignmentHorizontalValues.Left,
+                    format.Alignment.Horizontal
+                );
 
-                Assert.NotNull(format.Protection);
-                Assert.IsTrue(format.Protection.Locked);
-                Assert.IsFalse(format.Protection.Hidden);
+                ClassicAssert.NotNull(format.Protection);
+                ClassicAssert.IsTrue(format.Protection.Locked);
+                ClassicAssert.IsFalse(format.Protection.Hidden);
 
-                Assert.AreEqual(styles.NumberFormats[164], format.NumberFormat);
-                Assert.AreSame(styles.Fonts[1], format.Font);
-                Assert.AreSame(styles.Fills[1], format.Fill);
-                Assert.AreSame(styles.Borders[0], format.Border);
+                ClassicAssert.AreEqual(styles.NumberFormats[164], format.NumberFormat);
+                ClassicAssert.AreSame(styles.Fonts[1], format.Font);
+                ClassicAssert.AreSame(styles.Fills[1], format.Fill);
+                ClassicAssert.AreSame(styles.Borders[0], format.Border);
 
                 // All apply* are 0 or default -> nothing should be overwritten
-                Assert.AreEqual(CellFormatComponents.None, format.CustomFormat);
-                Assert.NotNull(format.CellStyleId);
-                Assert.AreEqual("Test", styles.CellStyles[format.CellStyleId.Value].Name);
+                ClassicAssert.AreEqual(CellFormatComponents.None, format.CustomFormat);
+                ClassicAssert.NotNull(format.CellStyleId);
+                ClassicAssert.AreEqual("Test", styles.CellStyles[format.CellStyleId.Value].Name);
             },
             xml
         );
@@ -384,31 +385,37 @@ internal class StylesReaderTests
             styles =>
             {
                 XLCellStyleValue style = styles.CellStyles[0];
-                Assert.AreEqual("Test", style.Name);
-                Assert.AreEqual(BuiltInStyleValues.Good, style.BuiltInStyle);
-                Assert.IsFalse(style.Hidden);
+                ClassicAssert.AreEqual("Test", style.Name);
+                ClassicAssert.AreEqual(BuiltInStyleValues.Good, style.BuiltInStyle);
+                ClassicAssert.IsFalse(style.Hidden);
 
-                Assert.NotNull(style.Alignment);
-                Assert.AreEqual(XLAlignmentHorizontalValues.Right, style.Alignment.Horizontal);
+                ClassicAssert.NotNull(style.Alignment);
+                ClassicAssert.AreEqual(
+                    XLAlignmentHorizontalValues.Right,
+                    style.Alignment.Horizontal
+                );
 
-                Assert.NotNull(style.Protection);
-                Assert.IsTrue(style.Protection.Locked);
-                Assert.IsFalse(style.Protection.Hidden);
+                ClassicAssert.NotNull(style.Protection);
+                ClassicAssert.IsTrue(style.Protection.Locked);
+                ClassicAssert.IsFalse(style.Protection.Hidden);
 
-                Assert.AreEqual(styles.NumberFormats[190], style.NumberFormat);
-                Assert.AreEqual("0.00", style.NumberFormat);
+                ClassicAssert.AreEqual(styles.NumberFormats[190], style.NumberFormat);
+                ClassicAssert.AreEqual("0.00", style.NumberFormat);
 
-                Assert.AreSame(styles.Fonts[1], style.Font);
-                Assert.AreEqual(15.0, style.Font.Size);
+                ClassicAssert.AreSame(styles.Fonts[1], style.Font);
+                ClassicAssert.AreEqual(15.0, style.Font.Size);
 
-                Assert.AreSame(styles.Fills[1], style.Fill);
-                Assert.AreEqual(XLFillPatternValues.LightGrid, style.Fill.Pattern?.PatternType);
+                ClassicAssert.AreSame(styles.Fills[1], style.Fill);
+                ClassicAssert.AreEqual(
+                    XLFillPatternValues.LightGrid,
+                    style.Fill.Pattern?.PatternType
+                );
 
-                Assert.AreSame(styles.Borders[0], style.Border);
-                Assert.AreEqual(XLBorderStyleValues.Double, style.Border.Bottom.Style);
+                ClassicAssert.AreSame(styles.Borders[0], style.Border);
+                ClassicAssert.AreEqual(XLBorderStyleValues.Double, style.Border.Bottom.Style);
 
                 // All apply* are true or default (true) -> everything should be overwritten
-                Assert.AreEqual(CellFormatComponents.All, style.IncludedComponents);
+                ClassicAssert.AreEqual(CellFormatComponents.All, style.IncludedComponents);
             },
             xml
         );
@@ -436,8 +443,8 @@ internal class StylesReaderTests
             styles =>
             {
                 XLCellStyleValue style = styles.CellStyles[0];
-                Assert.AreEqual("RowLevel_3", style.Name);
-                Assert.AreEqual(BuiltInStyleValues.RowLevel3, style.BuiltInStyle);
+                ClassicAssert.AreEqual("RowLevel_3", style.Name);
+                ClassicAssert.AreEqual(BuiltInStyleValues.RowLevel3, style.BuiltInStyle);
             },
             xml
         );
@@ -466,9 +473,9 @@ internal class StylesReaderTests
         AssertFormat(
             styles =>
             {
-                Assert.AreEqual("Style 1", styles.CellStyles[0].Name);
-                Assert.AreEqual("Style 2", styles.CellStyles[1].Name);
-                Assert.AreEqual("Style 3", styles.CellStyles[2].Name);
+                ClassicAssert.AreEqual("Style 1", styles.CellStyles[0].Name);
+                ClassicAssert.AreEqual("Style 2", styles.CellStyles[1].Name);
+                ClassicAssert.AreEqual("Style 3", styles.CellStyles[2].Name);
             },
             xml
         );
@@ -501,14 +508,14 @@ internal class StylesReaderTests
         AssertFormat(
             styles =>
             {
-                Assert.AreEqual("Style 1", styles.CellStyles[0].Name);
-                Assert.AreEqual(15.0, styles.CellStyles[0].Font.Size);
+                ClassicAssert.AreEqual("Style 1", styles.CellStyles[0].Name);
+                ClassicAssert.AreEqual(15.0, styles.CellStyles[0].Font.Size);
 
-                Assert.AreEqual("Style 2", styles.CellStyles[1].Name);
-                Assert.AreEqual(15.0, styles.CellStyles[1].Font.Size);
+                ClassicAssert.AreEqual("Style 2", styles.CellStyles[1].Name);
+                ClassicAssert.AreEqual(15.0, styles.CellStyles[1].Font.Size);
 
-                Assert.AreEqual(1, styles.CellFormats.Count);
-                Assert.AreEqual(0, styles.CellFormats[0].CellStyleId);
+                ClassicAssert.AreEqual(1, styles.CellFormats.Count);
+                ClassicAssert.AreEqual(0, styles.CellFormats[0].CellStyleId);
             },
             xml
         );
@@ -539,17 +546,17 @@ internal class StylesReaderTests
         AssertFormat(
             styles =>
             {
-                Assert.AreEqual("Style 1", styles.CellStyles[0].Name);
-                Assert.AreEqual(15.0, styles.CellStyles[0].Font.Size);
+                ClassicAssert.AreEqual("Style 1", styles.CellStyles[0].Name);
+                ClassicAssert.AreEqual(15.0, styles.CellStyles[0].Font.Size);
 
-                Assert.AreEqual("Style 2", styles.CellStyles[1].Name);
-                Assert.AreEqual(10.0, styles.CellStyles[1].Font.Size);
+                ClassicAssert.AreEqual("Style 2", styles.CellStyles[1].Name);
+                ClassicAssert.AreEqual(10.0, styles.CellStyles[1].Font.Size);
 
                 // Created style from last formatting record without a cellStyle element
-                Assert.AreEqual("Style 3", styles.CellStyles[2].Name);
+                ClassicAssert.AreEqual("Style 3", styles.CellStyles[2].Name);
 
                 // If font is not specified, use the first one
-                Assert.AreEqual(15.0, styles.CellStyles[2].Font.Size);
+                ClassicAssert.AreEqual(15.0, styles.CellStyles[2].Font.Size);
             },
             xml
         );
@@ -580,17 +587,20 @@ internal class StylesReaderTests
             styles =>
             {
                 (int dxfId, XLDxfValue dxf) = styles.DifferentialFormats.Single();
-                Assert.AreEqual(0, dxfId);
-                Assert.IsTrue(dxf.Font.Bold);
-                Assert.AreEqual("0.00", dxf.NumberFormat);
-                Assert.AreEqual(XLFillPatternValues.LightGrid, dxf.Fill?.Pattern?.PatternType);
-                Assert.AreEqual(XLColor.FromRgb(0x0000FF), dxf.Fill.Pattern.PatternColor);
-                Assert.AreEqual(XLColor.FromRgb(0x00FF00), dxf.Fill.Pattern.BackgroundColor);
-                Assert.AreEqual(XLBorderStyleValues.Thin, dxf.Border?.Right.Value.Style);
-                Assert.AreEqual(XLColor.FromRgb(0x00FF00), dxf.Border?.Right.Value.Color);
-                Assert.IsNull(dxf.Border.Left);
-                Assert.IsNull(dxf.Border.Top);
-                Assert.IsNull(dxf.Border.Bottom);
+                ClassicAssert.AreEqual(0, dxfId);
+                ClassicAssert.IsTrue(dxf.Font.Bold);
+                ClassicAssert.AreEqual("0.00", dxf.NumberFormat);
+                ClassicAssert.AreEqual(
+                    XLFillPatternValues.LightGrid,
+                    dxf.Fill?.Pattern?.PatternType
+                );
+                ClassicAssert.AreEqual(XLColor.FromRgb(0x0000FF), dxf.Fill.Pattern.PatternColor);
+                ClassicAssert.AreEqual(XLColor.FromRgb(0x00FF00), dxf.Fill.Pattern.BackgroundColor);
+                ClassicAssert.AreEqual(XLBorderStyleValues.Thin, dxf.Border?.Right.Value.Style);
+                ClassicAssert.AreEqual(XLColor.FromRgb(0x00FF00), dxf.Border?.Right.Value.Color);
+                ClassicAssert.IsNull(dxf.Border.Left);
+                ClassicAssert.IsNull(dxf.Border.Top);
+                ClassicAssert.IsNull(dxf.Border.Bottom);
             }
         );
 
@@ -601,10 +611,10 @@ internal class StylesReaderTests
             styles =>
             {
                 XLDxfValue dxf = styles.DifferentialFormats.Single().Value;
-                Assert.IsTrue(dxf.Font.IsEmpty());
-                Assert.IsNull(dxf.NumberFormat);
-                Assert.AreSame(XLDifferentialFillValue.Empty, dxf.Fill);
-                Assert.AreSame(XLDifferentialBorderValue.Empty, dxf.Border);
+                ClassicAssert.IsTrue(dxf.Font.IsEmpty());
+                ClassicAssert.IsNull(dxf.NumberFormat);
+                ClassicAssert.AreSame(XLDifferentialFillValue.Empty, dxf.Fill);
+                ClassicAssert.AreSame(XLDifferentialBorderValue.Empty, dxf.Border);
             }
         );
 
@@ -621,7 +631,7 @@ internal class StylesReaderTests
             styles =>
             {
                 XLDxfValue dxf = styles.DifferentialFormats.Single().Value;
-                Assert.AreEqual(XLFillPatternValues.Solid, dxf.Fill?.Pattern?.PatternType);
+                ClassicAssert.AreEqual(XLFillPatternValues.Solid, dxf.Fill?.Pattern?.PatternType);
             }
         );
 
@@ -641,16 +651,20 @@ internal class StylesReaderTests
             styles =>
             {
                 XLDxfValue dxf = styles.DifferentialFormats.Single().Value;
-                Assert.AreEqual(XLFillPatternValues.Solid, dxf.Fill?.Pattern?.PatternType);
-                Assert.AreEqual(XLColor.FromRgb(0x00FF00), dxf.Fill?.Pattern?.PatternColor);
-                Assert.AreEqual(XLColor.FromRgb(0x800000), dxf.Fill?.Pattern?.BackgroundColor);
+                ClassicAssert.AreEqual(XLFillPatternValues.Solid, dxf.Fill?.Pattern?.PatternType);
+                ClassicAssert.AreEqual(XLColor.FromRgb(0x00FF00), dxf.Fill?.Pattern?.PatternColor);
+                ClassicAssert.AreEqual(
+                    XLColor.FromRgb(0x800000),
+                    dxf.Fill?.Pattern?.BackgroundColor
+                );
             }
         );
 
-    [TestCase(true, true)]
-    [TestCase(true, false)]
-    [TestCase(false, true)]
-    [TestCase(false, false)]
+    [Test]
+    [Arguments(true, true)]
+    [Arguments(true, false)]
+    [Arguments(false, true)]
+    [Arguments(false, false)]
     public void Only_reads_table_or_pivot_style_when_flag_is_set(bool table, bool pivot)
     {
         string xml = $"""
@@ -662,8 +676,8 @@ internal class StylesReaderTests
             xml,
             styles =>
             {
-                Assert.AreEqual(table, styles.TableStyles.ContainsKey("Test Style"));
-                Assert.AreEqual(pivot, styles.PivotStyles.ContainsKey("Test Style"));
+                ClassicAssert.AreEqual(table, styles.TableStyles.ContainsKey("Test Style"));
+                ClassicAssert.AreEqual(pivot, styles.PivotStyles.ContainsKey("Test Style"));
             }
         );
     }
@@ -696,43 +710,35 @@ internal class StylesReaderTests
             xml,
             styles =>
             {
-                Assert.AreEqual("TableStyleMedium2", styles.DefaultTableStyle);
+                ClassicAssert.AreEqual("TableStyleMedium2", styles.DefaultTableStyle);
 
                 // Style names are case insensitive
                 XLTableTheme tableStyle = styles.TableStyles["test style"];
-                Assert.AreEqual("Test Style", tableStyle.Name);
+                ClassicAssert.AreEqual("Test Style", tableStyle.Name);
 
-                Assert.That(
-                    tableStyle.RegionFormats,
-                    Is.EquivalentTo(
-                        new Dictionary<XLTableStyleRegionValues, XLDxfValue>
+                CollectionAssert.AreEquivalent(
+                    new Dictionary<XLTableStyleRegionValues, XLDxfValue>
+                    {
+                        { XLTableStyleRegionValues.WholeTable, styles.DifferentialFormats[0] },
+                        { XLTableStyleRegionValues.HeaderRow, styles.DifferentialFormats[1] },
+                        { XLTableStyleRegionValues.FirstRowStripe, styles.DifferentialFormats[0] },
+                        { XLTableStyleRegionValues.SecondRowStripe, styles.DifferentialFormats[1] },
                         {
-                            { XLTableStyleRegionValues.WholeTable, styles.DifferentialFormats[0] },
-                            { XLTableStyleRegionValues.HeaderRow, styles.DifferentialFormats[1] },
-                            {
-                                XLTableStyleRegionValues.FirstRowStripe,
-                                styles.DifferentialFormats[0]
-                            },
-                            {
-                                XLTableStyleRegionValues.SecondRowStripe,
-                                styles.DifferentialFormats[1]
-                            },
-                            {
-                                XLTableStyleRegionValues.FirstColumnStripe,
-                                styles.DifferentialFormats[2]
-                            },
-                            {
-                                XLTableStyleRegionValues.SecondColumnStripe,
-                                styles.DifferentialFormats[3]
-                            },
-                        }
-                    )
+                            XLTableStyleRegionValues.FirstColumnStripe,
+                            styles.DifferentialFormats[2]
+                        },
+                        {
+                            XLTableStyleRegionValues.SecondColumnStripe,
+                            styles.DifferentialFormats[3]
+                        },
+                    },
+                    tableStyle.RegionFormats
                 );
 
-                Assert.AreEqual(2, tableStyle.RowStripe1BandSize);
-                Assert.AreEqual(3, tableStyle.RowStripe2BandSize);
-                Assert.AreEqual(4, tableStyle.ColumnStripe1BandSize);
-                Assert.AreEqual(5, tableStyle.ColumnStripe2BandSize);
+                ClassicAssert.AreEqual(2, tableStyle.RowStripe1BandSize);
+                ClassicAssert.AreEqual(3, tableStyle.RowStripe2BandSize);
+                ClassicAssert.AreEqual(4, tableStyle.ColumnStripe1BandSize);
+                ClassicAssert.AreEqual(5, tableStyle.ColumnStripe2BandSize);
             }
         );
     }
@@ -758,14 +764,12 @@ internal class StylesReaderTests
             {
                 // Take last element
                 XLTableTheme tableStyle = styles.TableStyles["Test Style"];
-                Assert.That(
-                    tableStyle.RegionFormats,
-                    Is.EquivalentTo(
-                        new Dictionary<XLTableStyleRegionValues, XLDxfValue>
-                        {
-                            { XLTableStyleRegionValues.WholeTable, styles.DifferentialFormats[1] },
-                        }
-                    )
+                CollectionAssert.AreEquivalent(
+                    new Dictionary<XLTableStyleRegionValues, XLDxfValue>
+                    {
+                        { XLTableStyleRegionValues.WholeTable, styles.DifferentialFormats[1] },
+                    },
+                    tableStyle.RegionFormats
                 );
             }
         );
@@ -790,14 +794,12 @@ internal class StylesReaderTests
             styles =>
             {
                 XLTableTheme tableStyle = styles.TableStyles["Test Style"];
-                Assert.That(
-                    tableStyle.RegionFormats,
-                    Is.EquivalentTo(
-                        new Dictionary<XLTableStyleRegionValues, XLDxfValue>
-                        {
-                            { XLTableStyleRegionValues.HeaderRow, styles.DifferentialFormats[0] },
-                        }
-                    )
+                CollectionAssert.AreEquivalent(
+                    new Dictionary<XLTableStyleRegionValues, XLDxfValue>
+                    {
+                        { XLTableStyleRegionValues.HeaderRow, styles.DifferentialFormats[0] },
+                    },
+                    tableStyle.RegionFormats
                 );
             }
         );
@@ -818,7 +820,7 @@ internal class StylesReaderTests
             styles =>
             {
                 XLTableTheme tableStyle = styles.TableStyles["Test Style"];
-                Assert.That(tableStyle.RegionFormats, Is.Empty);
+                ClassicAssert.IsEmpty(tableStyle.RegionFormats);
             }
         );
     }
@@ -852,50 +854,36 @@ internal class StylesReaderTests
             xml,
             styles =>
             {
-                Assert.AreEqual("PivotStyleLight1", styles.DefaultPivotStyle);
+                ClassicAssert.AreEqual("PivotStyleLight1", styles.DefaultPivotStyle);
 
                 // Style names are case insensitive
                 XLPivotTableStyle pivotStyle = styles.PivotStyles["test style"];
-                Assert.AreEqual("Test Style", pivotStyle.Name);
+                ClassicAssert.AreEqual("Test Style", pivotStyle.Name);
 
-                Assert.That(
-                    pivotStyle.RegionFormats,
-                    Is.EquivalentTo(
-                        new Dictionary<XLPivotStyleRegionValues, XLDxfValue>
+                CollectionAssert.AreEquivalent(
+                    new Dictionary<XLPivotStyleRegionValues, XLDxfValue>
+                    {
+                        { XLPivotStyleRegionValues.WholeTable, styles.DifferentialFormats[0] },
+                        { XLPivotStyleRegionValues.GrandTotalRow, styles.DifferentialFormats[1] },
+                        { XLPivotStyleRegionValues.FirstRowStripe, styles.DifferentialFormats[0] },
+                        { XLPivotStyleRegionValues.SecondRowStripe, styles.DifferentialFormats[1] },
                         {
-                            { XLPivotStyleRegionValues.WholeTable, styles.DifferentialFormats[0] },
-                            {
-                                XLPivotStyleRegionValues.GrandTotalRow,
-                                styles.DifferentialFormats[1]
-                            },
-                            {
-                                XLPivotStyleRegionValues.FirstRowStripe,
-                                styles.DifferentialFormats[0]
-                            },
-                            {
-                                XLPivotStyleRegionValues.SecondRowStripe,
-                                styles.DifferentialFormats[1]
-                            },
-                            {
-                                XLPivotStyleRegionValues.FirstColumnStripe,
-                                styles.DifferentialFormats[2]
-                            },
-                            {
-                                XLPivotStyleRegionValues.SecondColumnStripe,
-                                styles.DifferentialFormats[3]
-                            },
-                            {
-                                XLPivotStyleRegionValues.SubtotalColumn1,
-                                styles.DifferentialFormats[2]
-                            },
-                        }
-                    )
+                            XLPivotStyleRegionValues.FirstColumnStripe,
+                            styles.DifferentialFormats[2]
+                        },
+                        {
+                            XLPivotStyleRegionValues.SecondColumnStripe,
+                            styles.DifferentialFormats[3]
+                        },
+                        { XLPivotStyleRegionValues.SubtotalColumn1, styles.DifferentialFormats[2] },
+                    },
+                    pivotStyle.RegionFormats
                 );
 
-                Assert.AreEqual(2, pivotStyle.RowStripe1BandSize);
-                Assert.AreEqual(3, pivotStyle.RowStripe2BandSize);
-                Assert.AreEqual(4, pivotStyle.ColumnStripe1BandSize);
-                Assert.AreEqual(5, pivotStyle.ColumnStripe2BandSize);
+                ClassicAssert.AreEqual(2, pivotStyle.RowStripe1BandSize);
+                ClassicAssert.AreEqual(3, pivotStyle.RowStripe2BandSize);
+                ClassicAssert.AreEqual(4, pivotStyle.ColumnStripe1BandSize);
+                ClassicAssert.AreEqual(5, pivotStyle.ColumnStripe2BandSize);
             }
         );
     }
@@ -921,17 +909,12 @@ internal class StylesReaderTests
             {
                 // When a region is specified multiple times, take the last one
                 XLPivotTableStyle pivotStyle = styles.PivotStyles["Test Style"];
-                Assert.That(
-                    pivotStyle.RegionFormats,
-                    Is.EquivalentTo(
-                        new Dictionary<XLPivotStyleRegionValues, XLDxfValue>
-                        {
-                            {
-                                XLPivotStyleRegionValues.PageFieldLabels,
-                                styles.DifferentialFormats[1]
-                            },
-                        }
-                    )
+                CollectionAssert.AreEquivalent(
+                    new Dictionary<XLPivotStyleRegionValues, XLDxfValue>
+                    {
+                        { XLPivotStyleRegionValues.PageFieldLabels, styles.DifferentialFormats[1] },
+                    },
+                    pivotStyle.RegionFormats
                 );
             }
         );
@@ -956,17 +939,15 @@ internal class StylesReaderTests
             styles =>
             {
                 XLPivotTableStyle tableStyle = styles.PivotStyles["Test Style"];
-                Assert.That(
-                    tableStyle.RegionFormats,
-                    Is.EquivalentTo(
-                        new Dictionary<XLPivotStyleRegionValues, XLDxfValue>
+                CollectionAssert.AreEquivalent(
+                    new Dictionary<XLPivotStyleRegionValues, XLDxfValue>
+                    {
                         {
-                            {
-                                XLPivotStyleRegionValues.GrandTotalColumn,
-                                styles.DifferentialFormats[0]
-                            },
-                        }
-                    )
+                            XLPivotStyleRegionValues.GrandTotalColumn,
+                            styles.DifferentialFormats[0]
+                        },
+                    },
+                    tableStyle.RegionFormats
                 );
             }
         );
@@ -987,7 +968,7 @@ internal class StylesReaderTests
             styles =>
             {
                 XLPivotTableStyle tableStyle = styles.PivotStyles["Test Style"];
-                Assert.That(tableStyle.RegionFormats, Is.Empty);
+                ClassicAssert.IsEmpty(tableStyle.RegionFormats);
             }
         );
     }
@@ -1009,7 +990,10 @@ internal class StylesReaderTests
             styles =>
             {
                 // Color with missing rgb attribute use black color
-                Assert.That(styles.IndexedColorsArgb, Is.EqualTo([0xFF20FF00, 0xFF000000]));
+                ClassicAssert.AreEqual(
+                    new uint[] { 0xFF20FF00, 0xFF000000 },
+                    styles.IndexedColorsArgb
+                );
             },
             xml
         );
@@ -1029,7 +1013,7 @@ internal class StylesReaderTests
                 // When styles part doesn't contain custom indexed colors, we default to the ones from
                 // ISO-29500. Keep custom indexed colors null to detect that situation (plus that way
                 // we know not to write custom indexed colors).
-                Assert.That(styles.IndexedColorsArgb, Is.Null);
+                ClassicAssert.IsNull(styles.IndexedColorsArgb);
             },
             xml
         );
@@ -1052,13 +1036,14 @@ internal class StylesReaderTests
         AssertFormat(
             styles =>
             {
-                Assert.That(
-                    styles.MruColors,
-                    Is.EqualTo([
+                ClassicAssert.AreEqual(
+                    new[]
+                    {
                         XLColor.FromRgb(0x90FF66),
                         XLColor.FromRgb(0x663399),
                         XLColor.FromTheme(XLThemeColor.Accent1),
-                    ])
+                    },
+                    styles.MruColors
                 );
             },
             xml
@@ -1089,9 +1074,9 @@ internal class StylesReaderTests
         AssertFormat(
             styles =>
             {
-                Assert.AreEqual("Arial", styles.DefaultCellFormat.Font.Name);
-                Assert.AreEqual(15.0, styles.DefaultCellFormat.Font.Size);
-                Assert.IsTrue(styles.DefaultCellFormat.Font.Bold);
+                ClassicAssert.AreEqual("Arial", styles.DefaultCellFormat.Font.Name);
+                ClassicAssert.AreEqual(15.0, styles.DefaultCellFormat.Font.Size);
+                ClassicAssert.IsTrue(styles.DefaultCellFormat.Font.Bold);
             },
             xml
         );
@@ -1129,25 +1114,25 @@ internal class StylesReaderTests
             {
                 XLCellStyleValue style = styles.CellStyles[0];
 
-                Assert.AreEqual(
+                ClassicAssert.AreEqual(
                     XLPredefinedFormat.FormatCodes[XLPredefinedFormat.General],
                     style.NumberFormat
                 );
-                Assert.AreEqual(
+                ClassicAssert.AreEqual(
                     XLPredefinedFormat.FormatCodes[XLPredefinedFormat.General],
                     styles.NumberFormats[0]
                 );
 
-                Assert.AreSame(styles.Fonts[0], style.Font);
+                ClassicAssert.AreSame(styles.Fonts[0], style.Font);
 
-                Assert.AreSame(XLFillFormatValue.None, style.Fill);
-                Assert.AreSame(XLFillFormatValue.None, styles.Fills[1]);
+                ClassicAssert.AreSame(XLFillFormatValue.None, style.Fill);
+                ClassicAssert.AreSame(XLFillFormatValue.None, styles.Fills[1]);
 
-                Assert.AreSame(XLBorderFormatValue.None, style.Border);
-                Assert.AreSame(XLBorderFormatValue.None, styles.Borders[1]);
+                ClassicAssert.AreSame(XLBorderFormatValue.None, style.Border);
+                ClassicAssert.AreSame(XLBorderFormatValue.None, styles.Borders[1]);
 
-                Assert.AreSame(XLAlignmentFormatValue.Default, style.Alignment);
-                Assert.AreSame(XLProtectionFormatValue.Default, style.Protection);
+                ClassicAssert.AreSame(XLAlignmentFormatValue.Default, style.Alignment);
+                ClassicAssert.AreSame(XLProtectionFormatValue.Default, style.Protection);
             },
             xml
         );
@@ -1185,25 +1170,25 @@ internal class StylesReaderTests
             {
                 XLCellFormatValue format = styles.CellFormats[0];
 
-                Assert.AreEqual(
+                ClassicAssert.AreEqual(
                     XLPredefinedFormat.FormatCodes[XLPredefinedFormat.General],
                     format.NumberFormat
                 );
-                Assert.AreEqual(
+                ClassicAssert.AreEqual(
                     XLPredefinedFormat.FormatCodes[XLPredefinedFormat.General],
                     styles.NumberFormats[0]
                 );
 
-                Assert.AreSame(styles.Fonts[0], format.Font);
+                ClassicAssert.AreSame(styles.Fonts[0], format.Font);
 
-                Assert.AreSame(XLFillFormatValue.None, format.Fill);
-                Assert.AreSame(XLFillFormatValue.None, styles.Fills[1]);
+                ClassicAssert.AreSame(XLFillFormatValue.None, format.Fill);
+                ClassicAssert.AreSame(XLFillFormatValue.None, styles.Fills[1]);
 
-                Assert.AreSame(XLBorderFormatValue.None, format.Border);
-                Assert.AreSame(XLBorderFormatValue.None, styles.Borders[1]);
+                ClassicAssert.AreSame(XLBorderFormatValue.None, format.Border);
+                ClassicAssert.AreSame(XLBorderFormatValue.None, styles.Borders[1]);
 
-                Assert.AreSame(XLAlignmentFormatValue.Default, format.Alignment);
-                Assert.AreSame(XLProtectionFormatValue.Default, format.Protection);
+                ClassicAssert.AreSame(XLAlignmentFormatValue.Default, format.Alignment);
+                ClassicAssert.AreSame(XLProtectionFormatValue.Default, format.Protection);
             },
             xml
         );

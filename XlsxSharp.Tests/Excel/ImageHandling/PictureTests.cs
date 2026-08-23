@@ -3,15 +3,14 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using NUnit.Framework;
 using XlsxSharp.Examples;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.Drawings;
+using Assembly = System.Reflection.Assembly;
 using Point = System.Drawing.Point;
 
 namespace XlsxSharp.Tests.Excel.ImageHandling;
 
-[TestFixture]
 public class PictureTests
 {
     [Test]
@@ -32,9 +31,9 @@ public class PictureTests
                     .MoveTo(50, 50)
                     .WithSize(200, 200);
 
-                Assert.AreEqual(XLPictureFormat.Jpeg, picture.Format);
-                Assert.AreEqual(200, picture.Width);
-                Assert.AreEqual(200, picture.Height);
+                ClassicAssert.AreEqual(XLPictureFormat.Jpeg, picture.Format);
+                ClassicAssert.AreEqual(200, picture.Width);
+                ClassicAssert.AreEqual(200, picture.Height);
             }
         }
     }
@@ -66,9 +65,9 @@ public class PictureTests
                     .WithPlacement(XLPicturePlacement.FreeFloating)
                     .MoveTo(50, 50);
 
-                Assert.AreEqual(XLPictureFormat.Jpeg, picture.Format);
-                Assert.AreEqual(400, picture.Width);
-                Assert.AreEqual(400, picture.Height);
+                ClassicAssert.AreEqual(XLPictureFormat.Jpeg, picture.Format);
+                ClassicAssert.AreEqual(400, picture.Width);
+                ClassicAssert.AreEqual(400, picture.Height);
             }
             finally
             {
@@ -120,9 +119,9 @@ public class PictureTests
                 .WithPlacement(XLPicturePlacement.FreeFloating)
                 .MoveTo(50, 50);
 
-            Assert.AreEqual(XLPictureFormat.Jpeg, picture.Format);
-            Assert.AreEqual(400, picture.Width);
-            Assert.AreEqual(50, picture.Top);
+            ClassicAssert.AreEqual(XLPictureFormat.Jpeg, picture.Format);
+            ClassicAssert.AreEqual(400, picture.Width);
+            ClassicAssert.AreEqual(50, picture.Top);
         }
     }
 
@@ -143,34 +142,34 @@ public class PictureTests
                     .WithPlacement(XLPicturePlacement.FreeFloating)
                     .MoveTo(50, 50);
 
-                Assert.AreEqual(252, pic.OriginalWidth);
-                Assert.AreEqual(152, pic.OriginalHeight);
-                Assert.AreEqual(252, pic.Width);
-                Assert.AreEqual(152, pic.Height);
+                ClassicAssert.AreEqual(252, pic.OriginalWidth);
+                ClassicAssert.AreEqual(152, pic.OriginalHeight);
+                ClassicAssert.AreEqual(252, pic.Width);
+                ClassicAssert.AreEqual(152, pic.Height);
 
                 pic.ScaleHeight(0.7);
                 pic.ScaleWidth(1.2);
 
-                Assert.AreEqual(252, pic.OriginalWidth);
-                Assert.AreEqual(152, pic.OriginalHeight);
-                Assert.AreEqual(302, pic.Width);
-                Assert.AreEqual(106, pic.Height);
+                ClassicAssert.AreEqual(252, pic.OriginalWidth);
+                ClassicAssert.AreEqual(152, pic.OriginalHeight);
+                ClassicAssert.AreEqual(302, pic.Width);
+                ClassicAssert.AreEqual(106, pic.Height);
 
                 pic.ScaleHeight(0.7);
                 pic.ScaleWidth(1.2);
 
-                Assert.AreEqual(252, pic.OriginalWidth);
-                Assert.AreEqual(152, pic.OriginalHeight);
-                Assert.AreEqual(362, pic.Width);
-                Assert.AreEqual(74, pic.Height);
+                ClassicAssert.AreEqual(252, pic.OriginalWidth);
+                ClassicAssert.AreEqual(152, pic.OriginalHeight);
+                ClassicAssert.AreEqual(362, pic.Width);
+                ClassicAssert.AreEqual(74, pic.Height);
 
                 pic.ScaleHeight(0.8, true);
                 pic.ScaleWidth(1.1, true);
 
-                Assert.AreEqual(252, pic.OriginalWidth);
-                Assert.AreEqual(152, pic.OriginalHeight);
-                Assert.AreEqual(277, pic.Width);
-                Assert.AreEqual(122, pic.Height);
+                ClassicAssert.AreEqual(252, pic.OriginalWidth);
+                ClassicAssert.AreEqual(152, pic.OriginalHeight);
+                ClassicAssert.AreEqual(277, pic.Width);
+                ClassicAssert.AreEqual(122, pic.Height);
             }
         }
     }
@@ -201,10 +200,10 @@ public class PictureTests
                 stream.Position = 0;
             }
 
-            Assert.AreEqual("Picture 1", ws.Pictures.Skip(0).First().Name);
-            Assert.AreEqual("Picture 2", ws.Pictures.Skip(1).First().Name);
-            Assert.AreEqual("Picture 4", ws.Pictures.Skip(2).First().Name);
-            Assert.AreEqual("Picture 5", ws.Pictures.Skip(3).First().Name);
+            ClassicAssert.AreEqual("Picture 1", ws.Pictures.Skip(0).First().Name);
+            ClassicAssert.AreEqual("Picture 2", ws.Pictures.Skip(1).First().Name);
+            ClassicAssert.AreEqual("Picture 4", ws.Pictures.Skip(2).First().Name);
+            ClassicAssert.AreEqual("Picture 5", ws.Pictures.Skip(3).First().Name);
         }
     }
 
@@ -234,10 +233,10 @@ public class PictureTests
                 stream.Position = 0;
             }
 
-            Assert.AreEqual(1, ws.Pictures.Skip(0).First().Id);
-            Assert.AreEqual(2, ws.Pictures.Skip(1).First().Id);
-            Assert.AreEqual(3, ws.Pictures.Skip(2).First().Id);
-            Assert.AreEqual(4, ws.Pictures.Skip(3).First().Id);
+            ClassicAssert.AreEqual(1, ws.Pictures.Skip(0).First().Id);
+            ClassicAssert.AreEqual(2, ws.Pictures.Skip(1).First().Id);
+            ClassicAssert.AreEqual(3, ws.Pictures.Skip(2).First().Id);
+            ClassicAssert.AreEqual(4, ws.Pictures.Skip(3).First().Id);
         }
     }
 
@@ -247,10 +246,10 @@ public class PictureTests
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         XLMarker firstMarker = new(ws.Cell(1, 10), new Point(100, 0));
 
-        Assert.AreEqual(10, firstMarker.ColumnNumber);
-        Assert.AreEqual(1, firstMarker.RowNumber);
-        Assert.AreEqual(100, firstMarker.Offset.X);
-        Assert.AreEqual(0, firstMarker.Offset.Y);
+        ClassicAssert.AreEqual(10, firstMarker.ColumnNumber);
+        ClassicAssert.AreEqual(1, firstMarker.RowNumber);
+        ClassicAssert.AreEqual(100, firstMarker.Offset.X);
+        ClassicAssert.AreEqual(0, firstMarker.Offset.Y);
     }
 
     [Test]
@@ -270,15 +269,15 @@ public class PictureTests
                     .WithPlacement(XLPicturePlacement.FreeFloating)
                     .MoveTo(220, 155);
 
-                Assert.AreEqual(XLPicturePlacement.FreeFloating, pic.Placement);
-                Assert.AreEqual("Image1", pic.Name);
-                Assert.AreEqual(XLPictureFormat.Png, pic.Format);
-                Assert.AreEqual(252, pic.OriginalWidth);
-                Assert.AreEqual(152, pic.OriginalHeight);
-                Assert.AreEqual(252, pic.Width);
-                Assert.AreEqual(152, pic.Height);
-                Assert.AreEqual(220, pic.Left);
-                Assert.AreEqual(155, pic.Top);
+                ClassicAssert.AreEqual(XLPicturePlacement.FreeFloating, pic.Placement);
+                ClassicAssert.AreEqual("Image1", pic.Name);
+                ClassicAssert.AreEqual(XLPictureFormat.Png, pic.Format);
+                ClassicAssert.AreEqual(252, pic.OriginalWidth);
+                ClassicAssert.AreEqual(152, pic.OriginalHeight);
+                ClassicAssert.AreEqual(252, pic.Width);
+                ClassicAssert.AreEqual(152, pic.Height);
+                ClassicAssert.AreEqual(220, pic.Left);
+                ClassicAssert.AreEqual(155, pic.Top);
             }
         }
     }
@@ -294,10 +293,10 @@ public class PictureTests
         using (XLWorkbook wb = new(stream))
         {
             IXLWorksheet ws = wb.Worksheets.First();
-            Assert.AreEqual(2, ws.Pictures.Count);
+            ClassicAssert.AreEqual(2, ws.Pictures.Count);
 
             IXLWorksheet copy = ws.CopyTo("NewSheet");
-            Assert.AreEqual(2, copy.Pictures.Count);
+            ClassicAssert.AreEqual(2, copy.Pictures.Count);
         }
     }
 
@@ -328,7 +327,7 @@ public class PictureTests
             using (XLWorkbook wb = new(ms))
             {
                 IXLWorksheet ws = wb.Worksheets.First();
-                Assert.AreEqual(originalCount - 2, ws.Pictures.Count);
+                ClassicAssert.AreEqual(originalCount - 2, ws.Pictures.Count);
             }
         }
     }
@@ -345,7 +344,7 @@ public class PictureTests
         {
             IXLWorksheet ws = wb.Worksheet("Images3");
             IXLPicture picture = ws.Pictures.First();
-            Assert.AreEqual("Picture 1", picture.Name);
+            ClassicAssert.AreEqual("Picture 1", picture.Name);
 
             picture.Name = "picture 1";
             picture.Name = "pICture 1";
@@ -354,8 +353,8 @@ public class PictureTests
             picture = ws.Pictures.Last();
             picture.Name = "new name";
 
-            Assert.Throws<ArgumentException>(() => picture.Name = "Picture 1");
-            Assert.Throws<ArgumentException>(() => picture.Name = "picTURE 1");
+            ClassicAssert.Throws<ArgumentException>(() => picture.Name = "Picture 1");
+            ClassicAssert.Throws<ArgumentException>(() => picture.Name = "picTURE 1");
         }
     }
 
@@ -386,10 +385,10 @@ public class PictureTests
                 int id = pic.Id;
 
                 pic.Id = id;
-                Assert.AreEqual(id, pic.Id);
+                ClassicAssert.AreEqual(id, pic.Id);
 
                 pic.Id = 3;
-                Assert.AreEqual(3, pic.Id);
+                ClassicAssert.AreEqual(3, pic.Id);
 
                 pic.Id = id;
 
@@ -424,23 +423,23 @@ public class PictureTests
 
         XLPicture? copy = original.Duplicate().MoveTo(300, 200) as XLPicture;
 
-        Assert.AreEqual(2, ws1.Pictures.Count);
-        Assert.AreEqual(ws1, copy.Worksheet);
-        Assert.AreEqual(original.Format, copy.Format);
-        Assert.AreEqual(original.Height, copy.Height);
-        Assert.AreEqual(original.Placement, copy.Placement);
-        Assert.AreEqual(original.TopLeftCell.ToString(), copy.TopLeftCell.ToString());
-        Assert.AreEqual(original.Width, copy.Width);
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(2, ws1.Pictures.Count);
+        ClassicAssert.AreEqual(ws1, copy.Worksheet);
+        ClassicAssert.AreEqual(original.Format, copy.Format);
+        ClassicAssert.AreEqual(original.Height, copy.Height);
+        ClassicAssert.AreEqual(original.Placement, copy.Placement);
+        ClassicAssert.AreEqual(original.TopLeftCell.ToString(), copy.TopLeftCell.ToString());
+        ClassicAssert.AreEqual(original.Width, copy.Width);
+        ClassicAssert.AreEqual(
             original.ImageStream.ToArray(),
             copy.ImageStream.ToArray(),
             "Image streams differ"
         );
 
-        Assert.AreEqual(200, copy.Top);
-        Assert.AreEqual(300, copy.Left);
-        Assert.AreNotEqual(original.Id, copy.Id);
-        Assert.AreNotEqual(original.Name, copy.Name);
+        ClassicAssert.AreEqual(200, copy.Top);
+        ClassicAssert.AreEqual(300, copy.Left);
+        ClassicAssert.AreNotEqual(original.Id, copy.Id);
+        ClassicAssert.AreNotEqual(original.Name, copy.Name);
     }
 
     [Test]
@@ -465,26 +464,26 @@ public class PictureTests
 
         IXLPicture copy = original.CopyTo(ws2);
 
-        Assert.AreEqual(1, ws1.Pictures.Count);
-        Assert.AreEqual(1, ws2.Pictures.Count);
+        ClassicAssert.AreEqual(1, ws1.Pictures.Count);
+        ClassicAssert.AreEqual(1, ws2.Pictures.Count);
 
-        Assert.AreEqual(ws2, copy.Worksheet);
+        ClassicAssert.AreEqual(ws2, copy.Worksheet);
 
-        Assert.AreEqual(original.Format, copy.Format);
-        Assert.AreEqual(original.Height, copy.Height);
-        Assert.AreEqual(original.Left, copy.Left);
-        Assert.AreEqual(original.Name, copy.Name);
-        Assert.AreEqual(original.Placement, copy.Placement);
-        Assert.AreEqual(original.Top, copy.Top);
-        Assert.AreEqual(original.TopLeftCell.ToString(), copy.TopLeftCell.ToString());
-        Assert.AreEqual(original.Width, copy.Width);
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(original.Format, copy.Format);
+        ClassicAssert.AreEqual(original.Height, copy.Height);
+        ClassicAssert.AreEqual(original.Left, copy.Left);
+        ClassicAssert.AreEqual(original.Name, copy.Name);
+        ClassicAssert.AreEqual(original.Placement, copy.Placement);
+        ClassicAssert.AreEqual(original.Top, copy.Top);
+        ClassicAssert.AreEqual(original.TopLeftCell.ToString(), copy.TopLeftCell.ToString());
+        ClassicAssert.AreEqual(original.Width, copy.Width);
+        ClassicAssert.AreEqual(
             original.ImageStream.ToArray(),
             copy.ImageStream.ToArray(),
             "Image streams differ"
         );
 
-        Assert.AreNotEqual(original.Id, copy.Id);
+        ClassicAssert.AreNotEqual(original.Id, copy.Id);
     }
 
     [Test]
@@ -504,7 +503,7 @@ public class PictureTests
 
             ws.Row(2).InsertRowsBelow(20);
 
-            Assert.AreEqual(25, picture.TopLeftCell.Address.RowNumber);
+            ClassicAssert.AreEqual(25, picture.TopLeftCell.Address.RowNumber);
         }
     }
 
@@ -514,8 +513,8 @@ public class PictureTests
         using (XLWorkbook wb = new())
         {
             IXLWorksheet ws = wb.AddWorksheet("Sheet1");
-            Assert.Throws<ArgumentOutOfRangeException>(() => ws.Picture("dummy"));
-            Assert.Throws<ArgumentOutOfRangeException>(() => ws.Pictures.Delete("dummy"));
+            ClassicAssert.Throws<ArgumentOutOfRangeException>(() => ws.Picture("dummy"));
+            ClassicAssert.Throws<ArgumentOutOfRangeException>(() => ws.Pictures.Delete("dummy"));
         }
     }
 
@@ -534,7 +533,7 @@ public class PictureTests
 
         IXLPicture img2 = img1.CopyTo(ws2);
 
-        Assert.AreEqual(XLPictureFormat.Emf, img2.Format);
+        ClassicAssert.AreEqual(XLPictureFormat.Emf, img2.Format);
 
         using MemoryStream ms = new();
         wb.SaveAs(ms);
@@ -544,7 +543,7 @@ public class PictureTests
         using XLWorkbook wb2 = new(ms);
         ws2 = wb2.Worksheet("Sheet2");
         img2 = ws2.Pictures.First();
-        Assert.AreEqual(XLPictureFormat.Emf, img2.Format);
+        ClassicAssert.AreEqual(XLPictureFormat.Emf, img2.Format);
     }
 
     [Test]
@@ -555,17 +554,18 @@ public class PictureTests
             @"Other\Pictures\ImageShapeZOrder-Output.xlsx"
         );
 
-    [TestCase("@")]
-    [TestCase(":")]
-    [TestCase("\\")]
-    [TestCase("/")]
-    [TestCase("?")]
-    [TestCase("*")]
-    [TestCase("[]")]
-    [TestCase(" ")] // Whitespace name is allowed, but can't be empty
-    [TestCase("C:\\Images\\pic.jpg")] // Path with multiple forbidden chars
-    [TestCase("http://example.com/image.jpg")] // URL with multiple forbidden chars
-    [TestCase("Picture@01\\QPosted@")] // A name from a problematic workbook
+    [Test]
+    [Arguments("@")]
+    [Arguments(":")]
+    [Arguments("\\")]
+    [Arguments("/")]
+    [Arguments("?")]
+    [Arguments("*")]
+    [Arguments("[]")]
+    [Arguments(" ")] // Whitespace name is allowed, but can't be empty
+    [Arguments("C:\\Images\\pic.jpg")] // Path with multiple forbidden chars
+    [Arguments("http://example.com/image.jpg")] // URL with multiple forbidden chars
+    [Arguments("Picture@01\\QPosted@")] // A name from a problematic workbook
     public void PictureCanHaveUnusualCharactersInName(string nameWithUnusualCharacter) =>
         // The name of a picture couldn't contain certain characters in some ancient version of Excel. Verify that
         // it is no longer the case through the whole lifecycle (add picture, change name, save, load).
@@ -579,8 +579,9 @@ public class PictureTests
         AssertPictureNameAllowed(longName);
     }
 
-    [TestCase(null)]
-    [TestCase("")]
+    [Test]
+    [Arguments(null)]
+    [Arguments("")]
     public void PictureNameCantBeNullOrEmpty(string invalidName)
     {
         // Picture name is a required attribute, though Excel generates a name if it isn't specified instead of failing.
@@ -591,7 +592,7 @@ public class PictureTests
             .GetExecutingAssembly()
             .GetManifestResourceStream("XlsxSharp.Tests.Resource.Images.ImageHandling.png");
         IXLPicture picture = ws.AddPicture(imageStream);
-        Assert.Throws<ArgumentException>(() => picture.Name = invalidName);
+        ClassicAssert.Throws<ArgumentException>(() => picture.Name = invalidName);
     }
 
     private static void AssertPictureNameAllowed(string testedName) =>
@@ -610,8 +611,11 @@ public class PictureTests
             },
             wb =>
             {
-                Assert.AreEqual(testedName, wb.Worksheet("AddPicture").Pictures.Single().Name);
-                Assert.AreEqual(testedName, wb.Worksheet("Setter").Pictures.Single().Name);
+                ClassicAssert.AreEqual(
+                    testedName,
+                    wb.Worksheet("AddPicture").Pictures.Single().Name
+                );
+                ClassicAssert.AreEqual(testedName, wb.Worksheet("Setter").Pictures.Single().Name);
             }
         );
 }

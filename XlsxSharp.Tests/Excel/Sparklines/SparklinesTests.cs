@@ -3,13 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using NUnit.Framework;
 using XlsxSharp.Examples.Sparklines;
 using XlsxSharp.Excel;
 
 namespace XlsxSharp.Tests.Excel.Sparklines;
 
-[TestFixture]
 public class SparklinesTests
 {
     #region Add sparklines
@@ -18,14 +16,14 @@ public class SparklinesTests
     public void CannotCreateSparklineGroupsWithoutWorksheet()
     {
         TestDelegate action = () => new XLSparklineGroups(null);
-        Assert.Throws<ArgumentNullException>(action);
+        ClassicAssert.Throws<ArgumentNullException>(action);
     }
 
     [Test]
     public void CannotCreateSparklineGroupWithoutWorksheet()
     {
         TestDelegate action = () => new XLSparklineGroup(null);
-        Assert.Throws<ArgumentNullException>(action);
+        ClassicAssert.Throws<ArgumentNullException>(action);
     }
 
     [Test]
@@ -33,7 +31,7 @@ public class SparklinesTests
     {
         IXLWorksheet ws = new XLWorkbook().AddWorksheet("Sheet1");
         TestDelegate action = () => ws.SparklineGroups.Add((IXLCell)null, ws.Range("A2:A5"));
-        Assert.Throws<ArgumentNullException>(action);
+        ClassicAssert.Throws<ArgumentNullException>(action);
     }
 
     [Test]
@@ -42,7 +40,7 @@ public class SparklinesTests
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
         IXLSparklineGroup sparkline = ws.SparklineGroups.Add(ws.FirstCell(), null);
-        Assert.IsNull(sparkline.Single().SourceData);
+        ClassicAssert.IsNull(sparkline.Single().SourceData);
     }
 
     [Test]
@@ -54,26 +52,35 @@ public class SparklinesTests
         ws.SparklineGroups.Add("A2", "B2:E2");
         ws.SparklineGroups.Add(ws.Cell("A3"), ws.Range("B3:E3"));
 
-        Assert.AreEqual(3, ws.SparklineGroups.Count());
+        ClassicAssert.AreEqual(3, ws.SparklineGroups.Count());
 
-        Assert.AreEqual("A1", ws.SparklineGroups.ElementAt(0).Single().Location.Address.ToString());
-        Assert.AreEqual("A2", ws.SparklineGroups.ElementAt(1).Single().Location.Address.ToString());
-        Assert.AreEqual("A3", ws.SparklineGroups.ElementAt(2).Single().Location.Address.ToString());
+        ClassicAssert.AreEqual(
+            "A1",
+            ws.SparklineGroups.ElementAt(0).Single().Location.Address.ToString()
+        );
+        ClassicAssert.AreEqual(
+            "A2",
+            ws.SparklineGroups.ElementAt(1).Single().Location.Address.ToString()
+        );
+        ClassicAssert.AreEqual(
+            "A3",
+            ws.SparklineGroups.ElementAt(2).Single().Location.Address.ToString()
+        );
 
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             "B1:E1",
             ws.SparklineGroups.ElementAt(0).Single().SourceData.RangeAddress.ToString()
         );
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             "B2:E2",
             ws.SparklineGroups.ElementAt(1).Single().SourceData.RangeAddress.ToString()
         );
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             "B3:E3",
             ws.SparklineGroups.ElementAt(2).Single().SourceData.RangeAddress.ToString()
         );
 
-        Assert.IsTrue(ws.SparklineGroups.All(g => g.Worksheet == ws));
+        ClassicAssert.IsTrue(ws.SparklineGroups.All(g => g.Worksheet == ws));
     }
 
     [Test]
@@ -83,21 +90,30 @@ public class SparklinesTests
 
         ws.SparklineGroups.Add(ws.Range("A1:A3"), ws.Range("B1:E3"));
 
-        Assert.AreEqual(1, ws.SparklineGroups.Count());
+        ClassicAssert.AreEqual(1, ws.SparklineGroups.Count());
 
-        Assert.AreEqual("A1", ws.SparklineGroups.Single().ElementAt(0).Location.Address.ToString());
-        Assert.AreEqual("A2", ws.SparklineGroups.Single().ElementAt(1).Location.Address.ToString());
-        Assert.AreEqual("A3", ws.SparklineGroups.Single().ElementAt(2).Location.Address.ToString());
+        ClassicAssert.AreEqual(
+            "A1",
+            ws.SparklineGroups.Single().ElementAt(0).Location.Address.ToString()
+        );
+        ClassicAssert.AreEqual(
+            "A2",
+            ws.SparklineGroups.Single().ElementAt(1).Location.Address.ToString()
+        );
+        ClassicAssert.AreEqual(
+            "A3",
+            ws.SparklineGroups.Single().ElementAt(2).Location.Address.ToString()
+        );
 
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             "B1:E1",
             ws.SparklineGroups.Single().ElementAt(0).SourceData.RangeAddress.ToString()
         );
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             "B2:E2",
             ws.SparklineGroups.Single().ElementAt(1).SourceData.RangeAddress.ToString()
         );
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             "B3:E3",
             ws.SparklineGroups.Single().ElementAt(2).SourceData.RangeAddress.ToString()
         );
@@ -110,21 +126,30 @@ public class SparklinesTests
 
         ws.SparklineGroups.Add(ws.Range("A1:C1"), ws.Range("A2:C4"));
 
-        Assert.AreEqual(1, ws.SparklineGroups.Count());
+        ClassicAssert.AreEqual(1, ws.SparklineGroups.Count());
 
-        Assert.AreEqual("A1", ws.SparklineGroups.Single().ElementAt(0).Location.Address.ToString());
-        Assert.AreEqual("B1", ws.SparklineGroups.Single().ElementAt(1).Location.Address.ToString());
-        Assert.AreEqual("C1", ws.SparklineGroups.Single().ElementAt(2).Location.Address.ToString());
+        ClassicAssert.AreEqual(
+            "A1",
+            ws.SparklineGroups.Single().ElementAt(0).Location.Address.ToString()
+        );
+        ClassicAssert.AreEqual(
+            "B1",
+            ws.SparklineGroups.Single().ElementAt(1).Location.Address.ToString()
+        );
+        ClassicAssert.AreEqual(
+            "C1",
+            ws.SparklineGroups.Single().ElementAt(2).Location.Address.ToString()
+        );
 
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             "A2:A4",
             ws.SparklineGroups.Single().ElementAt(0).SourceData.RangeAddress.ToString()
         );
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             "B2:B4",
             ws.SparklineGroups.Single().ElementAt(1).SourceData.RangeAddress.ToString()
         );
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             "C2:C4",
             ws.SparklineGroups.Single().ElementAt(2).SourceData.RangeAddress.ToString()
         );
@@ -137,8 +162,11 @@ public class SparklinesTests
 
         TestDelegate action = () => ws.SparklineGroups.Add(ws.Range("A1:C2"), ws.Range("A3:C4"));
 
-        string message = Assert.Throws<ArgumentException>(action).Message;
-        Assert.AreEqual("locationRange must have either a single row or a single column", message);
+        string message = ClassicAssert.Throws<ArgumentException>(action).Message;
+        ClassicAssert.AreEqual(
+            "locationRange must have either a single row or a single column",
+            message
+        );
     }
 
     [Test]
@@ -148,8 +176,11 @@ public class SparklinesTests
 
         TestDelegate action = () => ws.SparklineGroups.Add(ws.Range("A1:C1"), ws.Range("A3:D4"));
 
-        string message = Assert.Throws<ArgumentException>(action).Message;
-        Assert.AreEqual("locationRange and sourceDataRange must have the same width", message);
+        string message = ClassicAssert.Throws<ArgumentException>(action).Message;
+        ClassicAssert.AreEqual(
+            "locationRange and sourceDataRange must have the same width",
+            message
+        );
     }
 
     [Test]
@@ -159,8 +190,11 @@ public class SparklinesTests
 
         TestDelegate action = () => ws.SparklineGroups.Add(ws.Range("A1:A3"), ws.Range("B1:B4"));
 
-        string message = Assert.Throws<ArgumentException>(action).Message;
-        Assert.AreEqual("locationRange and sourceDataRange must have the same height", message);
+        string message = ClassicAssert.Throws<ArgumentException>(action).Message;
+        ClassicAssert.AreEqual(
+            "locationRange and sourceDataRange must have the same height",
+            message
+        );
     }
 
     [Test]
@@ -170,8 +204,8 @@ public class SparklinesTests
 
         TestDelegate action = () => ws.SparklineGroups.Add(ws.Range("A1:A1"), ws.Range("B1:C4"));
 
-        string message = Assert.Throws<ArgumentException>(action).Message;
-        Assert.AreEqual(
+        string message = ClassicAssert.Throws<ArgumentException>(action).Message;
+        ClassicAssert.AreEqual(
             "SourceData range must have either a single row or a single column",
             message
         );
@@ -187,13 +221,13 @@ public class SparklinesTests
         group.Add("A2", "B2:E2");
         group.Add(ws.Cell("A3"), ws.Range("B3:E3"));
 
-        Assert.AreEqual(0, ws.SparklineGroups.Count());
+        ClassicAssert.AreEqual(0, ws.SparklineGroups.Count());
 
-        Assert.AreEqual("A2", group.ElementAt(0).Location.Address.ToString());
-        Assert.AreEqual("A3", group.ElementAt(1).Location.Address.ToString());
+        ClassicAssert.AreEqual("A2", group.ElementAt(0).Location.Address.ToString());
+        ClassicAssert.AreEqual("A3", group.ElementAt(1).Location.Address.ToString());
 
-        Assert.AreEqual("B2:E2", group.ElementAt(0).SourceData.RangeAddress.ToString());
-        Assert.AreEqual("B3:E3", group.ElementAt(1).SourceData.RangeAddress.ToString());
+        ClassicAssert.AreEqual("B2:E2", group.ElementAt(0).SourceData.RangeAddress.ToString());
+        ClassicAssert.AreEqual("B3:E3", group.ElementAt(1).SourceData.RangeAddress.ToString());
     }
 
     [Test]
@@ -207,8 +241,8 @@ public class SparklinesTests
 
         TestDelegate action = () => ws2.SparklineGroups.Add(group);
 
-        string message = Assert.Throws<ArgumentException>(action).Message;
-        Assert.AreEqual(
+        string message = ClassicAssert.Throws<ArgumentException>(action).Message;
+        ClassicAssert.AreEqual(
             "The specified sparkline group belongs to the different worksheet",
             message
         );
@@ -225,8 +259,11 @@ public class SparklinesTests
 
         TestDelegate action = () => group.Add(ws2.Cell("A3"), ws1.Range("B3:E3"));
 
-        string message = Assert.Throws<ArgumentException>(action).Message;
-        Assert.AreEqual("The specified sparkline belongs to the different worksheet", message);
+        string message = ClassicAssert.Throws<ArgumentException>(action).Message;
+        ClassicAssert.AreEqual(
+            "The specified sparkline belongs to the different worksheet",
+            message
+        );
     }
 
     [Test]
@@ -237,10 +274,10 @@ public class SparklinesTests
         IXLSparklineGroup group = ws.SparklineGroups.Add("A1", "B1:E1");
         group.Add("A1", "B2:E2");
 
-        Assert.AreEqual(1, group.Count());
+        ClassicAssert.AreEqual(1, group.Count());
 
-        Assert.AreEqual("A1", group.Single().Location.Address.ToString());
-        Assert.AreEqual("B2:E2", group.Single().SourceData.RangeAddress.ToString());
+        ClassicAssert.AreEqual("A1", group.Single().Location.Address.ToString());
+        ClassicAssert.AreEqual("B2:E2", group.Single().SourceData.RangeAddress.ToString());
     }
 
     [Test]
@@ -251,10 +288,13 @@ public class SparklinesTests
         ws.SparklineGroups.Add("A1", "B1:E1");
         ws.SparklineGroups.Add("A1", "B2:E2");
 
-        Assert.AreEqual(2, ws.SparklineGroups.Count());
-        Assert.IsFalse(ws.SparklineGroups.First().Any());
-        Assert.AreEqual("A1", ws.SparklineGroups.Last().Single().Location.Address.ToString());
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(2, ws.SparklineGroups.Count());
+        ClassicAssert.IsFalse(ws.SparklineGroups.First().Any());
+        ClassicAssert.AreEqual(
+            "A1",
+            ws.SparklineGroups.Last().Single().Location.Address.ToString()
+        );
+        ClassicAssert.AreEqual(
             "B2:E2",
             ws.SparklineGroups.Last().Single().SourceData.RangeAddress.ToString()
         );
@@ -269,19 +309,20 @@ public class SparklinesTests
 
         IXLSparklineGroup group = ws1.SparklineGroups.Add("A1", "'Sheet 3'!B1:F1");
 
-        Assert.AreSame(ws3, group.Single().SourceData.Worksheet);
+        ClassicAssert.AreSame(ws3, group.Single().SourceData.Worksheet);
     }
 
     #endregion Add sparklines
 
     #region Get sparklines
 
-    [TestCase("A2", "B2:Z2")]
-    [TestCase("A50", "B50:Z50")]
-    [TestCase("A100", "B100:Z100")]
-    [TestCase("B1", "B2:B100")]
-    [TestCase("K1", "K2:K100")]
-    [TestCase("Z1", "Z2:Z100")]
+    [Test]
+    [Arguments("A2", "B2:Z2")]
+    [Arguments("A50", "B50:Z50")]
+    [Arguments("A100", "B100:Z100")]
+    [Arguments("B1", "B2:B100")]
+    [Arguments("K1", "K2:K100")]
+    [Arguments("Z1", "Z2:Z100")]
     public void CanGetSparklineForExistingCell(string cellAddress, string expectedSourceDataRange)
     {
         IXLWorksheet ws = new XLWorkbook().AddWorksheet("Sheet 1");
@@ -290,15 +331,16 @@ public class SparklinesTests
         ws.SparklineGroups.Add("B1:Z1", "B2:Z100");
 
         IXLSparkline sp = ws.SparklineGroups.GetSparkline(ws.Cell(cellAddress));
-        Assert.IsNotNull(sp);
-        Assert.AreEqual(cellAddress, sp.Location.Address.ToString());
-        Assert.AreEqual(expectedSourceDataRange, sp.SourceData.RangeAddress.ToString());
+        ClassicAssert.IsNotNull(sp);
+        ClassicAssert.AreEqual(cellAddress, sp.Location.Address.ToString());
+        ClassicAssert.AreEqual(expectedSourceDataRange, sp.SourceData.RangeAddress.ToString());
     }
 
-    [TestCase("A1")]
-    [TestCase("B2")]
-    [TestCase("A101")]
-    [TestCase("AA1")]
+    [Test]
+    [Arguments("A1")]
+    [Arguments("B2")]
+    [Arguments("A101")]
+    [Arguments("AA1")]
     public void CannotGetSparklineForNonExistingCell(string cellAddress)
     {
         IXLWorksheet ws = new XLWorkbook().AddWorksheet("Sheet 1");
@@ -307,7 +349,7 @@ public class SparklinesTests
         ws.SparklineGroups.Add("B1:Z1", "B2:Z100");
 
         IXLSparkline sp = ws.SparklineGroups.GetSparkline(ws.Cell(cellAddress));
-        Assert.IsNull(sp);
+        ClassicAssert.IsNull(sp);
     }
 
     [Test]
@@ -326,16 +368,16 @@ public class SparklinesTests
         IEnumerable<IXLSparkline> sparklines4 = ws.SparklineGroups.GetSparklines(ws.Range("A:A"));
         IEnumerable<IXLSparkline> sparklines5 = ws.SparklineGroups.GetSparklines(ws.Range("1:1"));
 
-        Assert.AreEqual(2, sparklines1.Count());
-        Assert.AreEqual(0, sparklines2.Count());
-        Assert.AreEqual(99 + 25, sparklines3.Count());
-        Assert.AreEqual(99, sparklines4.Count());
-        Assert.AreEqual(25, sparklines5.Count());
+        ClassicAssert.AreEqual(2, sparklines1.Count());
+        ClassicAssert.AreEqual(0, sparklines2.Count());
+        ClassicAssert.AreEqual(99 + 25, sparklines3.Count());
+        ClassicAssert.AreEqual(99, sparklines4.Count());
+        ClassicAssert.AreEqual(25, sparklines5.Count());
 
-        Assert.AreEqual("A2", sparklines1.First().Location.Address.ToString());
-        Assert.AreEqual("B1", sparklines1.Last().Location.Address.ToString());
-        Assert.AreEqual("B2:Z2", sparklines1.First().SourceData.RangeAddress.ToString());
-        Assert.AreEqual("B2:B100", sparklines1.Last().SourceData.RangeAddress.ToString());
+        ClassicAssert.AreEqual("A2", sparklines1.First().Location.Address.ToString());
+        ClassicAssert.AreEqual("B1", sparklines1.Last().Location.Address.ToString());
+        ClassicAssert.AreEqual("B2:Z2", sparklines1.First().SourceData.RangeAddress.ToString());
+        ClassicAssert.AreEqual("B2:B100", sparklines1.Last().SourceData.RangeAddress.ToString());
     }
 
     #endregion Get sparklines
@@ -350,15 +392,21 @@ public class SparklinesTests
         ws.SparklineGroups.Add("A1:A3", "B1:Z3");
         ws.SparklineGroups.Remove(ws.Cell("A2"));
 
-        Assert.AreEqual(1, ws.SparklineGroups.Count());
-        Assert.AreEqual(2, ws.SparklineGroups.Single().Count());
-        Assert.AreEqual("A1", ws.SparklineGroups.Single().First().Location.Address.ToString());
-        Assert.AreEqual("A3", ws.SparklineGroups.Single().Last().Location.Address.ToString());
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(1, ws.SparklineGroups.Count());
+        ClassicAssert.AreEqual(2, ws.SparklineGroups.Single().Count());
+        ClassicAssert.AreEqual(
+            "A1",
+            ws.SparklineGroups.Single().First().Location.Address.ToString()
+        );
+        ClassicAssert.AreEqual(
+            "A3",
+            ws.SparklineGroups.Single().Last().Location.Address.ToString()
+        );
+        ClassicAssert.AreEqual(
             "B1:Z1",
             ws.SparklineGroups.Single().First().SourceData.RangeAddress.ToString()
         );
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             "B3:Z3",
             ws.SparklineGroups.Single().Last().SourceData.RangeAddress.ToString()
         );
@@ -372,15 +420,21 @@ public class SparklinesTests
         ws.SparklineGroups.Add("A1:A5", "B1:Z5");
         ws.SparklineGroups.Remove(ws.Range("A2:D4"));
 
-        Assert.AreEqual(1, ws.SparklineGroups.Count());
-        Assert.AreEqual(2, ws.SparklineGroups.Single().Count());
-        Assert.AreEqual("A1", ws.SparklineGroups.Single().First().Location.Address.ToString());
-        Assert.AreEqual("A5", ws.SparklineGroups.Single().Last().Location.Address.ToString());
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(1, ws.SparklineGroups.Count());
+        ClassicAssert.AreEqual(2, ws.SparklineGroups.Single().Count());
+        ClassicAssert.AreEqual(
+            "A1",
+            ws.SparklineGroups.Single().First().Location.Address.ToString()
+        );
+        ClassicAssert.AreEqual(
+            "A5",
+            ws.SparklineGroups.Single().Last().Location.Address.ToString()
+        );
+        ClassicAssert.AreEqual(
             "B1:Z1",
             ws.SparklineGroups.Single().First().SourceData.RangeAddress.ToString()
         );
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             "B5:Z5",
             ws.SparklineGroups.Single().Last().SourceData.RangeAddress.ToString()
         );
@@ -394,15 +448,21 @@ public class SparklinesTests
         ws.SparklineGroups.Add("A1:A2", "B1:Z2");
         ws.SparklineGroups.Remove(ws.Cell("F2"));
 
-        Assert.AreEqual(1, ws.SparklineGroups.Count());
-        Assert.AreEqual(2, ws.SparklineGroups.Single().Count());
-        Assert.AreEqual("A1", ws.SparklineGroups.Single().First().Location.Address.ToString());
-        Assert.AreEqual("A2", ws.SparklineGroups.Single().Last().Location.Address.ToString());
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(1, ws.SparklineGroups.Count());
+        ClassicAssert.AreEqual(2, ws.SparklineGroups.Single().Count());
+        ClassicAssert.AreEqual(
+            "A1",
+            ws.SparklineGroups.Single().First().Location.Address.ToString()
+        );
+        ClassicAssert.AreEqual(
+            "A2",
+            ws.SparklineGroups.Single().Last().Location.Address.ToString()
+        );
+        ClassicAssert.AreEqual(
             "B1:Z1",
             ws.SparklineGroups.Single().First().SourceData.RangeAddress.ToString()
         );
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             "B2:Z2",
             ws.SparklineGroups.Single().Last().SourceData.RangeAddress.ToString()
         );
@@ -420,21 +480,27 @@ public class SparklinesTests
         ws.SparklineGroups.Add("A1:A2", "B1:Z2");
         ws.SparklineGroups.Single().Last().SetLocation(ws.Cell("F2"));
 
-        Assert.AreEqual(1, ws.SparklineGroups.Count());
-        Assert.AreEqual(2, ws.SparklineGroups.Single().Count());
-        Assert.AreEqual("A1", ws.SparklineGroups.Single().First().Location.Address.ToString());
-        Assert.AreEqual("F2", ws.SparklineGroups.Single().Last().Location.Address.ToString());
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(1, ws.SparklineGroups.Count());
+        ClassicAssert.AreEqual(2, ws.SparklineGroups.Single().Count());
+        ClassicAssert.AreEqual(
+            "A1",
+            ws.SparklineGroups.Single().First().Location.Address.ToString()
+        );
+        ClassicAssert.AreEqual(
+            "F2",
+            ws.SparklineGroups.Single().Last().Location.Address.ToString()
+        );
+        ClassicAssert.AreEqual(
             "B1:Z1",
             ws.SparklineGroups.Single().First().SourceData.RangeAddress.ToString()
         );
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             "B2:Z2",
             ws.SparklineGroups.Single().Last().SourceData.RangeAddress.ToString()
         );
-        Assert.IsTrue(ws.Cell("A1").HasSparkline);
-        Assert.IsFalse(ws.Cell("A2").HasSparkline);
-        Assert.IsTrue(ws.Cell("F2").HasSparkline);
+        ClassicAssert.IsTrue(ws.Cell("A1").HasSparkline);
+        ClassicAssert.IsFalse(ws.Cell("A2").HasSparkline);
+        ClassicAssert.IsTrue(ws.Cell("F2").HasSparkline);
     }
 
     [Test]
@@ -445,10 +511,13 @@ public class SparklinesTests
         ws.SparklineGroups.Add("A1:A2", "B1:Z2");
         ws.SparklineGroups.Single().Last().SetLocation(ws.Cell("A1"));
 
-        Assert.AreEqual(1, ws.SparklineGroups.Count());
-        Assert.AreEqual(1, ws.SparklineGroups.Single().Count());
-        Assert.AreEqual("A1", ws.SparklineGroups.Single().Single().Location.Address.ToString());
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(1, ws.SparklineGroups.Count());
+        ClassicAssert.AreEqual(1, ws.SparklineGroups.Single().Count());
+        ClassicAssert.AreEqual(
+            "A1",
+            ws.SparklineGroups.Single().Single().Location.Address.ToString()
+        );
+        ClassicAssert.AreEqual(
             "B2:Z2",
             ws.SparklineGroups.Single().Single().SourceData.RangeAddress.ToString()
         );
@@ -463,16 +532,22 @@ public class SparklinesTests
         ws.SparklineGroups.Add("A3", "B3:Z3");
         ws.SparklineGroups.Last().Single().SetLocation(ws.Cell("A2"));
 
-        Assert.AreEqual(2, ws.SparklineGroups.Count());
-        Assert.AreEqual(1, ws.SparklineGroups.First().Count());
-        Assert.AreEqual("A1", ws.SparklineGroups.First().Single().Location.Address.ToString());
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(2, ws.SparklineGroups.Count());
+        ClassicAssert.AreEqual(1, ws.SparklineGroups.First().Count());
+        ClassicAssert.AreEqual(
+            "A1",
+            ws.SparklineGroups.First().Single().Location.Address.ToString()
+        );
+        ClassicAssert.AreEqual(
             "B1:Z1",
             ws.SparklineGroups.First().Single().SourceData.RangeAddress.ToString()
         );
-        Assert.AreEqual(1, ws.SparklineGroups.Last().Count());
-        Assert.AreEqual("A2", ws.SparklineGroups.Last().Single().Location.Address.ToString());
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(1, ws.SparklineGroups.Last().Count());
+        ClassicAssert.AreEqual(
+            "A2",
+            ws.SparklineGroups.Last().Single().Location.Address.ToString()
+        );
+        ClassicAssert.AreEqual(
             "B3:Z3",
             ws.SparklineGroups.Last().Single().SourceData.RangeAddress.ToString()
         );
@@ -489,8 +564,8 @@ public class SparklinesTests
 
         TestDelegate action = () => group.First().SetLocation(ws2.FirstCell());
 
-        string message = Assert.Throws<ArgumentException>(action).Message;
-        Assert.AreEqual("Cannot move the sparkline to a different worksheet", message);
+        string message = ClassicAssert.Throws<ArgumentException>(action).Message;
+        ClassicAssert.AreEqual("Cannot move the sparkline to a different worksheet", message);
     }
 
     [Test]
@@ -501,15 +576,21 @@ public class SparklinesTests
         ws.SparklineGroups.Add("A1:A2", "B1:Z2");
         ws.SparklineGroups.Single().Last().SetSourceData(ws.Range("D4:D50"));
 
-        Assert.AreEqual(1, ws.SparklineGroups.Count());
-        Assert.AreEqual(2, ws.SparklineGroups.Single().Count());
-        Assert.AreEqual("A1", ws.SparklineGroups.Single().First().Location.Address.ToString());
-        Assert.AreEqual("A2", ws.SparklineGroups.Single().Last().Location.Address.ToString());
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(1, ws.SparklineGroups.Count());
+        ClassicAssert.AreEqual(2, ws.SparklineGroups.Single().Count());
+        ClassicAssert.AreEqual(
+            "A1",
+            ws.SparklineGroups.Single().First().Location.Address.ToString()
+        );
+        ClassicAssert.AreEqual(
+            "A2",
+            ws.SparklineGroups.Single().Last().Location.Address.ToString()
+        );
+        ClassicAssert.AreEqual(
             "B1:Z1",
             ws.SparklineGroups.Single().First().SourceData.RangeAddress.ToString()
         );
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             "D4:D50",
             ws.SparklineGroups.Single().Last().SourceData.RangeAddress.ToString()
         );
@@ -524,8 +605,8 @@ public class SparklinesTests
 
         TestDelegate action = () => sparkline.SetSourceData(ws.Range("B1:Z2"));
 
-        string message = Assert.Throws<ArgumentException>(action).Message;
-        Assert.AreEqual(
+        string message = ClassicAssert.Throws<ArgumentException>(action).Message;
+        ClassicAssert.AreEqual(
             "SourceData range must have either a single row or a single column",
             message
         );
@@ -539,13 +620,13 @@ public class SparklinesTests
 
         group.Style = XLSparklineTheme.Colorful1;
 
-        Assert.AreEqual(XLColor.FromHtml("FF5F5F5F"), group.Style.SeriesColor);
-        Assert.AreEqual(XLColor.FromHtml("FFFFB620"), group.Style.NegativeColor);
-        Assert.AreEqual(XLColor.FromHtml("FFD70077"), group.Style.MarkersColor);
-        Assert.AreEqual(XLColor.FromHtml("FF56BE79"), group.Style.HighMarkerColor);
-        Assert.AreEqual(XLColor.FromHtml("FFFF5055"), group.Style.LowMarkerColor);
-        Assert.AreEqual(XLColor.FromHtml("FF5687C2"), group.Style.FirstMarkerColor);
-        Assert.AreEqual(XLColor.FromHtml("FF359CEB"), group.Style.LastMarkerColor);
+        ClassicAssert.AreEqual(XLColor.FromHtml("FF5F5F5F"), group.Style.SeriesColor);
+        ClassicAssert.AreEqual(XLColor.FromHtml("FFFFB620"), group.Style.NegativeColor);
+        ClassicAssert.AreEqual(XLColor.FromHtml("FFD70077"), group.Style.MarkersColor);
+        ClassicAssert.AreEqual(XLColor.FromHtml("FF56BE79"), group.Style.HighMarkerColor);
+        ClassicAssert.AreEqual(XLColor.FromHtml("FFFF5055"), group.Style.LowMarkerColor);
+        ClassicAssert.AreEqual(XLColor.FromHtml("FF5687C2"), group.Style.FirstMarkerColor);
+        ClassicAssert.AreEqual(XLColor.FromHtml("FF359CEB"), group.Style.LastMarkerColor);
     }
 
     [Test]
@@ -557,8 +638,8 @@ public class SparklinesTests
 
         group.Style.NegativeColor = XLColor.Red;
 
-        Assert.AreEqual(XLColor.Red, group.Style.NegativeColor);
-        Assert.AreNotEqual(XLColor.Red, XLSparklineTheme.Colorful1.NegativeColor);
+        ClassicAssert.AreEqual(XLColor.Red, group.Style.NegativeColor);
+        ClassicAssert.AreNotEqual(XLColor.Red, XLSparklineTheme.Colorful1.NegativeColor);
     }
 
     [Test]
@@ -569,7 +650,7 @@ public class SparklinesTests
 
         TestDelegate action = () => group.Style = null;
 
-        Assert.Throws<ArgumentNullException>(action);
+        ClassicAssert.Throws<ArgumentNullException>(action);
     }
 
     [Test]
@@ -582,12 +663,12 @@ public class SparklinesTests
 
         ws.Row(2).InsertRowsBelow(3);
 
-        Assert.AreEqual("B2", group1.First().Location.Address.ToString());
-        Assert.AreEqual("D7:F7", group1.First().SourceData.RangeAddress.ToString());
-        Assert.AreEqual("B6", group2.First().Location.Address.ToString());
-        Assert.AreEqual("D7:D11", group2.First().SourceData.RangeAddress.ToString());
-        Assert.AreEqual("B7", group3.First().Location.Address.ToString());
-        Assert.AreEqual("E1:E11", group3.First().SourceData.RangeAddress.ToString());
+        ClassicAssert.AreEqual("B2", group1.First().Location.Address.ToString());
+        ClassicAssert.AreEqual("D7:F7", group1.First().SourceData.RangeAddress.ToString());
+        ClassicAssert.AreEqual("B6", group2.First().Location.Address.ToString());
+        ClassicAssert.AreEqual("D7:D11", group2.First().SourceData.RangeAddress.ToString());
+        ClassicAssert.AreEqual("B7", group3.First().Location.Address.ToString());
+        ClassicAssert.AreEqual("E1:E11", group3.First().SourceData.RangeAddress.ToString());
     }
 
     [Test]
@@ -600,12 +681,12 @@ public class SparklinesTests
 
         ws.Rows(3, 5).Delete();
 
-        Assert.AreEqual("B2", group1.First().Location.Address.ToString());
-        Assert.AreEqual("D4:F4", group1.First().SourceData.RangeAddress.ToString());
-        Assert.AreEqual("B3", group2.First().Location.Address.ToString());
-        Assert.AreEqual("D4:D8", group2.First().SourceData.RangeAddress.ToString());
-        Assert.AreEqual("B4", group3.First().Location.Address.ToString());
-        Assert.AreEqual("E1:E8", group3.First().SourceData.RangeAddress.ToString());
+        ClassicAssert.AreEqual("B2", group1.First().Location.Address.ToString());
+        ClassicAssert.AreEqual("D4:F4", group1.First().SourceData.RangeAddress.ToString());
+        ClassicAssert.AreEqual("B3", group2.First().Location.Address.ToString());
+        ClassicAssert.AreEqual("D4:D8", group2.First().SourceData.RangeAddress.ToString());
+        ClassicAssert.AreEqual("B4", group3.First().Location.Address.ToString());
+        ClassicAssert.AreEqual("E1:E8", group3.First().SourceData.RangeAddress.ToString());
     }
 
     [Test]
@@ -618,12 +699,12 @@ public class SparklinesTests
 
         ws.Column(2).InsertColumnsAfter(3);
 
-        Assert.AreEqual("B2", group1.First().Location.Address.ToString());
-        Assert.AreEqual("G4:I4", group1.First().SourceData.RangeAddress.ToString());
-        Assert.AreEqual("F3", group2.First().Location.Address.ToString());
-        Assert.AreEqual("G4:G8", group2.First().SourceData.RangeAddress.ToString());
-        Assert.AreEqual("G4", group3.First().Location.Address.ToString());
-        Assert.AreEqual("A4:H4", group3.First().SourceData.RangeAddress.ToString());
+        ClassicAssert.AreEqual("B2", group1.First().Location.Address.ToString());
+        ClassicAssert.AreEqual("G4:I4", group1.First().SourceData.RangeAddress.ToString());
+        ClassicAssert.AreEqual("F3", group2.First().Location.Address.ToString());
+        ClassicAssert.AreEqual("G4:G8", group2.First().SourceData.RangeAddress.ToString());
+        ClassicAssert.AreEqual("G4", group3.First().Location.Address.ToString());
+        ClassicAssert.AreEqual("A4:H4", group3.First().SourceData.RangeAddress.ToString());
     }
 
     [Test]
@@ -636,12 +717,12 @@ public class SparklinesTests
 
         ws.Columns(3, 5).Delete();
 
-        Assert.AreEqual("B2", group1.First().Location.Address.ToString());
-        Assert.AreEqual("D4:F4", group1.First().SourceData.RangeAddress.ToString());
-        Assert.AreEqual("C3", group2.First().Location.Address.ToString());
-        Assert.AreEqual("D4:D8", group2.First().SourceData.RangeAddress.ToString());
-        Assert.AreEqual("D4", group3.First().Location.Address.ToString());
-        Assert.AreEqual("A4:E4", group3.First().SourceData.RangeAddress.ToString());
+        ClassicAssert.AreEqual("B2", group1.First().Location.Address.ToString());
+        ClassicAssert.AreEqual("D4:F4", group1.First().SourceData.RangeAddress.ToString());
+        ClassicAssert.AreEqual("C3", group2.First().Location.Address.ToString());
+        ClassicAssert.AreEqual("D4:D8", group2.First().SourceData.RangeAddress.ToString());
+        ClassicAssert.AreEqual("D4", group3.First().Location.Address.ToString());
+        ClassicAssert.AreEqual("A4:E4", group3.First().SourceData.RangeAddress.ToString());
     }
 
     [Test]
@@ -652,9 +733,9 @@ public class SparklinesTests
 
         ws.Column(2).Delete();
 
-        Assert.AreEqual(1, group.Count());
-        Assert.AreEqual("A1", group.Single().Location.Address.ToString());
-        Assert.AreEqual("B2:B6", group.Single().SourceData.RangeAddress.ToString());
+        ClassicAssert.AreEqual(1, group.Count());
+        ClassicAssert.AreEqual("A1", group.Single().Location.Address.ToString());
+        ClassicAssert.AreEqual("B2:B6", group.Single().SourceData.RangeAddress.ToString());
     }
 
     [Test]
@@ -665,9 +746,9 @@ public class SparklinesTests
 
         ws.Row(2).Delete();
 
-        Assert.AreEqual(1, group.Count());
-        Assert.AreEqual("A1", group.Single().Location.Address.ToString());
-        Assert.AreEqual("C2:F2", group.Single().SourceData.RangeAddress.ToString());
+        ClassicAssert.AreEqual(1, group.Count());
+        ClassicAssert.AreEqual("A1", group.Single().Location.Address.ToString());
+        ClassicAssert.AreEqual("C2:F2", group.Single().SourceData.RangeAddress.ToString());
     }
 
     [Test]
@@ -678,7 +759,7 @@ public class SparklinesTests
 
         ws.Column(1).InsertColumnsBefore(1);
 
-        Assert.AreEqual(0, group.Count());
+        ClassicAssert.AreEqual(0, group.Count());
     }
 
     [Test]
@@ -689,7 +770,7 @@ public class SparklinesTests
 
         ws.Row(1).InsertRowsAbove(1);
 
-        Assert.AreEqual(0, group.Count());
+        ClassicAssert.AreEqual(0, group.Count());
     }
 
     [Test]
@@ -700,11 +781,11 @@ public class SparklinesTests
 
         ws.Column(4).Delete();
 
-        Assert.AreEqual(2, group.Count());
-        Assert.AreEqual("A1", group.First().Location.Address.ToString());
-        Assert.AreEqual("C2:C6", group.First().SourceData.RangeAddress.ToString());
-        Assert.AreEqual("B1", group.Last().Location.Address.ToString());
-        Assert.IsNull(group.Last().SourceData);
+        ClassicAssert.AreEqual(2, group.Count());
+        ClassicAssert.AreEqual("A1", group.First().Location.Address.ToString());
+        ClassicAssert.AreEqual("C2:C6", group.First().SourceData.RangeAddress.ToString());
+        ClassicAssert.AreEqual("B1", group.Last().Location.Address.ToString());
+        ClassicAssert.IsNull(group.Last().SourceData);
     }
 
     #endregion Change sparklines
@@ -763,53 +844,53 @@ public class SparklinesTests
             {
                 IXLWorksheet ws = wb.Worksheets.First();
 
-                Assert.AreEqual(1, ws.SparklineGroups.Count());
+                ClassicAssert.AreEqual(1, ws.SparklineGroups.Count());
                 AssertGroupIsValid(ws.SparklineGroups.Single());
             }
         }
 
         void AssertGroupIsValid(IXLSparklineGroup group)
         {
-            Assert.AreEqual(3, group.Count());
+            ClassicAssert.AreEqual(3, group.Count());
 
-            Assert.AreEqual("A1", group.ElementAt(0).Location.Address.ToString());
-            Assert.AreEqual("A2", group.ElementAt(1).Location.Address.ToString());
-            Assert.AreEqual("A3", group.ElementAt(2).Location.Address.ToString());
+            ClassicAssert.AreEqual("A1", group.ElementAt(0).Location.Address.ToString());
+            ClassicAssert.AreEqual("A2", group.ElementAt(1).Location.Address.ToString());
+            ClassicAssert.AreEqual("A3", group.ElementAt(2).Location.Address.ToString());
 
-            Assert.AreEqual("B1:Z1", group.ElementAt(0).SourceData.RangeAddress.ToString());
-            Assert.AreEqual("B2:Z2", group.ElementAt(1).SourceData.RangeAddress.ToString());
-            Assert.AreEqual("B3:Z3", group.ElementAt(2).SourceData.RangeAddress.ToString());
+            ClassicAssert.AreEqual("B1:Z1", group.ElementAt(0).SourceData.RangeAddress.ToString());
+            ClassicAssert.AreEqual("B2:Z2", group.ElementAt(1).SourceData.RangeAddress.ToString());
+            ClassicAssert.AreEqual("B3:Z3", group.ElementAt(2).SourceData.RangeAddress.ToString());
 
-            Assert.AreEqual("B4:Z4", group.DateRange.RangeAddress.ToString());
+            ClassicAssert.AreEqual("B4:Z4", group.DateRange.RangeAddress.ToString());
 
-            Assert.AreEqual(XLColor.AliceBlue, group.Style.FirstMarkerColor);
-            Assert.AreEqual(XLColor.Alizarin, group.Style.HighMarkerColor);
-            Assert.AreEqual(XLColor.Almond, group.Style.LastMarkerColor);
-            Assert.AreEqual(XLColor.Amaranth, group.Style.LowMarkerColor);
-            Assert.AreEqual(XLColor.Amber, group.Style.MarkersColor);
-            Assert.AreEqual(XLColor.AmberSaeEce, group.Style.NegativeColor);
-            Assert.AreEqual(XLColor.AmericanRose, group.Style.SeriesColor);
-            Assert.IsTrue(group.DisplayHidden);
-            Assert.AreEqual(5.5, group.LineWeight, XLHelper.Epsilon);
-            Assert.AreEqual(XLDisplayBlanksAsValues.Zero, group.DisplayEmptyCellsAs);
-            Assert.AreEqual(XLSparklineType.Stacked, group.Type);
+            ClassicAssert.AreEqual(XLColor.AliceBlue, group.Style.FirstMarkerColor);
+            ClassicAssert.AreEqual(XLColor.Alizarin, group.Style.HighMarkerColor);
+            ClassicAssert.AreEqual(XLColor.Almond, group.Style.LastMarkerColor);
+            ClassicAssert.AreEqual(XLColor.Amaranth, group.Style.LowMarkerColor);
+            ClassicAssert.AreEqual(XLColor.Amber, group.Style.MarkersColor);
+            ClassicAssert.AreEqual(XLColor.AmberSaeEce, group.Style.NegativeColor);
+            ClassicAssert.AreEqual(XLColor.AmericanRose, group.Style.SeriesColor);
+            ClassicAssert.IsTrue(group.DisplayHidden);
+            ClassicAssert.AreEqual(5.5, group.LineWeight, XLHelper.Epsilon);
+            ClassicAssert.AreEqual(XLDisplayBlanksAsValues.Zero, group.DisplayEmptyCellsAs);
+            ClassicAssert.AreEqual(XLSparklineType.Stacked, group.Type);
 
-            Assert.IsTrue(group.ShowMarkers.HasFlag(XLSparklineMarkers.FirstPoint));
-            Assert.IsTrue(group.ShowMarkers.HasFlag(XLSparklineMarkers.LastPoint));
-            Assert.IsTrue(group.ShowMarkers.HasFlag(XLSparklineMarkers.HighPoint));
-            Assert.IsTrue(group.ShowMarkers.HasFlag(XLSparklineMarkers.LowPoint));
-            Assert.IsTrue(group.ShowMarkers.HasFlag(XLSparklineMarkers.NegativePoints));
-            Assert.IsTrue(group.ShowMarkers.HasFlag(XLSparklineMarkers.Markers));
+            ClassicAssert.IsTrue(group.ShowMarkers.HasFlag(XLSparklineMarkers.FirstPoint));
+            ClassicAssert.IsTrue(group.ShowMarkers.HasFlag(XLSparklineMarkers.LastPoint));
+            ClassicAssert.IsTrue(group.ShowMarkers.HasFlag(XLSparklineMarkers.HighPoint));
+            ClassicAssert.IsTrue(group.ShowMarkers.HasFlag(XLSparklineMarkers.LowPoint));
+            ClassicAssert.IsTrue(group.ShowMarkers.HasFlag(XLSparklineMarkers.NegativePoints));
+            ClassicAssert.IsTrue(group.ShowMarkers.HasFlag(XLSparklineMarkers.Markers));
 
-            Assert.AreEqual(XLColor.AirForceBlue, group.HorizontalAxis.Color);
-            Assert.IsTrue(group.HorizontalAxis.IsVisible);
-            Assert.IsTrue(group.HorizontalAxis.RightToLeft);
-            Assert.IsTrue(group.HorizontalAxis.DateAxis);
+            ClassicAssert.AreEqual(XLColor.AirForceBlue, group.HorizontalAxis.Color);
+            ClassicAssert.IsTrue(group.HorizontalAxis.IsVisible);
+            ClassicAssert.IsTrue(group.HorizontalAxis.RightToLeft);
+            ClassicAssert.IsTrue(group.HorizontalAxis.DateAxis);
 
-            Assert.AreEqual(6.6, group.VerticalAxis.ManualMax.Value, XLHelper.Epsilon);
-            Assert.AreEqual(1.2, group.VerticalAxis.ManualMin.Value, XLHelper.Epsilon);
-            Assert.AreEqual(XLSparklineAxisMinMax.Custom, group.VerticalAxis.MaxAxisType);
-            Assert.AreEqual(XLSparklineAxisMinMax.Custom, group.VerticalAxis.MinAxisType);
+            ClassicAssert.AreEqual(6.6, group.VerticalAxis.ManualMax.Value, XLHelper.Epsilon);
+            ClassicAssert.AreEqual(1.2, group.VerticalAxis.ManualMin.Value, XLHelper.Epsilon);
+            ClassicAssert.AreEqual(XLSparklineAxisMinMax.Custom, group.VerticalAxis.MaxAxisType);
+            ClassicAssert.AreEqual(XLSparklineAxisMinMax.Custom, group.VerticalAxis.MinAxisType);
         }
     }
 
@@ -818,47 +899,48 @@ public class SparklinesTests
         TestHelper.LoadAndAssert(
             wb =>
             {
-                Assert.IsTrue(wb.Worksheets.All(ws => ws.SparklineGroups.Count() == 6));
+                ClassicAssert.IsTrue(wb.Worksheets.All(ws => ws.SparklineGroups.Count() == 6));
             },
             @"Other\Sparklines\SparklineThemes\inputfile.xlsx"
         );
 
-    [TestCase("Accent!B1", nameof(XLSparklineTheme.Accent1))]
-    [TestCase("Accent!B2", nameof(XLSparklineTheme.Accent2))]
-    [TestCase("Accent!B3", nameof(XLSparklineTheme.Accent3))]
-    [TestCase("Accent!B4", nameof(XLSparklineTheme.Accent4))]
-    [TestCase("Accent!B5", nameof(XLSparklineTheme.Accent5))]
-    [TestCase("Accent!B6", nameof(XLSparklineTheme.Accent6))]
-    [TestCase("'Accent Darker 25%'!B1", nameof(XLSparklineTheme.Accent1Darker25))]
-    [TestCase("'Accent Darker 25%'!B2", nameof(XLSparklineTheme.Accent2Darker25))]
-    [TestCase("'Accent Darker 25%'!B3", nameof(XLSparklineTheme.Accent3Darker25))]
-    [TestCase("'Accent Darker 25%'!B4", nameof(XLSparklineTheme.Accent4Darker25))]
-    [TestCase("'Accent Darker 25%'!B5", nameof(XLSparklineTheme.Accent5Darker25))]
-    [TestCase("'Accent Darker 25%'!B6", nameof(XLSparklineTheme.Accent6Darker25))]
-    [TestCase("'Accent Darker 50%'!B1", nameof(XLSparklineTheme.Accent1Darker50))]
-    [TestCase("'Accent Darker 50%'!B2", nameof(XLSparklineTheme.Accent2Darker50))]
-    [TestCase("'Accent Darker 50%'!B3", nameof(XLSparklineTheme.Accent3Darker50))]
-    [TestCase("'Accent Darker 50%'!B4", nameof(XLSparklineTheme.Accent4Darker50))]
-    [TestCase("'Accent Darker 50%'!B5", nameof(XLSparklineTheme.Accent5Darker50))]
-    [TestCase("'Accent Darker 50%'!B6", nameof(XLSparklineTheme.Accent6Darker50))]
-    [TestCase("'Accent Lighter 40%'!B1", nameof(XLSparklineTheme.Accent1Lighter40))]
-    [TestCase("'Accent Lighter 40%'!B2", nameof(XLSparklineTheme.Accent2Lighter40))]
-    [TestCase("'Accent Lighter 40%'!B3", nameof(XLSparklineTheme.Accent3Lighter40))]
-    [TestCase("'Accent Lighter 40%'!B4", nameof(XLSparklineTheme.Accent4Lighter40))]
-    [TestCase("'Accent Lighter 40%'!B5", nameof(XLSparklineTheme.Accent5Lighter40))]
-    [TestCase("'Accent Lighter 40%'!B6", nameof(XLSparklineTheme.Accent6Lighter40))]
-    [TestCase("Dark!B1", nameof(XLSparklineTheme.Dark1))]
-    [TestCase("Dark!B2", nameof(XLSparklineTheme.Dark2))]
-    [TestCase("Dark!B3", nameof(XLSparklineTheme.Dark3))]
-    [TestCase("Dark!B4", nameof(XLSparklineTheme.Dark4))]
-    [TestCase("Dark!B5", nameof(XLSparklineTheme.Dark5))]
-    [TestCase("Dark!B6", nameof(XLSparklineTheme.Dark6))]
-    [TestCase("Colorful!B1", nameof(XLSparklineTheme.Colorful1))]
-    [TestCase("Colorful!B2", nameof(XLSparklineTheme.Colorful2))]
-    [TestCase("Colorful!B3", nameof(XLSparklineTheme.Colorful3))]
-    [TestCase("Colorful!B4", nameof(XLSparklineTheme.Colorful4))]
-    [TestCase("Colorful!B5", nameof(XLSparklineTheme.Colorful5))]
-    [TestCase("Colorful!B6", nameof(XLSparklineTheme.Colorful6))]
+    [Test]
+    [Arguments("Accent!B1", nameof(XLSparklineTheme.Accent1))]
+    [Arguments("Accent!B2", nameof(XLSparklineTheme.Accent2))]
+    [Arguments("Accent!B3", nameof(XLSparklineTheme.Accent3))]
+    [Arguments("Accent!B4", nameof(XLSparklineTheme.Accent4))]
+    [Arguments("Accent!B5", nameof(XLSparklineTheme.Accent5))]
+    [Arguments("Accent!B6", nameof(XLSparklineTheme.Accent6))]
+    [Arguments("'Accent Darker 25%'!B1", nameof(XLSparklineTheme.Accent1Darker25))]
+    [Arguments("'Accent Darker 25%'!B2", nameof(XLSparklineTheme.Accent2Darker25))]
+    [Arguments("'Accent Darker 25%'!B3", nameof(XLSparklineTheme.Accent3Darker25))]
+    [Arguments("'Accent Darker 25%'!B4", nameof(XLSparklineTheme.Accent4Darker25))]
+    [Arguments("'Accent Darker 25%'!B5", nameof(XLSparklineTheme.Accent5Darker25))]
+    [Arguments("'Accent Darker 25%'!B6", nameof(XLSparklineTheme.Accent6Darker25))]
+    [Arguments("'Accent Darker 50%'!B1", nameof(XLSparklineTheme.Accent1Darker50))]
+    [Arguments("'Accent Darker 50%'!B2", nameof(XLSparklineTheme.Accent2Darker50))]
+    [Arguments("'Accent Darker 50%'!B3", nameof(XLSparklineTheme.Accent3Darker50))]
+    [Arguments("'Accent Darker 50%'!B4", nameof(XLSparklineTheme.Accent4Darker50))]
+    [Arguments("'Accent Darker 50%'!B5", nameof(XLSparklineTheme.Accent5Darker50))]
+    [Arguments("'Accent Darker 50%'!B6", nameof(XLSparklineTheme.Accent6Darker50))]
+    [Arguments("'Accent Lighter 40%'!B1", nameof(XLSparklineTheme.Accent1Lighter40))]
+    [Arguments("'Accent Lighter 40%'!B2", nameof(XLSparklineTheme.Accent2Lighter40))]
+    [Arguments("'Accent Lighter 40%'!B3", nameof(XLSparklineTheme.Accent3Lighter40))]
+    [Arguments("'Accent Lighter 40%'!B4", nameof(XLSparklineTheme.Accent4Lighter40))]
+    [Arguments("'Accent Lighter 40%'!B5", nameof(XLSparklineTheme.Accent5Lighter40))]
+    [Arguments("'Accent Lighter 40%'!B6", nameof(XLSparklineTheme.Accent6Lighter40))]
+    [Arguments("Dark!B1", nameof(XLSparklineTheme.Dark1))]
+    [Arguments("Dark!B2", nameof(XLSparklineTheme.Dark2))]
+    [Arguments("Dark!B3", nameof(XLSparklineTheme.Dark3))]
+    [Arguments("Dark!B4", nameof(XLSparklineTheme.Dark4))]
+    [Arguments("Dark!B5", nameof(XLSparklineTheme.Dark5))]
+    [Arguments("Dark!B6", nameof(XLSparklineTheme.Dark6))]
+    [Arguments("Colorful!B1", nameof(XLSparklineTheme.Colorful1))]
+    [Arguments("Colorful!B2", nameof(XLSparklineTheme.Colorful2))]
+    [Arguments("Colorful!B3", nameof(XLSparklineTheme.Colorful3))]
+    [Arguments("Colorful!B4", nameof(XLSparklineTheme.Colorful4))]
+    [Arguments("Colorful!B5", nameof(XLSparklineTheme.Colorful5))]
+    [Arguments("Colorful!B6", nameof(XLSparklineTheme.Colorful6))]
     public void SparklineThemesAreIdenticalToExcel(string cellAddress, string expectedThemeName)
     {
         using (
@@ -871,7 +953,7 @@ public class SparklinesTests
             IXLSparklineStyle expectedStyle = GetThemeByName(expectedThemeName);
             IXLSparklineStyle actualStyle = wb.Cell(cellAddress).Sparkline.SparklineGroup.Style;
 
-            Assert.AreEqual(expectedStyle, actualStyle);
+            ClassicAssert.AreEqual(expectedStyle, actualStyle);
         }
 
         IXLSparklineStyle GetThemeByName(string themeName)
@@ -907,12 +989,12 @@ public class SparklinesTests
 
             using (XLWorkbook wb = new(output))
             {
-                Assert.AreEqual(0, wb.Worksheet(1).SparklineGroups.Count());
-                Assert.AreEqual(5, wb.Worksheet(2).SparklineGroups.Count());
-                Assert.AreEqual(1, wb.Worksheet(3).SparklineGroups.Count());
-                Assert.AreEqual(5, wb.Worksheet(4).SparklineGroups.Count());
-                Assert.AreEqual(6, wb.Worksheet(5).SparklineGroups.Count());
-                Assert.AreEqual(6, wb.Worksheet(6).SparklineGroups.Count());
+                ClassicAssert.AreEqual(0, wb.Worksheet(1).SparklineGroups.Count());
+                ClassicAssert.AreEqual(5, wb.Worksheet(2).SparklineGroups.Count());
+                ClassicAssert.AreEqual(1, wb.Worksheet(3).SparklineGroups.Count());
+                ClassicAssert.AreEqual(5, wb.Worksheet(4).SparklineGroups.Count());
+                ClassicAssert.AreEqual(6, wb.Worksheet(5).SparklineGroups.Count());
+                ClassicAssert.AreEqual(6, wb.Worksheet(6).SparklineGroups.Count());
             }
         }
     }
@@ -929,7 +1011,7 @@ public class SparklinesTests
             },
             wb =>
             {
-                Assert.AreEqual(0, wb.Worksheets.First().SparklineGroups.Count());
+                ClassicAssert.AreEqual(0, wb.Worksheets.First().SparklineGroups.Count());
             }
         );
 
@@ -950,13 +1032,13 @@ public class SparklinesTests
             {
                 IXLWorksheet ws = wb.Worksheets.Single();
 
-                Assert.AreEqual(2, ws.SparklineGroups.Count());
-                Assert.IsNull(ws.Cell("A2").Sparkline.SourceData);
-                Assert.AreEqual(
+                ClassicAssert.AreEqual(2, ws.SparklineGroups.Count());
+                ClassicAssert.IsNull(ws.Cell("A2").Sparkline.SourceData);
+                ClassicAssert.AreEqual(
                     "B5:F5",
                     ws.Cell("A5").Sparkline.SourceData.RangeAddress.ToString()
                 );
-                Assert.IsNull(ws.Cell("A5").Sparkline.SparklineGroup.DateRange);
+                ClassicAssert.IsNull(ws.Cell("A5").Sparkline.SparklineGroup.DateRange);
             }
         );
 
@@ -983,8 +1065,8 @@ public class SparklinesTests
 
         axis.ManualMin = 100;
 
-        Assert.AreEqual(100, axis.ManualMin.Value, XLHelper.Epsilon);
-        Assert.AreEqual(XLSparklineAxisMinMax.Custom, axis.MinAxisType);
+        ClassicAssert.AreEqual(100, axis.ManualMin.Value, XLHelper.Epsilon);
+        ClassicAssert.AreEqual(XLSparklineAxisMinMax.Custom, axis.MinAxisType);
     }
 
     [Test]
@@ -997,13 +1079,14 @@ public class SparklinesTests
 
         axis.ManualMax = 100;
 
-        Assert.AreEqual(100, axis.ManualMax.Value, XLHelper.Epsilon);
-        Assert.AreEqual(XLSparklineAxisMinMax.Custom, axis.MaxAxisType);
+        ClassicAssert.AreEqual(100, axis.ManualMax.Value, XLHelper.Epsilon);
+        ClassicAssert.AreEqual(XLSparklineAxisMinMax.Custom, axis.MaxAxisType);
     }
 
-    [TestCase(XLSparklineAxisMinMax.Custom, 100)]
-    [TestCase(XLSparklineAxisMinMax.SameForAll, null)]
-    [TestCase(XLSparklineAxisMinMax.Automatic, null)]
+    [Test]
+    [Arguments(XLSparklineAxisMinMax.Custom, 100)]
+    [Arguments(XLSparklineAxisMinMax.SameForAll, null)]
+    [Arguments(XLSparklineAxisMinMax.Automatic, null)]
     public void SetAxisTypeToNonCustomSetsManualMinToNull(
         XLSparklineAxisMinMax axisType,
         double? expectedManualMin
@@ -1018,17 +1101,18 @@ public class SparklinesTests
 
         if (expectedManualMin.HasValue)
         {
-            Assert.AreEqual(expectedManualMin.Value, axis.ManualMin.Value, XLHelper.Epsilon);
+            ClassicAssert.AreEqual(expectedManualMin.Value, axis.ManualMin.Value, XLHelper.Epsilon);
         }
         else
         {
-            Assert.IsNull(axis.ManualMin);
+            ClassicAssert.IsNull(axis.ManualMin);
         }
     }
 
-    [TestCase(XLSparklineAxisMinMax.Custom, 100)]
-    [TestCase(XLSparklineAxisMinMax.SameForAll, null)]
-    [TestCase(XLSparklineAxisMinMax.Automatic, null)]
+    [Test]
+    [Arguments(XLSparklineAxisMinMax.Custom, 100)]
+    [Arguments(XLSparklineAxisMinMax.SameForAll, null)]
+    [Arguments(XLSparklineAxisMinMax.Automatic, null)]
     public void SetAxisTypeToNonCustomSetsManualMaxToNull(
         XLSparklineAxisMinMax axisType,
         double? expectedManualMax
@@ -1043,11 +1127,11 @@ public class SparklinesTests
 
         if (expectedManualMax.HasValue)
         {
-            Assert.AreEqual(expectedManualMax.Value, axis.ManualMax.Value, XLHelper.Epsilon);
+            ClassicAssert.AreEqual(expectedManualMax.Value, axis.ManualMax.Value, XLHelper.Epsilon);
         }
         else
         {
-            Assert.IsNull(axis.ManualMax);
+            ClassicAssert.IsNull(axis.ManualMax);
         }
     }
 
@@ -1059,7 +1143,7 @@ public class SparklinesTests
 
         group.DateRange = ws.Range("B3:Z3");
 
-        Assert.IsTrue(group.HorizontalAxis.DateAxis);
+        ClassicAssert.IsTrue(group.HorizontalAxis.DateAxis);
     }
 
     [Test]
@@ -1071,7 +1155,7 @@ public class SparklinesTests
 
         group.DateRange = null;
 
-        Assert.IsFalse(group.HorizontalAxis.DateAxis);
+        ClassicAssert.IsFalse(group.HorizontalAxis.DateAxis);
     }
 
     [Test]
@@ -1082,7 +1166,7 @@ public class SparklinesTests
 
         TestDelegate action = () => group.DateRange = ws.Range("B3:Z4");
 
-        Assert.Throws<ArgumentException>(action);
+        ClassicAssert.Throws<ArgumentException>(action);
     }
 
     #endregion Change sparkline groups
@@ -1098,10 +1182,13 @@ public class SparklinesTests
 
         ws.Cell("A2").CopyTo(target);
 
-        Assert.AreEqual(1, ws.SparklineGroups.Count());
-        Assert.IsTrue(target.HasSparkline);
-        Assert.AreSame(ws.Cell("A2").Sparkline.SparklineGroup, target.Sparkline.SparklineGroup);
-        Assert.AreEqual("E4:I4", target.Sparkline.SourceData.RangeAddress.ToString());
+        ClassicAssert.AreEqual(1, ws.SparklineGroups.Count());
+        ClassicAssert.IsTrue(target.HasSparkline);
+        ClassicAssert.AreSame(
+            ws.Cell("A2").Sparkline.SparklineGroup,
+            target.Sparkline.SparklineGroup
+        );
+        ClassicAssert.AreEqual("E4:I4", target.Sparkline.SourceData.RangeAddress.ToString());
     }
 
     [Test]
@@ -1119,15 +1206,15 @@ public class SparklinesTests
         ws1.Cell("A2").CopyTo(target1);
         ws1.Cell("A5").CopyTo(target2);
 
-        Assert.AreEqual(2, ws1.SparklineGroups.Count());
-        Assert.AreEqual(2, ws2.SparklineGroups.Count());
-        Assert.IsTrue(target1.HasSparkline);
-        Assert.IsTrue(target2.HasSparkline);
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(2, ws1.SparklineGroups.Count());
+        ClassicAssert.AreEqual(2, ws2.SparklineGroups.Count());
+        ClassicAssert.IsTrue(target1.HasSparkline);
+        ClassicAssert.IsTrue(target2.HasSparkline);
+        ClassicAssert.AreEqual(
             "'Sheet 2'!E4:I4",
             target1.Sparkline.SourceData.RangeAddress.ToString(XLReferenceStyle.A1, true)
         );
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             "'Sheet 3'!E5:I5",
             target2.Sparkline.SourceData.RangeAddress.ToString(XLReferenceStyle.A1, true)
         );
@@ -1145,10 +1232,10 @@ public class SparklinesTests
 
         ws1.Cell("A2").CopyTo(target);
 
-        Assert.AreEqual(1, ws1.SparklineGroups.Count());
-        Assert.AreEqual(1, ws2.SparklineGroups.Count());
-        Assert.IsTrue(target.HasSparkline);
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(1, ws1.SparklineGroups.Count());
+        ClassicAssert.AreEqual(1, ws2.SparklineGroups.Count());
+        ClassicAssert.IsTrue(target.HasSparkline);
+        ClassicAssert.AreEqual(
             "'Sheet 2'!D6:H6",
             target.Sparkline.SparklineGroup.DateRange.RangeAddress.ToString(
                 XLReferenceStyle.A1,
@@ -1170,10 +1257,10 @@ public class SparklinesTests
 
         ws1.Cell("A2").CopyTo(target);
 
-        Assert.AreEqual(1, ws1.SparklineGroups.Count());
-        Assert.AreEqual(1, ws2.SparklineGroups.Count());
-        Assert.IsTrue(target.HasSparkline);
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(1, ws1.SparklineGroups.Count());
+        ClassicAssert.AreEqual(1, ws2.SparklineGroups.Count());
+        ClassicAssert.IsTrue(target.HasSparkline);
+        ClassicAssert.AreEqual(
             "'Sheet 3'!D6:H6",
             target.Sparkline.SparklineGroup.DateRange.RangeAddress.ToString(
                 XLReferenceStyle.A1,

@@ -1,21 +1,21 @@
 using System.Drawing;
 using System.IO;
 using System.Reflection;
-using NUnit.Framework;
 using XlsxSharp.Excel.Drawings;
 using XlsxSharp.Graphics;
+using Assembly = System.Reflection.Assembly;
 
 namespace XlsxSharp.Tests.Graphics;
 
-[TestFixture]
 public class PictureInfoTests
 {
     [Test]
     public void CanReadPng() =>
         AssertRasterImage("SampleImagePng.png", XLPictureFormat.Png, new Size(252, 152), 96, 96);
 
-    [TestCase("SampleImageJfif.jpg", 176, 270, 96, 96)]
-    [TestCase("jpeg-rgb.jpg", 200, 200, 0, 0)] // Adobe JPG, has APP14 marker right after SOI instead of APP0
+    [Test]
+    [Arguments("SampleImageJfif.jpg", 176, 270, 96, 96)]
+    [Arguments("jpeg-rgb.jpg", 200, 200, 0, 0)] // Adobe JPG, has APP14 marker right after SOI instead of APP0
     public void CanReadJfif(string filename, int widthPx, int heightPx, int dpiX, int dpiY) =>
         AssertRasterImage(
             $"Jpg.{filename}",
@@ -37,10 +37,11 @@ public class PictureInfoTests
     public void CanReadGif89Image() =>
         AssertRasterImage("SampleImageGif89a.gif", XLPictureFormat.Gif, new Size(500, 200), 0, 0);
 
-    [TestCase("SampleImageBmpWin24bit.bmp")]
-    [TestCase("SampleImageBmpWin8bit.bmp")]
-    [TestCase("SampleImageBmpWin4bit.bmp")]
-    [TestCase("SampleImageBmpWin24bit.bmp")]
+    [Test]
+    [Arguments("SampleImageBmpWin24bit.bmp")]
+    [Arguments("SampleImageBmpWin8bit.bmp")]
+    [Arguments("SampleImageBmpWin4bit.bmp")]
+    [Arguments("SampleImageBmpWin24bit.bmp")]
     public void CanReadBmpImageV3AndFurther(string imageName) =>
         AssertRasterImage(imageName, XLPictureFormat.Bmp, new Size(167, 51), 80.645d, 80.645d);
 
@@ -153,12 +154,12 @@ public class PictureInfoTests
             XLPictureFormat.Unknown
         );
 
-        Assert.AreEqual(expectedFormat, info.Format);
-        Assert.AreEqual(expectedPxSize, info.SizePx);
-        Assert.AreEqual(expectedHiMetricSize, info.SizePhys);
+        ClassicAssert.AreEqual(expectedFormat, info.Format);
+        ClassicAssert.AreEqual(expectedPxSize, info.SizePx);
+        ClassicAssert.AreEqual(expectedHiMetricSize, info.SizePhys);
 
         // Some DPI is stored as pixels per meter, causing a rounding errors.
-        Assert.AreEqual(expectedDpiX, info.DpiX, 0.02);
-        Assert.AreEqual(expectedDpiY, info.DpiY, 0.02);
+        ClassicAssert.AreEqual(expectedDpiX, info.DpiX, 0.02);
+        ClassicAssert.AreEqual(expectedDpiY, info.DpiY, 0.02);
     }
 }

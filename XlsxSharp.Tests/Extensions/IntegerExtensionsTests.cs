@@ -1,5 +1,4 @@
 using System;
-using NUnit.Framework;
 using XlsxSharp.Extensions;
 
 namespace XlsxSharp.Tests.Extensions;
@@ -20,7 +19,7 @@ public class IntegerExtensionsTests
     [Test]
     public void GetHighestSetBit_ReturnsMinusOne_ForZero()
     {
-        Assert.That(0u.GetHighestSetBit(), Is.EqualTo(-1));
+        ClassicAssert.AreEqual(-1, 0u.GetHighestSetBit());
     }
 
     [Test]
@@ -28,16 +27,16 @@ public class IntegerExtensionsTests
     {
         for (int i = 0; i < BitCount; i++)
         {
-            Assert.That((1u << i).GetHighestSetBit(), Is.EqualTo(i), $"bit {i}");
+            ClassicAssert.AreEqual(i, (1u << i).GetHighestSetBit(), $"bit {i}");
         }
     }
 
     [Test]
     public void GetHighestSetBit_IgnoresLowerBits()
     {
-        Assert.That(uint.MaxValue.GetHighestSetBit(), Is.EqualTo(31));
-        Assert.That(0b1011u.GetHighestSetBit(), Is.EqualTo(3));
-        Assert.That(0x8000_0001u.GetHighestSetBit(), Is.EqualTo(31));
+        ClassicAssert.AreEqual(31, uint.MaxValue.GetHighestSetBit());
+        ClassicAssert.AreEqual(3, 0b1011u.GetHighestSetBit());
+        ClassicAssert.AreEqual(31, 0x8000_0001u.GetHighestSetBit());
     }
 
     [Test]
@@ -45,9 +44,9 @@ public class IntegerExtensionsTests
     {
         foreach (uint value in SampleValues())
         {
-            Assert.That(
+            ClassicAssert.AreEqual(
+                RefHighestSetBit(value),
                 value.GetHighestSetBit(),
-                Is.EqualTo(RefHighestSetBit(value)),
                 $"{value:X8}"
             );
         }
@@ -60,18 +59,18 @@ public class IntegerExtensionsTests
     [Test]
     public void GetHighestSetBitBelow_ReturnsMinusOne_WhenNoBitAtOrBelowIndex()
     {
-        Assert.That(0u.GetHighestSetBitBelow(31), Is.EqualTo(-1));
+        ClassicAssert.AreEqual(-1, 0u.GetHighestSetBitBelow(31));
 
         // Only bit 5 is set, so anything below it finds nothing.
-        Assert.That((1u << 5).GetHighestSetBitBelow(4), Is.EqualTo(-1));
+        ClassicAssert.AreEqual(-1, (1u << 5).GetHighestSetBitBelow(4));
     }
 
     [Test]
     public void GetHighestSetBitBelow_IncludesTheIndexItself()
     {
-        Assert.That((1u << 5).GetHighestSetBitBelow(5), Is.EqualTo(5));
-        Assert.That(1u.GetHighestSetBitBelow(0), Is.EqualTo(0));
-        Assert.That((1u << 31).GetHighestSetBitBelow(31), Is.EqualTo(31));
+        ClassicAssert.AreEqual(5, (1u << 5).GetHighestSetBitBelow(5));
+        ClassicAssert.AreEqual(0, 1u.GetHighestSetBitBelow(0));
+        ClassicAssert.AreEqual(31, (1u << 31).GetHighestSetBitBelow(31));
     }
 
     [Test]
@@ -79,8 +78,8 @@ public class IntegerExtensionsTests
     {
         // Bits 2 and 30 set, capped at 10 -> 2.
         uint value = (1u << 2) | (1u << 30);
-        Assert.That(value.GetHighestSetBitBelow(10), Is.EqualTo(2));
-        Assert.That(value.GetHighestSetBitBelow(31), Is.EqualTo(30));
+        ClassicAssert.AreEqual(2, value.GetHighestSetBitBelow(10));
+        ClassicAssert.AreEqual(30, value.GetHighestSetBitBelow(31));
     }
 
     [Test]
@@ -90,9 +89,9 @@ public class IntegerExtensionsTests
         {
             for (int index = 0; index < BitCount; index++)
             {
-                Assert.That(
+                ClassicAssert.AreEqual(
+                    RefHighestSetBitBelow(value, index),
                     value.GetHighestSetBitBelow(index),
-                    Is.EqualTo(RefHighestSetBitBelow(value, index)),
                     $"{value:X8} below {index}"
                 );
             }
@@ -106,18 +105,18 @@ public class IntegerExtensionsTests
     [Test]
     public void GetLowestSetBitAbove_ReturnsMinusOne_WhenNoBitAtOrAboveIndex()
     {
-        Assert.That(0u.GetLowestSetBitAbove(0), Is.EqualTo(-1));
+        ClassicAssert.AreEqual(-1, 0u.GetLowestSetBitAbove(0));
 
         // Only bit 5 is set, so anything above it finds nothing.
-        Assert.That((1u << 5).GetLowestSetBitAbove(6), Is.EqualTo(-1));
+        ClassicAssert.AreEqual(-1, (1u << 5).GetLowestSetBitAbove(6));
     }
 
     [Test]
     public void GetLowestSetBitAbove_IncludesTheIndexItself()
     {
-        Assert.That((1u << 5).GetLowestSetBitAbove(5), Is.EqualTo(5));
-        Assert.That(1u.GetLowestSetBitAbove(0), Is.EqualTo(0));
-        Assert.That((1u << 31).GetLowestSetBitAbove(31), Is.EqualTo(31));
+        ClassicAssert.AreEqual(5, (1u << 5).GetLowestSetBitAbove(5));
+        ClassicAssert.AreEqual(0, 1u.GetLowestSetBitAbove(0));
+        ClassicAssert.AreEqual(31, (1u << 31).GetLowestSetBitAbove(31));
     }
 
     [Test]
@@ -125,8 +124,8 @@ public class IntegerExtensionsTests
     {
         // Bits 2 and 30 set, starting at 10 -> 30.
         uint value = (1u << 2) | (1u << 30);
-        Assert.That(value.GetLowestSetBitAbove(10), Is.EqualTo(30));
-        Assert.That(value.GetLowestSetBitAbove(0), Is.EqualTo(2));
+        ClassicAssert.AreEqual(30, value.GetLowestSetBitAbove(10));
+        ClassicAssert.AreEqual(2, value.GetLowestSetBitAbove(0));
     }
 
     [Test]
@@ -136,9 +135,9 @@ public class IntegerExtensionsTests
         {
             for (int index = 0; index < BitCount; index++)
             {
-                Assert.That(
+                ClassicAssert.AreEqual(
+                    RefLowestSetBitAbove(value, index),
                     value.GetLowestSetBitAbove(index),
-                    Is.EqualTo(RefLowestSetBitAbove(value, index)),
                     $"{value:X8} above {index}"
                 );
             }

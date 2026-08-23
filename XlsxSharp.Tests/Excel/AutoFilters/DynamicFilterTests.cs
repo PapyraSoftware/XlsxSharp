@@ -1,13 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.CalcEngine;
 
 namespace XlsxSharp.Tests.Excel.AutoFilters;
 
-[TestFixture]
 public class DynamicFilterTests
 {
     [Test]

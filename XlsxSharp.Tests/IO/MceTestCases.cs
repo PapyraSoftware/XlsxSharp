@@ -1,6 +1,5 @@
 #nullable enable
 using System.Collections.Generic;
-using NUnit.Framework;
 using XlsxSharp.IO;
 
 namespace XlsxSharp.Tests.IO;
@@ -557,17 +556,17 @@ internal record MceTestCase(
 
         public void AssertMatches(IXmlReader reader)
         {
-            Assert.That(reader.NodeType, Is.EqualTo(XmlTreeNodeType.OpenElement));
-            Assert.That(reader.LocalName, Is.EqualTo(this.LocalName));
-            Assert.That(reader.NamespaceUri, Is.EqualTo(this.NamespaceUri ?? string.Empty));
-            Assert.That(reader.Value, Is.Empty);
+            ClassicAssert.AreEqual(XmlTreeNodeType.OpenElement, reader.NodeType);
+            ClassicAssert.AreEqual(this.LocalName, reader.LocalName);
+            ClassicAssert.AreEqual(this.NamespaceUri ?? string.Empty, reader.NamespaceUri);
+            ClassicAssert.IsEmpty(reader.Value);
 
             if (this.Attributes is not null)
             {
                 foreach ((string name, string expectedAttributeValue) in this.Attributes)
                 {
                     string? attributeValue = reader.GetAttribute(name, null);
-                    Assert.That(attributeValue, Is.EqualTo(expectedAttributeValue));
+                    ClassicAssert.AreEqual(expectedAttributeValue, attributeValue);
                 }
             }
         }
@@ -577,10 +576,10 @@ internal record MceTestCase(
     {
         public void AssertMatches(IXmlReader reader)
         {
-            Assert.That(reader.NodeType, Is.EqualTo(XmlTreeNodeType.CloseElement));
-            Assert.That(reader.LocalName, Is.EqualTo(this.LocalName));
-            Assert.That(reader.NamespaceUri, Is.EqualTo(this.NamespaceUri ?? string.Empty));
-            Assert.That(reader.Value, Is.Empty);
+            ClassicAssert.AreEqual(XmlTreeNodeType.CloseElement, reader.NodeType);
+            ClassicAssert.AreEqual(this.LocalName, reader.LocalName);
+            ClassicAssert.AreEqual(this.NamespaceUri ?? string.Empty, reader.NamespaceUri);
+            ClassicAssert.IsEmpty(reader.Value);
         }
     }
 
@@ -588,10 +587,10 @@ internal record MceTestCase(
     {
         public void AssertMatches(IXmlReader reader)
         {
-            Assert.That(reader.NodeType, Is.EqualTo(XmlTreeNodeType.Text));
-            Assert.That(this.Trim ? reader.Value.Trim() : reader.Value, Is.EqualTo(this.Value));
-            Assert.That(reader.LocalName, Is.Empty);
-            Assert.That(reader.NamespaceUri, Is.Empty);
+            ClassicAssert.AreEqual(XmlTreeNodeType.Text, reader.NodeType);
+            ClassicAssert.AreEqual(this.Value, this.Trim ? reader.Value.Trim() : reader.Value);
+            ClassicAssert.IsEmpty(reader.LocalName);
+            ClassicAssert.IsEmpty(reader.NamespaceUri);
         }
     }
 

@@ -4,13 +4,11 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.ConditionalFormats;
 
 namespace XlsxSharp.Tests.Excel.ConditionalFormats;
 
-[TestFixture]
 public class ConditionalFormatTests
 {
     [Test]
@@ -21,8 +19,9 @@ public class ConditionalFormatTests
             @"Other\StyleReferenceFiles\ConditionalFormattingOrder\ConditionalFormattingOrder.xlsx"
         );
 
-    [TestCase(true, 7)]
-    [TestCase(false, 8)]
+    [Test]
+    [Arguments(true, 7)]
+    [Arguments(false, 8)]
     public void SaveOptionAffectsConsolidationConditionalFormatRanges(
         bool consolidateConditionalFormatRanges,
         int expectedCount
@@ -62,12 +61,16 @@ public class ConditionalFormatTests
         {
             wb.SaveAs(ms, options);
             XLWorkbook wb_saved = new(ms);
-            Assert.AreEqual(expectedCount, wb_saved.Worksheet("Sheet").ConditionalFormats.Count());
+            ClassicAssert.AreEqual(
+                expectedCount,
+                wb_saved.Worksheet("Sheet").ConditionalFormats.Count()
+            );
         }
     }
 
-    [TestCase(true, 1)]
-    [TestCase(false, 2)]
+    [Test]
+    [Arguments(true, 1)]
+    [Arguments(false, 2)]
     public void SaveOptionAffectsConsolidationDataValidationRanges(
         bool consolidateDataValidationRanges,
         int expectedCount
@@ -87,13 +90,17 @@ public class ConditionalFormatTests
         {
             wb.SaveAs(ms, options);
             XLWorkbook wb_saved = new(ms);
-            Assert.AreEqual(expectedCount, wb_saved.Worksheet("Sheet").DataValidations.Count());
+            ClassicAssert.AreEqual(
+                expectedCount,
+                wb_saved.Worksheet("Sheet").DataValidations.Count()
+            );
         }
     }
 
-    [TestCase("en-US")]
-    [TestCase("fr-FR")]
-    [TestCase("ru-RU")]
+    [Test]
+    [Arguments("en-US")]
+    [Arguments("fr-FR")]
+    [Arguments("ru-RU")]
     public void SaveConditionalFormatCultureIndependent(string culture)
     {
         using (MemoryStream ms = new())
@@ -149,8 +156,8 @@ public class ConditionalFormatTests
                     .Select(v => v.Value)
                     .Distinct();
 
-                Assert.AreEqual(1, conditionalFormatValues.Count());
-                Assert.AreEqual("1.5", conditionalFormatValues.Single());
+                ClassicAssert.AreEqual(1, conditionalFormatValues.Count());
+                ClassicAssert.AreEqual("1.5", conditionalFormatValues.Single());
             }
         }
     }
@@ -184,7 +191,7 @@ public class ConditionalFormatTests
                 cf.ConditionalFormatType == XLConditionalFormatType.CellIs
                 && cf.Operator == cfOperator
             );
-            Assert.AreEqual(expectedFormulas.Length, cf.Values.Count);
+            ClassicAssert.AreEqual(expectedFormulas.Length, cf.Values.Count);
             CollectionAssert.AreEqual(expectedFormulas, cf.Values.Select(v => v.Value.Value));
         }
     }
@@ -211,7 +218,7 @@ public class ConditionalFormatTests
                 cf.ConditionalFormatType == XLConditionalFormatType.Expression
                 && cf.Range.RangeAddress.ToString() == range
             );
-            Assert.AreEqual(1, cf.Values.Count);
+            ClassicAssert.AreEqual(1, cf.Values.Count);
             CollectionAssert.AreEqual(expectedFormula, cf.Values[1].Value);
         }
     }
@@ -225,7 +232,7 @@ public class ConditionalFormatTests
         IXLWorksheet ws2 = wb.AddWorksheet();
         IXLRange differentSheetRange = ws2.Range("B5");
 
-        Assert.Throws<ArgumentException>(() => cf.Range = differentSheetRange);
+        ClassicAssert.Throws<ArgumentException>(() => cf.Range = differentSheetRange);
     }
 
     [Test]
@@ -239,10 +246,8 @@ public class ConditionalFormatTests
         IXLRange differentSheetRange = wb.AddWorksheet().Range("C1");
         ranges.Add(differentSheetRange);
 
-        Assert.That(
-            () => cf.Ranges = ranges,
-            Throws.TypeOf<ArgumentException>().With.Message.Contains("must be from worksheet")
-        );
+        ArgumentException ex = ClassicAssert.Throws<ArgumentException>(() => cf.Ranges = ranges);
+        StringAssert.Contains("must be from worksheet", ex.Message);
     }
 
     [Test]
@@ -254,10 +259,10 @@ public class ConditionalFormatTests
 
         IXLRanges emptyRanges = ws1.Ranges("");
 
-        Assert.That(
-            () => cf.Ranges = emptyRanges,
-            Throws.TypeOf<ArgumentException>().With.Message.Contains("empty")
+        ArgumentException ex = ClassicAssert.Throws<ArgumentException>(() =>
+            cf.Ranges = emptyRanges
         );
+        StringAssert.Contains("empty", ex.Message);
     }
 
     [Test]
@@ -298,9 +303,9 @@ public class ConditionalFormatTests
             IXLConditionalFormat cf = ws.ConditionalFormats.Single(x =>
                 x.ConditionalFormatType == type
             );
-            Assert.AreEqual(1, cf.Values.Count);
-            Assert.AreEqual(text, cf.Values[1].Value);
-            Assert.IsFalse(cf.Values[1].IsFormula);
+            ClassicAssert.AreEqual(1, cf.Values.Count);
+            ClassicAssert.AreEqual(text, cf.Values[1].Value);
+            ClassicAssert.IsFalse(cf.Values[1].IsFormula);
         }
     }
 }

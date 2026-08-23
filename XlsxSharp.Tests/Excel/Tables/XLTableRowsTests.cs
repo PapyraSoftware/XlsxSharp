@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.Tables;
 
@@ -41,7 +40,7 @@ internal class XlTableRowsTests
         {
             string? address = cell.Address.ToString();
             int expectedFontSize = expectedChangedCells.Contains(address) ? 20 : 11;
-            Assert.AreEqual(expectedFontSize, cell.Style.Font.FontSize);
+            ClassicAssert.AreEqual(expectedFontSize, cell.Style.Font.FontSize);
         }
     }
 }

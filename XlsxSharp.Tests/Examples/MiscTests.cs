@@ -1,10 +1,8 @@
-using NUnit.Framework;
 using XlsxSharp.Examples;
 using XlsxSharp.Examples.Misc;
 
 namespace XlsxSharp.Tests.Examples;
 
-[TestFixture]
 public class MiscTests
 {
     [Test]

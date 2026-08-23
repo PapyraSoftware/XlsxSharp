@@ -1,4 +1,3 @@
-﻿using NUnit.Framework;
 using XlsxSharp.Utils;
 using static XlsxSharp.Excel.Protection.XLProtectionAlgorithm;
 
@@ -9,8 +8,12 @@ public class HashAlgorithmTests
     [Test]
     public void TestEmptyPassword()
     {
-        Assert.IsEmpty(CryptographicAlgorithms.GetPasswordHash(Algorithm.SHA512, string.Empty));
-        Assert.IsEmpty(CryptographicAlgorithms.GetPasswordHash(Algorithm.SimpleHash, string.Empty));
+        ClassicAssert.IsEmpty(
+            CryptographicAlgorithms.GetPasswordHash(Algorithm.SHA512, string.Empty)
+        );
+        ClassicAssert.IsEmpty(
+            CryptographicAlgorithms.GetPasswordHash(Algorithm.SimpleHash, string.Empty)
+        );
     }
 
     [Test]
@@ -22,7 +25,7 @@ public class HashAlgorithmTests
             "aVvPw1DNH3evPqRAd/y3UQ==",
             100000
         );
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             "E+qAhyIg/HM0dUrPaENfimFOZp7wlOkJsf/sdG+AGHOA9grOv7VLb1ik2vuYohljI9G36e0ea9wnixCK0MMuyQ==",
             hash
         );
@@ -32,6 +35,6 @@ public class HashAlgorithmTests
     public void TestSimple()
     {
         string hash = CryptographicAlgorithms.GetPasswordHash(Algorithm.SimpleHash, "12345");
-        Assert.AreEqual("CA9C", hash);
+        ClassicAssert.AreEqual("CA9C", hash);
     }
 }

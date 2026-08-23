@@ -2,13 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.Rows;
 
 namespace XlsxSharp.Tests.Excel.Styles;
 
-[TestFixture]
 public class StyleTests
 {
     [Test]
@@ -22,12 +20,12 @@ public class StyleTests
                 ws.FirstCell().SetValue("Empty cell with quote prefix:");
                 XLCell? cell = ws.FirstCell().CellRight() as XLCell;
 
-                Assert.IsTrue(cell.IsEmpty());
+                ClassicAssert.IsTrue(cell.IsEmpty());
                 cell.Value = string.Empty;
                 cell.Style.IncludeQuotePrefix = true;
 
-                Assert.IsTrue(cell.IsEmpty());
-                Assert.IsFalse(cell.IsEmpty(XLCellsUsedOptions.All));
+                ClassicAssert.IsTrue(cell.IsEmpty());
+                ClassicAssert.IsFalse(cell.IsEmpty(XLCellsUsedOptions.All));
 
                 wb.SaveAs(ms);
             }
@@ -38,19 +36,20 @@ public class StyleTests
             {
                 IXLWorksheet ws = wb.Worksheets.First();
                 XLCell cell = (XLCell)ws.Cell("B1");
-                Assert.AreEqual(1, cell.MemorySstId);
+                ClassicAssert.AreEqual(1, cell.MemorySstId);
 
-                Assert.IsTrue(cell.IsEmpty());
-                Assert.IsFalse(cell.IsEmpty(XLCellsUsedOptions.All));
+                ClassicAssert.IsTrue(cell.IsEmpty());
+                ClassicAssert.IsFalse(cell.IsEmpty(XLCellsUsedOptions.All));
             }
         }
     }
 
-    [TestCase("A1", TestName = "First cell")]
-    [TestCase("A2", TestName = "Cell from initialized row")]
-    [TestCase("B1", TestName = "Cell from initialized column")]
-    [TestCase("D4", TestName = "Initialized cell")]
-    [TestCase("F6", TestName = "Non-initialized cell")]
+    [Test]
+    [Arguments("A1", DisplayName = "First cell")]
+    [Arguments("A2", DisplayName = "Cell from initialized row")]
+    [Arguments("B1", DisplayName = "Cell from initialized column")]
+    [Arguments("D4", DisplayName = "Initialized cell")]
+    [Arguments("F6", DisplayName = "Non-initialized cell")]
     public void CellTakesWorksheetStyle(string cellAddress)
     {
         using (XLWorkbook wb = new())
@@ -63,12 +62,13 @@ public class StyleTests
             ws.Style.Font.SetFontSize(9);
 
             IXLCell cell = ws.Cell(cellAddress);
-            Assert.AreEqual("Arial", cell.Style.Font.FontName);
-            Assert.AreEqual(9, cell.Style.Font.FontSize);
+            ClassicAssert.AreEqual("Arial", cell.Style.Font.FontName);
+            ClassicAssert.AreEqual(9, cell.Style.Font.FontSize);
         }
     }
 
-    [TestCaseSource(nameof(StylizedEntities))]
+    [Test]
+    [MethodDataSource(nameof(StylizedEntities))]
     public void WorksheetStyleAffectsAllNestedEntities(Func<IXLWorksheet, IXLStyle> getEntityStyle)
     {
         using (XLWorkbook wb = new())
@@ -79,7 +79,7 @@ public class StyleTests
 
             IXLStyle style = getEntityStyle(ws);
 
-            Assert.AreEqual(8, style.Font.FontSize);
+            ClassicAssert.AreEqual(8, style.Font.FontSize);
         }
     }
 
@@ -159,21 +159,24 @@ public class StyleTests
             .NumberFormat.SetNumberFormatId((int)XLPredefinedFormat.Number.Precision2);
 
         IXLStyle crossCellStyle = ws.Cell(4, 2).Style;
-        Assert.AreEqual(XLAlignmentHorizontalValues.Center, crossCellStyle.Alignment.Horizontal);
-        Assert.AreEqual(XLBorderStyleValues.Double, crossCellStyle.Border.BottomBorder);
-        Assert.AreEqual(XLColor.Blue, crossCellStyle.Fill.BackgroundColor);
-        Assert.AreEqual(true, crossCellStyle.IncludeQuotePrefix);
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
+            XLAlignmentHorizontalValues.Center,
+            crossCellStyle.Alignment.Horizontal
+        );
+        ClassicAssert.AreEqual(XLBorderStyleValues.Double, crossCellStyle.Border.BottomBorder);
+        ClassicAssert.AreEqual(XLColor.Blue, crossCellStyle.Fill.BackgroundColor);
+        ClassicAssert.AreEqual(true, crossCellStyle.IncludeQuotePrefix);
+        ClassicAssert.AreEqual(
             (int)XLPredefinedFormat.Number.Precision2,
             crossCellStyle.NumberFormat.NumberFormatId
         );
-        Assert.AreEqual(true, crossCellStyle.Protection.Locked);
+        ClassicAssert.AreEqual(true, crossCellStyle.Protection.Locked);
 
         IXLStyle rowCellStyle = ws.Cell(4, 3).Style;
-        Assert.AreEqual(rowStyle, rowCellStyle);
+        ClassicAssert.AreEqual(rowStyle, rowCellStyle);
 
         IXLStyle colCellStyle = ws.Cell(5, 2).Style;
-        Assert.AreEqual(colStyle, colCellStyle);
+        ClassicAssert.AreEqual(colStyle, colCellStyle);
     }
 
     [Test]
@@ -197,9 +200,9 @@ public class StyleTests
             IXLStyle lhs = ws.Cell("A1").Style;
             IXLStyle rhs = ws.Cell("A2").Style;
 
-            Assert.AreEqual(lhs, rhs);
+            ClassicAssert.AreEqual(lhs, rhs);
             changeProperty(lhs);
-            Assert.AreNotEqual(lhs, rhs);
+            ClassicAssert.AreNotEqual(lhs, rhs);
         }
     }
 
@@ -224,83 +227,44 @@ public class StyleTests
             IXLStyle source = ws.Cell("A1").Style;
             IXLStyle target = ws.Cell("A2").Style;
 
-            Assert.AreEqual(source, target);
+            ClassicAssert.AreEqual(source, target);
             changeProperty(source);
-            Assert.AreNotEqual(source, target);
+            ClassicAssert.AreNotEqual(source, target);
 
             // Copy style
             target = source;
 
-            Assert.AreEqual(source, target);
+            ClassicAssert.AreEqual(source, target);
         }
     }
 
-    private static IEnumerable<TestCaseData> StylizedEntities
+    internal static IEnumerable<Func<IXLWorksheet, IXLStyle>> StylizedEntities
     {
         get
         {
-            string t = nameof(WorksheetStyleAffectsAllNestedEntities);
-            yield return new TestCaseData(new Func<IXLWorksheet, IXLStyle>(ws => ws.Style)).SetName(
-                t + ": Worksheet"
-            );
+            yield return new Func<IXLWorksheet, IXLStyle>(ws => ws.Style);
 
-            yield return new TestCaseData(
-                new Func<IXLWorksheet, IXLStyle>(ws => ws.Columns().Style)
-            ).SetName(t + ": Columns()");
-            yield return new TestCaseData(
-                new Func<IXLWorksheet, IXLStyle>(ws => ws.Columns(1, 3).Style)
-            ).SetName(t + ": Columns(1, 3)");
-            yield return new TestCaseData(
-                new Func<IXLWorksheet, IXLStyle>(ws => ws.Columns("B:F").Style)
-            ).SetName(t + ": Columns(\"B:F\")");
-            yield return new TestCaseData(
-                new Func<IXLWorksheet, IXLStyle>(ws => ws.Columns("B", "F").Style)
-            ).SetName(t + ": Columns(\"B\", \"F\")");
-            yield return new TestCaseData(
-                new Func<IXLWorksheet, IXLStyle>(ws => ws.Column(5).Style)
-            ).SetName(t + ": Column(5)");
-            yield return new TestCaseData(
-                new Func<IXLWorksheet, IXLStyle>(ws => ws.Column("D").Style)
-            ).SetName(t + ": Column(\"D\")");
+            yield return new Func<IXLWorksheet, IXLStyle>(ws => ws.Columns().Style);
+            yield return new Func<IXLWorksheet, IXLStyle>(ws => ws.Columns(1, 3).Style);
+            yield return new Func<IXLWorksheet, IXLStyle>(ws => ws.Columns("B:F").Style);
+            yield return new Func<IXLWorksheet, IXLStyle>(ws => ws.Columns("B", "F").Style);
+            yield return new Func<IXLWorksheet, IXLStyle>(ws => ws.Column(5).Style);
+            yield return new Func<IXLWorksheet, IXLStyle>(ws => ws.Column("D").Style);
 
-            yield return new TestCaseData(
-                new Func<IXLWorksheet, IXLStyle>(ws => ws.Rows().Style)
-            ).SetName(t + ": Rows()");
-            yield return new TestCaseData(
-                new Func<IXLWorksheet, IXLStyle>(ws => ws.Rows(1, 3).Style)
-            ).SetName(t + ": Rows(1, 3)");
-            yield return new TestCaseData(
-                new Func<IXLWorksheet, IXLStyle>(ws => ws.Rows("1:3").Style)
-            ).SetName(t + ": Rows(\"1:3\")");
-            yield return new TestCaseData(
-                new Func<IXLWorksheet, IXLStyle>(ws => ws.Row(5).Style)
-            ).SetName(t + ": Row(5)");
+            yield return new Func<IXLWorksheet, IXLStyle>(ws => ws.Rows().Style);
+            yield return new Func<IXLWorksheet, IXLStyle>(ws => ws.Rows(1, 3).Style);
+            yield return new Func<IXLWorksheet, IXLStyle>(ws => ws.Rows("1:3").Style);
+            yield return new Func<IXLWorksheet, IXLStyle>(ws => ws.Row(5).Style);
 
-            yield return new TestCaseData(
-                new Func<IXLWorksheet, IXLStyle>(ws => ws.Cells().Style)
-            ).SetName(t + ": Cells()");
-            yield return new TestCaseData(
-                new Func<IXLWorksheet, IXLStyle>(ws => ws.Cells("B2,D4").Style)
-            ).SetName(t + ": Cells(\"B2, D4\")");
-            yield return new TestCaseData(
-                new Func<IXLWorksheet, IXLStyle>(ws => ws.Cell("F6").Style)
-            ).SetName(t + ": Cell(\"F6\")");
-            yield return new TestCaseData(
-                new Func<IXLWorksheet, IXLStyle>(ws => ws.Cell(2, 3).Style)
-            ).SetName(t + ": Cell(2, 3)");
+            yield return new Func<IXLWorksheet, IXLStyle>(ws => ws.Cells().Style);
+            yield return new Func<IXLWorksheet, IXLStyle>(ws => ws.Cells("B2,D4").Style);
+            yield return new Func<IXLWorksheet, IXLStyle>(ws => ws.Cell("F6").Style);
+            yield return new Func<IXLWorksheet, IXLStyle>(ws => ws.Cell(2, 3).Style);
 
-            yield return new TestCaseData(
-                new Func<IXLWorksheet, IXLStyle>(ws => ws.Ranges("F6:H9,I8:K10").Style)
-            ).SetName(t + ": Ranges(\"F6:H9,I8:K10\")");
-            yield return new TestCaseData(
-                new Func<IXLWorksheet, IXLStyle>(ws => ws.Range("G8:H10").Style)
-            ).SetName(t + ": Range(\"G8:H10\")");
-            yield return new TestCaseData(
-                new Func<IXLWorksheet, IXLStyle>(ws => ws.Range("G8:H10").Column(1).Style)
-            ).SetName(t + ": Range(\"G8:H10\").Column(1)");
-            yield return new TestCaseData(
-                new Func<IXLWorksheet, IXLStyle>(ws => ws.Range("G8:H10").Row(2).Style)
-            ).SetName(t + ": Range(\"G8:H10\").Row(2)");
+            yield return new Func<IXLWorksheet, IXLStyle>(ws => ws.Ranges("F6:H9,I8:K10").Style);
+            yield return new Func<IXLWorksheet, IXLStyle>(ws => ws.Range("G8:H10").Style);
+            yield return new Func<IXLWorksheet, IXLStyle>(ws => ws.Range("G8:H10").Column(1).Style);
+            yield return new Func<IXLWorksheet, IXLStyle>(ws => ws.Range("G8:H10").Row(2).Style);
         }
     }
 }

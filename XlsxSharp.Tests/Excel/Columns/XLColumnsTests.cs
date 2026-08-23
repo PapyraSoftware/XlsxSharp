@@ -1,4 +1,3 @@
-using NUnit.Framework;
 using XlsxSharp.Excel;
 
 namespace XlsxSharp.Tests.Excel.Columns;
@@ -24,14 +23,14 @@ internal class XlColumnsTests
         ];
         foreach ((string column, int fontSize) in expected)
         {
-            Assert.AreEqual(fontSize, ws.Column(column).Style.Font.FontSize);
+            ClassicAssert.AreEqual(fontSize, ws.Column(column).Style.Font.FontSize);
 
             IXLCell cellWithFormat = ws.Cell(column + "1");
-            Assert.AreEqual(fontSize, cellWithFormat.Style.Font.FontSize);
-            Assert.True(cellWithFormat.Style.Font.Bold);
+            ClassicAssert.AreEqual(fontSize, cellWithFormat.Style.Font.FontSize);
+            ClassicAssert.True(cellWithFormat.Style.Font.Bold);
 
             IXLCell nonMaterializedCell = ws.Cell(column + "2");
-            Assert.AreEqual(fontSize, nonMaterializedCell.Style.Font.FontSize);
+            ClassicAssert.AreEqual(fontSize, nonMaterializedCell.Style.Font.FontSize);
         }
     }
 }

@@ -1,17 +1,15 @@
 using System.Collections.Generic;
 using System.Linq;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.Rows;
 
 namespace XlsxSharp.Tests.Excel.Ranges;
 
-[TestFixture]
 public class UsedAndUnusedCellsTests
 {
     private XLWorkbook workbook;
 
-    [SetUp]
+    [Before(Test)]
     public void SetupWorkbook()
     {
         this.workbook = new XLWorkbook();
@@ -33,7 +31,7 @@ public class UsedAndUnusedCellsTests
         {
             i++;
         }
-        Assert.AreEqual(2, i);
+        ClassicAssert.AreEqual(2, i);
 
         i = 0;
         row = this.workbook.Worksheets.First().FirstRow().RowBelow();
@@ -41,28 +39,29 @@ public class UsedAndUnusedCellsTests
         {
             i++;
         }
-        Assert.AreEqual(1, i);
+        ClassicAssert.AreEqual(1, i);
 
         i = 0;
         row = this.workbook.Worksheets.First().LastRowUsed(XLCellsUsedOptions.All);
-        Assert.AreEqual(6, row.RowNumber());
+        ClassicAssert.AreEqual(6, row.RowNumber());
         foreach (IXLCell cell in row.Cells())
         {
             i++;
         }
-        Assert.AreEqual(1, i);
+        ClassicAssert.AreEqual(1, i);
 
         i = 0;
         row = this.workbook.Worksheets.First().LastRowUsed(XLCellsUsedOptions.All);
-        Assert.AreEqual(6, row.RowNumber());
+        ClassicAssert.AreEqual(6, row.RowNumber());
         foreach (IXLCell cell in row.CellsUsed())
         {
             i++;
         }
-        Assert.AreEqual(0, i);
+        ClassicAssert.AreEqual(0, i);
     }
 
-    [Test(Description = "See 1443")]
+    [Test]
+    [Property("Description", "See 1443")]
     public void FirstRowUsedRegression()
     {
         using (XLWorkbook wb = new())
@@ -71,7 +70,7 @@ public class UsedAndUnusedCellsTests
 
             ws.Range("B3:F6").SetValue(100);
 
-            Assert.AreEqual(3, ws.FirstRowUsed(XLCellsUsedOptions.AllContents).RowNumber());
+            ClassicAssert.AreEqual(3, ws.FirstRowUsed(XLCellsUsedOptions.AllContents).RowNumber());
         }
     }
 
@@ -84,7 +83,7 @@ public class UsedAndUnusedCellsTests
         {
             i++;
         }
-        Assert.AreEqual(3, i);
+        ClassicAssert.AreEqual(3, i);
 
         i = 0;
         row = this.workbook.Worksheets.First().FirstRow().RowBelow(); //This row has no empty cells BETWEEN used cells
@@ -92,7 +91,7 @@ public class UsedAndUnusedCellsTests
         {
             i++;
         }
-        Assert.AreEqual(1, i);
+        ClassicAssert.AreEqual(1, i);
     }
 
     [Test]
@@ -104,7 +103,7 @@ public class UsedAndUnusedCellsTests
         {
             i++;
         }
-        Assert.AreEqual(2, i);
+        ClassicAssert.AreEqual(2, i);
 
         i = 0;
         column = this.workbook.Worksheets.First().FirstColumn().ColumnRight().ColumnRight();
@@ -112,7 +111,7 @@ public class UsedAndUnusedCellsTests
         {
             i++;
         }
-        Assert.AreEqual(1, i);
+        ClassicAssert.AreEqual(1, i);
 
         i = 0;
         column = this.workbook.Worksheets.First().Column(2);
@@ -120,7 +119,7 @@ public class UsedAndUnusedCellsTests
         {
             i++;
         }
-        Assert.AreEqual(3, i);
+        ClassicAssert.AreEqual(3, i);
 
         i = 0;
         column = this.workbook.Worksheets.First().Column(2);
@@ -128,7 +127,7 @@ public class UsedAndUnusedCellsTests
         {
             i++;
         }
-        Assert.AreEqual(2, i);
+        ClassicAssert.AreEqual(2, i);
     }
 
     [Test]
@@ -140,7 +139,7 @@ public class UsedAndUnusedCellsTests
         {
             i++;
         }
-        Assert.AreEqual(4, i);
+        ClassicAssert.AreEqual(4, i);
 
         i = 0;
         column = this.workbook.Worksheets.First().FirstColumn().ColumnRight().ColumnRight(); //This column has no empty cells BETWEEN used cells
@@ -148,7 +147,7 @@ public class UsedAndUnusedCellsTests
         {
             i++;
         }
-        Assert.AreEqual(1, i);
+        ClassicAssert.AreEqual(1, i);
     }
 
     [Test]
@@ -161,7 +160,7 @@ public class UsedAndUnusedCellsTests
         {
             i++;
         }
-        Assert.AreEqual(6, i);
+        ClassicAssert.AreEqual(6, i);
     }
 
     [Test]
@@ -174,7 +173,7 @@ public class UsedAndUnusedCellsTests
         {
             i++;
         }
-        Assert.AreEqual(5, i);
+        ClassicAssert.AreEqual(5, i);
     }
 
     [Test]
@@ -187,7 +186,7 @@ public class UsedAndUnusedCellsTests
         {
             i++;
         }
-        Assert.AreEqual(18, i);
+        ClassicAssert.AreEqual(18, i);
     }
 
     [Test]
@@ -202,20 +201,21 @@ public class UsedAndUnusedCellsTests
 
             string used = sheet.RangeUsed().RangeAddress.ToString(XLReferenceStyle.A1);
 
-            Assert.AreEqual("A1:E2", used);
+            ClassicAssert.AreEqual("A1:E2", used);
         }
     }
 
-    [TestCase(true, "A1:D2", "A1")]
-    [TestCase(true, "A2:D2", "A2")]
-    [TestCase(true, "A1:D2", "A1", "B2")]
-    [TestCase(true, "B2:D3", "C3")]
-    [TestCase(true, "B2:F4", "F4")]
-    [TestCase(false, "A1:D2", "A1")]
-    [TestCase(false, "A2:D2", "A2")]
-    [TestCase(false, "A1:D2", "A1", "B2")]
-    [TestCase(false, "B2:D3", "C3")]
-    [TestCase(false, "B2:F4", "F4")]
+    [Test]
+    [Arguments(true, "A1:D2", "A1")]
+    [Arguments(true, "A2:D2", "A2")]
+    [Arguments(true, "A1:D2", "A1", "B2")]
+    [Arguments(true, "B2:D3", "C3")]
+    [Arguments(true, "B2:F4", "F4")]
+    [Arguments(false, "A1:D2", "A1")]
+    [Arguments(false, "A2:D2", "A2")]
+    [Arguments(false, "A1:D2", "A1", "B2")]
+    [Arguments(false, "B2:D3", "C3")]
+    [Arguments(false, "B2:F4", "F4")]
     public void RangeUsedIncludesMergedCells(
         bool includeFormatting,
         string expectedRange,
@@ -236,7 +236,7 @@ public class UsedAndUnusedCellsTests
                 : XLCellsUsedOptions.AllContents | XLCellsUsedOptions.MergedRanges;
             IXLRangeAddress actual = ws.RangeUsed(options).RangeAddress;
 
-            Assert.AreEqual(expectedRange, actual.ToString());
+            ClassicAssert.AreEqual(expectedRange, actual.ToString());
         }
     }
 
@@ -258,7 +258,7 @@ public class UsedAndUnusedCellsTests
                 c => c.Style.Fill.BackgroundColor == XLColor.Yellow
             );
 
-            Assert.AreEqual("C2", actual.Address.ToString());
+            ClassicAssert.AreEqual("C2", actual.Address.ToString());
         }
     }
 
@@ -280,7 +280,7 @@ public class UsedAndUnusedCellsTests
                 c => c.Style.Fill.BackgroundColor == XLColor.Yellow
             );
 
-            Assert.AreEqual("A2", actual.Address.ToString());
+            ClassicAssert.AreEqual("A2", actual.Address.ToString());
         }
     }
 
@@ -294,9 +294,9 @@ public class UsedAndUnusedCellsTests
 
             List<IXLCell> usedCells = [.. ws.CellsUsed(XLCellsUsedOptions.All)];
 
-            Assert.AreEqual(11, usedCells.Count);
-            Assert.AreEqual("B2", usedCells.First().Address.ToString());
-            Assert.AreEqual("B12", usedCells.Last().Address.ToString());
+            ClassicAssert.AreEqual(11, usedCells.Count);
+            ClassicAssert.AreEqual("B2", usedCells.First().Address.ToString());
+            ClassicAssert.AreEqual("B12", usedCells.Last().Address.ToString());
         }
     }
 
@@ -310,9 +310,9 @@ public class UsedAndUnusedCellsTests
 
             List<IXLCell> usedCells = [.. ws.CellsUsed(XLCellsUsedOptions.All)];
 
-            Assert.AreEqual(11, usedCells.Count);
-            Assert.AreEqual("B2", usedCells.First().Address.ToString());
-            Assert.AreEqual("B12", usedCells.Last().Address.ToString());
+            ClassicAssert.AreEqual(11, usedCells.Count);
+            ClassicAssert.AreEqual("B2", usedCells.First().Address.ToString());
+            ClassicAssert.AreEqual("B12", usedCells.Last().Address.ToString());
         }
     }
 
@@ -326,8 +326,11 @@ public class UsedAndUnusedCellsTests
 
             IXLCell firstCell = ws.FirstCellUsed(XLCellsUsedOptions.All);
 
-            Assert.AreEqual(0, ((XLWorksheet)ws).Internals.CellsCollection.GetCells().Count());
-            Assert.AreEqual("A1", firstCell.Address.ToString());
+            ClassicAssert.AreEqual(
+                0,
+                ((XLWorksheet)ws).Internals.CellsCollection.GetCells().Count()
+            );
+            ClassicAssert.AreEqual("A1", firstCell.Address.ToString());
         }
     }
 
@@ -341,8 +344,11 @@ public class UsedAndUnusedCellsTests
 
             IXLCell lastCell = ws.LastCellUsed(XLCellsUsedOptions.All);
 
-            Assert.AreEqual(0, ((XLWorksheet)ws).Internals.CellsCollection.GetCells().Count());
-            Assert.AreEqual(XLHelper.LastCell, lastCell.Address.ToString());
+            ClassicAssert.AreEqual(
+                0,
+                ((XLWorksheet)ws).Internals.CellsCollection.GetCells().Count()
+            );
+            ClassicAssert.AreEqual(XLHelper.LastCell, lastCell.Address.ToString());
         }
     }
 
@@ -356,8 +362,11 @@ public class UsedAndUnusedCellsTests
 
             IXLCell firstCell = ws.FirstCellUsed(XLCellsUsedOptions.All);
 
-            Assert.AreEqual(0, ((XLWorksheet)ws).Internals.CellsCollection.GetCells().Count());
-            Assert.AreEqual("A1", firstCell.Address.ToString());
+            ClassicAssert.AreEqual(
+                0,
+                ((XLWorksheet)ws).Internals.CellsCollection.GetCells().Count()
+            );
+            ClassicAssert.AreEqual("A1", firstCell.Address.ToString());
         }
     }
 
@@ -371,8 +380,11 @@ public class UsedAndUnusedCellsTests
 
             IXLCell lastCell = ws.LastCellUsed(XLCellsUsedOptions.All);
 
-            Assert.AreEqual(0, ((XLWorksheet)ws).Internals.CellsCollection.GetCells().Count());
-            Assert.AreEqual(XLHelper.LastCell, lastCell.Address.ToString());
+            ClassicAssert.AreEqual(
+                0,
+                ((XLWorksheet)ws).Internals.CellsCollection.GetCells().Count()
+            );
+            ClassicAssert.AreEqual(XLHelper.LastCell, lastCell.Address.ToString());
         }
     }
 
@@ -386,8 +398,11 @@ public class UsedAndUnusedCellsTests
 
             IXLCell firstCell = ws.FirstCellUsed(XLCellsUsedOptions.All);
 
-            Assert.AreEqual(0, ((XLWorksheet)ws).Internals.CellsCollection.GetCells().Count());
-            Assert.AreEqual("A1", firstCell.Address.ToString());
+            ClassicAssert.AreEqual(
+                0,
+                ((XLWorksheet)ws).Internals.CellsCollection.GetCells().Count()
+            );
+            ClassicAssert.AreEqual("A1", firstCell.Address.ToString());
         }
     }
 
@@ -401,8 +416,11 @@ public class UsedAndUnusedCellsTests
 
             IXLCell lastCell = ws.LastCellUsed(XLCellsUsedOptions.All);
 
-            Assert.AreEqual(0, ((XLWorksheet)ws).Internals.CellsCollection.GetCells().Count());
-            Assert.AreEqual(XLHelper.LastCell, lastCell.Address.ToString());
+            ClassicAssert.AreEqual(
+                0,
+                ((XLWorksheet)ws).Internals.CellsCollection.GetCells().Count()
+            );
+            ClassicAssert.AreEqual(XLHelper.LastCell, lastCell.Address.ToString());
         }
     }
 
@@ -415,17 +433,17 @@ public class UsedAndUnusedCellsTests
         IXLStyle columnStyle = ws.Column(1).Style;
         columnStyle.Fill.SetBackgroundColor(XLColor.Red);
 
-        Assert.IsTrue(cell.IsEmpty(XLCellsUsedOptions.NormalFormats));
-        Assert.AreEqual(XLColor.Red, cell.Style.Fill.BackgroundColor);
+        ClassicAssert.IsTrue(cell.IsEmpty(XLCellsUsedOptions.NormalFormats));
+        ClassicAssert.AreEqual(XLColor.Red, cell.Style.Fill.BackgroundColor);
 
         cell.Style.Fill.BackgroundColor = XLColor.Blue;
 
-        Assert.IsFalse(cell.IsEmpty(XLCellsUsedOptions.NormalFormats));
-        Assert.AreEqual(XLColor.Blue, cell.Style.Fill.BackgroundColor);
+        ClassicAssert.IsFalse(cell.IsEmpty(XLCellsUsedOptions.NormalFormats));
+        ClassicAssert.AreEqual(XLColor.Blue, cell.Style.Fill.BackgroundColor);
 
         cell.Style.Fill.BackgroundColor = XLColor.Red;
 
-        Assert.IsTrue(cell.IsEmpty(XLCellsUsedOptions.NormalFormats));
-        Assert.AreEqual(XLColor.Red, cell.Style.Fill.BackgroundColor);
+        ClassicAssert.IsTrue(cell.IsEmpty(XLCellsUsedOptions.NormalFormats));
+        ClassicAssert.AreEqual(XLColor.Red, cell.Style.Fill.BackgroundColor);
     }
 }

@@ -1,18 +1,16 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Globalization;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.CalcEngine;
 using XlsxSharp.Excel.CalcEngine.Functions;
 
 namespace XlsxSharp.Tests.Excel.CalcEngine;
 
-[TestFixture]
 internal class CriteriaTests
 {
     [Test]
-    [SetCulture("cs-CZ")] // cs-CZ has ',' as a decimal separator (e.g. '1,2' is one point two).
-    [TestCaseSource(nameof(CriteriaTestCases))]
+    [Culture("cs-CZ")] // cs-CZ has ',' as a decimal separator (e.g. '1,2' is one point two).
+    [MethodDataSource(nameof(CriteriaTestCases))]
     public void Selection_criteria_uses_type_and_comparator_to_match_values(
         ScalarValue selectionCriteria,
         XLCellValue value,
@@ -21,14 +19,14 @@ internal class CriteriaTests
     {
         Criteria criteria = Criteria.Create(selectionCriteria, CultureInfo.CurrentCulture);
         bool matchResult = criteria.Match(value);
-        Assert.AreEqual(expectedResult, matchResult);
+        ClassicAssert.AreEqual(expectedResult, matchResult);
 
         // TallyCriteria skips unused (=blank) cells as an optimization (e.g. SUMIF over whole column/sheet),
         // unless it's possible that blanks will match the criteria. Assert that when tested value matches and
         // is blank, teh TallyCriteria will include blank cells.
         if (matchResult && value.IsBlank)
         {
-            Assert.True(criteria.CanBlankValueMatch);
+            ClassicAssert.True(criteria.CanBlankValueMatch);
         }
     }
 

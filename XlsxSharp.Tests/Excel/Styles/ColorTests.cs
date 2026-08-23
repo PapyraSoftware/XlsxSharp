@@ -3,41 +3,41 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Threading;
 using DocumentFormat.OpenXml.Spreadsheet;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Utils;
 using X14 = DocumentFormat.OpenXml.Office2010.Excel;
 
 namespace XlsxSharp.Tests.Excel.Styles;
 
-[TestFixture]
 public class ColorTests
 {
     [Test]
-    public void ColorEqualOperatorInPlace() => Assert.IsTrue(XLColor.Black == XLColor.Black);
+    public void ColorEqualOperatorInPlace() => ClassicAssert.IsTrue(XLColor.Black == XLColor.Black);
 
     [Test]
-    public void ColorNotEqualOperatorInPlace() => Assert.IsFalse(XLColor.Black != XLColor.Black);
+    public void ColorNotEqualOperatorInPlace() =>
+        ClassicAssert.IsFalse(XLColor.Black != XLColor.Black);
 
     [Test]
-    public void ColorNamedVsHtml() => Assert.IsTrue(XLColor.Black == XLColor.FromHtml("#000000"));
+    public void ColorNamedVsHtml() =>
+        ClassicAssert.IsTrue(XLColor.Black == XLColor.FromHtml("#000000"));
 
     [Test]
     public void DefaultStyleColorIsAutomatic()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
-        Assert.AreEqual(XLColor.Automatic, ws.FirstCell().Style.Fill.BackgroundColor);
+        ClassicAssert.AreEqual(XLColor.Automatic, ws.FirstCell().Style.Fill.BackgroundColor);
     }
 
     [Test]
-    public void AutomaticColorCantBeResolvedToColor() =>
-        Assert.That(
-            () => _ = XLColor.Automatic.Color,
-            Throws
-                .TypeOf<InvalidOperationException>()
-                .With.Message.EqualTo("Cannot convert automatic color to Color.")
+    public void AutomaticColorCantBeResolvedToColor()
+    {
+        InvalidOperationException ex = ClassicAssert.Throws<InvalidOperationException>(() =>
+            _ = XLColor.Automatic.Color
         );
+        ClassicAssert.AreEqual("Cannot convert automatic color to Color.", ex.Message);
+    }
 
     [Test]
     public void CanConvertXlColorToColorType()
@@ -60,25 +60,25 @@ public class ColorTests
             xlColor4
         );
 
-        Assert.AreEqual("FFFF0000", color1.Rgb.Value);
-        Assert.IsNull(color1.Indexed);
-        Assert.IsNull(color1.Theme);
-        Assert.IsNull(color1.Tint);
+        ClassicAssert.AreEqual("FFFF0000", color1.Rgb.Value);
+        ClassicAssert.IsNull(color1.Indexed);
+        ClassicAssert.IsNull(color1.Theme);
+        ClassicAssert.IsNull(color1.Tint);
 
-        Assert.IsNull(color2.Rgb);
-        Assert.AreEqual(20, color2.Indexed.Value);
-        Assert.IsNull(color2.Theme);
-        Assert.IsNull(color2.Tint);
+        ClassicAssert.IsNull(color2.Rgb);
+        ClassicAssert.AreEqual(20, color2.Indexed.Value);
+        ClassicAssert.IsNull(color2.Theme);
+        ClassicAssert.IsNull(color2.Tint);
 
-        Assert.IsNull(color3.Rgb);
-        Assert.IsNull(color3.Indexed);
-        Assert.AreEqual(4, color3.Theme.Value);
-        Assert.IsNull(color3.Tint);
+        ClassicAssert.IsNull(color3.Rgb);
+        ClassicAssert.IsNull(color3.Indexed);
+        ClassicAssert.AreEqual(4, color3.Theme.Value);
+        ClassicAssert.IsNull(color3.Tint);
 
-        Assert.IsNull(color4.Rgb);
-        Assert.IsNull(color4.Indexed);
-        Assert.AreEqual(5, color4.Theme.Value);
-        Assert.AreEqual(0.4, color4.Tint.Value);
+        ClassicAssert.IsNull(color4.Rgb);
+        ClassicAssert.IsNull(color4.Indexed);
+        ClassicAssert.AreEqual(5, color4.Theme.Value);
+        ClassicAssert.AreEqual(0.4, color4.Tint.Value);
     }
 
     [Test]
@@ -97,25 +97,25 @@ public class ColorTests
         X14.HighMarkerColor color4 =
             new X14.HighMarkerColor().FromClosedXMLColor<X14.HighMarkerColor>(xlColor4);
 
-        Assert.AreEqual("FFFF0000", color1.Rgb.Value);
-        Assert.IsNull(color1.Indexed);
-        Assert.IsNull(color1.Theme);
-        Assert.IsNull(color1.Tint);
+        ClassicAssert.AreEqual("FFFF0000", color1.Rgb.Value);
+        ClassicAssert.IsNull(color1.Indexed);
+        ClassicAssert.IsNull(color1.Theme);
+        ClassicAssert.IsNull(color1.Tint);
 
-        Assert.IsNull(color2.Rgb);
-        Assert.AreEqual(20, color2.Indexed.Value);
-        Assert.IsNull(color2.Theme);
-        Assert.IsNull(color2.Tint);
+        ClassicAssert.IsNull(color2.Rgb);
+        ClassicAssert.AreEqual(20, color2.Indexed.Value);
+        ClassicAssert.IsNull(color2.Theme);
+        ClassicAssert.IsNull(color2.Tint);
 
-        Assert.IsNull(color3.Rgb);
-        Assert.IsNull(color3.Indexed);
-        Assert.AreEqual(4, color3.Theme.Value);
-        Assert.IsNull(color3.Tint);
+        ClassicAssert.IsNull(color3.Rgb);
+        ClassicAssert.IsNull(color3.Indexed);
+        ClassicAssert.AreEqual(4, color3.Theme.Value);
+        ClassicAssert.IsNull(color3.Tint);
 
-        Assert.IsNull(color4.Rgb);
-        Assert.IsNull(color4.Indexed);
-        Assert.AreEqual(5, color4.Theme.Value);
-        Assert.AreEqual(0.4, color4.Tint.Value);
+        ClassicAssert.IsNull(color4.Rgb);
+        ClassicAssert.IsNull(color4.Indexed);
+        ClassicAssert.AreEqual(5, color4.Theme.Value);
+        ClassicAssert.AreEqual(0.4, color4.Tint.Value);
     }
 
     [Test]
@@ -141,19 +141,19 @@ public class ColorTests
         XLColor xlColor3 = color3.ToClosedXMLColor();
         XLColor xlColor4 = color4.ToClosedXMLColor();
 
-        Assert.AreEqual(XLColorType.Color, xlColor1.ColorType);
-        Assert.AreEqual(XLColor.Red.Color, xlColor1.Color);
+        ClassicAssert.AreEqual(XLColorType.Color, xlColor1.ColorType);
+        ClassicAssert.AreEqual(XLColor.Red.Color, xlColor1.Color);
 
-        Assert.AreEqual(XLColorType.Indexed, xlColor2.ColorType);
-        Assert.AreEqual(20, xlColor2.Indexed);
+        ClassicAssert.AreEqual(XLColorType.Indexed, xlColor2.ColorType);
+        ClassicAssert.AreEqual(20, xlColor2.Indexed);
 
-        Assert.AreEqual(XLColorType.Theme, xlColor3.ColorType);
-        Assert.AreEqual(XLThemeColor.Accent1, xlColor3.ThemeColor);
-        Assert.AreEqual(0, xlColor3.ThemeTint, XLHelper.Epsilon);
+        ClassicAssert.AreEqual(XLColorType.Theme, xlColor3.ColorType);
+        ClassicAssert.AreEqual(XLThemeColor.Accent1, xlColor3.ThemeColor);
+        ClassicAssert.AreEqual(0, xlColor3.ThemeTint, XLHelper.Epsilon);
 
-        Assert.AreEqual(XLColorType.Theme, xlColor4.ColorType);
-        Assert.AreEqual(XLThemeColor.Accent1, xlColor4.ThemeColor);
-        Assert.AreEqual(0.4, xlColor4.ThemeTint, XLHelper.Epsilon);
+        ClassicAssert.AreEqual(XLColorType.Theme, xlColor4.ColorType);
+        ClassicAssert.AreEqual(XLThemeColor.Accent1, xlColor4.ThemeColor);
+        ClassicAssert.AreEqual(0.4, xlColor4.ThemeTint, XLHelper.Epsilon);
     }
 
     [Test]
@@ -179,19 +179,19 @@ public class ColorTests
         XLColor xlColor3 = color3.ToClosedXMLColor();
         XLColor xlColor4 = color4.ToClosedXMLColor();
 
-        Assert.AreEqual(XLColorType.Color, xlColor1.ColorType);
-        Assert.AreEqual(XLColor.Red.Color, xlColor1.Color);
+        ClassicAssert.AreEqual(XLColorType.Color, xlColor1.ColorType);
+        ClassicAssert.AreEqual(XLColor.Red.Color, xlColor1.Color);
 
-        Assert.AreEqual(XLColorType.Indexed, xlColor2.ColorType);
-        Assert.AreEqual(20, xlColor2.Indexed);
+        ClassicAssert.AreEqual(XLColorType.Indexed, xlColor2.ColorType);
+        ClassicAssert.AreEqual(20, xlColor2.Indexed);
 
-        Assert.AreEqual(XLColorType.Theme, xlColor3.ColorType);
-        Assert.AreEqual(XLThemeColor.Accent1, xlColor3.ThemeColor);
-        Assert.AreEqual(0, xlColor3.ThemeTint, XLHelper.Epsilon);
+        ClassicAssert.AreEqual(XLColorType.Theme, xlColor3.ColorType);
+        ClassicAssert.AreEqual(XLThemeColor.Accent1, xlColor3.ThemeColor);
+        ClassicAssert.AreEqual(0, xlColor3.ThemeTint, XLHelper.Epsilon);
 
-        Assert.AreEqual(XLColorType.Theme, xlColor4.ColorType);
-        Assert.AreEqual(XLThemeColor.Accent1, xlColor4.ThemeColor);
-        Assert.AreEqual(0.4, xlColor4.ThemeTint, XLHelper.Epsilon);
+        ClassicAssert.AreEqual(XLColorType.Theme, xlColor4.ColorType);
+        ClassicAssert.AreEqual(XLThemeColor.Accent1, xlColor4.ThemeColor);
+        ClassicAssert.AreEqual(0.4, xlColor4.ThemeTint, XLHelper.Epsilon);
     }
 
     [Test]
@@ -202,21 +202,22 @@ public class ColorTests
         culture.TextInfo.ListSeparator = "#";
         Thread.CurrentThread.CurrentCulture = culture;
         XLColor color = XLColor.FromHtml("#FF008000");
-        Assert.AreEqual(XLColor.Green, color);
+        ClassicAssert.AreEqual(XLColor.Green, color);
     }
 
-    [TestCaseSource(nameof(ToStringTestCases))]
+    [Test]
+    [MethodDataSource(nameof(ToStringTestCases))]
     public void ToStringWorksForAllColorTypes(XLColor colorType, string expectedString) =>
-        Assert.AreEqual(expectedString, colorType.ToString());
+        ClassicAssert.AreEqual(expectedString, colorType.ToString());
 
-    private static IEnumerable<TestCaseData<XLColor, string>> ToStringTestCases()
+    internal static IEnumerable<(XLColor, string)> ToStringTestCases()
     {
-        yield return new TestCaseData<XLColor, string>(XLColor.FromArgb(0xFF804010), "FF804010");
-        yield return new TestCaseData<XLColor, string>(
+        yield return (XLColor.FromArgb(0xFF804010), "FF804010");
+        yield return (
             XLColor.FromTheme(XLThemeColor.Text1, 0.25),
             "Color Theme: Text1, Tint: 0.25"
         );
-        yield return new TestCaseData<XLColor, string>(XLColor.FromIndex(14), "Color Index: 14");
-        yield return new TestCaseData<XLColor, string>(XLColor.Automatic, "Automatic");
+        yield return (XLColor.FromIndex(14), "Color Index: 14");
+        yield return (XLColor.Automatic, "Automatic");
     }
 }

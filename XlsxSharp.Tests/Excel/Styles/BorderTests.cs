@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Tests.Utils;
 
@@ -45,11 +44,11 @@ public class BorderTests
 
         AssertCellBorder(ws, "B2", Left | Top | Bottom, XLBorderStyleValues.Thin);
         AssertCellBorder(ws, "C2", Right | Top | Bottom, XLBorderStyleValues.Thin);
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             XLThemeColor.Accent1,
             ws.Cell("B2").Style.Border.LeftBorderColor.ThemeColor
         );
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             XLThemeColor.Accent1,
             ws.Cell("C2").Style.Border.RightBorderColor.ThemeColor
         );
@@ -128,7 +127,7 @@ public class BorderTests
     }
 
     [Test]
-    [MaxTime(100)]
+    [Timeout(100)]
     public void OutsideBorderForColumn()
     {
         using XLWorkbook wb = new();
@@ -145,20 +144,20 @@ public class BorderTests
             .Border.SetOutsideBorderColor(XLColor.Red);
 
         IXLBorder b2 = ws.Cell("B2").Style.Border;
-        Assert.AreEqual(XLBorderStyleValues.Thin, b2.TopBorder);
-        Assert.AreEqual(XLColor.Blue, b2.TopBorderColor);
-        Assert.AreEqual(XLBorderStyleValues.Thin, b2.BottomBorder);
-        Assert.AreEqual(XLColor.Blue, b2.BottomBorderColor);
-        Assert.AreEqual(XLBorderStyleValues.Thick, b2.LeftBorder);
-        Assert.AreEqual(XLColor.Red, b2.LeftBorderColor);
-        Assert.AreEqual(XLBorderStyleValues.Thick, b2.RightBorder);
-        Assert.AreEqual(XLColor.Red, b2.RightBorderColor);
+        ClassicAssert.AreEqual(XLBorderStyleValues.Thin, b2.TopBorder);
+        ClassicAssert.AreEqual(XLColor.Blue, b2.TopBorderColor);
+        ClassicAssert.AreEqual(XLBorderStyleValues.Thin, b2.BottomBorder);
+        ClassicAssert.AreEqual(XLColor.Blue, b2.BottomBorderColor);
+        ClassicAssert.AreEqual(XLBorderStyleValues.Thick, b2.LeftBorder);
+        ClassicAssert.AreEqual(XLColor.Red, b2.LeftBorderColor);
+        ClassicAssert.AreEqual(XLBorderStyleValues.Thick, b2.RightBorder);
+        ClassicAssert.AreEqual(XLColor.Red, b2.RightBorderColor);
         AssertCellBorder(ws, "B1", Left | Right, XLBorderStyleValues.Thick, XLColor.Red);
         AssertCellBorder(ws, "B3", Left | Right, XLBorderStyleValues.Thick, XLColor.Red);
     }
 
     [Test]
-    [MaxTime(100)]
+    [Timeout(100)]
     public void InsideBorderForOneColumn()
     {
         using XLWorkbook wb = new();
@@ -175,14 +174,14 @@ public class BorderTests
             .Border.SetInsideBorderColor(XLColor.Red);
 
         IXLBorder b2 = ws.Cell("B2").Style.Border;
-        Assert.AreEqual(XLBorderStyleValues.Thick, b2.TopBorder);
-        Assert.AreEqual(XLColor.Red, b2.TopBorderColor);
-        Assert.AreEqual(XLBorderStyleValues.Thick, b2.BottomBorder);
-        Assert.AreEqual(XLColor.Red, b2.BottomBorderColor);
-        Assert.AreEqual(XLBorderStyleValues.Thin, b2.LeftBorder);
-        Assert.AreEqual(XLColor.Blue, b2.LeftBorderColor);
-        Assert.AreEqual(XLBorderStyleValues.Thin, b2.RightBorder);
-        Assert.AreEqual(XLColor.Blue, b2.RightBorderColor);
+        ClassicAssert.AreEqual(XLBorderStyleValues.Thick, b2.TopBorder);
+        ClassicAssert.AreEqual(XLColor.Red, b2.TopBorderColor);
+        ClassicAssert.AreEqual(XLBorderStyleValues.Thick, b2.BottomBorder);
+        ClassicAssert.AreEqual(XLColor.Red, b2.BottomBorderColor);
+        ClassicAssert.AreEqual(XLBorderStyleValues.Thin, b2.LeftBorder);
+        ClassicAssert.AreEqual(XLColor.Blue, b2.LeftBorderColor);
+        ClassicAssert.AreEqual(XLBorderStyleValues.Thin, b2.RightBorder);
+        ClassicAssert.AreEqual(XLColor.Blue, b2.RightBorderColor);
         AssertCellBorder(ws, "B1", Top | Bottom, XLBorderStyleValues.Thick, XLColor.Red);
         AssertCellBorder(ws, "B3", Top | Bottom, XLBorderStyleValues.Thick, XLColor.Red);
     }
@@ -235,14 +234,14 @@ public class BorderTests
             .Border.SetOutsideBorderColor(XLColor.Red);
 
         IXLBorder b2 = ws.Cell("B2").Style.Border;
-        Assert.AreEqual(XLBorderStyleValues.Thin, b2.LeftBorder);
-        Assert.AreEqual(XLColor.Blue, b2.LeftBorderColor);
-        Assert.AreEqual(XLBorderStyleValues.Thin, b2.RightBorder);
-        Assert.AreEqual(XLColor.Blue, b2.RightBorderColor);
-        Assert.AreEqual(XLBorderStyleValues.Thick, b2.TopBorder);
-        Assert.AreEqual(XLColor.Red, b2.TopBorderColor);
-        Assert.AreEqual(XLBorderStyleValues.Thick, b2.BottomBorder);
-        Assert.AreEqual(XLColor.Red, b2.BottomBorderColor);
+        ClassicAssert.AreEqual(XLBorderStyleValues.Thin, b2.LeftBorder);
+        ClassicAssert.AreEqual(XLColor.Blue, b2.LeftBorderColor);
+        ClassicAssert.AreEqual(XLBorderStyleValues.Thin, b2.RightBorder);
+        ClassicAssert.AreEqual(XLColor.Blue, b2.RightBorderColor);
+        ClassicAssert.AreEqual(XLBorderStyleValues.Thick, b2.TopBorder);
+        ClassicAssert.AreEqual(XLColor.Red, b2.TopBorderColor);
+        ClassicAssert.AreEqual(XLBorderStyleValues.Thick, b2.BottomBorder);
+        ClassicAssert.AreEqual(XLColor.Red, b2.BottomBorderColor);
 
         AssertCellBorder(ws, "A2", Top | Bottom, XLBorderStyleValues.Thick, XLColor.Red);
         AssertCellBorder(ws, "C2", Top | Bottom, XLBorderStyleValues.Thick, XLColor.Red);
@@ -265,14 +264,14 @@ public class BorderTests
             .Border.SetInsideBorderColor(XLColor.Red);
 
         IXLBorder b2 = ws.Cell("B2").Style.Border;
-        Assert.AreEqual(XLBorderStyleValues.Thick, b2.LeftBorder);
-        Assert.AreEqual(XLColor.Red, b2.LeftBorderColor);
-        Assert.AreEqual(XLBorderStyleValues.Thick, b2.RightBorder);
-        Assert.AreEqual(XLColor.Red, b2.RightBorderColor);
-        Assert.AreEqual(XLBorderStyleValues.Thin, b2.TopBorder);
-        Assert.AreEqual(XLColor.Blue, b2.TopBorderColor);
-        Assert.AreEqual(XLBorderStyleValues.Thin, b2.BottomBorder);
-        Assert.AreEqual(XLColor.Blue, b2.BottomBorderColor);
+        ClassicAssert.AreEqual(XLBorderStyleValues.Thick, b2.LeftBorder);
+        ClassicAssert.AreEqual(XLColor.Red, b2.LeftBorderColor);
+        ClassicAssert.AreEqual(XLBorderStyleValues.Thick, b2.RightBorder);
+        ClassicAssert.AreEqual(XLColor.Red, b2.RightBorderColor);
+        ClassicAssert.AreEqual(XLBorderStyleValues.Thin, b2.TopBorder);
+        ClassicAssert.AreEqual(XLColor.Blue, b2.TopBorderColor);
+        ClassicAssert.AreEqual(XLBorderStyleValues.Thin, b2.BottomBorder);
+        ClassicAssert.AreEqual(XLColor.Blue, b2.BottomBorderColor);
 
         AssertCellBorder(ws, "A2", Left | Right, XLBorderStyleValues.Thick, XLColor.Red);
         AssertCellBorder(ws, "C2", Left | Right, XLBorderStyleValues.Thick, XLColor.Red);
@@ -308,7 +307,7 @@ public class BorderTests
     }
 
     [Test]
-    [TestCaseSource(nameof(BorderApiSetters))]
+    [MethodDataSource(nameof(BorderApiSetters))]
     public void BorderPropertyCanBeIndividuallySet(FormatTestCase<IXLBorder> testCase)
     {
         using XLWorkbook wb = new();
@@ -319,12 +318,13 @@ public class BorderTests
         {
             testCase.SetPropertyValue(cell.Style.Border, testValue);
             object setValue = testCase.GetPropertyValue(cell.Style.Border);
-            Assert.AreEqual(testValue, setValue);
+            ClassicAssert.AreEqual(testValue, setValue);
             cell = cell.CellRight();
         }
     }
 
-    [TestCaseSource(nameof(BorderColorSetters))]
+    [Test]
+    [MethodDataSource(nameof(BorderColorSetters))]
     public void ColorIsSetOnlyWhenBorderIsVisible(
         Func<IXLBorder, XLColor> getColor,
         Action<IXLBorder, XLColor> setColor,
@@ -341,15 +341,16 @@ public class BorderTests
         // Try and fail to set color, when border style is None.
         setStyle(cell.Style.Border, XLBorderStyleValues.None);
         setColor(cell.Style.Border, color);
-        Assert.AreEqual(defaultBorderColor, getColor(cell.Style.Border));
+        ClassicAssert.AreEqual(defaultBorderColor, getColor(cell.Style.Border));
 
         // Set color, when border style is visible.
         setStyle(cell.Style.Border, XLBorderStyleValues.Thin);
         setColor(cell.Style.Border, color);
-        Assert.AreEqual(color, getColor(cell.Style.Border));
+        ClassicAssert.AreEqual(color, getColor(cell.Style.Border));
     }
 
-    [TestCaseSource(nameof(BorderColorSetters))]
+    [Test]
+    [MethodDataSource(nameof(BorderColorSetters))]
     public void MakingBorderHiddenResetsTheColorToDefault(
         Func<IXLBorder, XLColor> getColor,
         Action<IXLBorder, XLColor> setColor,
@@ -366,11 +367,11 @@ public class BorderTests
         // Set the color of visible border
         setStyle(cell.Style.Border, XLBorderStyleValues.Thin);
         setColor(cell.Style.Border, color);
-        Assert.AreEqual(color, getColor(cell.Style.Border));
+        ClassicAssert.AreEqual(color, getColor(cell.Style.Border));
 
         // When the border is hidden, the color is reset to default border color
         setStyle(cell.Style.Border, XLBorderStyleValues.None);
-        Assert.AreEqual(defaultBorderColor, getColor(cell.Style.Border));
+        ClassicAssert.AreEqual(defaultBorderColor, getColor(cell.Style.Border));
     }
 
     private static void AssertCellBorder(
@@ -382,36 +383,45 @@ public class BorderTests
     )
     {
         IXLBorder border = ws.Cell(cell).Style.Border;
-        Assert.AreEqual((sides & Left) != 0 ? style : XLBorderStyleValues.None, border.LeftBorder);
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
+            (sides & Left) != 0 ? style : XLBorderStyleValues.None,
+            border.LeftBorder
+        );
+        ClassicAssert.AreEqual(
             (sides & Right) != 0 ? style : XLBorderStyleValues.None,
             border.RightBorder
         );
-        Assert.AreEqual((sides & Top) != 0 ? style : XLBorderStyleValues.None, border.TopBorder);
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
+            (sides & Top) != 0 ? style : XLBorderStyleValues.None,
+            border.TopBorder
+        );
+        ClassicAssert.AreEqual(
             (sides & Bottom) != 0 ? style : XLBorderStyleValues.None,
             border.BottomBorder
         );
 
         if (color is not null)
         {
-            Assert.AreEqual(
+            ClassicAssert.AreEqual(
                 (sides & Left) != 0 ? color : XLColor.Automatic,
                 border.LeftBorderColor
             );
-            Assert.AreEqual(
+            ClassicAssert.AreEqual(
                 (sides & Right) != 0 ? color : XLColor.Automatic,
                 border.RightBorderColor
             );
-            Assert.AreEqual((sides & Top) != 0 ? color : XLColor.Automatic, border.TopBorderColor);
-            Assert.AreEqual(
+            ClassicAssert.AreEqual(
+                (sides & Top) != 0 ? color : XLColor.Automatic,
+                border.TopBorderColor
+            );
+            ClassicAssert.AreEqual(
                 (sides & Bottom) != 0 ? color : XLColor.Automatic,
                 border.BottomBorderColor
             );
         }
     }
 
-    private static IEnumerable<object> BorderApiSetters()
+    internal static IEnumerable<object> BorderApiSetters()
     {
         XLBorderStyleValues[] styleValues = EnumPolyfill.GetValues<XLBorderStyleValues>();
         XLColor[] colors = [XLColor.Red, XLColor.Black, XLColor.Automatic];
@@ -681,7 +691,11 @@ public class BorderTests
         );
     }
 
-    private static IEnumerable<object> BorderColorSetters()
+    internal static IEnumerable<(
+        Func<IXLBorder, XLColor>,
+        Action<IXLBorder, XLColor>,
+        Action<IXLBorder, XLBorderStyleValues>
+    )> BorderColorSetters()
     {
         yield return MakeTestCase(
             border => border.LeftBorderColor,
@@ -710,13 +724,17 @@ public class BorderTests
         );
         yield break;
 
-        static TestCaseData MakeTestCase(
+        static (
+            Func<IXLBorder, XLColor>,
+            Action<IXLBorder, XLColor>,
+            Action<IXLBorder, XLBorderStyleValues>
+        ) MakeTestCase(
             Func<IXLBorder, XLColor> getColor,
             Action<IXLBorder, XLColor> setColor,
             Action<IXLBorder, XLBorderStyleValues> setStyle
         )
         {
-            return new TestCaseData(getColor, setColor, setStyle);
+            return (getColor, setColor, setStyle);
         }
     }
 }

@@ -1,13 +1,11 @@
 using System;
 using System.IO;
 using System.Linq;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.Protection;
 
 namespace XlsxSharp.Tests.Excel.Misc;
 
-[TestFixture]
 public class XlWorkbookTests
 {
     [Test]
@@ -15,7 +13,7 @@ public class XlWorkbookTests
     {
         XLWorkbook wb = new();
         IXLCell cell = wb.Cell("ABC");
-        Assert.IsNull(cell);
+        ClassicAssert.IsNull(cell);
     }
 
     [Test]
@@ -25,8 +23,8 @@ public class XlWorkbookTests
         IXLWorksheet ws = wb.AddWorksheet("Sheet1");
         ws.FirstCell().SetValue(1).AddToNamed("Result", XLScope.Worksheet);
         IXLCell cell = wb.Cell("Sheet1!Result");
-        Assert.IsNotNull(cell);
-        Assert.AreEqual(1, cell.Value);
+        ClassicAssert.IsNotNull(cell);
+        ClassicAssert.AreEqual(1, cell.Value);
     }
 
     [Test]
@@ -36,8 +34,8 @@ public class XlWorkbookTests
         IXLWorksheet ws = wb.AddWorksheet("Sheet1");
         ws.FirstCell().SetValue(1).AddToNamed("Result");
         IXLCell cell = wb.Cell("Sheet1!Result");
-        Assert.IsNotNull(cell);
-        Assert.AreEqual(1, cell.Value);
+        ClassicAssert.IsNotNull(cell);
+        ClassicAssert.AreEqual(1, cell.Value);
     }
 
     [Test]
@@ -45,8 +43,8 @@ public class XlWorkbookTests
     {
         XLWorkbook wb = new();
         IXLCells cells = wb.Cells("ABC");
-        Assert.IsNotNull(cells);
-        Assert.AreEqual(0, cells.Count());
+        ClassicAssert.IsNotNull(cells);
+        ClassicAssert.AreEqual(0, cells.Count());
     }
 
     [Test]
@@ -56,9 +54,9 @@ public class XlWorkbookTests
         IXLWorksheet ws = wb.AddWorksheet("Sheet1");
         ws.FirstCell().SetValue(1).AddToNamed("Result", XLScope.Worksheet);
         IXLCells cells = wb.Cells("Sheet1!Result, ABC");
-        Assert.IsNotNull(cells);
-        Assert.AreEqual(1, cells.Count());
-        Assert.AreEqual(1, cells.First().Value);
+        ClassicAssert.IsNotNull(cells);
+        ClassicAssert.AreEqual(1, cells.Count());
+        ClassicAssert.AreEqual(1, cells.First().Value);
     }
 
     [Test]
@@ -68,9 +66,9 @@ public class XlWorkbookTests
         IXLWorksheet ws = wb.AddWorksheet("Sheet1");
         ws.FirstCell().SetValue(1).AddToNamed("Result");
         IXLCells cells = wb.Cells("Sheet1!Result, ABC");
-        Assert.IsNotNull(cells);
-        Assert.AreEqual(1, cells.Count());
-        Assert.AreEqual(1, cells.First().Value);
+        ClassicAssert.IsNotNull(cells);
+        ClassicAssert.AreEqual(1, cells.Count());
+        ClassicAssert.AreEqual(1, cells.First().Value);
     }
 
     [Test]
@@ -85,18 +83,19 @@ public class XlWorkbookTests
         IXLCell c1_full = wb.Cell("Sheet1!C123");
         IXLCell c2_full = wb.Cell("'O'Sheet 2'!B7");
 
-        Assert.AreEqual(c1, c1_full);
-        Assert.AreEqual(c2, c2_full);
-        Assert.NotNull(c1_full);
-        Assert.NotNull(c2_full);
+        ClassicAssert.AreEqual(c1, c1_full);
+        ClassicAssert.AreEqual(c2, c2_full);
+        ClassicAssert.NotNull(c1_full);
+        ClassicAssert.NotNull(c2_full);
     }
 
-    [TestCase("Sheet1")]
-    [TestCase("Sheet1!")]
-    [TestCase("Sheet2!")]
-    [TestCase("Sheet2!C1")]
-    [TestCase("Sheet1!ZZZ1")]
-    [TestCase("Sheet1!A")]
+    [Test]
+    [Arguments("Sheet1")]
+    [Arguments("Sheet1!")]
+    [Arguments("Sheet2!")]
+    [Arguments("Sheet2!C1")]
+    [Arguments("Sheet1!ZZZ1")]
+    [Arguments("Sheet1!A")]
     public void GetCellFromNonExistingFullAddress(string address)
     {
         XLWorkbook wb = new();
@@ -104,7 +103,7 @@ public class XlWorkbookTests
 
         IXLCell c = wb.Cell(address);
 
-        Assert.IsNull(c);
+        ClassicAssert.IsNull(c);
     }
 
     [Test]
@@ -116,12 +115,13 @@ public class XlWorkbookTests
 
         IXLRange r2 = wb.Range("Sheet1!C123:D125");
 
-        Assert.AreSame(r1, r2);
-        Assert.NotNull(r2);
+        ClassicAssert.AreSame(r1, r2);
+        ClassicAssert.NotNull(r2);
     }
 
-    [TestCase("Sheet2!C1:D2")]
-    [TestCase("Sheet1!A")]
+    [Test]
+    [Arguments("Sheet2!C1:D2")]
+    [Arguments("Sheet1!A")]
     public void GetRangeFromNonExistingFullAddress(string rangeAddress)
     {
         XLWorkbook wb = new();
@@ -129,7 +129,7 @@ public class XlWorkbookTests
 
         IXLRange r = wb.Range(rangeAddress);
 
-        Assert.IsNull(r);
+        ClassicAssert.IsNull(r);
     }
 
     [Test]
@@ -141,13 +141,14 @@ public class XlWorkbookTests
 
         IXLRanges r2 = wb.Ranges("Sheet1!A1:B2,Sheet1!C1:E3");
 
-        Assert.AreEqual(2, r2.Count);
-        Assert.AreSame(r1.First(), r2.First());
-        Assert.AreSame(r1.Last(), r2.Last());
+        ClassicAssert.AreEqual(2, r2.Count);
+        ClassicAssert.AreSame(r1.First(), r2.First());
+        ClassicAssert.AreSame(r1.Last(), r2.Last());
     }
 
-    [TestCase("Sheet2!C1:D2,Sheet2!F1:G4")]
-    [TestCase("Sheet1!A,Sheet1!B")]
+    [Test]
+    [Arguments("Sheet2!C1:D2,Sheet2!F1:G4")]
+    [Arguments("Sheet1!A,Sheet1!B")]
     public void GetRangesFromNonExistingFullAddress(string rangesAddress)
     {
         XLWorkbook wb = new();
@@ -155,8 +156,8 @@ public class XlWorkbookTests
 
         IXLRanges r = wb.Ranges(rangesAddress);
 
-        Assert.NotNull(r);
-        Assert.False(r.Any());
+        ClassicAssert.NotNull(r);
+        ClassicAssert.False(r.Any());
     }
 
     [Test]
@@ -164,7 +165,7 @@ public class XlWorkbookTests
     {
         XLWorkbook wb = new();
         IXLDefinedName? definedName = wb.DefinedName("ABC");
-        Assert.IsNull(definedName);
+        ClassicAssert.IsNull(definedName);
     }
 
     [Test]
@@ -174,10 +175,10 @@ public class XlWorkbookTests
         IXLWorksheet ws = wb.AddWorksheet("Sheet1");
         ws.FirstCell().SetValue(1).AddToNamed("Result", XLScope.Worksheet);
         IXLDefinedName? definedName = wb.DefinedName("Sheet1!Result");
-        Assert.IsNotNull(definedName);
-        Assert.AreEqual(1, definedName.Ranges.Count);
-        Assert.AreEqual(1, definedName.Ranges.Cells().Count());
-        Assert.AreEqual(1, definedName.Ranges.First().FirstCell().Value);
+        ClassicAssert.IsNotNull(definedName);
+        ClassicAssert.AreEqual(1, definedName.Ranges.Count);
+        ClassicAssert.AreEqual(1, definedName.Ranges.Cells().Count());
+        ClassicAssert.AreEqual(1, definedName.Ranges.First().FirstCell().Value);
     }
 
     [Test]
@@ -186,7 +187,7 @@ public class XlWorkbookTests
         XLWorkbook wb = new();
         wb.AddWorksheet("Sheet1");
         IXLDefinedName? definedName = wb.DefinedName("Sheet1!Result");
-        Assert.IsNull(definedName);
+        ClassicAssert.IsNull(definedName);
     }
 
     [Test]
@@ -196,10 +197,10 @@ public class XlWorkbookTests
         IXLWorksheet ws = wb.AddWorksheet("Sheet1");
         ws.FirstCell().SetValue(1).AddToNamed("Result");
         IXLDefinedName? definedName = wb.DefinedName("Sheet1!Result");
-        Assert.IsNotNull(definedName);
-        Assert.AreEqual(1, definedName.Ranges.Count);
-        Assert.AreEqual(1, definedName.Ranges.Cells().Count());
-        Assert.AreEqual(1, definedName.Ranges.First().FirstCell().Value);
+        ClassicAssert.IsNotNull(definedName);
+        ClassicAssert.AreEqual(1, definedName.Ranges.Count);
+        ClassicAssert.AreEqual(1, definedName.Ranges.Cells().Count());
+        ClassicAssert.AreEqual(1, definedName.Ranges.First().FirstCell().Value);
     }
 
     [Test]
@@ -207,7 +208,7 @@ public class XlWorkbookTests
     {
         XLWorkbook wb = new();
         IXLRange range = wb.Range("ABC");
-        Assert.IsNull(range);
+        ClassicAssert.IsNull(range);
     }
 
     [Test]
@@ -217,9 +218,9 @@ public class XlWorkbookTests
         IXLWorksheet ws = wb.AddWorksheet("Sheet1");
         ws.FirstCell().SetValue(1).AddToNamed("Result", XLScope.Worksheet);
         IXLRange range = wb.Range("Sheet1!Result");
-        Assert.IsNotNull(range);
-        Assert.AreEqual(1, range.Cells().Count());
-        Assert.AreEqual(1, range.FirstCell().Value);
+        ClassicAssert.IsNotNull(range);
+        ClassicAssert.AreEqual(1, range.Cells().Count());
+        ClassicAssert.AreEqual(1, range.FirstCell().Value);
     }
 
     [Test]
@@ -229,9 +230,9 @@ public class XlWorkbookTests
         IXLWorksheet ws = wb.AddWorksheet("Sheet1");
         ws.FirstCell().SetValue(1).AddToNamed("Result");
         IXLRange range = wb.Range("Sheet1!Result");
-        Assert.IsNotNull(range);
-        Assert.AreEqual(1, range.Cells().Count());
-        Assert.AreEqual(1, range.FirstCell().Value);
+        ClassicAssert.IsNotNull(range);
+        ClassicAssert.AreEqual(1, range.Cells().Count());
+        ClassicAssert.AreEqual(1, range.FirstCell().Value);
     }
 
     [Test]
@@ -239,8 +240,8 @@ public class XlWorkbookTests
     {
         XLWorkbook wb = new();
         IXLRanges ranges = wb.Ranges("ABC");
-        Assert.IsNotNull(ranges);
-        Assert.AreEqual(0, ranges.Count);
+        ClassicAssert.IsNotNull(ranges);
+        ClassicAssert.AreEqual(0, ranges.Count);
     }
 
     [Test]
@@ -250,9 +251,9 @@ public class XlWorkbookTests
         IXLWorksheet ws = wb.AddWorksheet("Sheet1");
         ws.FirstCell().SetValue(1).AddToNamed("Result", XLScope.Worksheet);
         IXLRanges ranges = wb.Ranges("Sheet1!Result, ABC");
-        Assert.IsNotNull(ranges);
-        Assert.AreEqual(1, ranges.Cells().Count());
-        Assert.AreEqual(1, ranges.First().FirstCell().Value);
+        ClassicAssert.IsNotNull(ranges);
+        ClassicAssert.AreEqual(1, ranges.Cells().Count());
+        ClassicAssert.AreEqual(1, ranges.First().FirstCell().Value);
     }
 
     [Test]
@@ -262,9 +263,9 @@ public class XlWorkbookTests
         IXLWorksheet ws = wb.AddWorksheet("Sheet1");
         ws.FirstCell().SetValue(1).AddToNamed("Result");
         IXLRanges ranges = wb.Ranges("Sheet1!Result, ABC");
-        Assert.IsNotNull(ranges);
-        Assert.AreEqual(1, ranges.Cells().Count());
-        Assert.AreEqual(1, ranges.First().FirstCell().Value);
+        ClassicAssert.IsNotNull(ranges);
+        ClassicAssert.AreEqual(1, ranges.Cells().Count());
+        ClassicAssert.AreEqual(1, ranges.First().FirstCell().Value);
     }
 
     [Test]
@@ -273,8 +274,8 @@ public class XlWorkbookTests
         XLWorkbook wb = new();
         IXLWorksheet ws = wb.Worksheets.Add("Sheet1");
         ws.Cell(1, 1).SetValue("Test").AddToNamed("TestCell");
-        Assert.AreEqual("Test", wb.Cell("TestCell").GetText());
-        Assert.AreEqual("Test", ws.Cell("TestCell").GetText());
+        ClassicAssert.AreEqual("Test", wb.Cell("TestCell").GetText());
+        ClassicAssert.AreEqual("Test", ws.Cell("TestCell").GetText());
     }
 
     [Test]
@@ -285,12 +286,12 @@ public class XlWorkbookTests
         ws.Cell(1, 1).SetValue("Test").AddToNamed("TestCell");
         ws.Cell(2, 1).SetValue("B").AddToNamed("Test2");
         IXLCells wbCells = wb.Cells("TestCell, Test2");
-        Assert.AreEqual("Test", wbCells.First().GetText());
-        Assert.AreEqual("B", wbCells.Last().GetText());
+        ClassicAssert.AreEqual("Test", wbCells.First().GetText());
+        ClassicAssert.AreEqual("B", wbCells.Last().GetText());
 
         IXLCells wsCells = ws.Cells("TestCell, Test2");
-        Assert.AreEqual("Test", wsCells.First().GetText());
-        Assert.AreEqual("B", wsCells.Last().GetText());
+        ClassicAssert.AreEqual("Test", wsCells.First().GetText());
+        ClassicAssert.AreEqual("B", wsCells.Last().GetText());
     }
 
     [Test]
@@ -302,11 +303,11 @@ public class XlWorkbookTests
         ws.Cell(2, 1).SetValue("B");
         IXLRange original = ws.Range("A1:A2");
         original.AddToNamed("TestRange");
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             original.RangeAddress.ToStringFixed(),
             wb.Range("TestRange").RangeAddress.ToString()
         );
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             original.RangeAddress.ToStringFixed(),
             ws.Range("TestRange").RangeAddress.ToString()
         );
@@ -323,18 +324,18 @@ public class XlWorkbookTests
         IXLRange original = ws.Range("A1:A2");
         original.AddToNamed("TestRange");
         IXLRanges wbRanges = wb.Ranges("TestRange, Test2");
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             original.RangeAddress.ToStringFixed(),
             wbRanges.First().RangeAddress.ToString()
         );
-        Assert.AreEqual("$A$3:$A$3", wbRanges.Last().RangeAddress.ToStringFixed());
+        ClassicAssert.AreEqual("$A$3:$A$3", wbRanges.Last().RangeAddress.ToStringFixed());
 
         IXLRanges wsRanges = wb.Ranges("TestRange, Test2");
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             original.RangeAddress.ToStringFixed(),
             wsRanges.First().RangeAddress.ToString()
         );
-        Assert.AreEqual("$A$3:$A$3", wsRanges.Last().RangeAddress.ToStringFixed());
+        ClassicAssert.AreEqual("$A$3:$A$3", wsRanges.Last().RangeAddress.ToStringFixed());
     }
 
     [Test]
@@ -345,12 +346,12 @@ public class XlWorkbookTests
         wb.DefinedNames.Add("TestRange", "Sheet1!$A$1,Sheet1!$A$3");
 
         IXLRanges wbRanges = ws.Ranges("TestRange");
-        Assert.AreEqual("$A$1:$A$1", wbRanges.First().RangeAddress.ToStringFixed());
-        Assert.AreEqual("$A$3:$A$3", wbRanges.Last().RangeAddress.ToStringFixed());
+        ClassicAssert.AreEqual("$A$1:$A$1", wbRanges.First().RangeAddress.ToStringFixed());
+        ClassicAssert.AreEqual("$A$3:$A$3", wbRanges.Last().RangeAddress.ToStringFixed());
 
         IXLRanges wsRanges = ws.Ranges("TestRange");
-        Assert.AreEqual("$A$1:$A$1", wsRanges.First().RangeAddress.ToStringFixed());
-        Assert.AreEqual("$A$3:$A$3", wsRanges.Last().RangeAddress.ToStringFixed());
+        ClassicAssert.AreEqual("$A$1:$A$1", wsRanges.First().RangeAddress.ToStringFixed());
+        ClassicAssert.AreEqual("$A$3:$A$3", wsRanges.Last().RangeAddress.ToStringFixed());
     }
 
     [Test]
@@ -360,9 +361,9 @@ public class XlWorkbookTests
         {
             wb.Worksheets.Add("Sheet1");
             wb.Protect();
-            Assert.IsTrue(wb.LockStructure);
-            Assert.IsFalse(wb.LockWindows);
-            Assert.IsFalse(wb.IsPasswordProtected);
+            ClassicAssert.IsTrue(wb.LockStructure);
+            ClassicAssert.IsFalse(wb.LockWindows);
+            ClassicAssert.IsFalse(wb.IsPasswordProtected);
         }
     }
 
@@ -373,9 +374,9 @@ public class XlWorkbookTests
         {
             wb.Worksheets.Add("Sheet1");
             wb.Protect(XLWorkbookProtectionElements.Windows);
-            Assert.IsTrue(wb.LockStructure);
-            Assert.IsFalse(wb.LockWindows);
-            Assert.IsFalse(wb.IsPasswordProtected);
+            ClassicAssert.IsTrue(wb.LockStructure);
+            ClassicAssert.IsFalse(wb.LockWindows);
+            ClassicAssert.IsFalse(wb.IsPasswordProtected);
         }
     }
 
@@ -386,12 +387,12 @@ public class XlWorkbookTests
         {
             wb.Worksheets.Add("Sheet1");
             wb.Protect("Abc@123");
-            Assert.IsTrue(wb.LockStructure);
-            Assert.IsFalse(wb.LockWindows);
-            Assert.IsTrue(wb.IsPasswordProtected);
-            Assert.Throws<InvalidOperationException>(() => wb.Protect());
-            Assert.Throws<InvalidOperationException>(() => wb.Unprotect());
-            Assert.Throws<ArgumentException>(() => wb.Unprotect("Cde@345"));
+            ClassicAssert.IsTrue(wb.LockStructure);
+            ClassicAssert.IsFalse(wb.LockWindows);
+            ClassicAssert.IsTrue(wb.IsPasswordProtected);
+            ClassicAssert.Throws<InvalidOperationException>(() => wb.Protect());
+            ClassicAssert.Throws<InvalidOperationException>(() => wb.Unprotect());
+            ClassicAssert.Throws<ArgumentException>(() => wb.Unprotect("Cde@345"));
         }
     }
 
@@ -402,14 +403,14 @@ public class XlWorkbookTests
         {
             wb.Worksheets.Add("Sheet1");
             wb.Protect();
-            Assert.IsTrue(wb.LockStructure);
-            Assert.IsFalse(wb.LockWindows);
-            Assert.IsFalse(wb.IsPasswordProtected);
+            ClassicAssert.IsTrue(wb.LockStructure);
+            ClassicAssert.IsFalse(wb.LockWindows);
+            ClassicAssert.IsFalse(wb.IsPasswordProtected);
             wb.Unprotect();
             wb.Protect("Abc@123");
-            Assert.IsTrue(wb.LockStructure);
-            Assert.IsFalse(wb.LockWindows);
-            Assert.IsTrue(wb.IsPasswordProtected);
+            ClassicAssert.IsTrue(wb.LockStructure);
+            ClassicAssert.IsFalse(wb.LockWindows);
+            ClassicAssert.IsTrue(wb.IsPasswordProtected);
         }
     }
 
@@ -424,13 +425,13 @@ public class XlWorkbookTests
                 XLProtectionAlgorithm.DefaultProtectionAlgorithm,
                 XLWorkbookProtectionElements.Windows
             );
-            Assert.IsTrue(wb.LockStructure);
-            Assert.IsFalse(wb.LockWindows);
-            Assert.IsTrue(wb.IsPasswordProtected);
+            ClassicAssert.IsTrue(wb.LockStructure);
+            ClassicAssert.IsFalse(wb.LockWindows);
+            ClassicAssert.IsTrue(wb.IsPasswordProtected);
             wb.Unprotect("Abc@123");
-            Assert.IsFalse(wb.LockStructure);
-            Assert.IsFalse(wb.LockWindows);
-            Assert.IsFalse(wb.IsPasswordProtected);
+            ClassicAssert.IsFalse(wb.LockStructure);
+            ClassicAssert.IsFalse(wb.LockWindows);
+            ClassicAssert.IsFalse(wb.IsPasswordProtected);
         }
     }
 
@@ -451,8 +452,8 @@ public class XlWorkbookTests
 
             using (XLWorkbook wb = new(ms))
             {
-                Assert.IsTrue(wb.FileSharing.ReadOnlyRecommended);
-                Assert.AreEqual(Environment.UserName, wb.FileSharing.UserName);
+                ClassicAssert.IsTrue(wb.FileSharing.ReadOnlyRecommended);
+                ClassicAssert.AreEqual(Environment.UserName, wb.FileSharing.UserName);
             }
         }
     }
@@ -467,7 +468,7 @@ public class XlWorkbookTests
             ws.FirstCell().SetValue("Hello world");
         }
 
-        Assert.Throws<ObjectDisposedException>(() =>
+        ClassicAssert.Throws<ObjectDisposedException>(() =>
             Console.WriteLine(wb.Worksheets.First().FirstCell().Value)
         );
     }

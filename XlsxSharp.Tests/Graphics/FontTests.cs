@@ -1,17 +1,16 @@
 using System;
 using System.IO;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Graphics;
 
 namespace XlsxSharp.Tests.Graphics;
 
-[TestFixture]
 public class FontTests
 {
     private readonly IXLGraphicEngine engine = DefaultGraphicEngine.Instance.Value;
 
-    [TestCase]
+    [Test]
+    [Arguments]
     public void CalculatedTextWidth()
     {
         DummyFont textFont = new("Calibri", 20);
@@ -21,34 +20,38 @@ public class FontTests
         // FontMetricSize of 16 (180 instead of 179.0625), which is where the previous 300 came from.
         // 3.x reports it subpixel-accurate. The value below is what the metric-compatible Carlito
         // measures; real Calibri is expected to match, but that was not verified on a Windows box.
-        Assert.That(textWidthPt, Is.EqualTo(298.43747456868488d).Within(0.0001));
+        ClassicAssert.AreEqual(298.43747456868488d, textWidthPt, 0.0001);
     }
 
-    [TestCase]
+    [Test]
+    [Arguments]
     public void CalculatedTextHeight()
     {
         DummyFont textFont = new("Calibri", 300);
         double textHeightPx = this.engine.GetTextHeight(textFont, 96);
-        Assert.That(textHeightPx, Is.EqualTo(500));
+        ClassicAssert.AreEqual(500, textHeightPx);
     }
 
-    [TestCase]
+    [Test]
+    [Arguments]
     public void GetMaxDigitWidth()
     {
         DummyFont textFont = new("Calibri", 11);
         double textWidthPx = this.engine.GetMaxDigitWidth(textFont, 96);
-        Assert.That(textWidthPx, Is.EqualTo(7.43359375d)); // Calibri,11 has a max digit width of 7 per spec 18.3.1.13
+        ClassicAssert.AreEqual(7.43359375d, textWidthPx); // Calibri,11 has a max digit width of 7 per spec 18.3.1.13
     }
 
-    [TestCase]
+    [Test]
+    [Arguments]
     public void DescentIsPositive()
     {
         DummyFont textFont = new("Calibri", 11);
         double textWidthPt = this.engine.GetDescent(textFont, 96);
-        Assert.That(textWidthPt, Is.EqualTo(3.666666666666667d));
+        ClassicAssert.AreEqual(3.666666666666667d, textWidthPt);
     }
 
-    [TestCase]
+    [Test]
+    [Arguments]
     public void NonExistentFontUsesFallback()
     {
         DummyFont nonExistentFont = new("NonExistentFont", 100);
@@ -56,11 +59,11 @@ public class FontTests
 
         double nonExistentFontWidth = this.engine.GetTextWidth("ABCDEF text", nonExistentFont, 96);
         double fallbackFontWidth = this.engine.GetTextWidth("ABCDEF text", fallbackFont, 96);
-        Assert.That(nonExistentFontWidth, Is.EqualTo(fallbackFontWidth));
+        ClassicAssert.AreEqual(fallbackFontWidth, nonExistentFontWidth);
 
         double nonExistentFontHeight = this.engine.GetTextHeight(nonExistentFont, 96);
         double fallbackFontHeight = this.engine.GetTextHeight(fallbackFont, 96);
-        Assert.That(nonExistentFontHeight, Is.EqualTo(fallbackFontHeight));
+        ClassicAssert.AreEqual(fallbackFontHeight, nonExistentFontHeight);
     }
 
     [Test]
@@ -73,10 +76,11 @@ public class FontTests
         GlyphBox box = engine.GetGlyphBox(text, nonExistentFont, new Dpi(96, 96));
 
         // Max digit width of CarlitoBare is 7, unlike MS Sans Serif which is 8
-        Assert.AreEqual(7, box.AdvanceWidth);
+        ClassicAssert.AreEqual(7, box.AdvanceWidth);
     }
 
-    [TestCase]
+    [Test]
+    [Arguments]
     public void CanSpecifyFallbackFontWithoutFileSystem()
     {
         using Stream fallbackFontStream = TestHelper.GetStreamFromResource("Fonts.TestFontA.ttf");
@@ -89,10 +93,11 @@ public class FontTests
         // whole pixels at the engine's FontMetricSize of 16 (giving 15/16 em); 3.x reports them
         // subpixel-accurate, so the expected value now matches the raw hmtx advance.
         const double expectedWidthOfLetterA = 30.696614583333336d;
-        Assert.AreEqual(expectedWidthOfLetterA, widthOfLetterA, 0.0001);
+        ClassicAssert.AreEqual(expectedWidthOfLetterA, widthOfLetterA, 0.0001);
     }
 
-    [TestCase]
+    [Test]
+    [Arguments]
     public void CanSpecifyExtraFontsAsStreamsWithoutFileSystem()
     {
         using Stream fallbackFontStream = TestHelper.GetStreamFromResource("Fonts.TestFontA.ttf");
@@ -106,10 +111,11 @@ public class FontTests
 
         // Likewise: the advance of 'B' in TestFontB is 602/1000 em, which 1.x rounded up to 10/16 em.
         const double expectedWidthOfLetterB = 24.08d;
-        Assert.AreEqual(expectedWidthOfLetterB, widthOfLetterB, 0.0001);
+        ClassicAssert.AreEqual(expectedWidthOfLetterB, widthOfLetterB, 0.0001);
     }
 
-    [TestCase]
+    [Test]
+    [Arguments]
     public void Issue1916CanMeasureSpecificArabicText()
     {
         using XLWorkbook wb = new();

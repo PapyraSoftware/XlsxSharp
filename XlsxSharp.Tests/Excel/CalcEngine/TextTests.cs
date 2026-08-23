@@ -1,92 +1,96 @@
 using System;
 using System.Globalization;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.CalcEngine;
 using XlsxSharp.Extensions;
 
 namespace XlsxSharp.Tests.Excel.CalcEngine;
 
-[TestFixture]
-[SetCulture("en-US")]
 public class TextTests
 {
-    [TestCase(@"ABCDEF123", @"ABCDEF123")]
-    [TestCase(@"ァィゥェォッャュョヮ", @"ｧｨｩｪｫｯｬｭｮヮ")] // Small katakana, there is no half wa variant
-    [TestCase(
+    [Test]
+    [Arguments(@"ABCDEF123", @"ABCDEF123")]
+    [Arguments(@"ァィゥェォッャュョヮ", @"ｧｨｩｪｫｯｬｭｮヮ")] // Small katakana, there is no half wa variant
+    [Arguments(
         @"アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン",
         @"ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜｦﾝ"
     )]
-    [TestCase(
+    [Arguments(
         "！＂＃\uff04％＆＇（）＊\uff0b，－．／０１２３４５６７８９：；\uff1c\uff1d\uff1e？＠",
         @"!""#$%&'()*+,-./0123456789:;<=>?@"
     )]
-    [TestCase(
+    [Arguments(
         @"ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ",
         @"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     )]
-    [TestCase(
+    [Arguments(
         "［＼］\uff3e＿\uff40ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ｛\uff5c｝\uff5e",
         @"[\]^_`abcdefghijklmnopqrstuvwxyz{|}~"
     )]
-    [TestCase(@"―‘’”、。「」゛゜・ー￥", @"ｰ`'""､｡｢｣ﾞﾟ･ｰ\")]
+    [Arguments(@"―‘’”、。「」゛゜・ー￥", @"ｰ`'""､｡｢｣ﾞﾟ･ｰ\")]
     public void AscConvertsFullwidthCharactersToHalfwidthCharacters(
         string input,
         string expected
-    ) => Assert.AreEqual(expected, XLWorkbook.EvaluateExpr($"ASC(\"{input}\")"));
+    ) => ClassicAssert.AreEqual(expected, XLWorkbook.EvaluateExpr($"ASC(\"{input}\")"));
 
     [Test]
     public void CharReturnsErrorOnEmptyString() =>
         // Calc engine tries to coerce it to number and fails. It never even reaches the functions.
-        Assert.AreEqual(XLError.IncompatibleValue, XLWorkbook.EvaluateExpr(@"CHAR("""")"));
+        ClassicAssert.AreEqual(XLError.IncompatibleValue, XLWorkbook.EvaluateExpr(@"CHAR("""")"));
 
-    [TestCase(0)]
-    [TestCase(256)]
-    [TestCase(9797)]
+    [Test]
+    [Arguments(0)]
+    [Arguments(256)]
+    [Arguments(9797)]
     public void CharNumberMustBeBetween1And255(int number) =>
-        Assert.AreEqual(XLError.IncompatibleValue, XLWorkbook.EvaluateExpr($"CHAR({number})"));
+        ClassicAssert.AreEqual(
+            XLError.IncompatibleValue,
+            XLWorkbook.EvaluateExpr($"CHAR({number})")
+        );
 
-    [TestCase(48, '0')]
-    [TestCase(97, 'a')]
-    [TestCase(128, '€')]
-    [TestCase(138, 'Š')]
-    [TestCase(169, '©')]
-    [TestCase(182, '¶')]
-    [TestCase(230, 'æ')]
-    [TestCase(255, 'ÿ')]
-    [TestCase(255.9, 'ÿ')]
+    [Test]
+    [Arguments(48, '0')]
+    [Arguments(97, 'a')]
+    [Arguments(128, '€')]
+    [Arguments(138, 'Š')]
+    [Arguments(169, '©')]
+    [Arguments(182, '¶')]
+    [Arguments(230, 'æ')]
+    [Arguments(255, 'ÿ')]
+    [Arguments(255.9, 'ÿ')]
     public void CharInterpretsNumberAsWin1252(double number, char expected)
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr($"CHAR({number})");
-        Assert.AreEqual(expected.ToString(), actual);
+        ClassicAssert.AreEqual(expected.ToString(), actual);
     }
 
     [Test]
     public void CleanEmptyStringIsEmptyString() =>
-        Assert.AreEqual("", XLWorkbook.EvaluateExpr(@"CLEAN("""")"));
+        ClassicAssert.AreEqual("", XLWorkbook.EvaluateExpr(@"CLEAN("""")"));
 
     [Test]
     public void CleanRemovesControlCharacters()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr(@"CLEAN(CHAR(9)&""Monthly report""&CHAR(10))");
-        Assert.AreEqual("Monthly report", actual);
+        ClassicAssert.AreEqual("Monthly report", actual);
 
         actual = XLWorkbook.EvaluateExpr(@"CLEAN(""   "")");
-        Assert.AreEqual("   ", actual);
+        ClassicAssert.AreEqual("   ", actual);
     }
 
     [Test]
     public void CodeReturnsErrorOnEmptyString() =>
-        Assert.AreEqual(XLError.IncompatibleValue, XLWorkbook.EvaluateExpr(@"CODE("""")"));
+        ClassicAssert.AreEqual(XLError.IncompatibleValue, XLWorkbook.EvaluateExpr(@"CODE("""")"));
 
-    [TestCase("A", 65)]
-    [TestCase("BCD", 66)]
-    [TestCase("€", 128)]
-    [TestCase("ÿ", 255)]
+    [Test]
+    [Arguments("A", 65)]
+    [Arguments("BCD", 66)]
+    [Arguments("€", 128)]
+    [Arguments("ÿ", 255)]
     public void CodeReturnsWin1252CodepointOfFirstCharacter(string text, int expected)
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr($"CODE(\"{text}\")");
-        Assert.AreEqual(expected, actual);
+        ClassicAssert.AreEqual(expected, actual);
     }
 
     [Test]
@@ -94,34 +98,35 @@ public class TextTests
     {
         for (int i = 1; i < 256; ++i)
         {
-            Assert.AreEqual(i, XLWorkbook.EvaluateExpr($"CODE(CHAR({i}))"));
+            ClassicAssert.AreEqual(i, XLWorkbook.EvaluateExpr($"CODE(CHAR({i}))"));
         }
     }
 
-    [TestCase("π")]
-    [TestCase("ب")]
-    [TestCase("😃")]
-    [TestCase("♫")]
-    [TestCase("ひ")]
+    [Test]
+    [Arguments("π")]
+    [Arguments("ب")]
+    [Arguments("😃")]
+    [Arguments("♫")]
+    [Arguments("ひ")]
     public void CodeReturnsQuestionMarkCodeOnNonWin1252Chars(string text)
     {
         XLCellValue expected = XLWorkbook.EvaluateExpr("CODE(\"?\")");
         XLCellValue actual = XLWorkbook.EvaluateExpr($"CODE(\"{text}\")");
-        Assert.AreEqual(63, expected);
-        Assert.AreEqual(expected, actual);
+        ClassicAssert.AreEqual(63, expected);
+        ClassicAssert.AreEqual(expected, actual);
     }
 
     [Test]
-    [SetCulture("cs-CZ")]
+    [Culture("cs-CZ")]
     public void ConcatConcatenatesScalarValues()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
         XLCellValue actual = ws.Evaluate(@"CONCAT(""ABC"",123,TRUE,IF(TRUE,),1.25)");
-        Assert.AreEqual("ABC123TRUE1,25", actual);
+        ClassicAssert.AreEqual("ABC123TRUE1,25", actual);
 
         actual = ws.Evaluate(@"CONCAT("""",""123"")");
-        Assert.AreEqual("123", actual);
+        ClassicAssert.AreEqual("123", actual);
 
         ws.FirstCell()
             .SetValue(20.5)
@@ -133,12 +138,12 @@ public class TextTests
             .SetFormulaA1("CONCAT(A1:A3)");
 
         actual = ws.Cell("A4").Value;
-        Assert.AreEqual("20,5AB43466", actual);
+        ClassicAssert.AreEqual("20,5AB43466", actual);
     }
 
     [Test]
     public void ConcatConcatenatesArrayValues() =>
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             "ABC0123456789Z",
             XLWorkbook.EvaluateExpr(@"CONCAT({""A"",""B"",""C""},{0,1},{2;3},{4,5,6;7,8,9},""Z"")")
         );
@@ -149,12 +154,12 @@ public class TextTests
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
         ws.Cell("C2").InsertData(new object[] { ("A", "B", "C"), (1, 2, 3, 4), (5, 6, 7, 8) });
-        Assert.AreEqual("ABC12345678AZ", ws.Evaluate("CONCAT(C2:E2,C3:F4,C2,\"Z\")"));
+        ClassicAssert.AreEqual("ABC12345678AZ", ws.Evaluate("CONCAT(C2:E2,C3:F4,C2,\"Z\")"));
     }
 
     [Test]
     public void ConcatHasLimitOf32767Characters() =>
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             XLError.IncompatibleValue,
             XLWorkbook.EvaluateExpr("CONCAT(REPT(\"A\",32768))")
         );
@@ -165,17 +170,20 @@ public class TextTests
         // Only areas are accepted, not unions
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
-        Assert.AreEqual(XLError.IncompatibleValue, ws.Evaluate("CONCAT((C2:E2,C3:F4),C2,\"Z\")"));
+        ClassicAssert.AreEqual(
+            XLError.IncompatibleValue,
+            ws.Evaluate("CONCAT((C2:E2,C3:F4),C2,\"Z\")")
+        );
     }
 
     [Test]
     public void ConcatPropagatesErrorValues()
     {
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             XLError.DivisionByZero,
             XLWorkbook.EvaluateExpr(@"CONCAT(""ABC"",#DIV/0!,5)")
         );
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             XLError.DivisionByZero,
             XLWorkbook.EvaluateExpr(@"CONCAT(""ABC"",{""D"",#DIV/0!,7},5)")
         );
@@ -183,23 +191,23 @@ public class TextTests
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
         ws.Cell("B5").SetValue(XLError.DivisionByZero).CellBelow().SetValue(5);
-        Assert.AreEqual(XLError.DivisionByZero, ws.Evaluate("CONCAT(\"ABC\",B5:B6)"));
+        ClassicAssert.AreEqual(XLError.DivisionByZero, ws.Evaluate("CONCAT(\"ABC\",B5:B6)"));
     }
 
     [Test]
     public void ConcatTreatsBlanksAsEmptyString() =>
-        Assert.AreEqual("ABC123", XLWorkbook.EvaluateExpr(@"CONCAT(""ABC"",,""123"",)"));
+        ClassicAssert.AreEqual("ABC123", XLWorkbook.EvaluateExpr(@"CONCAT(""ABC"",,""123"",)"));
 
     [Test]
-    [SetCulture("cs-CZ")]
+    [Culture("cs-CZ")]
     public void ConcatenateConcatenatesScalarValues()
     {
         using XLWorkbook wb = new();
         XLCellValue actual = wb.Evaluate(@"CONCATENATE(""ABC"",123,4.56,IF(TRUE,),TRUE)");
-        Assert.AreEqual("ABC1234,56TRUE", actual);
+        ClassicAssert.AreEqual("ABC1234,56TRUE", actual);
 
         actual = wb.Evaluate(@"CONCATENATE("""",""123"")");
-        Assert.AreEqual("123", actual);
+        ClassicAssert.AreEqual("123", actual);
     }
 
     [Test]
@@ -213,23 +221,23 @@ public class TextTests
         ws.Cell("C1").FormulaA1 = "CONCATENATE(A1:A2,\" \",B1:B2)";
         ws.Cell("A3").FormulaA1 = "CONCATENATE(A1:A2,\" \",B1:B2)";
 
-        Assert.AreEqual("Hello World", ws.Evaluate(@"CONCATENATE(A1,"" "",B1)"));
+        ClassicAssert.AreEqual("Hello World", ws.Evaluate(@"CONCATENATE(A1,"" "",B1)"));
 
         // The result on C1 is on the same row (only one intersected cell) means implicit intersection
         // results in a one value per intersection and thus correct value. The A3 intersects two cells
         // and thus results in #VALUE! error.
-        Assert.AreEqual("Hello World", ws.Cell("C1").Value);
-        Assert.AreEqual(XLError.IncompatibleValue, ws.Cell("A3").Value);
+        ClassicAssert.AreEqual("Hello World", ws.Cell("C1").Value);
+        ClassicAssert.AreEqual(XLError.IncompatibleValue, ws.Cell("A3").Value);
     }
 
     [Test]
     public void ConcatenateHasLimitOf32767Characters()
     {
-        Assert.AreNotEqual(
+        ClassicAssert.AreNotEqual(
             XLError.IncompatibleValue,
             XLWorkbook.EvaluateExpr("CONCATENATE(REPT(\"A\",32767))")
         );
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             XLError.IncompatibleValue,
             XLWorkbook.EvaluateExpr("CONCATENATE(REPT(\"A\",32768))")
         );
@@ -249,60 +257,66 @@ public class TextTests
 
         // Calling cell is 1st row, so formula should return A1
         ws.Cell("B1").SetFormulaA1("CONCATENATE(A1:A3)");
-        Assert.AreEqual("20", ws.Cell("B1").Value);
+        ClassicAssert.AreEqual("20", ws.Cell("B1").Value);
 
         // Calling cell is 2nd row, so formula should return A2
         ws.Cell("B2").SetFormulaA1("CONCATENATE(A1:A3)");
-        Assert.AreEqual("AB", ws.Cell("B2").Value);
+        ClassicAssert.AreEqual("AB", ws.Cell("B2").Value);
 
         // Calling cell is 3rd row, so formula should return A3's textual representation
         ws.Cell("B3").SetFormulaA1("CONCATENATE(A1:A3)");
-        Assert.AreEqual("43466", ws.Cell("B3").Value);
+        ClassicAssert.AreEqual("43466", ws.Cell("B3").Value);
 
         // Calling cell doesn't share row with any cell in parameter range.
         ws.Cell("A4").SetFormulaA1("CONCATENATE(A1:A3)");
-        Assert.AreEqual(XLError.IncompatibleValue, ws.Cell("A4").Value);
+        ClassicAssert.AreEqual(XLError.IncompatibleValue, ws.Cell("A4").Value);
     }
 
     [Test]
     public void DollarCoercion() =>
         // Empty string is not coercible to number
-        Assert.AreEqual(XLError.IncompatibleValue, XLWorkbook.EvaluateExpr("DOLLAR(\"\", 3)"));
+        ClassicAssert.AreEqual(
+            XLError.IncompatibleValue,
+            XLWorkbook.EvaluateExpr("DOLLAR(\"\", 3)")
+        );
 
     // en-US culture differs between .NET Fx and Core for negative currency -> no test for negative
-    [TestCase(123.54, 3, ExpectedResult = "$123.540")]
-    [TestCase(123.54, 3.9, ExpectedResult = "$123.540")]
-    [TestCase(1234.567, 2, ExpectedResult = "$1,234.57")]
-    [TestCase(1250, -2, ExpectedResult = "$1,300")]
-    [TestCase(1, -1E+100, ExpectedResult = "$0")]
-    public string DollarEn(double number, double decimals)
+    [Test]
+    [Arguments(123.54, 3, "$123.540")]
+    [Arguments(123.54, 3.9, "$123.540")]
+    [Arguments(1234.567, 2, "$1,234.57")]
+    [Arguments(1250, -2, "$1,300")]
+    [Arguments(1, -1E+100, "$0")]
+    public void DollarEn(double number, double decimals, string expected)
     {
         using XLWorkbook wb = new();
-        return wb.Evaluate($"DOLLAR({number},{decimals})").GetText();
+        ClassicAssert.AreEqual(expected, wb.Evaluate($"DOLLAR({number},{decimals})").GetText());
     }
 
-    [SetCulture("cs-CZ")]
-    [TestCase(123.54, 3, ExpectedResult = "123,540 Kč")]
-    [TestCase(-1234.567, 4, ExpectedResult = "-1 234,5670 Kč")]
-    [TestCase(-1250, -2, ExpectedResult = "-1 300 Kč")]
-    public string DollarCs(double number, double decimals)
+    [Test]
+    [Culture("cs-CZ")]
+    [Arguments(123.54, 3, "123,540 Kč")]
+    [Arguments(-1234.567, 4, "-1 234,5670 Kč")]
+    [Arguments(-1250, -2, "-1 300 Kč")]
+    public void DollarCs(double number, double decimals, string expected)
     {
         using XLWorkbook wb = new();
         string formula =
             $"DOLLAR({number.ToString(CultureInfo.InvariantCulture)},{decimals.ToString(CultureInfo.InvariantCulture)})";
-        return wb.Evaluate(formula).GetText();
+        ClassicAssert.AreEqual(expected, wb.Evaluate(formula).GetText());
     }
 
-    [SetCulture("de-DE")]
-    [TestCase(1234.567, 2, ExpectedResult = "1.234,57 €")]
-    [TestCase(1234.567, -2, ExpectedResult = "1.200 €")]
-    [TestCase(-1234.567, 4, ExpectedResult = "-1.234,5670 €")]
-    public string DollarDe(double number, double decimals)
+    [Test]
+    [Culture("de-DE")]
+    [Arguments(1234.567, 2, "1.234,57 €")]
+    [Arguments(1234.567, -2, "1.200 €")]
+    [Arguments(-1234.567, 4, "-1.234,5670 €")]
+    public void DollarDe(double number, double decimals, string expected)
     {
         using XLWorkbook wb = new();
         string formula =
             $"DOLLAR({number.ToString(CultureInfo.InvariantCulture)},{decimals.ToString(CultureInfo.InvariantCulture)})";
-        return wb.Evaluate(formula).GetText();
+        ClassicAssert.AreEqual(expected, wb.Evaluate(formula).GetText());
     }
 
     [Test]
@@ -310,81 +324,84 @@ public class TextTests
     {
         using XLWorkbook wb = new();
         XLCellValue actual = wb.Evaluate("DOLLAR(123.543)");
-        Assert.AreEqual("$123.54", actual);
+        ClassicAssert.AreEqual("$123.54", actual);
     }
 
     [Test]
     public void DollarCanHaveAtMost127DecimalPlaces()
     {
         using XLWorkbook wb = new();
-        Assert.AreEqual("$1." + new string('0', 99), wb.Evaluate("DOLLAR(1,99)"));
-        Assert.AreEqual(XLError.IncompatibleValue, wb.Evaluate("DOLLAR(1,128)"));
+        ClassicAssert.AreEqual("$1." + new string('0', 99), wb.Evaluate("DOLLAR(1,99)"));
+        ClassicAssert.AreEqual(XLError.IncompatibleValue, wb.Evaluate("DOLLAR(1,128)"));
     }
 
     [Test]
     public void ExactEmptyInputString()
     {
         object actual = XLWorkbook.EvaluateExpr(@"Exact("""", """")");
-        Assert.AreEqual(true, actual);
+        ClassicAssert.AreEqual(true, actual);
     }
 
     [Test]
     public void ExactValue()
     {
         object actual = XLWorkbook.EvaluateExpr(@"Exact(""asdf"", ""asdf"")");
-        Assert.AreEqual(true, actual);
+        ClassicAssert.AreEqual(true, actual);
 
         actual = XLWorkbook.EvaluateExpr(@"Exact(""asdf"", ""ASDF"")");
-        Assert.AreEqual(false, actual);
+        ClassicAssert.AreEqual(false, actual);
 
         actual = XLWorkbook.EvaluateExpr(@"Exact(123, 123)");
-        Assert.AreEqual(true, actual);
+        ClassicAssert.AreEqual(true, actual);
 
         actual = XLWorkbook.EvaluateExpr(@"Exact(321, 123)");
-        Assert.AreEqual(false, actual);
+        ClassicAssert.AreEqual(false, actual);
     }
 
     [Test]
     public void FindEmptyPatternAndEmptyText()
     {
         // Different behavior from SEARCH
-        Assert.AreEqual(1, XLWorkbook.EvaluateExpr(@"FIND("""", """")"));
+        ClassicAssert.AreEqual(1, XLWorkbook.EvaluateExpr(@"FIND("""", """")"));
 
-        Assert.AreEqual(2, XLWorkbook.EvaluateExpr(@"FIND("""", ""a"", 2)"));
+        ClassicAssert.AreEqual(2, XLWorkbook.EvaluateExpr(@"FIND("""", ""a"", 2)"));
     }
 
     [Test]
     public void FindEmptySearchPatternReturnsStartOfText() =>
-        Assert.AreEqual(1, XLWorkbook.EvaluateExpr(@"FIND("""", ""asdf"")"));
+        ClassicAssert.AreEqual(1, XLWorkbook.EvaluateExpr(@"FIND("""", ""asdf"")"));
 
     [Test]
     public void FindLooksOnlyFromStartPositionOnward() =>
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             XLError.IncompatibleValue,
             XLWorkbook.EvaluateExpr(@"FIND(""This"", ""This is some text"", 2)")
         );
 
     [Test]
     public void FindStartPositionTooLarge() =>
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             XLError.IncompatibleValue,
             XLWorkbook.EvaluateExpr(@"FIND(""abc"", ""abcdef"", 10)")
         );
 
     [Test]
     public void FindStartPositionTooSmall() =>
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             XLError.IncompatibleValue,
             XLWorkbook.EvaluateExpr(@"FIND(""text"", ""This is some text"", 0)")
         );
 
     [Test]
     public void FindEmptySearchedTextReturnsError() =>
-        Assert.AreEqual(XLError.IncompatibleValue, XLWorkbook.EvaluateExpr(@"FIND(""abc"", """")"));
+        ClassicAssert.AreEqual(
+            XLError.IncompatibleValue,
+            XLWorkbook.EvaluateExpr(@"FIND(""abc"", """")")
+        );
 
     [Test]
     public void FindStringNotFound() =>
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             XLError.IncompatibleValue,
             XLWorkbook.EvaluateExpr(@"FIND(""123"", ""asdf"")")
         );
@@ -392,7 +409,7 @@ public class TextTests
     [Test]
     public void FindCaseSensitiveStringNotFound() =>
         // Find is case-sensitive
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             XLError.IncompatibleValue,
             XLWorkbook.EvaluateExpr(@"FIND(""excel"", ""Microsoft Excel 2010"")")
         );
@@ -401,257 +418,280 @@ public class TextTests
     public void FindValue()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr(@"FIND(""Tuesday"", ""Today is Tuesday"")");
-        Assert.AreEqual(10, actual);
+        ClassicAssert.AreEqual(10, actual);
 
         // Doesnt support wildcards
         actual = XLWorkbook.EvaluateExpr(@"FIND(""T*y"", ""Today is Tuesday"")");
-        Assert.AreEqual(XLError.IncompatibleValue, actual);
+        ClassicAssert.AreEqual(XLError.IncompatibleValue, actual);
     }
 
     [Test]
     public void FindArgumentsAreConvertedToExpectedTypes()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr(@"FIND(1.2, ""A1.2B"")");
-        Assert.AreEqual(2, actual);
+        ClassicAssert.AreEqual(2, actual);
 
         actual = XLWorkbook.EvaluateExpr(@"FIND(TRUE, ""ATRUE"")");
-        Assert.AreEqual(2, actual);
+        ClassicAssert.AreEqual(2, actual);
 
         actual = XLWorkbook.EvaluateExpr(@"FIND(23, 1.2345)");
-        Assert.AreEqual(3, actual);
+        ClassicAssert.AreEqual(3, actual);
 
         actual = XLWorkbook.EvaluateExpr(@"FIND(""a"", ""aaaaa"", ""2 1/2"")");
-        Assert.AreEqual(2, actual);
+        ClassicAssert.AreEqual(2, actual);
     }
 
     [Test]
     public void FindErrorArgumentsReturnTheError()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr(@"FIND(#N/A, ""a"")");
-        Assert.AreEqual(XLError.NoValueAvailable, actual);
+        ClassicAssert.AreEqual(XLError.NoValueAvailable, actual);
 
         actual = XLWorkbook.EvaluateExpr(@"FIND("""", #N/A)");
-        Assert.AreEqual(XLError.NoValueAvailable, actual);
+        ClassicAssert.AreEqual(XLError.NoValueAvailable, actual);
 
         actual = XLWorkbook.EvaluateExpr(@"FIND(""a"", ""a"", #N/A)");
-        Assert.AreEqual(XLError.NoValueAvailable, actual);
+        ClassicAssert.AreEqual(XLError.NoValueAvailable, actual);
     }
 
     [Test]
     public void FixedCoercion()
     {
         using XLWorkbook wb = new();
-        Assert.AreEqual(XLError.IncompatibleValue, wb.Evaluate("""FIXED("asdf")"""));
-        Assert.AreEqual("1234.0", wb.Evaluate("""FIXED(1234,1,"TRUE")"""));
-        Assert.AreEqual("1,234.0", wb.Evaluate("""FIXED(1234,1,"FALSE")"""));
-        Assert.AreEqual(XLError.IncompatibleValue, wb.Evaluate("""FIXED(1234,1,"0")"""));
+        ClassicAssert.AreEqual(XLError.IncompatibleValue, wb.Evaluate("""FIXED("asdf")"""));
+        ClassicAssert.AreEqual("1234.0", wb.Evaluate("""FIXED(1234,1,"TRUE")"""));
+        ClassicAssert.AreEqual("1,234.0", wb.Evaluate("""FIXED(1234,1,"FALSE")"""));
+        ClassicAssert.AreEqual(XLError.IncompatibleValue, wb.Evaluate("""FIXED(1234,1,"0")"""));
     }
 
     [Test]
     public void FixedExamples()
     {
         using XLWorkbook wb = new();
-        Assert.AreEqual("1,234,567.00", wb.Evaluate("FIXED(1234567)"));
-        Assert.AreEqual("1234567.5556", wb.Evaluate("FIXED(1234567.555555,4,TRUE)"));
-        Assert.AreEqual("0.5555550000", wb.Evaluate("FIXED(.555555,10)"));
-        Assert.AreEqual("1,235,000", wb.Evaluate("FIXED(1234567,-3)"));
+        ClassicAssert.AreEqual("1,234,567.00", wb.Evaluate("FIXED(1234567)"));
+        ClassicAssert.AreEqual("1234567.5556", wb.Evaluate("FIXED(1234567.555555,4,TRUE)"));
+        ClassicAssert.AreEqual("0.5555550000", wb.Evaluate("FIXED(.555555,10)"));
+        ClassicAssert.AreEqual("1,235,000", wb.Evaluate("FIXED(1234567,-3)"));
     }
 
     [Test]
     public void FixedEn()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr("FIXED(17300.67,4)");
-        Assert.AreEqual("17,300.6700", actual);
+        ClassicAssert.AreEqual("17,300.6700", actual);
 
         actual = XLWorkbook.EvaluateExpr("FIXED(17300.67,2,TRUE)");
-        Assert.AreEqual("17300.67", actual);
+        ClassicAssert.AreEqual("17300.67", actual);
 
         actual = XLWorkbook.EvaluateExpr("FIXED(17300.67)");
-        Assert.AreEqual("17,300.67", actual);
+        ClassicAssert.AreEqual("17,300.67", actual);
 
         actual = XLWorkbook.EvaluateExpr("FIXED(1,-1E+300)");
-        Assert.AreEqual("0", actual);
+        ClassicAssert.AreEqual("0", actual);
     }
 
     [Test]
-    [SetCulture("cs-CZ")]
+    [Culture("cs-CZ")]
     public void FixedCs()
     {
         using XLWorkbook wb = new();
         XLCellValue actual = wb.Evaluate("FIXED(17300.67,4)");
-        Assert.AreEqual("17 300,6700", actual);
+        ClassicAssert.AreEqual("17 300,6700", actual);
 
         actual = wb.Evaluate("FIXED(17300.67,2,TRUE)");
-        Assert.AreEqual("17300,67", actual);
+        ClassicAssert.AreEqual("17300,67", actual);
 
         actual = wb.Evaluate("FIXED(17300.67)");
-        Assert.AreEqual("17 300,67", actual);
+        ClassicAssert.AreEqual("17 300,67", actual);
     }
 
     [Test]
     public void FixedCanHaveAtMost127DecimalPlaces()
     {
         using XLWorkbook wb = new();
-        Assert.AreEqual("1." + new string('0', 99), wb.Evaluate("FIXED(1,99)"));
-        Assert.AreEqual(XLError.IncompatibleValue, wb.Evaluate("FIXED(1,128)"));
+        ClassicAssert.AreEqual("1." + new string('0', 99), wb.Evaluate("FIXED(1,99)"));
+        ClassicAssert.AreEqual(XLError.IncompatibleValue, wb.Evaluate("FIXED(1,128)"));
     }
 
     [Test]
     public void LeftReturnsWholeTextWhenRequestedLengthIsGreaterThanTextLength()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr(@"LEFT(""ABC"", 5)");
-        Assert.AreEqual("ABC", actual);
+        ClassicAssert.AreEqual("ABC", actual);
     }
 
     [Test]
     public void LeftTakesOneCharacterByDefault()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr("""LEFT("ABC")""");
-        Assert.AreEqual("A", actual);
+        ClassicAssert.AreEqual("A", actual);
     }
 
     [Test]
     public void LeftReturnsErrorOnNegativeNumberOfChars() =>
-        Assert.AreEqual(XLError.IncompatibleValue, XLWorkbook.EvaluateExpr("""LEFT("ABC", -1)"""));
+        ClassicAssert.AreEqual(
+            XLError.IncompatibleValue,
+            XLWorkbook.EvaluateExpr("""LEFT("ABC", -1)""")
+        );
 
     [Test]
     public void LeftReturnsEmptyStringOnEmptyInput()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr("""LEFT("")""");
-        Assert.AreEqual("", actual);
+        ClassicAssert.AreEqual("", actual);
     }
 
-    [TestCase("ABC", 2, ExpectedResult = "AB")]
-    [TestCase("ABC", 2.9, ExpectedResult = "AB")]
-    [TestCase("ABC", 3, ExpectedResult = "ABC")]
-    [TestCase("\uD83D\uDC69Z", 1, ExpectedResult = "\uD83D\uDC69")] // Paired surrogate
-    [TestCase("\uD83D\uDC69Z", 2, ExpectedResult = "\uD83D\uDC69Z")] // Paired surrogate
-    public string LeftTakesSpecifiedNumberOfCharacters(string text, double numChars) =>
-        XLWorkbook.EvaluateExpr($"""LEFT("{text}", {numChars})""").GetText();
-
-    [TestCase("", ExpectedResult = 0)]
-    [TestCase("word", ExpectedResult = 4)]
-    [TestCase("A\r\n", ExpectedResult = 3)]
-    [TestCase("H", ExpectedResult = 1)]
-    [TestCase("\ud83d\ude0a", ExpectedResult = 2)] // Smile emoji
-    [TestCase("Smile: \ud83d\ude0a!", ExpectedResult = 10)] // Smile emoji
-    public double LenReturnsNumberOfCodeUnits(string text) =>
-        XLWorkbook.EvaluateExpr($"""LEN("{text}")""").GetNumber();
-
-    [SetCulture("en-US")]
-    [TestCase("", ExpectedResult = "")]
-    [TestCase("ABC", ExpectedResult = "abc")]
-    [TestCase("Intelligence 2.0!", ExpectedResult = "intelligence 2.0!")]
-    [TestCase("ͶꝎＫǢ", ExpectedResult = "ͷꝏｋǣ")] // Converts even non-latin chars
-    [TestCase("Σ SUM Σ end Σ", ExpectedResult = "σ sum σ end ς")] // Bug for bug behavior of Excel. Σ at the end is turned to ς
-    public string LowerEn(string text)
+    [Test]
+    [Arguments("ABC", 2, "AB")]
+    [Arguments("ABC", 2.9, "AB")]
+    [Arguments("ABC", 3, "ABC")]
+    [Arguments("\uD83D\uDC69Z", 1, "\uD83D\uDC69")] // Paired surrogate
+    [Arguments("\uD83D\uDC69Z", 2, "\uD83D\uDC69Z")] // Paired surrogate
+    public void LeftTakesSpecifiedNumberOfCharacters(string text, double numChars, string expected)
     {
-        using XLWorkbook wb = new();
-        return wb.Evaluate($"""LOWER("{text}")""").GetText();
+        ClassicAssert.AreEqual(
+            expected,
+            XLWorkbook.EvaluateExpr($"""LEFT("{text}", {numChars})""").GetText()
+        );
     }
 
-    [SetCulture("tr-TR")]
-    [TestCase("INTELLIGENCE 2.0!", ExpectedResult = "ıntellıgence 2.0!")] // Turkey converts I to i without dot
-    [TestCase("ΣΣΣΣ", ExpectedResult = "σσσς")]
-    public string LowerTr(string text)
+    [Test]
+    [Arguments("", 0)]
+    [Arguments("word", 4)]
+    [Arguments("A\r\n", 3)]
+    [Arguments("H", 1)]
+    [Arguments("\ud83d\ude0a", 2)] // Smile emoji
+    [Arguments("Smile: \ud83d\ude0a!", 10)] // Smile emoji
+    public void LenReturnsNumberOfCodeUnits(string text, double expected)
+    {
+        ClassicAssert.AreEqual(expected, XLWorkbook.EvaluateExpr($"""LEN("{text}")""").GetNumber());
+    }
+
+    [Test]
+    [Arguments("", "")]
+    [Arguments("ABC", "abc")]
+    [Arguments("Intelligence 2.0!", "intelligence 2.0!")]
+    [Arguments("ͶꝎＫǢ", "ͷꝏｋǣ")] // Converts even non-latin chars
+    [Arguments("Σ SUM Σ end Σ", "σ sum σ end ς")] // Bug for bug behavior of Excel. Σ at the end is turned to ς
+    public void LowerEn(string text, string expected)
     {
         using XLWorkbook wb = new();
-        return wb.Evaluate($"""LOWER("{text}")""").GetText();
+        ClassicAssert.AreEqual(expected, wb.Evaluate($"""LOWER("{text}")""").GetText());
+    }
+
+    [Test]
+    [Culture("tr-TR")]
+    [Arguments("INTELLIGENCE 2.0!", "ıntellıgence 2.0!")] // Turkey converts I to i without dot
+    [Arguments("ΣΣΣΣ", "σσσς")]
+    public void LowerTr(string text, string expected)
+    {
+        using XLWorkbook wb = new();
+        ClassicAssert.AreEqual(expected, wb.Evaluate($"""LOWER("{text}")""").GetText());
     }
 
     [Test]
     public void MidReturnsRestOfTextWhenEndIsOutOfTextBounds()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr("""MID("ABC",1,5)""");
-        Assert.AreEqual("ABC", actual);
+        ClassicAssert.AreEqual("ABC", actual);
     }
 
     [Test]
     public void MidWhenStartIsAfterEndOfTextReturnEmptyString()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr("""MID("ABC",5,5)""");
-        Assert.AreEqual("", actual);
+        ClassicAssert.AreEqual("", actual);
     }
 
-    [TestCase(0.9)]
-    [TestCase(0)]
-    [TestCase(-5)]
-    [TestCase(int.MaxValue + 1d)]
-    [TestCase(int.MaxValue + 5d)]
+    [Test]
+    [Arguments(0.9)]
+    [Arguments(0)]
+    [Arguments(-5)]
+    [Arguments(int.MaxValue + 1d)]
+    [Arguments(int.MaxValue + 5d)]
     public void MidStartMustBeAtLeastOneAndAtMostMaxInt(double start)
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr($"""MID("ABC",{start},1)""");
-        Assert.AreEqual(XLError.IncompatibleValue, actual);
+        ClassicAssert.AreEqual(XLError.IncompatibleValue, actual);
     }
 
-    [TestCase(-0.1)]
-    [TestCase(-5)]
-    [TestCase(int.MaxValue + 1d)]
-    [TestCase(int.MaxValue + 5d)]
+    [Test]
+    [Arguments(-0.1)]
+    [Arguments(-5)]
+    [Arguments(int.MaxValue + 1d)]
+    [Arguments(int.MaxValue + 5d)]
     public void MidLengthMustBeAtLeastZeroAndAtMostMaxInt(double length)
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr($"""MID("ABC",1,{length})""");
-        Assert.AreEqual(XLError.IncompatibleValue, actual);
+        ClassicAssert.AreEqual(XLError.IncompatibleValue, actual);
     }
 
-    [TestCase("", 1, 1, ExpectedResult = "")]
-    [TestCase("ABC", 2, 2, ExpectedResult = "BC")]
-    [TestCase("ABC", 2, 0, ExpectedResult = "")]
-    [TestCase("ABC", 3, 5, ExpectedResult = "")]
-    [TestCase(@"abcdef", 3, 2, ExpectedResult = "cd")]
-    [TestCase(@"abcdef", 4, 5, ExpectedResult = "def")]
-    public string MidReturnsSubstring(string text, double start, double length) =>
-        XLWorkbook.EvaluateExpr($"""MID("{text}",{start},{length})""").GetText();
+    [Test]
+    [Arguments("", 1, 1, "")]
+    [Arguments("ABC", 2, 2, "BC")]
+    [Arguments("ABC", 2, 0, "")]
+    [Arguments("ABC", 3, 5, "")]
+    [Arguments(@"abcdef", 3, 2, "cd")]
+    [Arguments(@"abcdef", 4, 5, "def")]
+    public void MidReturnsSubstring(string text, double start, double length, string expected)
+    {
+        ClassicAssert.AreEqual(
+            expected,
+            XLWorkbook.EvaluateExpr($"""MID("{text}",{start},{length})""").GetText()
+        );
+    }
 
     [Test]
     public void MidUsesCodeUnits()
     {
         // MID returns unpaired surrogates
-        Assert.AreEqual("😊\uD83D", XLWorkbook.EvaluateExpr("""MID("😊😊😊",1,3)"""));
-        Assert.AreEqual("😊😊", XLWorkbook.EvaluateExpr("""MID("😊😊😊",1,4)"""));
-        Assert.AreEqual("\uDE0A😊\uD83D", XLWorkbook.EvaluateExpr("""MID("😊😊😊",2,4)"""));
-        Assert.AreEqual(3, XLWorkbook.EvaluateExpr("""LEN(MID("😊😊😊",1,3))"""));
-    }
-
-    [TestCase("", 0d)]
-    [TestCase("+ 1", 1d)]
-    [TestCase("+1", 1d)]
-    [TestCase("+1.23", 1.23)]
-    [TestCase("- 1.23", -1.23)]
-    [TestCase(" - 0 1 2 . 3 4 ", -12.34)]
-    [TestCase(" - 0 \t1\t2\r .\n3 4 ", -12.34)]
-    [TestCase(".1", 0.1)]
-    [TestCase("-.1", -0.1)]
-    [TestCase("1.234567890E+307", 1.234567890E+307)]
-    [TestCase("1.234567890E-307", 1.234567890E-307d)]
-    [TestCase("1.234567890E-309", 0d)]
-    [TestCase("-1.234567890E-307", -1.234567890E-307d)]
-    [TestCase(".99999999999999", 0.99999999999999)]
-    [TestCase("1,23,4", 1234)]
-    [TestCase("1,234,56", 123456)]
-    [TestCase("1e-308", 0)]
-    [TestCase("-1e-308", 0)]
-    [TestCase("75825%", 758.25)]
-    [TestCase("75825%%", 7.5825)]
-    [TestCase("(56.4)", -56.4)]
-    [TestCase("(128)%", -1.28)]
-    public void NumberValueConvertsTextToNumber(string text, double expectedResult)
-    {
-        double actual = (double)XLWorkbook.EvaluateExprCurrent($"NUMBERVALUE(\"{text}\")");
-        Assert.AreEqual(expectedResult, actual);
+        ClassicAssert.AreEqual("😊\uD83D", XLWorkbook.EvaluateExpr("""MID("😊😊😊",1,3)"""));
+        ClassicAssert.AreEqual("😊😊", XLWorkbook.EvaluateExpr("""MID("😊😊😊",1,4)"""));
+        ClassicAssert.AreEqual("\uDE0A😊\uD83D", XLWorkbook.EvaluateExpr("""MID("😊😊😊",2,4)"""));
+        ClassicAssert.AreEqual(3, XLWorkbook.EvaluateExpr("""LEN(MID("😊😊😊",1,3))"""));
     }
 
     [Test]
-    [SetCulture("de-DE")]
+    [Arguments("", 0d)]
+    [Arguments("+ 1", 1d)]
+    [Arguments("+1", 1d)]
+    [Arguments("+1.23", 1.23)]
+    [Arguments("- 1.23", -1.23)]
+    [Arguments(" - 0 1 2 . 3 4 ", -12.34)]
+    [Arguments(" - 0 \t1\t2\r .\n3 4 ", -12.34)]
+    [Arguments(".1", 0.1)]
+    [Arguments("-.1", -0.1)]
+    [Arguments("1.234567890E+307", 1.234567890E+307)]
+    [Arguments("1.234567890E-307", 1.234567890E-307d)]
+    [Arguments("1.234567890E-309", 0d)]
+    [Arguments("-1.234567890E-307", -1.234567890E-307d)]
+    [Arguments(".99999999999999", 0.99999999999999)]
+    [Arguments("1,23,4", 1234)]
+    [Arguments("1,234,56", 123456)]
+    [Arguments("1e-308", 0)]
+    [Arguments("-1e-308", 0)]
+    [Arguments("75825%", 758.25)]
+    [Arguments("75825%%", 7.5825)]
+    [Arguments("(56.4)", -56.4)]
+    [Arguments("(128)%", -1.28)]
+    public void NumberValueConvertsTextToNumber(string text, double expectedResult)
+    {
+        double actual = (double)XLWorkbook.EvaluateExprCurrent($"NUMBERVALUE(\"{text}\")");
+        ClassicAssert.AreEqual(expectedResult, actual);
+    }
+
+    [Test]
+    [Culture("de-DE")]
     public void NumberValueTakesSeparatorsFromCurrentCulture()
     {
         double actual = (double)XLWorkbook.EvaluateExprCurrent("NUMBERVALUE(\"10.0.00.0,25\")");
-        Assert.AreEqual(100000.25, actual);
+        ClassicAssert.AreEqual(100000.25, actual);
     }
 
-    [TestCase("1,234.56", ".", ",", 1234.56d)]
-    [TestCase("1.234,56", ",", ".", 1234.56d)]
-    [TestCase("1.234,56", ",ABC", ".DEF", 1234.56d)] // Only first char of separators is used
+    [Test]
+    [Arguments("1,234.56", ".", ",", 1234.56d)]
+    [Arguments("1.234,56", ",", ".", 1234.56d)]
+    [Arguments("1.234,56", ",ABC", ".DEF", 1234.56d)] // Only first char of separators is used
     public void NumberValueOptionalParametersCanSetDecimalAndGroupSeparators(
         string text,
         string @decimal,
@@ -661,89 +701,104 @@ public class TextTests
     {
         double actual = (double)
             XLWorkbook.EvaluateExpr($"NUMBERVALUE(\"{text}\",\"{@decimal}\",\"{group}\")");
-        Assert.AreEqual(expectedResult, actual);
+        ClassicAssert.AreEqual(expectedResult, actual);
     }
 
-    [TestCase("NUMBERVALUE(\"123.45\", \".\", \".\")")] // Group separator same as decimal separator
-    [TestCase("NUMBERVALUE(\"1.234.5\")")] // Two decimal separators
-    [TestCase("NUMBERVALUE(\"1.234,5\")")] // Decimal separator before group separator
-    [TestCase("NUMBERVALUE(\"12;34\")")] // Illegal character
-    [TestCase("NUMBERVALUE(\"--1\")")] // Two minuses
-    [TestCase("NUMBERVALUE(\"1.234567890E+308\")")] // Too large
-    [TestCase("NUMBERVALUE(\"-1.234567890E+308\")")] // Too large (negative)
-    [TestCase("NUMBERVALUE(\"1.234567890E-310\")")] // Too tiny
-    [TestCase("NUMBERVALUE(\"-1.234567890E-310\")")] // Too tiny (negative)
-    [TestCase("NUMBERVALUE(\"1\",\".\",\"\")")] // Empty group separator
-    [TestCase("NUMBERVALUE(\"1\",\"\",\",\")")] // Empty decimal separators
+    [Test]
+    [Arguments("NUMBERVALUE(\"123.45\", \".\", \".\")")] // Group separator same as decimal separator
+    [Arguments("NUMBERVALUE(\"1.234.5\")")] // Two decimal separators
+    [Arguments("NUMBERVALUE(\"1.234,5\")")] // Decimal separator before group separator
+    [Arguments("NUMBERVALUE(\"12;34\")")] // Illegal character
+    [Arguments("NUMBERVALUE(\"--1\")")] // Two minuses
+    [Arguments("NUMBERVALUE(\"1.234567890E+308\")")] // Too large
+    [Arguments("NUMBERVALUE(\"-1.234567890E+308\")")] // Too large (negative)
+    [Arguments("NUMBERVALUE(\"1.234567890E-310\")")] // Too tiny
+    [Arguments("NUMBERVALUE(\"-1.234567890E-310\")")] // Too tiny (negative)
+    [Arguments("NUMBERVALUE(\"1\",\".\",\"\")")] // Empty group separator
+    [Arguments("NUMBERVALUE(\"1\",\"\",\",\")")] // Empty decimal separators
     public void NumberValueReturnsErrorOnUnparsableTextsOutOfRange(string expression) =>
-        Assert.AreEqual(XLError.IncompatibleValue, XLWorkbook.EvaluateExpr(expression));
+        ClassicAssert.AreEqual(XLError.IncompatibleValue, XLWorkbook.EvaluateExpr(expression));
 
-    [TestCase("", ExpectedResult = "")]
-    [TestCase("12aBC d123aD#$%sd^", ExpectedResult = "12Abc D123Ad#$%Sd^")]
-    [TestCase("this is a TITLE", ExpectedResult = "This Is A Title")]
-    [TestCase("2-way street", ExpectedResult = "2-Way Street")]
-    [TestCase("76BudGet", ExpectedResult = "76Budget")]
-    [TestCase("my name is francois botha", ExpectedResult = "My Name Is Francois Botha")]
-    [TestCase("\ud83a\udd32", ExpectedResult = "\ud83a\udd32")] // U+1E932 has uppercase variant, but nothing changes, because PROPER uses code units
-    public string ProperUpperCasesFirstLetterAndLowerCasesNextLetters(string text) =>
-        XLWorkbook.EvaluateExpr($"""PROPER("{text}")""").GetText();
+    [Test]
+    [Arguments("", "")]
+    [Arguments("12aBC d123aD#$%sd^", "12Abc D123Ad#$%Sd^")]
+    [Arguments("this is a TITLE", "This Is A Title")]
+    [Arguments("2-way street", "2-Way Street")]
+    [Arguments("76BudGet", "76Budget")]
+    [Arguments("my name is francois botha", "My Name Is Francois Botha")]
+    [Arguments("\ud83a\udd32", "\ud83a\udd32")] // U+1E932 has uppercase variant, but nothing changes, because PROPER uses code units
+    public void ProperUpperCasesFirstLetterAndLowerCasesNextLetters(string text, string expected)
+    {
+        ClassicAssert.AreEqual(
+            expected,
+            XLWorkbook.EvaluateExpr($"""PROPER("{text}")""").GetText()
+        );
+    }
 
-    [TestCase(1, 1)]
-    [TestCase(1, 0)]
-    [TestCase(1, 10)]
-    [TestCase(10, 1)]
-    [TestCase(10, 10)]
+    [Test]
+    [Arguments(1, 1)]
+    [Arguments(1, 0)]
+    [Arguments(1, 10)]
+    [Arguments(10, 1)]
+    [Arguments(10, 10)]
     public void ReplaceBeyondLimitAppendsReplacement(int startPos, int length)
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr(
             $"""REPLACE("",{startPos},{length},"new text")"""
         );
-        Assert.AreEqual("new text", actual);
+        ClassicAssert.AreEqual("new text", actual);
     }
 
-    [TestCase(
+    [Test]
+    [Arguments(
         "Here is some obsolete text to replace.",
         14,
         13,
         "new text",
-        ExpectedResult = "Here is some new text to replace."
+        "Here is some new text to replace."
     )]
-    [TestCase("ABC", 1, 2, "D", ExpectedResult = "DC")]
-    [TestCase("ABC", 3, 1, "D", ExpectedResult = "ABD")]
-    [TestCase("ABC", 3, 0, "D", ExpectedResult = @"ABDC")]
-    [TestCase("ABC", 4, 1, "D", ExpectedResult = @"ABCD")]
-    [TestCase("ABC", 4, 0, "D", ExpectedResult = @"ABCD")]
-    [TestCase("ABC", 1, 3, "D", ExpectedResult = "D")]
-    [TestCase("ABC", 2, 2, "D", ExpectedResult = "AD")]
-    [TestCase("ABC", 2, 0, "D", ExpectedResult = @"ADBC")]
-    [TestCase("ABC", 2, 3, "D", ExpectedResult = "AD")]
-    [TestCase(@"abcdefghijk", 3, 4, "XY", ExpectedResult = @"abXYghijk")]
-    [TestCase(@"abcdefghijk", 3, 1, "12345", ExpectedResult = @"ab12345defghijk")]
-    [TestCase(@"abcdefghijk", 15, 4, "XY", ExpectedResult = @"abcdefghijkXY")]
-    public string ReplaceReplacesValue(
+    [Arguments("ABC", 1, 2, "D", "DC")]
+    [Arguments("ABC", 3, 1, "D", "ABD")]
+    [Arguments("ABC", 3, 0, "D", @"ABDC")]
+    [Arguments("ABC", 4, 1, "D", @"ABCD")]
+    [Arguments("ABC", 4, 0, "D", @"ABCD")]
+    [Arguments("ABC", 1, 3, "D", "D")]
+    [Arguments("ABC", 2, 2, "D", "AD")]
+    [Arguments("ABC", 2, 0, "D", @"ADBC")]
+    [Arguments("ABC", 2, 3, "D", "AD")]
+    [Arguments(@"abcdefghijk", 3, 4, "XY", @"abXYghijk")]
+    [Arguments(@"abcdefghijk", 3, 1, "12345", @"ab12345defghijk")]
+    [Arguments(@"abcdefghijk", 15, 4, "XY", @"abcdefghijkXY")]
+    public void ReplaceReplacesValue(
         string text,
         double startPos,
         int length,
-        string replacement
-    ) =>
-        XLWorkbook
-            .EvaluateExpr($"""REPLACE("{text}",{startPos},{length},"{replacement}")""")
-            .GetText();
+        string replacement,
+        string expected
+    )
+    {
+        ClassicAssert.AreEqual(
+            expected,
+            XLWorkbook
+                .EvaluateExpr($"""REPLACE("{text}",{startPos},{length},"{replacement}")""")
+                .GetText()
+        );
+    }
 
     [Test]
     public void ReplaceStartPositionMustBeFrom1To32767()
     {
-        Assert.AreEqual(@"DABC", XLWorkbook.EvaluateExpr("""REPLACE("ABC",1,0,"D")"""));
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(@"DABC", XLWorkbook.EvaluateExpr("""REPLACE("ABC",1,0,"D")"""));
+        ClassicAssert.AreEqual(
             XLError.IncompatibleValue,
             XLWorkbook.EvaluateExpr("""REPLACE("ABC",0.9,0,"D")""")
         );
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             XLError.IncompatibleValue,
             XLWorkbook.EvaluateExpr("""REPLACE("ABC",-1,0,"D")""")
         );
-        Assert.AreEqual("D", XLWorkbook.EvaluateExpr("""REPLACE("ABC",1,32767.9,"D")"""));
-        Assert.AreEqual(
+        ClassicAssert.AreEqual("D", XLWorkbook.EvaluateExpr("""REPLACE("ABC",1,32767.9,"D")"""));
+        ClassicAssert.AreEqual(
             XLError.IncompatibleValue,
             XLWorkbook.EvaluateExpr("""REPLACE("ABC",1,32768,"D")""")
         );
@@ -752,13 +807,13 @@ public class TextTests
     [Test]
     public void ReplaceLengthMustBeFrom0To32767()
     {
-        Assert.AreEqual("ABC", XLWorkbook.EvaluateExpr("""REPLACE("ABC",1,0,"")"""));
-        Assert.AreEqual(
+        ClassicAssert.AreEqual("ABC", XLWorkbook.EvaluateExpr("""REPLACE("ABC",1,0,"")"""));
+        ClassicAssert.AreEqual(
             XLError.IncompatibleValue,
             XLWorkbook.EvaluateExpr("""REPLACE("ABC",1,-0.1,"D")""")
         );
-        Assert.AreEqual("D", XLWorkbook.EvaluateExpr("""REPLACE("ABC",1, 32767.9,"D")"""));
-        Assert.AreEqual(
+        ClassicAssert.AreEqual("D", XLWorkbook.EvaluateExpr("""REPLACE("ABC",1, 32767.9,"D")"""));
+        ClassicAssert.AreEqual(
             XLError.IncompatibleValue,
             XLWorkbook.EvaluateExpr("""REPLACE("ABC",1, 32768,"D")""")
         );
@@ -768,14 +823,15 @@ public class TextTests
     public void ReptReturnsEmptyStringWhenTextIsEmptyString()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr("""REPT("",3)""");
-        Assert.AreEqual("", actual);
+        ClassicAssert.AreEqual("", actual);
     }
 
-    [TestCase(-1)]
-    [TestCase(-0.1)]
-    [TestCase(2147483648)]
+    [Test]
+    [Arguments(-1)]
+    [Arguments(-0.1)]
+    [Arguments(2147483648)]
     public void ReptReturnsErrorWhenCountIsNegativeOrGreaterThanMaxInt(double count) =>
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             XLError.IncompatibleValue,
             XLWorkbook.EvaluateExpr($"""REPT("",{count})""")
         );
@@ -783,108 +839,129 @@ public class TextTests
     [Test]
     public void ReptLimitsOutputTextLengthTo32767()
     {
-        Assert.AreEqual(new string('A', 32767), XLWorkbook.EvaluateExpr("""REPT("A",32767)"""));
-        Assert.AreEqual(XLError.IncompatibleValue, XLWorkbook.EvaluateExpr("""REPT("A",32768)"""));
+        ClassicAssert.AreEqual(
+            new string('A', 32767),
+            XLWorkbook.EvaluateExpr("""REPT("A",32767)""")
+        );
+        ClassicAssert.AreEqual(
+            XLError.IncompatibleValue,
+            XLWorkbook.EvaluateExpr("""REPT("A",32768)""")
+        );
     }
 
-    [TestCase("ABC", 3, ExpectedResult = @"ABCABCABC")]
-    [TestCase("123", 2.5, ExpectedResult = "123123")]
-    [TestCase("Francois", 0, ExpectedResult = "")]
-    [TestCase(
-        "Francois Botha,",
-        3,
-        ExpectedResult = "Francois Botha,Francois Botha,Francois Botha,"
-    )]
-    public string ReptValue(string text, double count) =>
-        XLWorkbook.EvaluateExpr($"""REPT("{text}",{count})""").GetText();
+    [Test]
+    [Arguments("ABC", 3, @"ABCABCABC")]
+    [Arguments("123", 2.5, "123123")]
+    [Arguments("Francois", 0, "")]
+    [Arguments("Francois Botha,", 3, "Francois Botha,Francois Botha,Francois Botha,")]
+    public void ReptValue(string text, double count, string expected)
+    {
+        ClassicAssert.AreEqual(
+            expected,
+            XLWorkbook.EvaluateExpr($"""REPT("{text}",{count})""").GetText()
+        );
+    }
 
-    [TestCase(5)]
-    [TestCase(3)]
+    [Test]
+    [Arguments(5)]
+    [Arguments(3)]
     public void RightReturnsWholeTextWhenRequestedLengthIsGreaterThanTextLength(int length)
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr($"""RIGHT("ABC",{length})""");
-        Assert.AreEqual("ABC", actual);
+        ClassicAssert.AreEqual("ABC", actual);
     }
 
     [Test]
     public void RightTakesOneCharacterByDefault()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr("""RIGHT("ABC")""");
-        Assert.AreEqual("C", actual);
+        ClassicAssert.AreEqual("C", actual);
     }
 
     [Test]
     public void RightReturnsErrorOnNegativeNumberOfChars() =>
-        Assert.AreEqual(XLError.IncompatibleValue, XLWorkbook.EvaluateExpr("""RIGHT("ABC",-1)"""));
+        ClassicAssert.AreEqual(
+            XLError.IncompatibleValue,
+            XLWorkbook.EvaluateExpr("""RIGHT("ABC",-1)""")
+        );
 
     [Test]
     public void RightReturnsEmptyStringOnEmptyInput()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr("""RIGHT("")""");
-        Assert.AreEqual("", actual);
+        ClassicAssert.AreEqual("", actual);
     }
 
-    [TestCase("ABC", 0, ExpectedResult = "")]
-    [TestCase("ABC", 1, ExpectedResult = "C")]
-    [TestCase("ABC", 2, ExpectedResult = "BC")]
-    [TestCase("ABC", 3, ExpectedResult = "ABC")]
-    [TestCase("ABC", 4, ExpectedResult = "ABC")]
-    [TestCase("ABC", 2.9, ExpectedResult = "BC")]
-    [TestCase("Z\uD83D\uDC69", 1, ExpectedResult = "\uD83D\uDC69")] // Smiley emoji
-    [TestCase("\uD83D\uDC69Z", 2, ExpectedResult = "\uD83D\uDC69Z")]
-    [TestCase("\uD83D\uDC69Z", 3, ExpectedResult = "\uD83D\uDC69Z")]
-    public string RightTakesSpecifiedNumberOfCharacters(string text, double numChars) =>
-        XLWorkbook.EvaluateExpr($"""RIGHT("{text}",{numChars})""").GetText();
+    [Test]
+    [Arguments("ABC", 0, "")]
+    [Arguments("ABC", 1, "C")]
+    [Arguments("ABC", 2, "BC")]
+    [Arguments("ABC", 3, "ABC")]
+    [Arguments("ABC", 4, "ABC")]
+    [Arguments("ABC", 2.9, "BC")]
+    [Arguments("Z\uD83D\uDC69", 1, "\uD83D\uDC69")] // Smiley emoji
+    [Arguments("\uD83D\uDC69Z", 2, "\uD83D\uDC69Z")]
+    [Arguments("\uD83D\uDC69Z", 3, "\uD83D\uDC69Z")]
+    public void RightTakesSpecifiedNumberOfCharacters(string text, double numChars, string expected)
+    {
+        ClassicAssert.AreEqual(
+            expected,
+            XLWorkbook.EvaluateExpr($"""RIGHT("{text}",{numChars})""").GetText()
+        );
+    }
 
     [Test]
     public void SearchEmptyPatternAndEmptyText() =>
-        Assert.AreEqual(XLError.IncompatibleValue, XLWorkbook.EvaluateExpr(@"SEARCH("""", """")"));
+        ClassicAssert.AreEqual(
+            XLError.IncompatibleValue,
+            XLWorkbook.EvaluateExpr(@"SEARCH("""", """")")
+        );
 
     [Test]
     public void SearchEmptySearchPatternReturnsStartOfText()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr(@"SEARCH("""", ""asdf"")");
-        Assert.AreEqual(1, actual);
+        ClassicAssert.AreEqual(1, actual);
     }
 
     [Test]
     public void SearchLooksOnlyFromStartPositionOnward() =>
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             XLError.IncompatibleValue,
             XLWorkbook.EvaluateExpr(@"SEARCH(""This"", ""This is some text"", 2)")
         );
 
     [Test]
     public void SearchStartPositionTooLarge() =>
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             XLError.IncompatibleValue,
             XLWorkbook.EvaluateExpr(@"SEARCH(""abc"", ""abcdef"", 10)")
         );
 
     [Test]
     public void SearchStartPositionTooSmall() =>
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             XLError.IncompatibleValue,
             XLWorkbook.EvaluateExpr(@"SEARCH(""text"", ""This is some text"", 0)")
         );
 
     [Test]
     public void SearchEmptySearchedTextReturnsError() =>
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             XLError.IncompatibleValue,
             XLWorkbook.EvaluateExpr(@"SEARCH(""abc"", """")")
         );
 
     [Test]
     public void SearchTextNotFound() =>
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             XLError.IncompatibleValue,
             XLWorkbook.EvaluateExpr(@"SEARCH(""123"", ""asdf"")")
         );
 
     [Test]
     public void SearchWildcardStringNotFound() =>
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             XLError.IncompatibleValue,
             XLWorkbook.EvaluateExpr(@"SEARCH(""soft?2010"", ""Microsoft Excel 2010"")")
         );
@@ -894,68 +971,68 @@ public class TextTests
     public void SearchValue()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr(@"SEARCH(""Tuesday"", ""Today is Tuesday"")");
-        Assert.AreEqual(10, actual);
+        ClassicAssert.AreEqual(10, actual);
 
         // The search is case-insensitive
         actual = XLWorkbook.EvaluateExpr(@"SEARCH(""excel"", ""Microsoft Excel 2010"")");
-        Assert.AreEqual(11, actual);
+        ClassicAssert.AreEqual(11, actual);
 
         actual = XLWorkbook.EvaluateExpr(@"SEARCH(""soft*2010"", ""Microsoft Excel 2010"")");
-        Assert.AreEqual(6, actual);
+        ClassicAssert.AreEqual(6, actual);
 
         actual = XLWorkbook.EvaluateExpr(@"SEARCH(""Excel 20??"", ""Microsoft Excel 2010"")");
-        Assert.AreEqual(11, actual);
+        ClassicAssert.AreEqual(11, actual);
 
         actual = XLWorkbook.EvaluateExpr(@"SEARCH(""text"", ""This is some text"", 14)");
-        Assert.AreEqual(14, actual);
+        ClassicAssert.AreEqual(14, actual);
     }
 
     [Test]
     public void SearchTildeEscapesNextChar()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr(@"SEARCH(""~a~b~"", ""ab"")");
-        Assert.AreEqual(1, actual);
+        ClassicAssert.AreEqual(1, actual);
 
         actual = XLWorkbook.EvaluateExpr(@"SEARCH(""a~*"", ""a*"")");
-        Assert.AreEqual(1, actual);
+        ClassicAssert.AreEqual(1, actual);
 
         actual = XLWorkbook.EvaluateExpr(@"SEARCH(""a~*"", ""ab"")");
-        Assert.AreEqual(XLError.IncompatibleValue, actual);
+        ClassicAssert.AreEqual(XLError.IncompatibleValue, actual);
 
         actual = XLWorkbook.EvaluateExpr(@"SEARCH(""a~?"", ""a?"")");
-        Assert.AreEqual(1, actual);
+        ClassicAssert.AreEqual(1, actual);
 
         actual = XLWorkbook.EvaluateExpr(@"SEARCH(""a~?"", ""ab"")");
-        Assert.AreEqual(XLError.IncompatibleValue, actual);
+        ClassicAssert.AreEqual(XLError.IncompatibleValue, actual);
     }
 
     [Test]
     public void SearchArgumentsAreConvertedToExpectedTypes()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr(@"SEARCH(1.2, ""A1.2B"")");
-        Assert.AreEqual(2, actual);
+        ClassicAssert.AreEqual(2, actual);
 
         actual = XLWorkbook.EvaluateExpr(@"SEARCH(TRUE, ""ATRUE"")");
-        Assert.AreEqual(2, actual);
+        ClassicAssert.AreEqual(2, actual);
 
         actual = XLWorkbook.EvaluateExpr(@"SEARCH(23, 1.2345)");
-        Assert.AreEqual(3, actual);
+        ClassicAssert.AreEqual(3, actual);
 
         actual = XLWorkbook.EvaluateExpr(@"SEARCH(""a"", ""aaaaa"", ""2 1/2"")");
-        Assert.AreEqual(2, actual);
+        ClassicAssert.AreEqual(2, actual);
     }
 
     [Test]
     public void SearchErrorArgumentsReturnTheError()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr(@"SEARCH(#N/A, ""a"")");
-        Assert.AreEqual(XLError.NoValueAvailable, actual);
+        ClassicAssert.AreEqual(XLError.NoValueAvailable, actual);
 
         actual = XLWorkbook.EvaluateExpr(@"SEARCH("""", #N/A)");
-        Assert.AreEqual(XLError.NoValueAvailable, actual);
+        ClassicAssert.AreEqual(XLError.NoValueAvailable, actual);
 
         actual = XLWorkbook.EvaluateExpr(@"SEARCH(""a"", ""a"", #N/A)");
-        Assert.AreEqual(XLError.NoValueAvailable, actual);
+        ClassicAssert.AreEqual(XLError.NoValueAvailable, actual);
     }
 
     [Test]
@@ -964,48 +1041,48 @@ public class TextTests
         XLCellValue actual = XLWorkbook.EvaluateExpr(
             @"SUBSTITUTE(""This is a Tuesday."", ""Tuesday"", ""Monday"")"
         );
-        Assert.AreEqual("This is a Monday.", actual);
+        ClassicAssert.AreEqual("This is a Monday.", actual);
 
         actual = XLWorkbook.EvaluateExpr(
             @"SUBSTITUTE(""This is a Tuesday. Next week also has a Tuesday."", ""Tuesday"", ""Monday"", 1)"
         );
-        Assert.AreEqual("This is a Monday. Next week also has a Tuesday.", actual);
+        ClassicAssert.AreEqual("This is a Monday. Next week also has a Tuesday.", actual);
 
         actual = XLWorkbook.EvaluateExpr(
             @"SUBSTITUTE(""This is a Tuesday. Next week also has a Tuesday."", ""Tuesday"", ""Monday"", 2)"
         );
-        Assert.AreEqual("This is a Tuesday. Next week also has a Monday.", actual);
+        ClassicAssert.AreEqual("This is a Tuesday. Next week also has a Monday.", actual);
 
         actual = XLWorkbook.EvaluateExpr(
             @"SUBSTITUTE(""This is a Tuesday. Next week also has a Tuesday."", """", ""Monday"")"
         );
-        Assert.AreEqual("This is a Tuesday. Next week also has a Tuesday.", actual);
+        ClassicAssert.AreEqual("This is a Tuesday. Next week also has a Tuesday.", actual);
 
         actual = XLWorkbook.EvaluateExpr(
             @"SUBSTITUTE(""This is a Tuesday. Next week also has a Tuesday."", ""Tuesday"", """")"
         );
-        Assert.AreEqual("This is a . Next week also has a .", actual);
+        ClassicAssert.AreEqual("This is a . Next week also has a .", actual);
     }
 
     [Test]
     public void SubstituteOnEmptyStringReturnsEmptyString()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr(@"SUBSTITUTE("""","""",""Monday"")");
-        Assert.AreEqual("", actual);
+        ClassicAssert.AreEqual("", actual);
     }
 
     [Test]
     public void SubstituteIsCaseSensitive()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr("""SUBSTITUTE("A","a","Z")""");
-        Assert.AreEqual("A", actual);
+        ClassicAssert.AreEqual("A", actual);
     }
 
     [Test]
     public void SubstituteReturnsOriginalStringWhenOccurrenceIsNotFound()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr(@"SUBSTITUTE(""ABCABC"",""A"",""Z"",3)");
-        Assert.AreEqual(@"ABCABC", actual);
+        ClassicAssert.AreEqual(@"ABCABC", actual);
     }
 
     [Test]
@@ -1013,65 +1090,65 @@ public class TextTests
     {
         // AA is matches at every character, it doesn't skip
         XLCellValue actual = XLWorkbook.EvaluateExpr("""SUBSTITUTE("AAAAAAAA","AA","ZZ",3)""");
-        Assert.AreEqual(@"AAZZAAAA", actual);
+        ClassicAssert.AreEqual(@"AAZZAAAA", actual);
     }
 
     [Test]
     public void SubstituteOccurenceMustBeBetweenOneAndMaxInt()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr(@"SUBSTITUTE(""ABC"",""B"",""ZZ"",0.9)");
-        Assert.AreEqual(XLError.IncompatibleValue, actual);
+        ClassicAssert.AreEqual(XLError.IncompatibleValue, actual);
 
         actual = XLWorkbook.EvaluateExpr(@"SUBSTITUTE(""ABC"",""B"",""ZZ"", 2147483646.9)");
-        Assert.AreEqual("ABC", actual);
+        ClassicAssert.AreEqual("ABC", actual);
 
         actual = XLWorkbook.EvaluateExpr(@"SUBSTITUTE(""ABC"",""B"",""ZZ"", 2147483647)");
-        Assert.AreEqual(XLError.IncompatibleValue, actual);
+        ClassicAssert.AreEqual(XLError.IncompatibleValue, actual);
     }
 
     [Test]
     public void TReturnsEmptyStringOnNonText()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr("T(TODAY())");
-        Assert.AreEqual("", actual);
+        ClassicAssert.AreEqual("", actual);
 
         actual = XLWorkbook.EvaluateExpr("T(IF(TRUE,,))");
-        Assert.AreEqual("", actual);
+        ClassicAssert.AreEqual("", actual);
 
         actual = XLWorkbook.EvaluateExpr("T(TRUE)");
-        Assert.AreEqual("", actual);
+        ClassicAssert.AreEqual("", actual);
 
         actual = XLWorkbook.EvaluateExpr("T(123)");
-        Assert.AreEqual("", actual);
+        ClassicAssert.AreEqual("", actual);
     }
 
     [Test]
     public void TPropagatesError() =>
-        Assert.AreEqual(XLError.DivisionByZero, XLWorkbook.EvaluateExpr("T(#DIV/0!)"));
+        ClassicAssert.AreEqual(XLError.DivisionByZero, XLWorkbook.EvaluateExpr("T(#DIV/0!)"));
 
     [Test]
     public void TReturnsTextWhenValueIsText()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr("""T("asdf")""");
-        Assert.AreEqual("asdf", actual);
+        ClassicAssert.AreEqual("asdf", actual);
 
         actual = XLWorkbook.EvaluateExpr("""T("")""");
-        Assert.AreEqual("", actual);
+        ClassicAssert.AreEqual("", actual);
     }
 
     [Test]
     public void TReturnsArrayOfResultsWhenArgumentIsArray()
     {
         const string formula = """T({"A",5,"B"})""";
-        Assert.AreEqual(3, XLWorkbook.EvaluateExpr($"""COLUMNS({formula})"""));
-        Assert.AreEqual(1, XLWorkbook.EvaluateExpr($"""ROWS({formula})"""));
-        Assert.AreEqual("A", XLWorkbook.EvaluateExpr($"""INDEX({formula},1,1)"""));
-        Assert.AreEqual("", XLWorkbook.EvaluateExpr($"""INDEX({formula},1,2)"""));
-        Assert.AreEqual("B", XLWorkbook.EvaluateExpr($"""INDEX({formula},1,3)"""));
+        ClassicAssert.AreEqual(3, XLWorkbook.EvaluateExpr($"""COLUMNS({formula})"""));
+        ClassicAssert.AreEqual(1, XLWorkbook.EvaluateExpr($"""ROWS({formula})"""));
+        ClassicAssert.AreEqual("A", XLWorkbook.EvaluateExpr($"""INDEX({formula},1,1)"""));
+        ClassicAssert.AreEqual("", XLWorkbook.EvaluateExpr($"""INDEX({formula},1,2)"""));
+        ClassicAssert.AreEqual("B", XLWorkbook.EvaluateExpr($"""INDEX({formula},1,3)"""));
 
         // Array doesn't propagate single error, but returns errors in the array
-        Assert.AreEqual("A", XLWorkbook.EvaluateExpr("""INDEX(T({"A",#REF!}),1,1)"""));
-        Assert.AreEqual(
+        ClassicAssert.AreEqual("A", XLWorkbook.EvaluateExpr("""INDEX(T({"A",#REF!}),1,1)"""));
+        ClassicAssert.AreEqual(
             XLError.CellReference,
             XLWorkbook.EvaluateExpr("""INDEX(T({"A",#REF!}),1,2)""")
         );
@@ -1086,47 +1163,60 @@ public class TextTests
         ws.Cell("B4").Value = 10;
         ws.Cell("B5").Value = XLError.NoValueAvailable;
 
-        Assert.AreEqual("ABC", ws.Evaluate("T(B3:B4)"));
-        Assert.AreEqual(2, ws.Evaluate("TYPE(T(B3:B4))")); // Is text, not array
+        ClassicAssert.AreEqual("ABC", ws.Evaluate("T(B3:B4)"));
+        ClassicAssert.AreEqual(2, ws.Evaluate("TYPE(T(B3:B4))")); // Is text, not array
 
-        Assert.AreEqual(string.Empty, ws.Evaluate("T(B4:C4)"));
+        ClassicAssert.AreEqual(string.Empty, ws.Evaluate("T(B4:C4)"));
 
-        Assert.AreEqual(XLError.NoValueAvailable, ws.Evaluate("T(B5:C5)"));
+        ClassicAssert.AreEqual(XLError.NoValueAvailable, ws.Evaluate("T(B5:C5)"));
     }
 
     [Test]
     public void TextReturnsEmptyStringOnEmptyString()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr(@"TEXT(1913415.93,"""")");
-        Assert.AreEqual(string.Empty, actual);
+        ClassicAssert.AreEqual(string.Empty, actual);
     }
 
-    [TestCase("DATE(2010, 1, 1)", "yyyy-MM-dd", ExpectedResult = "2010-01-01")]
-    [TestCase("1469.07", "0,000,000.00", ExpectedResult = "0,001,469.07")]
-    [TestCase("1913415.93", "#,000.00", ExpectedResult = "1,913,415.93")]
-    [TestCase("2800", "$0.00", ExpectedResult = "$2800.00")]
-    [TestCase("0.4", "0%", ExpectedResult = "40%")]
-    [TestCase("DATE(2010, 1, 1)", "MMMM yyyy", ExpectedResult = "January 2010")]
-    [TestCase("DATE(2010, 1, 1)", "M/d/y", ExpectedResult = "1/1/10")]
-    [TestCase("1234.567", "$0.00", ExpectedResult = "$1234.57")]
-    [TestCase(".125", "$0.0%", ExpectedResult = "$12.5%")]
-    [TestCase("1234.567", "YYYY-MM-DD HH:MM:SS", ExpectedResult = "1903-05-18 13:36:28")] // Excel is one second off (29), but that is in the library
-    [TestCase("\"0.0245\"", "00%", ExpectedResult = "02%")]
-    public string TextFormatsNumber(string numberArg, string format) =>
-        XLWorkbook.EvaluateExpr($"TEXT({numberArg},\"{format}\")").GetText();
+    [Test]
+    [Arguments("DATE(2010, 1, 1)", "yyyy-MM-dd", "2010-01-01")]
+    [Arguments("1469.07", "0,000,000.00", "0,001,469.07")]
+    [Arguments("1913415.93", "#,000.00", "1,913,415.93")]
+    [Arguments("2800", "$0.00", "$2800.00")]
+    [Arguments("0.4", "0%", "40%")]
+    [Arguments("DATE(2010, 1, 1)", "MMMM yyyy", "January 2010")]
+    [Arguments("DATE(2010, 1, 1)", "M/d/y", "1/1/10")]
+    [Arguments("1234.567", "$0.00", "$1234.57")]
+    [Arguments(".125", "$0.0%", "$12.5%")]
+    [Arguments("1234.567", "YYYY-MM-DD HH:MM:SS", "1903-05-18 13:36:28")] // Excel is one second off (29), but that is in the library
+    [Arguments("\"0.0245\"", "00%", "02%")]
+    public void TextFormatsNumber(string numberArg, string format, string expected)
+    {
+        ClassicAssert.AreEqual(
+            expected,
+            XLWorkbook.EvaluateExpr($"TEXT({numberArg},\"{format}\")").GetText()
+        );
+    }
 
-    [TestCase("\"211x\"", ExpectedResult = "211x")]
-    [TestCase("true", ExpectedResult = "TRUE")]
-    public string TextReturnsStringRepresentationOfNonNumbers(string valueArg) =>
-        XLWorkbook.EvaluateExpr($@"TEXT({valueArg},""#00"")").GetText();
+    [Test]
+    [Arguments("\"211x\"", "211x")]
+    [Arguments("true", "TRUE")]
+    public void TextReturnsStringRepresentationOfNonNumbers(string valueArg, string expected)
+    {
+        ClassicAssert.AreEqual(
+            expected,
+            XLWorkbook.EvaluateExpr($@"TEXT({valueArg},""#00"")").GetText()
+        );
+    }
 
-    [TestCase(2020, 11, 1, 9, 23, 11, "m/d/yyyy h:mm:ss", "11/1/2020 9:23:11")]
-    [TestCase(2023, 7, 14, 2, 12, 3, "m/d/yyyy h:mm:ss", "7/14/2023 2:12:03")]
-    [TestCase(2025, 10, 14, 2, 48, 55, "m/d/yyyy h:mm:ss", "10/14/2025 2:48:55")]
-    [TestCase(2023, 2, 19, 22, 1, 38, "m/d/yyyy h:mm:ss", "2/19/2023 22:01:38")]
-    [TestCase(2025, 12, 19, 19, 43, 58, "m/d/yyyy h:mm:ss", "12/19/2025 19:43:58")]
-    [TestCase(2034, 11, 16, 1, 48, 9, "m/d/yyyy h:mm:ss", "11/16/2034 1:48:09")]
-    [TestCase(2018, 12, 10, 11, 22, 42, "m/d/yyyy h:mm:ss", "12/10/2018 11:22:42")]
+    [Test]
+    [Arguments(2020, 11, 1, 9, 23, 11, "m/d/yyyy h:mm:ss", "11/1/2020 9:23:11")]
+    [Arguments(2023, 7, 14, 2, 12, 3, "m/d/yyyy h:mm:ss", "7/14/2023 2:12:03")]
+    [Arguments(2025, 10, 14, 2, 48, 55, "m/d/yyyy h:mm:ss", "10/14/2025 2:48:55")]
+    [Arguments(2023, 2, 19, 22, 1, 38, "m/d/yyyy h:mm:ss", "2/19/2023 22:01:38")]
+    [Arguments(2025, 12, 19, 19, 43, 58, "m/d/yyyy h:mm:ss", "12/19/2025 19:43:58")]
+    [Arguments(2034, 11, 16, 1, 48, 9, "m/d/yyyy h:mm:ss", "11/16/2034 1:48:09")]
+    [Arguments(2018, 12, 10, 11, 22, 42, "m/d/yyyy h:mm:ss", "12/10/2018 11:22:42")]
     public void TextFormatsSerialDates(
         int year,
         int months,
@@ -1137,7 +1227,7 @@ public class TextTests
         string format,
         string expected
     ) =>
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             expected,
             XLWorkbook.EvaluateExpr(
                 $@"TEXT(DATE({year},{months},{days}) + TIME({hour},{minutes},{seconds}),""{format}"")"
@@ -1146,26 +1236,30 @@ public class TextTests
 
     [Test]
     public void TextPropagatesErrors() =>
-        Assert.AreEqual(XLError.CellReference, XLWorkbook.EvaluateExpr(@"TEXT(#REF!,""#00"")"));
+        ClassicAssert.AreEqual(
+            XLError.CellReference,
+            XLWorkbook.EvaluateExpr(@"TEXT(#REF!,""#00"")")
+        );
 
-    [TestCase("TEXTJOIN(\",\",TRUE,A1:B2)", "A,B,D")]
-    [TestCase("TEXTJOIN(\",\",FALSE,A1:B2)", "A,,B,D")]
-    [TestCase("TEXTJOIN(\",\",FALSE,A1,A2,B1,B2)", "A,B,,D")]
-    [TestCase("TEXTJOIN(\",\",FALSE,1)", "1")]
-    [TestCase("TEXTJOIN(\",\", TRUE, A:A, B:B)", "A,B,D")]
-    [TestCase("TEXTJOIN(\",\", TRUE, D1:E2)", "")]
-    [TestCase("TEXTJOIN(\",\", FALSE, D1:E2)", ",,,")]
-    [TestCase(
+    [Test]
+    [Arguments("TEXTJOIN(\",\",TRUE,A1:B2)", "A,B,D")]
+    [Arguments("TEXTJOIN(\",\",FALSE,A1:B2)", "A,,B,D")]
+    [Arguments("TEXTJOIN(\",\",FALSE,A1,A2,B1,B2)", "A,B,,D")]
+    [Arguments("TEXTJOIN(\",\",FALSE,1)", "1")]
+    [Arguments("TEXTJOIN(\",\", TRUE, A:A, B:B)", "A,B,D")]
+    [Arguments("TEXTJOIN(\",\", TRUE, D1:E2)", "")]
+    [Arguments("TEXTJOIN(\",\", FALSE, D1:E2)", ",,,")]
+    [Arguments(
         "TEXTJOIN(\",\", FALSE, D1:D32768)",
         ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
     )]
-    [TestCase("TEXTJOIN(0, FALSE, A1:B2)", "A00B0D")]
-    [TestCase("TEXTJOIN(false, FALSE, A1:B2)", @"AFALSEFALSEBFALSED")]
-    [TestCase("TEXTJOIN(\",\", 0, A1:B2)", "A,,B,D")]
-    [TestCase("TEXTJOIN(\",\", 100, A1:B2)", "A,B,D")]
-    [TestCase("TEXTJOIN(B2, FALSE, A1:B2)", @"ADDBDD")]
-    [TestCase("TEXTJOIN(\",\", FALSE, 12345.67, DATE(2018, 10, 30))", "12345.67,43403")]
-    [TestCase("TEXTJOIN(\",\", \"FALSE\", A1:B2)", "A,,B,D")]
+    [Arguments("TEXTJOIN(0, FALSE, A1:B2)", "A00B0D")]
+    [Arguments("TEXTJOIN(false, FALSE, A1:B2)", @"AFALSEFALSEBFALSED")]
+    [Arguments("TEXTJOIN(\",\", 0, A1:B2)", "A,,B,D")]
+    [Arguments("TEXTJOIN(\",\", 100, A1:B2)", "A,B,D")]
+    [Arguments("TEXTJOIN(B2, FALSE, A1:B2)", @"ADDBDD")]
+    [Arguments("TEXTJOIN(\",\", FALSE, 12345.67, DATE(2018, 10, 30))", "12345.67,43403")]
+    [Arguments("TEXTJOIN(\",\", \"FALSE\", A1:B2)", "A,,B,D")]
     public void TextJoinJoinsArgumentsWithSpecifiedDelimiter(string formula, string expectedOutput)
     {
         using XLWorkbook wb = new();
@@ -1178,10 +1272,11 @@ public class TextTests
         ws.Cell("C1").FormulaA1 = formula;
         XLCellValue a = ws.Cell("C1").Value;
 
-        Assert.AreEqual(expectedOutput, a);
+        ClassicAssert.AreEqual(expectedOutput, a);
     }
 
-    [TestCase("TEXTJOIN(\",\", FALSE, D1:D32769)")]
+    [Test]
+    [Arguments("TEXTJOIN(\",\", FALSE, D1:D32769)")]
     public void TextJoinOutputCanBeAtMost32767(string formula)
     {
         using XLWorkbook wb = new();
@@ -1191,67 +1286,74 @@ public class TextTests
 
         // Excel actually returns #CALC!, but we don't have that error, mostly
         // because parser doesn't recognize it.
-        Assert.AreEqual(XLError.IncompatibleValue, ws.Cell("C1").Value);
+        ClassicAssert.AreEqual(XLError.IncompatibleValue, ws.Cell("C1").Value);
     }
 
-    [TestCase("TEXTJOIN(\",\", \"Invalid\", \"Hello\", \"World\")")]
+    [Test]
+    [Arguments("TEXTJOIN(\",\", \"Invalid\", \"Hello\", \"World\")")]
     public void TextJoinCoercion(string formula) =>
-        Assert.AreEqual(XLError.IncompatibleValue, XLWorkbook.EvaluateExpr(formula));
+        ClassicAssert.AreEqual(XLError.IncompatibleValue, XLWorkbook.EvaluateExpr(formula));
 
-    [TestCase("", ExpectedResult = "")]
-    [TestCase(" ", ExpectedResult = "")]
-    [TestCase("    ", ExpectedResult = "")]
-    [TestCase(" Break\r\n   Line   ", ExpectedResult = "Break\r\n Line")]
-    [TestCase("non-whitespace-text", ExpectedResult = "non-whitespace-text")]
-    [TestCase("white space text", ExpectedResult = "white space text")]
-    [TestCase(" some text with padding   ", ExpectedResult = "some text with padding")]
-    [TestCase(" \t  A  \t ", ExpectedResult = "\t A \t")]
-    public string TrimTrimsSpacesAndRemovesMultiSpacesFromInsideText(string text) =>
-        XLWorkbook.EvaluateExpr($"""TRIM("{text}")""").GetText();
+    [Test]
+    [Arguments("", "")]
+    [Arguments(" ", "")]
+    [Arguments("    ", "")]
+    [Arguments(" Break\r\n   Line   ", "Break\r\n Line")]
+    [Arguments("non-whitespace-text", "non-whitespace-text")]
+    [Arguments("white space text", "white space text")]
+    [Arguments(" some text with padding   ", "some text with padding")]
+    [Arguments(" \t  A  \t ", "\t A \t")]
+    public void TrimTrimsSpacesAndRemovesMultiSpacesFromInsideText(string text, string expected)
+    {
+        ClassicAssert.AreEqual(expected, XLWorkbook.EvaluateExpr($"""TRIM("{text}")""").GetText());
+    }
 
     [Test]
     public void UpperEmptyStringReturnsEmptyString() =>
-        Assert.AreEqual("", XLWorkbook.EvaluateExpr("""UPPER("")"""));
+        ClassicAssert.AreEqual("", XLWorkbook.EvaluateExpr("""UPPER("")"""));
 
     [Test]
     public void UpperConvertsTextToUpperCase()
     {
         XLCellValue actual = XLWorkbook.EvaluateExpr("""UPPER("AbCdEfG")""");
-        Assert.AreEqual(@"ABCDEFG", actual);
+        ClassicAssert.AreEqual(@"ABCDEFG", actual);
     }
 
-    [SetCulture("tr-TR")]
+    [Culture("tr-TR")]
     [Test]
     public void UpperUsesWorkbookCulture()
     {
         // Türkiye converts i to İ, not I.
         using XLWorkbook wb = new();
-        Assert.AreEqual("İNTELLİGENCE 2.0!", wb.Evaluate("""UPPER("intelligence 2.0!")"""));
+        ClassicAssert.AreEqual("İNTELLİGENCE 2.0!", wb.Evaluate("""UPPER("intelligence 2.0!")"""));
     }
 
     [Test]
     public void ValueInputStringIsNotANumber() =>
-        Assert.AreEqual(XLError.IncompatibleValue, XLWorkbook.EvaluateExpr(@"VALUE(""asdf"")"));
+        ClassicAssert.AreEqual(
+            XLError.IncompatibleValue,
+            XLWorkbook.EvaluateExpr(@"VALUE(""asdf"")")
+        );
 
     [Test]
     public void ValueFromBlankIsZero()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
-        Assert.AreEqual(0d, ws.Evaluate("VALUE(A1)"));
+        ClassicAssert.AreEqual(0d, ws.Evaluate("VALUE(A1)"));
     }
 
     [Test]
     public void ValueFromEmptyStringIsError() =>
-        Assert.AreEqual(XLError.IncompatibleValue, XLWorkbook.EvaluateExpr("VALUE(\"\")"));
+        ClassicAssert.AreEqual(XLError.IncompatibleValue, XLWorkbook.EvaluateExpr("VALUE(\"\")"));
 
     [Test]
     public void ValuePassingUnexpectedTypes()
     {
-        Assert.AreEqual(14d, XLWorkbook.EvaluateExpr(@"VALUE(14)"));
-        Assert.AreEqual(XLError.IncompatibleValue, XLWorkbook.EvaluateExpr(@"VALUE(TRUE)"));
-        Assert.AreEqual(XLError.IncompatibleValue, XLWorkbook.EvaluateExpr(@"VALUE(FALSE)"));
-        Assert.AreEqual(XLError.DivisionByZero, XLWorkbook.EvaluateExpr(@"VALUE(#DIV/0!)"));
+        ClassicAssert.AreEqual(14d, XLWorkbook.EvaluateExpr(@"VALUE(14)"));
+        ClassicAssert.AreEqual(XLError.IncompatibleValue, XLWorkbook.EvaluateExpr(@"VALUE(TRUE)"));
+        ClassicAssert.AreEqual(XLError.IncompatibleValue, XLWorkbook.EvaluateExpr(@"VALUE(FALSE)"));
+        ClassicAssert.AreEqual(XLError.DivisionByZero, XLWorkbook.EvaluateExpr(@"VALUE(#DIV/0!)"));
     }
 
     [Test]
@@ -1260,13 +1362,13 @@ public class TextTests
         using XLWorkbook wb = new();
 
         // Examples from spec
-        Assert.AreEqual(123.456d, wb.Evaluate("VALUE(\"123.456\")"));
-        Assert.AreEqual(1000d, wb.Evaluate("VALUE(\"$1,000\")"));
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(123.456d, wb.Evaluate("VALUE(\"123.456\")"));
+        ClassicAssert.AreEqual(1000d, wb.Evaluate("VALUE(\"$1,000\")"));
+        ClassicAssert.AreEqual(
             new DateTime(2002, 3, 23).ToSerialDateTime(),
             wb.Evaluate("VALUE(\"23-Mar-2002\")")
         );
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             0.188056d,
             (double)wb.Evaluate("VALUE(\"16:48:00\")-VALUE(\"12:17:12\")"),
             0.000001d
@@ -1274,33 +1376,33 @@ public class TextTests
     }
 
     [Test]
-    [SetCulture("cs-CZ")]
+    [Culture("cs-CZ")]
     public void ValueNonEnglish()
     {
         using XLWorkbook wb = new();
 
         // Examples from spec
-        Assert.AreEqual(123.456d, wb.Evaluate("VALUE(\"123,456\")"));
-        Assert.AreEqual(1000d, wb.Evaluate("VALUE(\"1 000 Kč\")"));
-        Assert.AreEqual(37338d, wb.Evaluate("VALUE(\"23-bře-2002\")"));
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(123.456d, wb.Evaluate("VALUE(\"123,456\")"));
+        ClassicAssert.AreEqual(1000d, wb.Evaluate("VALUE(\"1 000 Kč\")"));
+        ClassicAssert.AreEqual(37338d, wb.Evaluate("VALUE(\"23-bře-2002\")"));
+        ClassicAssert.AreEqual(
             0.188056d,
             (double)wb.Evaluate("VALUE(\"16:48:00\")-VALUE(\"12:17:12\")"),
             0.000001d
         );
 
         // Various number/currency formats
-        Assert.AreEqual(-1d, wb.Evaluate("VALUE(\"(1)\")"));
-        Assert.AreEqual(-1d, wb.Evaluate("VALUE(\"(100%)\")"));
-        Assert.AreEqual(-1d, wb.Evaluate("VALUE(\"(100%)\")"));
-        Assert.AreEqual(-15d, wb.Evaluate("VALUE(\"(1,5e1 Kč)\")"));
-        Assert.AreEqual(-15d, wb.Evaluate("VALUE(\"(1,5e3%)\")"));
-        Assert.AreEqual(-15d, wb.Evaluate("VALUE(\"(1,5e3)%\")"));
+        ClassicAssert.AreEqual(-1d, wb.Evaluate("VALUE(\"(1)\")"));
+        ClassicAssert.AreEqual(-1d, wb.Evaluate("VALUE(\"(100%)\")"));
+        ClassicAssert.AreEqual(-1d, wb.Evaluate("VALUE(\"(100%)\")"));
+        ClassicAssert.AreEqual(-15d, wb.Evaluate("VALUE(\"(1,5e1 Kč)\")"));
+        ClassicAssert.AreEqual(-15d, wb.Evaluate("VALUE(\"(1,5e3%)\")"));
+        ClassicAssert.AreEqual(-15d, wb.Evaluate("VALUE(\"(1,5e3)%\")"));
 
         double expectedSerialDate = new DateTime(2022, 3, 5).ToSerialDateTime();
-        Assert.AreEqual(expectedSerialDate, wb.Evaluate("VALUE(\"5-březen-22\")"));
-        Assert.AreEqual(expectedSerialDate, wb.Evaluate("VALUE(\"05.03.2022\")"));
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(expectedSerialDate, wb.Evaluate("VALUE(\"5-březen-22\")"));
+        ClassicAssert.AreEqual(expectedSerialDate, wb.Evaluate("VALUE(\"05.03.2022\")"));
+        ClassicAssert.AreEqual(
             new DateTime(DateTime.Now.Year, 3, 5).ToSerialDateTime(),
             wb.Evaluate("VALUE(\"5-březen\")")
         );

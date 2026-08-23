@@ -1,6 +1,5 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 
 namespace XlsxSharp.Tests.Excel.AutoFilters;
@@ -81,7 +80,7 @@ internal class AutoFilterTester
             string formattedString = ((XLCell)ws.Cell(row, 1)).GetFormattedString(value);
             bool actualVisible = !ws.Row(row).IsHidden;
             bool expectedVisibility = this.values[i].ExpectedVisibility;
-            Assert.AreEqual(
+            ClassicAssert.AreEqual(
                 expectedVisibility,
                 actualVisible,
                 $"Visibility differs at index {i} for value {value} (formatted '{formattedString}')"

@@ -1,13 +1,11 @@
 using System;
 using System.Linq;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.DataValidation;
 using XlsxSharp.Excel.Tables;
 
 namespace XlsxSharp.Tests.Excel.DataValidations;
 
-[TestFixture]
 public class DataValidationTests
 {
     [Test]
@@ -31,8 +29,8 @@ public class DataValidationTests
         cell = uiSheet.Cell("A2");
         cell.GetDataValidation().List(valuesSheet.Range("ValuesSheet!$E$1:$E$4"));
 
-        Assert.AreEqual(XLAllowedValues.List, cell.GetDataValidation().AllowedValues);
-        Assert.AreEqual("ValuesSheet!$E$1:$E$4", cell.GetDataValidation().Value);
+        ClassicAssert.AreEqual(XLAllowedValues.List, cell.GetDataValidation().AllowedValues);
+        ClassicAssert.AreEqual("ValuesSheet!$E$1:$E$4", cell.GetDataValidation().Value);
     }
 
     [Test]
@@ -58,18 +56,18 @@ public class DataValidationTests
         cell.GetDataValidation().List(ws.Range("$E$1:$E$4"));
         cell.GetDataValidation().InputTitle = "Title for B2";
 
-        Assert.AreEqual(XLAllowedValues.List, cell.GetDataValidation().AllowedValues);
-        Assert.AreEqual("'Data Validation Issue'!$E$1:$E$4", cell.GetDataValidation().Value);
-        Assert.AreEqual("Title for B2", cell.GetDataValidation().InputTitle);
+        ClassicAssert.AreEqual(XLAllowedValues.List, cell.GetDataValidation().AllowedValues);
+        ClassicAssert.AreEqual("'Data Validation Issue'!$E$1:$E$4", cell.GetDataValidation().Value);
+        ClassicAssert.AreEqual("Title for B2", cell.GetDataValidation().InputTitle);
 
         ws.Cell("C1").SetValue("Cell below has Validation with a message.");
         cell = ws.Cell("C2");
         cell.GetDataValidation().List(ws.Range("$E$1:$E$4"));
         cell.GetDataValidation().InputMessage = "Message for C2";
 
-        Assert.AreEqual(XLAllowedValues.List, cell.GetDataValidation().AllowedValues);
-        Assert.AreEqual("'Data Validation Issue'!$E$1:$E$4", cell.GetDataValidation().Value);
-        Assert.AreEqual("Message for C2", cell.GetDataValidation().InputMessage);
+        ClassicAssert.AreEqual(XLAllowedValues.List, cell.GetDataValidation().AllowedValues);
+        ClassicAssert.AreEqual("'Data Validation Issue'!$E$1:$E$4", cell.GetDataValidation().Value);
+        ClassicAssert.AreEqual("Message for C2", cell.GetDataValidation().InputMessage);
 
         ws.Cell("D1").SetValue("Cell below has Validation with title and message.");
         cell = ws.Cell("D2");
@@ -77,10 +75,10 @@ public class DataValidationTests
         cell.GetDataValidation().InputTitle = "Title for D2";
         cell.GetDataValidation().InputMessage = "Message for D2";
 
-        Assert.AreEqual(XLAllowedValues.List, cell.GetDataValidation().AllowedValues);
-        Assert.AreEqual("'Data Validation Issue'!$E$1:$E$4", cell.GetDataValidation().Value);
-        Assert.AreEqual("Title for D2", cell.GetDataValidation().InputTitle);
-        Assert.AreEqual("Message for D2", cell.GetDataValidation().InputMessage);
+        ClassicAssert.AreEqual(XLAllowedValues.List, cell.GetDataValidation().AllowedValues);
+        ClassicAssert.AreEqual("'Data Validation Issue'!$E$1:$E$4", cell.GetDataValidation().Value);
+        ClassicAssert.AreEqual("Title for D2", cell.GetDataValidation().InputTitle);
+        ClassicAssert.AreEqual("Message for D2", cell.GetDataValidation().InputMessage);
     }
 
     [Test]
@@ -95,10 +93,10 @@ public class DataValidationTests
         ws2.Cell("A1").SetValue("B");
         ws.Cell("B1").CopyTo(ws2.Cell("B1"));
 
-        Assert.AreEqual("Sheet1!A1", ws2.Cell("B1").GetDataValidation().Value);
+        ClassicAssert.AreEqual("Sheet1!A1", ws2.Cell("B1").GetDataValidation().Value);
     }
 
-    [Test, Ignore("Wait for proper formula shifting (#686)")]
+    [Test, Skip("Wait for proper formula shifting (#686)")]
     public void Validation3()
     {
         XLWorkbook wb = new();
@@ -107,7 +105,7 @@ public class DataValidationTests
         ws.Cell("B1").CreateDataValidation().Custom("A1");
         ws.FirstRow().InsertRowsAbove(1);
 
-        Assert.AreEqual("A2", ws.Cell("B2").GetDataValidation().Value);
+        ClassicAssert.AreEqual("A2", ws.Cell("B2").GetDataValidation().Value);
     }
 
     [Test]
@@ -118,10 +116,10 @@ public class DataValidationTests
         ws.Cell("A1").SetValue("A");
         ws.Cell("B1").CreateDataValidation().Custom("A1");
         ws.Cell("B1").CopyTo(ws.Cell("B2"));
-        Assert.AreEqual("A2", ws.Cell("B2").GetDataValidation().Value);
+        ClassicAssert.AreEqual("A2", ws.Cell("B2").GetDataValidation().Value);
     }
 
-    [Test, Ignore("Wait for proper formula shifting (#686)")]
+    [Test, Skip("Wait for proper formula shifting (#686)")]
     public void Validation5()
     {
         XLWorkbook wb = new();
@@ -130,7 +128,7 @@ public class DataValidationTests
         ws.Cell("B1").CreateDataValidation().Custom("A1");
         ws.FirstColumn().InsertColumnsBefore(1);
 
-        Assert.AreEqual("B1", ws.Cell("C1").GetDataValidation().Value);
+        ClassicAssert.AreEqual("B1", ws.Cell("C1").GetDataValidation().Value);
     }
 
     [Test]
@@ -141,7 +139,7 @@ public class DataValidationTests
         ws.Cell("A1").SetValue("A");
         ws.Cell("B1").CreateDataValidation().Custom("A1");
         ws.Cell("B1").CopyTo(ws.Cell("C1"));
-        Assert.AreEqual("B1", ws.Cell("C1").GetDataValidation().Value);
+        ClassicAssert.AreEqual("B1", ws.Cell("C1").GetDataValidation().Value);
     }
 
     [Test]
@@ -157,7 +155,7 @@ public class DataValidationTests
         IXLDataValidation dv = table.DataRange.CreateDataValidation();
         dv.ErrorTitle = "Error";
 
-        Assert.AreEqual("Error", table.DataRange.FirstCell().GetDataValidation().ErrorTitle);
+        ClassicAssert.AreEqual("Error", table.DataRange.FirstCell().GetDataValidation().ErrorTitle);
     }
 
     [Test]
@@ -173,16 +171,16 @@ public class DataValidationTests
         IXLDataValidation dv = table.DataRange.CreateDataValidation();
         dv.ErrorTitle = "Error";
 
-        Assert.AreEqual("Error", ws.DataValidations.Single().ErrorTitle);
+        ClassicAssert.AreEqual("Error", ws.DataValidations.Single().ErrorTitle);
     }
 
     [Test]
-    [TestCase("A1:C3", 5, false, "A1:C3")]
-    [TestCase("A1:C3", 2, false, "A1:C4")]
-    [TestCase("A1:C3", 1, false, "A2:C4")]
-    [TestCase("A1:C3", 5, true, "A1:C3")]
-    [TestCase("A1:C3", 2, true, "A1:C4")]
-    [TestCase("A1:C3", 1, true, "A2:C4")]
+    [Arguments("A1:C3", 5, false, "A1:C3")]
+    [Arguments("A1:C3", 2, false, "A1:C4")]
+    [Arguments("A1:C3", 1, false, "A2:C4")]
+    [Arguments("A1:C3", 5, true, "A1:C3")]
+    [Arguments("A1:C3", 2, true, "A1:C4")]
+    [Arguments("A1:C3", 1, true, "A2:C4")]
     public void DataValidationShiftedOnRowInsert(
         string initialAddress,
         int rowNum,
@@ -204,21 +202,21 @@ public class DataValidationTests
         ws.Row(rowNum).InsertRowsAbove(1);
 
         //Assert
-        Assert.AreEqual(1, ws.DataValidations.Count());
-        Assert.AreEqual(1, ws.DataValidations.First().Ranges.Count());
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(1, ws.DataValidations.Count());
+        ClassicAssert.AreEqual(1, ws.DataValidations.First().Ranges.Count());
+        ClassicAssert.AreEqual(
             expectedAddress,
             ws.DataValidations.First().Ranges.First().RangeAddress.ToString()
         );
     }
 
     [Test]
-    [TestCase("A1:C3", 5, false, "A1:C3")]
-    [TestCase("A1:C3", 2, false, "A1:D3")]
-    [TestCase("A1:C3", 1, false, "B1:D3")]
-    [TestCase("A1:C3", 5, true, "A1:C3")]
-    [TestCase("A1:C3", 2, true, "A1:D3")]
-    [TestCase("A1:C3", 1, true, "B1:D3")]
+    [Arguments("A1:C3", 5, false, "A1:C3")]
+    [Arguments("A1:C3", 2, false, "A1:D3")]
+    [Arguments("A1:C3", 1, false, "B1:D3")]
+    [Arguments("A1:C3", 5, true, "A1:C3")]
+    [Arguments("A1:C3", 2, true, "A1:D3")]
+    [Arguments("A1:C3", 1, true, "B1:D3")]
     public void DataValidationShiftedOnColumnInsert(
         string initialAddress,
         int columnNum,
@@ -240,9 +238,9 @@ public class DataValidationTests
         ws.Column(columnNum).InsertColumnsBefore(1);
 
         //Assert
-        Assert.AreEqual(1, ws.DataValidations.Count());
-        Assert.AreEqual(1, ws.DataValidations.First().Ranges.Count());
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(1, ws.DataValidations.Count());
+        ClassicAssert.AreEqual(1, ws.DataValidations.First().Ranges.Count());
+        ClassicAssert.AreEqual(
             expectedAddress,
             ws.DataValidations.First().Ranges.First().RangeAddress.ToString()
         );
@@ -261,8 +259,8 @@ public class DataValidationTests
             ws.Cell("B2").Clear(XLClearOptions.DataValidation);
 
             //Assert
-            Assert.IsFalse(ws.Cell("B2").HasDataValidation);
-            Assert.IsTrue(
+            ClassicAssert.IsFalse(ws.Cell("B2").HasDataValidation);
+            ClassicAssert.IsTrue(
                 ws.Range("A1:C3")
                     .Cells()
                     .Where(c => c.Address.ToString() != "B2")
@@ -284,14 +282,14 @@ public class DataValidationTests
             ws.Cell("B2").CreateDataValidation().WholeNumber.Between(-100, -0);
 
             //Assert
-            Assert.AreEqual("-100", ws.Cell("B2").GetDataValidation().MinValue);
-            Assert.IsTrue(
+            ClassicAssert.AreEqual("-100", ws.Cell("B2").GetDataValidation().MinValue);
+            ClassicAssert.IsTrue(
                 ws.Range("A1:C3")
                     .Cells()
                     .Where(c => c.Address.ToString() != "B2")
                     .All(c => c.HasDataValidation)
             );
-            Assert.IsTrue(
+            ClassicAssert.IsTrue(
                 ws.Range("A1:C3")
                     .Cells()
                     .Where(c => c.Address.ToString() != "B2")
@@ -308,20 +306,20 @@ public class DataValidationTests
             Enumerable.Range(1, 20).Select(i => Guid.NewGuid().ToString("N"))
         );
 
-        Assert.True(values.Length > 255);
+        ClassicAssert.True(values.Length > 255);
 
         using (XLWorkbook wb = new())
         {
             IXLDataValidation dv = wb.AddWorksheet("Sheet 1").Cell(1, 1).GetDataValidation();
 
-            Assert.Throws<ArgumentOutOfRangeException>(() => dv.List(values));
-            Assert.Throws<ArgumentOutOfRangeException>(() =>
+            ClassicAssert.Throws<ArgumentOutOfRangeException>(() => dv.List(values));
+            ClassicAssert.Throws<ArgumentOutOfRangeException>(() =>
             {
                 dv.TextLength.Between(0, 5);
                 dv.MinValue = values;
             });
 
-            Assert.Throws<ArgumentOutOfRangeException>(() =>
+            ClassicAssert.Throws<ArgumentOutOfRangeException>(() =>
             {
                 dv.TextLength.Between(0, 5);
                 dv.MaxValue = values;
@@ -339,8 +337,8 @@ public class DataValidationTests
 
             IXLDataValidation dv = range.CreateDataValidation();
 
-            Assert.AreSame(ws, ((XLDataValidation)dv).Worksheet);
-            Assert.AreSame(range, dv.Ranges.Single());
+            ClassicAssert.AreSame(ws, ((XLDataValidation)dv).Worksheet);
+            ClassicAssert.AreSame(range, dv.Ranges.Single());
         }
     }
 
@@ -358,10 +356,10 @@ public class DataValidationTests
             dv.AddRange(range2);
             dv.AddRanges(ranges3);
 
-            Assert.IsTrue(dv.Ranges.Any(r => r == range1));
-            Assert.IsTrue(dv.Ranges.Any(r => r == range2));
-            Assert.IsTrue(dv.Ranges.Any(r => r == ranges3.First()));
-            Assert.IsTrue(dv.Ranges.Any(r => r == ranges3.Last()));
+            ClassicAssert.IsTrue(dv.Ranges.Any(r => r == range1));
+            ClassicAssert.IsTrue(dv.Ranges.Any(r => r == range2));
+            ClassicAssert.IsTrue(dv.Ranges.Any(r => r == ranges3.First()));
+            ClassicAssert.IsTrue(dv.Ranges.Any(r => r == ranges3.Last()));
         }
     }
 
@@ -378,7 +376,7 @@ public class DataValidationTests
 
             dv.AddRange(range2);
 
-            Assert.IsTrue(
+            ClassicAssert.IsTrue(
                 dv.Ranges.Any(r =>
                     r != range2 && r.RangeAddress.ToString() == range2.RangeAddress.ToString()
                 )
@@ -401,7 +399,7 @@ public class DataValidationTests
 
             dv.ClearRanges();
 
-            Assert.IsEmpty(dv.Ranges);
+            ClassicAssert.IsEmpty(dv.Ranges);
         }
     }
 
@@ -419,7 +417,7 @@ public class DataValidationTests
 
             dv.RemoveRange(range1);
 
-            Assert.AreSame(range2, dv.Ranges.Single());
+            ClassicAssert.AreSame(range2, dv.Ranges.Single());
         }
     }
 
@@ -437,7 +435,7 @@ public class DataValidationTests
             dv.RemoveRange(range2);
             dv.RemoveRange(null);
 
-            Assert.AreSame(range1, dv.Ranges.Single());
+            ClassicAssert.AreSame(range1, dv.Ranges.Single());
         }
     }
 }

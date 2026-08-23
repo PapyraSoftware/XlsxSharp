@@ -1,6 +1,5 @@
 using System.IO;
 using System.Text;
-using NUnit.Framework;
 using XlsxSharp.Excel.IO;
 using XlsxSharp.IO;
 
@@ -15,12 +14,12 @@ internal class XmlTreeReaderExtensionsTests
     {
         using XmlTreeReader reader = CreateReader("dummy");
 
-        PartStructureException? ex = Assert.Throws<PartStructureException>(() =>
+        PartStructureException? ex = ClassicAssert.Throws<PartStructureException>(() =>
             reader.GetDateTime("nonexistent")
         );
-        Assert.That(
-            ex,
-            Has.Message.Contain("XML doesn't contain a required attribute 'nonexistent'.")
+        StringAssert.Contains(
+            "XML doesn't contain a required attribute 'nonexistent'.",
+            ex.Message
         );
     }
 
@@ -29,19 +28,20 @@ internal class XmlTreeReaderExtensionsTests
     {
         using XmlTreeReader reader = CreateReader("dummy");
 
-        PartStructureException? ex = Assert.Throws<PartStructureException>(() =>
+        PartStructureException? ex = ClassicAssert.Throws<PartStructureException>(() =>
             reader.GetXString("nonexistent")
         );
-        Assert.That(
-            ex,
-            Has.Message.Contain("XML doesn't contain a required attribute 'nonexistent'.")
+        StringAssert.Contains(
+            "XML doesn't contain a required attribute 'nonexistent'.",
+            ex.Message
         );
     }
 
-    [TestCase("&amp;", "&")]
-    [TestCase("_x0009_", "\t")]
-    [TestCase("_X0009_", "_X0009_")]
-    [TestCase("Hello &lt;user&gt; - _x0045__x004F__x004C_", "Hello <user> - EOL")]
+    [Test]
+    [Arguments("&amp;", "&")]
+    [Arguments("_x0009_", "\t")]
+    [Arguments("_X0009_", "_X0009_")]
+    [Arguments("Hello &lt;user&gt; - _x0045__x004F__x004C_", "Hello <user> - EOL")]
     public void GetOptionalXString_returns_XString_decoded_xml_decoded_text(
         string xmlText,
         string expectedValue
@@ -50,23 +50,24 @@ internal class XmlTreeReaderExtensionsTests
         using XmlTreeReader reader = CreateReader(xmlText);
         string? readValue = reader.GetOptionalXString(AttributeName);
 
-        Assert.That(readValue, Is.EqualTo(expectedValue));
+        ClassicAssert.AreEqual(expectedValue, readValue);
     }
 
-    [TestCase("00000000", 0u)]
-    [TestCase("0G000000", null)]
-    [TestCase(@"FFFFFFFF", 0xFFFFFFFF)]
-    [TestCase(@"FFFFFFFF", 0xFFFFFFFF)]
-    [TestCase("abcdef00", 0xABCDEF00)]
-    [TestCase("0000000", null)]
-    [TestCase(@"", null)]
-    [TestCase(@"hello", null)]
+    [Test]
+    [Arguments("00000000", 0u)]
+    [Arguments("0G000000", null)]
+    [Arguments(@"FFFFFFFF", 0xFFFFFFFF)]
+    [Arguments(@"FFFFFFFF", 0xFFFFFFFF)]
+    [Arguments("abcdef00", 0xABCDEF00)]
+    [Arguments("0000000", null)]
+    [Arguments(@"", null)]
+    [Arguments(@"hello", null)]
     public void GetOptionalUIntHex_parses_8_hex_digits(string xmlText, uint? expectedValue)
     {
         using XmlTreeReader reader = CreateReader(xmlText);
         uint? readValue = reader.GetOptionalUIntHex(AttributeName);
 
-        Assert.That(readValue, Is.EqualTo(expectedValue));
+        ClassicAssert.AreEqual(expectedValue, readValue);
     }
 
     private static XmlTreeReader CreateReader(string attributeValue)

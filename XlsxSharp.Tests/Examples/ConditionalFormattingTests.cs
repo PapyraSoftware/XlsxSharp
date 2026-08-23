@@ -1,9 +1,7 @@
-using NUnit.Framework;
 using XlsxSharp.Examples.ConditionalFormatting;
 
 namespace XlsxSharp.Tests.Examples;
 
-[TestFixture]
 public class ConditionalFormattingTests
 {
     [Test]

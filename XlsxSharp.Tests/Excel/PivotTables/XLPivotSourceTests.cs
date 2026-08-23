@@ -1,11 +1,8 @@
-﻿using NUnit.Framework;
-
 namespace XlsxSharp.Tests.Excel.PivotTables;
 
 /// <summary>
 /// Tests for classes that implement <c>IXLPivotSource</c>.
 /// </summary>
-[TestFixture]
 internal class XlPivotSourceTests
 {
     [Test]

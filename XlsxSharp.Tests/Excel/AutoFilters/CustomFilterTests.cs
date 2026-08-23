@@ -1,5 +1,4 @@
-﻿using System;
-using NUnit.Framework;
+using System;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.CalcEngine;
 
@@ -9,7 +8,6 @@ namespace XlsxSharp.Tests.Excel.AutoFilters;
 /// Equal/NotEqual operators in custom filter are wildcard filters, *NOT* comparator filter.
 /// LessThan/EqualOrLessThan/EqualOrGreaterThan/GreaterThan are comparator filters.
 /// </summary>
-[TestFixture]
 public class CustomFilterTests
 {
     [Test]
@@ -167,7 +165,7 @@ public class CustomFilterTests
             .AssertVisibility();
 
     [Test]
-    [SetCulture("cs-CZ")]
+    [Culture("cs-CZ")]
     public void EqualUsesFormatStringMatchingForFilterValuesThatLookLikeNonPatterns() =>
         // Note the ',' separator that is used detect number. Excel doesn't use invariant culture.
         new AutoFilterTester(f => f.EqualTo("1,00"))
@@ -178,7 +176,7 @@ public class CustomFilterTests
             .AssertVisibility();
 
     [Test]
-    [SetCulture("cs-CZ")]
+    [Culture("cs-CZ")]
     public void NotEqualMatchesDetectedTypeAndValueOfFilterValueForNonTextDataTypes() =>
         // 1,00 is detected as a type number with value 1.
         new AutoFilterTester(f => f.NotEqualTo("1,00"))
@@ -190,7 +188,7 @@ public class CustomFilterTests
             .AssertVisibility();
 
     [Test]
-    [SetCulture("cs-CZ")]
+    [Culture("cs-CZ")]
     public void NotEqualForDetectedWildcardMatchesOnlyTexts() =>
         // NotEqual with text pattern must have text type.
         new AutoFilterTester(f => f.NotEqualTo("1*0"))

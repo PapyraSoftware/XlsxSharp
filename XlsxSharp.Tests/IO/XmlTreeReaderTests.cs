@@ -1,12 +1,10 @@
 using System.IO;
 using System.Text;
-using NUnit.Framework;
 using XlsxSharp.Excel.IO;
 using XlsxSharp.IO;
 
 namespace XlsxSharp.Tests.IO;
 
-[TestFixture]
 internal class XmlTreeReaderTests
 {
     [Test]

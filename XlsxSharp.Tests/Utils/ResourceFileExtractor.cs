@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using Assembly = System.Reflection.Assembly;
 
 namespace XlsxSharp.Tests.Utils;
 

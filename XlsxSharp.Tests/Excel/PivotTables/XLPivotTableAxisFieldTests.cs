@@ -1,5 +1,4 @@
-﻿using System;
-using NUnit.Framework;
+using System;
 using XlsxSharp.Excel;
 
 namespace XlsxSharp.Tests.Excel.PivotTables;
@@ -7,7 +6,6 @@ namespace XlsxSharp.Tests.Excel.PivotTables;
 /// <summary>
 /// Tests methods of interface <see cref="IXLPivotField"/> implemented through <see cref="XLPivotTableAxisField"/>.
 /// </summary>
-[TestFixture]
 internal class XlPivotTableAxisFieldTests
 {
     [Test]
@@ -22,7 +20,7 @@ internal class XlPivotTableAxisFieldTests
 
         colorField.SetCustomName("Changed color");
 
-        Assert.AreEqual("Changed color", pt.RowLabels.Get(0).CustomName);
+        ClassicAssert.AreEqual("Changed color", pt.RowLabels.Get(0).CustomName);
     }
 
     [Test]
@@ -36,13 +34,19 @@ internal class XlPivotTableAxisFieldTests
         IXLPivotField idField = pt.RowLabels.Add("ID", "Custom ID");
         IXLPivotField colorField = pt.RowLabels.Add("Color");
 
-        ArgumentException ex1 = Assert.Throws<ArgumentException>(() =>
+        ArgumentException ex1 = ClassicAssert.Throws<ArgumentException>(() =>
             idField.SetCustomName("Color")
         )!;
-        Assert.AreEqual("Custom name 'Color' is already used by another field.", ex1.Message);
-        ArgumentException? ex2 = Assert.Throws<ArgumentException>(() =>
+        ClassicAssert.AreEqual(
+            "Custom name 'Color' is already used by another field.",
+            ex1.Message
+        );
+        ArgumentException? ex2 = ClassicAssert.Throws<ArgumentException>(() =>
             colorField.SetCustomName("Custom ID")
         );
-        Assert.AreEqual("Custom name 'Custom ID' is already used by another field.", ex2.Message);
+        ClassicAssert.AreEqual(
+            "Custom name 'Custom ID' is already used by another field.",
+            ex2.Message
+        );
     }
 }

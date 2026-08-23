@@ -1,4 +1,3 @@
-using NUnit.Framework;
 using XlsxSharp.Excel;
 
 namespace XlsxSharp.Tests.Excel.Rows;
@@ -24,14 +23,14 @@ internal class XlRowsTests
         ];
         foreach ((int row, int fontSize) in expected)
         {
-            Assert.AreEqual(fontSize, ws.Row(row).Style.Font.FontSize);
+            ClassicAssert.AreEqual(fontSize, ws.Row(row).Style.Font.FontSize);
 
             IXLCell cellWithFormat = ws.Cell("A" + row);
-            Assert.AreEqual(fontSize, cellWithFormat.Style.Font.FontSize);
-            Assert.True(cellWithFormat.Style.Font.Bold);
+            ClassicAssert.AreEqual(fontSize, cellWithFormat.Style.Font.FontSize);
+            ClassicAssert.True(cellWithFormat.Style.Font.Bold);
 
             IXLCell nonMaterializedCell = ws.Cell("B" + row);
-            Assert.AreEqual(fontSize, nonMaterializedCell.Style.Font.FontSize);
+            ClassicAssert.AreEqual(fontSize, nonMaterializedCell.Style.Font.FontSize);
         }
     }
 }

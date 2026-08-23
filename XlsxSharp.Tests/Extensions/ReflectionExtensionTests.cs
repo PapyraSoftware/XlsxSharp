@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using NUnit.Framework;
 using XlsxSharp.Extensions;
 
 namespace XlsxSharp.Tests.Extensions;
@@ -37,26 +36,28 @@ public class ReflectionExtensionTests
         public void InstanceMethod() { }
     }
 
-    [TestCase(nameof(TestClass.StaticProperty), true)]
-    [TestCase(nameof(TestClass.StaticField), true)]
-    [TestCase(nameof(TestClass.StaticEvent), true)]
-    [TestCase(nameof(TestClass.StaticMethod), true)]
-    [TestCase(nameof(TestClass.Const), true)]
-    [TestCase(nameof(TestClass.InstanceProperty), false)]
-    [TestCase(nameof(TestClass.InstanceField), false)]
-    [TestCase(nameof(TestClass.InstanceEvent), false)]
-    [TestCase(nameof(TestClass.InstanceMethod), false)]
+    [Test]
+    [Arguments(nameof(TestClass.StaticProperty), true)]
+    [Arguments(nameof(TestClass.StaticField), true)]
+    [Arguments(nameof(TestClass.StaticEvent), true)]
+    [Arguments(nameof(TestClass.StaticMethod), true)]
+    [Arguments(nameof(TestClass.Const), true)]
+    [Arguments(nameof(TestClass.InstanceProperty), false)]
+    [Arguments(nameof(TestClass.InstanceField), false)]
+    [Arguments(nameof(TestClass.InstanceEvent), false)]
+    [Arguments(nameof(TestClass.InstanceMethod), false)]
     public void IsStatic(string memberName, bool expectedIsStatic)
     {
         MemberInfo member = typeof(TestClass).GetMember(memberName).Single();
-        Assert.AreEqual(expectedIsStatic, member.IsStatic());
+        ClassicAssert.AreEqual(expectedIsStatic, member.IsStatic());
     }
 
-    [TestCase(BindingFlags.Static | BindingFlags.NonPublic, true)]
-    [TestCase(BindingFlags.Instance | BindingFlags.Public, false)]
+    [Test]
+    [Arguments(BindingFlags.Static | BindingFlags.NonPublic, true)]
+    [Arguments(BindingFlags.Instance | BindingFlags.Public, false)]
     public void ConstructorIsStatic(BindingFlags flag, bool expectedIsStatic)
     {
         ConstructorInfo[] constructors = typeof(TestClass).GetConstructors(flag);
-        Assert.AreEqual(expectedIsStatic, constructors.Single().IsStatic());
+        ClassicAssert.AreEqual(expectedIsStatic, constructors.Single().IsStatic());
     }
 }

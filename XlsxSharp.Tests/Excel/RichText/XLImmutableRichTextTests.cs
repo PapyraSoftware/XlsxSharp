@@ -1,11 +1,9 @@
-﻿using System.Linq;
-using NUnit.Framework;
+using System.Linq;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.RichText;
 
 namespace XlsxSharp.Tests.Excel.RichText;
 
-[TestFixture]
 public class XlImmutableRichTextTests
 {
     [Test]
@@ -26,23 +24,23 @@ public class XlImmutableRichTextTests
         // Assert equal
         XLImmutableRichText immutableRichText = XLImmutableRichText.Create(richText);
         XLImmutableRichText equalImmutableRichText = XLImmutableRichText.Create(richText);
-        Assert.AreEqual(immutableRichText, equalImmutableRichText);
+        ClassicAssert.AreEqual(immutableRichText, equalImmutableRichText);
 
         // Different font of a first run
         richText.ElementAt(0).SetBold(false);
         XLImmutableRichText withDifferentTextRunFont = XLImmutableRichText.Create(richText);
-        Assert.AreNotEqual(immutableRichText, withDifferentTextRunFont);
+        ClassicAssert.AreNotEqual(immutableRichText, withDifferentTextRunFont);
         richText.ElementAt(0).SetBold(true);
 
         // Different phonetic properties
         richText.Phonetics.SetAlignment(XLPhoneticAlignment.Left);
         XLImmutableRichText withDifferentPhoneticsProps = XLImmutableRichText.Create(richText);
-        Assert.AreNotEqual(immutableRichText, withDifferentPhoneticsProps);
+        ClassicAssert.AreNotEqual(immutableRichText, withDifferentPhoneticsProps);
         richText.Phonetics.SetAlignment(XLPhoneticAlignment.Distributed);
 
         // Different phonetic runs
         richText.Phonetics.Add("せかい", 6, 8);
         XLImmutableRichText withDifferentTextPhonetics = XLImmutableRichText.Create(richText);
-        Assert.AreNotEqual(immutableRichText, withDifferentTextPhonetics);
+        ClassicAssert.AreNotEqual(immutableRichText, withDifferentTextPhonetics);
     }
 }

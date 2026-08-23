@@ -1,12 +1,10 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 
 namespace XlsxSharp.Tests.Excel.Worksheets;
 
-[TestFixture]
 public class XlSheetViewTests
 {
     [Test]
@@ -20,8 +18,8 @@ public class XlSheetViewTests
 
         IXLWorksheet ws2 = ws1.CopyTo(wb2, "WS2");
 
-        Assert.AreEqual(ws2, ws2.SheetView.Worksheet);
-        Assert.AreEqual("AZ2000", ws2.SheetView.TopLeftCellAddress.ToString());
+        ClassicAssert.AreEqual(ws2, ws2.SheetView.Worksheet);
+        ClassicAssert.AreEqual("AZ2000", ws2.SheetView.TopLeftCellAddress.ToString());
     }
 
     [Test]
@@ -31,7 +29,7 @@ public class XlSheetViewTests
         IXLWorksheet ws1 = wb.AddWorksheet();
         IXLWorksheet ws2 = wb.AddWorksheet();
 
-        Assert.Throws<ArgumentException>(() =>
+        ClassicAssert.Throws<ArgumentException>(() =>
             ws1.SheetView.TopLeftCellAddress = ws2.Cell("A1").Address
         );
     }
@@ -52,7 +50,7 @@ public class XlSheetViewTests
         using (XLWorkbook wb = new(ms))
         {
             IXLWorksheet ws = wb.Worksheets.First();
-            Assert.AreEqual("AZ2000", ws.SheetView.TopLeftCellAddress.ToString());
+            ClassicAssert.AreEqual("AZ2000", ws.SheetView.TopLeftCellAddress.ToString());
 
             ws.SheetView.TopLeftCellAddress = ws.Cell("AZ2000").CellBelow().CellRight().Address;
 
@@ -64,7 +62,7 @@ public class XlSheetViewTests
         using (XLWorkbook wb = new(ms))
         {
             IXLWorksheet ws = wb.Worksheets.First();
-            Assert.AreEqual("BA2001", ws.SheetView.TopLeftCellAddress.ToString());
+            ClassicAssert.AreEqual("BA2001", ws.SheetView.TopLeftCellAddress.ToString());
         }
     }
 }

@@ -1,9 +1,7 @@
-using NUnit.Framework;
 using XlsxSharp.Excel;
 
 namespace XlsxSharp.Tests.Excel.Tables;
 
-[TestFixture]
 internal class TableStyleTests
 {
     [Test]

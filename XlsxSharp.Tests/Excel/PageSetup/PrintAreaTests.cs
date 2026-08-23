@@ -1,15 +1,13 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
-using NUnit.Framework;
 
 namespace XlsxSharp.Tests.Excel.PageSetup;
 
-[TestFixture]
 public class PrintAreaTests
 {
     [Test]
-    [TestCase("A1:B2")]
-    [TestCase("A1:B2", "D3:D5")]
+    [Arguments("A1:B2")]
+    [Arguments("A1:B2", "D3:D5")]
     public void CanLoadWorksheetWithMultiplePrintAreas(params string[] printAreaRangeAddresses) =>
         TestHelper.CreateSaveLoadAssert(
             (_, ws) =>

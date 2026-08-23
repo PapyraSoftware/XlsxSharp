@@ -1,10 +1,8 @@
-﻿using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.CalcEngine;
 
 namespace XlsxSharp.Tests.Excel.CalcEngine;
 
-[TestFixture]
 public class ArrayFormulaCalculationTests
 {
     [Test]
@@ -18,7 +16,7 @@ public class ArrayFormulaCalculationTests
 
         foreach (IXLCell arrayFormulaCell in range.Cells())
         {
-            Assert.AreEqual(1, arrayFormulaCell.Value);
+            ClassicAssert.AreEqual(1, arrayFormulaCell.Value);
         }
     }
 
@@ -31,8 +29,8 @@ public class ArrayFormulaCalculationTests
 
         range.FormulaArrayA1 = "TRANSPOSE({1,2})";
 
-        Assert.AreEqual(1, ws.Cell("A1").Value);
-        Assert.AreEqual(2, ws.Cell("A2").Value);
+        ClassicAssert.AreEqual(1, ws.Cell("A1").Value);
+        ClassicAssert.AreEqual(2, ws.Cell("A2").Value);
     }
 
     [Test]
@@ -44,10 +42,10 @@ public class ArrayFormulaCalculationTests
 
         range.FormulaArrayA1 = "{1,2,3,4,5}";
 
-        Assert.AreEqual(1, ws.Cell("A1").Value);
-        Assert.AreEqual(2, ws.Cell("B1").Value);
-        Assert.AreEqual(3, ws.Cell("C1").Value);
-        Assert.AreEqual(Blank.Value, ws.Cell("D1").Value);
+        ClassicAssert.AreEqual(1, ws.Cell("A1").Value);
+        ClassicAssert.AreEqual(2, ws.Cell("B1").Value);
+        ClassicAssert.AreEqual(3, ws.Cell("C1").Value);
+        ClassicAssert.AreEqual(Blank.Value, ws.Cell("D1").Value);
     }
 
     [Test]
@@ -59,10 +57,10 @@ public class ArrayFormulaCalculationTests
 
         range.FormulaArrayA1 = "{1;2;3;4;5}";
 
-        Assert.AreEqual(1, ws.Cell("A1").Value);
-        Assert.AreEqual(2, ws.Cell("A2").Value);
-        Assert.AreEqual(3, ws.Cell("A3").Value);
-        Assert.AreEqual(Blank.Value, ws.Cell("A4").Value);
+        ClassicAssert.AreEqual(1, ws.Cell("A1").Value);
+        ClassicAssert.AreEqual(2, ws.Cell("A2").Value);
+        ClassicAssert.AreEqual(3, ws.Cell("A3").Value);
+        ClassicAssert.AreEqual(Blank.Value, ws.Cell("A4").Value);
     }
 
     [Test]
@@ -76,9 +74,9 @@ public class ArrayFormulaCalculationTests
 
         for (int column = 1; column <= 3; column++)
         {
-            Assert.AreEqual(1, ws.Cell(1, column).Value);
-            Assert.AreEqual(2, ws.Cell(2, column).Value);
-            Assert.AreEqual(XLError.NoValueAvailable, ws.Cell(3, column).Value);
+            ClassicAssert.AreEqual(1, ws.Cell(1, column).Value);
+            ClassicAssert.AreEqual(2, ws.Cell(2, column).Value);
+            ClassicAssert.AreEqual(XLError.NoValueAvailable, ws.Cell(3, column).Value);
         }
     }
 
@@ -93,9 +91,9 @@ public class ArrayFormulaCalculationTests
 
         for (int row = 1; row <= 3; row++)
         {
-            Assert.AreEqual(1, ws.Cell(row, 1).Value);
-            Assert.AreEqual(2, ws.Cell(row, 2).Value);
-            Assert.AreEqual(XLError.NoValueAvailable, ws.Cell(row, 3).Value);
+            ClassicAssert.AreEqual(1, ws.Cell(row, 1).Value);
+            ClassicAssert.AreEqual(2, ws.Cell(row, 2).Value);
+            ClassicAssert.AreEqual(XLError.NoValueAvailable, ws.Cell(row, 3).Value);
         }
     }
 
@@ -108,15 +106,15 @@ public class ArrayFormulaCalculationTests
 
         range.FormulaArrayA1 = "{1,2;3,4}";
 
-        Assert.AreEqual(1, ws.Cell("A1").Value);
-        Assert.AreEqual(2, ws.Cell("B1").Value);
-        Assert.AreEqual(XLError.NoValueAvailable, ws.Cell("C1").Value);
-        Assert.AreEqual(3, ws.Cell("A2").Value);
-        Assert.AreEqual(4, ws.Cell("B2").Value);
-        Assert.AreEqual(XLError.NoValueAvailable, ws.Cell("C2").Value);
-        Assert.AreEqual(XLError.NoValueAvailable, ws.Cell("A3").Value);
-        Assert.AreEqual(XLError.NoValueAvailable, ws.Cell("B3").Value);
-        Assert.AreEqual(XLError.NoValueAvailable, ws.Cell("C3").Value);
+        ClassicAssert.AreEqual(1, ws.Cell("A1").Value);
+        ClassicAssert.AreEqual(2, ws.Cell("B1").Value);
+        ClassicAssert.AreEqual(XLError.NoValueAvailable, ws.Cell("C1").Value);
+        ClassicAssert.AreEqual(3, ws.Cell("A2").Value);
+        ClassicAssert.AreEqual(4, ws.Cell("B2").Value);
+        ClassicAssert.AreEqual(XLError.NoValueAvailable, ws.Cell("C2").Value);
+        ClassicAssert.AreEqual(XLError.NoValueAvailable, ws.Cell("A3").Value);
+        ClassicAssert.AreEqual(XLError.NoValueAvailable, ws.Cell("B3").Value);
+        ClassicAssert.AreEqual(XLError.NoValueAvailable, ws.Cell("C3").Value);
     }
 
     [Test]
@@ -127,8 +125,8 @@ public class ArrayFormulaCalculationTests
         ws.Range("B1:B3").FormulaArrayA1 = "SIGN({-1,2,0})";
 
         // Uses only -1 for all values
-        Assert.AreEqual(-1, ws.Cell("B1").Value);
-        Assert.AreEqual(-1, ws.Cell("B2").Value);
-        Assert.AreEqual(-1, ws.Cell("B3").Value);
+        ClassicAssert.AreEqual(-1, ws.Cell("B1").Value);
+        ClassicAssert.AreEqual(-1, ws.Cell("B2").Value);
+        ClassicAssert.AreEqual(-1, ws.Cell("B3").Value);
     }
 }

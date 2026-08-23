@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using NUnit.Framework;
 using XlsxSharp.Excel.InsertData;
 using DataTableReader = XlsxSharp.Excel.InsertData.DataTableReader;
 
@@ -16,19 +15,20 @@ public class InsertDataReaderFactoryTests
     {
         InsertDataReaderFactory factory = InsertDataReaderFactory.Instance;
 
-        Assert.IsNotNull(factory);
-        Assert.AreSame(factory, InsertDataReaderFactory.Instance);
+        ClassicAssert.IsNotNull(factory);
+        ClassicAssert.AreSame(factory, InsertDataReaderFactory.Instance);
     }
 
-    [TestCaseSource(nameof(SimpleSources))]
+    [Test]
+    [MethodDataSource(nameof(SimpleSources))]
     public void CanCreateSimpleReader(IEnumerable data)
     {
         IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(data);
 
-        Assert.IsInstanceOf<SimpleTypeReader>(reader);
+        ClassicAssert.IsInstanceOf<SimpleTypeReader>(reader);
     }
 
-    private static IEnumerable<object> SimpleSources
+    internal static IEnumerable<object> SimpleSources
     {
         get
         {
@@ -40,15 +40,16 @@ public class InsertDataReaderFactoryTests
         }
     }
 
-    [TestCaseSource(nameof(SimpleNullableSources))]
+    [Test]
+    [MethodDataSource(nameof(SimpleNullableSources))]
     public void CanCreateSimpleNullableReader(IEnumerable data)
     {
         IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(data);
 
-        Assert.IsInstanceOf<SimpleNullableTypeReader>(reader);
+        ClassicAssert.IsInstanceOf<SimpleNullableTypeReader>(reader);
     }
 
-    private static IEnumerable<object> SimpleNullableSources
+    internal static IEnumerable<object> SimpleNullableSources
     {
         get
         {
@@ -59,15 +60,16 @@ public class InsertDataReaderFactoryTests
         }
     }
 
-    [TestCaseSource(nameof(ArraySources))]
+    [Test]
+    [MethodDataSource(nameof(ArraySources))]
     public void CanCreateArrayReader(IEnumerable data)
     {
         IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(data);
 
-        Assert.IsInstanceOf<ArrayReader>(reader);
+        ClassicAssert.IsInstanceOf<ArrayReader>(reader);
     }
 
-    private static IEnumerable<object> ArraySources
+    internal static IEnumerable<object> ArraySources
     {
         get
         {
@@ -93,7 +95,7 @@ public class InsertDataReaderFactoryTests
                 [new[] { 1, 2, 3 }.AsEnumerable(), new[] { 1.0, 2.0, 3.0 }.AsEnumerable()];
         IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(data);
 
-        Assert.IsInstanceOf<ArrayReader>(reader);
+        ClassicAssert.IsInstanceOf<ArrayReader>(reader);
     }
 
     [Test]
@@ -102,7 +104,7 @@ public class InsertDataReaderFactoryTests
         IEnumerable<string> data = new[] { "String 1", "String 2" };
         IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(data);
 
-        Assert.IsInstanceOf<SimpleTypeReader>(reader);
+        ClassicAssert.IsInstanceOf<SimpleTypeReader>(reader);
     }
 
     [Test]
@@ -111,7 +113,7 @@ public class InsertDataReaderFactoryTests
         DataTable dt = new();
         IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(dt);
 
-        Assert.IsInstanceOf<DataTableReader>(reader);
+        ClassicAssert.IsInstanceOf<DataTableReader>(reader);
     }
 
     [Test]
@@ -119,7 +121,7 @@ public class InsertDataReaderFactoryTests
     {
         IDataRecord[] dataRecords = [];
         IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(dataRecords);
-        Assert.IsInstanceOf<DataRecordReader>(reader);
+        ClassicAssert.IsInstanceOf<DataRecordReader>(reader);
     }
 
     [Test]
@@ -127,7 +129,7 @@ public class InsertDataReaderFactoryTests
     {
         TestEntity[] entities = [];
         IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(entities);
-        Assert.IsInstanceOf<ObjectReader>(reader);
+        ClassicAssert.IsInstanceOf<ObjectReader>(reader);
     }
 
     [Test]
@@ -135,7 +137,7 @@ public class InsertDataReaderFactoryTests
     {
         TestStruct[] entities = [];
         IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(entities);
-        Assert.IsInstanceOf<ObjectReader>(reader);
+        ClassicAssert.IsInstanceOf<ObjectReader>(reader);
     }
 
     [Test]
@@ -143,7 +145,7 @@ public class InsertDataReaderFactoryTests
     {
         ArrayList entities = new(new object[] { new TestEntity(), "123" });
         IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(entities);
-        Assert.IsInstanceOf<UntypedObjectReader>(reader);
+        ClassicAssert.IsInstanceOf<UntypedObjectReader>(reader);
     }
 
     private class TestEntity { }

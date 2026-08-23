@@ -1,13 +1,11 @@
 using System;
 using System.Linq;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.CalcEngine;
 using XlsxSharp.Extensions;
 
 namespace XlsxSharp.Tests.Excel.CalcEngine;
 
-[TestFixture]
 public class StatisticalTests
 {
     private const double Tolerance = 1e-6;
@@ -18,21 +16,21 @@ public class StatisticalTests
     {
         double value;
         value = (double)this.workbook.Evaluate("AVERAGE(-27.5,93.93,64.51,-70.56)");
-        Assert.AreEqual(15.095, value, Tolerance);
+        ClassicAssert.AreEqual(15.095, value, Tolerance);
 
         IXLWorksheet ws = this.workbook.Worksheets.First();
         value = (double)ws.Evaluate("AVERAGE(G3:G45)");
-        Assert.AreEqual(49.3255814, value, Tolerance);
+        ClassicAssert.AreEqual(49.3255814, value, Tolerance);
 
         // Column D contains only strings - no average, because non-number types are skipped
-        Assert.AreEqual(XLError.DivisionByZero, ws.Evaluate("AVERAGE(D3:D45)"));
+        ClassicAssert.AreEqual(XLError.DivisionByZero, ws.Evaluate("AVERAGE(D3:D45)"));
 
         // Non-numbers in array are skipped instead of being converted
-        Assert.AreEqual(-1, ws.Evaluate("AVERAGE({FALSE, TRUE, \"1\", \"0 0/2\", -1})"));
+        ClassicAssert.AreEqual(-1, ws.Evaluate("AVERAGE({FALSE, TRUE, \"1\", \"0 0/2\", -1})"));
 
         // Blank value in references are skipped
         ws.Cell("Z1").Value = Blank.Value;
-        Assert.AreEqual(1, ws.Evaluate("AVERAGE(Z1,1)"));
+        ClassicAssert.AreEqual(1, ws.Evaluate("AVERAGE(Z1,1)"));
 
         AssertScalarToNumberConversion("AVERAGE", 0.5);
         AssertAnyErrorIsPropagated("AVERAGE");
@@ -46,24 +44,24 @@ public class StatisticalTests
 
         // Examples from specification
         ws.Cell("E1").Value = Blank.Value;
-        Assert.AreEqual(10, ws.Evaluate("AVERAGEA(10, E1)"));
+        ClassicAssert.AreEqual(10, ws.Evaluate("AVERAGEA(10, E1)"));
         ws.Cell("E2").Value = true;
-        Assert.AreEqual(5.5, ws.Evaluate("AVERAGEA(10, E2)"));
+        ClassicAssert.AreEqual(5.5, ws.Evaluate("AVERAGEA(10, E2)"));
         ws.Cell("E3").Value = false;
-        Assert.AreEqual(5, ws.Evaluate("AVERAGEA(10, E3)"));
+        ClassicAssert.AreEqual(5, ws.Evaluate("AVERAGEA(10, E3)"));
 
         // Make sure multiple values not in an array work as intended
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             15.095,
             (double)this.workbook.Evaluate("AVERAGEA(-27.5,93.93,64.51,-70.56)"),
             Tolerance
         );
 
         // Array logical arguments are ignored
-        Assert.AreEqual(2, this.workbook.Evaluate("AVERAGEA({2,TRUE,TRUE,FALSE,FALSE})"));
+        ClassicAssert.AreEqual(2, this.workbook.Evaluate("AVERAGEA({2,TRUE,TRUE,FALSE,FALSE})"));
 
         // Array text arguments are counted as zero (4+2+0+0)/4
-        Assert.AreEqual(1.5, this.workbook.Evaluate("AVERAGEA({4, 2, \"hello\", \"10\" })"));
+        ClassicAssert.AreEqual(1.5, this.workbook.Evaluate("AVERAGEA({4, 2, \"hello\", \"10\" })"));
 
         // Reference argument only counts logical as 0/1, text as 0 and ignores blanks.
         ws.Cell("Z1").Value = Blank.Value; // Not counted
@@ -72,20 +70,21 @@ public class StatisticalTests
         ws.Cell("Z4").Value = "hello"; // 0
         ws.Cell("Z5").Value = 0; // 0
         ws.Cell("Z6").Value = 4; // 4
-        Assert.AreEqual(1, (double)ws.Evaluate("AVERAGEA(Z1:Z6)"));
+        ClassicAssert.AreEqual(1, (double)ws.Evaluate("AVERAGEA(Z1:Z6)"));
 
         AssertScalarToNumberConversion("AVERAGEA", 0.5);
         AssertAnyErrorIsPropagated("AVERAGEA");
     }
 
-    [TestCase(6, 10, 0.5, 0.205078125)]
-    [TestCase(4, 20, 0.2, 0.2181994)] // p different than 0.5
-    [TestCase(0, 5, 0.2, 0.32768)] // 0 out of 5 successes
-    [TestCase(0, 0, 0.2, 1)] // 0 out of 0 successes
-    [TestCase(1, 1, 0, 0)]
-    [TestCase(1, 1, 1, 1)]
-    [TestCase(2, 4, 0.5, 0.375)]
-    [TestCase(2.9, 4.9, 0.5, 0.375)] // Attempts are floored
+    [Test]
+    [Arguments(6, 10, 0.5, 0.205078125)]
+    [Arguments(4, 20, 0.2, 0.2181994)] // p different than 0.5
+    [Arguments(0, 5, 0.2, 0.32768)] // 0 out of 5 successes
+    [Arguments(0, 0, 0.2, 1)] // 0 out of 0 successes
+    [Arguments(1, 1, 0, 0)]
+    [Arguments(1, 1, 1, 1)]
+    [Arguments(2, 4, 0.5, 0.375)]
+    [Arguments(2.9, 4.9, 0.5, 0.375)] // Attempts are floored
     public void BinomDistCalculatesNonCumulativeBinomialDistribution(
         double k,
         double n,
@@ -98,16 +97,17 @@ public class StatisticalTests
         string pString = p.ToInvariantString();
         double result = (double)
             XLWorkbook.EvaluateExpr($"BINOMDIST({kString}, {nString}, {pString}, FALSE)");
-        Assert.AreEqual(expected, result, Tolerance);
+        ClassicAssert.AreEqual(expected, result, Tolerance);
     }
 
-    [TestCase(6, 10, 0.5, 0.828125)]
-    [TestCase(2, 7, 0.3, 0.6470695)]
-    [TestCase(0, 7, 0.3, 0.0823543)]
-    [TestCase(0, 0, 0.3, 1)]
-    [TestCase(0, 0, 1, 1)]
-    [TestCase(2, 4, 0.5, 0.6875)]
-    [TestCase(2.9, 4.9, 0.5, 0.6875)] // Values are floored
+    [Test]
+    [Arguments(6, 10, 0.5, 0.828125)]
+    [Arguments(2, 7, 0.3, 0.6470695)]
+    [Arguments(0, 7, 0.3, 0.0823543)]
+    [Arguments(0, 0, 0.3, 1)]
+    [Arguments(0, 0, 1, 1)]
+    [Arguments(2, 4, 0.5, 0.6875)]
+    [Arguments(2.9, 4.9, 0.5, 0.6875)] // Values are floored
     public void BinomDistCalculatesCumulativeBinomialDistribution(
         double k,
         double n,
@@ -120,15 +120,16 @@ public class StatisticalTests
         string pString = p.ToInvariantString();
         double result = (double)
             XLWorkbook.EvaluateExpr($"BINOMDIST({kString}, {nString}, {pString}, TRUE)");
-        Assert.AreEqual(expected, result, Tolerance);
+        ClassicAssert.AreEqual(expected, result, Tolerance);
     }
 
-    [TestCase(5, 4, 0.5)] // Five successes out of 4 attempts
-    [TestCase(-1, 4, 0.5)] // Negative successes
-    [TestCase(0, -1, 0.5)] // Negative attempts
-    [TestCase(2, 4, -0.1)] // p < 0
-    [TestCase(2, 4, 1.1)] // p > 1
-    [TestCase(1E+300, 2E+300, 0.5)] // Too large values
+    [Test]
+    [Arguments(5, 4, 0.5)] // Five successes out of 4 attempts
+    [Arguments(-1, 4, 0.5)] // Negative successes
+    [Arguments(0, -1, 0.5)] // Negative attempts
+    [Arguments(2, 4, -0.1)] // p < 0
+    [Arguments(2, 4, 1.1)] // p > 1
+    [Arguments(1E+300, 2E+300, 0.5)] // Too large values
     public void BinomDistReturnsNumErrorOnInvalidCalculations(double k, double n, double p)
     {
         string kString = k.ToInvariantString();
@@ -137,7 +138,7 @@ public class StatisticalTests
         XLCellValue result = XLWorkbook.EvaluateExpr(
             $"BINOMDIST({kString}, {nString}, {pString}, FALSE)"
         );
-        Assert.AreEqual(XLError.NumberInvalid, result);
+        ClassicAssert.AreEqual(XLError.NumberInvalid, result);
     }
 
     [Test]
@@ -146,39 +147,39 @@ public class StatisticalTests
         IXLWorksheet ws = this.workbook.Worksheets.First();
         XLCellValue value;
         value = ws.Evaluate("COUNT(D3:D45)");
-        Assert.AreEqual(0, value);
+        ClassicAssert.AreEqual(0, value);
 
         value = ws.Evaluate("COUNT(G3:G45)");
-        Assert.AreEqual(43, value);
+        ClassicAssert.AreEqual(43, value);
 
         value = ws.Evaluate("COUNT(G:G)");
-        Assert.AreEqual(43, value);
+        ClassicAssert.AreEqual(43, value);
 
         value = this.workbook.Evaluate("COUNT(Data!G:G)");
-        Assert.AreEqual(43, value);
+        ClassicAssert.AreEqual(43, value);
 
         // Scalar blank, logical and text is counted as numbers
-        Assert.AreEqual(4, ws.Evaluate("COUNT(IF(TRUE,,),TRUE, FALSE, \"1\")"));
+        ClassicAssert.AreEqual(4, ws.Evaluate("COUNT(IF(TRUE,,),TRUE, FALSE, \"1\")"));
 
         // Non-number values in arrays are not counted as numbers.
-        Assert.AreEqual(0, ws.Evaluate("COUNT({TRUE,FALSE,\"1\"})"));
+        ClassicAssert.AreEqual(0, ws.Evaluate("COUNT({TRUE,FALSE,\"1\"})"));
 
         // Text is not counted as number.
-        Assert.AreEqual(0, ws.Evaluate("COUNT(\"Hello\")"));
+        ClassicAssert.AreEqual(0, ws.Evaluate("COUNT(\"Hello\")"));
 
         // Blank cells are not counted as numbers
         ws.Cell("Z1").Value = Blank.Value;
-        Assert.AreEqual(0, ws.Evaluate("COUNT(Z1)"));
+        ClassicAssert.AreEqual(0, ws.Evaluate("COUNT(Z1)"));
 
         // Scalar errors are not propagated
-        Assert.AreEqual(1, ws.Evaluate("COUNT(1, #NULL!)"));
+        ClassicAssert.AreEqual(1, ws.Evaluate("COUNT(1, #NULL!)"));
 
         // Array errors are not propagated
-        Assert.AreEqual(1, ws.Evaluate("COUNT({1, #NULL!})"));
+        ClassicAssert.AreEqual(1, ws.Evaluate("COUNT({1, #NULL!})"));
 
         // Reference errors are not propagated
         ws.Cell("Z1").Value = XLError.NullValue;
-        Assert.AreEqual(0, ws.Evaluate("COUNT(Z1)"));
+        ClassicAssert.AreEqual(0, ws.Evaluate("COUNT(Z1)"));
     }
 
     [Test]
@@ -186,16 +187,16 @@ public class StatisticalTests
     {
         IXLWorksheet ws = this.workbook.Worksheets.First();
         XLCellValue value = ws.Evaluate("COUNTA(D3:D45)");
-        Assert.AreEqual(43, value);
+        ClassicAssert.AreEqual(43, value);
 
         value = ws.Evaluate("COUNTA(G3:G45)");
-        Assert.AreEqual(43, value);
+        ClassicAssert.AreEqual(43, value);
 
         value = ws.Evaluate("COUNTA(G:G)");
-        Assert.AreEqual(44, value);
+        ClassicAssert.AreEqual(44, value);
 
         value = this.workbook.Evaluate("COUNTA(Data!G:G)");
-        Assert.AreEqual(44, value);
+        ClassicAssert.AreEqual(44, value);
     }
 
     [Test]
@@ -212,21 +213,21 @@ public class StatisticalTests
         ws.Cell("A7").Value = true;
         ws.Cell("A8").Value = XLError.DivisionByZero;
         ws.Cell("A9").FormulaA1 = "COUNTA(A1:B8)";
-        Assert.AreEqual(7, ws.Cell("A9").Value);
+        ClassicAssert.AreEqual(7, ws.Cell("A9").Value);
     }
 
     [Test]
     public void CountAOnExamplesFromSpec()
     {
-        Assert.AreEqual(5, XLWorkbook.EvaluateExpr("COUNTA(1,2,3,4,5)"));
-        Assert.AreEqual(5, XLWorkbook.EvaluateExpr("COUNTA(1,2,3,4,5)"));
-        Assert.AreEqual(7, XLWorkbook.EvaluateExpr("COUNTA({1,2,3,4,5},6,\"7\")"));
+        ClassicAssert.AreEqual(5, XLWorkbook.EvaluateExpr("COUNTA(1,2,3,4,5)"));
+        ClassicAssert.AreEqual(5, XLWorkbook.EvaluateExpr("COUNTA(1,2,3,4,5)"));
+        ClassicAssert.AreEqual(7, XLWorkbook.EvaluateExpr("COUNTA({1,2,3,4,5},6,\"7\")"));
 
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
         ws.Cell("E2").Value = true;
-        Assert.AreEqual(1, ws.Evaluate("COUNTA(10, E1)"));
-        Assert.AreEqual(2, ws.Evaluate("COUNTA(10, E2)"));
+        ClassicAssert.AreEqual(1, ws.Evaluate("COUNTA(10, E1)"));
+        ClassicAssert.AreEqual(2, ws.Evaluate("COUNTA(10, E2)"));
     }
 
     [Test]
@@ -236,7 +237,7 @@ public class StatisticalTests
         IXLWorksheet ws = wb.AddWorksheet();
         ws.Cell("A2").Value = 7;
         ws.Cell("B5").Value = false;
-        Assert.AreEqual(2, ws.Evaluate("COUNTA((A1:A4,B4:B7))"));
+        ClassicAssert.AreEqual(2, ws.Evaluate("COUNTA((A1:A4,B4:B7))"));
     }
 
     [Test]
@@ -244,16 +245,16 @@ public class StatisticalTests
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
-        Assert.AreEqual(0, ws.Evaluate("COUNTA(A1)"));
+        ClassicAssert.AreEqual(0, ws.Evaluate("COUNTA(A1)"));
     }
 
     [Test]
     public void CountACountsBlankArgument() =>
-        Assert.AreEqual(1, XLWorkbook.EvaluateExpr("COUNTA(IF(TRUE,,))"));
+        ClassicAssert.AreEqual(1, XLWorkbook.EvaluateExpr("COUNTA(IF(TRUE,,))"));
 
     [Test]
     public void CountACountsErrorArguments() =>
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             7,
             XLWorkbook.EvaluateExpr("COUNTA(#NULL!, #DIV/0!, #VALUE!, #REF!, #NAME?, #NUM!, #N/A)")
         );
@@ -264,7 +265,7 @@ public class StatisticalTests
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
         ws.Cell("A1").Value = string.Empty;
-        Assert.AreEqual(2, ws.Evaluate("COUNTA(A1, \"\")"));
+        ClassicAssert.AreEqual(2, ws.Evaluate("COUNTA(A1, \"\")"));
     }
 
     [Test]
@@ -282,23 +283,26 @@ public class StatisticalTests
         ws.Cell("A8").Value = XLError.DivisionByZero;
 
         // Blank and empty text value is counted as blank
-        Assert.AreEqual(1, ws.Evaluate("COUNTBLANK(A1)"));
-        Assert.AreEqual(string.Empty, ws.Cell("A6").Value);
-        Assert.AreEqual(1, ws.Evaluate("COUNTBLANK(A6)"));
+        ClassicAssert.AreEqual(1, ws.Evaluate("COUNTBLANK(A1)"));
+        ClassicAssert.AreEqual(string.Empty, ws.Cell("A6").Value);
+        ClassicAssert.AreEqual(1, ws.Evaluate("COUNTBLANK(A6)"));
 
         // Anything else isn't counted as blank
-        Assert.AreEqual(2, ws.Evaluate("COUNTBLANK(A1:A8)"));
+        ClassicAssert.AreEqual(2, ws.Evaluate("COUNTBLANK(A1:A8)"));
 
-        Assert.AreEqual(17179869178d, ws.Evaluate("COUNTBLANK(A:XFD)"));
+        ClassicAssert.AreEqual(17179869178d, ws.Evaluate("COUNTBLANK(A:XFD)"));
 
         // Check that all others argument types. The Excel grammar doesn't allow that,
         // so use IF workaround for that.
-        Assert.AreEqual(XLError.IncompatibleValue, ws.Evaluate("COUNTBLANK(IF(TRUE,))")); // Blank
-        Assert.AreEqual(XLError.IncompatibleValue, ws.Evaluate("COUNTBLANK(IF(TRUE,FALSE))")); // Logical
-        Assert.AreEqual(XLError.IncompatibleValue, ws.Evaluate("COUNTBLANK(IF(TRUE,1))")); // Number
-        Assert.AreEqual(XLError.IncompatibleValue, ws.Evaluate("COUNTBLANK(IF(TRUE,\"\"))")); // Text
-        Assert.AreEqual(XLError.DivisionByZero, ws.Evaluate("COUNTBLANK(IF(TRUE,#DIV/0!))")); // Error
-        Assert.AreEqual(XLError.IncompatibleValue, ws.Evaluate("COUNTBLANK(IF(TRUE,{1}))")); // Array
+        ClassicAssert.AreEqual(XLError.IncompatibleValue, ws.Evaluate("COUNTBLANK(IF(TRUE,))")); // Blank
+        ClassicAssert.AreEqual(
+            XLError.IncompatibleValue,
+            ws.Evaluate("COUNTBLANK(IF(TRUE,FALSE))")
+        ); // Logical
+        ClassicAssert.AreEqual(XLError.IncompatibleValue, ws.Evaluate("COUNTBLANK(IF(TRUE,1))")); // Number
+        ClassicAssert.AreEqual(XLError.IncompatibleValue, ws.Evaluate("COUNTBLANK(IF(TRUE,\"\"))")); // Text
+        ClassicAssert.AreEqual(XLError.DivisionByZero, ws.Evaluate("COUNTBLANK(IF(TRUE,#DIV/0!))")); // Error
+        ClassicAssert.AreEqual(XLError.IncompatibleValue, ws.Evaluate("COUNTBLANK(IF(TRUE,{1}))")); // Array
     }
 
     [Test]
@@ -307,62 +311,65 @@ public class StatisticalTests
         IXLWorksheet ws = this.workbook.Worksheets.First();
         XLCellValue value;
         value = ws.Evaluate(@"=COUNTIF(D3:D45,""Central"")");
-        Assert.AreEqual(24, value);
+        ClassicAssert.AreEqual(24, value);
 
         value = ws.Evaluate(@"=COUNTIF(D:D,""Central"")");
-        Assert.AreEqual(24, value);
+        ClassicAssert.AreEqual(24, value);
 
         value = this.workbook.Evaluate(@"=COUNTIF(Data!D:D,""Central"")");
-        Assert.AreEqual(24, value);
+        ClassicAssert.AreEqual(24, value);
     }
 
-    [TestCase(@"=COUNTIF(Data!E:E, ""J*"")", 13)]
-    [TestCase(@"=COUNTIF(Data!E:E, ""*i*"")", 21)]
-    [TestCase(@"=COUNTIF(Data!E:E, ""*in*"")", 9)]
-    [TestCase(@"=COUNTIF(Data!E:E, ""*i*l"")", 9)]
-    [TestCase(@"=COUNTIF(Data!E:E, ""*i?e*"")", 9)]
-    [TestCase(@"=COUNTIF(Data!E:E, ""*o??s*"")", 10)]
-    [TestCase(@"=COUNTIF(Data!X1:X1000, """")", 1000)]
-    [TestCase(@"=COUNTIF(Data!E1:E44, """")", 1)]
+    [Test]
+    [Arguments(@"=COUNTIF(Data!E:E, ""J*"")", 13)]
+    [Arguments(@"=COUNTIF(Data!E:E, ""*i*"")", 21)]
+    [Arguments(@"=COUNTIF(Data!E:E, ""*in*"")", 9)]
+    [Arguments(@"=COUNTIF(Data!E:E, ""*i*l"")", 9)]
+    [Arguments(@"=COUNTIF(Data!E:E, ""*i?e*"")", 9)]
+    [Arguments(@"=COUNTIF(Data!E:E, ""*o??s*"")", 10)]
+    [Arguments(@"=COUNTIF(Data!X1:X1000, """")", 1000)]
+    [Arguments(@"=COUNTIF(Data!E1:E44, """")", 1)]
     public void CountIfConditionWithWildcards(string formula, int expectedResult)
     {
         IXLWorksheet ws = this.workbook.Worksheets.First();
 
         XLCellValue value = ws.Evaluate(formula);
-        Assert.AreEqual(expectedResult, value);
+        ClassicAssert.AreEqual(expectedResult, value);
     }
 
-    [TestCase(@"=COUNTIF(A1:A10, 1)", 1)]
-    [TestCase(@"=COUNTIF(A1:A10, 2.0)", 1)]
-    [TestCase(@"=COUNTIF(A1:A10, ""3"")", 2)]
-    [TestCase(@"=COUNTIF(A1:A10, 3)", 2)]
-    [TestCase(@"=COUNTIF(A1:A10, 43831)", 1)]
-    [TestCase(@"=COUNTIF(A1:A10, DATE(2020, 1, 1))", 1)]
-    [TestCase(@"=COUNTIF(A1:A10, TRUE)", 1)]
+    [Test]
+    [Arguments(@"=COUNTIF(A1:A10, 1)", 1)]
+    [Arguments(@"=COUNTIF(A1:A10, 2.0)", 1)]
+    [Arguments(@"=COUNTIF(A1:A10, ""3"")", 2)]
+    [Arguments(@"=COUNTIF(A1:A10, 3)", 2)]
+    [Arguments(@"=COUNTIF(A1:A10, 43831)", 1)]
+    [Arguments(@"=COUNTIF(A1:A10, DATE(2020, 1, 1))", 1)]
+    [Arguments(@"=COUNTIF(A1:A10, TRUE)", 1)]
     public void CountIfMixedData(string formula, int expected)
     {
         // We follow to Excel's convention.
         // Excel treats 1 and TRUE as unequal, but 3 and "3" as equal
         // LibreOffice Calc handles some SUMIF and COUNTIF differently, e.g. it treats 1 and TRUE as equal, but 3 and "3" differently
         IXLWorksheet ws = this.workbook.Worksheet("MixedData");
-        Assert.AreEqual(expected, ws.Evaluate(formula));
+        ClassicAssert.AreEqual(expected, ws.Evaluate(formula));
     }
 
-    [TestCase("x", @"=COUNTIF(A1:A1, ""?"")", 1)]
-    [TestCase("x", @"=COUNTIF(A1:A1, ""~?"")", 0)]
-    [TestCase("?", @"=COUNTIF(A1:A1, ""~?"")", 1)]
-    [TestCase("~?", @"=COUNTIF(A1:A1, ""~?"")", 0)]
-    [TestCase("~?", @"=COUNTIF(A1:A1, ""~~~?"")", 1)]
-    [TestCase("?", @"=COUNTIF(A1:A1, ""~~?"")", 0)]
-    [TestCase("~?", @"=COUNTIF(A1:A1, ""~~?"")", 1)]
-    [TestCase("~x", @"=COUNTIF(A1:A1, ""~~?"")", 1)]
-    [TestCase("*", @"=COUNTIF(A1:A1, ""~*"")", 1)]
-    [TestCase("~*", @"=COUNTIF(A1:A1, ""~*"")", 0)]
-    [TestCase("~*", @"=COUNTIF(A1:A1, ""~~~*"")", 1)]
-    [TestCase("*", @"=COUNTIF(A1:A1, ""~~*"")", 0)]
-    [TestCase("~*", @"=COUNTIF(A1:A1, ""~~*"")", 1)]
-    [TestCase("~x", @"=COUNTIF(A1:A1, ""~~*"")", 1)]
-    [TestCase("~xyz", @"=COUNTIF(A1:A1, ""~~*"")", 1)]
+    [Test]
+    [Arguments("x", @"=COUNTIF(A1:A1, ""?"")", 1)]
+    [Arguments("x", @"=COUNTIF(A1:A1, ""~?"")", 0)]
+    [Arguments("?", @"=COUNTIF(A1:A1, ""~?"")", 1)]
+    [Arguments("~?", @"=COUNTIF(A1:A1, ""~?"")", 0)]
+    [Arguments("~?", @"=COUNTIF(A1:A1, ""~~~?"")", 1)]
+    [Arguments("?", @"=COUNTIF(A1:A1, ""~~?"")", 0)]
+    [Arguments("~?", @"=COUNTIF(A1:A1, ""~~?"")", 1)]
+    [Arguments("~x", @"=COUNTIF(A1:A1, ""~~?"")", 1)]
+    [Arguments("*", @"=COUNTIF(A1:A1, ""~*"")", 1)]
+    [Arguments("~*", @"=COUNTIF(A1:A1, ""~*"")", 0)]
+    [Arguments("~*", @"=COUNTIF(A1:A1, ""~~~*"")", 1)]
+    [Arguments("*", @"=COUNTIF(A1:A1, ""~~*"")", 0)]
+    [Arguments("~*", @"=COUNTIF(A1:A1, ""~~*"")", 1)]
+    [Arguments("~x", @"=COUNTIF(A1:A1, ""~~*"")", 1)]
+    [Arguments("~xyz", @"=COUNTIF(A1:A1, ""~~*"")", 1)]
     public void CountIfMoreWildcards(string cellContent, string formula, int expectedResult)
     {
         using (XLWorkbook wb = new())
@@ -371,13 +378,14 @@ public class StatisticalTests
 
             ws.Cell(1, 1).Value = cellContent;
 
-            Assert.AreEqual(expectedResult, (double)ws.Evaluate(formula));
+            ClassicAssert.AreEqual(expectedResult, (double)ws.Evaluate(formula));
         }
     }
 
-    [TestCase("=COUNTIFS(B1:D1, \"=Yes\")", 1)]
-    [TestCase("=COUNTIFS(B1:B4, \"=Yes\", C1:C4, \"=Yes\")", 2)]
-    [TestCase("=COUNTIFS(B4:D4, \"=Yes\", B2:D2, \"=Yes\")", 1)]
+    [Test]
+    [Arguments("=COUNTIFS(B1:D1, \"=Yes\")", 1)]
+    [Arguments("=COUNTIFS(B1:B4, \"=Yes\", C1:C4, \"=Yes\")", 2)]
+    [Arguments("=COUNTIFS(B4:D4, \"=Yes\", B2:D2, \"=Yes\")", 1)]
     public void CountIfsReferenceExample1FromExcelDocumentations(
         string formula,
         int expectedOutcome
@@ -407,7 +415,7 @@ public class StatisticalTests
             ws.Cell(4, 3).Value = "Yes";
             ws.Cell(4, 4).Value = "Yes";
 
-            Assert.AreEqual(expectedOutcome, ws.Evaluate(formula));
+            ClassicAssert.AreEqual(expectedOutcome, ws.Evaluate(formula));
         }
     }
 
@@ -417,98 +425,123 @@ public class StatisticalTests
         IXLWorksheet ws = this.workbook.Worksheets.First();
         XLCellValue value;
         value = ws.Evaluate(@"=COUNTIFS(D3:D45,""Central"")");
-        Assert.AreEqual(24, value);
+        ClassicAssert.AreEqual(24, value);
 
         value = ws.Evaluate(@"=COUNTIFS(D:D,""Central"")");
-        Assert.AreEqual(24, value);
+        ClassicAssert.AreEqual(24, value);
 
         value = this.workbook.Evaluate(@"=COUNTIFS(Data!D:D,""Central"")");
-        Assert.AreEqual(24, value);
+        ClassicAssert.AreEqual(24, value);
     }
 
-    [TestCase(@"=COUNTIFS(Data!E:E, ""J*"")", 13)]
-    [TestCase(@"=COUNTIFS(Data!E:E, ""*i*"")", 21)]
-    [TestCase(@"=COUNTIFS(Data!E:E, ""*in*"")", 9)]
-    [TestCase(@"=COUNTIFS(Data!E:E, ""*i*l"")", 9)]
-    [TestCase(@"=COUNTIFS(Data!E:E, ""*i?e*"")", 9)]
-    [TestCase(@"=COUNTIFS(Data!E:E, ""*o??s*"")", 10)]
-    [TestCase(@"=COUNTIFS(Data!X1:X1000, """")", 1000)]
-    [TestCase(@"=COUNTIFS(Data!E1:E44, """")", 1)]
+    [Test]
+    [Arguments(@"=COUNTIFS(Data!E:E, ""J*"")", 13)]
+    [Arguments(@"=COUNTIFS(Data!E:E, ""*i*"")", 21)]
+    [Arguments(@"=COUNTIFS(Data!E:E, ""*in*"")", 9)]
+    [Arguments(@"=COUNTIFS(Data!E:E, ""*i*l"")", 9)]
+    [Arguments(@"=COUNTIFS(Data!E:E, ""*i?e*"")", 9)]
+    [Arguments(@"=COUNTIFS(Data!E:E, ""*o??s*"")", 10)]
+    [Arguments(@"=COUNTIFS(Data!X1:X1000, """")", 1000)]
+    [Arguments(@"=COUNTIFS(Data!E1:E44, """")", 1)]
     public void CountIfsSingleConditionWithWildcards(string formula, int expectedResult)
     {
         IXLWorksheet ws = this.workbook.Worksheets.First();
 
         XLCellValue value = ws.Evaluate(formula);
-        Assert.AreEqual(expectedResult, value);
+        ClassicAssert.AreEqual(expectedResult, value);
     }
 
-    [TestCase("COUNTIFS(H1:I3, 1, D1:F2, 2)")]
-    [TestCase("COUNTIFS(A:B, \"A*\", C:C, \">2\")")]
+    [Test]
+    [Arguments("COUNTIFS(H1:I3, 1, D1:F2, 2)")]
+    [Arguments("COUNTIFS(A:B, \"A*\", C:C, \">2\")")]
     public void CountIfsReturnsErrorWhenAreasDimensionsAreDifferent(string formula)
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
-        Assert.AreEqual(XLError.IncompatibleValue, ws.Evaluate(formula));
+        ClassicAssert.AreEqual(XLError.IncompatibleValue, ws.Evaluate(formula));
     }
 
-    [OneTimeTearDown]
+    // TUnit creates a new instance of this class per test (unlike NUnit's one shared fixture
+    // instance), so there's no single "last" workbook to dispose once at the end. Each test's own
+    // workbook is disposed right after that test instead.
+    [After(Test)]
     public void Dispose() => this.workbook.Dispose();
 
-    [TestCase("H3:H45", ExpectedResult = 7.51126069234216)]
-    [TestCase("H:H", ExpectedResult = 7.51126069234216)]
-    [TestCase("Data!H:H", ExpectedResult = 7.51126069234216)]
-    [TestCase("H3:H10", ExpectedResult = 5.26214814727941)]
-    [TestCase("H3:H20", ExpectedResult = 7.01281435054797)]
-    [TestCase("H3:H30", ExpectedResult = 7.00137389296182)]
-    [TestCase("H3:H3", ExpectedResult = 1.99)]
-    [TestCase("H10:H20", ExpectedResult = 8.37855107505682)]
-    [TestCase("H15:H20", ExpectedResult = 15.8927310267677)]
-    [TestCase("H20:H30", ExpectedResult = 7.14321227391814)]
-    [DefaultFloatingPointTolerance(1e-12)]
-    public double GeomeanCalculation(string sourceValue) =>
-        (double)this.workbook.Worksheets.First().Evaluate($"GEOMEAN({sourceValue})");
-
-    [TestCase("D3:D45", ExpectedResult = XLError.NumberInvalid)]
-    [TestCase("-1, 0, 3", ExpectedResult = XLError.NumberInvalid)]
-    [TestCase("0", ExpectedResult = XLError.NumberInvalid)]
-    public XLError GeomeanIncorrectCases(string sourceValue)
+    [Test]
+    [Arguments("H3:H45", 7.51126069234216)]
+    [Arguments("H:H", 7.51126069234216)]
+    [Arguments("Data!H:H", 7.51126069234216)]
+    [Arguments("H3:H10", 5.26214814727941)]
+    [Arguments("H3:H20", 7.01281435054797)]
+    [Arguments("H3:H30", 7.00137389296182)]
+    [Arguments("H3:H3", 1.99)]
+    [Arguments("H10:H20", 8.37855107505682)]
+    [Arguments("H15:H20", 15.8927310267677)]
+    [Arguments("H20:H30", 7.14321227391814)]
+    public void GeomeanCalculation(string sourceValue, double expected)
     {
-        IXLWorksheet ws = this.workbook.Worksheets.First();
-
-        return (XLError)ws.Evaluate($"GEOMEAN({sourceValue})");
+        ClassicAssert.AreEqual(
+            expected,
+            (double)this.workbook.Worksheets.First().Evaluate($"GEOMEAN({sourceValue})"),
+            1e-12
+        );
     }
 
     [Test]
-    [DefaultFloatingPointTolerance(1e-8)]
+    [Arguments("D3:D45", XLError.NumberInvalid)]
+    [Arguments("-1, 0, 3", XLError.NumberInvalid)]
+    [Arguments("0", XLError.NumberInvalid)]
+    public void GeomeanIncorrectCases(string sourceValue, XLError expected)
+    {
+        IXLWorksheet ws = this.workbook.Worksheets.First();
+
+        ClassicAssert.AreEqual(expected, (XLError)ws.Evaluate($"GEOMEAN({sourceValue})"));
+    }
+
+    [Test]
     public void Geomean()
     {
         // Example from the specification
-        Assert.AreEqual(5.4444547024966, (double)XLWorkbook.EvaluateExpr("GEOMEAN(10.5,5.3,2.9)"));
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
+            5.4444547024966,
+            (double)XLWorkbook.EvaluateExpr("GEOMEAN(10.5,5.3,2.9)"),
+            1e-8
+        );
+        ClassicAssert.AreEqual(
             6.6337805880630,
-            (double)XLWorkbook.EvaluateExpr("GEOMEAN(10.5,{5.3,2.9},\"12\")")
+            (double)XLWorkbook.EvaluateExpr("GEOMEAN(10.5,{5.3,2.9},\"12\")"),
+            1e-8
         );
 
         // GEOMEAN isn't limited by double scale, i.e. it doesn't use naive algorithm for large number.
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             1.0000000000000231E+307d,
-            (double)XLWorkbook.EvaluateExpr("GEOMEAN(1E+307, 1E+307)")
+            (double)XLWorkbook.EvaluateExpr("GEOMEAN(1E+307, 1E+307)"),
+            1e-8
         );
 
         // Scalar blank is counted as a 0
-        Assert.AreEqual(XLError.NumberInvalid, XLWorkbook.EvaluateExpr("GEOMEAN(IF(TRUE,), 1)"));
+        ClassicAssert.AreEqual(
+            XLError.NumberInvalid,
+            XLWorkbook.EvaluateExpr("GEOMEAN(IF(TRUE,), 1)")
+        );
 
         // Scalar logical and text is converted to numbers
-        Assert.AreEqual(2.236067977, (double)XLWorkbook.EvaluateExpr("GEOMEAN(TRUE, \"5\")"));
+        ClassicAssert.AreEqual(
+            2.236067977,
+            (double)XLWorkbook.EvaluateExpr("GEOMEAN(TRUE, \"5\")"),
+            1e-8
+        );
 
         // Non-number values in arrays are ignored.
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             5.916079783,
-            (double)XLWorkbook.EvaluateExpr("GEOMEAN({TRUE, FALSE, \"1\", 7}, 5)")
+            (double)XLWorkbook.EvaluateExpr("GEOMEAN({TRUE, FALSE, \"1\", 7}, 5)"),
+            1e-8
         );
 
         // Scalar non-number text causes an error due to conversion.
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             XLError.IncompatibleValue,
             XLWorkbook.EvaluateExpr("GEOMEAN(\"Hello\", 5)")
         );
@@ -521,59 +554,75 @@ public class StatisticalTests
         ws.Cell("Z4").Value = false;
         ws.Cell("Z5").Value = true;
         ws.Cell("Z6").Value = 5;
-        Assert.AreEqual(5, (double)ws.Evaluate("GEOMEAN(Z1:Z6)"));
+        ClassicAssert.AreEqual(5, (double)ws.Evaluate("GEOMEAN(Z1:Z6)"), 1e-8);
 
         AssertAnyErrorIsPropagated("GEOMEAN");
     }
 
-    [SetUp]
-    public void Init()
+    [Before(Test)]
+    public void Init() => this.workbook = SetupWorkbook();
+
+    [Test]
+    [Arguments(@"H3:H45", 94145.5271162791)]
+    [Arguments(@"H:H", 94145.5271162791)]
+    [Arguments(@"Data!H:H", 94145.5271162791)]
+    [Arguments(@"H3:H10", 411.5)]
+    [Arguments(@"H3:H20", 13604.2067611111)]
+    [Arguments(@"H3:H30", 14231.0694)]
+    [Arguments(@"H3:H3", 0)]
+    [Arguments(@"H10:H20", 12713.7600909091)]
+    [Arguments(@"H15:H20", 10827.2200833333)]
+    [Arguments(@"H20:H30", 477.132272727273)]
+    public void DevSq(string sourceValue, double expected)
     {
-        // Make sure tests run on a deterministic culture
-        System.Threading.Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo(
-            "en-US"
+        ClassicAssert.AreEqual(
+            expected,
+            (double)this.workbook.Worksheets.First().Evaluate($"DEVSQ({sourceValue})"),
+            1e-10
         );
-        this.workbook = SetupWorkbook();
-    }
-
-    [TestCase(@"H3:H45", ExpectedResult = 94145.5271162791)]
-    [TestCase(@"H:H", ExpectedResult = 94145.5271162791)]
-    [TestCase(@"Data!H:H", ExpectedResult = 94145.5271162791)]
-    [TestCase(@"H3:H10", ExpectedResult = 411.5)]
-    [TestCase(@"H3:H20", ExpectedResult = 13604.2067611111)]
-    [TestCase(@"H3:H30", ExpectedResult = 14231.0694)]
-    [TestCase(@"H3:H3", ExpectedResult = 0)]
-    [TestCase(@"H10:H20", ExpectedResult = 12713.7600909091)]
-    [TestCase(@"H15:H20", ExpectedResult = 10827.2200833333)]
-    [TestCase(@"H20:H30", ExpectedResult = 477.132272727273)]
-    [DefaultFloatingPointTolerance(1e-10)]
-    public double DevSq(string sourceValue) =>
-        (double)this.workbook.Worksheets.First().Evaluate($"DEVSQ({sourceValue})");
-
-    [TestCase("D3:D45", ExpectedResult = XLError.NumberInvalid)]
-    public XLError DevsqIncorrectCases(string sourceValue)
-    {
-        IXLWorksheet ws = this.workbook.Worksheets.First();
-
-        return (XLError)ws.Evaluate($"DEVSQ({sourceValue})");
     }
 
     [Test]
-    [DefaultFloatingPointTolerance(1e-10)]
+    [Arguments("D3:D45", XLError.NumberInvalid)]
+    public void DevsqIncorrectCases(string sourceValue, XLError expected)
+    {
+        IXLWorksheet ws = this.workbook.Worksheets.First();
+
+        ClassicAssert.AreEqual(expected, (XLError)ws.Evaluate($"DEVSQ({sourceValue})"));
+    }
+
+    [Test]
     public void DevsqIsCalculatedFromNumbers()
     {
-        Assert.AreEqual(6.90666666666666, (double)XLWorkbook.EvaluateExpr("DEVSQ(5.6, 8.2, 9.2)"));
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             6.90666666666666,
-            (double)XLWorkbook.EvaluateExpr("DEVSQ({ 5.6, 8.2, 9.2})")
+            (double)XLWorkbook.EvaluateExpr("DEVSQ(5.6, 8.2, 9.2)"),
+            1e-10
+        );
+        ClassicAssert.AreEqual(
+            6.90666666666666,
+            (double)XLWorkbook.EvaluateExpr("DEVSQ({ 5.6, 8.2, 9.2})"),
+            1e-10
         );
 
         // Array logical arguments are ignored
-        Assert.AreEqual(0, this.workbook.Evaluate("DEVSQ({2,TRUE,TRUE,FALSE,FALSE})"));
-        Assert.AreEqual(2.8, (double)this.workbook.Evaluate("DEVSQ({2, 1, 1, 0, 0})"));
+        ClassicAssert.AreEqual(
+            0,
+            (double)this.workbook.Evaluate("DEVSQ({2,TRUE,TRUE,FALSE,FALSE})"),
+            1e-10
+        );
+        ClassicAssert.AreEqual(
+            2.8,
+            (double)this.workbook.Evaluate("DEVSQ({2, 1, 1, 0, 0})"),
+            1e-10
+        );
 
         // Array text arguments are ignored
-        Assert.AreEqual(2, this.workbook.Evaluate("DEVSQ({4, 2, \"hello\", \"10\" })"));
+        ClassicAssert.AreEqual(
+            2,
+            (double)this.workbook.Evaluate("DEVSQ({4, 2, \"hello\", \"10\" })"),
+            1e-10
+        );
 
         // Non-numerical reference values are ignored.
         using XLWorkbook wb = new();
@@ -584,32 +633,44 @@ public class StatisticalTests
         ws.Cell("A4").Value = "hello"; // Ignored
         ws.Cell("A5").Value = 2; // Included
         ws.Cell("A6").Value = 4; // Included
-        Assert.AreEqual(2, ws.Evaluate("DEVSQ(A1:A6)"));
+        ClassicAssert.AreEqual(2, (double)ws.Evaluate("DEVSQ(A1:A6)"), 1e-10);
 
         AssertScalarToNumberConversion("DEVSQ", 0.5);
         AssertAnyErrorIsPropagated("DEVSQ");
     }
 
-    [TestCase(0, ExpectedResult = 0)]
-    [TestCase(0.2, ExpectedResult = 0.202732554054082)]
-    [TestCase(0.25, ExpectedResult = 0.255412811882995)]
-    [TestCase(0.3296001056, ExpectedResult = 0.342379555936801)]
-    [TestCase(-0.36, ExpectedResult = -0.37688590118819)]
-    [TestCase(-0.000003, ExpectedResult = -0.00000299999999998981)]
-    [TestCase(-0.063453535345348, ExpectedResult = -0.0635389037459617)]
-    [TestCase(0.559015883901589171354964, ExpectedResult = 0.631400600322212)]
-    [TestCase(0.2691496, ExpectedResult = 0.275946780611959)]
-    [TestCase(-0.10674142, ExpectedResult = -0.107149608461448)]
-    [DefaultFloatingPointTolerance(1e-12)]
-    public double Fisher(double sourceValue) =>
-        (double)XLWorkbook.EvaluateExpr($"FISHER({sourceValue})");
+    [Test]
+    [Arguments(0, 0)]
+    [Arguments(0.2, 0.202732554054082)]
+    [Arguments(0.25, 0.255412811882995)]
+    [Arguments(0.3296001056, 0.342379555936801)]
+    [Arguments(-0.36, -0.37688590118819)]
+    [Arguments(-0.000003, -0.00000299999999998981)]
+    [Arguments(-0.063453535345348, -0.0635389037459617)]
+    [Arguments(0.559015883901589171354964, 0.631400600322212)]
+    [Arguments(0.2691496, 0.275946780611959)]
+    [Arguments(-0.10674142, -0.107149608461448)]
+    public void Fisher(double sourceValue, double expected)
+    {
+        ClassicAssert.AreEqual(
+            expected,
+            (double)XLWorkbook.EvaluateExpr($"FISHER({sourceValue})"),
+            1e-12
+        );
+    }
 
-    [TestCase("\"asdf\"", ExpectedResult = XLError.IncompatibleValue)]
-    [TestCase("5", ExpectedResult = XLError.NumberInvalid)]
-    [TestCase("-1", ExpectedResult = XLError.NumberInvalid)]
-    [TestCase("1", ExpectedResult = XLError.NumberInvalid)]
-    public XLError FisherIncorrectCases(string sourceValue) =>
-        (XLError)XLWorkbook.EvaluateExpr($"FISHER({sourceValue})");
+    [Test]
+    [Arguments("\"asdf\"", XLError.IncompatibleValue)]
+    [Arguments("5", XLError.NumberInvalid)]
+    [Arguments("-1", XLError.NumberInvalid)]
+    [Arguments("1", XLError.NumberInvalid)]
+    public void FisherIncorrectCases(string sourceValue, XLError expected)
+    {
+        ClassicAssert.AreEqual(
+            expected,
+            (XLError)XLWorkbook.EvaluateExpr($"FISHER({sourceValue})")
+        );
+    }
 
     [Test]
     public void Max()
@@ -617,28 +678,28 @@ public class StatisticalTests
         IXLWorksheet ws = this.workbook.Worksheets.First();
         XLCellValue value;
         value = ws.Evaluate(@"=MAX(D3:D45)");
-        Assert.AreEqual(0, value);
+        ClassicAssert.AreEqual(0, value);
 
         value = ws.Evaluate(@"=MAX(G3:G45)");
-        Assert.AreEqual(96, value);
+        ClassicAssert.AreEqual(96, value);
 
         value = ws.Evaluate(@"=MAX(G:G)");
-        Assert.AreEqual(96, value);
+        ClassicAssert.AreEqual(96, value);
 
         value = this.workbook.Evaluate(@"=MAX(Data!G:G)");
-        Assert.AreEqual(96, value);
+        ClassicAssert.AreEqual(96, value);
 
         // Although in most cases blank cells are considered 0, MAX just ignores them.
         value = this.workbook.Evaluate(@"MAX(-10, Data!X:Z)");
-        Assert.AreEqual(-10, value);
+        ClassicAssert.AreEqual(-10, value);
 
         // Arrays - numbers are used
         value = this.workbook.Evaluate(@"MAX(-10, { -6, -5, 7 })");
-        Assert.AreEqual(7, value);
+        ClassicAssert.AreEqual(7, value);
 
         // Arrays - non-number and non-error values are skipped.
         value = this.workbook.Evaluate(@"MAX(-10, { TRUE, FALSE, ""100"" })");
-        Assert.AreEqual(-10, value);
+        ClassicAssert.AreEqual(-10, value);
 
         // Reference argument ignores everything but number.
         ws.Cell("Z1").Value = Blank.Value;
@@ -646,7 +707,7 @@ public class StatisticalTests
         ws.Cell("Z3").Value = "100";
         ws.Cell("Z4").Value = "hello";
         ws.Cell("Z5").Value = -4;
-        Assert.AreEqual(-4, ws.Evaluate("MAX(Z1:Z5)"));
+        ClassicAssert.AreEqual(-4, ws.Evaluate("MAX(Z1:Z5)"));
 
         AssertScalarToNumberConversion("MAX", 1);
         AssertAnyErrorIsPropagated("MAX");
@@ -659,19 +720,19 @@ public class StatisticalTests
         IXLWorksheet ws = wb.AddWorksheet();
 
         // Examples from specification
-        Assert.AreEqual(12.6, ws.Evaluate("MAXA(10.4,-3.5,12.6)"));
-        Assert.AreEqual(12.6, ws.Evaluate("MAXA(10.4,{-3.5,12.6})"));
-        Assert.AreEqual(0, ws.Evaluate("MAXA({\"ABC\",TRUE})"));
+        ClassicAssert.AreEqual(12.6, ws.Evaluate("MAXA(10.4,-3.5,12.6)"));
+        ClassicAssert.AreEqual(12.6, ws.Evaluate("MAXA(10.4,{-3.5,12.6})"));
+        ClassicAssert.AreEqual(0, ws.Evaluate("MAXA({\"ABC\",TRUE})"));
         ws.Cell("B3").Value = Blank.Value;
-        Assert.AreEqual(-10, ws.Evaluate("MAX(-10,-12,-15,B3)"));
+        ClassicAssert.AreEqual(-10, ws.Evaluate("MAX(-10,-12,-15,B3)"));
         ws.Cell("B3").Value = 0;
-        Assert.AreEqual(0, ws.Evaluate("MAXA(-10,-12,-15,B3)"));
+        ClassicAssert.AreEqual(0, ws.Evaluate("MAXA(-10,-12,-15,B3)"));
 
         // Array logical arguments are ignored
-        Assert.AreEqual(-2, this.workbook.Evaluate("MAXA({-2, TRUE, TRUE, FALSE, FALSE})"));
+        ClassicAssert.AreEqual(-2, this.workbook.Evaluate("MAXA({-2, TRUE, TRUE, FALSE, FALSE})"));
 
         // Array text arguments are ignored
-        Assert.AreEqual(-2, this.workbook.Evaluate("MAXA({-4, -2, \"hello\", \"10\" })"));
+        ClassicAssert.AreEqual(-2, this.workbook.Evaluate("MAXA({-4, -2, \"hello\", \"10\" })"));
 
         // Reference argument only counts logical as 0/1, text as 0 and ignores blanks.
         ws.Cell("A1").Value = Blank.Value;
@@ -679,8 +740,8 @@ public class StatisticalTests
         ws.Cell("A3").Value = "100";
         ws.Cell("A4").Value = "hello";
         ws.Cell("A5").Value = -4;
-        Assert.AreEqual(1, ws.Evaluate("MAXA(A1:A5)"));
-        Assert.AreEqual(0, ws.Evaluate("MAXA(A3:A5)"));
+        ClassicAssert.AreEqual(1, ws.Evaluate("MAXA(A1:A5)"));
+        ClassicAssert.AreEqual(0, ws.Evaluate("MAXA(A3:A5)"));
 
         AssertScalarToNumberConversion("MAXA", 1);
         AssertAnyErrorIsPropagated("MAXA");
@@ -692,7 +753,7 @@ public class StatisticalTests
         IXLWorksheet ws = this.workbook.Worksheets.First();
 
         // Column D contains names of regions
-        Assert.AreEqual(XLError.NumberInvalid, ws.Evaluate("MEDIAN(D3:D45)"));
+        ClassicAssert.AreEqual(XLError.NumberInvalid, ws.Evaluate("MEDIAN(D3:D45)"));
     }
 
     [Test]
@@ -705,7 +766,7 @@ public class StatisticalTests
         double value = (double)ws.Evaluate("MEDIAN(I3:I10)");
 
         //Assert
-        Assert.AreEqual(244.225, value, Tolerance);
+        ClassicAssert.AreEqual(244.225, value, Tolerance);
     }
 
     [Test]
@@ -715,7 +776,7 @@ public class StatisticalTests
         double value = (double)this.workbook.Evaluate("MEDIAN(-27.5,93.93,64.51,-70.56)");
 
         //Assert
-        Assert.AreEqual(18.505, value, Tolerance);
+        ClassicAssert.AreEqual(18.505, value, Tolerance);
     }
 
     [Test]
@@ -728,7 +789,7 @@ public class StatisticalTests
         double value = (double)ws.Evaluate("MEDIAN(I3:I11)");
 
         //Assert
-        Assert.AreEqual(189.05, value, Tolerance);
+        ClassicAssert.AreEqual(189.05, value, Tolerance);
     }
 
     [Test]
@@ -738,7 +799,7 @@ public class StatisticalTests
         double value = (double)this.workbook.Evaluate("MEDIAN(-27.5,93.93,64.51,-70.56,101.65)");
 
         //Assert
-        Assert.AreEqual(64.51, value, Tolerance);
+        ClassicAssert.AreEqual(64.51, value, Tolerance);
     }
 
     [Test]
@@ -748,16 +809,16 @@ public class StatisticalTests
         IXLWorksheet ws = wb.AddWorksheet();
 
         // Examples from specification
-        Assert.AreEqual(15, ws.Evaluate("MEDIAN(10, 20)"));
-        Assert.AreEqual(-1.05, ws.Evaluate("MEDIAN(-3.5, 1.4, 6.9, -4.5)"));
-        Assert.AreEqual(-1.05, ws.Evaluate("MEDIAN({ -3.5,1.4,6.9},-4.5)"));
+        ClassicAssert.AreEqual(15, ws.Evaluate("MEDIAN(10, 20)"));
+        ClassicAssert.AreEqual(-1.05, ws.Evaluate("MEDIAN(-3.5, 1.4, 6.9, -4.5)"));
+        ClassicAssert.AreEqual(-1.05, ws.Evaluate("MEDIAN({ -3.5,1.4,6.9},-4.5)"));
 
         // Reference with no value will return error
         ws.Cell("A1").Value = Blank.Value;
-        Assert.AreEqual(XLError.NumberInvalid, ws.Evaluate("MEDIAN(A1)"));
+        ClassicAssert.AreEqual(XLError.NumberInvalid, ws.Evaluate("MEDIAN(A1)"));
 
         // Array non-number values are ignored
-        Assert.AreEqual(7, ws.Evaluate("MEDIAN({7, TRUE,FALSE,\"1\"})"));
+        ClassicAssert.AreEqual(7, ws.Evaluate("MEDIAN({7, TRUE,FALSE,\"1\"})"));
 
         // Only numbers are used from reference, rest is ignored
         ws.Cell("A1").Value = Blank.Value;
@@ -767,7 +828,7 @@ public class StatisticalTests
         ws.Cell("A5").Value = 0;
         ws.Cell("A6").Value = 4;
         ws.Cell("A7").Value = 5;
-        Assert.AreEqual(4, ws.Evaluate("MEDIAN(A1:A7)"));
+        ClassicAssert.AreEqual(4, ws.Evaluate("MEDIAN(A1:A7)"));
 
         AssertScalarToNumberConversion("MEDIAN", 0.5);
         AssertAnyErrorIsPropagated("MEDIAN");
@@ -777,13 +838,16 @@ public class StatisticalTests
     public void Min()
     {
         IXLWorksheet ws = this.workbook.Worksheets.First();
-        Assert.AreEqual(0, ws.Evaluate("MIN(D3:D45)"));
-        Assert.AreEqual(2, ws.Evaluate("MIN(G3:G45)"));
-        Assert.AreEqual(2, ws.Evaluate("MIN(G:G)"));
-        Assert.AreEqual(2, this.workbook.Evaluate("MIN(Data!G:G)"));
+        ClassicAssert.AreEqual(0, ws.Evaluate("MIN(D3:D45)"));
+        ClassicAssert.AreEqual(2, ws.Evaluate("MIN(G3:G45)"));
+        ClassicAssert.AreEqual(2, ws.Evaluate("MIN(G:G)"));
+        ClassicAssert.AreEqual(2, this.workbook.Evaluate("MIN(Data!G:G)"));
 
         // Array non-number arguments are ignored
-        Assert.AreEqual(5, this.workbook.Evaluate("MIN({5, TRUE, FALSE, \"1\", \"hello\"})"));
+        ClassicAssert.AreEqual(
+            5,
+            this.workbook.Evaluate("MIN({5, TRUE, FALSE, \"1\", \"hello\"})")
+        );
 
         // Reference non-number arguments are ignored
         ws.Cell("Z1").Value = Blank.Value;
@@ -792,10 +856,10 @@ public class StatisticalTests
         ws.Cell("Z4").Value = false;
         ws.Cell("Z5").Value = true;
         ws.Cell("Z6").Value = 5;
-        Assert.AreEqual(5, ws.Evaluate("MIN(Z1:Z6)"));
+        ClassicAssert.AreEqual(5, ws.Evaluate("MIN(Z1:Z6)"));
 
         // If there is no value, return 0
-        Assert.AreEqual(0, ws.Evaluate("MIN({\"hello\"})"));
+        ClassicAssert.AreEqual(0, ws.Evaluate("MIN({\"hello\"})"));
 
         AssertScalarToNumberConversion("MIN", 0);
         AssertAnyErrorIsPropagated("MIN");
@@ -808,23 +872,23 @@ public class StatisticalTests
         IXLWorksheet ws = wb.AddWorksheet();
 
         // Examples from specification
-        Assert.AreEqual(-3.5, ws.Evaluate("MINA(10.4, -3.5, 12.6)"));
-        Assert.AreEqual(-3.5, ws.Evaluate("MINA(10.4, {-3.5, 12.6})"));
-        Assert.AreEqual(0, ws.Evaluate("MINA({\"ABC\", TRUE})"));
+        ClassicAssert.AreEqual(-3.5, ws.Evaluate("MINA(10.4, -3.5, 12.6)"));
+        ClassicAssert.AreEqual(-3.5, ws.Evaluate("MINA(10.4, {-3.5, 12.6})"));
+        ClassicAssert.AreEqual(0, ws.Evaluate("MINA({\"ABC\", TRUE})"));
         ws.Cell("B3").Value = Blank.Value;
-        Assert.AreEqual(10, ws.Evaluate("MINA(10, 12, 15, B3)"));
+        ClassicAssert.AreEqual(10, ws.Evaluate("MINA(10, 12, 15, B3)"));
         ws.Cell("B3").Value = "Text";
-        Assert.AreEqual(0, ws.Evaluate("MINA(10, 12, 15, B3)"));
+        ClassicAssert.AreEqual(0, ws.Evaluate("MINA(10, 12, 15, B3)"));
 
         // Blanks in references are ignored and when MINA doesn't have any values, it returns 0
         ws.Cell("A1").Value = Blank.Value;
-        Assert.AreEqual(0, ws.Evaluate("MINA(A1)"));
+        ClassicAssert.AreEqual(0, ws.Evaluate("MINA(A1)"));
 
         // Array logical arguments are ignored
-        Assert.AreEqual(2, wb.Evaluate("MINA({2, TRUE, TRUE, FALSE, FALSE})"));
+        ClassicAssert.AreEqual(2, wb.Evaluate("MINA({2, TRUE, TRUE, FALSE, FALSE})"));
 
         // Array text arguments are ignored
-        Assert.AreEqual(2, wb.Evaluate("MINA({4, 2, \"hello\", \"1\"})"));
+        ClassicAssert.AreEqual(2, wb.Evaluate("MINA({4, 2, \"hello\", \"1\"})"));
 
         // Reference argument only counts logical as 0/1, text as 0 and ignores blanks.
         ws.Cell("A1").Value = Blank.Value; // Ignores
@@ -832,40 +896,39 @@ public class StatisticalTests
         ws.Cell("A3").Value = "100"; // Considers 0
         ws.Cell("A4").Value = "hello"; // Considers 0
         ws.Cell("A5").Value = -4; // Included
-        Assert.AreEqual(1, ws.Evaluate("MINA(A1:A2)"));
-        Assert.AreEqual(0, ws.Evaluate("MINA(A1:A3)"));
-        Assert.AreEqual(-4, ws.Evaluate("MINA(A1:A5)"));
+        ClassicAssert.AreEqual(1, ws.Evaluate("MINA(A1:A2)"));
+        ClassicAssert.AreEqual(0, ws.Evaluate("MINA(A1:A3)"));
+        ClassicAssert.AreEqual(-4, ws.Evaluate("MINA(A1:A5)"));
 
         AssertScalarToNumberConversion("MINA", 0);
         AssertAnyErrorIsPropagated("MINA");
     }
 
     [Test]
-    [DefaultFloatingPointTolerance(Tolerance)]
     public void StDev()
     {
         IXLWorksheet ws = this.workbook.Worksheets.First();
 
         // Only non-convertible text in D column, thus less than 2 samples will return error
-        Assert.AreEqual(XLError.DivisionByZero, ws.Evaluate("STDEV(D3:D45)"));
+        ClassicAssert.AreEqual(XLError.DivisionByZero, ws.Evaluate("STDEV(D3:D45)"));
 
         // Calculate StDev from numeric values (reference contains only numbers)
         double value = (double)ws.Evaluate("STDEV(H3:H45)");
-        Assert.AreEqual(47.34511769, value, Tolerance);
+        ClassicAssert.AreEqual(47.34511769, value, Tolerance);
 
         // Ignores text values in the H column and only uses numeric ones, same as reference with only number
         value = (double)ws.Evaluate("STDEV(H:H)");
-        Assert.AreEqual(47.34511769, value, Tolerance);
+        ClassicAssert.AreEqual(47.34511769, value, Tolerance);
 
         value = (double)this.workbook.Evaluate("STDEV(Data!H:H)");
-        Assert.AreEqual(47.34511769, value, Tolerance);
+        ClassicAssert.AreEqual(47.34511769, value, Tolerance);
 
         // Need at least two values, otherwise returns error
-        Assert.AreEqual(XLError.DivisionByZero, this.workbook.Evaluate("STDEV(1)"));
-        Assert.AreEqual(0, this.workbook.Evaluate("STDEV(0, 0)"));
+        ClassicAssert.AreEqual(XLError.DivisionByZero, this.workbook.Evaluate("STDEV(1)"));
+        ClassicAssert.AreEqual(0, (double)this.workbook.Evaluate("STDEV(0, 0)"), Tolerance);
 
         // Array non-number arguments are ignored
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             0.707106781,
             (double)this.workbook.Evaluate("STDEV({0, 1, \"Hello\", FALSE, TRUE})"),
             Tolerance
@@ -878,26 +941,30 @@ public class StatisticalTests
         ws.Cell("Z4").Value = "hello";
         ws.Cell("Z5").Value = 0;
         ws.Cell("Z6").Value = 1;
-        Assert.AreEqual(0.707106781, (double)ws.Evaluate("STDEV(Z1:Z6)"), Tolerance);
+        ClassicAssert.AreEqual(0.707106781, (double)ws.Evaluate("STDEV(Z1:Z6)"), Tolerance);
 
         AssertScalarToNumberConversion("STDEV", 0.707106781);
         AssertAnyErrorIsPropagated("STDEV");
     }
 
     [Test]
-    [DefaultFloatingPointTolerance(Tolerance)]
     public void StDevA()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
 
         // Example from specification
-        Assert.AreEqual(23.72902583, (double)ws.Evaluate("STDEVA(123, 134, 143, 173, 112, 109)"));
+        ClassicAssert.AreEqual(
+            23.72902583,
+            (double)ws.Evaluate("STDEVA(123, 134, 143, 173, 112, 109)"),
+            Tolerance
+        );
 
         // Array non-number arguments are ignored
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             0.707106781,
-            (double)ws.Evaluate("STDEVA({0, 1, \"9\", \"Hello\", FALSE, TRUE})")
+            (double)ws.Evaluate("STDEVA({0, 1, \"9\", \"Hello\", FALSE, TRUE})"),
+            Tolerance
         );
 
         // Reference argument ignores blanks, uses numbers, logical and text as zero
@@ -908,10 +975,10 @@ public class StatisticalTests
         ws.Cell("A5").Value = "hello"; // Consider 0
         ws.Cell("A6").Value = 5;
         ws.Cell("A7").Value = 7;
-        Assert.AreEqual(3.060501048, (double)ws.Evaluate("STDEVA(A1:A7)"));
+        ClassicAssert.AreEqual(3.060501048, (double)ws.Evaluate("STDEVA(A1:A7)"), Tolerance);
 
         // Need at least one sample, otherwise returns error (text in array is ignored)
-        Assert.AreEqual(XLError.DivisionByZero, ws.Evaluate("STDEVA({\"hello\"})"));
+        ClassicAssert.AreEqual(XLError.DivisionByZero, ws.Evaluate("STDEVA({\"hello\"})"));
 
         AssertScalarToNumberConversion("STDEVA", 0.707106781);
         AssertAnyErrorIsPropagated("STDEVA");
@@ -923,29 +990,36 @@ public class StatisticalTests
         IXLWorksheet ws = this.workbook.Worksheets.First();
 
         // Example from specification
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             21.66153785,
             (double)ws.Evaluate("STDEVP(123, 134, 143, 173, 112, 109)"),
             Tolerance
         );
 
         // Column D contains only region names (non-convertible text), thus reference contains less than 1 sample that is required
-        Assert.AreEqual(XLError.DivisionByZero, ws.Evaluate("STDEVP(D3:D45)"));
+        ClassicAssert.AreEqual(XLError.DivisionByZero, ws.Evaluate("STDEVP(D3:D45)"));
 
         // Calculate StDevP from numeric values (reference contains only numbers)
-        Assert.AreEqual(46.79135458, (double)ws.Evaluate("STDEVP(H3:H45)"), Tolerance);
+        ClassicAssert.AreEqual(46.79135458, (double)ws.Evaluate("STDEVP(H3:H45)"), Tolerance);
 
         // StDevP ignores text values/blanks in the H column and only uses numeric ones, the result is same as the reference above that contains only numbers
-        Assert.AreEqual(46.79135458, (double)ws.Evaluate("STDEVP(H:H)"), Tolerance);
+        ClassicAssert.AreEqual(46.79135458, (double)ws.Evaluate("STDEVP(H:H)"), Tolerance);
 
-        Assert.AreEqual(46.79135458, (double)this.workbook.Evaluate("STDEVP(Data!H:H)"), Tolerance);
+        ClassicAssert.AreEqual(
+            46.79135458,
+            (double)this.workbook.Evaluate("STDEVP(Data!H:H)"),
+            Tolerance
+        );
 
         // If sample size is 0, return error
-        Assert.AreEqual(XLError.DivisionByZero, this.workbook.Evaluate("STDEVP({TRUE})"));
-        Assert.AreEqual(0, this.workbook.Evaluate("STDEVP(100)"));
+        ClassicAssert.AreEqual(XLError.DivisionByZero, this.workbook.Evaluate("STDEVP({TRUE})"));
+        ClassicAssert.AreEqual(0, this.workbook.Evaluate("STDEVP(100)"));
 
         // Array non-number arguments are ignored
-        Assert.AreEqual(0.5, this.workbook.Evaluate("STDEVP({0, 1, \"Hello\", FALSE, TRUE})"));
+        ClassicAssert.AreEqual(
+            0.5,
+            this.workbook.Evaluate("STDEVP({0, 1, \"Hello\", FALSE, TRUE})")
+        );
 
         // Reference argument only uses numbers, ignores blanks, logical and text
         ws.Cell("Z1").Value = Blank.Value;
@@ -954,24 +1028,31 @@ public class StatisticalTests
         ws.Cell("Z4").Value = "hello";
         ws.Cell("Z5").Value = 0;
         ws.Cell("Z6").Value = 1;
-        Assert.AreEqual(0.5, ws.Evaluate("STDEVP(Z1:Z6)"));
+        ClassicAssert.AreEqual(0.5, ws.Evaluate("STDEVP(Z1:Z6)"));
 
         AssertScalarToNumberConversion("STDEVP", 0.5);
         AssertAnyErrorIsPropagated("STDEVP");
     }
 
     [Test]
-    [DefaultFloatingPointTolerance(Tolerance)]
     public void StDevPa()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
 
         // Example from specification
-        Assert.AreEqual(21.66153785, (double)ws.Evaluate("STDEVPA(123, 134, 143, 173, 112, 109)"));
+        ClassicAssert.AreEqual(
+            21.66153785,
+            (double)ws.Evaluate("STDEVPA(123, 134, 143, 173, 112, 109)"),
+            Tolerance
+        );
 
         // Array non-number arguments are ignored
-        Assert.AreEqual(0.5, (double)ws.Evaluate("STDEVPA({0, 1, \"9\", \"Hello\", FALSE, TRUE})"));
+        ClassicAssert.AreEqual(
+            0.5,
+            (double)ws.Evaluate("STDEVPA({0, 1, \"9\", \"Hello\", FALSE, TRUE})"),
+            Tolerance
+        );
 
         // Reference argument ignores blanks, uses numbers, logical and text as zero
         ws.Cell("A1").Value = Blank.Value; // Ignore
@@ -981,29 +1062,30 @@ public class StatisticalTests
         ws.Cell("A5").Value = "hello"; // Consider 0
         ws.Cell("A6").Value = 5;
         ws.Cell("A7").Value = 7;
-        Assert.AreEqual(2.793842436, (double)ws.Evaluate("STDEVPA(A1:A7)"));
+        ClassicAssert.AreEqual(2.793842436, (double)ws.Evaluate("STDEVPA(A1:A7)"), Tolerance);
 
         // Need at least one sample, otherwise returns error (text in array is ignored)
-        Assert.AreEqual(XLError.DivisionByZero, ws.Evaluate("STDEVPA({\"hello\"})"));
+        ClassicAssert.AreEqual(XLError.DivisionByZero, ws.Evaluate("STDEVPA({\"hello\"})"));
 
         AssertScalarToNumberConversion("STDEVPA", 0.5);
         AssertAnyErrorIsPropagated("STDEVPA");
     }
 
-    [TestCase(@"=SUMIF(A1:A10, 1, A1:A10)", 1)]
-    [TestCase(@"=SUMIF(A1:A10, 2.0, A1:A10)", 2)]
-    [TestCase(@"=SUMIF(A1:A10, 3, A1:A10)", 3)]
-    [TestCase(@"=SUMIF(A1:A10, ""3"", A1:A10)", 3)]
-    [TestCase(@"=SUMIF(A1:A10, 43831, A1:A10)", 43831)]
-    [TestCase(@"=SUMIF(A1:A10, DATE(2020, 1, 1), A1:A10)", 43831)]
-    [TestCase(@"=SUMIF(A1:A10, TRUE, A1:A10)", 0)]
+    [Test]
+    [Arguments(@"=SUMIF(A1:A10, 1, A1:A10)", 1)]
+    [Arguments(@"=SUMIF(A1:A10, 2.0, A1:A10)", 2)]
+    [Arguments(@"=SUMIF(A1:A10, 3, A1:A10)", 3)]
+    [Arguments(@"=SUMIF(A1:A10, ""3"", A1:A10)", 3)]
+    [Arguments(@"=SUMIF(A1:A10, 43831, A1:A10)", 43831)]
+    [Arguments(@"=SUMIF(A1:A10, DATE(2020, 1, 1), A1:A10)", 43831)]
+    [Arguments(@"=SUMIF(A1:A10, TRUE, A1:A10)", 0)]
     public void SumIfMixedData(string formula, double expected)
     {
         // We follow to Excel's convention.
         // Excel treats 1 and TRUE as unequal, but 3 and "3" as equal
         // LibreOffice Calc handles some SUMIF and COUNTIF differently, e.g. it treats 1 and TRUE as equal, but 3 and "3" differently
         IXLWorksheet ws = this.workbook.Worksheet("MixedData");
-        Assert.AreEqual(expected, ws.Evaluate(formula));
+        ClassicAssert.AreEqual(expected, ws.Evaluate(formula));
     }
 
     [Test]
@@ -1017,29 +1099,29 @@ public class StatisticalTests
         ws.Cell("C1").Value = 7;
         ws.Cell("D1").Value = 10;
 
-        Assert.AreEqual(20, ws.Evaluate("SUMIF(A1:D1,\"=10\")"));
-        Assert.AreEqual(27, ws.Evaluate("SUMIF(A1:D1,\">5\")"));
-        Assert.AreEqual(10, ws.Evaluate("SUMIF(A1:D1,\"<>10\")"));
+        ClassicAssert.AreEqual(20, ws.Evaluate("SUMIF(A1:D1,\"=10\")"));
+        ClassicAssert.AreEqual(27, ws.Evaluate("SUMIF(A1:D1,\">5\")"));
+        ClassicAssert.AreEqual(10, ws.Evaluate("SUMIF(A1:D1,\"<>10\")"));
 
         ws.Cell("A2").Value = "apples";
         ws.Cell("B2").Value = "melons";
         ws.Cell("C2").Value = 10;
         ws.Cell("D2").Value = 15;
-        Assert.AreEqual(10, ws.Evaluate("SUMIF(A2:B2,\"*es\",C2:D2)"));
+        ClassicAssert.AreEqual(10, ws.Evaluate("SUMIF(A2:B2,\"*es\",C2:D2)"));
     }
 
     [Test]
-    [TestCase("COUNT(G:I,G:G,H:I)", 258d, Description = "COUNT overlapping columns")]
-    [TestCase("COUNT(6:8,6:6,7:8)", 30d, Description = "COUNT overlapping rows")]
-    [TestCase("COUNTBLANK(H:J)", 3145640d, Description = "COUNTBLANK columns")]
-    [TestCase("COUNTBLANK(7:9)", 49128d, Description = "COUNTBLANK rows")]
-    [TestCase("COUNT(1:1048576)", 216d, Description = "COUNT worksheet")]
-    [TestCase("COUNTBLANK(1:1048576)", 17179868831d, Description = "COUNTBLANK worksheet")]
-    [TestCase("SUM(H:J)", 20501.15d, Description = "SUM columns")]
-    [TestCase("SUM(4:5)", 85366.12d, Description = "SUM rows")]
-    [TestCase("SUMIF(G:G,50,H:H)", 24.98d, Description = "SUMIF columns")]
-    [TestCase("SUMIF(G23:G52,\"\",H3:H32)", 53.24d, Description = "SUMIF ranges")]
-    [TestCase("SUMIFS(H:H,G:G,50,I:I,\">900\")", 19.99d, Description = "SUMIFS columns")]
+    [Arguments("COUNT(G:I,G:G,H:I)", 258d, DisplayName = "COUNT overlapping columns")]
+    [Arguments("COUNT(6:8,6:6,7:8)", 30d, DisplayName = "COUNT overlapping rows")]
+    [Arguments("COUNTBLANK(H:J)", 3145640d, DisplayName = "COUNTBLANK columns")]
+    [Arguments("COUNTBLANK(7:9)", 49128d, DisplayName = "COUNTBLANK rows")]
+    [Arguments("COUNT(1:1048576)", 216d, DisplayName = "COUNT worksheet")]
+    [Arguments("COUNTBLANK(1:1048576)", 17179868831d, DisplayName = "COUNTBLANK worksheet")]
+    [Arguments("SUM(H:J)", 20501.15d, DisplayName = "SUM columns")]
+    [Arguments("SUM(4:5)", 85366.12d, DisplayName = "SUM rows")]
+    [Arguments("SUMIF(G:G,50,H:H)", 24.98d, DisplayName = "SUMIF columns")]
+    [Arguments("SUMIF(G23:G52,\"\",H3:H32)", 53.24d, DisplayName = "SUMIF ranges")]
+    [Arguments("SUMIFS(H:H,G:G,50,I:I,\">900\")", 19.99d, DisplayName = "SUMIFS columns")]
     public void TallySkipsEmptyCells(string formulaA1, double expectedResult)
     {
         using (XLWorkbook wb = SetupWorkbook())
@@ -1051,7 +1133,7 @@ public class StatisticalTests
 
             double actualResult = (double)ws.Evaluate(formulaA1);
 
-            Assert.AreEqual(expectedResult, actualResult, Tolerance);
+            ClassicAssert.AreEqual(expectedResult, actualResult, Tolerance);
         }
     }
 
@@ -1061,25 +1143,29 @@ public class StatisticalTests
         IXLWorksheet ws = this.workbook.Worksheets.First();
 
         // Example from specification
-        Assert.AreEqual(2683.2, ws.Evaluate("VAR(1202,1220,1323,1254,1302)"));
+        ClassicAssert.AreEqual(2683.2, ws.Evaluate("VAR(1202,1220,1323,1254,1302)"));
 
         // Only non-convertible text in D column, thus less than 2 samples.
-        Assert.AreEqual(XLError.DivisionByZero, ws.Evaluate("VAR(D3:D45)"));
+        ClassicAssert.AreEqual(XLError.DivisionByZero, ws.Evaluate("VAR(D3:D45)"));
 
         // Calculate VAR from numeric values (reference contains only numbers)
-        Assert.AreEqual(2241.560169, (double)ws.Evaluate("VAR(H3:H45)"), Tolerance);
+        ClassicAssert.AreEqual(2241.560169, (double)ws.Evaluate("VAR(H3:H45)"), Tolerance);
 
         // Ignores text values in the H column and only uses numeric ones, same as reference with only number
-        Assert.AreEqual(2241.560169, (double)ws.Evaluate("VAR(H:H)"), Tolerance);
-        Assert.AreEqual(2241.560169, (double)this.workbook.Evaluate("VAR(Data!H:H)"), Tolerance);
+        ClassicAssert.AreEqual(2241.560169, (double)ws.Evaluate("VAR(H:H)"), Tolerance);
+        ClassicAssert.AreEqual(
+            2241.560169,
+            (double)this.workbook.Evaluate("VAR(Data!H:H)"),
+            Tolerance
+        );
 
         // Need at least two samples, otherwise returns error
-        Assert.AreEqual(XLError.DivisionByZero, this.workbook.Evaluate("VAR({\"hello\"})"));
-        Assert.AreEqual(XLError.DivisionByZero, this.workbook.Evaluate("VAR(5)"));
-        Assert.AreEqual(0.5, this.workbook.Evaluate("VAR(5, 6)"));
+        ClassicAssert.AreEqual(XLError.DivisionByZero, this.workbook.Evaluate("VAR({\"hello\"})"));
+        ClassicAssert.AreEqual(XLError.DivisionByZero, this.workbook.Evaluate("VAR(5)"));
+        ClassicAssert.AreEqual(0.5, this.workbook.Evaluate("VAR(5, 6)"));
 
         // Array non-number arguments are ignored
-        Assert.AreEqual(0.5, this.workbook.Evaluate("VAR({0, 1, \"Hello\", FALSE, TRUE})"));
+        ClassicAssert.AreEqual(0.5, this.workbook.Evaluate("VAR({0, 1, \"Hello\", FALSE, TRUE})"));
 
         // Reference argument only uses number, ignores blanks, logical and text
         ws.Cell("Z1").Value = Blank.Value;
@@ -1088,24 +1174,31 @@ public class StatisticalTests
         ws.Cell("Z4").Value = "hello";
         ws.Cell("Z5").Value = 0;
         ws.Cell("Z6").Value = 1;
-        Assert.AreEqual(0.5, ws.Evaluate("VAR(Z1:Z6)"));
+        ClassicAssert.AreEqual(0.5, ws.Evaluate("VAR(Z1:Z6)"));
 
         AssertScalarToNumberConversion("VAR", 0.5);
         AssertAnyErrorIsPropagated("VAR");
     }
 
     [Test]
-    [DefaultFloatingPointTolerance(Tolerance)]
     public void VarA()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
 
         // Example from specification
-        Assert.AreEqual(2683.2, ws.Evaluate("VARA(1202, 1220, 1323, 1254, 1302)"));
+        ClassicAssert.AreEqual(
+            2683.2,
+            (double)ws.Evaluate("VARA(1202, 1220, 1323, 1254, 1302)"),
+            Tolerance
+        );
 
         // Array non-number arguments are ignored
-        Assert.AreEqual(2, ws.Evaluate("VARA({5, 7, \"9\", \"Hello\", FALSE, TRUE})"));
+        ClassicAssert.AreEqual(
+            2,
+            (double)ws.Evaluate("VARA({5, 7, \"9\", \"Hello\", FALSE, TRUE})"),
+            Tolerance
+        );
 
         // Reference argument ignores blanks, uses numbers, logical and text as zero
         ws.Cell("A1").Value = Blank.Value; // Ignore
@@ -1115,10 +1208,10 @@ public class StatisticalTests
         ws.Cell("A5").Value = "hello"; // Consider 0
         ws.Cell("A6").Value = 5;
         ws.Cell("A7").Value = 7;
-        Assert.AreEqual(9.366666667, (double)ws.Evaluate("VARA(A1:A7)"));
+        ClassicAssert.AreEqual(9.366666667, (double)ws.Evaluate("VARA(A1:A7)"), Tolerance);
 
         // Need at least one sample, otherwise returns error (text in array is ignored)
-        Assert.AreEqual(XLError.DivisionByZero, ws.Evaluate("VARA({\"hello\"})"));
+        ClassicAssert.AreEqual(XLError.DivisionByZero, ws.Evaluate("VARA({\"hello\"})"));
 
         AssertScalarToNumberConversion("VARA", 0.5);
         AssertAnyErrorIsPropagated("VARA");
@@ -1130,24 +1223,35 @@ public class StatisticalTests
         IXLWorksheet ws = this.workbook.Worksheets.First();
 
         // Example from specification
-        Assert.AreEqual(2146.56, (double)ws.Evaluate("VARP(1202,1220,1323,1254,1302)"), Tolerance);
+        ClassicAssert.AreEqual(
+            2146.56,
+            (double)ws.Evaluate("VARP(1202,1220,1323,1254,1302)"),
+            Tolerance
+        );
 
         // Only non-convertible text in D column, thus less than 1 sample.
-        Assert.AreEqual(XLError.DivisionByZero, ws.Evaluate("VARP(D3:D45)"));
+        ClassicAssert.AreEqual(XLError.DivisionByZero, ws.Evaluate("VARP(D3:D45)"));
 
         // Calculate VARP from numeric values (reference contains only numbers)
-        Assert.AreEqual(2189.430863, (double)ws.Evaluate("VARP(H3:H45)"), Tolerance);
+        ClassicAssert.AreEqual(2189.430863, (double)ws.Evaluate("VARP(H3:H45)"), Tolerance);
 
         // Ignores text values in the H column and only uses numeric ones, same as reference with only number
-        Assert.AreEqual(2189.430863, (double)ws.Evaluate("VARP(H:H)"), Tolerance);
-        Assert.AreEqual(2189.430863, (double)this.workbook.Evaluate("VARP(Data!H:H)"), Tolerance);
+        ClassicAssert.AreEqual(2189.430863, (double)ws.Evaluate("VARP(H:H)"), Tolerance);
+        ClassicAssert.AreEqual(
+            2189.430863,
+            (double)this.workbook.Evaluate("VARP(Data!H:H)"),
+            Tolerance
+        );
 
         // Need at least one sample, otherwise returns error
-        Assert.AreEqual(XLError.DivisionByZero, this.workbook.Evaluate("VARP({\"hello\"})"));
-        Assert.AreEqual(0, this.workbook.Evaluate("VARP(5)"));
+        ClassicAssert.AreEqual(XLError.DivisionByZero, this.workbook.Evaluate("VARP({\"hello\"})"));
+        ClassicAssert.AreEqual(0, this.workbook.Evaluate("VARP(5)"));
 
         // Array non-number arguments are ignored
-        Assert.AreEqual(0.25, this.workbook.Evaluate("VARP({0, 1, \"Hello\", FALSE, TRUE})"));
+        ClassicAssert.AreEqual(
+            0.25,
+            this.workbook.Evaluate("VARP({0, 1, \"Hello\", FALSE, TRUE})")
+        );
 
         // Reference argument only uses number, ignores blanks, logical and text
         ws.Cell("Z1").Value = Blank.Value;
@@ -1156,24 +1260,31 @@ public class StatisticalTests
         ws.Cell("Z4").Value = "hello";
         ws.Cell("Z5").Value = 0;
         ws.Cell("Z6").Value = 1;
-        Assert.AreEqual(0.25, ws.Evaluate("VARP(Z1:Z6)"));
+        ClassicAssert.AreEqual(0.25, ws.Evaluate("VARP(Z1:Z6)"));
 
         AssertScalarToNumberConversion("VARP", 0.25);
         AssertAnyErrorIsPropagated("VARP");
     }
 
     [Test]
-    [DefaultFloatingPointTolerance(Tolerance)]
     public void VarPa()
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
 
         // Example from specification
-        Assert.AreEqual(2146.56, ws.Evaluate("VARPA(1202, 1220, 1323, 1254, 1302)"));
+        ClassicAssert.AreEqual(
+            2146.56,
+            (double)ws.Evaluate("VARPA(1202, 1220, 1323, 1254, 1302)"),
+            Tolerance
+        );
 
         // Array non-number arguments are ignored
-        Assert.AreEqual(1, ws.Evaluate("VARPA({5, 7, \"9\", \"Hello\", FALSE, TRUE})"));
+        ClassicAssert.AreEqual(
+            1,
+            (double)ws.Evaluate("VARPA({5, 7, \"9\", \"Hello\", FALSE, TRUE})"),
+            Tolerance
+        );
 
         // Reference argument ignores blanks, uses numbers, logical and text as zero
         ws.Cell("A1").Value = Blank.Value; // Ignore
@@ -1183,10 +1294,10 @@ public class StatisticalTests
         ws.Cell("A5").Value = "hello"; // Consider 0
         ws.Cell("A6").Value = 5;
         ws.Cell("A7").Value = 7;
-        Assert.AreEqual(7.805555556, (double)ws.Evaluate("VARPA(A1:A7)"));
+        ClassicAssert.AreEqual(7.805555556, (double)ws.Evaluate("VARPA(A1:A7)"), Tolerance);
 
         // Need at least one sample, otherwise returns error (text in array is ignored)
-        Assert.AreEqual(XLError.DivisionByZero, ws.Evaluate("VARPA({\"hello\"})"));
+        ClassicAssert.AreEqual(XLError.DivisionByZero, ws.Evaluate("VARPA({\"hello\"})"));
 
         AssertScalarToNumberConversion("VARPA", 0.25);
         AssertAnyErrorIsPropagated("VARPA");
@@ -1197,54 +1308,54 @@ public class StatisticalTests
     {
         IXLWorksheet ws = this.workbook.Worksheet("Data");
         XLCellValue value = ws.Evaluate("LARGE(G1:G45, 1)");
-        Assert.AreEqual(96, value);
+        ClassicAssert.AreEqual(96, value);
 
         value = ws.Evaluate("LARGE(G1:G45, 7)");
-        Assert.AreEqual(87, value);
+        ClassicAssert.AreEqual(87, value);
 
         value = ws.Evaluate("LARGE(G1:G45, 0)");
-        Assert.AreEqual(XLError.NumberInvalid, value);
+        ClassicAssert.AreEqual(XLError.NumberInvalid, value);
 
         value = ws.Evaluate("LARGE(G1:G45, -1)");
-        Assert.AreEqual(XLError.NumberInvalid, value);
+        ClassicAssert.AreEqual(XLError.NumberInvalid, value);
 
         value = ws.Evaluate("LARGE(G1:G45,\"test\")");
-        Assert.AreEqual(XLError.IncompatibleValue, value);
+        ClassicAssert.AreEqual(XLError.IncompatibleValue, value);
 
         value = ws.Evaluate("LARGE(C:C,7)");
-        Assert.AreEqual(42623, value);
+        ClassicAssert.AreEqual(42623, value);
 
         value = ws.Evaluate("LARGE(D:D,7)");
-        Assert.AreEqual(XLError.NumberInvalid, value);
+        ClassicAssert.AreEqual(XLError.NumberInvalid, value);
 
         ws = this.workbook.Worksheet("MixedData");
 
         value = ws.Evaluate("LARGE(A1:A7,6)");
-        Assert.AreEqual(XLError.NumberInvalid, value);
+        ClassicAssert.AreEqual(XLError.NumberInvalid, value);
 
         // Ignores non-numbers.
         value = ws.Evaluate("LARGE(A1:A7,5)");
-        Assert.AreEqual(1, value);
+        ClassicAssert.AreEqual(1, value);
 
         // Accepts non-area references.
         value = ws.Evaluate("LARGE((A1:A2,A4:A6),2)");
-        Assert.AreEqual(3, value);
+        ClassicAssert.AreEqual(3, value);
 
         // Errors are returned.
         value = ws.Evaluate("LARGE({ 1, 2, #N/A }, 1)");
-        Assert.AreEqual(XLError.NoValueAvailable, value);
+        ClassicAssert.AreEqual(XLError.NoValueAvailable, value);
 
         // Uses ceiling logic for number (1.1 -> 2) + can use arrays.
         value = ws.Evaluate("LARGE({ 1, 2 }, 1.1)");
-        Assert.AreEqual(1, value);
+        ClassicAssert.AreEqual(1, value);
 
         // If a scalar number-like value supplied, it is converted to number.
         value = ws.Evaluate("LARGE(\"1 1/2\", 1)");
-        Assert.AreEqual(1.5, value);
+        ClassicAssert.AreEqual(1.5, value);
 
         // When the scalar can't be converted, return conversion error.
         value = ws.Evaluate("LARGE(\"test\", 1)");
-        Assert.AreEqual(XLError.IncompatibleValue, value);
+        ClassicAssert.AreEqual(XLError.IncompatibleValue, value);
     }
 
     private static XLWorkbook SetupWorkbook()
@@ -1751,22 +1862,43 @@ public class StatisticalTests
     private static void AssertScalarToNumberConversion(string functionName, double result)
     {
         // Scalar blank is converted to 0
-        Assert.AreEqual(result, (double)XLWorkbook.EvaluateExpr($"{functionName}(IF(TRUE,), 1)"));
+        ClassicAssert.AreEqual(
+            result,
+            (double)XLWorkbook.EvaluateExpr($"{functionName}(IF(TRUE,), 1)"),
+            Tolerance
+        );
 
         // Scalar logical is converted to a number
-        Assert.AreEqual(result, (double)XLWorkbook.EvaluateExpr($"{functionName}(FALSE, TRUE)"));
-        Assert.AreEqual(result, (double)XLWorkbook.EvaluateExpr($"{functionName}(0, TRUE)"));
-        Assert.AreEqual(result, (double)XLWorkbook.EvaluateExpr($"{functionName}(FALSE, 1)"));
+        ClassicAssert.AreEqual(
+            result,
+            (double)XLWorkbook.EvaluateExpr($"{functionName}(FALSE, TRUE)"),
+            Tolerance
+        );
+        ClassicAssert.AreEqual(
+            result,
+            (double)XLWorkbook.EvaluateExpr($"{functionName}(0, TRUE)"),
+            Tolerance
+        );
+        ClassicAssert.AreEqual(
+            result,
+            (double)XLWorkbook.EvaluateExpr($"{functionName}(FALSE, 1)"),
+            Tolerance
+        );
 
         // Scalar text is converted to a number
-        Assert.AreEqual(result, (double)XLWorkbook.EvaluateExpr($"{functionName}(\"0\", \"1\")"));
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             result,
-            (double)XLWorkbook.EvaluateExpr($"{functionName}(\"1\", \"0 0/2\")")
+            (double)XLWorkbook.EvaluateExpr($"{functionName}(\"0\", \"1\")"),
+            Tolerance
+        );
+        ClassicAssert.AreEqual(
+            result,
+            (double)XLWorkbook.EvaluateExpr($"{functionName}(\"1\", \"0 0/2\")"),
+            Tolerance
         );
 
         // Scalar text that is not convertible returns error
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             XLError.IncompatibleValue,
             XLWorkbook.EvaluateExpr($"{functionName}(5, \"Hello\")")
         );
@@ -1779,10 +1911,13 @@ public class StatisticalTests
     private static void AssertAnyErrorIsPropagated(string functionName)
     {
         // Scalar error is propagated
-        Assert.AreEqual(XLError.NullValue, XLWorkbook.EvaluateExpr($"{functionName}(1, #NULL!)"));
+        ClassicAssert.AreEqual(
+            XLError.NullValue,
+            XLWorkbook.EvaluateExpr($"{functionName}(1, #NULL!)")
+        );
 
         // Array error is propagated
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
             XLError.NullValue,
             XLWorkbook.EvaluateExpr($"{functionName}({{1, #NULL!}})")
         );
@@ -1792,7 +1927,7 @@ public class StatisticalTests
         IXLWorksheet ws = wb.AddWorksheet();
         ws.Cell("B1").Value = XLError.NoValueAvailable;
         ws.Cell("B2").Value = 1;
-        Assert.AreEqual(XLError.NoValueAvailable, ws.Evaluate($"{functionName}(B1)"));
-        Assert.AreEqual(XLError.NoValueAvailable, ws.Evaluate($"{functionName}(B1:B2)"));
+        ClassicAssert.AreEqual(XLError.NoValueAvailable, ws.Evaluate($"{functionName}(B1)"));
+        ClassicAssert.AreEqual(XLError.NoValueAvailable, ws.Evaluate($"{functionName}(B1:B2)"));
     }
 }

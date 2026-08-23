@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.PivotStyleFormats;
 using XlsxSharp.Excel.PivotValues;
@@ -11,12 +10,11 @@ using XlsxSharp.Tests.Utils;
 
 namespace XlsxSharp.Tests.Excel.PivotTables;
 
-[TestFixture]
 public class XlPivotTableTests
 {
     [Test]
     public void PivotTables() =>
-        Assert.DoesNotThrow(() =>
+        ClassicAssert.DoesNotThrow(() =>
         {
             using (
                 Stream stream = TestHelper.GetStreamFromResource(
@@ -128,161 +126,189 @@ public class XlPivotTableTests
                 {
                     IXLWorksheet wsassert = wbassert.Worksheet("BlankPivotTable");
                     IXLPivotTable ptassert = wsassert.PivotTable("pvtOptionsTest");
-                    Assert.AreNotEqual(null, ptassert, "name save failure");
-                    Assert.AreEqual(
+                    ClassicAssert.AreNotEqual(null, ptassert, "name save failure");
+                    ClassicAssert.AreEqual(
                         "clmn header",
                         ptassert.ColumnHeaderCaption,
                         "ColumnHeaderCaption save failure"
                     );
-                    Assert.AreEqual(
+                    ClassicAssert.AreEqual(
                         "row header",
                         ptassert.RowHeaderCaption,
                         "RowHeaderCaption save failure"
                     );
-                    Assert.AreEqual(
+                    ClassicAssert.AreEqual(
                         true,
                         ptassert.MergeAndCenterWithLabels,
                         "MergeAndCenterWithLabels save failure"
                     );
-                    Assert.AreEqual(12, ptassert.RowLabelIndent, "RowLabelIndent save failure");
-                    Assert.AreEqual(
+                    ClassicAssert.AreEqual(
+                        12,
+                        ptassert.RowLabelIndent,
+                        "RowLabelIndent save failure"
+                    );
+                    ClassicAssert.AreEqual(
                         XLFilterAreaOrder.OverThenDown,
                         ptassert.FilterAreaOrder,
                         "FilterAreaOrder save failure"
                     );
-                    Assert.AreEqual(
+                    ClassicAssert.AreEqual(
                         14,
                         ptassert.FilterFieldsPageWrap,
                         "FilterFieldsPageWrap save failure"
                     );
-                    Assert.AreEqual(
+                    ClassicAssert.AreEqual(
                         "error test",
                         ptassert.ErrorValueReplacement,
                         "ErrorValueReplacement save failure"
                     );
-                    Assert.AreEqual(
+                    ClassicAssert.AreEqual(
                         "empty test",
                         ptassert.EmptyCellReplacement,
                         "EmptyCellReplacement save failure"
                     );
-                    Assert.AreEqual(true, ptassert.AutofitColumns, "AutofitColumns save failure");
-                    Assert.AreEqual(
+                    ClassicAssert.AreEqual(
+                        true,
+                        ptassert.AutofitColumns,
+                        "AutofitColumns save failure"
+                    );
+                    ClassicAssert.AreEqual(
                         false,
                         ptassert.PreserveCellFormatting,
                         "PreserveCellFormatting save failure"
                     );
-                    Assert.AreEqual(
+                    ClassicAssert.AreEqual(
                         true,
                         ptassert.ShowGrandTotalsRows,
                         "ShowGrandTotalsRows save failure"
                     );
-                    Assert.AreEqual(
+                    ClassicAssert.AreEqual(
                         true,
                         ptassert.ShowGrandTotalsColumns,
                         "ShowGrandTotalsColumns save failure"
                     );
-                    Assert.AreEqual(
+                    ClassicAssert.AreEqual(
                         true,
                         ptassert.FilteredItemsInSubtotals,
                         "FilteredItemsInSubtotals save failure"
                     );
-                    Assert.AreEqual(
+                    ClassicAssert.AreEqual(
                         false,
                         ptassert.AllowMultipleFilters,
                         "AllowMultipleFilters save failure"
                     );
-                    Assert.AreEqual(
+                    ClassicAssert.AreEqual(
                         false,
                         ptassert.UseCustomListsForSorting,
                         "UseCustomListsForSorting save failure"
                     );
-                    Assert.AreEqual(
+                    ClassicAssert.AreEqual(
                         false,
                         ptassert.ShowExpandCollapseButtons,
                         "ShowExpandCollapseButtons save failure"
                     );
-                    Assert.AreEqual(
+                    ClassicAssert.AreEqual(
                         false,
                         ptassert.ShowContextualTooltips,
                         "ShowContextualTooltips save failure"
                     );
-                    Assert.AreEqual(
+                    ClassicAssert.AreEqual(
                         false,
                         ptassert.ShowPropertiesInTooltips,
                         "ShowPropertiesInTooltips save failure"
                     );
-                    Assert.AreEqual(
+                    ClassicAssert.AreEqual(
                         false,
                         ptassert.DisplayCaptionsAndDropdowns,
                         "DisplayCaptionsAndDropdowns save failure"
                     );
-                    Assert.AreEqual(
+                    ClassicAssert.AreEqual(
                         true,
                         ptassert.ClassicPivotTableLayout,
                         "ClassicPivotTableLayout save failure"
                     );
-                    Assert.AreEqual(
+                    ClassicAssert.AreEqual(
                         true,
                         ptassert.ShowEmptyItemsOnRows,
                         "ShowEmptyItemsOnRows save failure"
                     );
-                    Assert.AreEqual(
+                    ClassicAssert.AreEqual(
                         true,
                         ptassert.ShowEmptyItemsOnColumns,
                         "ShowEmptyItemsOnColumns save failure"
                     );
-                    Assert.AreEqual(
+                    ClassicAssert.AreEqual(
                         false,
                         ptassert.DisplayItemLabels,
                         "DisplayItemLabels save failure"
                     );
-                    Assert.AreEqual(true, ptassert.SortFieldsAtoZ, "SortFieldsAtoZ save failure");
-                    Assert.AreEqual(
+                    ClassicAssert.AreEqual(
+                        true,
+                        ptassert.SortFieldsAtoZ,
+                        "SortFieldsAtoZ save failure"
+                    );
+                    ClassicAssert.AreEqual(
                         true,
                         ptassert.PrintExpandCollapsedButtons,
                         "PrintExpandCollapsedButtons save failure"
                     );
-                    Assert.AreEqual(true, ptassert.RepeatRowLabels, "RepeatRowLabels save failure");
-                    Assert.AreEqual(true, ptassert.PrintTitles, "PrintTitles save failure");
-                    Assert.AreEqual(
+                    ClassicAssert.AreEqual(
+                        true,
+                        ptassert.RepeatRowLabels,
+                        "RepeatRowLabels save failure"
+                    );
+                    ClassicAssert.AreEqual(true, ptassert.PrintTitles, "PrintTitles save failure");
+                    ClassicAssert.AreEqual(
                         false,
                         ptassert.PivotCache.SaveSourceData,
                         "SaveSourceData save failure"
                     );
-                    Assert.AreEqual(
+                    ClassicAssert.AreEqual(
                         false,
                         ptassert.EnableShowDetails,
                         "EnableShowDetails save failure"
                     );
-                    Assert.AreEqual(
+                    ClassicAssert.AreEqual(
                         false,
                         ptassert.PivotCache.RefreshDataOnOpen,
                         "RefreshDataOnOpen save failure"
                     );
-                    Assert.AreEqual(
+                    ClassicAssert.AreEqual(
                         XLItemsToRetain.Max,
                         ptassert.PivotCache.ItemsToRetainPerField,
                         "ItemsToRetainPerField save failure"
                     );
-                    Assert.AreEqual(
+                    ClassicAssert.AreEqual(
                         true,
                         ptassert.EnableCellEditing,
                         "EnableCellEditing save failure"
                     );
-                    Assert.AreEqual(
+                    ClassicAssert.AreEqual(
                         XLPivotTableTheme.PivotStyleDark13,
                         ptassert.Theme,
                         "Theme save failure"
                     );
-                    Assert.AreEqual(true, ptassert.ShowValuesRow, "ShowValuesRow save failure");
-                    Assert.AreEqual(false, ptassert.ShowRowHeaders, "ShowRowHeaders save failure");
-                    Assert.AreEqual(
+                    ClassicAssert.AreEqual(
+                        true,
+                        ptassert.ShowValuesRow,
+                        "ShowValuesRow save failure"
+                    );
+                    ClassicAssert.AreEqual(
+                        false,
+                        ptassert.ShowRowHeaders,
+                        "ShowRowHeaders save failure"
+                    );
+                    ClassicAssert.AreEqual(
                         false,
                         ptassert.ShowColumnHeaders,
                         "ShowColumnHeaders save failure"
                     );
-                    Assert.AreEqual(true, ptassert.ShowRowStripes, "ShowRowStripes save failure");
-                    Assert.AreEqual(
+                    ClassicAssert.AreEqual(
+                        true,
+                        ptassert.ShowRowStripes,
+                        "ShowRowStripes save failure"
+                    );
+                    ClassicAssert.AreEqual(
                         true,
                         ptassert.ShowColumnStripes,
                         "ShowColumnStripes save failure"
@@ -292,8 +318,9 @@ public class XlPivotTableTests
         }
     }
 
-    [TestCase(true)]
-    [TestCase(false)]
+    [Test]
+    [Arguments(true)]
+    [Arguments(false)]
     public void PivotFieldOptionsSaveTest(bool withDefaults)
     {
         using (
@@ -333,13 +360,17 @@ public class XlPivotTableTests
                     IXLWorksheet wsassert = wbassert.Worksheet("pvtFieldOptionsTest");
                     IXLPivotTable ptassert = wsassert.PivotTable("pvtFieldOptionsTest");
                     IXLPivotField pfassert = ptassert.RowLabels.Get("Name");
-                    Assert.AreNotEqual(null, pfassert, "name save failure");
-                    Assert.AreEqual(
+                    ClassicAssert.AreNotEqual(null, pfassert, "name save failure");
+                    ClassicAssert.AreEqual(
                         "Test caption",
                         pfassert.SubtotalCaption,
                         "SubtotalCaption save failure"
                     );
-                    Assert.AreEqual("Test name", pfassert.CustomName, "CustomName save failure");
+                    ClassicAssert.AreEqual(
+                        "Test name",
+                        pfassert.CustomName,
+                        "CustomName save failure"
+                    );
                     AssertFieldOptions(pfassert, withDefaults);
                 }
             }
@@ -421,7 +452,7 @@ public class XlPivotTableTests
             IXLWorksheet ws1 = wb.Worksheet("pvt1");
             XLPivotTable? pt1 = ws1.PivotTables.First() as XLPivotTable;
 
-            Assert.Throws<InvalidOperationException>(() => pt1.CopyTo(pt1.TargetCell));
+            ClassicAssert.Throws<InvalidOperationException>(() => pt1.CopyTo(pt1.TargetCell));
 
             XLPivotTable? pt2 = pt1.CopyTo(ws1.Cell("AB100")) as XLPivotTable;
 
@@ -453,14 +484,14 @@ public class XlPivotTableTests
         bool compareName
     )
     {
-        Assert.AreEqual(compareName, original.Name.Equals(copy.Name));
+        ClassicAssert.AreEqual(compareName, original.Name.Equals(copy.Name));
 
         PivotTableComparer comparer = new(
             compareName: compareName,
             compareRelId: false,
             compareTargetCellAddress: false
         );
-        Assert.IsTrue(comparer.Equals(original, copy));
+        ClassicAssert.IsTrue(comparer.Equals(original, copy));
     }
 
     private class Pastry
@@ -682,8 +713,8 @@ public class XlPivotTableTests
                     .. wb.Worksheets.SelectMany(ws => ws.PivotTables).First().ReportFilters,
                 ];
 
-                Assert.AreEqual("Month", pageFields[0].SourceName);
-                Assert.AreEqual("Name", pageFields[1].SourceName);
+                ClassicAssert.AreEqual("Month", pageFields[0].SourceName);
+                ClassicAssert.AreEqual("Name", pageFields[1].SourceName);
             }
         }
 
@@ -725,8 +756,8 @@ public class XlPivotTableTests
                     .. wb.Worksheets.SelectMany(ws => ws.PivotTables).First().ColumnLabels,
                 ];
 
-                Assert.AreEqual("Month", columnLabels[0].SourceName);
-                Assert.AreEqual("Name", columnLabels[1].SourceName);
+                ClassicAssert.AreEqual("Month", columnLabels[0].SourceName);
+                ClassicAssert.AreEqual("Name", columnLabels[1].SourceName);
             }
         }
 
@@ -769,9 +800,9 @@ public class XlPivotTableTests
                     .. wb.Worksheets.SelectMany(ws => ws.PivotTables).First().RowLabels,
                 ];
 
-                Assert.AreEqual("Month", rowLabels[0].SourceName);
-                Assert.AreEqual("Name", rowLabels[1].SourceName);
-                Assert.AreEqual("{{Values}}", rowLabels[2].SourceName);
+                ClassicAssert.AreEqual("Month", rowLabels[0].SourceName);
+                ClassicAssert.AreEqual("Name", rowLabels[1].SourceName);
+                ClassicAssert.AreEqual("{{Values}}", rowLabels[2].SourceName);
             }
         }
     }
@@ -824,7 +855,7 @@ public class XlPivotTableTests
 
             using (XLWorkbook wb = new(ms))
             {
-                Assert.AreEqual(1, wb.Worksheets.SelectMany(ws => ws.PivotTables).Count());
+                ClassicAssert.AreEqual(1, wb.Worksheets.SelectMany(ws => ws.PivotTables).Count());
             }
         }
     }
@@ -872,9 +903,9 @@ public class XlPivotTableTests
             using (XLWorkbook wb = new(stream))
             {
                 IXLWorksheet ws = wb.Worksheet("Sheet1");
-                Assert.IsTrue(ws.Cell("B1").IsEmpty());
-                Assert.IsTrue(ws.Cell("C2").IsEmpty());
-                Assert.IsTrue(ws.Cell("D5").IsEmpty());
+                ClassicAssert.IsTrue(ws.Cell("B1").IsEmpty());
+                ClassicAssert.IsTrue(ws.Cell("C2").IsEmpty());
+                ClassicAssert.IsTrue(ws.Cell("D5").IsEmpty());
                 wb.SaveAs(ms);
             }
 
@@ -883,9 +914,9 @@ public class XlPivotTableTests
             using (XLWorkbook wb = new(ms))
             {
                 IXLWorksheet ws = wb.Worksheet("Sheet1");
-                Assert.IsTrue(ws.Cell("B1").IsEmpty());
-                Assert.IsTrue(ws.Cell("C2").IsEmpty());
-                Assert.IsTrue(ws.Cell("D5").IsEmpty());
+                ClassicAssert.IsTrue(ws.Cell("B1").IsEmpty());
+                ClassicAssert.IsTrue(ws.Cell("C2").IsEmpty());
+                ClassicAssert.IsTrue(ws.Cell("D5").IsEmpty());
             }
         }
     }
@@ -902,8 +933,8 @@ public class XlPivotTableTests
         IXLPivotTable rangePivot1 = ws.PivotTables.Add("rangePivot1", ws.Cell("D1"), range);
         IXLPivotTable rangePivot2 = ws.PivotTables.Add("rangePivot2", ws.Cell("D20"), range);
 
-        Assert.AreNotSame(rangePivot1, rangePivot2);
-        Assert.AreSame(rangePivot1.PivotCache, rangePivot2.PivotCache);
+        ClassicAssert.AreNotSame(rangePivot1, rangePivot2);
+        ClassicAssert.AreSame(rangePivot1.PivotCache, rangePivot2.PivotCache);
     }
 
     [Test]
@@ -919,8 +950,8 @@ public class XlPivotTableTests
         IXLPivotTable tablePivot1 = ws.PivotTables.Add("tablePivot1", ws.Cell("J1"), table);
         IXLPivotTable tablePivot2 = ws.PivotTables.Add("tablePivot2", ws.Cell("J20"), table);
 
-        Assert.AreNotSame(tablePivot1, tablePivot2);
-        Assert.AreSame(tablePivot1.PivotCache, tablePivot2.PivotCache);
+        ClassicAssert.AreNotSame(tablePivot1, tablePivot2);
+        ClassicAssert.AreSame(tablePivot1.PivotCache, tablePivot2.PivotCache);
     }
 
     [Test]
@@ -941,8 +972,8 @@ public class XlPivotTableTests
 
         XLPivotSourceReference cacheSource = (XLPivotSourceReference)
             ((XLPivotCache)tablePivot1.PivotCache).Source;
-        Assert.True(cacheSource.UsesName);
-        Assert.AreEqual("Test table", cacheSource.Name);
+        ClassicAssert.True(cacheSource.UsesName);
+        ClassicAssert.AreEqual("Test table", cacheSource.Name);
     }
 
     [Test]
@@ -971,7 +1002,7 @@ public class XlPivotTableTests
             wb =>
             {
                 // Check that existing pivot table is loaded.
-                Assert.True(wb.Worksheet("pivot").PivotTables.Contains("Pastries"));
+                ClassicAssert.True(wb.Worksheet("pivot").PivotTables.Contains("Pastries"));
             },
             @"Other\PivotTableReferenceFiles\ChartsheetAndPivotTable.xlsx"
         );
@@ -997,20 +1028,21 @@ public class XlPivotTableTests
         pt.ReportFilters.Add("City");
 
         // Even when we added filter and a gap row, the target cell is still E1
-        Assert.AreEqual("E1", pt.TargetCell.Address.ToString());
-        Assert.AreEqual("E3", ((XLPivotTable)pt).Area.FirstPoint.ToString());
+        ClassicAssert.AreEqual("E1", pt.TargetCell.Address.ToString());
+        ClassicAssert.AreEqual("E3", ((XLPivotTable)pt).Area.FirstPoint.ToString());
 
         pt.TargetCell = ws.Cell("E2");
-        Assert.AreEqual("E2", pt.TargetCell.Address.ToString());
-        Assert.AreEqual("E4", ((XLPivotTable)pt).Area.FirstPoint.ToString());
+        ClassicAssert.AreEqual("E2", pt.TargetCell.Address.ToString());
+        ClassicAssert.AreEqual("E4", ((XLPivotTable)pt).Area.FirstPoint.ToString());
     }
 
     #endregion
 
     #region FilterAreaOrder
 
-    [TestCase(XLFilterAreaOrder.DownThenOver, "E5")]
-    [TestCase(XLFilterAreaOrder.OverThenDown, "E3")]
+    [Test]
+    [Arguments(XLFilterAreaOrder.DownThenOver, "E5")]
+    [Arguments(XLFilterAreaOrder.OverThenDown, "E3")]
     public void PropertyFilterAreaOrderDeterminesDirectionInWhichAreFilterFieldsLaidOut(
         XLFilterAreaOrder order,
         string tableAddress
@@ -1036,22 +1068,23 @@ public class XlPivotTableTests
 
         // Indirect detection of filter fields layout: The address of pivot table are is
         // determined by filter area order.
-        Assert.AreEqual(tableAddress, ((XLPivotTable)pt).Area.ToString());
+        ClassicAssert.AreEqual(tableAddress, ((XLPivotTable)pt).Area.ToString());
     }
 
     #endregion
 
     #region Layout
 
-    [TestCase(
+    [Test]
+    [Arguments(
         XLPivotLayout.Outline,
         "Property_layout_sets_layout_of_pivot_table_and_all_fields-outline.xlsx"
     )]
-    [TestCase(
+    [Arguments(
         XLPivotLayout.Tabular,
         "Property_layout_sets_layout_of_pivot_table_and_all_fields-tabular.xlsx"
     )]
-    [TestCase(
+    [Arguments(
         XLPivotLayout.Compact,
         "Property_layout_sets_layout_of_pivot_table_and_all_fields-compact.xlsx"
     )]
@@ -1113,15 +1146,27 @@ public class XlPivotTableTests
 
     private static void AssertFieldOptions(IXLPivotField field, bool withDefaults)
     {
-        Assert.AreEqual(!withDefaults, field.SubtotalsAtTop, "SubtotalsAtTop save failure");
-        Assert.AreEqual(!withDefaults, field.ShowBlankItems, "ShowBlankItems save failure");
-        Assert.AreEqual(!withDefaults, field.Outline, "Outline save failure");
-        Assert.AreEqual(!withDefaults, field.Compact, "Compact save failure");
-        Assert.AreEqual(withDefaults, field.Collapsed, "Collapsed save failure");
-        Assert.AreEqual(withDefaults, field.InsertBlankLines, "InsertBlankLines save failure");
-        Assert.AreEqual(withDefaults, field.RepeatItemLabels, "RepeatItemLabels save failure");
-        Assert.AreEqual(withDefaults, field.InsertPageBreaks, "InsertPageBreaks save failure");
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(!withDefaults, field.SubtotalsAtTop, "SubtotalsAtTop save failure");
+        ClassicAssert.AreEqual(!withDefaults, field.ShowBlankItems, "ShowBlankItems save failure");
+        ClassicAssert.AreEqual(!withDefaults, field.Outline, "Outline save failure");
+        ClassicAssert.AreEqual(!withDefaults, field.Compact, "Compact save failure");
+        ClassicAssert.AreEqual(withDefaults, field.Collapsed, "Collapsed save failure");
+        ClassicAssert.AreEqual(
+            withDefaults,
+            field.InsertBlankLines,
+            "InsertBlankLines save failure"
+        );
+        ClassicAssert.AreEqual(
+            withDefaults,
+            field.RepeatItemLabels,
+            "RepeatItemLabels save failure"
+        );
+        ClassicAssert.AreEqual(
+            withDefaults,
+            field.InsertPageBreaks,
+            "InsertPageBreaks save failure"
+        );
+        ClassicAssert.AreEqual(
             withDefaults,
             field.IncludeNewItemsInFilter,
             "IncludeNewItemsInFilter save failure"

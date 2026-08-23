@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.InsertData;
 
@@ -40,22 +39,22 @@ public class DataRecordReaderTests
     public void CanGetPropertyName()
     {
         IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(this.GetData());
-        Assert.AreEqual("StringValue", reader.GetPropertyName(0));
-        Assert.AreEqual("NumericValue", reader.GetPropertyName(1));
+        ClassicAssert.AreEqual("StringValue", reader.GetPropertyName(0));
+        ClassicAssert.AreEqual("NumericValue", reader.GetPropertyName(1));
     }
 
     [Test]
     public void CanGetPropertiesCount()
     {
         IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(this.GetData());
-        Assert.AreEqual(2, reader.GetPropertiesCount());
+        ClassicAssert.AreEqual(2, reader.GetPropertiesCount());
     }
 
     [Test]
     public void CanGetRecordsCount()
     {
         IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(this.GetData());
-        Assert.AreEqual(3, reader.GetRecords().Count());
+        ClassicAssert.AreEqual(3, reader.GetRecords().Count());
     }
 
     [Test]
@@ -64,9 +63,9 @@ public class DataRecordReaderTests
         IInsertDataReader reader = InsertDataReaderFactory.Instance.CreateReader(this.GetData());
         IEnumerable<XLCellValue>[] result = [.. reader.GetRecords()];
 
-        Assert.AreEqual("Value 1", result.First().First());
-        Assert.AreEqual(100, result.First().Last());
-        Assert.AreEqual("Value 3", result.Last().First());
-        Assert.AreEqual(300, result.Last().Last());
+        ClassicAssert.AreEqual("Value 1", result.First().First());
+        ClassicAssert.AreEqual(100, result.First().Last());
+        ClassicAssert.AreEqual("Value 3", result.Last().First());
+        ClassicAssert.AreEqual(300, result.Last().Last());
     }
 }

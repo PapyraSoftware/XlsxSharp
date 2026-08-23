@@ -1,6 +1,5 @@
 using System.Drawing;
 using System.Linq;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.ConditionalFormats;
 using XlsxSharp.Excel.Rows;
@@ -8,7 +7,6 @@ using XlsxSharp.Tests.Utils;
 
 namespace XlsxSharp.Tests.Excel.Ranges;
 
-[TestFixture]
 public class CopyingRangesTests
 {
     [Test]
@@ -30,31 +28,49 @@ public class CopyingRangesTests
         ws.Cell(1, 3).CopyFrom(column1.Column(1, 7));
 
         IXLColumn column2 = ws.Column(2);
-        Assert.AreEqual(XLColor.Red, column2.Cell(1).Style.Fill.BackgroundColor);
-        Assert.AreEqual(XLColor.FromArgb(1, 1, 1), column2.Cell(2).Style.Fill.BackgroundColor);
-        Assert.AreEqual(XLColor.FromHtml("#CCCCCC"), column2.Cell(3).Style.Fill.BackgroundColor);
-        Assert.AreEqual(XLColor.FromIndex(26), column2.Cell(4).Style.Fill.BackgroundColor);
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(XLColor.Red, column2.Cell(1).Style.Fill.BackgroundColor);
+        ClassicAssert.AreEqual(
+            XLColor.FromArgb(1, 1, 1),
+            column2.Cell(2).Style.Fill.BackgroundColor
+        );
+        ClassicAssert.AreEqual(
+            XLColor.FromHtml("#CCCCCC"),
+            column2.Cell(3).Style.Fill.BackgroundColor
+        );
+        ClassicAssert.AreEqual(XLColor.FromIndex(26), column2.Cell(4).Style.Fill.BackgroundColor);
+        ClassicAssert.AreEqual(
             XLColor.FromColor(Color.MediumSeaGreen),
             column2.Cell(5).Style.Fill.BackgroundColor
         );
-        Assert.AreEqual(XLColor.FromName("Blue"), column2.Cell(6).Style.Fill.BackgroundColor);
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
+            XLColor.FromName("Blue"),
+            column2.Cell(6).Style.Fill.BackgroundColor
+        );
+        ClassicAssert.AreEqual(
             XLColor.FromTheme(XLThemeColor.Accent3),
             column2.Cell(7).Style.Fill.BackgroundColor
         );
 
         IXLColumn column3 = ws.Column(3);
-        Assert.AreEqual(XLColor.Red, column3.Cell(1).Style.Fill.BackgroundColor);
-        Assert.AreEqual(XLColor.FromArgb(1, 1, 1), column3.Cell(2).Style.Fill.BackgroundColor);
-        Assert.AreEqual(XLColor.FromHtml("#CCCCCC"), column3.Cell(3).Style.Fill.BackgroundColor);
-        Assert.AreEqual(XLColor.FromIndex(26), column3.Cell(4).Style.Fill.BackgroundColor);
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(XLColor.Red, column3.Cell(1).Style.Fill.BackgroundColor);
+        ClassicAssert.AreEqual(
+            XLColor.FromArgb(1, 1, 1),
+            column3.Cell(2).Style.Fill.BackgroundColor
+        );
+        ClassicAssert.AreEqual(
+            XLColor.FromHtml("#CCCCCC"),
+            column3.Cell(3).Style.Fill.BackgroundColor
+        );
+        ClassicAssert.AreEqual(XLColor.FromIndex(26), column3.Cell(4).Style.Fill.BackgroundColor);
+        ClassicAssert.AreEqual(
             XLColor.FromColor(Color.MediumSeaGreen),
             column3.Cell(5).Style.Fill.BackgroundColor
         );
-        Assert.AreEqual(XLColor.FromName("Blue"), column3.Cell(6).Style.Fill.BackgroundColor);
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(
+            XLColor.FromName("Blue"),
+            column3.Cell(6).Style.Fill.BackgroundColor
+        );
+        ClassicAssert.AreEqual(
             XLColor.FromTheme(XLThemeColor.Accent3),
             column3.Cell(7).Style.Fill.BackgroundColor
         );
@@ -73,45 +89,51 @@ public class CopyingRangesTests
         ws.Cell(3, 1).CopyFrom(row1.Row(1, 7));
 
         IXLRow row2 = ws.Row(2);
-        Assert.AreEqual(XLColor.Red, row2.Cell(1).Style.Fill.BackgroundColor);
-        Assert.AreEqual(XLColor.FromArgb(1, 1, 1), row2.Cell(2).Style.Fill.BackgroundColor);
-        Assert.AreEqual(XLColor.FromHtml("#CCCCCC"), row2.Cell(3).Style.Fill.BackgroundColor);
-        Assert.AreEqual(XLColor.FromIndex(26), row2.Cell(4).Style.Fill.BackgroundColor);
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(XLColor.Red, row2.Cell(1).Style.Fill.BackgroundColor);
+        ClassicAssert.AreEqual(XLColor.FromArgb(1, 1, 1), row2.Cell(2).Style.Fill.BackgroundColor);
+        ClassicAssert.AreEqual(
+            XLColor.FromHtml("#CCCCCC"),
+            row2.Cell(3).Style.Fill.BackgroundColor
+        );
+        ClassicAssert.AreEqual(XLColor.FromIndex(26), row2.Cell(4).Style.Fill.BackgroundColor);
+        ClassicAssert.AreEqual(
             XLColor.FromColor(Color.MediumSeaGreen),
             row2.Cell(5).Style.Fill.BackgroundColor
         );
-        Assert.AreEqual(XLColor.FromName("Blue"), row2.Cell(6).Style.Fill.BackgroundColor);
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(XLColor.FromName("Blue"), row2.Cell(6).Style.Fill.BackgroundColor);
+        ClassicAssert.AreEqual(
             XLColor.FromTheme(XLThemeColor.Accent3),
             row2.Cell(7).Style.Fill.BackgroundColor
         );
 
         IXLRow row3 = ws.Row(3);
-        Assert.AreEqual(XLColor.Red, row3.Cell(1).Style.Fill.BackgroundColor);
-        Assert.AreEqual(XLColor.FromArgb(1, 1, 1), row3.Cell(2).Style.Fill.BackgroundColor);
-        Assert.AreEqual(XLColor.FromHtml("#CCCCCC"), row3.Cell(3).Style.Fill.BackgroundColor);
-        Assert.AreEqual(XLColor.FromIndex(26), row3.Cell(4).Style.Fill.BackgroundColor);
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(XLColor.Red, row3.Cell(1).Style.Fill.BackgroundColor);
+        ClassicAssert.AreEqual(XLColor.FromArgb(1, 1, 1), row3.Cell(2).Style.Fill.BackgroundColor);
+        ClassicAssert.AreEqual(
+            XLColor.FromHtml("#CCCCCC"),
+            row3.Cell(3).Style.Fill.BackgroundColor
+        );
+        ClassicAssert.AreEqual(XLColor.FromIndex(26), row3.Cell(4).Style.Fill.BackgroundColor);
+        ClassicAssert.AreEqual(
             XLColor.FromColor(Color.MediumSeaGreen),
             row3.Cell(5).Style.Fill.BackgroundColor
         );
-        Assert.AreEqual(XLColor.FromName("Blue"), row3.Cell(6).Style.Fill.BackgroundColor);
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(XLColor.FromName("Blue"), row3.Cell(6).Style.Fill.BackgroundColor);
+        ClassicAssert.AreEqual(
             XLColor.FromTheme(XLThemeColor.Accent3),
             row3.Cell(7).Style.Fill.BackgroundColor
         );
 
-        Assert.AreEqual(3, ws.ConditionalFormats.Count());
-        Assert.IsTrue(
+        ClassicAssert.AreEqual(3, ws.ConditionalFormats.Count());
+        ClassicAssert.IsTrue(
             ws.ConditionalFormats.Single(x => x.Range.RangeAddress.ToStringRelative() == "B1:B1")
                 .Values.Any(v => v.Value.Value == "G1" && v.Value.IsFormula)
         );
-        Assert.IsTrue(
+        ClassicAssert.IsTrue(
             ws.ConditionalFormats.Single(x => x.Range.RangeAddress.ToStringRelative() == "B2:B2")
                 .Values.Any(v => v.Value.Value == "G2" && v.Value.IsFormula)
         );
-        Assert.IsTrue(
+        ClassicAssert.IsTrue(
             ws.ConditionalFormats.Single(x => x.Range.RangeAddress.ToStringRelative() == "B3:B3")
                 .Values.Any(v => v.Value.Value == "G3" && v.Value.IsFormula)
         );
@@ -131,12 +153,12 @@ public class CopyingRangesTests
 
         ws.Cell(5, 2).CopyFrom(ws.Row(2).Row(1, 7));
 
-        Assert.AreEqual(2, ws.ConditionalFormats.Count());
-        Assert.IsTrue(
+        ClassicAssert.AreEqual(2, ws.ConditionalFormats.Count());
+        ClassicAssert.IsTrue(
             ws.ConditionalFormats.Single(x => x.Range.RangeAddress.ToStringRelative() == "B1:B3")
                 .Values.Any(v => v.Value.Value == "G1" && v.Value.IsFormula)
         );
-        Assert.IsTrue(
+        ClassicAssert.IsTrue(
             ws.ConditionalFormats.Single(x => x.Range.RangeAddress.ToStringRelative() == "C5:C5")
                 .Values.Any(v => v.Value.Value == "H5" && v.Value.IsFormula)
         );
@@ -157,21 +179,27 @@ public class CopyingRangesTests
 
         ws2.FirstCell().CopyFrom(ws1.Range("B1:B4"));
 
-        Assert.AreEqual(1, ws2.ConditionalFormats.Count());
-        Assert.IsTrue(
+        ClassicAssert.AreEqual(1, ws2.ConditionalFormats.Count());
+        ClassicAssert.IsTrue(
             ws2.ConditionalFormats.All(x => x.Ranges.All(s => s.Worksheet == ws2)),
             "A conditional format was created for another worksheet."
         );
-        Assert.IsTrue(
+        ClassicAssert.IsTrue(
             ws2.ConditionalFormats.Single(x => x.Range.RangeAddress.ToStringRelative() == "A1:A2")
                 .Values.Any(v => v.Value.Value == "E1" && v.Value.IsFormula),
             "The formula has not been transferred correctly."
         );
 
-        Assert.AreEqual("Sheet1", ws1.ConditionalFormats.First().Ranges.First().Worksheet.Name);
-        Assert.AreEqual("Sheet2", ws2.ConditionalFormats.First().Ranges.First().Worksheet.Name);
-        Assert.AreEqual("A1:J2", ws1.ConditionalFormats.First().Ranges.ToSpaceList());
-        Assert.AreEqual("A1:A2", ws2.ConditionalFormats.First().Ranges.ToSpaceList());
+        ClassicAssert.AreEqual(
+            "Sheet1",
+            ws1.ConditionalFormats.First().Ranges.First().Worksheet.Name
+        );
+        ClassicAssert.AreEqual(
+            "Sheet2",
+            ws2.ConditionalFormats.First().Ranges.First().Worksheet.Name
+        );
+        ClassicAssert.AreEqual("A1:J2", ws1.ConditionalFormats.First().Ranges.ToSpaceList());
+        ClassicAssert.AreEqual("A1:A2", ws2.ConditionalFormats.First().Ranges.ToSpaceList());
     }
 
     [Test]
@@ -200,8 +228,8 @@ public class CopyingRangesTests
             },
             (_, ws) =>
             {
-                Assert.That(ws.Cell("B1").Style.Fill.BackgroundColor, Is.EqualTo(XLColor.Red));
-                Assert.That(ws.Cell("B1").Style.NumberFormat.Format, Is.EqualTo("Value[@]"));
+                ClassicAssert.AreEqual(XLColor.Red, ws.Cell("B1").Style.Fill.BackgroundColor);
+                ClassicAssert.AreEqual("Value[@]", ws.Cell("B1").Style.NumberFormat.Format);
             }
         );
 

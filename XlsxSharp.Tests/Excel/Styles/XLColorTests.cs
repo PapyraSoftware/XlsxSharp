@@ -1,6 +1,5 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Drawing;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 
 namespace XlsxSharp.Tests.Excel.Styles;
@@ -26,11 +25,12 @@ public class XlColorTests
         }
     }
 
-    [TestCaseSource(nameof(VmlColors))]
+    [Test]
+    [MethodDataSource(nameof(VmlColors))]
     public void FromVmlColorConvertsHexadecimalColors(string colorText, Color expectedColor)
     {
         XLColor color = XLColor.FromVmlColor(colorText);
 
-        Assert.That(color, Is.EqualTo(XLColor.FromColor(expectedColor)));
+        ClassicAssert.AreEqual(XLColor.FromColor(expectedColor), color);
     }
 }

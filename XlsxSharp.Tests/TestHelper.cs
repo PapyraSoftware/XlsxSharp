@@ -7,11 +7,11 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Xml.Linq;
-using NUnit.Framework;
 using XlsxSharp.Examples;
 using XlsxSharp.Excel;
 using XlsxSharp.Graphics;
 using XlsxSharp.Tests.Utils;
+using Assembly = System.Reflection.Assembly;
 using LoadOptions = XlsxSharp.Excel.LoadOptions;
 using Path = System.IO.Path;
 
@@ -60,7 +60,7 @@ internal static class TestHelper
     {
         if (!DefaultGraphicEngine.Instance.Value.IsFontAvailable(fontName))
         {
-            Assert.Ignore(
+            ClassicAssert.Ignore(
                 $"Font '{fontName}' is not installed, the measured values would be of a fallback font."
             );
         }
@@ -174,7 +174,7 @@ internal static class TestHelper
                     message
                 );
 
-                Assert.IsTrue(success, formattedMessage);
+                ClassicAssert.IsTrue(success, formattedMessage);
             }
         }
     }
@@ -252,7 +252,7 @@ internal static class TestHelper
                     message
                 );
 
-                Assert.IsTrue(success, formattedMessage);
+                ClassicAssert.IsTrue(success, formattedMessage);
             }
         }
     }
@@ -349,7 +349,7 @@ internal static class TestHelper
         IXLWorkbook wb;
         using (Stream stream = GetStreamFromResource(GetResourcePath(filePartName)))
         {
-            Assert.DoesNotThrow(
+            ClassicAssert.DoesNotThrow(
                 () => wb = new XLWorkbook(stream),
                 "Unable to load resource {0}",
                 filePartName

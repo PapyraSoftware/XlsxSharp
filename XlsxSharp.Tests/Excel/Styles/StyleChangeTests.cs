@@ -1,9 +1,7 @@
-using NUnit.Framework;
 using XlsxSharp.Excel;
 
 namespace XlsxSharp.Tests.Excel.Styles;
 
-[TestFixture]
 public class StyleChangeTests
 {
     [Test]
@@ -34,20 +32,20 @@ public class StyleChangeTests
             ws.Range("A1:B2").Style.Font.FontColor = XLColor.PowderBlue;
 
             //Assert
-            Assert.AreEqual(XLColor.Red, ws.Cell("A1").Style.Fill.BackgroundColor);
-            Assert.AreEqual(XLColor.Green, ws.Cell("A2").Style.Fill.BackgroundColor);
-            Assert.AreEqual(XLColor.Blue, ws.Cell("B1").Style.Fill.BackgroundColor);
-            Assert.AreEqual(XLColor.Pink, ws.Cell("B2").Style.Fill.BackgroundColor);
+            ClassicAssert.AreEqual(XLColor.Red, ws.Cell("A1").Style.Fill.BackgroundColor);
+            ClassicAssert.AreEqual(XLColor.Green, ws.Cell("A2").Style.Fill.BackgroundColor);
+            ClassicAssert.AreEqual(XLColor.Blue, ws.Cell("B1").Style.Fill.BackgroundColor);
+            ClassicAssert.AreEqual(XLColor.Pink, ws.Cell("B2").Style.Fill.BackgroundColor);
 
-            Assert.AreEqual("Arial", ws.Cell("A1").Style.Font.FontName);
-            Assert.AreEqual("Times New Roman", ws.Cell("A2").Style.Font.FontName);
-            Assert.AreEqual("Calibri", ws.Cell("B1").Style.Font.FontName);
-            Assert.AreEqual("Cambria", ws.Cell("B2").Style.Font.FontName);
+            ClassicAssert.AreEqual("Arial", ws.Cell("A1").Style.Font.FontName);
+            ClassicAssert.AreEqual("Times New Roman", ws.Cell("A2").Style.Font.FontName);
+            ClassicAssert.AreEqual("Calibri", ws.Cell("B1").Style.Font.FontName);
+            ClassicAssert.AreEqual("Cambria", ws.Cell("B2").Style.Font.FontName);
 
-            Assert.AreEqual(XLColor.PowderBlue, ws.Cell("A1").Style.Font.FontColor);
-            Assert.AreEqual(XLColor.PowderBlue, ws.Cell("A2").Style.Font.FontColor);
-            Assert.AreEqual(XLColor.PowderBlue, ws.Cell("B1").Style.Font.FontColor);
-            Assert.AreEqual(XLColor.PowderBlue, ws.Cell("B2").Style.Font.FontColor);
+            ClassicAssert.AreEqual(XLColor.PowderBlue, ws.Cell("A1").Style.Font.FontColor);
+            ClassicAssert.AreEqual(XLColor.PowderBlue, ws.Cell("A2").Style.Font.FontColor);
+            ClassicAssert.AreEqual(XLColor.PowderBlue, ws.Cell("B1").Style.Font.FontColor);
+            ClassicAssert.AreEqual(XLColor.PowderBlue, ws.Cell("B2").Style.Font.FontColor);
         }
     }
 
@@ -60,7 +58,7 @@ public class StyleChangeTests
 
         style.Alignment.Horizontal = XLAlignmentHorizontalValues.Justify;
 
-        Assert.AreEqual(XLAlignmentHorizontalValues.Justify, style.Alignment.Horizontal);
+        ClassicAssert.AreEqual(XLAlignmentHorizontalValues.Justify, style.Alignment.Horizontal);
     }
 
     [Test]
@@ -72,7 +70,7 @@ public class StyleChangeTests
 
         style.Border.DiagonalBorder = XLBorderStyleValues.Double;
 
-        Assert.AreEqual(XLBorderStyleValues.Double, style.Border.DiagonalBorder);
+        ClassicAssert.AreEqual(XLBorderStyleValues.Double, style.Border.DiagonalBorder);
     }
 
     [Test]
@@ -84,7 +82,7 @@ public class StyleChangeTests
 
         style.Fill.BackgroundColor = XLColor.Red;
 
-        Assert.AreEqual(XLColor.Red, style.Fill.BackgroundColor);
+        ClassicAssert.AreEqual(XLColor.Red, style.Fill.BackgroundColor);
     }
 
     [Test]
@@ -96,7 +94,7 @@ public class StyleChangeTests
 
         style.Font.FontSize = 50;
 
-        Assert.AreEqual(50, style.Font.FontSize);
+        ClassicAssert.AreEqual(50, style.Font.FontSize);
     }
 
     [Test]
@@ -108,7 +106,7 @@ public class StyleChangeTests
 
         style.NumberFormat.Format = "YYYY";
 
-        Assert.AreEqual("YYYY", style.NumberFormat.Format);
+        ClassicAssert.AreEqual("YYYY", style.NumberFormat.Format);
     }
 
     [Test]
@@ -120,7 +118,7 @@ public class StyleChangeTests
 
         style.Protection.Hidden = true;
 
-        Assert.AreEqual(true, style.Protection.Hidden);
+        ClassicAssert.AreEqual(true, style.Protection.Hidden);
     }
 
     [Test]
@@ -133,7 +131,10 @@ public class StyleChangeTests
 
             a1.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Justify;
 
-            Assert.AreEqual(XLAlignmentHorizontalValues.Justify, a1.Style.Alignment.Horizontal);
+            ClassicAssert.AreEqual(
+                XLAlignmentHorizontalValues.Justify,
+                a1.Style.Alignment.Horizontal
+            );
         }
     }
 }

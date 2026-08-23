@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.CalcEngine;
 using XlsxSharp.Excel.DataValidation;
@@ -20,21 +19,22 @@ namespace XlsxSharp.Tests.Excel.Loading;
 // Tests in this fixture test only the successful loading of existing Excel files,
 // i.e. we test that XlsxSharp doesn't choke on a given input file
 // These tests DO NOT test that XlsxSharp successfully recognises all the Excel parts or that it can successfully save those parts again.
-[TestFixture]
 public class LoadingTests
 {
-    private static IEnumerable<string> TryToLoad =>
+    internal static IEnumerable<string> TryToLoad =>
         TestHelper.ListResourceFiles(s =>
             s.Contains(".TryToLoad.") && !s.Contains(".LO.") && !s.Contains(".Malformed.")
         );
 
-    [TestCaseSource(nameof(TryToLoad))]
+    [Test]
+    [MethodDataSource(nameof(TryToLoad))]
     public void CanSuccessfullyLoadFiles(string file) => TestHelper.LoadFile(file);
 
-    [TestCaseSource(nameof(LoFiles))]
+    [Test]
+    [MethodDataSource(nameof(LoFiles))]
     public void CanSuccessfullyLoadLoFiles(string file) => TestHelper.LoadFile(file);
 
-    private static IEnumerable<string> LoFiles
+    internal static IEnumerable<string> LoFiles
     {
         get
         {
@@ -82,11 +82,11 @@ public class LoadingTests
         // Assert
         IXLWorksheet ws = wb.Worksheet("UI Sheet");
         IXLCell B2 = ws.Cell("B2");
-        Assert.AreEqual(XLAllowedValues.List, B2.GetDataValidation().AllowedValues);
-        Assert.AreEqual("$E$1:$E$4", B2.GetDataValidation().Value);
+        ClassicAssert.AreEqual(XLAllowedValues.List, B2.GetDataValidation().AllowedValues);
+        ClassicAssert.AreEqual("$E$1:$E$4", B2.GetDataValidation().Value);
         IXLCell A2 = ws.Cell("A2");
-        Assert.AreEqual(XLAllowedValues.List, A2.GetDataValidation().AllowedValues);
-        Assert.AreEqual("ValuesSheet!$A$1:$A$4", A2.GetDataValidation().Value);
+        ClassicAssert.AreEqual(XLAllowedValues.List, A2.GetDataValidation().AllowedValues);
+        ClassicAssert.AreEqual("ValuesSheet!$A$1:$A$4", A2.GetDataValidation().Value);
     }
 
     [Test]
@@ -119,8 +119,8 @@ public class LoadingTests
             {
                 IXLWorksheet ws = wb.Worksheets.First();
                 IXLCell c = ws.Cell("A2");
-                Assert.AreEqual(XLDataType.DateTime, c.DataType);
-                Assert.AreEqual(new DateTime(2017, 10, 27, 21, 0, 0), c.GetDateTime());
+                ClassicAssert.AreEqual(XLDataType.DateTime, c.DataType);
+                ClassicAssert.AreEqual(new DateTime(2017, 10, 27, 21, 0, 0), c.GetDateTime());
                 wb.SaveAs(ms);
             }
 
@@ -130,8 +130,8 @@ public class LoadingTests
             {
                 IXLWorksheet ws = wb.Worksheets.First();
                 IXLCell c = ws.Cell("A2");
-                Assert.AreEqual(XLDataType.DateTime, c.DataType);
-                Assert.AreEqual(new DateTime(2017, 10, 27, 21, 0, 0), c.GetDateTime());
+                ClassicAssert.AreEqual(XLDataType.DateTime, c.DataType);
+                ClassicAssert.AreEqual(new DateTime(2017, 10, 27, 21, 0, 0), c.GetDateTime());
                 wb.SaveAs(ms);
             }
         }
@@ -169,17 +169,17 @@ public class LoadingTests
         {
             IXLWorksheet ws = wb.Worksheet("PivotTable1");
             IXLPivotTable pt = ws.PivotTable("PivotTable1");
-            Assert.AreEqual("PivotTable1", pt.Name);
+            ClassicAssert.AreEqual("PivotTable1", pt.Name);
 
-            Assert.AreEqual(1, pt.RowLabels.Count());
-            Assert.AreEqual("Name", pt.RowLabels.Single().SourceName);
+            ClassicAssert.AreEqual(1, pt.RowLabels.Count());
+            ClassicAssert.AreEqual("Name", pt.RowLabels.Single().SourceName);
 
-            Assert.AreEqual(1, pt.ColumnLabels.Count());
-            Assert.AreEqual("Month", pt.ColumnLabels.Single().SourceName);
+            ClassicAssert.AreEqual(1, pt.ColumnLabels.Count());
+            ClassicAssert.AreEqual("Month", pt.ColumnLabels.Single().SourceName);
 
             IXLPivotValue pv = pt.Values.Single();
-            Assert.AreEqual("Sum of NumberOfOrders", pv.CustomName);
-            Assert.AreEqual("NumberOfOrders", pv.SourceName);
+            ClassicAssert.AreEqual("Sum of NumberOfOrders", pv.CustomName);
+            ClassicAssert.AreEqual("NumberOfOrders", pv.SourceName);
         }
     }
 
@@ -196,8 +196,8 @@ public class LoadingTests
             IXLWorksheet ws = wb.Worksheet("OrderedPivotTable");
             IXLPivotTable pt = ws.PivotTable("OrderedPivotTable");
 
-            Assert.AreEqual(XLPivotSortType.Ascending, pt.RowLabels.Single().SortType);
-            Assert.AreEqual(XLPivotSortType.Descending, pt.ColumnLabels.Single().SortType);
+            ClassicAssert.AreEqual(XLPivotSortType.Ascending, pt.RowLabels.Single().SortType);
+            ClassicAssert.AreEqual(XLPivotSortType.Descending, pt.ColumnLabels.Single().SortType);
         }
     }
 
@@ -229,7 +229,7 @@ public class LoadingTests
     }
 
     [Test]
-    [Ignore("PT styles will be fixed in a different PR")]
+    [Skip("PT styles will be fixed in a different PR")]
     public void CanLoadPivotTableWithBorder()
     {
         using (
@@ -242,10 +242,10 @@ public class LoadingTests
             IXLPivotTable pt = wb.Worksheet(1).PivotTables.PivotTable("PivotTable1");
             IXLBorder border = pt.RowLabels.Single().StyleFormats.DataValuesFormat.Style.Border;
 
-            Assert.AreEqual(XLBorderStyleValues.Thin, border.LeftBorder);
-            Assert.AreEqual(XLBorderStyleValues.Thin, border.TopBorder);
-            Assert.AreEqual(XLBorderStyleValues.Thin, border.RightBorder);
-            Assert.AreEqual(XLBorderStyleValues.Thin, border.BottomBorder);
+            ClassicAssert.AreEqual(XLBorderStyleValues.Thin, border.LeftBorder);
+            ClassicAssert.AreEqual(XLBorderStyleValues.Thin, border.TopBorder);
+            ClassicAssert.AreEqual(XLBorderStyleValues.Thin, border.RightBorder);
+            ClassicAssert.AreEqual(XLBorderStyleValues.Thin, border.BottomBorder);
         }
     }
 
@@ -291,7 +291,7 @@ public class LoadingTests
             IXLWorksheet ws = wb.Worksheets.First();
             foreach (IXLCell cell in ws.CellsUsed())
             {
-                Assert.AreEqual(XLDataType.DateTime, cell.DataType);
+                ClassicAssert.AreEqual(XLDataType.DateTime, cell.DataType);
             }
         }
     }
@@ -307,13 +307,13 @@ public class LoadingTests
         using (XLWorkbook wb = new(stream))
         {
             IXLWorksheet ws = wb.Worksheets.First();
-            Assert.AreEqual(2, ws.Pictures.Count);
-            Assert.AreEqual(XLPicturePlacement.FreeFloating, ws.Pictures.First().Placement);
-            Assert.AreEqual(XLPicturePlacement.Move, ws.Pictures.Skip(1).First().Placement);
+            ClassicAssert.AreEqual(2, ws.Pictures.Count);
+            ClassicAssert.AreEqual(XLPicturePlacement.FreeFloating, ws.Pictures.First().Placement);
+            ClassicAssert.AreEqual(XLPicturePlacement.Move, ws.Pictures.Skip(1).First().Placement);
 
             IXLWorksheet ws2 = wb.Worksheets.Skip(1).First();
-            Assert.AreEqual(1, ws2.Pictures.Count);
-            Assert.AreEqual(XLPicturePlacement.MoveAndSize, ws2.Pictures.First().Placement);
+            ClassicAssert.AreEqual(1, ws2.Pictures.Count);
+            ClassicAssert.AreEqual(XLPicturePlacement.MoveAndSize, ws2.Pictures.First().Placement);
         }
     }
 
@@ -328,12 +328,12 @@ public class LoadingTests
         using (XLWorkbook wb = new(stream))
         {
             IXLWorksheet ws = wb.Worksheets.First();
-            Assert.AreEqual(1, ws.Pictures.Count);
-            Assert.AreEqual(XLPictureFormat.Jpeg, ws.Pictures.First().Format);
+            ClassicAssert.AreEqual(1, ws.Pictures.Count);
+            ClassicAssert.AreEqual(XLPictureFormat.Jpeg, ws.Pictures.First().Format);
 
             IXLWorksheet ws2 = wb.Worksheets.Skip(1).First();
-            Assert.AreEqual(1, ws2.Pictures.Count);
-            Assert.AreEqual(XLPictureFormat.Png, ws2.Pictures.First().Format);
+            ClassicAssert.AreEqual(1, ws2.Pictures.Count);
+            ClassicAssert.AreEqual(XLPictureFormat.Png, ws2.Pictures.First().Format);
         }
     }
 
@@ -351,11 +351,17 @@ public class LoadingTests
         using (XLWorkbook wb = new(stream))
         {
             IXLWorksheet ws = wb.Worksheets.First();
-            Assert.AreEqual(3, ws.Pictures.Count);
+            ClassicAssert.AreEqual(3, ws.Pictures.Count);
 
-            Assert.AreEqual(XLPicturePlacement.MoveAndSize, ws.Picture("Picture 1").Placement);
-            Assert.AreEqual(XLPicturePlacement.Move, ws.Picture("Picture 2").Placement);
-            Assert.AreEqual(XLPicturePlacement.FreeFloating, ws.Picture("Picture 3").Placement);
+            ClassicAssert.AreEqual(
+                XLPicturePlacement.MoveAndSize,
+                ws.Picture("Picture 1").Placement
+            );
+            ClassicAssert.AreEqual(XLPicturePlacement.Move, ws.Picture("Picture 2").Placement);
+            ClassicAssert.AreEqual(
+                XLPicturePlacement.FreeFloating,
+                ws.Picture("Picture 3").Placement
+            );
 
             using (MemoryStream ms = new())
             {
@@ -382,8 +388,8 @@ public class LoadingTests
             }
 
             XLWorkbook workbook = XLWorkbook.OpenFromTemplate(tf1.Path);
-            Assert.True(workbook.Worksheets.Any());
-            Assert.Throws<InvalidOperationException>(() => workbook.Save());
+            ClassicAssert.True(workbook.Worksheets.Any());
+            ClassicAssert.Throws<InvalidOperationException>(() => workbook.Save());
 
             workbook.SaveAs(tf2.Path);
         }
@@ -410,8 +416,8 @@ public class LoadingTests
             }
         };
 
-        Assert.DoesNotThrow(openWorkbook);
-        Assert.AreEqual("L'E", title);
+        ClassicAssert.DoesNotThrow(openWorkbook);
+        ClassicAssert.AreEqual("L'E", title);
     }
 
     [Test]
@@ -426,7 +432,7 @@ public class LoadingTests
                     XLSheetProtectionElements.EditObjects | XLSheetProtectionElements.EditScenarios
                 );
 
-            Assert.AreEqual(
+            ClassicAssert.AreEqual(
                 XLSheetProtectionElements.SelectEverything
                     | XLSheetProtectionElements.EditObjects
                     | XLSheetProtectionElements.EditScenarios,
@@ -441,7 +447,7 @@ public class LoadingTests
                 {
                     IXLWorksheet persistedSheet = persistedBook.Worksheets.Worksheet(1);
 
-                    Assert.AreEqual(
+                    ClassicAssert.AreEqual(
                         sheet.Protection.AllowedElements,
                         persistedSheet.Protection.AllowedElements
                     );
@@ -451,13 +457,13 @@ public class LoadingTests
     }
 
     [Test]
-    [TestCase("A1*10", 1230)]
-    [TestCase("A1/10", 12.3)]
-    [TestCase("A1&\" cells\"", "123 cells")]
-    [TestCase("A1&\"000\"", "123000")]
-    [TestCase("ISNUMBER(A1)", true)]
-    [TestCase("ISBLANK(A1)", false)]
-    [TestCase("DATE(2018,1,28)", 43128)]
+    [Arguments("A1*10", 1230)]
+    [Arguments("A1/10", 12.3)]
+    [Arguments("A1&\" cells\"", "123 cells")]
+    [Arguments("A1&\"000\"", "123000")]
+    [Arguments("ISNUMBER(A1)", true)]
+    [Arguments("ISBLANK(A1)", false)]
+    [Arguments("DATE(2018,1,28)", 43128)]
     public void LoadFormulaCachedValue(string formula, object expectedCachedValue)
     {
         using (MemoryStream ms = new())
@@ -476,8 +482,8 @@ public class LoadingTests
             using (XLWorkbook book2 = new(ms))
             {
                 IXLWorksheet ws = book2.Worksheet(1);
-                Assert.IsFalse(ws.Cell("A2").NeedsRecalculation);
-                Assert.AreEqual(expectedCachedValue, ws.Cell("A2").CachedValue);
+                ClassicAssert.IsFalse(ws.Cell("A2").NeedsRecalculation);
+                ClassicAssert.AreEqual(expectedCachedValue, ws.Cell("A2").CachedValue);
             }
         }
     }
@@ -491,31 +497,31 @@ public class LoadingTests
             )
         )
         {
-            Assert.DoesNotThrow(() =>
+            ClassicAssert.DoesNotThrow(() =>
             {
                 // The value in the file is blank and kept.
                 using XLWorkbook wb = new(
                     stream,
                     new LoadOptions { RecalculateAllFormulas = false }
                 );
-                Assert.AreEqual(Blank.Value, wb.Worksheets.Single().Cell("C2").CachedValue);
+                ClassicAssert.AreEqual(Blank.Value, wb.Worksheets.Single().Cell("C2").CachedValue);
             });
 
-            Assert.DoesNotThrow(() =>
+            ClassicAssert.DoesNotThrow(() =>
             {
                 // The value in the file is blank, but recalculation sets it to correct 3.
                 using XLWorkbook wb = new(
                     stream,
                     new LoadOptions { RecalculateAllFormulas = true }
                 );
-                Assert.AreEqual(3, wb.Worksheets.Single().Cell("C2").CachedValue);
+                ClassicAssert.AreEqual(3, wb.Worksheets.Single().Cell("C2").CachedValue);
             });
 
-            Assert.AreEqual(
+            ClassicAssert.AreEqual(
                 30,
                 new XLWorkbook(stream, new LoadOptions { Dpi = new Point(30, 14) }).DpiX
             );
-            Assert.AreEqual(
+            ClassicAssert.AreEqual(
                 14,
                 new XLWorkbook(stream, new LoadOptions { Dpi = new Point(30, 14) }).DpiY
             );
@@ -534,10 +540,10 @@ public class LoadingTests
         {
             IXLWorksheet ws = wb.Worksheet(1);
 
-            Assert.AreEqual(8, ws.Style.Font.FontSize);
-            Assert.AreEqual("Arial", ws.Style.Font.FontName);
-            Assert.AreEqual(8, ws.Cell("A1").Style.Font.FontSize);
-            Assert.AreEqual("Arial", ws.Cell("A1").Style.Font.FontName);
+            ClassicAssert.AreEqual(8, ws.Style.Font.FontSize);
+            ClassicAssert.AreEqual("Arial", ws.Style.Font.FontName);
+            ClassicAssert.AreEqual(8, ws.Cell("A1").Style.Font.FontSize);
+            ClassicAssert.AreEqual("Arial", ws.Cell("A1").Style.Font.FontName);
         }
     }
 
@@ -552,8 +558,8 @@ public class LoadingTests
         using (XLWorkbook wb = new(stream))
         {
             IXLCell cellToCheck = wb.Worksheet(1).Cell("B2");
-            Assert.AreEqual(XLDataType.Text, cellToCheck.DataType);
-            Assert.AreEqual("String with String Data type", cellToCheck.Value);
+            ClassicAssert.AreEqual(XLDataType.Text, cellToCheck.DataType);
+            ClassicAssert.AreEqual("String with String Data type", cellToCheck.Value);
         }
     }
 
@@ -567,12 +573,12 @@ public class LoadingTests
                 for (int row = 2; row < 18; row++)
                 {
                     IXLCell cellToCheck = wb.Worksheet(1).Cell(row, 2);
-                    Assert.AreEqual(
+                    ClassicAssert.AreEqual(
                         XLDataType.DateTime,
                         cellToCheck.DataType,
                         $"Cell B{row} has incorrect DataType"
                     );
-                    Assert.AreEqual(
+                    ClassicAssert.AreEqual(
                         expected,
                         cellToCheck.Value.ToString(CultureInfo.InvariantCulture),
                         $"Cell B{row} value differs"
@@ -593,12 +599,12 @@ public class LoadingTests
                 for (int i = 0, row = 2; i < expected.Length; i++, row++)
                 {
                     IXLCell cellToCheck = wb.Worksheet(1).Cell(row, 2);
-                    Assert.AreEqual(
+                    ClassicAssert.AreEqual(
                         XLDataType.TimeSpan,
                         cellToCheck.DataType,
                         $"Cell B{row} has incorrect DataType"
                     );
-                    Assert.AreEqual(
+                    ClassicAssert.AreEqual(
                         expected[i],
                         cellToCheck.Value.ToString(CultureInfo.InvariantCulture),
                         $"Cell B{row} value differs"
@@ -616,10 +622,13 @@ public class LoadingTests
             {
                 IXLWorksheet ws = wb.Worksheet(1);
 
-                Assert.AreEqual("21 January 2019", ws.Cell(1, 1).GetFormattedString());
-                Assert.AreEqual("21-Jan-19", ws.Cell(2, 1).GetFormattedString());
-                Assert.AreEqual("Monday, 21 January 2019", ws.Cell(3, 1).GetFormattedString());
-                Assert.AreEqual("21 Jan 2019", ws.Cell(4, 1).GetFormattedString());
+                ClassicAssert.AreEqual("21 January 2019", ws.Cell(1, 1).GetFormattedString());
+                ClassicAssert.AreEqual("21-Jan-19", ws.Cell(2, 1).GetFormattedString());
+                ClassicAssert.AreEqual(
+                    "Monday, 21 January 2019",
+                    ws.Cell(3, 1).GetFormattedString()
+                );
+                ClassicAssert.AreEqual("21 Jan 2019", ws.Cell(4, 1).GetFormattedString());
             },
             @"TryToLoad\CellsWithDateTimeWithLocalePrefix.xlsx"
         );
@@ -636,8 +645,8 @@ public class LoadingTests
         {
             double defaultColumnWidth = wb.ColumnWidth;
             int pixelWidth = XLHelper.NoCToPixels(defaultColumnWidth, wb.Format.Font, wb);
-            Assert.AreEqual(8.43, defaultColumnWidth, XLHelper.Epsilon);
-            Assert.AreEqual(64, pixelWidth);
+            ClassicAssert.AreEqual(8.43, defaultColumnWidth, XLHelper.Epsilon);
+            ClassicAssert.AreEqual(64, pixelWidth);
         }
     }
 
@@ -657,8 +666,8 @@ public class LoadingTests
         {
             double defaultColumnWidth = wb.ColumnWidth;
             int pixelWidth = XLHelper.NoCToPixels(defaultColumnWidth, wb.Format.Font, wb);
-            Assert.AreEqual(8.5, defaultColumnWidth, XLHelper.Epsilon);
-            Assert.AreEqual(56, pixelWidth);
+            ClassicAssert.AreEqual(8.5, defaultColumnWidth, XLHelper.Epsilon);
+            ClassicAssert.AreEqual(56, pixelWidth);
         }
     }
 
@@ -674,8 +683,8 @@ public class LoadingTests
         using (XLWorkbook wb = new(stream))
         {
             IXLWorksheet ws = wb.Worksheet(1);
-            Assert.AreEqual(8.43, ws.ColumnWidth, XLHelper.Epsilon);
-            Assert.AreEqual(8.43, ws.Column(1).Width, XLHelper.Epsilon);
+            ClassicAssert.AreEqual(8.43, ws.ColumnWidth, XLHelper.Epsilon);
+            ClassicAssert.AreEqual(8.43, ws.Column(1).Width, XLHelper.Epsilon);
         }
     }
 
@@ -693,8 +702,8 @@ public class LoadingTests
         using (XLWorkbook wb = new(stream))
         {
             IXLWorksheet ws = wb.Worksheet(1);
-            Assert.AreEqual(11.17, ws.ColumnWidth, XLHelper.Epsilon);
-            Assert.AreEqual(11.17, ws.Column(1).Width, XLHelper.Epsilon);
+            ClassicAssert.AreEqual(11.17, ws.ColumnWidth, XLHelper.Epsilon);
+            ClassicAssert.AreEqual(11.17, ws.Column(1).Width, XLHelper.Epsilon);
         }
     }
 
@@ -717,8 +726,8 @@ public class LoadingTests
         {
             IXLWorksheet ws = wb.Worksheet(1);
             double pixelWidth = XLHelper.NoCToPixels(ws.Column(1).Width, ws.Style.Font, wb);
-            Assert.AreEqual(19.75, ws.ColumnWidth, XLHelper.Epsilon);
-            Assert.AreEqual(163, pixelWidth, XLHelper.Epsilon);
+            ClassicAssert.AreEqual(19.75, ws.ColumnWidth, XLHelper.Epsilon);
+            ClassicAssert.AreEqual(163, pixelWidth, XLHelper.Epsilon);
         }
     }
 
@@ -734,9 +743,9 @@ public class LoadingTests
         {
             IXLWorksheet ws = wb.Worksheet(1);
 
-            Assert.AreEqual(2, ws.SelectedRanges.Count);
-            Assert.AreEqual("B2:B2", ws.SelectedRanges.First().RangeAddress.ToString());
-            Assert.AreEqual("B2:C2", ws.SelectedRanges.Last().RangeAddress.ToString());
+            ClassicAssert.AreEqual(2, ws.SelectedRanges.Count);
+            ClassicAssert.AreEqual("B2:B2", ws.SelectedRanges.First().RangeAddress.ToString());
+            ClassicAssert.AreEqual("B2:C2", ws.SelectedRanges.Last().RangeAddress.ToString());
         }
     }
 
@@ -752,7 +761,7 @@ public class LoadingTests
         {
             IXLWorksheet ws = wb.Worksheet(1);
 
-            Assert.AreEqual("Page 1", ws.Name);
+            ClassicAssert.AreEqual("Page 1", ws.Name);
 
             Dictionary<string, XLCellValue> expected = new()
             {
@@ -766,7 +775,7 @@ public class LoadingTests
 
             foreach (KeyValuePair<string, XLCellValue> pair in expected)
             {
-                Assert.AreEqual(pair.Value, ws.Cell(pair.Key).Value, pair.Key);
+                ClassicAssert.AreEqual(pair.Value, ws.Cell(pair.Key).Value, pair.Key);
             }
         }
     }
@@ -785,18 +794,27 @@ public class LoadingTests
 
             IXLCell c = ws.Cell("A1");
             XLThemeColor themeColor = c.Style.Fill.BackgroundColor.ThemeColor;
-            Assert.AreEqual(XLThemeColor.Accent2, themeColor);
-            Assert.AreEqual("FFED7D31", wb.Theme.ResolveThemeColor(themeColor).Color.ToHex());
+            ClassicAssert.AreEqual(XLThemeColor.Accent2, themeColor);
+            ClassicAssert.AreEqual(
+                "FFED7D31",
+                wb.Theme.ResolveThemeColor(themeColor).Color.ToHex()
+            );
 
             c = ws.Cell("A2");
             themeColor = c.Style.Fill.BackgroundColor.ThemeColor;
-            Assert.AreEqual(XLThemeColor.Accent4, themeColor);
-            Assert.AreEqual("FFFFC000", wb.Theme.ResolveThemeColor(themeColor).Color.ToHex());
+            ClassicAssert.AreEqual(XLThemeColor.Accent4, themeColor);
+            ClassicAssert.AreEqual(
+                "FFFFC000",
+                wb.Theme.ResolveThemeColor(themeColor).Color.ToHex()
+            );
 
             c = ws.Cell("A3");
             themeColor = c.Style.Fill.BackgroundColor.ThemeColor;
-            Assert.AreEqual(XLThemeColor.Accent6, themeColor);
-            Assert.AreEqual("FF70AD47", wb.Theme.ResolveThemeColor(themeColor).Color.ToHex());
+            ClassicAssert.AreEqual(XLThemeColor.Accent6, themeColor);
+            ClassicAssert.AreEqual(
+                "FF70AD47",
+                wb.Theme.ResolveThemeColor(themeColor).Color.ToHex()
+            );
         }
     }
 
@@ -815,9 +833,9 @@ public class LoadingTests
             IXLWorksheet ws = wb.Worksheet(1);
 
             IXLCell c = ws.Cell("B2");
-            Assert.AreEqual(XLColorType.Theme, c.Style.Border.TopBorderColor.ColorType);
-            Assert.AreEqual(XLThemeColor.Accent1, c.Style.Border.TopBorderColor.ThemeColor);
-            Assert.AreEqual(
+            ClassicAssert.AreEqual(XLColorType.Theme, c.Style.Border.TopBorderColor.ColorType);
+            ClassicAssert.AreEqual(XLThemeColor.Accent1, c.Style.Border.TopBorderColor.ThemeColor);
+            ClassicAssert.AreEqual(
                 0.39994506668294322d,
                 c.Style.Border.TopBorderColor.ThemeTint,
                 XLHelper.Epsilon
@@ -839,9 +857,9 @@ public class LoadingTests
         {
             IXLWorksheet ws = wb.Worksheet(1);
 
-            Assert.AreEqual(8, ws.Row(1).Style.Font.FontSize);
-            Assert.AreEqual(8, ws.Row(2).Style.Font.FontSize);
-            Assert.AreEqual(8, ws.Column("A").Style.Font.FontSize);
+            ClassicAssert.AreEqual(8, ws.Row(1).Style.Font.FontSize);
+            ClassicAssert.AreEqual(8, ws.Row(2).Style.Font.FontSize);
+            ClassicAssert.AreEqual(8, ws.Column("A").Style.Font.FontSize);
         }
     }
 
@@ -857,7 +875,7 @@ public class LoadingTests
         {
             IXLWorksheet ws = wb.Worksheet(1);
 
-            Assert.AreEqual(
+            ClassicAssert.AreEqual(
                 XLPredefinedFormat.General,
                 ws.Cell("A2").Style.NumberFormat.NumberFormatId
             );
@@ -906,18 +924,18 @@ public class LoadingTests
 
             using (XLWorkbook wb = new(stream))
             {
-                Assert.AreEqual(author, wb.Properties.Author);
-                Assert.AreEqual(title, wb.Properties.Title);
-                Assert.AreEqual(subject, wb.Properties.Subject);
-                Assert.AreEqual(category, wb.Properties.Category);
-                Assert.AreEqual(keywords, wb.Properties.Keywords);
-                Assert.AreEqual(comments, wb.Properties.Comments);
-                Assert.AreEqual(status, wb.Properties.Status);
-                Assert.AreEqual(created, wb.Properties.Created);
-                Assert.AreEqual(modified, wb.Properties.Modified);
-                Assert.AreEqual(lastModifiedBy, wb.Properties.LastModifiedBy);
-                Assert.AreEqual(company, wb.Properties.Company);
-                Assert.AreEqual(manager, wb.Properties.Manager);
+                ClassicAssert.AreEqual(author, wb.Properties.Author);
+                ClassicAssert.AreEqual(title, wb.Properties.Title);
+                ClassicAssert.AreEqual(subject, wb.Properties.Subject);
+                ClassicAssert.AreEqual(category, wb.Properties.Category);
+                ClassicAssert.AreEqual(keywords, wb.Properties.Keywords);
+                ClassicAssert.AreEqual(comments, wb.Properties.Comments);
+                ClassicAssert.AreEqual(status, wb.Properties.Status);
+                ClassicAssert.AreEqual(created, wb.Properties.Created);
+                ClassicAssert.AreEqual(modified, wb.Properties.Modified);
+                ClassicAssert.AreEqual(lastModifiedBy, wb.Properties.LastModifiedBy);
+                ClassicAssert.AreEqual(company, wb.Properties.Company);
+                ClassicAssert.AreEqual(manager, wb.Properties.Manager);
             }
         }
     }
@@ -943,8 +961,11 @@ public class LoadingTests
             wb =>
             {
                 IXLWorksheet ws = wb.Worksheets.Single();
-                Assert.AreEqual(XLColor.FromArgb(0xFF000000), ws.Cell("A1").Style.Font.FontColor);
-                Assert.AreEqual(
+                ClassicAssert.AreEqual(
+                    XLColor.FromArgb(0xFF000000),
+                    ws.Cell("A1").Style.Font.FontColor
+                );
+                ClassicAssert.AreEqual(
                     XLColor.FromArgb(0xFF000FED),
                     ws.Cell("A2").Style.Fill.BackgroundColor
                 );
@@ -965,18 +986,21 @@ public class LoadingTests
         TestHelper.LoadAndAssert(
             wb =>
             {
-                Assert.AreEqual(3, wb.Worksheets.Count);
+                ClassicAssert.AreEqual(3, wb.Worksheets.Count);
 
                 // First sheet has r:id, so it keeps content
-                Assert.AreEqual("Sheet1", wb.Worksheet("Sheet1").Cell("A1").Value);
+                ClassicAssert.AreEqual("Sheet1", wb.Worksheet("Sheet1").Cell("A1").Value);
 
                 // Second sheet doesn't have r:id, so it is empty after load.
-                Assert.AreEqual(Blank.Value, wb.Worksheet("Sheet without relId").Cell("A1").Value);
+                ClassicAssert.AreEqual(
+                    Blank.Value,
+                    wb.Worksheet("Sheet without relId").Cell("A1").Value
+                );
 
                 // Third sheet doesn't have r:id and it contains pivot table that is not loaded.
                 IXLWorksheet ptSheet = wb.Worksheet("Pivot Sheet without relId");
-                Assert.AreEqual(Blank.Value, ptSheet.Cell("A1").Value);
-                Assert.False(ptSheet.PivotTables.Any());
+                ClassicAssert.AreEqual(Blank.Value, ptSheet.Cell("A1").Value);
+                ClassicAssert.False(ptSheet.PivotTables.Any());
             },
             @"TryToLoad\SheetsWithoutRelId.xlsx"
         );
@@ -992,11 +1016,11 @@ public class LoadingTests
             wb =>
             {
                 // Dialog sheet
-                Assert.AreEqual(1, wb.UnsupportedSheets.Count);
+                ClassicAssert.AreEqual(1, wb.UnsupportedSheets.Count);
 
                 // Data and pivot sheets
-                Assert.AreEqual(2, wb.Worksheets.Count);
-                Assert.NotNull(wb.Worksheet("Pivot").PivotTables.Contains("PivotTable1"));
+                ClassicAssert.AreEqual(2, wb.Worksheets.Count);
+                ClassicAssert.NotNull(wb.Worksheet("Pivot").PivotTables.Contains("PivotTable1"));
             },
             @"TryToLoad\DialogSheet.xlsx"
         );
@@ -1007,22 +1031,22 @@ public class LoadingTests
             (_, ws) =>
             {
                 // "Center" - wrong case.
-                Assert.AreEqual(
+                ClassicAssert.AreEqual(
                     XLAlignmentVerticalValues.Bottom,
                     ws.Cell("A1").Style.Alignment.Vertical
                 );
 
                 // "richtig" - invalid value.
-                Assert.AreEqual(
+                ClassicAssert.AreEqual(
                     XLAlignmentHorizontalValues.General,
                     ws.Cell("A2").Style.Alignment.Horizontal
                 );
 
                 // "three" - not a number.
-                Assert.AreEqual(0, ws.Cell("A3").Style.Alignment.Indent);
+                ClassicAssert.AreEqual(0, ws.Cell("A3").Style.Alignment.Indent);
 
                 // "PRAVDA" - not a bool, thus treated as a missing. Thanks to the default true it is still bold.
-                Assert.IsTrue(ws.Cell("A4").Style.Font.Bold);
+                ClassicAssert.IsTrue(ws.Cell("A4").Style.Font.Bold);
             },
             @"TryToLoad\Malformed\AttributesWithInvalidValues.xlsx",
             new LoadOptions { StrictAttributeParsing = false }

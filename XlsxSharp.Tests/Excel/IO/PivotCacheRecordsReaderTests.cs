@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.CalcEngine;
 using XlsxSharp.Excel.IO;
@@ -10,7 +9,6 @@ using PivotCacheRecordsReader = XlsxSharp.Excel.IO.PivotCacheRecordsReader;
 
 namespace XlsxSharp.Tests.Excel.IO;
 
-[TestFixture]
 internal class PivotCacheRecordsReaderTests
 {
     [Test]
@@ -52,28 +50,27 @@ internal class PivotCacheRecordsReaderTests
                 reader.ReadRecordsToCache();
 
                 XLPivotCacheValues values = cache.GetFieldValues(0);
-                Assert.That(
-                    values.GetCellValues(),
-                    Is.EquivalentTo(
-                        new XLCellValue[]
-                        {
-                            Blank.Value,
-                            5.5,
-                            true,
-                            XLError.NumberInvalid,
-                            "Text",
-                            new DateTime(2020, 10, 5),
-                            "Second shared item",
-                        }
-                    )
+                CollectionAssert.AreEquivalent(
+                    new XLCellValue[]
+                    {
+                        Blank.Value,
+                        5.5,
+                        true,
+                        XLError.NumberInvalid,
+                        "Text",
+                        new DateTime(2020, 10, 5),
+                        "Second shared item",
+                    },
+                    values.GetCellValues()
                 );
             },
             sharedItems
         );
     }
 
-    [TestCase("<m/>")]
-    [TestCase("<m/><m/><m/>")]
+    [Test]
+    [Arguments("<m/>")]
+    [Arguments("<m/><m/><m/>")]
     public void All_records_must_have_same_number_of_items_as_there_is_cache_fields(
         string recordItems
     ) =>
@@ -86,13 +83,12 @@ internal class PivotCacheRecordsReaderTests
             """,
             (_, reader) =>
             {
-                Assert.That(
-                    reader.ReadRecordsToCache,
-                    Throws
-                        .Exception.TypeOf<PartStructureException>()
-                        .And.Message.StartsWith(
-                            PartStructureException.IncorrectElementsCount().Message
-                        )
+                PartStructureException ex = ClassicAssert.Throws<PartStructureException>(
+                    reader.ReadRecordsToCache
+                );
+                StringAssert.StartsWith(
+                    PartStructureException.IncorrectElementsCount().Message,
+                    ex.Message
                 );
             }
         );

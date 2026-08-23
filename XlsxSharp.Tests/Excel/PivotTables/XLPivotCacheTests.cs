@@ -1,11 +1,9 @@
-using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.PivotValues;
 using XlsxSharp.Excel.Tables;
 
 namespace XlsxSharp.Tests.Excel.PivotTables;
 
-[TestFixture]
 public class XlPivotCacheTests
 {
     [Test]
@@ -18,7 +16,7 @@ public class XlPivotCacheTests
         IXLPivotCache pivotCache = wb.PivotCaches.Add(range);
         ws.Cell("A1").Value = "Pastry";
 
-        Assert.AreEqual(new[] { "Name" }, pivotCache.FieldNames);
+        ClassicAssert.AreEqual(new[] { "Name" }, pivotCache.FieldNames);
     }
 
     [Test]
@@ -32,7 +30,7 @@ public class XlPivotCacheTests
         ws.Cell("A1").Value = "Pastry";
         pivotCache.Refresh();
 
-        Assert.AreEqual(new[] { "Pastry" }, pivotCache.FieldNames);
+        ClassicAssert.AreEqual(new[] { "Pastry" }, pivotCache.FieldNames);
     }
 
     [Test]
@@ -50,9 +48,9 @@ public class XlPivotCacheTests
 
         pivotCache.Refresh();
 
-        Assert.AreEqual(XLItemsToRetain.None, pivotCache.ItemsToRetainPerField);
-        Assert.AreEqual(false, pivotCache.SaveSourceData);
-        Assert.AreEqual(true, pivotCache.RefreshDataOnOpen);
+        ClassicAssert.AreEqual(XLItemsToRetain.None, pivotCache.ItemsToRetainPerField);
+        ClassicAssert.AreEqual(false, pivotCache.SaveSourceData);
+        ClassicAssert.AreEqual(true, pivotCache.RefreshDataOnOpen);
     }
 
     [Test]

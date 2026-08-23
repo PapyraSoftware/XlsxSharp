@@ -1,8 +1,5 @@
-﻿using NUnit.Framework;
-
 namespace XlsxSharp.Tests.Excel.Cubes;
 
-[TestFixture]
 public class CubeTests
 {
     [Test]

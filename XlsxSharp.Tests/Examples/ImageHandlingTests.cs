@@ -1,9 +1,7 @@
-using NUnit.Framework;
 using XlsxSharp.Examples.ImageHandling;
 
 namespace XlsxSharp.Tests.Examples;
 
-[TestFixture]
 public class ImageHandlingTests
 {
     [Test]

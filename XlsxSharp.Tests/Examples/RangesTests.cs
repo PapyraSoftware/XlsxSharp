@@ -1,9 +1,7 @@
-using NUnit.Framework;
 using XlsxSharp.Examples.Ranges;
 
 namespace XlsxSharp.Tests.Examples;
 
-[TestFixture]
 public class RangesTests
 {
     [Test]

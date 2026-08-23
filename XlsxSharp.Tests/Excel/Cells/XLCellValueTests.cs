@@ -1,46 +1,45 @@
-﻿using System;
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.CalcEngine;
 
 namespace XlsxSharp.Tests.Excel.Cells;
 
-[TestFixture]
 public class XlCellValueTests
 {
     [Test]
     public void CreationBlank()
     {
         XLCellValue blank = Blank.Value;
-        Assert.AreEqual(XLDataType.Blank, blank.Type);
-        Assert.True(blank.IsBlank);
+        ClassicAssert.AreEqual(XLDataType.Blank, blank.Type);
+        ClassicAssert.True(blank.IsBlank);
     }
 
     [Test]
     public void CreationBoolean()
     {
         XLCellValue logical = true;
-        Assert.AreEqual(XLDataType.Boolean, logical.Type);
-        Assert.True(logical.GetBoolean());
-        Assert.True(logical.IsBoolean);
+        ClassicAssert.AreEqual(XLDataType.Boolean, logical.Type);
+        ClassicAssert.True(logical.GetBoolean());
+        ClassicAssert.True(logical.IsBoolean);
     }
 
     [Test]
     public void CreationNumber()
     {
         XLCellValue number = 14.0;
-        Assert.AreEqual(XLDataType.Number, number.Type);
-        Assert.True(number.IsNumber);
-        Assert.AreEqual(14.0, number.GetNumber());
+        ClassicAssert.AreEqual(XLDataType.Number, number.Type);
+        ClassicAssert.True(number.IsNumber);
+        ClassicAssert.AreEqual(14.0, number.GetNumber());
     }
 
-    [TestCase(double.NaN)]
-    [TestCase(double.PositiveInfinity)]
-    [TestCase(double.NegativeInfinity)]
+    [Test]
+    [Arguments(double.NaN)]
+    [Arguments(double.PositiveInfinity)]
+    [Arguments(double.NegativeInfinity)]
     public void CreationNumberCantBeNonNumber(double nonNumber) =>
-        Assert.Throws<ArgumentException>(() => _ = (XLCellValue)nonNumber);
+        ClassicAssert.Throws<ArgumentException>(() => _ = (XLCellValue)nonNumber);
 
     // Decimal is not allowed as a member of an attribute, so TestCase can't be used.
     private static readonly object[] DecimalTestCases =
@@ -50,89 +49,96 @@ public class XlCellValueTests
         new object[] { 1.0E-28m, 1.0000000000000001E-28d },
     ];
 
-    [TestCaseSource(nameof(DecimalTestCases))]
+    [Test]
+    [MethodDataSource(nameof(DecimalTestCases))]
     public void CreationDecimal(decimal decimalNumber, double expectedNumber)
     {
         XLCellValue cellValue = decimalNumber;
-        Assert.True(cellValue.IsNumber);
-        Assert.AreEqual(expectedNumber, cellValue.GetNumber());
+        ClassicAssert.True(cellValue.IsNumber);
+        ClassicAssert.AreEqual(expectedNumber, cellValue.GetNumber());
     }
 
     [Test]
     public void CreationText()
     {
         XLCellValue text = "Hello World";
-        Assert.AreEqual(XLDataType.Text, text.Type);
-        Assert.AreEqual("Hello World", text.GetText());
+        ClassicAssert.AreEqual(XLDataType.Text, text.Type);
+        ClassicAssert.AreEqual("Hello World", text.GetText());
     }
 
     [Test]
     public void NullStringIsConvertedToBlank()
     {
         XLCellValue value = (string)null;
-        Assert.IsTrue(value.IsBlank);
-        Assert.IsFalse(value.IsText);
+        ClassicAssert.IsTrue(value.IsBlank);
+        ClassicAssert.IsFalse(value.IsText);
     }
 
     [Test]
     public void CreationTextHasLimitedLength()
     {
         string longText = new('A', 32768);
-        Assert.Throws<ArgumentOutOfRangeException>(() => _ = (XLCellValue)longText);
+        ClassicAssert.Throws<ArgumentOutOfRangeException>(() => _ = (XLCellValue)longText);
     }
 
     [Test]
     public void CreationError()
     {
         XLCellValue error = XLError.NumberInvalid;
-        Assert.AreEqual(XLDataType.Error, error.Type);
-        Assert.True(error.IsError);
-        Assert.AreEqual(XLError.NumberInvalid, error.GetError());
+        ClassicAssert.AreEqual(XLDataType.Error, error.Type);
+        ClassicAssert.True(error.IsError);
+        ClassicAssert.AreEqual(XLError.NumberInvalid, error.GetError());
     }
 
     [Test]
     public void CreationDateTime()
     {
         XLCellValue dateTime = new DateTime(2021, 1, 1);
-        Assert.AreEqual(XLDataType.DateTime, dateTime.Type);
-        Assert.True(dateTime.IsDateTime);
-        Assert.AreEqual(new DateTime(2021, 1, 1), dateTime.GetDateTime());
+        ClassicAssert.AreEqual(XLDataType.DateTime, dateTime.Type);
+        ClassicAssert.True(dateTime.IsDateTime);
+        ClassicAssert.AreEqual(new DateTime(2021, 1, 1), dateTime.GetDateTime());
     }
 
     [Test]
     public void CreationTimeSpan()
     {
         XLCellValue dateTime = new TimeSpan(10, 1, 2, 3, 456);
-        Assert.AreEqual(XLDataType.TimeSpan, dateTime.Type);
-        Assert.True(dateTime.IsTimeSpan);
-        Assert.AreEqual(new TimeSpan(10, 1, 2, 3, 456), dateTime.GetTimeSpan());
+        ClassicAssert.AreEqual(XLDataType.TimeSpan, dateTime.Type);
+        ClassicAssert.True(dateTime.IsTimeSpan);
+        ClassicAssert.AreEqual(new TimeSpan(10, 1, 2, 3, 456), dateTime.GetTimeSpan());
     }
 
     [Test]
     public void CreationFromObject()
     {
-        Assert.AreEqual(XLDataType.Blank, XLCellValue.FromObject(null).Type);
-        Assert.AreEqual(XLDataType.Blank, XLCellValue.FromObject(Blank.Value).Type);
-        Assert.AreEqual(XLDataType.Boolean, XLCellValue.FromObject(true).Type);
-        Assert.AreEqual(XLDataType.Text, XLCellValue.FromObject("Hello World").Type);
-        Assert.AreEqual(XLDataType.Error, XLCellValue.FromObject(XLError.NumberInvalid).Type);
-        Assert.AreEqual(XLDataType.DateTime, XLCellValue.FromObject(new DateTime(2021, 1, 1)).Type);
-        Assert.AreEqual(
+        ClassicAssert.AreEqual(XLDataType.Blank, XLCellValue.FromObject(null).Type);
+        ClassicAssert.AreEqual(XLDataType.Blank, XLCellValue.FromObject(Blank.Value).Type);
+        ClassicAssert.AreEqual(XLDataType.Boolean, XLCellValue.FromObject(true).Type);
+        ClassicAssert.AreEqual(XLDataType.Text, XLCellValue.FromObject("Hello World").Type);
+        ClassicAssert.AreEqual(
+            XLDataType.Error,
+            XLCellValue.FromObject(XLError.NumberInvalid).Type
+        );
+        ClassicAssert.AreEqual(
+            XLDataType.DateTime,
+            XLCellValue.FromObject(new DateTime(2021, 1, 1)).Type
+        );
+        ClassicAssert.AreEqual(
             XLDataType.TimeSpan,
             XLCellValue.FromObject(new TimeSpan(10, 1, 2, 3, 456)).Type
         );
-        Assert.AreEqual(XLDataType.Number, XLCellValue.FromObject((sbyte)42).Type);
-        Assert.AreEqual(XLDataType.Number, XLCellValue.FromObject((byte)42).Type);
-        Assert.AreEqual(XLDataType.Number, XLCellValue.FromObject((short)42).Type);
-        Assert.AreEqual(XLDataType.Number, XLCellValue.FromObject((ushort)42).Type);
-        Assert.AreEqual(XLDataType.Number, XLCellValue.FromObject((int)42).Type);
-        Assert.AreEqual(XLDataType.Number, XLCellValue.FromObject((uint)42).Type);
-        Assert.AreEqual(XLDataType.Number, XLCellValue.FromObject((long)42).Type);
-        Assert.AreEqual(XLDataType.Number, XLCellValue.FromObject((ulong)42).Type);
-        Assert.AreEqual(XLDataType.Number, XLCellValue.FromObject((float)42).Type);
-        Assert.AreEqual(XLDataType.Number, XLCellValue.FromObject((double)42).Type);
-        Assert.AreEqual(XLDataType.Number, XLCellValue.FromObject((decimal)42).Type);
-        Assert.AreEqual(XLDataType.Text, XLCellValue.FromObject(DayOfWeek.Sunday).Type);
+        ClassicAssert.AreEqual(XLDataType.Number, XLCellValue.FromObject((sbyte)42).Type);
+        ClassicAssert.AreEqual(XLDataType.Number, XLCellValue.FromObject((byte)42).Type);
+        ClassicAssert.AreEqual(XLDataType.Number, XLCellValue.FromObject((short)42).Type);
+        ClassicAssert.AreEqual(XLDataType.Number, XLCellValue.FromObject((ushort)42).Type);
+        ClassicAssert.AreEqual(XLDataType.Number, XLCellValue.FromObject((int)42).Type);
+        ClassicAssert.AreEqual(XLDataType.Number, XLCellValue.FromObject((uint)42).Type);
+        ClassicAssert.AreEqual(XLDataType.Number, XLCellValue.FromObject((long)42).Type);
+        ClassicAssert.AreEqual(XLDataType.Number, XLCellValue.FromObject((ulong)42).Type);
+        ClassicAssert.AreEqual(XLDataType.Number, XLCellValue.FromObject((float)42).Type);
+        ClassicAssert.AreEqual(XLDataType.Number, XLCellValue.FromObject((double)42).Type);
+        ClassicAssert.AreEqual(XLDataType.Number, XLCellValue.FromObject((decimal)42).Type);
+        ClassicAssert.AreEqual(XLDataType.Text, XLCellValue.FromObject(DayOfWeek.Sunday).Type);
     }
 
     [Test]
@@ -141,68 +147,68 @@ public class XlCellValueTests
         {
             sbyte sbyteNumber = 5;
             XLCellValue sbyteCellValue = sbyteNumber;
-            Assert.IsTrue(sbyteCellValue.IsNumber);
-            Assert.AreEqual(5d, sbyteCellValue.GetNumber());
+            ClassicAssert.IsTrue(sbyteCellValue.IsNumber);
+            ClassicAssert.AreEqual(5d, sbyteCellValue.GetNumber());
         }
         {
             byte byteNumber = 6;
             XLCellValue byteCellValue = byteNumber;
-            Assert.IsTrue(byteCellValue.IsNumber);
-            Assert.AreEqual(6d, byteCellValue.GetNumber());
+            ClassicAssert.IsTrue(byteCellValue.IsNumber);
+            ClassicAssert.AreEqual(6d, byteCellValue.GetNumber());
         }
         {
             short shortNumber = 7;
             XLCellValue shortCellValue = shortNumber;
-            Assert.IsTrue(shortCellValue.IsNumber);
-            Assert.AreEqual(7d, shortCellValue.GetNumber());
+            ClassicAssert.IsTrue(shortCellValue.IsNumber);
+            ClassicAssert.AreEqual(7d, shortCellValue.GetNumber());
         }
         {
             ushort ushortNumber = 8;
             XLCellValue ushortCellValue = ushortNumber;
-            Assert.IsTrue(ushortCellValue.IsNumber);
-            Assert.AreEqual(8d, ushortCellValue.GetNumber());
+            ClassicAssert.IsTrue(ushortCellValue.IsNumber);
+            ClassicAssert.AreEqual(8d, ushortCellValue.GetNumber());
         }
         {
             int intNumber = 9;
             XLCellValue intCellValue = intNumber;
-            Assert.IsTrue(intCellValue.IsNumber);
-            Assert.AreEqual(9d, intCellValue.GetNumber());
+            ClassicAssert.IsTrue(intCellValue.IsNumber);
+            ClassicAssert.AreEqual(9d, intCellValue.GetNumber());
         }
         {
             uint uintNumber = 10;
             XLCellValue uintCellValue = uintNumber;
-            Assert.IsTrue(uintCellValue.IsNumber);
-            Assert.AreEqual(10d, uintCellValue.GetNumber());
+            ClassicAssert.IsTrue(uintCellValue.IsNumber);
+            ClassicAssert.AreEqual(10d, uintCellValue.GetNumber());
         }
         {
             long longNumber = 11;
             XLCellValue longCellValue = longNumber;
-            Assert.IsTrue(longCellValue.IsNumber);
-            Assert.AreEqual(11d, longCellValue.GetNumber());
+            ClassicAssert.IsTrue(longCellValue.IsNumber);
+            ClassicAssert.AreEqual(11d, longCellValue.GetNumber());
         }
         {
             ulong ulongNumber = 12;
             XLCellValue ulongCellValue = ulongNumber;
-            Assert.IsTrue(ulongCellValue.IsNumber);
-            Assert.AreEqual(12d, ulongCellValue.GetNumber());
+            ClassicAssert.IsTrue(ulongCellValue.IsNumber);
+            ClassicAssert.AreEqual(12d, ulongCellValue.GetNumber());
         }
         {
             float floatNumber = 13.5f;
             XLCellValue floatCellValue = floatNumber;
-            Assert.IsTrue(floatCellValue.IsNumber);
-            Assert.AreEqual(13.5d, floatCellValue.GetNumber());
+            ClassicAssert.IsTrue(floatCellValue.IsNumber);
+            ClassicAssert.AreEqual(13.5d, floatCellValue.GetNumber());
         }
         {
             double doubleNumber = 14.5;
             XLCellValue doubleCellValue = doubleNumber;
-            Assert.IsTrue(doubleCellValue.IsNumber);
-            Assert.AreEqual(14.5d, doubleCellValue.GetNumber());
+            ClassicAssert.IsTrue(doubleCellValue.IsNumber);
+            ClassicAssert.AreEqual(14.5d, doubleCellValue.GetNumber());
         }
         {
             decimal decimalNumber = 15.75m;
             XLCellValue decimalCellValue = decimalNumber;
-            Assert.IsTrue(decimalCellValue.IsNumber);
-            Assert.AreEqual(15.75d, decimalCellValue.GetNumber());
+            ClassicAssert.IsTrue(decimalCellValue.IsNumber);
+            ClassicAssert.AreEqual(15.75d, decimalCellValue.GetNumber());
         }
     }
 
@@ -213,68 +219,68 @@ public class XlCellValueTests
         {
             sbyte? sbyteNull = null;
             XLCellValue sbyteCellValue = sbyteNull;
-            Assert.IsFalse(sbyteCellValue.IsNumber);
-            Assert.IsTrue(sbyteCellValue.IsBlank);
+            ClassicAssert.IsFalse(sbyteCellValue.IsNumber);
+            ClassicAssert.IsTrue(sbyteCellValue.IsBlank);
         }
         {
             byte? byteNull = null;
             XLCellValue byteCellValue = byteNull;
-            Assert.IsFalse(byteCellValue.IsNumber);
-            Assert.IsTrue(byteCellValue.IsBlank);
+            ClassicAssert.IsFalse(byteCellValue.IsNumber);
+            ClassicAssert.IsTrue(byteCellValue.IsBlank);
         }
         {
             short? shortNull = null;
             XLCellValue shortCellValue = shortNull;
-            Assert.IsFalse(shortCellValue.IsNumber);
-            Assert.IsTrue(shortCellValue.IsBlank);
+            ClassicAssert.IsFalse(shortCellValue.IsNumber);
+            ClassicAssert.IsTrue(shortCellValue.IsBlank);
         }
         {
             ushort? ushortNull = null;
             XLCellValue ushortCellValue = ushortNull;
-            Assert.IsFalse(ushortCellValue.IsNumber);
-            Assert.IsTrue(ushortCellValue.IsBlank);
+            ClassicAssert.IsFalse(ushortCellValue.IsNumber);
+            ClassicAssert.IsTrue(ushortCellValue.IsBlank);
         }
         {
             int? intNull = null;
             XLCellValue intCellValue = intNull;
-            Assert.IsFalse(intCellValue.IsNumber);
-            Assert.IsTrue(intCellValue.IsBlank);
+            ClassicAssert.IsFalse(intCellValue.IsNumber);
+            ClassicAssert.IsTrue(intCellValue.IsBlank);
         }
         {
             uint? uintNull = null;
             XLCellValue uintCellValue = uintNull;
-            Assert.IsFalse(uintCellValue.IsNumber);
-            Assert.IsTrue(uintCellValue.IsBlank);
+            ClassicAssert.IsFalse(uintCellValue.IsNumber);
+            ClassicAssert.IsTrue(uintCellValue.IsBlank);
         }
         {
             long? longNull = null;
             XLCellValue longCellValue = longNull;
-            Assert.IsFalse(longCellValue.IsNumber);
-            Assert.IsTrue(longCellValue.IsBlank);
+            ClassicAssert.IsFalse(longCellValue.IsNumber);
+            ClassicAssert.IsTrue(longCellValue.IsBlank);
         }
         {
             ulong? ulongNull = null;
             XLCellValue ulongCellValue = ulongNull;
-            Assert.IsFalse(ulongCellValue.IsNumber);
-            Assert.IsTrue(ulongCellValue.IsBlank);
+            ClassicAssert.IsFalse(ulongCellValue.IsNumber);
+            ClassicAssert.IsTrue(ulongCellValue.IsBlank);
         }
         {
             float? floatValue = null;
             XLCellValue floatCellValue = floatValue;
-            Assert.IsFalse(floatCellValue.IsNumber);
-            Assert.IsTrue(floatCellValue.IsBlank);
+            ClassicAssert.IsFalse(floatCellValue.IsNumber);
+            ClassicAssert.IsTrue(floatCellValue.IsBlank);
         }
         {
             double? doubleValue = null;
             XLCellValue doubleCellValue = doubleValue;
-            Assert.IsFalse(doubleCellValue.IsNumber);
-            Assert.IsTrue(doubleCellValue.IsBlank);
+            ClassicAssert.IsFalse(doubleCellValue.IsNumber);
+            ClassicAssert.IsTrue(doubleCellValue.IsBlank);
         }
         {
             decimal? decimalValue = null;
             XLCellValue decimalCellValue = decimalValue;
-            Assert.IsFalse(decimalCellValue.IsNumber);
-            Assert.IsTrue(decimalCellValue.IsBlank);
+            ClassicAssert.IsFalse(decimalCellValue.IsNumber);
+            ClassicAssert.IsTrue(decimalCellValue.IsBlank);
         }
     }
 
@@ -284,68 +290,68 @@ public class XlCellValueTests
         {
             sbyte? sbyteNumber = 5;
             XLCellValue sbyteCellValue = sbyteNumber;
-            Assert.IsTrue(sbyteCellValue.IsNumber);
-            Assert.AreEqual(5d, sbyteCellValue.GetNumber());
+            ClassicAssert.IsTrue(sbyteCellValue.IsNumber);
+            ClassicAssert.AreEqual(5d, sbyteCellValue.GetNumber());
         }
         {
             byte? byteNumber = 6;
             XLCellValue byteCellValue = byteNumber;
-            Assert.IsTrue(byteCellValue.IsNumber);
-            Assert.AreEqual(6d, byteCellValue.GetNumber());
+            ClassicAssert.IsTrue(byteCellValue.IsNumber);
+            ClassicAssert.AreEqual(6d, byteCellValue.GetNumber());
         }
         {
             short? shortNumber = 7;
             XLCellValue shortCellValue = shortNumber;
-            Assert.IsTrue(shortCellValue.IsNumber);
-            Assert.AreEqual(7d, shortCellValue.GetNumber());
+            ClassicAssert.IsTrue(shortCellValue.IsNumber);
+            ClassicAssert.AreEqual(7d, shortCellValue.GetNumber());
         }
         {
             ushort? ushortNumber = 8;
             XLCellValue ushortCellValue = ushortNumber;
-            Assert.IsTrue(ushortCellValue.IsNumber);
-            Assert.AreEqual(8d, ushortCellValue.GetNumber());
+            ClassicAssert.IsTrue(ushortCellValue.IsNumber);
+            ClassicAssert.AreEqual(8d, ushortCellValue.GetNumber());
         }
         {
             int? intNumber = 9;
             XLCellValue intCellValue = intNumber;
-            Assert.IsTrue(intCellValue.IsNumber);
-            Assert.AreEqual(9d, intCellValue.GetNumber());
+            ClassicAssert.IsTrue(intCellValue.IsNumber);
+            ClassicAssert.AreEqual(9d, intCellValue.GetNumber());
         }
         {
             uint? uintNumber = 9;
             XLCellValue uintCellValue = uintNumber;
-            Assert.IsTrue(uintCellValue.IsNumber);
-            Assert.AreEqual(9d, uintCellValue.GetNumber());
+            ClassicAssert.IsTrue(uintCellValue.IsNumber);
+            ClassicAssert.AreEqual(9d, uintCellValue.GetNumber());
         }
         {
             long? longNumber = 10;
             XLCellValue longCellValue = longNumber;
-            Assert.IsTrue(longCellValue.IsNumber);
-            Assert.AreEqual(10d, longCellValue.GetNumber());
+            ClassicAssert.IsTrue(longCellValue.IsNumber);
+            ClassicAssert.AreEqual(10d, longCellValue.GetNumber());
         }
         {
             ulong? ulongNumber = 11;
             XLCellValue ulongCellValue = ulongNumber;
-            Assert.IsTrue(ulongCellValue.IsNumber);
-            Assert.AreEqual(11d, ulongCellValue.GetNumber());
+            ClassicAssert.IsTrue(ulongCellValue.IsNumber);
+            ClassicAssert.AreEqual(11d, ulongCellValue.GetNumber());
         }
         {
             float? floatNumber = 12.875f;
             XLCellValue floatCellValue = floatNumber;
-            Assert.IsTrue(floatCellValue.IsNumber);
-            Assert.AreEqual(12.875d, floatCellValue.GetNumber());
+            ClassicAssert.IsTrue(floatCellValue.IsNumber);
+            ClassicAssert.AreEqual(12.875d, floatCellValue.GetNumber());
         }
         {
             double? doubleNumber = 13.875d;
             XLCellValue doubleCellValue = doubleNumber;
-            Assert.IsTrue(doubleCellValue.IsNumber);
-            Assert.AreEqual(13.875d, doubleCellValue.GetNumber());
+            ClassicAssert.IsTrue(doubleCellValue.IsNumber);
+            ClassicAssert.AreEqual(13.875d, doubleCellValue.GetNumber());
         }
         {
             decimal? decimalNumber = 14.875m;
             XLCellValue decimalCellValue = decimalNumber;
-            Assert.IsTrue(decimalCellValue.IsNumber);
-            Assert.AreEqual(14.875d, decimalCellValue.GetNumber());
+            ClassicAssert.IsTrue(decimalCellValue.IsNumber);
+            ClassicAssert.AreEqual(14.875d, decimalCellValue.GetNumber());
         }
     }
 
@@ -355,8 +361,8 @@ public class XlCellValueTests
     {
         DateTime? dateTimeNull = null;
         XLCellValue dateTimeCellValue = dateTimeNull;
-        Assert.IsFalse(dateTimeCellValue.IsDateTime);
-        Assert.IsTrue(dateTimeCellValue.IsBlank);
+        ClassicAssert.IsFalse(dateTimeCellValue.IsDateTime);
+        ClassicAssert.IsTrue(dateTimeCellValue.IsBlank);
     }
 
     [Test]
@@ -364,8 +370,8 @@ public class XlCellValueTests
     {
         DateTime? dateTime = new DateTime(2020, 5, 14, 8, 14, 30);
         XLCellValue dateTimeCellValue = dateTime;
-        Assert.IsTrue(dateTimeCellValue.IsDateTime);
-        Assert.AreEqual(dateTime.Value, dateTimeCellValue.GetDateTime());
+        ClassicAssert.IsTrue(dateTimeCellValue.IsDateTime);
+        ClassicAssert.AreEqual(dateTime.Value, dateTimeCellValue.GetDateTime());
     }
 
     [Test]
@@ -374,8 +380,8 @@ public class XlCellValueTests
     {
         TimeSpan? timeSpanNull = null;
         XLCellValue timeSpanCellValue = timeSpanNull;
-        Assert.IsFalse(timeSpanCellValue.IsTimeSpan);
-        Assert.IsTrue(timeSpanCellValue.IsBlank);
+        ClassicAssert.IsFalse(timeSpanCellValue.IsTimeSpan);
+        ClassicAssert.IsTrue(timeSpanCellValue.IsBlank);
     }
 
     [Test]
@@ -383,113 +389,114 @@ public class XlCellValueTests
     {
         TimeSpan? timeSpan = new TimeSpan(48, 12, 45, 30);
         XLCellValue timeSpanCellValue = timeSpan;
-        Assert.IsTrue(timeSpanCellValue.IsTimeSpan);
-        Assert.AreEqual(timeSpan.Value, timeSpanCellValue.GetTimeSpan());
+        ClassicAssert.IsTrue(timeSpanCellValue.IsTimeSpan);
+        ClassicAssert.AreEqual(timeSpan.Value, timeSpanCellValue.GetTimeSpan());
     }
 
     [Test]
     public void UnifiedNumberIsFormOfNumberDateTimeAndTimeSpan()
     {
         XLCellValue value = Blank.Value;
-        Assert.False(value.IsUnifiedNumber);
+        ClassicAssert.False(value.IsUnifiedNumber);
 
         value = true;
-        Assert.False(value.IsUnifiedNumber);
+        ClassicAssert.False(value.IsUnifiedNumber);
 
         value = 14;
-        Assert.True(value.IsUnifiedNumber);
-        Assert.AreEqual(14.0, value.GetUnifiedNumber());
+        ClassicAssert.True(value.IsUnifiedNumber);
+        ClassicAssert.AreEqual(14.0, value.GetUnifiedNumber());
 
         value = new DateTime(1900, 1, 1);
-        Assert.True(value.IsUnifiedNumber);
-        Assert.AreEqual(1.0, value.GetUnifiedNumber());
+        ClassicAssert.True(value.IsUnifiedNumber);
+        ClassicAssert.AreEqual(1.0, value.GetUnifiedNumber());
 
         value = new TimeSpan(2, 12, 0, 0);
-        Assert.True(value.IsUnifiedNumber);
-        Assert.AreEqual(2.5, value.GetUnifiedNumber());
+        ClassicAssert.True(value.IsUnifiedNumber);
+        ClassicAssert.AreEqual(2.5, value.GetUnifiedNumber());
 
         value = "Text";
-        Assert.False(value.IsUnifiedNumber);
+        ClassicAssert.False(value.IsUnifiedNumber);
 
         value = XLError.CellReference;
-        Assert.False(value.IsUnifiedNumber);
-    }
-
-    [TestCase("1900-01-01", 1)]
-    [TestCase("1900-01-02", 2)]
-    [TestCase("1900-02-01", 32)]
-    [TestCase("1900-02-28", 59)] // Excel assumes 1900 was a leap year and 29.1.1900 existed
-    [TestCase("1900-03-01", 61)]
-    [TestCase("2017-01-01", 42736)]
-    public void SerialDateTime(string dateString, double expectedSerial)
-    {
-        XLCellValue date = DateTime.Parse(dateString);
-        Assert.AreEqual(expectedSerial, date.GetUnifiedNumber());
+        ClassicAssert.False(value.IsUnifiedNumber);
     }
 
     [Test]
-    [SetCulture("cs-CZ")]
+    [Arguments("1900-01-01", 1)]
+    [Arguments("1900-01-02", 2)]
+    [Arguments("1900-02-01", 32)]
+    [Arguments("1900-02-28", 59)] // Excel assumes 1900 was a leap year and 29.1.1900 existed
+    [Arguments("1900-03-01", 61)]
+    [Arguments("2017-01-01", 42736)]
+    public void SerialDateTime(string dateString, double expectedSerial)
+    {
+        XLCellValue date = DateTime.Parse(dateString);
+        ClassicAssert.AreEqual(expectedSerial, date.GetUnifiedNumber());
+    }
+
+    [Test]
+    [Culture("cs-CZ")]
     public void ToStringRespectsCulture()
     {
         XLCellValue v = Blank.Value;
-        Assert.AreEqual(string.Empty, v.ToString());
+        ClassicAssert.AreEqual(string.Empty, v.ToString());
 
         v = true;
-        Assert.AreEqual("TRUE", v.ToString());
+        ClassicAssert.AreEqual("TRUE", v.ToString());
 
         v = 25.4;
-        Assert.AreEqual("25,4", v.ToString());
+        ClassicAssert.AreEqual("25,4", v.ToString());
 
         v = "Hello";
-        Assert.AreEqual("Hello", v.ToString());
+        ClassicAssert.AreEqual("Hello", v.ToString());
 
         v = XLError.IncompatibleValue;
-        Assert.AreEqual("#VALUE!", v.ToString());
+        ClassicAssert.AreEqual("#VALUE!", v.ToString());
 
         v = new DateTime(1900, 1, 2);
-        Assert.AreEqual("02.01.1900 0:00:00", v.ToString());
+        ClassicAssert.AreEqual("02.01.1900 0:00:00", v.ToString());
 
         v = new DateTime(1900, 3, 1, 4, 10, 5);
-        Assert.AreEqual("01.03.1900 4:10:05", v.ToString());
+        ClassicAssert.AreEqual("01.03.1900 4:10:05", v.ToString());
 
         v = new TimeSpan(4, 5, 6, 7, 82);
-        Assert.AreEqual("101:06:07,082", v.ToString());
+        ClassicAssert.AreEqual("101:06:07,082", v.ToString());
     }
 
     [Test]
     public void TryConvertBlank()
     {
         XLCellValue value = Blank.Value;
-        Assert.True(value.TryConvert(out Blank blank));
-        Assert.AreEqual(Blank.Value, blank);
+        ClassicAssert.True(value.TryConvert(out Blank blank));
+        ClassicAssert.AreEqual(Blank.Value, blank);
 
         value = string.Empty;
-        Assert.True(value.TryConvert(out blank));
-        Assert.AreEqual(Blank.Value, blank);
+        ClassicAssert.True(value.TryConvert(out blank));
+        ClassicAssert.AreEqual(Blank.Value, blank);
     }
 
     [Test]
     public void TryConvertBoolean()
     {
         XLCellValue value = true;
-        Assert.True(value.TryConvert(out bool boolean));
-        Assert.True(boolean);
+        ClassicAssert.True(value.TryConvert(out bool boolean));
+        ClassicAssert.True(boolean);
 
         value = "True";
-        Assert.True(value.TryConvert(out boolean));
-        Assert.True(boolean);
+        ClassicAssert.True(value.TryConvert(out boolean));
+        ClassicAssert.True(boolean);
 
         value = "False";
-        Assert.True(value.TryConvert(out boolean));
-        Assert.False(boolean);
+        ClassicAssert.True(value.TryConvert(out boolean));
+        ClassicAssert.False(boolean);
 
         value = 0;
-        Assert.True(value.TryConvert(out boolean));
-        Assert.False(boolean);
+        ClassicAssert.True(value.TryConvert(out boolean));
+        ClassicAssert.False(boolean);
 
         value = 0.001;
-        Assert.True(value.TryConvert(out boolean));
-        Assert.True(boolean);
+        ClassicAssert.True(value.TryConvert(out boolean));
+        ClassicAssert.True(boolean);
     }
 
     [Test]
@@ -497,56 +504,56 @@ public class XlCellValueTests
     {
         CultureInfo c = CultureInfo.GetCultureInfo("cs-CZ");
         XLCellValue value = 5;
-        Assert.True(value.TryConvert(out double number, c));
-        Assert.AreEqual(5.0, number);
+        ClassicAssert.True(value.TryConvert(out double number, c));
+        ClassicAssert.AreEqual(5.0, number);
 
         value = "1,5";
-        Assert.True(value.TryConvert(out number, c));
-        Assert.AreEqual(1.5, number);
+        ClassicAssert.True(value.TryConvert(out number, c));
+        ClassicAssert.AreEqual(1.5, number);
 
         value = "1 1/4";
-        Assert.True(value.TryConvert(out number, c));
-        Assert.AreEqual(1.25, number);
+        ClassicAssert.True(value.TryConvert(out number, c));
+        ClassicAssert.AreEqual(1.25, number);
 
         value = "3.1.1900";
-        Assert.True(value.TryConvert(out number, c));
-        Assert.AreEqual(3, number);
+        ClassicAssert.True(value.TryConvert(out number, c));
+        ClassicAssert.AreEqual(3, number);
 
         value = true;
-        Assert.True(value.TryConvert(out number, c));
-        Assert.AreEqual(1.0, number);
+        ClassicAssert.True(value.TryConvert(out number, c));
+        ClassicAssert.AreEqual(1.0, number);
 
         value = false;
-        Assert.True(value.TryConvert(out number, c));
-        Assert.AreEqual(0.0, number);
+        ClassicAssert.True(value.TryConvert(out number, c));
+        ClassicAssert.AreEqual(0.0, number);
 
         value = new DateTime(2020, 4, 5, 10, 14, 5);
-        Assert.True(value.TryConvert(out number, c));
-        Assert.AreEqual(43926.42644675926, number);
+        ClassicAssert.True(value.TryConvert(out number, c));
+        ClassicAssert.AreEqual(43926.42644675926, number);
 
         value = new TimeSpan(18, 0, 0);
-        Assert.True(value.TryConvert(out number, c));
-        Assert.AreEqual(0.75, number);
+        ClassicAssert.True(value.TryConvert(out number, c));
+        ClassicAssert.AreEqual(0.75, number);
     }
 
     [Test]
     public void TryConvertDateTime()
     {
         XLCellValue v = new DateTime(2020, 1, 1);
-        Assert.True(v.TryConvert(out DateTime dt));
-        Assert.AreEqual(new DateTime(2020, 1, 1), dt);
+        ClassicAssert.True(v.TryConvert(out DateTime dt));
+        ClassicAssert.AreEqual(new DateTime(2020, 1, 1), dt);
 
         int lastSerialDate = 2958465;
         v = lastSerialDate;
-        Assert.True(v.TryConvert(out dt));
-        Assert.AreEqual(new DateTime(9999, 12, 31), dt);
+        ClassicAssert.True(v.TryConvert(out dt));
+        ClassicAssert.AreEqual(new DateTime(9999, 12, 31), dt);
 
         v = lastSerialDate + 1;
-        Assert.False(v.TryConvert(out dt));
+        ClassicAssert.False(v.TryConvert(out dt));
 
         v = new TimeSpan(14, 0, 0, 0);
-        Assert.True(v.TryConvert(out dt));
-        Assert.AreEqual(new DateTime(1900, 1, 14), dt);
+        ClassicAssert.True(v.TryConvert(out dt));
+        ClassicAssert.AreEqual(new DateTime(1900, 1, 14), dt);
     }
 
     [Test]
@@ -554,31 +561,33 @@ public class XlCellValueTests
     {
         CultureInfo c = CultureInfo.GetCultureInfo("cs-CZ");
         XLCellValue v = new TimeSpan(10, 15, 30);
-        Assert.True(v.TryConvert(out TimeSpan ts, c));
-        Assert.AreEqual(new TimeSpan(10, 15, 30), ts);
+        ClassicAssert.True(v.TryConvert(out TimeSpan ts, c));
+        ClassicAssert.AreEqual(new TimeSpan(10, 15, 30), ts);
 
         v = "26:15:30,5";
-        Assert.True(v.TryConvert(out ts, c));
-        Assert.AreEqual(new TimeSpan(1, 2, 15, 30, 500), ts);
+        ClassicAssert.True(v.TryConvert(out ts, c));
+        ClassicAssert.AreEqual(new TimeSpan(1, 2, 15, 30, 500), ts);
 
         v = 0.75;
-        Assert.True(v.TryConvert(out ts, c));
-        Assert.AreEqual(new TimeSpan(18, 0, 0), ts);
+        ClassicAssert.True(v.TryConvert(out ts, c));
+        ClassicAssert.AreEqual(new TimeSpan(18, 0, 0), ts);
     }
 
-    [TestCase(1)]
-    [TestCase(10)] // microsecond
-    [TestCase(3000000001)] // 5 min 1 tick
+    [Test]
+    [Arguments(1)]
+    [Arguments(10)] // microsecond
+    [Arguments(3000000001)] // 5 min 1 tick
     public void TimeSpanCanHaveSubMillisecondPrecision(long ticks)
     {
         TimeSpan subMsTimeSpan = TimeSpan.FromTicks(ticks);
         XLCellValue value = subMsTimeSpan;
-        Assert.AreEqual(subMsTimeSpan, value.GetTimeSpan());
+        ClassicAssert.AreEqual(subMsTimeSpan, value.GetTimeSpan());
     }
 
-    [TestCase(1)]
-    [TestCase(10)] // microsecond
-    [TestCase(3000000001)] // 5 min 1 tick
+    [Test]
+    [Arguments(1)]
+    [Arguments(10)] // microsecond
+    [Arguments(3000000001)] // 5 min 1 tick
     public void TimeSpanWithSubMillisecondPrecisionIsWrittenAndLoadedCorrectly(long ticks)
     {
         // NetFx converts double to string using G15. Core changed it to G17, but XlsxSharp still use G15.
@@ -591,18 +600,19 @@ public class XlCellValueTests
             (_, ws) =>
             {
                 XLCellValue cellValue = ws.Cell("A1").CachedValue;
-                Assert.AreEqual(subMsTimeSpan, cellValue.GetTimeSpan());
+                ClassicAssert.AreEqual(subMsTimeSpan, cellValue.GetTimeSpan());
             }
         );
     }
 
-    [TestCase(long.MaxValue / (double)TimeSpan.TicksPerDay + 0.01)]
-    [TestCase(long.MinValue / (double)TimeSpan.TicksPerDay - 0.01)]
+    [Test]
+    [Arguments(long.MaxValue / (double)TimeSpan.TicksPerDay + 0.01)]
+    [Arguments(long.MinValue / (double)TimeSpan.TicksPerDay - 0.01)]
     public void TimeSpanThrowsWhenNotRepresentable(double serialDateTime)
     {
         XLCellValue value = XLCellValue.FromSerialTimeSpan(serialDateTime);
-        OverflowException ex = Assert.Throws<OverflowException>(() => value.GetTimeSpan())!;
-        Assert.AreEqual(
+        OverflowException ex = ClassicAssert.Throws<OverflowException>(() => value.GetTimeSpan())!;
+        ClassicAssert.AreEqual(
             "The serial date time value is too large to be represented in a TimeSpan.",
             ex.Message
         );

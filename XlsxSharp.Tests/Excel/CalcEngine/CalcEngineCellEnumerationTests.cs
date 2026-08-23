@@ -1,4 +1,3 @@
-﻿using NUnit.Framework;
 using XlsxSharp.Excel;
 
 namespace XlsxSharp.Tests.Excel.CalcEngine;
@@ -16,7 +15,7 @@ public class CalcEngineCellEnumerationTests
             IXLCell cell = sheet1.FirstCell();
             cell.FormulaA1 = "=SUMIFS(Sheet2!B:B, Sheet2!C:C, 1)";
 
-            Assert.AreEqual(0, cell.Value);
+            ClassicAssert.AreEqual(0, cell.Value);
         }
     }
 }

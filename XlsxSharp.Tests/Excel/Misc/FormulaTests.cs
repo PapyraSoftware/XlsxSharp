@@ -1,12 +1,10 @@
 using System;
 using System.Linq;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.CalcEngine;
 
 namespace XlsxSharp.Tests.Excel.Misc;
 
-[TestFixture]
 public class FormulaTests
 {
     [Test]
@@ -16,7 +14,7 @@ public class FormulaTests
         IXLWorksheet ws = wb.Worksheets.Add("Sheet1");
         ws.Cell("A1").FormulaA1 = "B1";
         ws.Cell("A1").CopyTo("A2");
-        Assert.AreEqual("B2", ws.Cell("A2").FormulaA1);
+        ClassicAssert.AreEqual("B2", ws.Cell("A2").FormulaA1);
     }
 
     [Test]
@@ -28,15 +26,15 @@ public class FormulaTests
 
             ws.Cell("A1").FormulaA1 = "A2-1";
             ws.Cell("A1").CopyTo("B1");
-            Assert.AreEqual("R[1]C-1", ws.Cell("A1").FormulaR1C1);
-            Assert.AreEqual("R[1]C-1", ws.Cell("B1").FormulaR1C1);
-            Assert.AreEqual("B2-1", ws.Cell("B1").FormulaA1);
+            ClassicAssert.AreEqual("R[1]C-1", ws.Cell("A1").FormulaR1C1);
+            ClassicAssert.AreEqual("R[1]C-1", ws.Cell("B1").FormulaR1C1);
+            ClassicAssert.AreEqual("B2-1", ws.Cell("B1").FormulaA1);
 
             ws.Cell("A1").FormulaA1 = "B1+1";
             ws.Cell("A1").CopyTo("A2");
-            Assert.AreEqual("RC[1]+1", ws.Cell("A1").FormulaR1C1);
-            Assert.AreEqual("RC[1]+1", ws.Cell("A2").FormulaR1C1);
-            Assert.AreEqual("B2+1", ws.Cell("A2").FormulaA1);
+            ClassicAssert.AreEqual("RC[1]+1", ws.Cell("A1").FormulaR1C1);
+            ClassicAssert.AreEqual("RC[1]+1", ws.Cell("A2").FormulaR1C1);
+            ClassicAssert.AreEqual("B2+1", ws.Cell("A2").FormulaA1);
         }
     }
 
@@ -51,16 +49,16 @@ public class FormulaTests
 
             ws = wb.Worksheets.Add("Summary");
             ws.Cell("A1").FormulaA1 = "='S10 Data'!A1";
-            Assert.AreEqual("Some value", ws.Cell("A1").Value);
+            ClassicAssert.AreEqual("Some value", ws.Cell("A1").Value);
 
             ws.Cell("A1").CopyTo("A2");
-            Assert.AreEqual("'S10 Data'!A2", ws.Cell("A2").FormulaA1);
+            ClassicAssert.AreEqual("'S10 Data'!A2", ws.Cell("A2").FormulaA1);
 
             ws.Cell("A1").CopyTo("B1");
-            Assert.AreEqual("'S10 Data'!B1", ws.Cell("B1").FormulaA1);
+            ClassicAssert.AreEqual("'S10 Data'!B1", ws.Cell("B1").FormulaA1);
 
             ws.Cell("A3").FormulaA1 = "=SUM('S10 Data'!A2)";
-            Assert.AreEqual(123, ws.Cell("A3").Value);
+            ClassicAssert.AreEqual(123, ws.Cell("A3").Value);
         }
     }
 
@@ -74,17 +72,17 @@ public class FormulaTests
             ws.Cell("A1").InsertData(Enumerable.Range(1, 50));
             ws.Cell("B1").FormulaA1 = "=SUM(A1:A50)";
             value = ws.Cell("B1").Value;
-            Assert.AreEqual(1275, value);
+            ClassicAssert.AreEqual(1275, value);
 
             ws = wb.AddWorksheet("Sheet2");
 
             ws.Cell("A1").FormulaA1 = "=SUM(Sheet1!A1:Sheet1!A50)";
             value = ws.Cell("A1").Value;
-            Assert.AreEqual(1275, value);
+            ClassicAssert.AreEqual(1275, value);
 
             ws.Cell("B1").FormulaA1 = "=SUM(Sheet1!A1:A50)";
             value = ws.Cell("B1").Value;
-            Assert.AreEqual(1275, value);
+            ClassicAssert.AreEqual(1275, value);
         }
     }
 
@@ -98,10 +96,10 @@ public class FormulaTests
             ws = wb.AddWorksheet("Sheet2");
 
             ws.Cell("A1").FormulaA1 = "=SUM(Sheet1!A1:Sheet2!A50)";
-            Assert.AreEqual(XLError.IncompatibleValue, ws.Cell("A1").Value);
+            ClassicAssert.AreEqual(XLError.IncompatibleValue, ws.Cell("A1").Value);
 
             ws.Cell("B1").FormulaA1 = "=SUM(UnknownSheet!A50)";
-            Assert.AreEqual(XLError.CellReference, ws.Cell("B1").Value);
+            ClassicAssert.AreEqual(XLError.CellReference, ws.Cell("B1").Value);
         }
     }
 
@@ -115,11 +113,11 @@ public class FormulaTests
 
             ws.Cell("A2").FormulaA1 = @"=IF(A1 = """", ""A"", ""B"")";
             XLCellValue actual = ws.Cell("A2").Value;
-            Assert.AreEqual(actual, "B");
+            ClassicAssert.AreEqual(actual, "B");
 
             ws.Cell("A3").FormulaA1 = @"=IF("""" = A1, ""A"", ""B"")";
             actual = ws.Cell("A3").Value;
-            Assert.AreEqual(actual, "B");
+            ClassicAssert.AreEqual(actual, "B");
         }
     }
 
@@ -136,7 +134,7 @@ public class FormulaTests
             ws.FirstCell().CellBelow().FormulaA1 = "=SUM(1:1)";
 
             XLCellValue actual = ws.FirstCell().CellBelow().Value;
-            Assert.AreEqual(6, actual);
+            ClassicAssert.AreEqual(6, actual);
         }
     }
 
@@ -153,7 +151,7 @@ public class FormulaTests
             ws.FirstCell().CellRight().FormulaA1 = "=SUM(A:A)";
 
             XLCellValue actual = ws.FirstCell().CellRight().Value;
-            Assert.AreEqual(6, actual);
+            ClassicAssert.AreEqual(6, actual);
         }
     }
 
@@ -162,16 +160,16 @@ public class FormulaTests
     {
         object actual;
         actual = XLWorkbook.EvaluateExpr("=MID(\"This is a test\", 6, 2)");
-        Assert.AreEqual("is", actual);
+        ClassicAssert.AreEqual("is", actual);
 
         actual = XLWorkbook.EvaluateExpr("=+MID(\"This is a test\", 6, 2)");
-        Assert.AreEqual("is", actual);
+        ClassicAssert.AreEqual("is", actual);
 
         actual = XLWorkbook.EvaluateExpr("=+++++MID(\"This is a test\", 6, 2)");
-        Assert.AreEqual("is", actual);
+        ClassicAssert.AreEqual("is", actual);
 
         actual = XLWorkbook.EvaluateExpr("+MID(\"This is a test\", 6, 2)");
-        Assert.AreEqual("is", actual);
+        ClassicAssert.AreEqual("is", actual);
     }
 
     [Test]
@@ -181,24 +179,27 @@ public class FormulaTests
         XLCellValue actual = XLWorkbook.EvaluateExpr(
             "RTD(\"MyRTDServerProdID\",\"MyServer\",\"RaceNum\",\"RunnerID\",\"StatType\")"
         );
-        Assert.AreEqual(XLError.NameNotRecognized, actual);
+        ClassicAssert.AreEqual(XLError.NameNotRecognized, actual);
     }
 
     [Test]
     public void FormulasWithErrors()
     {
-        Assert.AreEqual(XLError.CellReference, XLWorkbook.EvaluateExpr("YEAR(#REF!)"));
-        Assert.AreEqual(XLError.IncompatibleValue, XLWorkbook.EvaluateExpr("YEAR(#VALUE!)"));
-        Assert.AreEqual(XLError.DivisionByZero, XLWorkbook.EvaluateExpr("YEAR(#DIV/0!)"));
-        Assert.AreEqual(XLError.NameNotRecognized, XLWorkbook.EvaluateExpr("YEAR(#NAME?)"));
-        Assert.AreEqual(XLError.NoValueAvailable, XLWorkbook.EvaluateExpr("YEAR(#N/A)"));
-        Assert.AreEqual(XLError.NullValue, XLWorkbook.EvaluateExpr("YEAR(#NULL!)"));
-        Assert.AreEqual(XLError.NumberInvalid, XLWorkbook.EvaluateExpr("YEAR(#NUM!)"));
+        ClassicAssert.AreEqual(XLError.CellReference, XLWorkbook.EvaluateExpr("YEAR(#REF!)"));
+        ClassicAssert.AreEqual(XLError.IncompatibleValue, XLWorkbook.EvaluateExpr("YEAR(#VALUE!)"));
+        ClassicAssert.AreEqual(XLError.DivisionByZero, XLWorkbook.EvaluateExpr("YEAR(#DIV/0!)"));
+        ClassicAssert.AreEqual(XLError.NameNotRecognized, XLWorkbook.EvaluateExpr("YEAR(#NAME?)"));
+        ClassicAssert.AreEqual(XLError.NoValueAvailable, XLWorkbook.EvaluateExpr("YEAR(#N/A)"));
+        ClassicAssert.AreEqual(XLError.NullValue, XLWorkbook.EvaluateExpr("YEAR(#NULL!)"));
+        ClassicAssert.AreEqual(XLError.NumberInvalid, XLWorkbook.EvaluateExpr("YEAR(#NUM!)"));
     }
 
     [Test]
     public void LegacyFunctionPropagateErrorWithoutException() =>
-        Assert.AreEqual(XLError.NameNotRecognized, XLWorkbook.EvaluateExpr("SIN(YEAR(#NAME?))+1"));
+        ClassicAssert.AreEqual(
+            XLError.NameNotRecognized,
+            XLWorkbook.EvaluateExpr("SIN(YEAR(#NAME?))+1")
+        );
 
     [Test]
     public void UnicodeLetterParsing()
@@ -215,12 +216,12 @@ public class FormulaTests
             ws3.FirstCell().FormulaA1 = "='Sheet C CÄ'!A1";
             ws3.FirstCell().CellBelow().FormulaA1 = "ÖC!A1";
 
-            Assert.AreEqual(100, ws3.FirstCell().Value);
-            Assert.AreEqual(50, ws3.FirstCell().CellBelow().Value);
+            ClassicAssert.AreEqual(100, ws3.FirstCell().Value);
+            ClassicAssert.AreEqual(50, ws3.FirstCell().CellBelow().Value);
         }
     }
 
-    [Test, Ignore("Shifting formulas is done by regexp that breaks array formula.")]
+    [Test, Skip("Shifting formulas is done by regexp that breaks array formula.")]
     public void ShiftFormula()
     {
         using (XLWorkbook wb = new())
@@ -232,10 +233,10 @@ public class FormulaTests
 
             ws.Column(1).Delete();
 
-            Assert.AreEqual("ATAN2(B1,B2)", ws.Cell("A1").FormulaA1);
-            Assert.AreEqual("DEC2HEX(B2)", ws.Cell("A2").FormulaA1);
-            Assert.True(ws.Cell("A3").HasArrayFormula);
-            Assert.AreEqual("DAYS360(B3:B5, C3:C5)", ws.Cell("A3").FormulaA1);
+            ClassicAssert.AreEqual("ATAN2(B1,B2)", ws.Cell("A1").FormulaA1);
+            ClassicAssert.AreEqual("DEC2HEX(B2)", ws.Cell("A2").FormulaA1);
+            ClassicAssert.True(ws.Cell("A3").HasArrayFormula);
+            ClassicAssert.AreEqual("DAYS360(B3:B5, C3:C5)", ws.Cell("A3").FormulaA1);
         }
     }
 }

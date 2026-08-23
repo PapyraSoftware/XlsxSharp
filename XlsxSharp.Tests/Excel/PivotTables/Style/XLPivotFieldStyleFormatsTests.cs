@@ -1,4 +1,3 @@
-﻿using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.PivotValues;
 
@@ -40,8 +39,9 @@ internal class XlPivotFieldStyleFormatsTests
             @"Other\PivotTable\Style\Modify_pivot_field_label_style.xlsx"
         );
 
-    [TestCase(XLPivotLayout.Compact, "Set_pivot_field_header_style-compact.xlsx")]
-    [TestCase(XLPivotLayout.Tabular, "Set_pivot_field_header_style-tabular.xlsx")]
+    [Test]
+    [Arguments(XLPivotLayout.Compact, "Set_pivot_field_header_style-compact.xlsx")]
+    [Arguments(XLPivotLayout.Tabular, "Set_pivot_field_header_style-tabular.xlsx")]
     public void Set_pivot_field_header_style(XLPivotLayout layout, string testFile) =>
         // Header in compact is only one cell, whereas tabular has individual header for each field
         // on axis. Tested axis contains two fields to check that even when there is only one header,

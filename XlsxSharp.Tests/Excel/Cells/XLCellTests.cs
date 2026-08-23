@@ -6,13 +6,11 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.CalcEngine;
 
 namespace XlsxSharp.Tests.Excel.Cells;
 
-[TestFixture]
 public class XlCellTests
 {
     [SuppressMessage("ReSharper", "RedundantCast")]
@@ -38,7 +36,7 @@ public class XlCellTests
         ws.Cell(1, 1);
         ws.Cell(2, 2);
         int count = ws.Range("A1:B2").CellsUsed().Count();
-        Assert.AreEqual(0, count);
+        ClassicAssert.AreEqual(0, count);
     }
 
     [Test]
@@ -50,7 +48,7 @@ public class XlCellTests
         ws.Column(3).Style.Fill.BackgroundColor = XLColor.Blue;
         ws.Cell(2, 2).Value = "ASDF";
         string? range = ws.RangeUsed(XLCellsUsedOptions.All).RangeAddress.ToString();
-        Assert.AreEqual("B2:C3", range);
+        ClassicAssert.AreEqual("B2:C3", range);
     }
 
     [Test]
@@ -62,7 +60,7 @@ public class XlCellTests
         ws.Column(2).Style.Fill.BackgroundColor = XLColor.Blue;
         ws.Cell(3, 3).Value = "ASDF";
         string? range = ws.RangeUsed(XLCellsUsedOptions.All).RangeAddress.ToString();
-        Assert.AreEqual("B2:C3", range);
+        ClassicAssert.AreEqual("B2:C3", range);
     }
 
     [Test]
@@ -70,7 +68,7 @@ public class XlCellTests
     {
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         IXLRange? range = ws.RangeUsed(XLCellsUsedOptions.All);
-        Assert.AreEqual(null, range);
+        ClassicAssert.AreEqual(null, range);
     }
 
     [Test]
@@ -82,7 +80,7 @@ public class XlCellTests
         ws.SparklineGroups.Add("F5", "C4:E4");
 
         string? range = ws.RangeUsed(XLCellsUsedOptions.All).RangeAddress.ToString();
-        Assert.AreEqual("B2:F5", range);
+        ClassicAssert.AreEqual("B2:F5", range);
     }
 
     [Test]
@@ -90,11 +88,11 @@ public class XlCellTests
     {
         IXLCell cell = new XLWorkbook().AddWorksheet().FirstCell();
 
-        Assert.IsNull(cell.Clear().GetValue<double?>());
-        Assert.AreEqual(1.5, cell.SetValue(1.5).GetValue<double?>());
-        Assert.AreEqual(2, cell.SetValue(2).GetValue<int?>());
-        Assert.IsNull(cell.SetValue(Blank.Value).GetValue<double?>());
-        Assert.Throws<InvalidCastException>(() => cell.SetValue("text").GetValue<double?>());
+        ClassicAssert.IsNull(cell.Clear().GetValue<double?>());
+        ClassicAssert.AreEqual(1.5, cell.SetValue(1.5).GetValue<double?>());
+        ClassicAssert.AreEqual(2, cell.SetValue(2).GetValue<int?>());
+        ClassicAssert.IsNull(cell.SetValue(Blank.Value).GetValue<double?>());
+        ClassicAssert.Throws<InvalidCastException>(() => cell.SetValue("text").GetValue<double?>());
     }
 
     [Test]
@@ -102,7 +100,7 @@ public class XlCellTests
     {
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         IXLRange range = ws.Cell(2, 2).InsertData(new[] { "a", "b", "c" });
-        Assert.AreEqual("Sheet1!B2:B4", range.ToString());
+        ClassicAssert.AreEqual("Sheet1!B2:B4", range.ToString());
     }
 
     [Test]
@@ -110,7 +108,7 @@ public class XlCellTests
     {
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         IXLRange range = ws.Cell(2, 2).InsertData(new[] { "a", "b", "c" }, false);
-        Assert.AreEqual("Sheet1!B2:B4", range.ToString());
+        ClassicAssert.AreEqual("Sheet1!B2:B4", range.ToString());
     }
 
     [Test]
@@ -118,7 +116,7 @@ public class XlCellTests
     {
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         IXLRange range = ws.Cell(2, 2).InsertData(new[] { "a", "b", "c" }, true);
-        Assert.AreEqual("Sheet1!B2:D2", range.ToString());
+        ClassicAssert.AreEqual("Sheet1!B2:D2", range.ToString());
     }
 
     [Test]
@@ -130,12 +128,12 @@ public class XlCellTests
 
         ws.FirstCell().InsertData(values);
 
-        Assert.AreEqual("Text", ws.FirstCell().GetString());
-        Assert.AreEqual(45, ws.Cell("A2").GetDouble());
-        Assert.AreEqual(DateTime.Today, ws.Cell("A3").GetDateTime());
-        Assert.AreEqual(true, ws.Cell("A4").GetBoolean());
-        Assert.AreEqual("More text", ws.Cell("A5").GetString());
-        Assert.IsTrue(ws.Cell("A6").IsEmpty());
+        ClassicAssert.AreEqual("Text", ws.FirstCell().GetString());
+        ClassicAssert.AreEqual(45, ws.Cell("A2").GetDouble());
+        ClassicAssert.AreEqual(DateTime.Today, ws.Cell("A3").GetDateTime());
+        ClassicAssert.AreEqual(true, ws.Cell("A4").GetBoolean());
+        ClassicAssert.AreEqual("More text", ws.Cell("A5").GetString());
+        ClassicAssert.IsTrue(ws.Cell("A6").IsEmpty());
     }
 
     [Test]
@@ -145,8 +143,8 @@ public class XlCellTests
         ws.FirstCell()
             .InsertData(Enumerable.Range(1, 20).Select(i => new { Guid = Guid.NewGuid() }));
 
-        Assert.AreEqual(XLDataType.Text, ws.FirstCell().DataType);
-        Assert.AreEqual(Guid.NewGuid().ToString().Length, ws.FirstCell().GetText().Length);
+        ClassicAssert.AreEqual(XLDataType.Text, ws.FirstCell().DataType);
+        ClassicAssert.AreEqual(Guid.NewGuid().ToString().Length, ws.FirstCell().GetText().Length);
     }
 
     [Test]
@@ -169,9 +167,9 @@ public class XlCellTests
 
         ws.FirstCell().InsertData(table);
 
-        Assert.AreEqual(25, ws.Cell("A1").Value);
-        Assert.AreEqual("", ws.Cell("C4").Value);
-        Assert.AreEqual("", ws.Cell("D5").Value);
+        ClassicAssert.AreEqual(25, ws.Cell("A1").Value);
+        ClassicAssert.AreEqual("", ws.Cell("C4").Value);
+        ClassicAssert.AreEqual("", ws.Cell("D5").Value);
     }
 
     [Test]
@@ -190,8 +188,8 @@ public class XlCellTests
 
         ws.FirstCell().InsertData(dateTimeList);
 
-        Assert.AreEqual(new DateTime(2000, 1, 1), ws.Cell("A1").GetDateTime());
-        Assert.AreEqual(Blank.Value, ws.Cell("A5").Value);
+        ClassicAssert.AreEqual(new DateTime(2000, 1, 1), ws.Cell("A1").GetDateTime());
+        ClassicAssert.AreEqual(Blank.Value, ws.Cell("A5").Value);
     }
 
     [Test]
@@ -205,7 +203,7 @@ public class XlCellTests
         {
             object expectedValue = Convert.ChangeType(AllNumberTypes[row - 1], typeof(double));
             XLCellValue actualValue = ws.Cell(row, 1).Value;
-            Assert.AreEqual(expectedValue, actualValue);
+            ClassicAssert.AreEqual(expectedValue, actualValue);
         }
     }
 
@@ -229,7 +227,7 @@ public class XlCellTests
         {
             object expectedValue = Convert.ChangeType(AllNumberTypes[column - 1], typeof(double));
             XLCellValue actualValue = ws.Cell(2, column).Value;
-            Assert.AreEqual(expectedValue, actualValue);
+            ClassicAssert.AreEqual(expectedValue, actualValue);
         }
     }
 
@@ -240,7 +238,7 @@ public class XlCellTests
         IXLCell cell = ws.Cell(1, 1);
         bool actual = cell.IsEmpty();
         bool expected = true;
-        Assert.AreEqual(expected, actual);
+        ClassicAssert.AreEqual(expected, actual);
     }
 
     [Test]
@@ -250,7 +248,7 @@ public class XlCellTests
         IXLCell cell = ws.Cell(1, 1);
         bool actual = cell.IsEmpty(XLCellsUsedOptions.All);
         bool expected = true;
-        Assert.AreEqual(expected, actual);
+        ClassicAssert.AreEqual(expected, actual);
     }
 
     [Test]
@@ -261,7 +259,7 @@ public class XlCellTests
         cell.Style.Fill.BackgroundColor = XLColor.Red;
         bool actual = cell.IsEmpty();
         bool expected = true;
-        Assert.AreEqual(expected, actual);
+        ClassicAssert.AreEqual(expected, actual);
     }
 
     [Test]
@@ -272,7 +270,7 @@ public class XlCellTests
         cell.Style.Fill.BackgroundColor = XLColor.Red;
         bool actual = cell.IsEmpty(XLCellsUsedOptions.AllContents);
         bool expected = true;
-        Assert.AreEqual(expected, actual);
+        ClassicAssert.AreEqual(expected, actual);
     }
 
     [Test]
@@ -283,7 +281,7 @@ public class XlCellTests
         cell.Style.Fill.BackgroundColor = XLColor.Red;
         bool actual = cell.IsEmpty(XLCellsUsedOptions.All);
         bool expected = false;
-        Assert.AreEqual(expected, actual);
+        ClassicAssert.AreEqual(expected, actual);
     }
 
     [Test]
@@ -294,7 +292,7 @@ public class XlCellTests
         cell.Value = "X";
         bool actual = cell.IsEmpty();
         bool expected = false;
-        Assert.AreEqual(expected, actual);
+        ClassicAssert.AreEqual(expected, actual);
     }
 
     [Test]
@@ -304,7 +302,7 @@ public class XlCellTests
         IXLCell cell = ws.Cell("A1");
         cell.Value = "NaN";
 
-        Assert.AreNotEqual(XLDataType.Number, cell.DataType);
+        ClassicAssert.AreNotEqual(XLDataType.Number, cell.DataType);
     }
 
     [Test]
@@ -314,7 +312,7 @@ public class XlCellTests
         IXLCell cell = ws.Cell("A1");
         cell.Value = "Nan";
 
-        Assert.AreNotEqual(XLDataType.Number, cell.DataType);
+        ClassicAssert.AreNotEqual(XLDataType.Number, cell.DataType);
     }
 
     [Test]
@@ -323,7 +321,7 @@ public class XlCellTests
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         IXLCell cell = ws.Cell("A1").SetValue("ABC");
         bool success = cell.TryGetValue(out bool _);
-        Assert.IsFalse(success);
+        ClassicAssert.IsFalse(success);
     }
 
     [Test]
@@ -332,8 +330,8 @@ public class XlCellTests
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         IXLCell cell = ws.Cell("A1").SetValue(false);
         bool success = cell.TryGetValue(out bool outValue);
-        Assert.IsTrue(success);
-        Assert.IsFalse(outValue);
+        ClassicAssert.IsTrue(success);
+        ClassicAssert.IsFalse(outValue);
     }
 
     [Test]
@@ -342,8 +340,8 @@ public class XlCellTests
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         IXLCell cell = ws.Cell("A1").SetValue("False");
         bool success = cell.TryGetValue(out bool outValue);
-        Assert.IsTrue(success);
-        Assert.IsFalse(outValue);
+        ClassicAssert.IsTrue(success);
+        ClassicAssert.IsFalse(outValue);
     }
 
     [Test]
@@ -352,8 +350,8 @@ public class XlCellTests
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         IXLCell cell = ws.Cell("A1").SetValue(true);
         bool success = cell.TryGetValue(out bool outValue);
-        Assert.IsTrue(success);
-        Assert.IsTrue(outValue);
+        ClassicAssert.IsTrue(success);
+        ClassicAssert.IsTrue(outValue);
     }
 
     [Test]
@@ -362,8 +360,8 @@ public class XlCellTests
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         IXLCell cell = ws.Cell("A1").SetValue("True");
         bool success = cell.TryGetValue(out bool outValue);
-        Assert.IsTrue(success);
-        Assert.IsTrue(outValue);
+        ClassicAssert.IsTrue(success);
+        ClassicAssert.IsTrue(outValue);
     }
 
     [Test]
@@ -373,8 +371,8 @@ public class XlCellTests
         bool success = ws.Cell("A1")
             .SetFormulaA1("=TODAY() + 10")
             .TryGetValue(out DateTime outValue);
-        Assert.IsTrue(success);
-        Assert.AreEqual(DateTime.Today.AddDays(10), outValue);
+        ClassicAssert.IsTrue(success);
+        ClassicAssert.AreEqual(DateTime.Today.AddDays(10), outValue);
     }
 
     [Test]
@@ -384,13 +382,13 @@ public class XlCellTests
         bool success = ws.Cell("A1")
             .SetFormulaA1("=\"44\"&\"020\"")
             .TryGetValue(out DateTime outValue);
-        Assert.IsFalse(success);
+        ClassicAssert.IsFalse(success);
 
         ws.Cell("B1").SetFormulaA1("=A1+1");
 
         success = ws.Cell("B1").TryGetValue(out outValue);
-        Assert.IsTrue(success);
-        Assert.AreEqual(new DateTime(2020, 07, 09), outValue);
+        ClassicAssert.IsTrue(success);
+        ClassicAssert.AreEqual(new DateTime(2020, 07, 09), outValue);
     }
 
     [Test]
@@ -399,7 +397,7 @@ public class XlCellTests
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         string date = "ABC";
         bool success = ws.Cell("A1").SetValue(date).TryGetValue(out DateTime _);
-        Assert.IsFalse(success);
+        ClassicAssert.IsFalse(success);
     }
 
     [Test]
@@ -409,35 +407,35 @@ public class XlCellTests
         int serialDateTimeOutsideRange = 5545454;
         ws.FirstCell().SetValue(serialDateTimeOutsideRange);
         bool success = ws.FirstCell().TryGetValue(out DateTime _);
-        Assert.IsFalse(success);
+        ClassicAssert.IsFalse(success);
     }
 
     [Test]
     public void TryGetValueEnumGood()
     {
         IXLWorksheet ws = new XLWorkbook().AddWorksheet();
-        Assert.IsTrue(
+        ClassicAssert.IsTrue(
             ws.FirstCell()
                 .SetValue(nameof(NumberStyles.AllowCurrencySymbol))
                 .TryGetValue(out NumberStyles value)
         );
-        Assert.AreEqual(NumberStyles.AllowCurrencySymbol, value);
+        ClassicAssert.AreEqual(NumberStyles.AllowCurrencySymbol, value);
 
         // Nullable alternative
-        Assert.IsTrue(
+        ClassicAssert.IsTrue(
             ws.FirstCell()
                 .SetValue(nameof(NumberStyles.AllowCurrencySymbol))
                 .TryGetValue(out NumberStyles? value2)
         );
-        Assert.AreEqual(NumberStyles.AllowCurrencySymbol, value2);
+        ClassicAssert.AreEqual(NumberStyles.AllowCurrencySymbol, value2);
     }
 
     [Test]
     public void TryGetValueEnumBadString()
     {
         IXLWorksheet ws = new XLWorkbook().AddWorksheet();
-        Assert.IsFalse(ws.FirstCell().SetValue("ABC").TryGetValue(out NumberStyles _));
-        Assert.IsFalse(ws.FirstCell().SetValue("ABC").TryGetValue(out NumberStyles? _));
+        ClassicAssert.IsFalse(ws.FirstCell().SetValue("ABC").TryGetValue(out NumberStyles _));
+        ClassicAssert.IsFalse(ws.FirstCell().SetValue("ABC").TryGetValue(out NumberStyles? _));
     }
 
     [Test]
@@ -446,7 +444,7 @@ public class XlCellTests
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         string timeSpan = "ABC";
         bool success = ws.Cell("A1").SetValue(timeSpan).TryGetValue(out TimeSpan _);
-        Assert.IsFalse(success);
+        ClassicAssert.IsFalse(success);
     }
 
     [Test]
@@ -455,8 +453,8 @@ public class XlCellTests
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         TimeSpan timeSpan = new(1, 1, 1);
         bool success = ws.Cell("A1").SetValue(timeSpan).TryGetValue(out TimeSpan outValue);
-        Assert.IsTrue(success);
-        Assert.AreEqual(timeSpan, outValue);
+        ClassicAssert.IsTrue(success);
+        ClassicAssert.AreEqual(timeSpan, outValue);
     }
 
     [Test]
@@ -466,8 +464,8 @@ public class XlCellTests
         bool success = ws.Cell("A1")
             .SetValue(0.0034722222222222199)
             .TryGetValue(out TimeSpan outValue);
-        Assert.IsTrue(success);
-        Assert.AreEqual(TimeSpan.FromMinutes(5), outValue);
+        ClassicAssert.IsTrue(success);
+        ClassicAssert.AreEqual(TimeSpan.FromMinutes(5), outValue);
     }
 
     [Test]
@@ -476,18 +474,17 @@ public class XlCellTests
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         TimeSpan timeSpan = TimeSpan.FromMilliseconds((double)int.MaxValue + 1);
         bool success = ws.Cell("A1").SetValue(timeSpan).TryGetValue(out TimeSpan outValue);
-        Assert.IsTrue(success);
-        Assert.AreEqual(timeSpan, outValue);
+        ClassicAssert.IsTrue(success);
+        ClassicAssert.AreEqual(timeSpan, outValue);
     }
 
     [Test]
-    [SetCulture("en-US")]
     public void TryGetValueTimeSpanGoodFromText()
     {
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         bool success = ws.Cell("A1").SetValue("300:14:50.453").TryGetValue(out TimeSpan outValue);
-        Assert.IsTrue(success);
-        Assert.AreEqual(new TimeSpan(12, 12, 14, 50, 453), outValue);
+        ClassicAssert.IsTrue(success);
+        ClassicAssert.AreEqual(new TimeSpan(12, 12, 14, 50, 453), outValue);
     }
 
     [Test]
@@ -496,7 +493,7 @@ public class XlCellTests
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         IXLCell cell = ws.Cell("A1").SetValue("255");
         bool success = cell.TryGetValue(out sbyte _);
-        Assert.IsFalse(success);
+        ClassicAssert.IsFalse(success);
     }
 
     [Test]
@@ -505,8 +502,8 @@ public class XlCellTests
         IXLWorksheet ws = new XLWorkbook().Worksheets.Add("Sheet1");
         IXLCell cell = ws.Cell("A1").SetValue(5);
         bool success = cell.TryGetValue(out sbyte outValue);
-        Assert.IsTrue(success);
-        Assert.AreEqual(5, outValue);
+        ClassicAssert.IsTrue(success);
+        ClassicAssert.AreEqual(5, outValue);
     }
 
     [Test]
@@ -518,15 +515,15 @@ public class XlCellTests
         string outValue;
 
         success = ws.Cell("A1").SetValue("Site_x0020_Column_x0020_Test").TryGetValue(out outValue);
-        Assert.IsTrue(success);
-        Assert.AreEqual("Site Column Test", outValue);
+        ClassicAssert.IsTrue(success);
+        ClassicAssert.AreEqual("Site Column Test", outValue);
 
         success = ws.Cell("A1")
             .SetValue("Site_x005F_x0020_Column_x005F_x0020_Test")
             .TryGetValue(out outValue);
 
-        Assert.IsTrue(success);
-        Assert.AreEqual("Site_x005F_x0020_Column_x005F_x0020_Test", outValue);
+        ClassicAssert.IsTrue(success);
+        ClassicAssert.AreEqual("Site_x005F_x0020_Column_x005F_x0020_Test", outValue);
     }
 
     [Test]
@@ -540,10 +537,10 @@ public class XlCellTests
         ws.Cell("A3").SetValue(2.5.ToString(CultureInfo.CurrentCulture));
         ws.Cell("A4").SetValue("text");
 
-        Assert.IsTrue(ws.Cell("A1").TryGetValue(out double? _));
-        Assert.IsTrue(ws.Cell("A2").TryGetValue(out double? _));
-        Assert.IsTrue(ws.Cell("A3").TryGetValue(out double? _));
-        Assert.IsFalse(ws.Cell("A4").TryGetValue(out double? _));
+        ClassicAssert.IsTrue(ws.Cell("A1").TryGetValue(out double? _));
+        ClassicAssert.IsTrue(ws.Cell("A2").TryGetValue(out double? _));
+        ClassicAssert.IsTrue(ws.Cell("A3").TryGetValue(out double? _));
+        ClassicAssert.IsFalse(ws.Cell("A4").TryGetValue(out double? _));
     }
 
     [Test]
@@ -564,10 +561,10 @@ public class XlCellTests
 
         ws.Cell("B2").CopyFrom(range);
 
-        Assert.AreEqual(2, ws.Cell("B2").Value);
-        Assert.AreEqual(3, ws.Cell("C2").Value);
-        Assert.AreEqual(5, ws.Cell("D2").Value);
-        Assert.AreEqual(7, ws.Cell("E2").Value);
+        ClassicAssert.AreEqual(2, ws.Cell("B2").Value);
+        ClassicAssert.AreEqual(3, ws.Cell("C2").Value);
+        ClassicAssert.AreEqual(5, ws.Cell("D2").Value);
+        ClassicAssert.AreEqual(7, ws.Cell("E2").Value);
     }
 
     [Test]
@@ -579,13 +576,13 @@ public class XlCellTests
         IXLCell cell = ws.Cell(1, 1);
         cell.Value = new DateTime(2000, 1, 2);
         cell.Value = string.Empty;
-        Assert.AreEqual(expected, cell.GetText());
-        Assert.AreEqual(expected, cell.Value);
+        ClassicAssert.AreEqual(expected, cell.GetText());
+        ClassicAssert.AreEqual(expected, cell.Value);
 
         cell.Value = new DateTime(2000, 1, 2);
         cell.SetValue(string.Empty);
-        Assert.AreEqual(expected, cell.GetText());
-        Assert.AreEqual(expected, cell.Value);
+        ClassicAssert.AreEqual(expected, cell.GetText());
+        ClassicAssert.AreEqual(expected, cell.Value);
     }
 
     [Test]
@@ -601,7 +598,7 @@ public class XlCellTests
         DateTime expected = DateTime.Today.AddYears(20);
         cell.Value = expected;
         DateTime actual = (DateTime)cell.Value;
-        Assert.AreEqual(expected, actual);
+        ClassicAssert.AreEqual(expected, actual);
     }
 
     [Test]
@@ -615,10 +612,10 @@ public class XlCellTests
 
             ws.FirstCell().SetValue(new string('A', 32767));
 
-            Assert.Throws<ArgumentOutOfRangeException>(() =>
+            ClassicAssert.Throws<ArgumentOutOfRangeException>(() =>
                 ws.FirstCell().Value = new string('A', 32768)
             );
-            Assert.Throws<ArgumentOutOfRangeException>(() =>
+            ClassicAssert.Throws<ArgumentOutOfRangeException>(() =>
                 ws.FirstCell().SetValue(new string('A', 32768))
             );
         }
@@ -633,11 +630,11 @@ public class XlCellTests
 
             ws.FirstCell().FormulaA1 = "=TODAY()";
             ws.FirstCell().Value = "hello world";
-            Assert.IsFalse(ws.FirstCell().HasFormula);
+            ClassicAssert.IsFalse(ws.FirstCell().HasFormula);
 
             ws.FirstCell().FormulaA1 = "=TODAY()";
             ws.FirstCell().SetValue("hello world");
-            Assert.IsFalse(ws.FirstCell().HasFormula);
+            ClassicAssert.IsFalse(ws.FirstCell().HasFormula);
         }
     }
 
@@ -649,18 +646,18 @@ public class XlCellTests
             IXLWorksheet ws = wb.AddWorksheet("Sheet1");
 
             ws.FirstCell().Value = "hello world";
-            Assert.IsFalse(ws.FirstCell().Style.Alignment.WrapText);
+            ClassicAssert.IsFalse(ws.FirstCell().Style.Alignment.WrapText);
 
             ws.FirstCell().Value = "hello\r\nworld";
-            Assert.IsTrue(ws.FirstCell().Style.Alignment.WrapText);
+            ClassicAssert.IsTrue(ws.FirstCell().Style.Alignment.WrapText);
 
             ws.FirstCell().Style.Alignment.WrapText = false;
 
             ws.FirstCell().SetValue("hello world");
-            Assert.IsFalse(ws.FirstCell().Style.Alignment.WrapText);
+            ClassicAssert.IsFalse(ws.FirstCell().Style.Alignment.WrapText);
 
             ws.FirstCell().SetValue("hello\r\nworld");
-            Assert.IsTrue(ws.FirstCell().Style.Alignment.WrapText);
+            ClassicAssert.IsTrue(ws.FirstCell().Style.Alignment.WrapText);
         }
     }
 
@@ -680,7 +677,7 @@ public class XlCellTests
         using (MemoryStream stream = new(data))
         {
             XLWorkbook wb = new(stream);
-            Assert.AreEqual("\u0018", wb.Worksheets.First().FirstCell().Value);
+            ClassicAssert.AreEqual("\u0018", wb.Worksheets.First().FirstCell().Value);
         }
     }
 
@@ -694,8 +691,8 @@ public class XlCellTests
                 IXLWorksheet ws = wb.AddWorksheet("Sheet1");
                 IXLCell c = ws.FirstCell();
                 c.SetValue(new DateTime(2017, 10, 08));
-                Assert.AreEqual(XLDataType.DateTime, c.DataType);
-                Assert.AreEqual(new DateTime(2017, 10, 08), c.Value);
+                ClassicAssert.AreEqual(XLDataType.DateTime, c.DataType);
+                ClassicAssert.AreEqual(new DateTime(2017, 10, 08), c.Value);
 
                 wb.SaveAs(ms);
             }
@@ -704,8 +701,8 @@ public class XlCellTests
             {
                 IXLWorksheet ws = wb.Worksheets.First();
                 IXLCell c = ws.FirstCell();
-                Assert.AreEqual(XLDataType.DateTime, c.DataType);
-                Assert.AreEqual(new DateTime(2017, 10, 08), c.Value);
+                ClassicAssert.AreEqual(XLDataType.DateTime, c.DataType);
+                ClassicAssert.AreEqual(new DateTime(2017, 10, 08), c.Value);
 
                 c.Clear();
                 wb.Save();
@@ -715,8 +712,8 @@ public class XlCellTests
             {
                 IXLWorksheet ws = wb.Worksheets.First();
                 IXLCell c = ws.FirstCell();
-                Assert.AreEqual(XLDataType.Blank, c.DataType);
-                Assert.True(c.IsEmpty());
+                ClassicAssert.AreEqual(XLDataType.Blank, c.DataType);
+                ClassicAssert.True(c.IsEmpty());
             }
         }
     }
@@ -730,10 +727,10 @@ public class XlCellTests
         ws.Cell("B1").Clear();
         ws.Cell("B2").Clear(XLClearOptions.Sparklines);
 
-        Assert.AreEqual(1, ws.SparklineGroups.Single().Count());
-        Assert.IsFalse(ws.Cell("B1").HasSparkline);
-        Assert.IsFalse(ws.Cell("B2").HasSparkline);
-        Assert.IsTrue(ws.Cell("B3").HasSparkline);
+        ClassicAssert.AreEqual(1, ws.SparklineGroups.Single().Count());
+        ClassicAssert.IsFalse(ws.Cell("B1").HasSparkline);
+        ClassicAssert.IsFalse(ws.Cell("B2").HasSparkline);
+        ClassicAssert.IsTrue(ws.Cell("B3").HasSparkline);
     }
 
     [Test]
@@ -778,66 +775,66 @@ public class XlCellTests
                 .CellRight()
                 .SetValue("x");
 
-            Assert.AreEqual("A10:A10", ws.Cell("A10").CurrentRegion.RangeAddress.ToString());
-            Assert.AreEqual("B5:B5", ws.Cell("B5").CurrentRegion.RangeAddress.ToString());
-            Assert.AreEqual("P1:P1", ws.Cell("P1").CurrentRegion.RangeAddress.ToString());
+            ClassicAssert.AreEqual("A10:A10", ws.Cell("A10").CurrentRegion.RangeAddress.ToString());
+            ClassicAssert.AreEqual("B5:B5", ws.Cell("B5").CurrentRegion.RangeAddress.ToString());
+            ClassicAssert.AreEqual("P1:P1", ws.Cell("P1").CurrentRegion.RangeAddress.ToString());
 
-            Assert.AreEqual("B1:D3", ws.Cell("D3").CurrentRegion.RangeAddress.ToString());
-            Assert.AreEqual("B1:D4", ws.Cell("D4").CurrentRegion.RangeAddress.ToString());
-            Assert.AreEqual("B1:E4", ws.Cell("E4").CurrentRegion.RangeAddress.ToString());
+            ClassicAssert.AreEqual("B1:D3", ws.Cell("D3").CurrentRegion.RangeAddress.ToString());
+            ClassicAssert.AreEqual("B1:D4", ws.Cell("D4").CurrentRegion.RangeAddress.ToString());
+            ClassicAssert.AreEqual("B1:E4", ws.Cell("E4").CurrentRegion.RangeAddress.ToString());
 
             foreach (IXLCell c in ws.Range("B1:D3").Cells())
             {
-                Assert.AreEqual("B1:D3", c.CurrentRegion.RangeAddress.ToString());
+                ClassicAssert.AreEqual("B1:D3", c.CurrentRegion.RangeAddress.ToString());
             }
 
             foreach (IXLCell c in ws.Range("A1:A3").Cells())
             {
-                Assert.AreEqual("A1:D3", c.CurrentRegion.RangeAddress.ToString());
+                ClassicAssert.AreEqual("A1:D3", c.CurrentRegion.RangeAddress.ToString());
             }
 
-            Assert.AreEqual("A1:D4", ws.Cell("A4").CurrentRegion.RangeAddress.ToString());
+            ClassicAssert.AreEqual("A1:D4", ws.Cell("A4").CurrentRegion.RangeAddress.ToString());
 
             foreach (IXLCell c in ws.Range("E1:E3").Cells())
             {
-                Assert.AreEqual("B1:E3", c.CurrentRegion.RangeAddress.ToString());
+                ClassicAssert.AreEqual("B1:E3", c.CurrentRegion.RangeAddress.ToString());
             }
 
-            Assert.AreEqual("B1:E4", ws.Cell("E4").CurrentRegion.RangeAddress.ToString());
+            ClassicAssert.AreEqual("B1:E4", ws.Cell("E4").CurrentRegion.RangeAddress.ToString());
 
             //// SECOND REGION
             foreach (IXLCell c in ws.Range("F1:F4").Cells())
             {
-                Assert.AreEqual("F1:H4", c.CurrentRegion.RangeAddress.ToString());
+                ClassicAssert.AreEqual("F1:H4", c.CurrentRegion.RangeAddress.ToString());
             }
 
-            Assert.AreEqual("F1:H5", ws.Cell("F5").CurrentRegion.RangeAddress.ToString());
+            ClassicAssert.AreEqual("F1:H5", ws.Cell("F5").CurrentRegion.RangeAddress.ToString());
 
             //// DIAGONAL
-            Assert.AreEqual("E8:I12", ws.Cell("E8").CurrentRegion.RangeAddress.ToString());
-            Assert.AreEqual("E8:I12", ws.Cell("F9").CurrentRegion.RangeAddress.ToString());
-            Assert.AreEqual("E8:I12", ws.Cell("G10").CurrentRegion.RangeAddress.ToString());
-            Assert.AreEqual("E8:I12", ws.Cell("H11").CurrentRegion.RangeAddress.ToString());
-            Assert.AreEqual("E8:I12", ws.Cell("I12").CurrentRegion.RangeAddress.ToString());
+            ClassicAssert.AreEqual("E8:I12", ws.Cell("E8").CurrentRegion.RangeAddress.ToString());
+            ClassicAssert.AreEqual("E8:I12", ws.Cell("F9").CurrentRegion.RangeAddress.ToString());
+            ClassicAssert.AreEqual("E8:I12", ws.Cell("G10").CurrentRegion.RangeAddress.ToString());
+            ClassicAssert.AreEqual("E8:I12", ws.Cell("H11").CurrentRegion.RangeAddress.ToString());
+            ClassicAssert.AreEqual("E8:I12", ws.Cell("I12").CurrentRegion.RangeAddress.ToString());
 
-            Assert.AreEqual("E8:I12", ws.Cell("G9").CurrentRegion.RangeAddress.ToString());
-            Assert.AreEqual("E8:I12", ws.Cell("F10").CurrentRegion.RangeAddress.ToString());
+            ClassicAssert.AreEqual("E8:I12", ws.Cell("G9").CurrentRegion.RangeAddress.ToString());
+            ClassicAssert.AreEqual("E8:I12", ws.Cell("F10").CurrentRegion.RangeAddress.ToString());
 
-            Assert.AreEqual("D7:I12", ws.Cell("D7").CurrentRegion.RangeAddress.ToString());
-            Assert.AreEqual("E8:J13", ws.Cell("J13").CurrentRegion.RangeAddress.ToString());
+            ClassicAssert.AreEqual("D7:I12", ws.Cell("D7").CurrentRegion.RangeAddress.ToString());
+            ClassicAssert.AreEqual("E8:J13", ws.Cell("J13").CurrentRegion.RangeAddress.ToString());
 
             // Four corners of a sheet
-            Assert.AreEqual("A1:D3", ws.Cell(1, 1).CurrentRegion.RangeAddress.ToString());
-            Assert.AreEqual(
+            ClassicAssert.AreEqual("A1:D3", ws.Cell(1, 1).CurrentRegion.RangeAddress.ToString());
+            ClassicAssert.AreEqual(
                 "XFD1:XFD1",
                 ws.Cell(1, XLHelper.MaxColumnNumber).CurrentRegion.RangeAddress.ToString()
             );
-            Assert.AreEqual(
+            ClassicAssert.AreEqual(
                 "XFD1048576:XFD1048576",
                 ws.Cell(XLHelper.MaxRowNumber, XLHelper.MaxColumnNumber)
                     .CurrentRegion.RangeAddress.ToString()
             );
-            Assert.AreEqual(
+            ClassicAssert.AreEqual(
                 "A1048576:A1048576",
                 ws.Cell(XLHelper.MaxRowNumber, 1).CurrentRegion.RangeAddress.ToString()
             );
@@ -866,17 +863,17 @@ public class XlCellTests
             XLCellValue b2 = ws.Cell("B2").Value;
             XLCellValue b3 = ws.Cell("B3").Value;
 
-            Assert.AreEqual(Blank.Value, b1);
-            Assert.AreEqual(0, b2);
-            Assert.AreEqual(0, b3);
+            ClassicAssert.AreEqual(Blank.Value, b1);
+            ClassicAssert.AreEqual(0, b2);
+            ClassicAssert.AreEqual(0, b3);
 
             XLCellValue c1 = ws.Cell("C1").Value;
             XLCellValue c2 = ws.Cell("C2").Value;
             XLCellValue c3 = ws.Cell("C3").Value;
 
-            Assert.AreEqual(Blank.Value, c1);
-            Assert.AreEqual(0, c2);
-            Assert.AreEqual(0, c3);
+            ClassicAssert.AreEqual(Blank.Value, c1);
+            ClassicAssert.AreEqual(0, c2);
+            ClassicAssert.AreEqual(0, c3);
         }
     }
 
@@ -891,7 +888,7 @@ public class XlCellTests
 
             cell.FormulaA1 = "B2";
 
-            Assert.AreEqual("R[1]C[1]", cell.FormulaR1C1);
+            ClassicAssert.AreEqual("R[1]C[1]", cell.FormulaR1C1);
         }
     }
 
@@ -906,20 +903,22 @@ public class XlCellTests
 
             cell.FormulaR1C1 = "R[1]C[1]";
 
-            Assert.AreEqual("B2", cell.FormulaA1);
+            ClassicAssert.AreEqual("B2", cell.FormulaA1);
         }
     }
 
-    [TestCase(" = 1 + SUM({ 1; 7})  - A8  ", "1 + SUM({ 1; 7})  - A8")]
+    [Test]
+    [Arguments(" = 1 + SUM({ 1; 7})  - A8  ", "1 + SUM({ 1; 7})  - A8")]
     public void FormulaA1SetterTrimsAndRemovesEqualIfPresent(string formula, string expectedResult)
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
         ws.Cell("A1").FormulaA1 = formula;
-        Assert.AreEqual(expectedResult, ws.Cell("A1").FormulaA1);
+        ClassicAssert.AreEqual(expectedResult, ws.Cell("A1").FormulaA1);
     }
 
-    [TestCase(" =  1 +   R[1]C[7]  ", "1 +   R[1]C[7]")]
+    [Test]
+    [Arguments(" =  1 +   R[1]C[7]  ", "1 +   R[1]C[7]")]
     public void FormulaR1C1SetterTrimsAndRemovesEqualIfPresent(
         string formula,
         string expectedResult
@@ -928,7 +927,7 @@ public class XlCellTests
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
         ws.Cell("A1").FormulaR1C1 = formula;
-        Assert.AreEqual(expectedResult, ws.Cell("A1").FormulaR1C1);
+        ClassicAssert.AreEqual(expectedResult, ws.Cell("A1").FormulaR1C1);
     }
 
     [Test]
@@ -942,14 +941,14 @@ public class XlCellTests
             A1.FormulaA1 = "A2 + 1";
             A2.FormulaA1 = "A1 + 1";
 
-            Assert.Throws(
-                Is.TypeOf<InvalidOperationException>().And.Message.Contains("cycle"),
-                () => _ = A1.Value
+            InvalidOperationException ex1 = ClassicAssert.Throws<InvalidOperationException>(() =>
+                _ = A1.Value
             );
-            Assert.Throws(
-                Is.TypeOf<InvalidOperationException>().And.Message.Contains("cycle"),
-                () => _ = A2.Value
+            StringAssert.Contains("cycle", ex1.Message);
+            InvalidOperationException ex2 = ClassicAssert.Throws<InvalidOperationException>(() =>
+                _ = A2.Value
             );
+            StringAssert.Contains("cycle", ex2.Message);
         }
     }
 
@@ -965,20 +964,20 @@ public class XlCellTests
                 ws.Cell("B1").Value = 2;
                 ws.Cell("B2").FormulaA1 = "=A1+B1";
 
-                Assert.AreEqual(3, ws.Cell("B2").Value);
+                ClassicAssert.AreEqual(3, ws.Cell("B2").Value);
 
                 ws.Range("B2").CopyTo(ws.Range("A2"));
                 string fA2 = ws.Cell("A2").FormulaA1;
 
                 wb.SaveAs(ms);
 
-                Assert.AreEqual("#REF!+A1", fA2);
+                ClassicAssert.AreEqual("#REF!+A1", fA2);
             }
 
             using (XLWorkbook wb2 = new(ms))
             {
                 string fA2 = wb2.Worksheets.First().Cell("A2").FormulaA1;
-                Assert.AreEqual("#REF!+A1", fA2);
+                ClassicAssert.AreEqual("#REF!+A1", fA2);
             }
         }
     }
@@ -988,7 +987,7 @@ public class XlCellTests
     {
         IXLCell cell = new XLWorkbook().Worksheets.Add("Sheet1").FirstCell();
         cell.FormulaA1 = "A1";
-        Assert.Throws<InvalidOperationException>(() =>
+        ClassicAssert.Throws<InvalidOperationException>(() =>
         {
             XLCellValue _ = cell.Value;
         });
@@ -1006,9 +1005,9 @@ public class XlCellTests
             A1.FormulaA1 = "A2 + 1";
             A2.FormulaA1 = "A1 + 1";
 
-            Assert.IsFalse(A1.TryGetValue(out string _));
-            Assert.IsFalse(A2.TryGetValue(out string _));
-            Assert.IsTrue(A3.TryGetValue(out string _));
+            ClassicAssert.IsFalse(A1.TryGetValue(out string _));
+            ClassicAssert.IsFalse(A2.TryGetValue(out string _));
+            ClassicAssert.IsTrue(A3.TryGetValue(out string _));
         }
     }
 
@@ -1019,18 +1018,18 @@ public class XlCellTests
         IXLWorksheet ws = wb.AddWorksheet("Sheet1");
         IXLCell c = ws.FirstCell().CellBelow(2).CellRight(3);
 
-        Assert.AreEqual("D3", c.ToString());
+        ClassicAssert.AreEqual("D3", c.ToString());
     }
 
     [Test]
-    [TestCase("D3", "A")]
-    [TestCase("YEAR(DATE(2018, 1, 1))", "F")]
-    [TestCase("YEAR(DATE(2018, 1, 1))", "f")]
-    [TestCase("0000.00", "NF")]
-    [TestCase("0000.00", "nf")]
-    [TestCase("FFFF0000", "fg")]
-    [TestCase("Color Theme: Accent5, Tint: 0", "BG")]
-    [TestCase("2018.00", "v")]
+    [Arguments("D3", "A")]
+    [Arguments("YEAR(DATE(2018, 1, 1))", "F")]
+    [Arguments("YEAR(DATE(2018, 1, 1))", "f")]
+    [Arguments("0000.00", "NF")]
+    [Arguments("0000.00", "nf")]
+    [Arguments("FFFF0000", "fg")]
+    [Arguments("Color Theme: Accent5, Tint: 0", "BG")]
+    [Arguments("2018.00", "v")]
     public void ToStringFormatString(string expected, string format)
     {
         using XLWorkbook wb = new();
@@ -1046,9 +1045,9 @@ public class XlCellTests
         c.Style.Font.FontColor = XLColor.Red;
         c.Style.Fill.BackgroundColor = XLColor.FromTheme(XLThemeColor.Accent5);
 
-        Assert.AreEqual(expected, c.ToString(format));
+        ClassicAssert.AreEqual(expected, c.ToString(format));
 
-        Assert.Throws<FormatException>(() => c.ToString("dummy"));
+        ClassicAssert.Throws<FormatException>(() => c.ToString("dummy"));
     }
 
     [Test]
@@ -1058,7 +1057,7 @@ public class XlCellTests
         IXLWorksheet ws = wb.AddWorksheet("Sheet1");
         IXLCell c = ws.FirstCell();
 
-        Assert.Throws<FormatException>(() => c.ToString("dummy"));
+        ClassicAssert.Throws<FormatException>(() => c.ToString("dummy"));
     }
 
     [Test]
@@ -1066,15 +1065,15 @@ public class XlCellTests
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
-        Assert.IsNull(ws.ActiveCell);
-        Assert.False(ws.Cell(1, 1).Active);
+        ClassicAssert.IsNull(ws.ActiveCell);
+        ClassicAssert.False(ws.Cell(1, 1).Active);
 
         ws.ActiveCell = ws.Cell("C4");
-        Assert.True(ws.Cell("C4").Active);
-        Assert.False(ws.Cell("C5").Active);
+        ClassicAssert.True(ws.Cell("C4").Active);
+        ClassicAssert.False(ws.Cell("C5").Active);
 
         ws.ActiveCell = null;
-        Assert.False(ws.Cell("C4").Active);
+        ClassicAssert.False(ws.Cell("C4").Active);
     }
 
     [Test]
@@ -1085,10 +1084,10 @@ public class XlCellTests
         ws.ActiveCell = ws.Cell("A2");
 
         ws.Cell("B2").Active = false;
-        Assert.AreEqual(ws.Cell("A2"), ws.ActiveCell);
+        ClassicAssert.AreEqual(ws.Cell("A2"), ws.ActiveCell);
 
         ws.Cell("A2").Active = false;
-        Assert.IsNull(ws.ActiveCell);
+        ClassicAssert.IsNull(ws.ActiveCell);
     }
 
     [Test]
@@ -1096,16 +1095,20 @@ public class XlCellTests
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
-        Assert.IsNull(ws.ActiveCell);
+        ClassicAssert.IsNull(ws.ActiveCell);
 
         ws.Cell("B2").Active = true;
-        Assert.AreEqual(ws.Cell("B2"), ws.ActiveCell);
+        ClassicAssert.AreEqual(ws.Cell("B2"), ws.ActiveCell);
     }
 
-    [TestCase("PY(4)", "_xlfn._xlws.PY(4)")]
-    [TestCase("5 + py(abs(4) )", "5 + _xlfn._xlws.PY(abs(4) )")]
-    [TestCase("COT(COTH(A5 + 2 * SIN(B7)))", "_xlfn.COT(_xlfn.COTH(A5 + 2 * SIN(B7)))")]
-    [TestCase("_xlfn.COT(_xlfn.COTH(A5 + 2 * SIN(B7)))", "_xlfn.COT(_xlfn.COTH(A5 + 2 * SIN(B7)))")]
+    [Test]
+    [Arguments("PY(4)", "_xlfn._xlws.PY(4)")]
+    [Arguments("5 + py(abs(4) )", "5 + _xlfn._xlws.PY(abs(4) )")]
+    [Arguments("COT(COTH(A5 + 2 * SIN(B7)))", "_xlfn.COT(_xlfn.COTH(A5 + 2 * SIN(B7)))")]
+    [Arguments(
+        "_xlfn.COT(_xlfn.COTH(A5 + 2 * SIN(B7)))",
+        "_xlfn.COT(_xlfn.COTH(A5 + 2 * SIN(B7)))"
+    )]
     public void FormulaA1AddsPrefixToFutureFunctions(string formula, string expected)
     {
         using XLWorkbook wb = new();
@@ -1113,16 +1116,17 @@ public class XlCellTests
         IXLCell cell = ws.Cell("A1");
         cell.FormulaA1 = formula;
 
-        Assert.AreEqual(expected, cell.FormulaA1);
+        ClassicAssert.AreEqual(expected, cell.FormulaA1);
     }
 
-    [TestCase("PY(4)", "_xlfn._xlws.PY(4)")]
-    [TestCase("5 + py(abs(4) )", "5 + _xlfn._xlws.PY(abs(4) )")]
-    [TestCase(
+    [Test]
+    [Arguments("PY(4)", "_xlfn._xlws.PY(4)")]
+    [Arguments("5 + py(abs(4) )", "5 + _xlfn._xlws.PY(abs(4) )")]
+    [Arguments(
         "COT(COTH(R[3]C[5] + 2 * SIN(R[7]C[2])))",
         "_xlfn.COT(_xlfn.COTH(R[3]C[5] + 2 * SIN(R[7]C[2])))"
     )]
-    [TestCase(
+    [Arguments(
         "_xlfn.COT(_xlfn.COTH(R[3]C[5] + 2 * SIN(R[7]C[2])))",
         "_xlfn.COT(_xlfn.COTH(R[3]C[5] + 2 * SIN(R[7]C[2])))"
     )]
@@ -1133,7 +1137,7 @@ public class XlCellTests
         IXLCell cell = ws.Cell("A1");
         cell.FormulaR1C1 = formula;
 
-        Assert.AreEqual(expected, cell.FormulaR1C1);
+        ClassicAssert.AreEqual(expected, cell.FormulaR1C1);
     }
 
     [Test]
@@ -1145,7 +1149,7 @@ public class XlCellTests
         foreach ((string simpleName, string prefixedName) in XLConstants.FutureFunctionMap.Value)
         {
             cell.FormulaA1 = simpleName + "()";
-            Assert.AreEqual(prefixedName + "()", cell.FormulaA1);
+            ClassicAssert.AreEqual(prefixedName + "()", cell.FormulaA1);
         }
     }
 }

@@ -1,9 +1,7 @@
-using NUnit.Framework;
 using XlsxSharp.Examples.AutoFilters;
 
 namespace XlsxSharp.Tests.Examples;
 
-[TestFixture]
 public class AutoFilterTests
 {
     [Test]

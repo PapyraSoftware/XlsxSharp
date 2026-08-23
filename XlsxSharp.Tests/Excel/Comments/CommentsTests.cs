@@ -1,8 +1,7 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using DocumentFormat.OpenXml.Packaging;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.Drawings.Style;
 using XlsxSharp.Extensions;
@@ -27,12 +26,12 @@ public class CommentsTests
 
             // None indicates an absence of a color
             XLColor lineColor = c.GetComment().Style.ColorsAndLines.LineColor;
-            Assert.AreEqual(XLColorType.Color, lineColor.ColorType);
-            Assert.AreEqual("00000000", lineColor.Color.ToHex());
+            ClassicAssert.AreEqual(XLColorType.Color, lineColor.ColorType);
+            ClassicAssert.AreEqual("00000000", lineColor.Color.ToHex());
 
             XLColor bgColor = c.GetComment().Style.ColorsAndLines.FillColor;
-            Assert.AreEqual(XLColorType.Color, bgColor.ColorType);
-            Assert.AreEqual("FFFFFFE1", bgColor.Color.ToHex());
+            ClassicAssert.AreEqual(XLColorType.Color, bgColor.ColorType);
+            ClassicAssert.AreEqual("FFFFFFE1", bgColor.Color.ToHex());
         }
     }
 
@@ -94,8 +93,8 @@ public class CommentsTests
 
             Action<IXLCell> validate = c =>
             {
-                Assert.IsTrue(c.GetComment().Style.Alignment.AutomaticSize);
-                Assert.AreEqual(XLColor.Red, c.GetComment().Style.ColorsAndLines.FillColor);
+                ClassicAssert.IsTrue(c.GetComment().Style.Alignment.AutomaticSize);
+                ClassicAssert.AreEqual(XLColor.Red, c.GetComment().Style.ColorsAndLines.FillColor);
             };
 
             validate(ws.Cell("B3"));
@@ -151,7 +150,7 @@ public class CommentsTests
             using (XLWorkbook wb = new(ms))
             {
                 IXLWorksheet ws = wb.Worksheets.First();
-                Assert.IsTrue(ws.FirstCell().HasComment);
+                ClassicAssert.IsTrue(ws.FirstCell().HasComment);
 
                 wb.SaveAs(ms);
             }
@@ -164,12 +163,12 @@ public class CommentsTests
                 WorksheetPart wsp = wbp.GetPartsOfType<WorksheetPart>().Last();
 
                 WorksheetCommentsPart wscp = wsp.GetPartsOfType<WorksheetCommentsPart>().Single();
-                Assert.AreEqual(commentPartUri, wscp.Uri.ToString());
-                Assert.AreEqual(commentPartId, wsp.GetIdOfPart(wscp));
+                ClassicAssert.AreEqual(commentPartUri, wscp.Uri.ToString());
+                ClassicAssert.AreEqual(commentPartId, wsp.GetIdOfPart(wscp));
 
                 VmlDrawingPart vmlp = wsp.GetPartsOfType<VmlDrawingPart>().Single();
-                Assert.AreEqual(vmlPartUri, vmlp.Uri.ToString());
-                Assert.AreEqual(vmlPartId, wsp.GetIdOfPart(vmlp));
+                ClassicAssert.AreEqual(vmlPartUri, vmlp.Uri.ToString());
+                ClassicAssert.AreEqual(vmlPartId, wsp.GetIdOfPart(vmlp));
             }
         }
     }
@@ -189,7 +188,7 @@ public class CommentsTests
                 wb.SaveAs(ms);
             }
 
-            Assert.DoesNotThrow(() => new XLWorkbook(ms));
+            ClassicAssert.DoesNotThrow(() => new XLWorkbook(ms));
         }
     }
 
@@ -205,8 +204,8 @@ public class CommentsTests
         {
             IXLWorksheet ws = workbook.Worksheets.First();
 
-            Assert.True(ws.Cell("A1").GetComment().Visible);
-            Assert.False(ws.Cell("A4").GetComment().Visible);
+            ClassicAssert.True(ws.Cell("A1").GetComment().Visible);
+            ClassicAssert.False(ws.Cell("A4").GetComment().Visible);
         }
     }
 
@@ -226,14 +225,14 @@ public class CommentsTests
                 foreach (string commentCell in commentCells)
                 {
                     IXLCell cell = ws.Cell(commentCell);
-                    Assert.True(cell.HasComment);
+                    ClassicAssert.True(cell.HasComment);
                     IXLDrawingMargins margins = cell.GetComment().Style.Margins;
 
-                    Assert.AreEqual(0.5, margins.Left);
-                    Assert.AreEqual(0.75, margins.Top);
+                    ClassicAssert.AreEqual(0.5, margins.Left);
+                    ClassicAssert.AreEqual(0.75, margins.Top);
 
-                    Assert.AreEqual(0, margins.Right);
-                    Assert.AreEqual(0, margins.Bottom);
+                    ClassicAssert.AreEqual(0, margins.Right);
+                    ClassicAssert.AreEqual(0, margins.Bottom);
                 }
             },
             @"Other\Comments\InsetsUnitConversion.xlsx",

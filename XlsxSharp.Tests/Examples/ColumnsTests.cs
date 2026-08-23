@@ -1,9 +1,7 @@
-using NUnit.Framework;
 using XlsxSharp.Examples.Columns;
 
 namespace XlsxSharp.Tests.Examples;
 
-[TestFixture]
 public class ColumnsTests
 {
     [Test]

@@ -1,8 +1,7 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using NUnit.Framework;
 using XlsxSharp.Extensions;
 using XlsxSharp.Tests.Excel.Tables;
 
@@ -14,20 +13,20 @@ public class EnumerableExtensionsTests
     public void CanGetItemType()
     {
         int[] array = [];
-        Assert.AreEqual(typeof(int), array.GetItemType());
+        ClassicAssert.AreEqual(typeof(int), array.GetItemType());
 
         List<double> list = [];
-        Assert.AreEqual(typeof(double), list.GetItemType());
-        Assert.AreEqual(typeof(double), list.AsEnumerable().GetItemType());
+        ClassicAssert.AreEqual(typeof(double), list.GetItemType());
+        ClassicAssert.AreEqual(typeof(double), list.AsEnumerable().GetItemType());
 
         IEnumerable<IEnumerable> enumerable = (List<string>)[];
-        Assert.AreEqual(typeof(string), enumerable.GetItemType());
+        ClassicAssert.AreEqual(typeof(string), enumerable.GetItemType());
 
         enumerable = (List<List<string>>)[];
-        Assert.AreEqual(typeof(List<string>), enumerable.GetItemType());
+        ClassicAssert.AreEqual(typeof(List<string>), enumerable.GetItemType());
 
         enumerable = (List<int[]>)[];
-        Assert.AreEqual(typeof(int[]), enumerable.GetItemType());
+        ClassicAssert.AreEqual(typeof(int[]), enumerable.GetItemType());
 
         var anonymousIterator = new List<TablesTests.TestObjectWithoutAttributes>().Select(o => new
         {
@@ -41,13 +40,13 @@ public class EnumerableExtensionsTests
         string expectedTypeStart = "<>f__AnonymousType";
         string expectedTypeEnd = "`2[System.String,System.String]";
         string actualType = anonymousIterator.GetItemType().ToString();
-        Assert.True(actualType.StartsWith(expectedTypeStart));
-        Assert.True(actualType.EndsWith(expectedTypeEnd));
+        ClassicAssert.True(actualType.StartsWith(expectedTypeStart));
+        ClassicAssert.True(actualType.EndsWith(expectedTypeEnd));
 
         IEnumerable<object> obj = anonymousIterator;
         actualType = obj.GetItemType().ToString();
-        Assert.True(actualType.StartsWith(expectedTypeStart));
-        Assert.True(actualType.EndsWith(expectedTypeEnd));
+        ClassicAssert.True(actualType.StartsWith(expectedTypeStart));
+        ClassicAssert.True(actualType.EndsWith(expectedTypeEnd));
     }
 
     [Test]

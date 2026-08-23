@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using ClosedXML.Parser;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Extensions;
 using static ClosedXML.Parser.ReferenceAxisType;
@@ -8,35 +7,35 @@ using static ClosedXML.Parser.ReferenceStyle;
 
 namespace XlsxSharp.Tests.Extensions;
 
-[TestFixture]
 internal class ReferenceAreaExtensionsTests
 {
     [Test]
-    [TestCaseSource(nameof(A1TestCases))]
+    [MethodDataSource(nameof(A1TestCases))]
     public void ToArea_converts_a1_reference_to_area(ReferenceArea tokenArea, Area expectedArea) =>
-        Assert.AreEqual(expectedArea, tokenArea.ToArea(default));
+        ClassicAssert.AreEqual(expectedArea, tokenArea.ToArea(default));
 
     [Test]
-    [TestCaseSource(nameof(R1C1TestCases))]
+    [MethodDataSource(nameof(R1C1TestCases))]
     public void ToArea_converts_r1c1_reference_to_area(
         Point anchor,
         ReferenceArea tokenArea,
         Area expectedArea
-    ) => Assert.AreEqual(expectedArea, tokenArea.ToArea(anchor));
+    ) => ClassicAssert.AreEqual(expectedArea, tokenArea.ToArea(anchor));
 
-    [TestCase("C2", "C2", "C3")]
-    [TestCase("$C2", "C2", "$C3")]
-    [TestCase("C2", "B2", "C2")]
-    [TestCase("C2", "D2", "C2")]
-    [TestCase("$5:$7", "A2:XFD4", "$8:$10")]
-    [TestCase("$G:H", "E4:I7", "$G:H")]
-    [TestCase("C4:E10", "C3:E5", "C7:E13")]
-    [TestCase("C4:E10", "C4:E5", "C6:E12")]
-    [TestCase("C4:E10", "C5:E12", "C4:E18")]
-    [TestCase("C4:E10", "C10:E12", "C4:E13")]
-    [TestCase("C4:E10", "C11:E13", "C4:E10")]
-    [TestCase("C1048573:D1048575", "C1048563:D1048566", null)] // Reference at the bottom of a sheet was completely pushed out of a sheet.
-    [TestCase("C1048573:D1048575", "C1048574:D1048576", "C1048573:D1048576")] // Inserted area grew reference beyond bottom of the sheet.
+    [Test]
+    [Arguments("C2", "C2", "C3")]
+    [Arguments("$C2", "C2", "$C3")]
+    [Arguments("C2", "B2", "C2")]
+    [Arguments("C2", "D2", "C2")]
+    [Arguments("$5:$7", "A2:XFD4", "$8:$10")]
+    [Arguments("$G:H", "E4:I7", "$G:H")]
+    [Arguments("C4:E10", "C3:E5", "C7:E13")]
+    [Arguments("C4:E10", "C4:E5", "C6:E12")]
+    [Arguments("C4:E10", "C5:E12", "C4:E18")]
+    [Arguments("C4:E10", "C10:E12", "C4:E13")]
+    [Arguments("C4:E10", "C11:E13", "C4:E10")]
+    [Arguments("C1048573:D1048575", "C1048563:D1048566", null)] // Reference at the bottom of a sheet was completely pushed out of a sheet.
+    [Arguments("C1048573:D1048575", "C1048574:D1048576", "C1048573:D1048576")] // Inserted area grew reference beyond bottom of the sheet.
     public void TryInsertAndShiftDown_shifts_or_grows_reference(
         string referenceText,
         string insertedArea,
@@ -51,28 +50,29 @@ internal class ReferenceAreaExtensionsTests
 
         bool didntSplit = reference.TryInsertAndShiftDown(inserted, out ReferenceArea? shifted);
 
-        Assert.IsTrue(didntSplit);
-        Assert.AreEqual(expected, shifted);
+        ClassicAssert.IsTrue(didntSplit);
+        ClassicAssert.AreEqual(expected, shifted);
     }
 
-    [TestCase("D6:F8", "D3")]
-    [TestCase("D6:F8", "D5")]
-    [TestCase("D6:F8", "E1:G3")]
-    [TestCase("D6:F8", "E7")]
-    [TestCase("D6:F8", "F8")]
-    [TestCase("$5:$7", "E1:G3")]
+    [Test]
+    [Arguments("D6:F8", "D3")]
+    [Arguments("D6:F8", "D5")]
+    [Arguments("D6:F8", "E1:G3")]
+    [Arguments("D6:F8", "E7")]
+    [Arguments("D6:F8", "F8")]
+    [Arguments("$5:$7", "E1:G3")]
     public void TryInsertAndShiftDown_returns_false_on_split(
         string referenceText,
         string insertedArea
     )
     {
-        Assert.True(ReferenceParser.TryParseA1(referenceText, out ReferenceArea reference));
+        ClassicAssert.True(ReferenceParser.TryParseA1(referenceText, out ReferenceArea reference));
         Area inserted = Area.Parse(insertedArea);
 
         bool didntSplit = reference.TryInsertAndShiftDown(inserted, out ReferenceArea? shifted);
 
-        Assert.IsFalse(didntSplit);
-        Assert.IsNull(shifted);
+        ClassicAssert.IsFalse(didntSplit);
+        ClassicAssert.IsNull(shifted);
     }
 
     public static IEnumerable<object[]> A1TestCases()

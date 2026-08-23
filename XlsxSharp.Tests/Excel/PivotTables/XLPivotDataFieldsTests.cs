@@ -1,5 +1,4 @@
-﻿using System;
-using NUnit.Framework;
+using System;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.PivotValues;
 
@@ -24,11 +23,11 @@ internal class XlPivotDataFieldsTests
         IXLWorksheet ptSheet = wb.AddWorksheet();
         IXLPivotTable pt = ptSheet.PivotTables.Add("pt", ptSheet.Cell("A1"), range);
 
-        ArgumentOutOfRangeException? ex = Assert.Throws<ArgumentOutOfRangeException>(() =>
+        ArgumentOutOfRangeException? ex = ClassicAssert.Throws<ArgumentOutOfRangeException>(() =>
             pt.Values.Add("Wrong field name")
         );
 
-        Assert.NotNull(ex);
+        ClassicAssert.NotNull(ex);
         StringAssert.StartsWith(
             "Field 'Wrong field name' is not in the fields of a pivot cache. Should be one of 'Name','Price'.",
             ex.Message

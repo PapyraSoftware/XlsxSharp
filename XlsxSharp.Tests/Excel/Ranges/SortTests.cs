@@ -1,11 +1,9 @@
-﻿using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.CalcEngine;
 using XlsxSharp.Excel.Sort;
 
 namespace XlsxSharp.Tests.Excel.Ranges;
 
-[TestFixture]
 public class SortTests
 {
     [Test]
@@ -38,12 +36,13 @@ public class SortTests
         for (int row = 1; row <= values.Length; ++row)
         {
             XLCellValue sortedValue = ws.Cell(row, 1).Value;
-            Assert.AreEqual(values[row - 1], sortedValue);
+            ClassicAssert.AreEqual(values[row - 1], sortedValue);
         }
     }
 
-    [TestCase(XLSortOrder.Ascending)]
-    [TestCase(XLSortOrder.Descending)]
+    [Test]
+    [Arguments(XLSortOrder.Ascending)]
+    [Arguments(XLSortOrder.Descending)]
     public void BlanksAreAlwaysLast(XLSortOrder sortOrder)
     {
         // When range contains blank, it is always last, no matter
@@ -58,7 +57,7 @@ public class SortTests
 
         ws.Range(1, 1, values.Length, 1).Sort("1", sortOrder);
 
-        Assert.AreEqual(Blank.Value, ws.Cell(3, 1).Value);
+        ClassicAssert.AreEqual(Blank.Value, ws.Cell(3, 1).Value);
     }
 
     [Test]
@@ -74,14 +73,14 @@ public class SortTests
         ws.Range("A1:A3").Sort(1, ignoreBlanks: false);
 
         // Since blank is treated as empty string, it is not shuffled to the end.
-        Assert.AreEqual(Blank.Value, ws.Cell("A1").Value);
-        Assert.AreEqual(string.Empty, ws.Cell("A2").Value);
-        Assert.AreEqual("Text", ws.Cell("A3").Value);
+        ClassicAssert.AreEqual(Blank.Value, ws.Cell("A1").Value);
+        ClassicAssert.AreEqual(string.Empty, ws.Cell("A2").Value);
+        ClassicAssert.AreEqual("Text", ws.Cell("A3").Value);
     }
 
-    [TestCase(true, "a", "A")]
-    [TestCase(false, "A", "a")]
-    [Culture("en-US")]
+    [Test]
+    [Arguments(true, "a", "A")]
+    [Arguments(false, "A", "a")]
     public void MatchCaseFlagDeterminesIfTextsAreComparedCaseSensitive(
         bool matchCase,
         string expectedFirst,
@@ -97,8 +96,8 @@ public class SortTests
 
         ws.Range("A1:A2").Sort(1, matchCase: matchCase);
 
-        Assert.AreEqual(expectedFirst, ws.Cell("A1").Value);
-        Assert.AreEqual(expectedSecond, ws.Cell("A2").Value);
+        ClassicAssert.AreEqual(expectedFirst, ws.Cell("A1").Value);
+        ClassicAssert.AreEqual(expectedSecond, ws.Cell("A2").Value);
     }
 
     [Test]
@@ -110,12 +109,12 @@ public class SortTests
 
         ws.Range("A1:B4").Sort("2 ASC, 1 DESC");
 
-        Assert.AreEqual(1, ws.Cell("A1").Value);
-        Assert.AreEqual(1, ws.Cell("B1").Value);
-        Assert.AreEqual(2, ws.Cell("A2").Value);
-        Assert.AreEqual(2, ws.Cell("B2").Value);
-        Assert.AreEqual(1, ws.Cell("A3").Value);
-        Assert.AreEqual(2, ws.Cell("B3").Value);
+        ClassicAssert.AreEqual(1, ws.Cell("A1").Value);
+        ClassicAssert.AreEqual(1, ws.Cell("B1").Value);
+        ClassicAssert.AreEqual(2, ws.Cell("A2").Value);
+        ClassicAssert.AreEqual(2, ws.Cell("B2").Value);
+        ClassicAssert.AreEqual(1, ws.Cell("A3").Value);
+        ClassicAssert.AreEqual(2, ws.Cell("B3").Value);
     }
 
     [Test]
@@ -128,11 +127,11 @@ public class SortTests
         // Doesn't have parameters, so it is first rows ASC, second row ASC.
         ws.Range("A1:C2").SortLeftToRight();
 
-        Assert.AreEqual(1, ws.Cell("A1").Value);
-        Assert.AreEqual(1, ws.Cell("A2").Value);
-        Assert.AreEqual(2, ws.Cell("B1").Value);
-        Assert.AreEqual(1, ws.Cell("B2").Value);
-        Assert.AreEqual(2, ws.Cell("C1").Value);
-        Assert.AreEqual(2, ws.Cell("C2").Value);
+        ClassicAssert.AreEqual(1, ws.Cell("A1").Value);
+        ClassicAssert.AreEqual(1, ws.Cell("A2").Value);
+        ClassicAssert.AreEqual(2, ws.Cell("B1").Value);
+        ClassicAssert.AreEqual(1, ws.Cell("B2").Value);
+        ClassicAssert.AreEqual(2, ws.Cell("C1").Value);
+        ClassicAssert.AreEqual(2, ws.Cell("C2").Value);
     }
 }

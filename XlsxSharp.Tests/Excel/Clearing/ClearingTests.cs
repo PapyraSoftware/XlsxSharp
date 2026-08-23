@@ -1,13 +1,11 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
-using NUnit.Framework;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.CalcEngine;
 
 namespace XlsxSharp.Tests.Excel.Clearing;
 
-[TestFixture]
 public class ClearingTests
 {
     private static XLColor backgroundColor = XLColor.LightBlue;
@@ -52,23 +50,23 @@ public class ClearingTests
             .Border.SetOutsideBorderColor(XLColor.Blue)
             .Font.SetBold();
 
-        Assert.AreEqual(XLDataType.Text, ws.Cell("A1").Value.Type);
-        Assert.AreEqual(XLDataType.Text, ws.Cell("A2").Value.Type);
-        Assert.AreEqual(XLDataType.DateTime, ws.Cell("A3").Value.Type);
+        ClassicAssert.AreEqual(XLDataType.Text, ws.Cell("A1").Value.Type);
+        ClassicAssert.AreEqual(XLDataType.Text, ws.Cell("A2").Value.Type);
+        ClassicAssert.AreEqual(XLDataType.DateTime, ws.Cell("A3").Value.Type);
 
-        Assert.AreEqual(false, ws.Cell("A1").HasFormula);
-        Assert.AreEqual(true, ws.Cell("A2").HasFormula);
-        Assert.AreEqual(false, ws.Cell("A1").HasFormula);
+        ClassicAssert.AreEqual(false, ws.Cell("A1").HasFormula);
+        ClassicAssert.AreEqual(true, ws.Cell("A2").HasFormula);
+        ClassicAssert.AreEqual(false, ws.Cell("A1").HasFormula);
 
         foreach (IXLCell cell in ws.Range("A1:A3").Cells())
         {
-            Assert.AreEqual(backgroundColor, cell.Style.Fill.BackgroundColor);
-            Assert.AreEqual(foregroundColor, cell.Style.Font.FontColor);
-            Assert.IsTrue(ws.ConditionalFormats.Any());
-            Assert.IsTrue(cell.HasComment);
+            ClassicAssert.AreEqual(backgroundColor, cell.Style.Fill.BackgroundColor);
+            ClassicAssert.AreEqual(foregroundColor, cell.Style.Font.FontColor);
+            ClassicAssert.IsTrue(ws.ConditionalFormats.Any());
+            ClassicAssert.IsTrue(cell.HasComment);
         }
 
-        Assert.AreEqual("B1", ws.Cell("A1").GetDataValidation().Value);
+        ClassicAssert.AreEqual("B1", ws.Cell("A1").GetDataValidation().Value);
 
         return wb;
     }
@@ -84,13 +82,13 @@ public class ClearingTests
 
             foreach (IXLCell c in ws.Range("A1:A10").Cells())
             {
-                Assert.IsTrue(c.IsEmpty());
-                Assert.AreEqual(XLDataType.Blank, c.DataType);
-                Assert.AreEqual(ws.Style.Fill.BackgroundColor, c.Style.Fill.BackgroundColor);
-                Assert.AreEqual(ws.Style.Font.FontColor, c.Style.Font.FontColor);
-                Assert.IsFalse(ws.ConditionalFormats.Any());
-                Assert.IsFalse(c.HasComment);
-                Assert.AreEqual(string.Empty, c.GetDataValidation().Value);
+                ClassicAssert.IsTrue(c.IsEmpty());
+                ClassicAssert.AreEqual(XLDataType.Blank, c.DataType);
+                ClassicAssert.AreEqual(ws.Style.Fill.BackgroundColor, c.Style.Fill.BackgroundColor);
+                ClassicAssert.AreEqual(ws.Style.Font.FontColor, c.Style.Font.FontColor);
+                ClassicAssert.IsFalse(ws.ConditionalFormats.Any());
+                ClassicAssert.IsFalse(c.HasComment);
+                ClassicAssert.AreEqual(string.Empty, c.GetDataValidation().Value);
             }
         }
     }
@@ -106,16 +104,16 @@ public class ClearingTests
 
             foreach (IXLCell c in ws.Range("A1:A3").Cells())
             {
-                Assert.AreEqual(XLDataType.Blank, ws.Cell("A1").DataType);
-                Assert.IsTrue(c.IsEmpty(XLCellsUsedOptions.Contents));
+                ClassicAssert.AreEqual(XLDataType.Blank, ws.Cell("A1").DataType);
+                ClassicAssert.IsTrue(c.IsEmpty(XLCellsUsedOptions.Contents));
 
-                Assert.AreEqual(backgroundColor, c.Style.Fill.BackgroundColor);
-                Assert.AreEqual(foregroundColor, c.Style.Font.FontColor);
-                Assert.IsTrue(ws.ConditionalFormats.Any());
-                Assert.IsTrue(c.HasComment);
+                ClassicAssert.AreEqual(backgroundColor, c.Style.Fill.BackgroundColor);
+                ClassicAssert.AreEqual(foregroundColor, c.Style.Font.FontColor);
+                ClassicAssert.IsTrue(ws.ConditionalFormats.Any());
+                ClassicAssert.IsTrue(c.HasComment);
             }
 
-            Assert.AreEqual("B1", ws.Cell("A1").GetDataValidation().Value);
+            ClassicAssert.AreEqual("B1", ws.Cell("A1").GetDataValidation().Value);
         }
     }
 
@@ -130,18 +128,18 @@ public class ClearingTests
 
             foreach (IXLCell c in ws.Range("A1:A3").Cells())
             {
-                Assert.IsFalse(c.IsEmpty());
-                Assert.AreEqual(ws.Style.Fill.BackgroundColor, c.Style.Fill.BackgroundColor);
-                Assert.AreEqual(ws.Style.Font.FontColor, c.Style.Font.FontColor);
-                Assert.IsTrue(ws.ConditionalFormats.Any());
-                Assert.IsTrue(c.HasComment);
+                ClassicAssert.IsFalse(c.IsEmpty());
+                ClassicAssert.AreEqual(ws.Style.Fill.BackgroundColor, c.Style.Fill.BackgroundColor);
+                ClassicAssert.AreEqual(ws.Style.Font.FontColor, c.Style.Font.FontColor);
+                ClassicAssert.IsTrue(ws.ConditionalFormats.Any());
+                ClassicAssert.IsTrue(c.HasComment);
             }
 
-            Assert.AreEqual(XLDataType.Text, ws.Cell("A1").DataType);
-            Assert.AreEqual(XLDataType.Text, ws.Cell("A2").DataType);
-            Assert.AreEqual(XLDataType.DateTime, ws.Cell("A3").DataType);
+            ClassicAssert.AreEqual(XLDataType.Text, ws.Cell("A1").DataType);
+            ClassicAssert.AreEqual(XLDataType.Text, ws.Cell("A2").DataType);
+            ClassicAssert.AreEqual(XLDataType.DateTime, ws.Cell("A3").DataType);
 
-            Assert.AreEqual("B1", ws.Cell("A1").GetDataValidation().Value);
+            ClassicAssert.AreEqual("B1", ws.Cell("A1").GetDataValidation().Value);
         }
     }
 
@@ -156,18 +154,18 @@ public class ClearingTests
 
             foreach (IXLCell c in ws.Range("A1:A3").Cells())
             {
-                Assert.IsFalse(c.IsEmpty());
-                Assert.AreEqual(backgroundColor, c.Style.Fill.BackgroundColor);
-                Assert.AreEqual(foregroundColor, c.Style.Font.FontColor);
-                Assert.IsFalse(ws.ConditionalFormats.Any());
-                Assert.IsTrue(c.HasComment);
+                ClassicAssert.IsFalse(c.IsEmpty());
+                ClassicAssert.AreEqual(backgroundColor, c.Style.Fill.BackgroundColor);
+                ClassicAssert.AreEqual(foregroundColor, c.Style.Font.FontColor);
+                ClassicAssert.IsFalse(ws.ConditionalFormats.Any());
+                ClassicAssert.IsTrue(c.HasComment);
             }
 
-            Assert.AreEqual(XLDataType.Text, ws.Cell("A1").DataType);
-            Assert.AreEqual(XLDataType.Text, ws.Cell("A2").DataType);
-            Assert.AreEqual(XLDataType.DateTime, ws.Cell("A3").DataType);
+            ClassicAssert.AreEqual(XLDataType.Text, ws.Cell("A1").DataType);
+            ClassicAssert.AreEqual(XLDataType.Text, ws.Cell("A2").DataType);
+            ClassicAssert.AreEqual(XLDataType.DateTime, ws.Cell("A3").DataType);
 
-            Assert.AreEqual("B1", ws.Cell("A1").GetDataValidation().Value);
+            ClassicAssert.AreEqual("B1", ws.Cell("A1").GetDataValidation().Value);
         }
     }
 
@@ -182,18 +180,18 @@ public class ClearingTests
 
             foreach (IXLCell c in ws.Range("A1:A3").Cells())
             {
-                Assert.IsFalse(c.IsEmpty());
-                Assert.AreEqual(backgroundColor, c.Style.Fill.BackgroundColor);
-                Assert.AreEqual(foregroundColor, c.Style.Font.FontColor);
-                Assert.IsTrue(ws.ConditionalFormats.Any());
-                Assert.IsFalse(c.HasComment);
+                ClassicAssert.IsFalse(c.IsEmpty());
+                ClassicAssert.AreEqual(backgroundColor, c.Style.Fill.BackgroundColor);
+                ClassicAssert.AreEqual(foregroundColor, c.Style.Font.FontColor);
+                ClassicAssert.IsTrue(ws.ConditionalFormats.Any());
+                ClassicAssert.IsFalse(c.HasComment);
             }
 
-            Assert.AreEqual(XLDataType.Text, ws.Cell("A1").DataType);
-            Assert.AreEqual(XLDataType.Text, ws.Cell("A2").DataType);
-            Assert.AreEqual(XLDataType.DateTime, ws.Cell("A3").DataType);
+            ClassicAssert.AreEqual(XLDataType.Text, ws.Cell("A1").DataType);
+            ClassicAssert.AreEqual(XLDataType.Text, ws.Cell("A2").DataType);
+            ClassicAssert.AreEqual(XLDataType.DateTime, ws.Cell("A3").DataType);
 
-            Assert.AreEqual("B1", ws.Cell("A1").GetDataValidation().Value);
+            ClassicAssert.AreEqual("B1", ws.Cell("A1").GetDataValidation().Value);
         }
     }
 
@@ -208,18 +206,18 @@ public class ClearingTests
 
             foreach (IXLCell c in ws.Range("A1:A3").Cells())
             {
-                Assert.IsFalse(c.IsEmpty());
-                Assert.AreEqual(backgroundColor, c.Style.Fill.BackgroundColor);
-                Assert.AreEqual(foregroundColor, c.Style.Font.FontColor);
-                Assert.IsTrue(ws.ConditionalFormats.Any());
-                Assert.IsTrue(c.HasComment);
+                ClassicAssert.IsFalse(c.IsEmpty());
+                ClassicAssert.AreEqual(backgroundColor, c.Style.Fill.BackgroundColor);
+                ClassicAssert.AreEqual(foregroundColor, c.Style.Font.FontColor);
+                ClassicAssert.IsTrue(ws.ConditionalFormats.Any());
+                ClassicAssert.IsTrue(c.HasComment);
             }
 
-            Assert.AreEqual(XLDataType.Text, ws.Cell("A1").DataType);
-            Assert.AreEqual(XLDataType.Text, ws.Cell("A2").DataType);
-            Assert.AreEqual(XLDataType.DateTime, ws.Cell("A3").DataType);
+            ClassicAssert.AreEqual(XLDataType.Text, ws.Cell("A1").DataType);
+            ClassicAssert.AreEqual(XLDataType.Text, ws.Cell("A2").DataType);
+            ClassicAssert.AreEqual(XLDataType.DateTime, ws.Cell("A3").DataType);
 
-            Assert.AreEqual(string.Empty, ws.Cell("A1").GetDataValidation().Value);
+            ClassicAssert.AreEqual(string.Empty, ws.Cell("A1").GetDataValidation().Value);
         }
     }
 
@@ -231,8 +229,8 @@ public class ClearingTests
             using (IXLWorkbook wb = SetupWorkbook())
             {
                 IXLWorksheet ws = wb.Worksheets.First();
-                Assert.AreEqual("Hello world!", ws.Cell("A1").GetText());
-                Assert.AreEqual(new DateTime(2018, 1, 15), ws.Cell("A3").GetDateTime());
+                ClassicAssert.AreEqual("Hello world!", ws.Cell("A1").GetText());
+                ClassicAssert.AreEqual(new DateTime(2018, 1, 15), ws.Cell("A3").GetDateTime());
 
                 wb.SaveAs(ms);
             }
@@ -241,8 +239,8 @@ public class ClearingTests
             {
                 IXLWorksheet ws = wb.Worksheets.First();
                 ws.Clear(XLClearOptions.Contents);
-                Assert.AreEqual(Blank.Value, ws.Cell("A1").Value);
-                Assert.Throws<InvalidCastException>(() => ws.Cell("A3").GetDateTime());
+                ClassicAssert.AreEqual(Blank.Value, ws.Cell("A1").Value);
+                ClassicAssert.Throws<InvalidCastException>(() => ws.Cell("A3").GetDateTime());
 
                 wb.Save();
             }
@@ -250,17 +248,18 @@ public class ClearingTests
             using (XLWorkbook wb = new(ms))
             {
                 IXLWorksheet ws = wb.Worksheets.First();
-                Assert.AreEqual(Blank.Value, ws.Cell("A1").Value);
-                Assert.Throws<InvalidCastException>(() => ws.Cell("A3").GetDateTime());
+                ClassicAssert.AreEqual(Blank.Value, ws.Cell("A1").Value);
+                ClassicAssert.Throws<InvalidCastException>(() => ws.Cell("A3").GetDateTime());
             }
         }
     }
 
-    [TestCase(XLClearOptions.All, 2)]
-    [TestCase(XLClearOptions.AllContents, 4)]
-    [TestCase(XLClearOptions.AllFormats, 4)]
-    [TestCase(XLClearOptions.Contents, 4)]
-    [TestCase(XLClearOptions.MergedRanges, 2)]
+    [Test]
+    [Arguments(XLClearOptions.All, 2)]
+    [Arguments(XLClearOptions.AllContents, 4)]
+    [Arguments(XLClearOptions.AllFormats, 4)]
+    [Arguments(XLClearOptions.Contents, 4)]
+    [Arguments(XLClearOptions.MergedRanges, 2)]
     public void CanClearMergedRanges(XLClearOptions options, int expectedCount)
     {
         using (XLWorkbook wb = new())
@@ -274,7 +273,7 @@ public class ClearingTests
 
             ws.Range("C1:D6").Clear(options);
 
-            Assert.AreEqual(expectedCount, ws.MergedRanges.Count);
+            ClassicAssert.AreEqual(expectedCount, ws.MergedRanges.Count);
         }
     }
 }
