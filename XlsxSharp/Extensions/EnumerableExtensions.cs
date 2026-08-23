@@ -27,40 +27,8 @@ internal static class EnumerableExtensions
                     i.GetGenericArguments().Length == 1 && i.Name == "IEnumerable`1"
                 );
 
-            return ienumerable?.GetGenericArguments()?.FirstOrDefault();
+            return ienumerable?.GetGenericArguments().FirstOrDefault();
         }
-    }
-
-    /// <summary>
-    /// Skip last element of a sequence.
-    /// </summary>
-    public static IEnumerable<T> SkipLast<T>(this IEnumerable<T> source)
-    {
-        using IEnumerator<T> enumerator = source.GetEnumerator();
-        if (!enumerator.MoveNext())
-        {
-            yield break;
-        }
-
-        T prev = enumerator.Current;
-        while (enumerator.MoveNext())
-        {
-            yield return prev;
-            prev = enumerator.Current;
-        }
-    }
-
-    public static bool HasDuplicates<T>(this IEnumerable<T> source)
-    {
-        HashSet<T> distinctItems = [];
-        foreach (T item in source)
-        {
-            if (!distinctItems.Add(item))
-            {
-                return true;
-            }
-        }
-        return false;
     }
 
     /// <summary>
