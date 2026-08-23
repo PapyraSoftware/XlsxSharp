@@ -13,7 +13,7 @@ internal static class DictionaryExtensions
         Func<TValue, bool> predicate
     )
     {
-        List<TKey> keys = [.. dic.Keys.Where(k => predicate(dic[k]))];
+        List<TKey> keys = [.. dic.Where(kvp => predicate(kvp.Value)).Select(kvp => kvp.Key)];
         foreach (TKey key in keys)
         {
             dic.Remove(key);
