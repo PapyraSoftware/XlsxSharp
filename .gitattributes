@@ -2,13 +2,12 @@
 # Set default behaviour, in case users don't have core.autocrlf set.
 * text=auto
 
-# Explicitly declare text files we want to always be normalized and converted 
-# to native line endings on checkout.
-*.cs text diff=csharp eol=crlf
+# Explicitly declare text files we want to always be normalized. These are checked out with LF
+# to match end_of_line = lf in .editorconfig, which CSharpier reads for .cs and .csproj.
+*.cs text diff=csharp eol=lf
 
-# Declare files that will always have CRLF line endings on checkout.
-*.sln text eol=crlf
-*.csproj text eol=crlf
+*.sln text eol=lf
+*.csproj text eol=lf
 
 # Denote all files that are truly binary and should not be modified.
 *.png binary
@@ -17,5 +16,3 @@
 *.gif binary
 *.ico binary
 *.xlsx binary
-
-core.autocrlf=true
