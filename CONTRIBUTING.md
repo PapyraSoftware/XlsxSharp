@@ -10,6 +10,7 @@ Here are some tips.
   * [CodeMaid](https://marketplace.visualstudio.com/items?itemName=SteveCadwallader.CodeMaid), for ensuring consistent code syntax, whitespace convention, etc.
   * If you use a version of Visual Studio lower than 2017, you should install [editorconfig](<https://marketplace.visualstudio.com/items?itemName=EditorConfigTeam.EditorConfig>) support. Read more about [EditorConfig](http://www.editorconfig.org).
 * We use 4 spaces for code indentation. This is the default in Visual Studio. Don't leave any trailing white space at the end of lines or files.
+* Formatting is done by [CSharpier](https://csharpier.com/) and verified in CI. Run `dotnet tool restore` once, then `dotnet csharpier format .` before pushing; `dotnet csharpier check .` reports the files that would change without rewriting them.
 
 
 

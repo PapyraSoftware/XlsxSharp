@@ -48,8 +48,10 @@
       <_XlsxSharpIoOutput Include="$(OutputPath)XlsxSharp.IO.dll;$(OutputPath)XlsxSharp.IO.xml;$(OutputPath)XlsxSharp.IO.pdb" />
     </ItemGroup>
 
-    <Error Condition="!Exists('$(OutputPath)XlsxSharp.IO.dll')"
-           Text="XlsxSharp.IO.dll was not found in $(OutputPath). It has to be packed into the XlsxSharp package, so build the project before packing it." />
+    <Error
+      Condition="!Exists('$(OutputPath)XlsxSharp.IO.dll')"
+      Text="XlsxSharp.IO.dll was not found in $(OutputPath). It has to be packed into the XlsxSharp package, so build the project before packing it."
+    />
 
     <ItemGroup>
       <BuildOutputInPackage Include="@(_XlsxSharpIoOutput)" Condition="Exists('%(Identity)')" />

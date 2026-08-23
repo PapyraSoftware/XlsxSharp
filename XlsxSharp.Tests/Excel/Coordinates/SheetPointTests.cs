@@ -10,14 +10,20 @@ internal class SheetPointTests
     public void Ctor_sheet_must_not_be_null() =>
         Assert.That(
             () => new SheetPoint(null, new Point(1, 1)),
-            Throws.Exception.TypeOf<ArgumentNullException>().With.Property("ParamName").EqualTo("sheetName")
+            Throws
+                .Exception.TypeOf<ArgumentNullException>()
+                .With.Property("ParamName")
+                .EqualTo("sheetName")
         );
 
     [Test]
     public void Ctor_sheet_must_not_be_empty() =>
         Assert.That(
             () => new SheetPoint("", new Point(1, 1)),
-            Throws.Exception.TypeOf<ArgumentException>().With.Property("ParamName").EqualTo("sheetName")
+            Throws
+                .Exception.TypeOf<ArgumentException>()
+                .With.Property("ParamName")
+                .EqualTo("sheetName")
         );
 
     [TestCase("sheet", 2, 5, "sheet", 2, 5, true)]

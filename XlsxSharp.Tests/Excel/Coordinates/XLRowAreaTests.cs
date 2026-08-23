@@ -11,7 +11,10 @@ internal class XlRowAreaTests
     public void Ctor_sheet_must_not_be_null() =>
         Assert.That(
             () => new XLRowArea(null, 1),
-            Throws.Exception.TypeOf<ArgumentNullException>().With.Property("ParamName").EqualTo("name")
+            Throws
+                .Exception.TypeOf<ArgumentNullException>()
+                .With.Property("ParamName")
+                .EqualTo("name")
         );
 
     [Test]
