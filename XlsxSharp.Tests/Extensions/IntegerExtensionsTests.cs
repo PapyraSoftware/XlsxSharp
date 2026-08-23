@@ -14,16 +14,82 @@ public class IntegerExtensionsTests
 {
     private const int BitCount = 32;
 
+    #region Between
+
+    [Test]
+    public void BetweenReturnsTrueForBoundaryValues()
+    {
+        ClassicAssert.True(5.Between(5, 10));
+        ClassicAssert.True(10.Between(5, 10));
+    }
+
+    [Test]
+    public void BetweenReturnsTrueForValueInsideRange()
+    {
+        ClassicAssert.True(7.Between(5, 10));
+    }
+
+    [Test]
+    public void BetweenReturnsFalseForValueOutsideRange()
+    {
+        ClassicAssert.False(4.Between(5, 10));
+        ClassicAssert.False(11.Between(5, 10));
+    }
+
+    [Test]
+    public void BetweenHandlesSingleValueRange()
+    {
+        ClassicAssert.True(5.Between(5, 5));
+        ClassicAssert.False(4.Between(5, 5));
+        ClassicAssert.False(6.Between(5, 5));
+    }
+
+    [Test]
+    public void BetweenHandlesNegativeAndExtremeValues()
+    {
+        ClassicAssert.True((-3).Between(-5, -1));
+        ClassicAssert.False((-6).Between(-5, -1));
+        ClassicAssert.True(int.MinValue.Between(int.MinValue, int.MaxValue));
+        ClassicAssert.True(int.MaxValue.Between(int.MinValue, int.MaxValue));
+    }
+
+    [Test]
+    public void BetweenMatchesReference()
+    {
+        int[] boundaries = [int.MinValue, -1000, -1, 0, 1, 1000, int.MaxValue];
+        foreach (int from in boundaries)
+        {
+            foreach (int to in boundaries)
+            {
+                if (from > to)
+                {
+                    continue;
+                }
+
+                foreach (int val in boundaries)
+                {
+                    ClassicAssert.AreEqual(
+                        RefBetween(val, from, to),
+                        val.Between(from, to),
+                        $"{val} between {from} and {to}"
+                    );
+                }
+            }
+        }
+    }
+
+    #endregion
+
     #region GetHighestSetBit
 
     [Test]
-    public void GetHighestSetBit_ReturnsMinusOne_ForZero()
+    public void GetHighestSetBitReturnsMinusOneForZero()
     {
         ClassicAssert.AreEqual(-1, 0u.GetHighestSetBit());
     }
 
     [Test]
-    public void GetHighestSetBit_FindsEachSingleBit()
+    public void GetHighestSetBitFindsEachSingleBit()
     {
         for (int i = 0; i < BitCount; i++)
         {
@@ -32,7 +98,7 @@ public class IntegerExtensionsTests
     }
 
     [Test]
-    public void GetHighestSetBit_IgnoresLowerBits()
+    public void GetHighestSetBitIgnoresLowerBits()
     {
         ClassicAssert.AreEqual(31, uint.MaxValue.GetHighestSetBit());
         ClassicAssert.AreEqual(3, 0b1011u.GetHighestSetBit());
@@ -40,7 +106,7 @@ public class IntegerExtensionsTests
     }
 
     [Test]
-    public void GetHighestSetBit_MatchesReference()
+    public void GetHighestSetBitMatchesReference()
     {
         foreach (uint value in SampleValues())
         {
@@ -57,7 +123,7 @@ public class IntegerExtensionsTests
     #region GetHighestSetBitBelow
 
     [Test]
-    public void GetHighestSetBitBelow_ReturnsMinusOne_WhenNoBitAtOrBelowIndex()
+    public void GetHighestSetBitBelowReturnsMinusOneWhenNoBitAtOrBelowIndex()
     {
         ClassicAssert.AreEqual(-1, 0u.GetHighestSetBitBelow(31));
 
@@ -66,7 +132,7 @@ public class IntegerExtensionsTests
     }
 
     [Test]
-    public void GetHighestSetBitBelow_IncludesTheIndexItself()
+    public void GetHighestSetBitBelowIncludesTheIndexItself()
     {
         ClassicAssert.AreEqual(5, (1u << 5).GetHighestSetBitBelow(5));
         ClassicAssert.AreEqual(0, 1u.GetHighestSetBitBelow(0));
@@ -74,7 +140,7 @@ public class IntegerExtensionsTests
     }
 
     [Test]
-    public void GetHighestSetBitBelow_SkipsBitsAboveTheIndex()
+    public void GetHighestSetBitBelowSkipsBitsAboveTheIndex()
     {
         // Bits 2 and 30 set, capped at 10 -> 2.
         uint value = (1u << 2) | (1u << 30);
@@ -83,7 +149,7 @@ public class IntegerExtensionsTests
     }
 
     [Test]
-    public void GetHighestSetBitBelow_MatchesReference()
+    public void GetHighestSetBitBelowMatchesReference()
     {
         foreach (uint value in SampleValues())
         {
@@ -103,7 +169,7 @@ public class IntegerExtensionsTests
     #region GetLowestSetBitAbove
 
     [Test]
-    public void GetLowestSetBitAbove_ReturnsMinusOne_WhenNoBitAtOrAboveIndex()
+    public void GetLowestSetBitAboveReturnsMinusOneWhenNoBitAtOrAboveIndex()
     {
         ClassicAssert.AreEqual(-1, 0u.GetLowestSetBitAbove(0));
 
@@ -112,7 +178,7 @@ public class IntegerExtensionsTests
     }
 
     [Test]
-    public void GetLowestSetBitAbove_IncludesTheIndexItself()
+    public void GetLowestSetBitAboveIncludesTheIndexItself()
     {
         ClassicAssert.AreEqual(5, (1u << 5).GetLowestSetBitAbove(5));
         ClassicAssert.AreEqual(0, 1u.GetLowestSetBitAbove(0));
@@ -120,7 +186,7 @@ public class IntegerExtensionsTests
     }
 
     [Test]
-    public void GetLowestSetBitAbove_SkipsBitsBelowTheIndex()
+    public void GetLowestSetBitAboveSkipsBitsBelowTheIndex()
     {
         // Bits 2 and 30 set, starting at 10 -> 30.
         uint value = (1u << 2) | (1u << 30);
@@ -129,7 +195,7 @@ public class IntegerExtensionsTests
     }
 
     [Test]
-    public void GetLowestSetBitAbove_MatchesReference()
+    public void GetLowestSetBitAboveMatchesReference()
     {
         foreach (uint value in SampleValues())
         {
@@ -176,6 +242,8 @@ public class IntegerExtensionsTests
 
         return values;
     }
+
+    private static bool RefBetween(int val, int from, int to) => val >= from && val <= to;
 
     private static int RefHighestSetBit(uint value) => RefHighestSetBitBelow(value, BitCount - 1);
 
