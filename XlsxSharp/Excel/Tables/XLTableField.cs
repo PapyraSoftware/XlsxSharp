@@ -203,7 +203,7 @@ internal class XLTableField : IXLTableField
 
         if (this.table.ShowTotalsRow)
         {
-            dataTypes = dataTypes.SkipLast();
+            dataTypes = dataTypes.SkipLast(1);
         }
 
         var distinctDataTypes = dataTypes
@@ -222,7 +222,7 @@ internal class XLTableField : IXLTableField
 
         if (this.table.ShowTotalsRow)
         {
-            formulas = formulas.SkipLast();
+            formulas = formulas.SkipLast(1);
         }
 
         var distinctFormulas = formulas
@@ -242,7 +242,7 @@ internal class XLTableField : IXLTableField
 
         if (this.table.ShowTotalsRow)
         {
-            styles = styles.SkipLast();
+            styles = styles.SkipLast(1);
         }
 
         IEnumerable<XLCellFormat> distinctStyles = styles.Distinct();
