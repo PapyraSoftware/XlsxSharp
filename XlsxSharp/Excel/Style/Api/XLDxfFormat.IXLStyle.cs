@@ -1,5 +1,3 @@
-using System;
-
 namespace XlsxSharp.Excel;
 
 internal partial class XLDxFormat : IXLStyle

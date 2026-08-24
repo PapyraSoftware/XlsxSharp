@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using XlsxSharp.Excel.Formatting;
 
 namespace XlsxSharp.Excel;

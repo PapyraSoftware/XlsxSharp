@@ -1,6 +1,5 @@
 #nullable disable
 
-using System;
 using System.Globalization;
 
 namespace XlsxSharp.Excel.CalcEngine;

@@ -1,9 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using ClosedXML.Parser;
 using XlsxSharp.Excel.CalcEngine.Visitors;
 using XlsxSharp.Excel.Misc;
+using XlsxSharp.Parser;
 
 namespace XlsxSharp.Excel.ConditionalFormats;
 

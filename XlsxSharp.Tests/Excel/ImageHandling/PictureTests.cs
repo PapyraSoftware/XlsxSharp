@@ -1,8 +1,3 @@
-using System;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
 using XlsxSharp.Examples;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.Drawings;

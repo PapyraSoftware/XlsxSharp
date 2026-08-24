@@ -1,6 +1,5 @@
 #nullable disable
 
-using System.Collections.Generic;
 using XlsxSharp.Extensions;
 
 namespace XlsxSharp.Excel.Misc;

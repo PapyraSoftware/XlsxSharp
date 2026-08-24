@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.Drawing;
 using XlsxSharp.Excel.Caching;
 using XlsxSharp.Utils;

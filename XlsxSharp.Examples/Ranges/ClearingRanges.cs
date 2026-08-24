@@ -1,4 +1,3 @@
-using System.Linq;
 using XlsxSharp.Excel;
 
 namespace XlsxSharp.Examples.Ranges;

@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace XlsxSharp.IO.CodeGen.Model.Elements;
 
 /// <summary>

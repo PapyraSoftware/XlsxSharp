@@ -1,9 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.ConditionalFormats;
-using XlsxSharp.Tests.Utils;
 
 namespace XlsxSharp.Tests.Excel.ConditionalFormats;
 
@@ -275,7 +271,7 @@ public class ConditionalFormatShiftTests
         );
     }
 
-    internal static IEnumerable<(string, Action<IXLWorksheet>, string)> GetSplitTestCases()
+    public static IEnumerable<(string, Action<IXLWorksheet>, string)> GetSplitTestCases()
     {
         yield return ("A1:C3", ws => ws.Range("A1").InsertRowsAbove(2), "B1:C3 A3:A5");
         yield return ("A1:C3", ws => ws.Range("A2").InsertColumnsBefore(2), "A1:C1 C2:E2 A3:C3");
@@ -291,7 +287,7 @@ public class ConditionalFormatShiftTests
         );
     }
 
-    internal static IEnumerable<(
+    public static IEnumerable<(
         string,
         string,
         Action<IXLWorksheet>,

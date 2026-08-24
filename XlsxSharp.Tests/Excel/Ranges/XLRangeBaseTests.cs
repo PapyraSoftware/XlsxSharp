@@ -1,9 +1,6 @@
-using System.Collections.Generic;
-using System.Linq;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.CalcEngine;
 using XlsxSharp.Excel.Tables;
-using XlsxSharp.Tests.Utils;
 
 namespace XlsxSharp.Tests.Excel.Ranges;
 

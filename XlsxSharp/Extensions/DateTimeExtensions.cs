@@ -1,5 +1,3 @@
-using System;
-
 namespace XlsxSharp.Extensions;
 
 internal static class DateTimeExtensions

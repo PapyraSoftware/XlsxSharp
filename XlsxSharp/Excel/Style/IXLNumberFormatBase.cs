@@ -1,5 +1,3 @@
-using System;
-
 namespace XlsxSharp.Excel;
 
 public interface IXLNumberFormatBase

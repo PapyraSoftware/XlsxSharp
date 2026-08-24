@@ -1,7 +1,7 @@
-using ClosedXML.Parser;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.CalcEngine.Visitors;
 using XlsxSharp.Extensions;
+using XlsxSharp.Parser;
 
 namespace XlsxSharp.Tests.Excel.CalcEngine;
 

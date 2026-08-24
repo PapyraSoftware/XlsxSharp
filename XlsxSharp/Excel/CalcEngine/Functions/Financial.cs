@@ -1,4 +1,3 @@
-using System;
 using static XlsxSharp.Excel.CalcEngine.Functions.SignatureAdapter;
 
 namespace XlsxSharp.Excel.CalcEngine.Functions;

@@ -1,6 +1,3 @@
-using System;
-using System.IO;
-using System.Linq;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.Protection;
 using XlsxSharp.Extensions;

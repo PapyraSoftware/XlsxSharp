@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-
-namespace XlsxSharp.Tests.Utils;
+﻿namespace XlsxSharp.Tests.Utils;
 
 internal class TemporaryFile : IDisposable
 {

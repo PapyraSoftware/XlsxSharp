@@ -1,6 +1,5 @@
 #nullable disable
 
-using System;
 using static XlsxSharp.Excel.Protection.XLProtectionAlgorithm;
 
 namespace XlsxSharp.Excel.Protection;

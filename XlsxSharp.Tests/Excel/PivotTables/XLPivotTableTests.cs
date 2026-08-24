@@ -1,12 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.PivotStyleFormats;
 using XlsxSharp.Excel.PivotValues;
 using XlsxSharp.Excel.Tables;
-using XlsxSharp.Tests.Utils;
 
 namespace XlsxSharp.Tests.Excel.PivotTables;
 

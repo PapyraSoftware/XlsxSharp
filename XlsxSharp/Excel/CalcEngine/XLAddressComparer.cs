@@ -1,8 +1,5 @@
 #nullable disable
 
-using System;
-using System.Collections.Generic;
-
 namespace XlsxSharp.Excel.CalcEngine;
 
 internal class XLAddressComparer : IEqualityComparer<IXLAddress>

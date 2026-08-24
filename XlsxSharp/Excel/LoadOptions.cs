@@ -1,7 +1,5 @@
 // Keep this file CodeMaid organized and cleaned
 
-using System;
-using System.Threading;
 using XlsxSharp.Graphics;
 
 namespace XlsxSharp.Excel;

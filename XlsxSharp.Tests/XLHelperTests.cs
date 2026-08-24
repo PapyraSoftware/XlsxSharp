@@ -1,5 +1,3 @@
-using System;
-
 namespace XlsxSharp.Tests;
 
 public class XlHelperTests

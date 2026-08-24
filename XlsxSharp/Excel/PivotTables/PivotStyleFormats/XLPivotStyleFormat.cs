@@ -1,5 +1,3 @@
-using System;
-
 namespace XlsxSharp.Excel.PivotStyleFormats;
 
 internal class XLPivotStyleFormat : XLPivotStyleFormatBase

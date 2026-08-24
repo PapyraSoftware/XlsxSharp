@@ -1,9 +1,6 @@
-using System;
-using System.Collections.Generic;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.ConditionalFormats;
 using XlsxSharp.Excel.Formatting;
-using XlsxSharp.Tests.Utils;
 
 namespace XlsxSharp.Tests.Excel.Styles;
 

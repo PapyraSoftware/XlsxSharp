@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-
 namespace XlsxSharp.Excel.CalcEngine.Functions;
 
 internal class TallyNumbers : ITally

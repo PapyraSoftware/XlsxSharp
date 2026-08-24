@@ -1,16 +1,9 @@
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.IO.Packaging;
-using System.Linq;
-using System.Reflection;
-using System.Threading;
 using System.Xml.Linq;
 using XlsxSharp.Examples;
 using XlsxSharp.Excel;
 using XlsxSharp.Graphics;
-using XlsxSharp.Tests.Utils;
 using Assembly = System.Reflection.Assembly;
 using LoadOptions = XlsxSharp.Excel.LoadOptions;
 using Path = System.IO.Path;

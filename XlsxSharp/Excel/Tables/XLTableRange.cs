@@ -1,8 +1,5 @@
 #nullable disable
 
-using System;
-using System.Linq;
-
 namespace XlsxSharp.Excel.Tables;
 
 internal class XLTableRange : XLRange, IXLTableRange

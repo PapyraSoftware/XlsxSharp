@@ -1,6 +1,5 @@
 #nullable disable
 
-using System;
 using System.Text;
 using XlsxSharp.Excel.RichText;
 using XlsxSharp.Extensions;

@@ -1,7 +1,4 @@
-using System.Collections.Generic;
-using System.IO;
 using XlsxSharp.Excel;
-using XlsxSharp.Tests.Utils;
 
 namespace XlsxSharp.Tests.Excel.Coordinates;
 

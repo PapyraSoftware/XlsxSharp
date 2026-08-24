@@ -1,4 +1,3 @@
-using System;
 using System.Xml;
 
 namespace XlsxSharp.IO;

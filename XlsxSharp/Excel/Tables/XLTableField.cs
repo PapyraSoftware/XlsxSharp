@@ -1,6 +1,4 @@
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using XlsxSharp.Excel.Formatting;
 using XlsxSharp.Extensions;
 

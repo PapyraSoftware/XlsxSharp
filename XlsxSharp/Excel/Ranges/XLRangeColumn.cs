@@ -1,7 +1,5 @@
 #nullable disable
 
-using System;
-using System.Linq;
 using XlsxSharp.Excel.Sort;
 using XlsxSharp.Excel.Tables;
 

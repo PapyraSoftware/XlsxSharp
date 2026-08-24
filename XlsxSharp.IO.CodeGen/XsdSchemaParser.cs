@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using XlsxSharp.IO.CodeGen.Model;
+﻿using XlsxSharp.IO.CodeGen.Model;
 using XlsxSharp.IO.CodeGen.Model.Elements;
 using XlsxSharp.IO.CodeGen.Model.SimpleTypes;
 using XlsxSharp.IO.CodeGen.Model.TopLevel;

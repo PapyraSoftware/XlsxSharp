@@ -1,8 +1,6 @@
 #nullable disable
 
-using System;
 using System.Globalization;
-using System.Linq;
 using XlsxSharp.Extensions;
 using CollectionValue = XlsxSharp.Excel.CalcEngine.OneOf<
     XlsxSharp.Excel.CalcEngine.Array,

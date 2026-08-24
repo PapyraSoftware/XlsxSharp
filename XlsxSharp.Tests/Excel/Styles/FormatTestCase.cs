@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using XlsxSharp.Excel;
 
 namespace XlsxSharp.Tests.Excel.Styles;

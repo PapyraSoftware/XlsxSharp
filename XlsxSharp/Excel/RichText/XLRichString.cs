@@ -1,4 +1,3 @@
-using System;
 using System.Diagnostics;
 using XlsxSharp.Excel.Formatting;
 

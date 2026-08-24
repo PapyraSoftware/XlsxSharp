@@ -1,4 +1,3 @@
-using System;
 using XlsxSharp.Excel.CalcEngine;
 
 namespace XlsxSharp.Tests.Excel.CalcEngine;

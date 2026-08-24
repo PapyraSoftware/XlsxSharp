@@ -51,6 +51,29 @@ To ensure you follow the coding conventions, please do the following steps befor
 - In Visual Studio, run `CodeMaid > Cleanup Active Document` or `Ctrl+M, Space` on each file that you have altered. This will ensure the correct whitespace consistency.
 - Some files, not all, have a header in the first line: `// Keep this file CodeMaid organised and cleaned`. For these files, also run `CodeMaid > Reorganize Active Document` or `Ctrl+M, Z`. This will reorder properties and methods alphabetically into a predetermined order. For example, public properties and methods will be organized before private properties and methods. Not all files require this yet. Please take note of the headers.
 
+## Vendored formula parser
+
+`XlsxSharp.Parser/` holds the sources of [ClosedXML.Parser](https://github.com/ClosedXML/ClosedXML.Parser) (MIT), which XlsxSharp used to consume as a NuGet package. They were imported with `git subtree`, so the full upstream history is part of this repository and `git log XlsxSharp.Parser/` shows it. The lexer and parser are on the hot path of every formula we read, convert or evaluate, and having the sources here is what makes profiling and optimising them possible.
+
+To pull upstream changes, add the remote once and merge:
+
+```
+git remote add closedxml-parser https://github.com/ClosedXML/ClosedXML.Parser
+git subtree pull --prefix=XlsxSharp.Parser closedxml-parser develop
+```
+
+Two things keep that merge from turning into a conflict, and both are worth preserving:
+
+- `XlsxSharp.Parser/Directory.Build.props` deliberately does not import the repository-wide `Directory.Build.props`. Integration settings belong in that file so that the vendored project files stay byte-identical to upstream.
+- `.csharpierignore` excludes the directory. Reformatting it would rewrite every file and conflict with every future pull.
+
+The parser brings its own xUnit suite in `XlsxSharp.Parser/src/ClosedXML.Parser.Tests/`, including the Enron and EUSES formula corpora. It is not part of `XlsxSharp.slnx`: it targets `net8.0` and runs on VSTest, while this repository is `net10.0` on Microsoft.Testing.Platform. Run it on its own:
+
+```
+dotnet build XlsxSharp.Parser/src/ClosedXML.Parser.Tests/ClosedXML.Parser.Tests.csproj -c Release
+DOTNET_ROLL_FORWARD=Major dotnet vstest XlsxSharp.Parser/src/ClosedXML.Parser.Tests/bin/Release/net8.0/ClosedXML.Parser.Tests.dll
+```
+
 ## Versioning and releases
 
 Version numbers are not maintained anywhere in the repository. [MinVer](https://github.com/adamralph/minver) derives them from the git history:
@@ -67,6 +90,6 @@ git push origin v0.107.0
 
 The next version is always guessed as a patch bump, so the prereleases between two releases are named after a patch version even when the release eventually turns out to be a minor one. That is only a naming detail and does not restrict which tag can be set next; `MinVerAutoIncrement` in `Directory.Build.props` would change the guess to `minor`. `MinVerMinimumMajorMinor` is only a floor for the very first release and does not need to be touched per release.
 
-`XlsxSharp.IO` has no package of its own. It is compiled into the `XlsxSharp` package, see the `IncludeXlsxSharpIoInPackage` target in `XlsxSharp/XlsxSharp.csproj`.
+`XlsxSharp.IO` has no package of its own. It is compiled into the `XlsxSharp` package, see the `IncludeXlsxSharpIoInPackage` target in `XlsxSharp/XlsxSharp.csproj`. The vendored parser ships the same way through the `IncludeParserInPackage` target next to it, which is why `ClosedXML.Parser` no longer appears among the package dependencies.
 
 Publishing uses [trusted publishing](https://learn.microsoft.com/nuget/nuget-org/trusted-publishing) instead of a stored API key, so nuget.org needs a policy for this repository and the `publish.yml` workflow. The repository needs the secrets `NUGET_USER` (the nuget.org account that owns the policy) and `SIXLABORS_LICENSE_KEY`.

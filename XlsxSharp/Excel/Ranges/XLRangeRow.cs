@@ -1,5 +1,3 @@
-using System;
-using System.Linq;
 using XlsxSharp.Excel.Rows;
 using XlsxSharp.Excel.Sort;
 

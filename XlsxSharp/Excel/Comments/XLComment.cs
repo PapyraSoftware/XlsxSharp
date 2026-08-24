@@ -1,6 +1,5 @@
 #nullable disable warnings
 
-using System;
 using System.Diagnostics;
 using XlsxSharp.Excel.Drawings;
 using XlsxSharp.Excel.Drawings.Style;

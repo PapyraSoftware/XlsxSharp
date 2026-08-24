@@ -1,4 +1,3 @@
-using System.IO;
 using XlsxSharp.Examples.Tables;
 using XlsxSharp.Excel;
 

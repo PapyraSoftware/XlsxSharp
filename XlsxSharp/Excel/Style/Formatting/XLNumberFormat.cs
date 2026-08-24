@@ -1,4 +1,3 @@
-using System;
 using static XlsxSharp.Excel.XLPredefinedFormat.DateTime;
 
 namespace XlsxSharp.Excel.Formatting;

@@ -1,5 +1,3 @@
-using System;
-
 namespace XlsxSharp.IO.CodeGen.Model;
 
 public readonly record struct Occurrences(int? Min, int? Max)

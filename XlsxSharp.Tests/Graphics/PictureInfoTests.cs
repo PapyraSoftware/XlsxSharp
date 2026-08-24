@@ -1,7 +1,4 @@
 using System.Drawing;
-using System.IO;
-using System.Reflection;
-using System.Threading.Tasks;
 using XlsxSharp.Excel.Drawings;
 using XlsxSharp.Graphics;
 using Assembly = System.Reflection.Assembly;

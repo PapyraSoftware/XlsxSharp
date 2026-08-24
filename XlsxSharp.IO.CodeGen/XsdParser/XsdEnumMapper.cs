@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using XlsxSharp.IO.CodeGen.Model;
 
 namespace XlsxSharp.IO.CodeGen.XsdParser;

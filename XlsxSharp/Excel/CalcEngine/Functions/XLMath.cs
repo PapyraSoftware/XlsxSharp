@@ -1,5 +1,3 @@
-using System;
-
 namespace XlsxSharp.Excel.CalcEngine.Functions;
 
 internal static class XLMath

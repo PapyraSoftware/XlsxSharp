@@ -1,5 +1,3 @@
-using System.IO;
-
 namespace XlsxSharp.Examples;
 
 public static class ExampleHelper

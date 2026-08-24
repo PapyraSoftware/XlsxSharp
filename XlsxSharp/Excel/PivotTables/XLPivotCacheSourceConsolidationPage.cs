@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace XlsxSharp.Excel;
+﻿namespace XlsxSharp.Excel;
 
 /// <summary>
 /// A page filter for pivot table that uses <see cref="XLPivotSourceConsolidation"/> as the source

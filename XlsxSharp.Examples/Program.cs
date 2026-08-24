@@ -1,5 +1,3 @@
-using System;
-using System.IO;
 using XlsxSharp.Examples.Creating;
 using XlsxSharp.Examples.Loading;
 

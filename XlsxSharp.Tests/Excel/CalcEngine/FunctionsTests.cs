@@ -1,5 +1,3 @@
-using System;
-using System.Threading;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.CalcEngine;
 

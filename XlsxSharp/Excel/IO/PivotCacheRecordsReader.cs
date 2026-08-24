@@ -1,4 +1,3 @@
-using System;
 using XlsxSharp.Excel.CalcEngine;
 using XlsxSharp.Extensions;
 using XlsxSharp.IO;

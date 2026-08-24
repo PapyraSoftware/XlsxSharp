@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
-using System.Linq;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.CalcEngine;
 using XlsxSharp.Excel.DataValidation;
@@ -11,7 +7,6 @@ using XlsxSharp.Excel.PivotValues;
 using XlsxSharp.Excel.Protection;
 using XlsxSharp.Excel.Tables;
 using XlsxSharp.Extensions;
-using XlsxSharp.Tests.Utils;
 using Point = System.Drawing.Point;
 
 namespace XlsxSharp.Tests.Excel.Loading;

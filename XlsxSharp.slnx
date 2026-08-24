@@ -11,10 +11,21 @@
         <File Path=".editorconfig" />
         <File Path="Directory.Build.props" />
     </Folder>
-    <Project Path="XlsxSharp.Examples\XlsxSharp.Examples.csproj" />
-    <Project Path="XlsxSharp.IO.CodeGen\XlsxSharp.IO.CodeGen.csproj" />
-    <Project Path="XlsxSharp.IO\XlsxSharp.IO.csproj" />
+    <Folder Name="/src/">
+        <Project Path="XlsxSharp.IO.CodeGen\XlsxSharp.IO.CodeGen.csproj" />
+        <Project Path="XlsxSharp.IO\XlsxSharp.IO.csproj" />
+        <Project Path="XlsxSharp\XlsxSharp.csproj" />
+    </Folder>
+    <Folder Name="/src/parser/">
+        <Project Path="XlsxSharp.ANTLR/XlsxSharp.ANTLR.csproj" />
+        <Project Path="XlsxSharp.Parser.Ast/XlsxSharp.Parser.Ast.csproj" />
+        <Project Path="XlsxSharp.Parser/XlsxSharp.Parser.csproj" />
+    </Folder>
+    <Folder Name="/tests/">
+        <Project Path="XlsxSharp.Examples\XlsxSharp.Examples.csproj" />
+        <Project Path="XlsxSharp.Parser.Tests/XlsxSharp.Parser.Tests.csproj" />
+        <Project Path="XlsxSharp.Tests\XlsxSharp.Tests.csproj" />
+    </Folder>
+    <Project Path="XlsxSharp.Parser.Function/XlsxSharp.Parser.Function.csproj" />
     <Project Path="XlsxSharp.Sandbox\XlsxSharp.Sandbox.csproj" />
-    <Project Path="XlsxSharp.Tests\XlsxSharp.Tests.csproj" />
-    <Project Path="XlsxSharp\XlsxSharp.csproj" />
 </Solution>

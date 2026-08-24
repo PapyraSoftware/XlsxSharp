@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace XlsxSharp.Excel.Sort;
+﻿namespace XlsxSharp.Excel.Sort;
 
 /// <summary>
 /// A comparator of two cell value. It uses semantic of a sort feature in Excel:

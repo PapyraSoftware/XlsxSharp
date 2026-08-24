@@ -1,5 +1,4 @@
-﻿using System;
-using DocumentFormat.OpenXml.CustomProperties;
+﻿using DocumentFormat.OpenXml.CustomProperties;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.VariantTypes;
 using XlsxSharp.Excel.CustomProperties;

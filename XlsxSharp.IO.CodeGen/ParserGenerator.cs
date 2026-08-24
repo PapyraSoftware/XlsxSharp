@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.Text;
 using XlsxSharp.IO.CodeGen.Model;
 using XlsxSharp.IO.CodeGen.Model.TopLevel;

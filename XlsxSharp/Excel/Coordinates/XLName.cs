@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-
-namespace XlsxSharp.Excel;
+﻿namespace XlsxSharp.Excel;
 
 /// <summary>
 /// A name in a worksheet. Unlike <see cref="IXLDefinedName"/>, this is basically only a reference.

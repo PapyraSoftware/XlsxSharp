@@ -1,10 +1,4 @@
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Threading;
 using System.Xml.Linq;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
@@ -16,7 +10,6 @@ using XlsxSharp.Excel.DataValidation;
 using XlsxSharp.Excel.Drawings;
 using XlsxSharp.Excel.IO;
 using XlsxSharp.Excel.Tables;
-using XlsxSharp.Tests.Utils;
 using Assembly = System.Reflection.Assembly;
 using SaveOptions = XlsxSharp.Excel.SaveOptions;
 

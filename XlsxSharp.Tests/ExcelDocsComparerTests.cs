@@ -1,6 +1,4 @@
-using System.IO;
 using XlsxSharp.Examples;
-using XlsxSharp.Tests.Utils;
 
 namespace XlsxSharp.Tests;
 

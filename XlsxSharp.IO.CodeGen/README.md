@@ -53,6 +53,21 @@ while (reader.Read()) {
 
 Of course CodeGen parser is limited in other ways, but for purposes of OOXML it is a better choice.
 
+# Regenerating the parsers
+
+`Schemas/sml.xsd` is the official ECMA-376 5th edition (Transitional) SpreadsheetML
+schema. To regenerate `XlsxSharp/Excel/IO/StylesReader.g.cs` and
+`XlsxSharp/Excel/IO/PivotCacheRecordsReader.g.cs` from it, run:
+
+```sh
+XlsxSharp.IO.CodeGen/regenerate.sh
+```
+
+Always review `git diff` afterwards: a newer/changed schema can add or remove
+elements and attributes, which changes the parameter list the generated code
+passes to the hand-coded hooks in `StylesReader.cs` / `PivotCacheRecordsReader.cs`,
+requiring those hooks to be updated to match before the project builds again.
+
 # Usage
 
 In order to generate a parser, it is necessary to

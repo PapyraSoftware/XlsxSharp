@@ -1,6 +1,5 @@
 #nullable disable
 
-using System.Linq;
 using DocumentFormat.OpenXml.Packaging;
 
 namespace XlsxSharp.Extensions;
