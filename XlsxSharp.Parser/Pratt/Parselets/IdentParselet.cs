@@ -75,6 +75,17 @@ internal class IdentParselet<TScalar, T, TContext> : IPrefixParselet<T, TContext
                 return this.ParseFunctionCall(ctx, sheetRefToken, sheetName);
             }
 
+            // Check for `sheet!#REF!` - a reference to a deleted sheet. Only #REF! is special
+            // here (other errors, e.g. `sheet!#N/A`, aren't valid); the whole thing collapses to
+            // an error. Unlike ErrorParselet, the oracle doesn't normalize the casing in this
+            // particular path, so pass the text through as-is to match it exactly.
+            if (sheetRefToken.Type == TokenType.Error && EqualCaseInsensitive(sheetRefToken.GetText(this._parser.Input), "#REF!"))
+            {
+                SymbolRange range = sheetWithBangRange.ExtendRight(sheetRefToken.Range);
+                T value = this._factory.ErrorNode(ctx, range, sheetRefToken.GetText(this._parser.Input));
+                return new Node<T>(value, range);
+            }
+
             // Check for area `sheet!A1:B2` or just cell `sheet!A1`
             // Check for colspan `sheet!A:B`
             // Check for rowspan `sheet!1:2` with absolute or relative start row

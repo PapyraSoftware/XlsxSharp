@@ -110,9 +110,29 @@ public class PrattParserAcceptanceTests
     [Arguments("#GETTING_DATA")]
     [Arguments("SUM(#REF!,1)")]
     [Arguments("#VALUE!+1")]
+    [Arguments("Deals!#REF!")] // A reference to a deleted sheet - collapses to a normalized #REF!.
+    [Arguments("Deals!#ref!")]
+    [Arguments("Deals!#REF!*2")]
     public async Task ErrorLiteralsMatchOracle(string formula)
     {
         await AssertMatchesOracle(formula);
+    }
+
+    [Test]
+    [Arguments("Deals!#N/A")] // Only #REF! is special-cased after a sheet prefix.
+    [Arguments("Deals!#DIV/0!")]
+    public async Task SheetPrefixedNonRefErrorsAreRejectedByBoth(string formula)
+    {
+        await Assert.ThrowsAsync<Exception>(() =>
+            Task.FromResult(
+                FormulaParser<ScalarValue, AstNode, Ctx>.CellFormulaA1(formula, new Ctx(), new F())
+            )
+        );
+
+        Parser<AstNode, Ctx> parser = ParserFactory.Create(new F());
+        await Assert.ThrowsAsync<Exception>(() =>
+            Task.FromResult(parser.ParseFormula(formula, new Ctx()))
+        );
     }
 
     [Test]

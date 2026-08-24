@@ -115,6 +115,11 @@ public static class NameUtils
         return sheetName.IndexOfAny(InvalidSheetChars) == -1;
     }
 
+    /// <summary>
+    /// Matches the <c>NAME</c> production of the Rolex-based lexer (see <c>LexerA1.rl</c>):
+    /// starts with a letter, underscore or backslash (unicode letters included), followed by any
+    /// number of letters, digits, <c>.</c>, <c>_</c>, <c>\</c> or <c>?</c>.
+    /// </summary>
     internal static bool IsNameValid(ReadOnlySpan<char> name)
     {
         if (name.Length is < 1 or > 255)
@@ -122,18 +127,14 @@ public static class NameUtils
             return false;
         }
 
-        // TODO: Determine what is a valid name and make the method public.
-        // Alert box says:
-        // * Starts with a letter or underscore
-        // * no space or char that is not allowed
-        if (name[0] != '_' && !char.IsLetter(name[0]))
+        if (name[0] is not ('_' or '\\') && !char.IsLetter(name[0]))
         {
             return false;
         }
 
         foreach (char nextNameChar in name.Slice(1))
         {
-            if (!char.IsLetter(nextNameChar))
+            if (nextNameChar is not ('_' or '\\' or '.' or '?') && !char.IsLetterOrDigit(nextNameChar))
             {
                 return false;
             }
