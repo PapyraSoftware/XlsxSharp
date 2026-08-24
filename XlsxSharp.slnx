@@ -14,6 +14,7 @@
     <Project Path="XlsxSharp.Examples\XlsxSharp.Examples.csproj" />
     <Project Path="XlsxSharp.IO.CodeGen\XlsxSharp.IO.CodeGen.csproj" />
     <Project Path="XlsxSharp.IO\XlsxSharp.IO.csproj" />
+    <Project Path="XlsxSharp.Parser\src\ClosedXML.Parser\ClosedXML.Parser.csproj" />
     <Project Path="XlsxSharp.Sandbox\XlsxSharp.Sandbox.csproj" />
     <Project Path="XlsxSharp.Tests\XlsxSharp.Tests.csproj" />
     <Project Path="XlsxSharp\XlsxSharp.csproj" />

@@ -1,0 +1,23 @@
+<Project>
+
+  <!-- This file deliberately does NOT import ../Directory.Build.props.
+
+       MSBuild stops at the nearest Directory.Build.props when walking up from a project, so this
+       empty-ish file shields the vendored parser from the repository-wide properties. Those set a
+       single net10.0 TargetFramework, MinVer versioning, XlsxSharp package metadata and an
+       InternalsVisibleTo for XlsxSharp.Tests - none of which apply here. ClosedXML.Parser
+       multi-targets netstandard2.0/2.1 and would not even restore under the inherited
+       TargetFramework.
+
+       Keeping the vendored project files byte-identical to upstream is what lets
+       a 'git subtree pull' from the closedxml-parser remote stay a fast-forward
+       instead of a conflict, so integration settings belong in this file rather than in the
+       project files below it. -->
+
+  <PropertyGroup>
+    <!-- The parser assembly is shipped inside the XlsxSharp package (see XlsxSharp.csproj), so it
+         must never produce a package of its own. -->
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+</Project>

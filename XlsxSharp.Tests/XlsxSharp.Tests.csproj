@@ -27,6 +27,8 @@
     <!-- XlsxSharp references this privately so it can be packed into the XlsxSharp package, which
          means it no longer flows through transitively. The IO tests need it directly. -->
     <ProjectReference Include="..\XlsxSharp.IO\XlsxSharp.IO.csproj" />
+    <!-- Same story for the parser: the formula and reference tests use its types directly. -->
+    <ProjectReference Include="..\XlsxSharp.Parser\src\ClosedXML.Parser\ClosedXML.Parser.csproj" />
     <ProjectReference Include="..\XlsxSharp.Examples\XlsxSharp.Examples.csproj" />
   </ItemGroup>
 
