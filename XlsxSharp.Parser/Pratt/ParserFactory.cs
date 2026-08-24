@@ -14,6 +14,8 @@ internal static class ParserFactory
         parser.Register(TokenType.LeftParen, new GroupParselet<TNode, TContext>(parser));
         parser.Register(TokenType.Ident, new IdentParselet<TScalar,TNode,TContext>(factory, parser));
         parser.Register(TokenType.QIdent, new QIdentParselet<TScalar, TNode, TContext>(factory, parser));
+        parser.Register(TokenType.Text, new TextParselet<TScalar, TNode, TContext>(factory, parser));
+        parser.Register(TokenType.Error, new ErrorParselet<TScalar, TNode, TContext>(factory, parser));
         parser.Register(TokenType.Plus, new UnaryOpParselet<TScalar, TNode, TContext>(factory, parser, UnaryOperation.Plus));
         parser.Register(TokenType.Minus, new UnaryOpParselet<TScalar, TNode, TContext>(factory, parser, UnaryOperation.Minus));
 

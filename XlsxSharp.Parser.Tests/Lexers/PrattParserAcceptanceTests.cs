@@ -88,6 +88,34 @@ public class PrattParserAcceptanceTests
     }
 
     [Test]
+    [Arguments("\"abc\"")]
+    [Arguments("\"\"")] // Empty string.
+    [Arguments("\"a\"\"b\"")] // Escaped quote: unescapes to a"b.
+    [Arguments("\"a\"&\"b\"")]
+    [Arguments("SUM(\"1\",\"2\")")]
+    [Arguments("\"a\"=\"b\"")]
+    public async Task TextLiteralsMatchOracle(string formula)
+    {
+        await AssertMatchesOracle(formula);
+    }
+
+    [Test]
+    [Arguments("#REF!")]
+    [Arguments("#N/A")]
+    [Arguments("#NAME?")]
+    [Arguments("#DIV/0!")]
+    [Arguments("#div/0!")] // Normalized to upper case, regardless of the casing used.
+    [Arguments("#NULL!")]
+    [Arguments("#NUM!")]
+    [Arguments("#GETTING_DATA")]
+    [Arguments("SUM(#REF!,1)")]
+    [Arguments("#VALUE!+1")]
+    public async Task ErrorLiteralsMatchOracle(string formula)
+    {
+        await AssertMatchesOracle(formula);
+    }
+
+    [Test]
     [Arguments("'New York'!A1")]
     [Arguments("'New York'!A1:B2")]
     [Arguments("'New York'!A:B")]
