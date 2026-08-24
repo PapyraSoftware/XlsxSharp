@@ -1,7 +1,6 @@
 #nullable disable
 
 using System.Drawing;
-using System.IO;
 using XlsxSharp.Excel.Drawings;
 using XlsxSharp.Utils;
 

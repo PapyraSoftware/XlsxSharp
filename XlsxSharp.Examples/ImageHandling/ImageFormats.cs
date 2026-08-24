@@ -1,4 +1,3 @@
-using System.IO;
 using System.Reflection;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.Drawings;

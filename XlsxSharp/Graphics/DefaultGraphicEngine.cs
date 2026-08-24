@@ -1,9 +1,7 @@
 ﻿#nullable disable
 
-using System;
 using System.Collections.Concurrent;
 using System.Globalization;
-using System.IO;
 using System.Reflection;
 using SixLabors.Fonts;
 using SixLabors.Fonts.Unicode;

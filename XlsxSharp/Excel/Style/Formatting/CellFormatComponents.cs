@@ -1,5 +1,3 @@
-using System;
-
 namespace XlsxSharp.Excel.Formatting;
 
 [Flags]

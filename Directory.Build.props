@@ -4,6 +4,7 @@
     <SourceRoot>$(MSBuildThisFileDirectory)</SourceRoot>
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <!-- Versions come from git tags via MinVer. A tag 'v1.2.3' builds 1.2.3, any commit after it

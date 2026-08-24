@@ -1,11 +1,7 @@
 #nullable disable
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
-using System.IO;
-using System.Linq;
 using XlsxSharp.Graphics;
 
 namespace XlsxSharp.Excel.Drawings;

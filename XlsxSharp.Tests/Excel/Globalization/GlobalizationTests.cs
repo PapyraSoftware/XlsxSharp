@@ -1,5 +1,3 @@
-using System.IO;
-using System.Threading;
 using XlsxSharp.Excel;
 
 namespace XlsxSharp.Tests.Excel.Globalization;

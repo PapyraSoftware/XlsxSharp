@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace XlsxSharp.Utils;
 
 internal interface IReadOnlyBiDictionary<TKey, TValue> : IReadOnlyDictionary<TKey, TValue>

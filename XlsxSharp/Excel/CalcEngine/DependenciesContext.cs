@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace XlsxSharp.Excel.CalcEngine;
+﻿namespace XlsxSharp.Excel.CalcEngine;
 
 /// <summary>
 /// Context for <see cref="DependenciesVisitor"/>, it is used

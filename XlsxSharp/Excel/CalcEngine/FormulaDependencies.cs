@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace XlsxSharp.Excel.CalcEngine;
+﻿namespace XlsxSharp.Excel.CalcEngine;
 
 /// <summary>
 /// A list of objects a cell formula depends on. If one of them changes,

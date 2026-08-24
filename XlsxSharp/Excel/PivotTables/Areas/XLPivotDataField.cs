@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using XlsxSharp.Excel.CalcEngine;
 using XlsxSharp.Excel.Formatting;

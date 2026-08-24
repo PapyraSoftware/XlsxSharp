@@ -1,11 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using ClosedXML.Parser;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.CalcEngine;
 using XlsxSharp.Extensions;
+using XlsxSharp.Parser;
 
 namespace XlsxSharp.Tests.Excel.DefinedNames;
 

@@ -1,7 +1,5 @@
 #nullable disable
 
-using System.Collections.Generic;
-
 namespace XlsxSharp.Excel.Charts;
 
 internal class XLCharts : IXLCharts

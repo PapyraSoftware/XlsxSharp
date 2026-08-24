@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using XlsxSharp.Excel.Patterns;
 using XlsxSharp.Excel.Rows;
 using XlsxSharp.Excel.Tables;

@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using XlsxSharp.Excel.Exceptions;
+﻿using XlsxSharp.Excel.Exceptions;
 
 namespace XlsxSharp.Excel;
 

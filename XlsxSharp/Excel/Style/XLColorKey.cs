@@ -1,7 +1,5 @@
 #nullable disable
 
-using System;
-
 namespace XlsxSharp.Excel;
 
 internal struct XLColorKey : IEquatable<XLColorKey>

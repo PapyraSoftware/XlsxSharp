@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
 namespace XlsxSharp.Excel;
 
 internal class XLPivotAreaComparer : IEqualityComparer<XLPivotArea>

@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using XlsxSharp.Excel.Tables;
+﻿using XlsxSharp.Excel.Tables;
 
 namespace XlsxSharp.Excel;
 

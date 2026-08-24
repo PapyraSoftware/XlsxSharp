@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\XlsxSharp.Parser\XlsxSharp.Parser.csproj" />
+  </ItemGroup>
+</Project>

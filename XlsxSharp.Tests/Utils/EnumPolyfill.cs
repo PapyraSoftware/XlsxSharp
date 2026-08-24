@@ -1,6 +1,3 @@
-using System;
-using System.Linq;
-
 namespace XlsxSharp.Tests.Utils;
 
 // TODO: Replace with EnumPolyfill once Polyfill is updated

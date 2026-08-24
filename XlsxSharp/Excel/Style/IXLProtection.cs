@@ -1,4 +1,3 @@
-using System;
 using XlsxSharp.Excel.Protection;
 
 namespace XlsxSharp.Excel;

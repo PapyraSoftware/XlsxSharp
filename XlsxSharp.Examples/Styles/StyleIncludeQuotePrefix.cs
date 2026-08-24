@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using XlsxSharp.Excel;
+﻿using XlsxSharp.Excel;
 
 namespace XlsxSharp.Examples.Styles;
 

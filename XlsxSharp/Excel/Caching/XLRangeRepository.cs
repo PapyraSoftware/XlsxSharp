@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-
 namespace XlsxSharp.Excel.Caching;
 
 internal class XLRangeRepository : XLWorkbookElementRepositoryBase<XLRangeKey, XLRangeBase>

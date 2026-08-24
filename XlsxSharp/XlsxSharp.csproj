@@ -40,10 +40,7 @@
        optimise them in place. It ships the same way XlsxSharp.IO does: referenced as a project,
        kept out of the nuspec dependencies, and copied into lib/ next to XlsxSharp.dll. -->
   <ItemGroup>
-    <ProjectReference
-      Include="..\XlsxSharp.Parser\src\ClosedXML.Parser\ClosedXML.Parser.csproj"
-      PrivateAssets="all"
-    />
+    <ProjectReference Include="..\XlsxSharp.Parser\XlsxSharp.Parser.csproj" PrivateAssets="all" />
   </ItemGroup>
 
   <PropertyGroup>

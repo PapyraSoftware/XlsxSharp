@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-
 namespace XlsxSharp.Tests.Excel.Misc;
 
 public class XlHelperTests

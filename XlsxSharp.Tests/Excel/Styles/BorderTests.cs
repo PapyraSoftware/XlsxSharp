@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
 using XlsxSharp.Excel;
-using XlsxSharp.Tests.Utils;
 
 namespace XlsxSharp.Tests.Excel.Styles;
 

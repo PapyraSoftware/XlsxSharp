@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace XlsxSharp.Excel.CalcEngine.Exceptions;
+﻿namespace XlsxSharp.Excel.CalcEngine.Exceptions;
 
 /// <summary>
 /// Exception that happens when formula in a cell depends on other cells,

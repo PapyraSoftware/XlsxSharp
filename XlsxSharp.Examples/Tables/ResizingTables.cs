@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using XlsxSharp.Excel;
+﻿using XlsxSharp.Excel;
 using XlsxSharp.Excel.Tables;
 
 // TODO: Add example to Wiki

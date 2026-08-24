@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CsvHelper" Version="33.1.0" />
+    <PackageReference Include="JetBrains.Annotations" Version="2026.2.0" />
+    <PackageReference Include="TUnit" Version="1.65.51" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="**/*.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\XlsxSharp.ANTLR\XlsxSharp.ANTLR.csproj" />
+    <ProjectReference Include="..\XlsxSharp.Parser\XlsxSharp.Parser.csproj" />
+    <ProjectReference Include="..\XlsxSharp.Parser.Ast\XlsxSharp.Parser.Ast.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Custom global usings added in the csproj file -->
+    <Using Include="TUnit.Core" />
+    <Using Include="TUnit.Core.Executors" />
+    <Using Include="TUnit.Assertions" />
+    <Using Include="TUnit.Assertions.Extensions" />
+  </ItemGroup>
+</Project>

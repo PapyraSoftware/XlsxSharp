@@ -1,7 +1,7 @@
 #nullable disable
 
-using ClosedXML.Parser;
 using XlsxSharp.Extensions;
+using XlsxSharp.Parser;
 
 namespace XlsxSharp.Excel.Misc;
 

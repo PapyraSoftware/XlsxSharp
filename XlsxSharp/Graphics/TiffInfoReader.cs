@@ -1,7 +1,5 @@
 #nullable disable
 
-using System;
-using System.IO;
 using XlsxSharp.Excel.Drawings;
 using XlsxSharp.Utils;
 

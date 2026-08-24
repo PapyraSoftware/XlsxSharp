@@ -1,5 +1,3 @@
-using System.Linq;
-
 namespace XlsxSharp.Tests.Excel.IO;
 
 internal class WorksheetReaderTests

@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using XlsxSharp.Excel.ConditionalFormats;
+﻿using XlsxSharp.Excel.ConditionalFormats;
 
 namespace XlsxSharp.Excel;
 

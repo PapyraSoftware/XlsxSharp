@@ -1,6 +1,5 @@
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.Protection;
-using static XlsxSharp.Excel.Protection.XLProtectionAlgorithm;
 
 namespace XlsxSharp.Examples.Misc;
 

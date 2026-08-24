@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace XlsxSharp.Excel.CalcEngine.Functions;
+﻿namespace XlsxSharp.Excel.CalcEngine.Functions;
 
 /// <summary>
 /// Tally for <c>{SUM,COUNT,AVERAGE}IF/S</c> and database function. The created tally must contain

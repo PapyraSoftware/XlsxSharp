@@ -1,4 +1,3 @@
-using System.IO;
 using DocumentFormat.OpenXml.Packaging;
 
 namespace XlsxSharp.Tests;

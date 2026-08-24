@@ -1,5 +1,3 @@
-using System;
-
 namespace XlsxSharp.Sandbox;
 
 internal static class Program

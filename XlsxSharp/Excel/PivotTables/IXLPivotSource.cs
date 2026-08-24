@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace XlsxSharp.Excel;
+﻿namespace XlsxSharp.Excel;
 
 /// <summary>
 /// An abstraction of source data for a <see cref="XLPivotCache"/>. Implementations must correctly

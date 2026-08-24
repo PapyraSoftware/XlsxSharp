@@ -1,6 +1,5 @@
 #nullable disable
 
-using System;
 using XlsxSharp.Extensions;
 
 namespace XlsxSharp.Excel.DataValidation;

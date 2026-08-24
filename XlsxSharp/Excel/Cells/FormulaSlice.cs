@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using XlsxSharp.Excel.CalcEngine;
 
 namespace XlsxSharp.Excel;

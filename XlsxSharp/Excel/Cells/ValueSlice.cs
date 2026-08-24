@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using XlsxSharp.Excel.CalcEngine;
+﻿using XlsxSharp.Excel.CalcEngine;
 using XlsxSharp.Excel.RichText;
 
 namespace XlsxSharp.Excel;

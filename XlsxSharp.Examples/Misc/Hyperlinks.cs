@@ -1,4 +1,3 @@
-using System;
 using XlsxSharp.Excel;
 
 namespace XlsxSharp.Examples.Misc;

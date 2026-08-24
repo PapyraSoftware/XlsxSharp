@@ -1,4 +1,3 @@
-using System.IO;
 using XlsxSharp.Examples.Styles;
 
 namespace XlsxSharp.Examples;

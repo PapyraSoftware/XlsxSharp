@@ -1,4 +1,3 @@
-using System.IO;
 using XlsxSharp.Excel;
 
 namespace XlsxSharp.Examples.AutoFilters;

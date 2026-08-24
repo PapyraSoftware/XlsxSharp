@@ -1,5 +1,3 @@
-using System;
-
 namespace XlsxSharp.Excel.PivotValues;
 
 /// <summary>

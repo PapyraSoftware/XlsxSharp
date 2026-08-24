@@ -1,8 +1,5 @@
 #nullable disable
 
-using System;
-using System.IO;
-
 namespace XlsxSharp.Excel.Drawings;
 
 public interface IXLPicture

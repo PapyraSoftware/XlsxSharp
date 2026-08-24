@@ -32,3 +32,4 @@ _ReSharper*/
 .idea/
 /ClosedXML.IO.CodeGen/Properties/launchSettings.json
 sixlabors.lic
+.DS_Store

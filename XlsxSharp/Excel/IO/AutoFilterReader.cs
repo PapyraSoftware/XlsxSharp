@@ -1,6 +1,4 @@
-﻿using System;
-using System.Globalization;
-using System.Linq;
+﻿using System.Globalization;
 using DocumentFormat.OpenXml.Spreadsheet;
 using XlsxSharp.Excel.Sort;
 using XlsxSharp.Utils;

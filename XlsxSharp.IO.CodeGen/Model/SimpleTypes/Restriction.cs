@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace XlsxSharp.IO.CodeGen.Model.SimpleTypes;
+﻿namespace XlsxSharp.IO.CodeGen.Model.SimpleTypes;
 
 /// <summary>
 /// A definition of a restriction of a <see cref="ISimpleType"/> through a base type and additional

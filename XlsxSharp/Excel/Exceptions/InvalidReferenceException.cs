@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace XlsxSharp.Excel.Exceptions;
+﻿namespace XlsxSharp.Excel.Exceptions;
 
 /// <summary>
 /// A reference to the data in a worksheet is not valid. E.g. sheet with

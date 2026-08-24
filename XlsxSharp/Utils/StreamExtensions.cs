@@ -1,8 +1,5 @@
 #nullable disable
 
-using System;
-using System.IO;
-
 namespace XlsxSharp.Utils;
 
 internal static class StreamExtensions

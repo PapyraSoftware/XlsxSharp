@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace XlsxSharp.Excel;
+﻿namespace XlsxSharp.Excel;
 
 /// <summary>
 /// Source of data for a <see cref="XLPivotCache"/> that takes uses scenarios in the workbook to

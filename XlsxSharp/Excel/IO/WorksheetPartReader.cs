@@ -1,10 +1,6 @@
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
-using System.Linq;
-using ClosedXML.Parser;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
@@ -19,6 +15,7 @@ using XlsxSharp.Excel.RichText;
 using XlsxSharp.Excel.Rows;
 using XlsxSharp.Extensions;
 using XlsxSharp.IO;
+using XlsxSharp.Parser;
 using XlsxSharp.Utils;
 using Formula = DocumentFormat.OpenXml.Spreadsheet.Formula;
 using X14 = DocumentFormat.OpenXml.Office2010.Excel;

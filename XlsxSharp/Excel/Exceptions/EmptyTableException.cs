@@ -1,7 +1,5 @@
 #nullable disable
 
-using System;
-
 namespace XlsxSharp.Excel.Exceptions;
 
 public class EmptyTableException : ClosedXMLException

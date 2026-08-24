@@ -1,7 +1,5 @@
 #nullable disable
 
-using System.Collections.Generic;
-
 namespace XlsxSharp.Excel.Sort;
 
 internal class XLSortElements : IXLSortElements

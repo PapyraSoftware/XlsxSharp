@@ -1,7 +1,4 @@
 #nullable enable
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Xml;
 using XlsxSharp.IO;
 using static XlsxSharp.IO.XmlTreeNodeType;
@@ -27,7 +24,7 @@ internal class MceXmlReaderTests
         }
 
         ClassicAssert.IsFalse(reader.Read());
-        ClassicAssert.AreEqual(None, reader.NodeType);
+        ClassicAssert.AreEqual(XmlTreeNodeType.None, reader.NodeType);
         ClassicAssert.IsEmpty(reader.Value);
         ClassicAssert.IsEmpty(reader.LocalName);
         ClassicAssert.IsEmpty(reader.NamespaceUri);

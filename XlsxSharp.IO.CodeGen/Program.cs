@@ -1,6 +1,4 @@
-using System;
 using System.Diagnostics;
-using System.IO;
 using XlsxSharp.IO.CodeGen.Model;
 using XlsxSharp.IO.CodeGen.XsdParser;
 
@@ -42,8 +40,6 @@ public class Program
                 Console.WriteLine($"Unknown command '{command}'");
                 break;
         }
-
-        Console.ReadKey();
     }
 
     private static void GenerateStylesReader(Schema schema, string target)

@@ -1,7 +1,5 @@
 #nullable disable
 
-using System;
-
 namespace XlsxSharp.Excel.CalcEngine.Functions;
 
 internal class XLMatrix

@@ -1,8 +1,5 @@
 #nullable disable
 
-using System;
-using System.Linq;
-
 namespace XlsxSharp.Excel.CustomProperties;
 
 internal class XLCustomProperty : IXLCustomProperty

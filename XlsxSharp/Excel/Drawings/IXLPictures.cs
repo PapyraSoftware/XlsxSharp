@@ -1,8 +1,5 @@
 #nullable disable
 
-using System.Collections.Generic;
-using System.IO;
-
 namespace XlsxSharp.Excel.Drawings;
 
 public interface IXLPictures : IEnumerable<IXLPicture>

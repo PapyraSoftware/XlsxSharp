@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using XlsxSharp.Excel.Formatting;
 using XlsxSharp.Excel.RichText;

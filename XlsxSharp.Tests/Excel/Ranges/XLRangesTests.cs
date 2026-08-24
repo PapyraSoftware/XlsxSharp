@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using XlsxSharp.Excel;
 
 namespace XlsxSharp.Tests.Excel.Ranges;

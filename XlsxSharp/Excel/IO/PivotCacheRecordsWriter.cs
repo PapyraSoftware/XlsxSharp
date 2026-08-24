@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Xml;
+﻿using System.Xml;
 using DocumentFormat.OpenXml.Packaging;
 using XlsxSharp.Extensions;
 using static XlsxSharp.Excel.IO.OpenXmlConst;

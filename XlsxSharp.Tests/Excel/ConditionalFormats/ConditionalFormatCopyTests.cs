@@ -1,8 +1,5 @@
-using System;
-using System.Linq;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.ConditionalFormats;
-using XlsxSharp.Tests.Utils;
 
 namespace XlsxSharp.Tests.Excel.ConditionalFormats;
 

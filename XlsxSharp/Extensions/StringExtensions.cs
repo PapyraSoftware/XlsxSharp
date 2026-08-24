@@ -1,10 +1,8 @@
 #nullable disable
 
-using System;
-using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using ClosedXML.Parser;
+using XlsxSharp.Parser;
 
 namespace XlsxSharp.Extensions;
 

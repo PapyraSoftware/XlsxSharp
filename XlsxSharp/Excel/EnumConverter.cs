@@ -1,7 +1,5 @@
 #nullable disable
 
-using System;
-using System.Collections.Generic;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 using XlsxSharp.Excel.ConditionalFormats;

@@ -1,7 +1,5 @@
 #nullable disable
 
-using System.IO;
-
 namespace XlsxSharp.Graphics;
 
 internal abstract class ImageInfoReader

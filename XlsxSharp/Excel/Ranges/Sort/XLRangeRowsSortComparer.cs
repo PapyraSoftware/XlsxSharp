@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace XlsxSharp.Excel.Sort;
+﻿namespace XlsxSharp.Excel.Sort;
 
 /// <summary>
 /// A comparer of rows in a range. It uses semantic of a sort feature in Excel.

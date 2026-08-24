@@ -1,4 +1,3 @@
-using System;
 using XlsxSharp.Excel.Formatting;
 
 namespace XlsxSharp.Excel.PivotValues;

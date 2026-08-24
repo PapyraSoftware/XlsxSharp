@@ -1,7 +1,5 @@
 #nullable disable
 
-using System;
-using System.Collections.Generic;
 using XlsxSharp.Excel.Misc;
 
 namespace XlsxSharp.Excel.ConditionalFormats;

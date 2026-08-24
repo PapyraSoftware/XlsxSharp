@@ -1,4 +1,3 @@
-using System.Linq;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.CalcEngine;
 using XlsxSharp.Excel.Rows;

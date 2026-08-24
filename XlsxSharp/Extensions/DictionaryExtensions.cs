@@ -1,9 +1,5 @@
 #nullable disable
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
 namespace XlsxSharp.Extensions;
 
 internal static class DictionaryExtensions

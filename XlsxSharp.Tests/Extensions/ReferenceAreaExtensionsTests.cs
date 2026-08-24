@@ -1,9 +1,7 @@
-using System.Collections.Generic;
-using ClosedXML.Parser;
 using XlsxSharp.Excel;
 using XlsxSharp.Extensions;
-using static ClosedXML.Parser.ReferenceAxisType;
-using static ClosedXML.Parser.ReferenceStyle;
+using XlsxSharp.Parser;
+using static XlsxSharp.Parser.ReferenceStyle;
 
 namespace XlsxSharp.Tests.Extensions;
 

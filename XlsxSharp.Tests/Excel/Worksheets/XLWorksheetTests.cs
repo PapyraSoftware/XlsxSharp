@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
 using XlsxSharp.Examples;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.CalcEngine;
@@ -13,7 +8,6 @@ using XlsxSharp.Excel.Formatting;
 using XlsxSharp.Excel.PageSetup;
 using XlsxSharp.Excel.Tables;
 using XlsxSharp.Extensions;
-using XlsxSharp.Tests.Utils;
 using Assembly = System.Reflection.Assembly;
 
 namespace XlsxSharp.Tests.Excel.Worksheets;

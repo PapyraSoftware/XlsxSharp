@@ -1,7 +1,5 @@
 #nullable disable
 
-using System;
-
 namespace XlsxSharp.Excel.Tables;
 
 public interface IXLTableRange : IXLRange

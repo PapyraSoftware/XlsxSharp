@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using XlsxSharp.Excel.Caching;
 using XlsxSharp.Excel.CalcEngine;
 using XlsxSharp.Excel.Charts;

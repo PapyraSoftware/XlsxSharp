@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
 using DocumentFormat.OpenXml.Office.Excel;
 using DocumentFormat.OpenXml.Office2010.Excel;
 using XlsxSharp.Extensions;

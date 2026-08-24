@@ -1,4 +1,3 @@
-using System;
 using XlsxSharp.Extensions;
 
 namespace XlsxSharp.Tests.Extensions;

@@ -1,5 +1,3 @@
-using System;
-
 namespace XlsxSharp.IO.CodeGen;
 
 public record SimpleTypeMapping

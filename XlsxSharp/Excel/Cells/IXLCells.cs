@@ -1,7 +1,5 @@
 #nullable disable
 
-using System.Collections.Generic;
-
 namespace XlsxSharp.Excel;
 
 public interface IXLCells : IEnumerable<IXLCell>

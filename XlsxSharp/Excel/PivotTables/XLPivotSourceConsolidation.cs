@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace XlsxSharp.Excel;
+﻿namespace XlsxSharp.Excel;
 
 /// <summary>
 /// Source of data for a <see cref="XLPivotCache"/> that takes uses a union of multiple scenarios in the workbook to

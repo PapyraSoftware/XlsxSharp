@@ -1,9 +1,7 @@
 using System.Drawing;
-using System.Linq;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.ConditionalFormats;
 using XlsxSharp.Excel.Rows;
-using XlsxSharp.Tests.Utils;
 
 namespace XlsxSharp.Tests.Excel.Ranges;
 

@@ -1,8 +1,5 @@
-using System;
 using System.Data;
 using System.Globalization;
-using System.IO;
-using System.Linq;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.Formatting;
 

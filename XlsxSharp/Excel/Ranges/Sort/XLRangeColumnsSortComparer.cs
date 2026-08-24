@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace XlsxSharp.Excel.Sort;
+﻿namespace XlsxSharp.Excel.Sort;
 
 internal class XLRangeColumnsSortComparer : IComparer<int>
 {

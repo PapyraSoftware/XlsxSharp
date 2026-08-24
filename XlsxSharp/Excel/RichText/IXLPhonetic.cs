@@ -1,5 +1,3 @@
-using System;
-
 namespace XlsxSharp.Excel.RichText;
 
 public interface IXLPhonetic : IEquatable<IXLPhonetic>
