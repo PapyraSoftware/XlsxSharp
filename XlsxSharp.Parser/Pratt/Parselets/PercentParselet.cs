@@ -15,7 +15,9 @@ internal class PercentParselet<TScalar, T, TContext> : IParselet<T, TContext>
 
     public Node<T> Parse(TContext ctx, Node<T> left, Token op)
     {
-        SymbolRange range = left.Range.ExtendRight(op.Range);
+        // Not left.Range.ExtendRight(op.Range): whitespace can now separate the operand from the
+        // "%" (e.g. "1 %"), so strict adjacency no longer holds.
+        SymbolRange range = new(left.Range.Start, op.Range.End);
         T node = this._factory.Unary(ctx, range, UnaryOperation.Percent, left);
         return new Node<T>(node, range);
     }

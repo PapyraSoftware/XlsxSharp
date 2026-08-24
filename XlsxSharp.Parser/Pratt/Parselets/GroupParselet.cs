@@ -13,6 +13,10 @@ internal class GroupParselet<T, TContext> : IPrefixParselet<T, TContext>
     {
         Node<T> node = this._parser.ParseExpression(ctx, 0);
         Token rightParen = this._parser.Consume(TokenType.RightParen);
-        return node.ExtendLeft(leftParen).ExtendRight(rightParen);
+
+        // Not node.ExtendLeft(leftParen).ExtendRight(rightParen): that asserts strict adjacency
+        // between the parens and the inner expression, which no longer holds now that whitespace
+        // is allowed there (e.g. "( 1 + 2 )").
+        return new Node<T>(node.Value, new SymbolRange(leftParen.Range.Start, rightParen.Range.End));
     }
 }

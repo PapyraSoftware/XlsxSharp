@@ -14,10 +14,7 @@ public class PrattParserAcceptanceTests
 {
     [Test]
     [Arguments("SUM(A1)")]
-    [Arguments("SUM(A1,B2)")]
-    // Note: "SUM(A1, B2)" (a space after the comma) isn't covered here - whitespace handling
-    // (as an ignorable separator and as the reference intersection operator) isn't implemented
-    // anywhere in the pratt parser yet, not just inside argument lists.
+    [Arguments("SUM(A1,B2)")] // See InsignificantWhitespaceMatchesOracle for the spaced form.
     [Arguments("SUM()")]
     [Arguments("SUM(1,,2)")]
     [Arguments("SUM(,1)")]
@@ -85,6 +82,68 @@ public class PrattParserAcceptanceTests
     public async Task ComparisonAndConcatMatchOracle(string formula)
     {
         await AssertMatchesOracle(formula);
+    }
+
+    [Test]
+    [Arguments("1 + 2")]
+    [Arguments("1 +2")]
+    [Arguments("1+ 2")]
+    [Arguments("1  +  2")] // Multiple spaces collapse to a single Whitespace token either way.
+    [Arguments(" 1+2")] // Leading formula whitespace.
+    [Arguments("1+2 ")] // Trailing formula whitespace.
+    [Arguments("(1 + 2)")]
+    [Arguments("( 1 + 2 )")] // Whitespace right after "(" and right before ")".
+    [Arguments("SUM(A1, B2)")] // Space after the comma - by far the most common real-world case.
+    [Arguments("SUM(A1 , B2)")] // Space before the comma too.
+    [Arguments("SUM( A1,B2 )")]
+    [Arguments("- 1")] // Space between a prefix operator and its operand.
+    [Arguments("-  1")]
+    [Arguments("1 %")] // Space between an operand and a postfix operator.
+    [Arguments("1%  ^2")]
+    [Arguments("SUM(A1) ")]
+    [Arguments(" SUM(A1)")]
+    public async Task InsignificantWhitespaceMatchesOracle(string formula)
+    {
+        await AssertMatchesOracle(formula);
+    }
+
+    [Test]
+    [Arguments("SUM (A1)")] // Whitespace right before "(" still isn't allowed: this is not a call.
+    public async Task StillRejectedWhitespaceUsesAreRejectedByBoth(string formula)
+    {
+        await Assert.ThrowsAsync<Exception>(() =>
+            Task.FromResult(
+                FormulaParser<ScalarValue, AstNode, Ctx>.CellFormulaA1(formula, new Ctx(), new F())
+            )
+        );
+
+        Parser<AstNode, Ctx> parser = ParserFactory.Create(new F());
+        await Assert.ThrowsAsync<Exception>(() =>
+            Task.FromResult(parser.ParseFormula(formula, new Ctx()))
+        );
+    }
+
+    [Test]
+    [Arguments("A1 B1")] // The reference intersection operator isn't implemented yet.
+    [Arguments("A1:A10 B1:B10")]
+    public async Task ReferenceIntersectionIsNotImplementedYet(string formula)
+    {
+        // Unlike StillRejectedWhitespaceUsesAreRejectedByBoth, the oracle *does* accept these (as
+        // a BinaryNode with BinaryOperation.Intersection) - only the pratt parser doesn't.
+        AstNode oracleNode = FormulaParser<ScalarValue, AstNode, Ctx>.CellFormulaA1(
+            formula,
+            new Ctx(),
+            new F()
+        );
+        await Assert.That(oracleNode).IsTypeOf<BinaryNode>();
+        await Assert
+            .That(((BinaryNode)oracleNode).Operation)
+            .IsEqualTo(BinaryOperation.Intersection);
+
+        Parser<AstNode, Ctx> parser = ParserFactory.Create(new F());
+        await Assert.ThrowsAsync<Exception>(() =>
+            Task.FromResult(parser.ParseFormula(formula, new Ctx()))
+        );
     }
 
     [Test]

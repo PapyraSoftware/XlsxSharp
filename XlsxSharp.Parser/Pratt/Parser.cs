@@ -40,6 +40,14 @@ internal class Parser<T, TContext>
 
         while (true)
         {
+            // Whitespace is insignificant everywhere an operator is expected (e.g. "1 + 2",
+            // "SUM(A1, B2)"). It is *not* insignificant everywhere in the full grammar (a run of
+            // whitespace between two references is the reference intersection operator), but that
+            // operator isn't implemented, so a real intersection still correctly fails below: the
+            // token after the (now-consumed) whitespace won't be a registered operator either, and
+            // whatever's left over is rejected as a trailing token by the caller.
+            this.SkipWhitespace();
+
             Token maybeOp = this._lexer.Peek();
             if (maybeOp.Type == TokenType.Eof)
             {
@@ -67,6 +75,7 @@ internal class Parser<T, TContext>
 
     private Node<T> Prefix(TContext ctx)
     {
+        this.SkipWhitespace();
         Token token = this._lexer.Consume();
 
         if (!this._prefixParselets.TryGetValue(token.Type, out IPrefixParselet<T, TContext>? parselet))
@@ -75,6 +84,14 @@ internal class Parser<T, TContext>
         }
 
         return parselet.Parse(ctx, token);
+    }
+
+    private void SkipWhitespace()
+    {
+        if (this._lexer.Peek().Type == TokenType.Whitespace)
+        {
+            this._lexer.Consume();
+        }
     }
 
     public Token LookAhead(int distance)

@@ -31,14 +31,4 @@ internal readonly struct Node<T>
     {
         return node.Value;
     }
-
-    internal Node<T> ExtendLeft(Token token)
-    {
-        return new Node<T>(this.Value, token.Range.ExtendRight(this.Range));
-    }
-
-    internal Node<T> ExtendRight(Token token)
-    {
-        return new Node<T>(this.Value, this.Range.ExtendRight(token.Range));
-    }
 }
