@@ -31,6 +31,15 @@ public class DataSetTests
         );
     }
 
+    [Test]
+    public async Task StructuredReferencesDataSetIsParseable()
+    {
+        await this.Assert_formulas_parsed_or_not_as_expected(
+            "./data/structured-references/formulas.csv",
+            ["./data/structured-references/known-fails.csv"]
+        );
+    }
+
     private async Task Assert_formulas_parsed_or_not_as_expected(
         string input,
         string[] badFormulaPaths

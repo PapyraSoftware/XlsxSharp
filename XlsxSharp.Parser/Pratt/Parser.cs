@@ -15,7 +15,23 @@ internal class Parser<T, TContext>
     {
         this.Input = formula;
         this._lexer.Reset(formula);
-        return this.ParseExpression(ctx, 0).Value;
+        Node<T> node = this.ParseExpression(ctx, 0);
+
+        // Trailing whitespace is insignificant at the end of a formula (mirrors the TrimEnd()
+        // done before FormulaParser<TScalarValue,TNode,TContext> tokenizes with the Rolex lexer).
+        Token next = this._lexer.Peek();
+        if (next.Type == TokenType.Whitespace)
+        {
+            this._lexer.Consume();
+            next = this._lexer.Peek();
+        }
+
+        if (next.Type != TokenType.Eof)
+        {
+            throw ParsingException.TrailingToken(next.Range.Start, next.Type);
+        }
+
+        return node.Value;
     }
 
     internal Node<T> ParseExpression(TContext ctx, int minBp)
