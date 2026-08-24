@@ -88,9 +88,26 @@ public class PrattParserAcceptanceTests
     }
 
     [Test]
+    [Arguments("'New York'!A1")]
+    [Arguments("'New York'!A1:B2")]
+    [Arguments("'New York'!A:B")]
+    [Arguments("'New York'!1:2")]
+    [Arguments("'Jane''s'!A1")] // '' inside a quoted sheet name is an escaped single quote.
+    [Arguments("'Jane''s'!name")]
+    [Arguments("'Sheet 1:Sheet 2'!A1")] // The colon here is inside the quotes: a quoted 3D reference.
+    [Arguments("'January 1st:December 31st'!A1")]
+    [Arguments("1+'Johnny''s'!Z26")]
+    public async Task QuotedSheetNamesMatchOracle(string formula)
+    {
+        await AssertMatchesOracle(formula);
+    }
+
+    [Test]
     [Arguments("SUM (A1)")] // No space is allowed between a function name and "(".
     [Arguments("A1 (1,2)")]
     [Arguments("Sheet1!A1(1,2)")] // No sheet-scoped cell function form exists in the grammar.
+    [Arguments("'text'")] // A quoted ident is only ever a sheet name/sheet range prefix, always
+    // followed by "!" - a bare one isn't valid anywhere else.
     public async Task RejectedByOracleAreAlsoRejectedByPratt(string formula)
     {
         await Assert.ThrowsAsync<Exception>(() =>
@@ -102,6 +119,25 @@ public class PrattParserAcceptanceTests
         Parser<AstNode, Ctx> parser = ParserFactory.Create(new F());
         await Assert.ThrowsAsync<Exception>(() =>
             Task.FromResult(parser.ParseFormula(formula, new Ctx()))
+        );
+    }
+
+    [Test]
+    public async Task QuotedExternalWorkbookReferencesAreNotImplementedYet()
+    {
+        // Unlike the other cases in RejectedByOracleAreAlsoRejectedByPratt, the oracle *does*
+        // accept this formula (as an ExternalSheetReferenceNode) - only the pratt parser doesn't,
+        // since square-bracket external reference syntax isn't recognized anywhere yet.
+        AstNode oracleNode = FormulaParser<ScalarValue, AstNode, Ctx>.CellFormulaA1(
+            "'[2]D and D'!A1",
+            new Ctx(),
+            new F()
+        );
+        await Assert.That(oracleNode).IsTypeOf<ExternalSheetReferenceNode>();
+
+        Parser<AstNode, Ctx> parser = ParserFactory.Create(new F());
+        await Assert.ThrowsAsync<Exception>(() =>
+            Task.FromResult(parser.ParseFormula("'[2]D and D'!A1", new Ctx()))
         );
     }
 

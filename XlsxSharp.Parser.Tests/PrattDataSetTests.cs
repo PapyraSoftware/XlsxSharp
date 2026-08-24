@@ -30,13 +30,13 @@ public class PrattDataSetTests
     [Test]
     public async Task EnronDataSetCoverage()
     {
-        await this.AssertCoverage("./data/enron/formulas.csv", minimumMatchingCount: 663_311);
+        await this.AssertCoverage("./data/enron/formulas.csv", minimumMatchingCount: 752_730);
     }
 
     [Test]
     public async Task EusesDataSetCoverage()
     {
-        await this.AssertCoverage("./data/euses/formulas.csv", minimumMatchingCount: 67_741);
+        await this.AssertCoverage("./data/euses/formulas.csv", minimumMatchingCount: 76_045);
     }
 
     [Test]
