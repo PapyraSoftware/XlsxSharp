@@ -15,10 +15,12 @@ internal class IdentParselet<TScalar, T, TContext> : IPrefixParselet<T, TContext
     {
         // When we receive an ident, there are following possibilities what it could be (checked
         // in this order):
+        // * NAME(...) - local function call, or A1(...) - cell function call
         // * A1:B2
         // * A1
         // * A:B
         // * $4:6 - rowspan starting with an absolute row
+        // * sheet!NAME(...) - sheet-scoped function call
         // * sheet!A1:A2
         // * sheet!A1
         // * sheet!A:B
@@ -31,6 +33,14 @@ internal class IdentParselet<TScalar, T, TContext> : IPrefixParselet<T, TContext
         // * sheet1:sheet2!A:B
         // * sheet1:sheet2!$1:2
         // * name
+
+        // Check for a function call `NAME(...)` or a cell function call `A1(...)`. This has to be
+        // checked before anything else: e.g. `A1` alone is a reference, but `A1(...)` never is,
+        // and `TRUE` alone is a logical, but `TRUE(...)` is a call to a function named TRUE.
+        if (this._parser.LookAhead(1).Type == TokenType.LeftParen)
+        {
+            return this.ParseFunctionCall(ctx, token, sheet: null);
+        }
 
         // Check for area `A1:B2` or just cell `A1`
         // Check for colspan `A:B`
@@ -51,7 +61,20 @@ internal class IdentParselet<TScalar, T, TContext> : IPrefixParselet<T, TContext
 
             // No need to check for token type, if EoF, nothing will be matched to such token
             Token sheetRefToken = this._parser.Consume();
-            
+
+            // Check for a sheet-scoped function call `sheet!NAME(...)`. There is no sheet-scoped
+            // cell function form in the grammar (only a bare `A1(...)` can call a LAMBDA stored in
+            // a cell), so `sheet!A1(...)` is rejected rather than silently misparsed.
+            if (this._parser.LookAhead(1).Type == TokenType.LeftParen)
+            {
+                if (ParserExtensions.TryGetCellA1(sheetRefToken.GetText(this._parser.Input), out _))
+                {
+                    throw new ParsingException($"Unable to parse value starting from position {token.Range.Start}.");
+                }
+
+                return this.ParseFunctionCall(ctx, sheetRefToken, sheetName);
+            }
+
             // Check for area `sheet!A1:B2` or just cell `sheet!A1`
             // Check for colspan `sheet!A:B`
             // Check for rowspan `sheet!1:2` with absolute or relative start row
@@ -127,6 +150,71 @@ internal class IdentParselet<TScalar, T, TContext> : IPrefixParselet<T, TContext
         }
 
         throw new ParsingException($"Unable to parse value starting from position {token.Range.Start}.");
+    }
+
+    /// <summary>
+    /// Parse a function call, having already seen its name token (a bare local function/cell
+    /// function name, or the name that follows a consumed <c>sheet!</c> prefix) and confirmed the
+    /// next token is <see cref="TokenType.LeftParen"/>.
+    /// </summary>
+    private Node<T> ParseFunctionCall(TContext ctx, Token nameToken, string? sheet)
+    {
+        ReadOnlySpan<char> name = nameToken.GetText(this._parser.Input);
+        bool isCellShaped = ParserExtensions.TryGetCellA1(name, out RowCol cell) && sheet is null;
+
+        this._parser.Consume(TokenType.LeftParen);
+        (List<T> args, Token rightParen) = this.ParseArgumentList(ctx);
+        SymbolRange range = new(nameToken.Range.Start, rightParen.Range.End);
+
+        T value = sheet is null
+            ? isCellShaped
+                ? this._factory.CellFunction(ctx, range, cell, args)
+                : this._factory.Function(ctx, range, name, args)
+            : this._factory.Function(ctx, range, sheet, name, args);
+        return new Node<T>(value, range);
+    }
+
+    /// <summary>
+    /// Parse a function call argument list, having already consumed the opening
+    /// <see cref="TokenType.LeftParen"/>. Arguments may be blank (e.g. <c>SUM(1,,2)</c>,
+    /// <c>SUM(1,)</c>, <c>SUM(,1)</c>), but an entirely empty list (<c>SUM()</c>) has zero
+    /// arguments rather than a single blank one.
+    /// </summary>
+    private (List<T> Args, Token RightParen) ParseArgumentList(TContext ctx)
+    {
+        List<T> args = [];
+        if (this._parser.LookAhead(1).Type == TokenType.RightParen)
+        {
+            return (args, this._parser.Consume(TokenType.RightParen));
+        }
+
+        while (true)
+        {
+            Token next = this._parser.LookAhead(1);
+            if (next.Type == TokenType.Comma)
+            {
+                Token comma = this._parser.Consume(TokenType.Comma);
+                args.Add(this._factory.BlankNode(ctx, new SymbolRange(comma.Range.Start, comma.Range.Start)));
+                continue;
+            }
+
+            if (next.Type == TokenType.RightParen)
+            {
+                Token rightParen = this._parser.Consume(TokenType.RightParen);
+                args.Add(this._factory.BlankNode(ctx, new SymbolRange(rightParen.Range.Start, rightParen.Range.Start)));
+                return (args, rightParen);
+            }
+
+            Node<T> arg = this._parser.ParseExpression(ctx, 0);
+            args.Add(arg.Value);
+
+            if (this._parser.LookAhead(1).Type == TokenType.RightParen)
+            {
+                return (args, this._parser.Consume(TokenType.RightParen));
+            }
+
+            this._parser.Consume(TokenType.Comma);
+        }
     }
 
     private static bool EqualCaseInsensitive(ReadOnlySpan<char> text, string other)

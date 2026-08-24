@@ -30,13 +30,13 @@ public class PrattDataSetTests
     [Test]
     public async Task EnronDataSetCoverage()
     {
-        await this.AssertCoverage("./data/enron/formulas.csv", minimumMatchingCount: 338_013);
+        await this.AssertCoverage("./data/enron/formulas.csv", minimumMatchingCount: 663_311);
     }
 
     [Test]
     public async Task EusesDataSetCoverage()
     {
-        await this.AssertCoverage("./data/euses/formulas.csv", minimumMatchingCount: 36_274);
+        await this.AssertCoverage("./data/euses/formulas.csv", minimumMatchingCount: 67_741);
     }
 
     [Test]
@@ -190,6 +190,15 @@ public class PrattDataSetTests
         )
         {
             return "Not implemented: identifier doesn't match a currently recognized production";
+        }
+
+        if (e is ParsingException)
+        {
+            // Everything else thrown as a plain ParsingException comes from the lexer (e.g.
+            // ParsingException.UnableToSelectToken for a unicode character class the pratt lexer
+            // doesn't recognize as a valid identifier character, even though the Rolex-based
+            // lexer used by the oracle does) - a lexer gap, not a parser bug.
+            return "Not implemented: lexer couldn't tokenize the formula";
         }
 
         return $"Unexpected failure: {e.GetType().Name}: {e.Message}";

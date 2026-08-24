@@ -13,7 +13,7 @@ public class PrattParserCompletenessTests
     [Test]
     [Arguments("1+2)")]
     [Arguments("(1+2))")]
-    [Arguments("SUM(1,2)")] // Function calls aren't implemented yet, "(1,2)" must not be dropped silently.
+    [Arguments("SUM(1,2)(3)")] // Chained calls aren't implemented, "(3)" must not be dropped silently.
     [Arguments("1 1")]
     public async Task TrailingTokensAreRejected(string formula)
     {
