@@ -151,6 +151,28 @@ public class PrattParserAcceptanceTests
     }
 
     [Test]
+    [Arguments("DeptSales[SaleAmt]")] // Table-qualified, single column.
+    [Arguments("DeptSales[SaleAmt]*DeptSales[ComPct]")]
+    [Arguments("DeptSales[#All]")] // Table-qualified, item specifier keyword.
+    [Arguments("DeptSales[#Data]")]
+    [Arguments("DeptSales[#Headers]")]
+    [Arguments("DeptSales[#Totals]")]
+    [Arguments("DeptSales[#This Row]")]
+    [Arguments("DeptSales[[#All],[SaleAmt]]")] // Keyword + a single column.
+    [Arguments("DeptSales[[#All],[SaleAmt]:[ComPct]]")] // Keyword + a column range.
+    [Arguments("DeptSales[[#Headers],[#Data],[ComPct]]")] // Two keywords + a column.
+    [Arguments("DeptSales[[SalesPers]:[Region]]")] // Column range, no keyword.
+    [Arguments("DeptSales[Total Amount]")] // Column name containing a space.
+    [Arguments("[SaleAmt]*[ComPct]")] // No table name (valid only inside the table itself).
+    [Arguments("SUBTOTAL(109,[Jan])")]
+    [Arguments("SUM(DeptSales[SaleAmt])")]
+    [Arguments("VLOOKUP(GroupVertices[[#This Row],[Vertex]],Vertices[],2,FALSE)")] // "[]" is the whole table.
+    public async Task StructureReferencesMatchOracle(string formula)
+    {
+        await AssertMatchesOracle(formula);
+    }
+
+    [Test]
     [Arguments("SUM (A1)")] // No space is allowed between a function name and "(".
     [Arguments("A1 (1,2)")]
     [Arguments("Sheet1!A1(1,2)")] // No sheet-scoped cell function form exists in the grammar.
@@ -186,6 +208,28 @@ public class PrattParserAcceptanceTests
         Parser<AstNode, Ctx> parser = ParserFactory.Create(new F());
         await Assert.ThrowsAsync<Exception>(() =>
             Task.FromResult(parser.ParseFormula("'[2]D and D'!A1", new Ctx()))
+        );
+    }
+
+    [Test]
+    public async Task UnquotedExternalWorkbookReferencesAreNotImplementedYet()
+    {
+        // Same gap as QuotedExternalWorkbookReferencesAreNotImplementedYet, but for the unquoted
+        // form. The oracle's lexer recognizes "[2]Yesterday!" as a single external-sheet-prefix
+        // token; the pratt lexer instead tokenizes the leading "[2]" the same way it would a bare
+        // structure reference (as a SquareIdent - "2" parses as a plausible, if unusual, column
+        // name), leaving "Yesterday!A2" unconsumed, which the completeness check in
+        // Parser.ParseFormula then rejects rather than silently dropping.
+        AstNode oracleNode = FormulaParser<ScalarValue, AstNode, Ctx>.CellFormulaA1(
+            "[2]Yesterday!A2",
+            new Ctx(),
+            new F()
+        );
+        await Assert.That(oracleNode).IsTypeOf<ExternalSheetReferenceNode>();
+
+        Parser<AstNode, Ctx> parser = ParserFactory.Create(new F());
+        await Assert.ThrowsAsync<Exception>(() =>
+            Task.FromResult(parser.ParseFormula("[2]Yesterday!A2", new Ctx()))
         );
     }
 

@@ -153,6 +153,23 @@ internal class IdentParselet<TScalar, T, TContext> : IPrefixParselet<T, TContext
             throw new ParsingException($"Unable to parse value starting from position {token.Range.Start}.");
         }
 
+        // Check for a table-qualified structure reference `Table1[Column]`. A bare `[Column]`
+        // (no table name) is handled by StructureReferenceParselet instead, since it doesn't
+        // start with an ident.
+        if (this._parser.LookAhead(1).Type == TokenType.SquareIdent && this._parser.TryGetName(token, out ReadOnlySpan<char> tableName))
+        {
+            Token squareIdentToken = this._parser.Consume(TokenType.SquareIdent);
+            TokenParser.ParseIntraTableReference(
+                squareIdentToken.GetText(this._parser.Input),
+                out StructuredReferenceArea area,
+                out string? firstColumn,
+                out string? lastColumn
+            );
+            SymbolRange range = new(token.Range.Start, squareIdentToken.Range.End);
+            T structureReferenceValue = this._factory.StructureReference(ctx, range, tableName.ToString(), area, firstColumn, lastColumn ?? firstColumn);
+            return new Node<T>(structureReferenceValue, range);
+        }
+
         // Check for rowspan `name`
         if (this._parser.TryGetName(token, out ReadOnlySpan<char> workbookName))
         {

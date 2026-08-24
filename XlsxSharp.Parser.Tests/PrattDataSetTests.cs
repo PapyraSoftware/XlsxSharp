@@ -50,7 +50,7 @@ public class PrattDataSetTests
     {
         await this.AssertCoverage(
             "./data/structured-references/formulas.csv",
-            minimumMatchingCount: 1
+            minimumMatchingCount: 57
         );
     }
 
