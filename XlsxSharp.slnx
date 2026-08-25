@@ -10,6 +10,7 @@
     <Folder Name="/Solution Items/">
         <File Path=".editorconfig" />
         <File Path="Directory.Build.props" />
+        <File Path="README.md" />
     </Folder>
     <Folder Name="/src/">
         <Project Path="XlsxSharp.IO.CodeGen\XlsxSharp.IO.CodeGen.csproj" />

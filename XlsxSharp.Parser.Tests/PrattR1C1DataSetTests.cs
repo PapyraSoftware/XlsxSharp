@@ -19,7 +19,7 @@ public class PrattR1C1DataSetTests
     [Test]
     public async Task EnronDataSetCoverage()
     {
-        await this.AssertCoverage("./data/enron/formulas.csv", minimumMatchingCount: 943_140);
+        await this.AssertCoverage("./data/enron/formulas.csv", minimumMatchingCount: 946_303);
     }
 
     private async Task AssertCoverage(string input, int minimumMatchingCount)

@@ -34,6 +34,7 @@ internal static class ParserFactory
         parser.Register(TokenType.Plus, new UnaryOpParselet<TScalar, TNode, TContext>(factory, parser, UnaryOperation.Plus));
         parser.Register(TokenType.Minus, new UnaryOpParselet<TScalar, TNode, TContext>(factory, parser, UnaryOperation.Minus));
         parser.Register(TokenType.Intersection, new UnaryOpParselet<TScalar, TNode, TContext>(factory, parser, UnaryOperation.ImplicitIntersection));
+        parser.Register(TokenType.Equal, new RedundantEqualsParselet<TScalar, TNode, TContext>(factory, parser));
 
         // Register operation parselets
         parser.Register(TokenType.Plus, new BinaryOpParselet<TScalar, TNode, TContext>(factory, parser, BinaryOperation.Addition, BindingPower.Addition));

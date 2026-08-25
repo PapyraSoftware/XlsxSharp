@@ -33,6 +33,17 @@ using (var workbook = new XLWorkbook())
 }
 ```
 
+## Formula parser
+
+XlsxSharp ships its own Pratt (operator-precedence) formula parser (`XlsxSharp.Parser`), supporting both A1 and R1C1 reference styles. It is regression-tested against real-world formula corpora, most notably the [Enron](http://www.felienne.com/archives/3634) and [EUSES](http://eusesconsortium.org/resources.php) spreadsheet datasets used in academic formula-parsing research:
+
+| Dataset | Formulas | Parsed successfully |
+|---|---:|--------------------:|
+| Enron | 946,320 |             946,303 |
+| EUSES | 89,295 |              89,294 |
+
+These figures are asserted as a floor in `XlsxSharp.Parser.Tests/PrattDataSetTests.cs` (`EnronDataSetCoverage`, `EusesDataSetCoverage`), so any regression in parser coverage fails CI.
+
 ## Developer guidelines
 The [OpenXML specification](https://ecma-international.org/publications-and-standards/standards/ecma-376/) is a large and complicated beast. In order for XlsxSharp, the wrapper around OpenXML, to support all the features, we rely on community contributions. Before opening an issue to request a new feature, we'd like to urge you to try to implement it yourself and log a pull request.
 
@@ -44,4 +55,3 @@ Please read the [full developer guidelines](CONTRIBUTING.md).
 * Former maintainer: [Jan Havlíček](https://github.com/jahav)
 * Former maintainer and lead developer: [Francois Botha](https://github.com/igitur)
 * Master of Computing Patterns: [Aleksei Pankratev](https://github.com/Pankraty)
-* Logo design by [@Tobaloidee](https://github.com/Tobaloidee)

@@ -101,6 +101,38 @@ internal static class ParserExtensions
         return buffer[..w].ToString();
     }
 
+    /// <summary>
+    /// Strip the surrounding single quotes of a <see cref="TokenType.QIdent"/> token and collapse
+    /// escaped <c>''</c> pairs into a single <c>'</c>, e.g. <c>'Jane''s'</c> becomes <c>Jane's</c>.
+    /// Shared by <see cref="QIdentParselet{TScalar,T,TContext}"/> (sheet names) and
+    /// <see cref="StructureReferenceParselet{TScalar,T,TContext}"/> (a quoted external defined
+    /// name, e.g. <c>[1]!'Name, With Comma'</c> - a name containing a character NAME's own grammar
+    /// disallows unquoted, like a comma or space, has to be quoted the same way a sheet name does).
+    /// </summary>
+    public static string UnescapeQIdent(ReadOnlySpan<char> quotedText)
+    {
+        ReadOnlySpan<char> inner = quotedText[1..^1];
+        if (inner.IndexOf('\'') < 0)
+        {
+            return inner.ToString();
+        }
+
+        Span<char> buffer = new char[inner.Length];
+        int w = 0;
+        int i = 0;
+        while (i < inner.Length)
+        {
+            if (inner[i] == '\'')
+            {
+                i++;
+            }
+
+            buffer[w++] = inner[i++];
+        }
+
+        return buffer[..w].ToString();
+    }
+
     public static bool EqualCaseInsensitive(ReadOnlySpan<char> text, string other)
     {
         if (text.Length != other.Length)

@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using XlsxSharp.Parser.Pratt.Parselets;
 
 namespace XlsxSharp.Parser;
 
@@ -308,13 +309,48 @@ public class CopyVisitor : IAstFactory<TransformedSymbol, TransformedSymbol, Mod
     /// <inheritdoc />
     public virtual TransformedSymbol ExternalName(ModContext ctx, SymbolRange range, int workbookIndex, string name)
     {
-        StringBuilder sb = new(BOOK_PREFIX_LEN + SHEET_SEPARATOR_LEN + name.Length);
-        string nodeText = sb
-            .AppendBookIndex(workbookIndex)
-            .AppendReferenceSeparator()
-            .Append(name)
-            .ToString();
+        StringBuilder sb = new(BOOK_PREFIX_LEN + SHEET_SEPARATOR_LEN + name.Length + QUOTE_RESERVE);
+        sb.AppendBookIndex(workbookIndex).AppendReferenceSeparator();
+        string nodeText = (
+            RequiresQuotingAsExternalName(name.AsSpan())
+                ? sb.Append('\'').AppendEscapedSheetName(name).Append('\'')
+                : sb.Append(name)
+        ).ToString();
         return TransformedSymbol.ToText(ctx.Formula, range, nodeText);
+    }
+
+    /// <summary>
+    /// Does an external defined name need to be re-quoted when rendered unqualified (bare
+    /// <c>[n]!name</c>, no sheet)? <see cref="NameUtils.ShouldQuote"/> can't be reused here: that
+    /// bitmask encodes Excel's *sheet name* quoting rules, which allow characters (e.g. <c>/</c>)
+    /// that NAME's own grammar (<see cref="NameUtils.IsNameValid"/>) doesn't - rendering those
+    /// unquoted wouldn't throw, it would silently reparse as something else (e.g. <c>N/A</c> as a
+    /// division). <see cref="NameUtils.IsNameValid"/> alone isn't enough either: it accepts
+    /// anything shaped like a plain identifier, including one that also happens to look like a
+    /// cell reference (A1 or R1C1 style) or <c>TRUE</c>/<c>FALSE</c> - the same shapes
+    /// <see cref="Parselets.StructureReferenceParselet{TScalar,T,TContext}"/> excludes from its
+    /// unquoted branch (see its <c>ParseExternalReference</c>). Checked against both A1 and R1C1
+    /// cell shapes regardless of which style is being rendered, since over-quoting is harmless but
+    /// under-quoting produces text that fails to reparse (or reparses into something else).
+    /// </summary>
+    private static bool RequiresQuotingAsExternalName(ReadOnlySpan<char> name)
+    {
+        if (!NameUtils.IsNameValid(name) || ParserExtensions.TryGetCellA1(name, out _))
+        {
+            return true;
+        }
+
+        if (name.Length > 0 && name[0] is 'R' or 'r' or 'C' or 'c')
+        {
+            int i = 0;
+            TokenParser.ParseR1C1Reference(name, ref i);
+            if (i == name.Length)
+            {
+                return true;
+            }
+        }
+
+        return ParserExtensions.EqualCaseInsensitive(name, "TRUE") || ParserExtensions.EqualCaseInsensitive(name, "FALSE");
     }
 
     /// <inheritdoc />

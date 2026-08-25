@@ -114,6 +114,19 @@ internal class StructureReferenceParselet<TScalar, T, TContext> : IPrefixParsele
                 return new Node<T>(value, range, isPureReference: true);
             }
 
+            // A quoted external name, e.g. "[1]!'NGH1,PRIM ACT 1'" - a defined name containing a
+            // character NAME's own grammar disallows unquoted (here, a comma and a space) has to
+            // be quoted the same way a sheet name does. Unlike the unquoted case above, no
+            // TryGetCell exclusion is needed: quoting itself already disambiguates it from a cell
+            // reference, the same way it does for a quoted sheet name.
+            if (nameToken.Type == TokenType.QIdent)
+            {
+                string quotedName = ParserExtensions.UnescapeQIdent(nameToken.GetText(this._parser.Input));
+                SymbolRange range = new(workbookToken.Range.Start, nameToken.Range.End);
+                T value = this._factory.ExternalName(ctx, range, workbookIndex, quotedName);
+                return new Node<T>(value, range, isPureReference: true);
+            }
+
             throw new ParsingException($"Unable to parse value starting from position {workbookToken.Range.Start}.");
         }
 

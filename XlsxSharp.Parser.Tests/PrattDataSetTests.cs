@@ -30,13 +30,22 @@ public class PrattDataSetTests
     [Test]
     public async Task EnronDataSetCoverage()
     {
-        await this.AssertCoverage("./data/enron/formulas.csv", minimumMatchingCount: 943_140);
+        // The remaining 17 gaps are confirmed not valid Excel syntax at all, not a pratt parser
+        // gap: 15 formulas contain a truncated "#REF" error literal missing its "!" (e.g.
+        // "SUM(#REF)"), and 2 use an unquoted sheet name containing spaces ("PJM Monthly Summary
+        // 2000 08 V.1!..."), which A1's grammar requires quoting - both look like corruption from
+        // however this corpus was originally extracted, not real formulas Excel ever accepted.
+        await this.AssertCoverage("./data/enron/formulas.csv", minimumMatchingCount: 946_303);
     }
 
     [Test]
     public async Task EusesDataSetCoverage()
     {
-        await this.AssertCoverage("./data/euses/formulas.csv", minimumMatchingCount: 89_173);
+        // The remaining gap is the same class of issue as enron's: the one failing formula
+        // references a sheet ("Exercises 4, 5 and 6") whose name contains a comma and spaces but
+        // isn't quoted with '...' as A1's grammar requires - not valid Excel syntax, not a pratt
+        // parser gap.
+        await this.AssertCoverage("./data/euses/formulas.csv", minimumMatchingCount: 89_294);
     }
 
     [Test]

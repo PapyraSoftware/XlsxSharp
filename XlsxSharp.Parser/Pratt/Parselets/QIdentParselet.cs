@@ -28,7 +28,7 @@ internal class QIdentParselet<TScalar, T, TContext> : IPrefixParselet<T, TContex
             throw new ParsingException($"Unable to parse value starting from position {token.Range.Start}.");
         }
 
-        string unquoted = Unquote(token.GetText(this._parser.Input));
+        string unquoted = ParserExtensions.UnescapeQIdent(token.GetText(this._parser.Input));
         int? workbookIndex = null;
         if (unquoted.StartsWith('['))
         {
@@ -144,33 +144,5 @@ internal class QIdentParselet<TScalar, T, TContext> : IPrefixParselet<T, TContex
 
         unquoted = unquoted[(closeBracket + 1)..];
         return true;
-    }
-
-    /// <summary>
-    /// Strip the surrounding single quotes and collapse escaped <c>''</c> pairs into a single
-    /// <c>'</c>, e.g. <c>'Jane''s'</c> becomes <c>Jane's</c>.
-    /// </summary>
-    private static string Unquote(ReadOnlySpan<char> quotedText)
-    {
-        ReadOnlySpan<char> inner = quotedText[1..^1];
-        if (inner.IndexOf('\'') < 0)
-        {
-            return inner.ToString();
-        }
-
-        Span<char> buffer = new char[inner.Length];
-        int w = 0;
-        int i = 0;
-        while (i < inner.Length)
-        {
-            if (inner[i] == '\'')
-            {
-                i++;
-            }
-
-            buffer[w++] = inner[i++];
-        }
-
-        return buffer[..w].ToString();
     }
 }
