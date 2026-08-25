@@ -11,6 +11,59 @@ internal static class ParserExtensions
     private const int MIN_ROW_LENGTH = 1; // 1
     private const int MAX_ROW_LENGTH = 8; // $1048576
 
+    /// <summary>
+    /// Parse a function call argument list, having already consumed the opening
+    /// <see cref="TokenType.LeftParen"/>. Arguments may be blank (e.g. <c>SUM(1,,2)</c>,
+    /// <c>SUM(1,)</c>, <c>SUM(,1)</c>), but an entirely empty list (<c>SUM()</c>) has zero
+    /// arguments rather than a single blank one.
+    /// </summary>
+    public static (List<T> Args, Token RightParen) ParseArgumentList<TScalar, T, TContext>(this Parser<T, TContext> parser, IAstFactory<TScalar, T, TContext> factory, TContext ctx)
+    {
+        List<T> args = [];
+        if (parser.LookAhead(1).Type == TokenType.RightParen)
+        {
+            return (args, parser.Consume(TokenType.RightParen));
+        }
+
+        while (true)
+        {
+            Token next = parser.LookAhead(1);
+            if (next.Type == TokenType.Comma)
+            {
+                Token comma = parser.Consume(TokenType.Comma);
+                args.Add(factory.BlankNode(ctx, new SymbolRange(comma.Range.Start, comma.Range.Start)));
+                continue;
+            }
+
+            if (next.Type == TokenType.RightParen)
+            {
+                Token rightParen = parser.Consume(TokenType.RightParen);
+                args.Add(factory.BlankNode(ctx, new SymbolRange(rightParen.Range.Start, rightParen.Range.Start)));
+                return (args, rightParen);
+            }
+
+            Node<T> arg = parser.ParseExpression(ctx, 0);
+            args.Add(arg.Value);
+
+            if (parser.LookAhead(1).Type == TokenType.RightParen)
+            {
+                return (args, parser.Consume(TokenType.RightParen));
+            }
+
+            parser.Consume(TokenType.Comma);
+        }
+    }
+
+    public static bool EqualCaseInsensitive(ReadOnlySpan<char> text, string other)
+    {
+        if (text.Length != other.Length)
+        {
+            return false;
+        }
+
+        return text.CompareTo(other.AsSpan(), StringComparison.OrdinalIgnoreCase) == 0;
+    }
+
     public static bool TryReferenceA1<T, TContext>(this Parser<T, TContext> parser, Token token, out ReferenceArea area, out SymbolRange range)
     {
         if (token.Type is not TokenType.Ident and not TokenType.Number)
@@ -170,7 +223,16 @@ internal static class ParserExtensions
         }
 
         ReadOnlySpan<char> text = identToken.GetText(parser.Input);
-        if (NameUtils.IsNameValid(text))
+
+        // TRUE/FALSE are never a valid NAME token, even though the text alone matches the name
+        // grammar - the oracle's lexer always classifies them as LOGICAL_CONSTANT instead (unless
+        // immediately followed by "(", where they lex as a function name; that path never calls
+        // TryGetName, so it isn't affected here).
+        if (
+            NameUtils.IsNameValid(text)
+            && !EqualCaseInsensitive(text, "TRUE")
+            && !EqualCaseInsensitive(text, "FALSE")
+        )
         {
             name = text;
             return true;

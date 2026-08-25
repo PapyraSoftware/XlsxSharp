@@ -252,43 +252,51 @@ public class PrattParserAcceptanceTests
     }
 
     [Test]
-    public async Task QuotedExternalWorkbookReferencesAreNotImplementedYet()
+    [Arguments("'[2]D and D'!A1")] // The workbook index is inside the quotes here.
+    public async Task QuotedExternalWorkbookReferencesMatchOracle(string formula)
     {
-        // Unlike the other cases in RejectedByOracleAreAlsoRejectedByPratt, the oracle *does*
-        // accept this formula (as an ExternalSheetReferenceNode) - only the pratt parser doesn't,
-        // since square-bracket external reference syntax isn't recognized anywhere yet.
-        AstNode oracleNode = FormulaParser<ScalarValue, AstNode, Ctx>.CellFormulaA1(
-            "'[2]D and D'!A1",
-            new Ctx(),
-            new F()
-        );
-        await Assert.That(oracleNode).IsTypeOf<ExternalSheetReferenceNode>();
-
-        Parser<AstNode, Ctx> parser = ParserFactory.Create(new F());
-        await Assert.ThrowsAsync<Exception>(() =>
-            Task.FromResult(parser.ParseFormula("'[2]D and D'!A1", new Ctx()))
-        );
+        await AssertMatchesOracle(formula);
     }
 
     [Test]
-    public async Task UnquotedExternalWorkbookReferencesAreNotImplementedYet()
+    [Arguments("[2]!name")] // No sheet.
+    [Arguments("[2]!SUM(1)")]
+    [Arguments("[2]Sheet!A1")]
+    [Arguments("[2]Sheet!A1:B2")]
+    [Arguments("[2]Sheet!A:B")]
+    [Arguments("[2]Sheet!1:2")]
+    [Arguments("[2]Sheet!name")]
+    [Arguments("[2]Sheet!SUM(1)")]
+    [Arguments("[2]Sheet1:Sheet2!A1")] // External 3D reference.
+    [Arguments("[123]!name")] // Multi-digit workbook index.
+    [Arguments("[0]!name")]
+    [Arguments("1+[2]Sheet!A1+2")]
+    [Arguments("[2]Sheet!#REF!")] // Same #REF! collapsing as the local sheet!#REF! case.
+    [Arguments("[2]A1!name")] // "A1" here is a (cell-shaped) sheet name, not a reference/name.
+    public async Task UnquotedExternalWorkbookReferencesMatchOracle(string formula)
     {
-        // Same gap as QuotedExternalWorkbookReferencesAreNotImplementedYet, but for the unquoted
-        // form. The oracle's lexer recognizes "[2]Yesterday!" as a single external-sheet-prefix
-        // token; the pratt lexer instead tokenizes the leading "[2]" the same way it would a bare
-        // structure reference (as a SquareIdent - "2" parses as a plausible, if unusual, column
-        // name), leaving "Yesterday!A2" unconsumed, which the completeness check in
-        // Parser.ParseFormula then rejects rather than silently dropping.
-        AstNode oracleNode = FormulaParser<ScalarValue, AstNode, Ctx>.CellFormulaA1(
-            "[2]Yesterday!A2",
-            new Ctx(),
-            new F()
+        await AssertMatchesOracle(formula);
+    }
+
+    [Test]
+    [Arguments("[2]!A1")] // A cell-shaped name isn't a valid NAME token, external or not.
+    [Arguments("[2]!A1(1)")] // Nor a valid external function name - no external cell function form.
+    [Arguments("[2]Sheet!A1(1)")]
+    [Arguments("[2]TRUE")] // "[2]" alone still needs "!" or a sheet name to follow.
+    [Arguments("[2]!TRUE")] // TRUE/FALSE still can't be a bare name, external or not.
+    [Arguments("[2]Sheet!TRUE")]
+    [Arguments("[2]Table1[Column]")] // No external structure reference form in the grammar.
+    public async Task ExternalWorkbookReferenceEdgeCasesAreRejectedByBoth(string formula)
+    {
+        await Assert.ThrowsAsync<Exception>(() =>
+            Task.FromResult(
+                FormulaParser<ScalarValue, AstNode, Ctx>.CellFormulaA1(formula, new Ctx(), new F())
+            )
         );
-        await Assert.That(oracleNode).IsTypeOf<ExternalSheetReferenceNode>();
 
         Parser<AstNode, Ctx> parser = ParserFactory.Create(new F());
         await Assert.ThrowsAsync<Exception>(() =>
-            Task.FromResult(parser.ParseFormula("[2]Yesterday!A2", new Ctx()))
+            Task.FromResult(parser.ParseFormula(formula, new Ctx()))
         );
     }
 

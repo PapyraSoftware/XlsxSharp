@@ -79,7 +79,7 @@ internal class IdentParselet<TScalar, T, TContext> : IPrefixParselet<T, TContext
             // here (other errors, e.g. `sheet!#N/A`, aren't valid); the whole thing collapses to
             // an error. Unlike ErrorParselet, the oracle doesn't normalize the casing in this
             // particular path, so pass the text through as-is to match it exactly.
-            if (sheetRefToken.Type == TokenType.Error && EqualCaseInsensitive(sheetRefToken.GetText(this._parser.Input), "#REF!"))
+            if (sheetRefToken.Type == TokenType.Error && ParserExtensions.EqualCaseInsensitive(sheetRefToken.GetText(this._parser.Input), "#REF!"))
             {
                 SymbolRange range = sheetWithBangRange.ExtendRight(sheetRefToken.Range);
                 T value = this._factory.ErrorNode(ctx, range, sheetRefToken.GetText(this._parser.Input));
@@ -108,13 +108,13 @@ internal class IdentParselet<TScalar, T, TContext> : IPrefixParselet<T, TContext
         }
 
         ReadOnlySpan<char> tokenText = token.GetText(this._parser.Input);
-        if (EqualCaseInsensitive(tokenText, "TRUE"))
+        if (ParserExtensions.EqualCaseInsensitive(tokenText, "TRUE"))
         {
             T value = this._factory.LogicalNode(ctx, token.Range, true);
             return new Node<T>(value, token.Range);
         }
 
-        if (EqualCaseInsensitive(tokenText, "FALSE"))
+        if (ParserExtensions.EqualCaseInsensitive(tokenText, "FALSE"))
         {
             T value = this._factory.LogicalNode(ctx, token.Range, false);
             return new Node<T>(value, token.Range);
@@ -191,7 +191,7 @@ internal class IdentParselet<TScalar, T, TContext> : IPrefixParselet<T, TContext
         bool isCellShaped = ParserExtensions.TryGetCellA1(name, out RowCol cell) && sheet is null;
 
         this._parser.Consume(TokenType.LeftParen);
-        (List<T> args, Token rightParen) = this.ParseArgumentList(ctx);
+        (List<T> args, Token rightParen) = this._parser.ParseArgumentList(this._factory, ctx);
         SymbolRange range = new(nameToken.Range.Start, rightParen.Range.End);
 
         T value = sheet is null
@@ -200,58 +200,5 @@ internal class IdentParselet<TScalar, T, TContext> : IPrefixParselet<T, TContext
                 : this._factory.Function(ctx, range, name, args)
             : this._factory.Function(ctx, range, sheet, name, args);
         return new Node<T>(value, range);
-    }
-
-    /// <summary>
-    /// Parse a function call argument list, having already consumed the opening
-    /// <see cref="TokenType.LeftParen"/>. Arguments may be blank (e.g. <c>SUM(1,,2)</c>,
-    /// <c>SUM(1,)</c>, <c>SUM(,1)</c>), but an entirely empty list (<c>SUM()</c>) has zero
-    /// arguments rather than a single blank one.
-    /// </summary>
-    private (List<T> Args, Token RightParen) ParseArgumentList(TContext ctx)
-    {
-        List<T> args = [];
-        if (this._parser.LookAhead(1).Type == TokenType.RightParen)
-        {
-            return (args, this._parser.Consume(TokenType.RightParen));
-        }
-
-        while (true)
-        {
-            Token next = this._parser.LookAhead(1);
-            if (next.Type == TokenType.Comma)
-            {
-                Token comma = this._parser.Consume(TokenType.Comma);
-                args.Add(this._factory.BlankNode(ctx, new SymbolRange(comma.Range.Start, comma.Range.Start)));
-                continue;
-            }
-
-            if (next.Type == TokenType.RightParen)
-            {
-                Token rightParen = this._parser.Consume(TokenType.RightParen);
-                args.Add(this._factory.BlankNode(ctx, new SymbolRange(rightParen.Range.Start, rightParen.Range.Start)));
-                return (args, rightParen);
-            }
-
-            Node<T> arg = this._parser.ParseExpression(ctx, 0);
-            args.Add(arg.Value);
-
-            if (this._parser.LookAhead(1).Type == TokenType.RightParen)
-            {
-                return (args, this._parser.Consume(TokenType.RightParen));
-            }
-
-            this._parser.Consume(TokenType.Comma);
-        }
-    }
-
-    private static bool EqualCaseInsensitive(ReadOnlySpan<char> text, string other)
-    {
-        if (text.Length != other.Length)
-        {
-            return false;
-        }
-
-        return text.CompareTo(other.AsSpan(), StringComparison.OrdinalIgnoreCase) == 0;
     }
 }
