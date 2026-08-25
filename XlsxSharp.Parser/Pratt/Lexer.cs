@@ -7,10 +7,7 @@ namespace XlsxSharp.Parser.Pratt;
 /// </summary>
 internal class Lexer
 {
-    private const string OPERATOR_CHARS = "!,;^*/+-&=<>%:#@(){} ";
     private const int EOF = -1;
-
-    private static readonly bool[] IsOp;
 
     // Every single-char operator that doesn't need lookahead to disambiguate (unlike '<'/'>',
     // which may start '<=', '<>' or '>=') maps directly to its TokenType here, so Next() can
@@ -32,12 +29,6 @@ internal class Lexer
 
     static Lexer()
     {
-        IsOp = new bool[128];
-        foreach (char op in OPERATOR_CHARS)
-        {
-            IsOp[op] = true;
-        }
-
         SingleCharOperator = new TokenType?[128];
         SingleCharOperator['+'] = TokenType.Plus;
         SingleCharOperator['-'] = TokenType.Minus;
@@ -406,12 +397,6 @@ internal class Lexer
 
         static bool IsIdentNext(int c)
         {
-            // Stop at operators
-            if (c < IsOp.Length && IsOp[c])
-            {
-                return false;
-            }
-
             return IsIdentStart(c) ||
                    c is >= '0' and <= '9' ||  // name, A1
                    c == '.'; // name + future-functions

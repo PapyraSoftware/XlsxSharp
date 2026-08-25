@@ -117,6 +117,7 @@ public class LexerTests
             "\uDD8A", // Unpaired low surrogate for Fox Face
             "\uDD8A*\"", // Unpaired low surrogate for Fox Face
             "\uDD8A\uD83E", // Low surrogate first
+            "name\uD83E)", // Unpaired high surrogate after an ASCII identifier run
         ];
         foreach (string invalidText in invalidCodeUnits)
         {
@@ -167,6 +168,7 @@ public class LexerTests
     [Arguments("_xlfn.ACOT")]
     [Arguments("\u05D0\u05D1\u05E0")] // stone in hebrew - Letters from other languages
     [Arguments("\u05E9\u05B0\u05DC\u05D5\u05DD")] // shalom - A mark from other languages
+    [Arguments("name\uD83E\uDD8A")] // ASCII run followed by a valid surrogate pair (fox face)
     [Test]
     public async Task IdentOk(string input)
     {
