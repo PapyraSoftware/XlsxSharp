@@ -60,8 +60,6 @@ public class BaseRepositoryTests
         {
             return new System.WeakReference(repository.Store(ref key, new SampleEntity(key)));
         }
-#else
-        Assert.Ignore("Can't run in DEBUG");
 #endif
     }
 
@@ -100,8 +98,6 @@ public class BaseRepositoryTests
 
         // Assert
         ClassicAssert.AreEqual(0, storedEntries.Count);
-#else
-        Assert.Ignore("Can't run in DEBUG");
 #endif
     }
 
