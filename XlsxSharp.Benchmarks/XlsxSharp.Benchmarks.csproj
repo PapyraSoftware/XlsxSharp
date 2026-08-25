@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\.editorconfig" Link=".editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.15.8" />
+    <!-- The real upstream package, benchmarked as-is against our vendored fork in XlsxSharp.Parser. -->
+    <PackageReference Include="ClosedXML.Parser" Version="2.0.0" />
+    <PackageReference Include="CsvHelper" Version="33.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\XlsxSharp.Parser\XlsxSharp.Parser.csproj" />
+    <ProjectReference Include="..\XlsxSharp.Parser.Ast\XlsxSharp.Parser.Ast.csproj" />
+  </ItemGroup>
+
+  <!-- Reuse the real-world formula corpora already checked into XlsxSharp.Parser.Tests instead of
+       shipping a second copy of a 22 MB file. -->
+  <ItemGroup>
+    <None Include="..\XlsxSharp.Parser.Tests\data\enron\formulas.csv" Link="data\enron\formulas.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+</Project>

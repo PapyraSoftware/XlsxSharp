@@ -28,4 +28,5 @@
     </Folder>
     <Project Path="XlsxSharp.Parser.Function/XlsxSharp.Parser.Function.csproj" />
     <Project Path="XlsxSharp.Sandbox\XlsxSharp.Sandbox.csproj" />
+    <Project Path="XlsxSharp.Benchmarks\XlsxSharp.Benchmarks.csproj" />
 </Solution>

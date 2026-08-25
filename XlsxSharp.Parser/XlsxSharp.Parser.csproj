@@ -18,5 +18,6 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="XlsxSharp.Parser.Tests" />
+    <InternalsVisibleTo Include="XlsxSharp.Benchmarks" />
   </ItemGroup>
 </Project>
