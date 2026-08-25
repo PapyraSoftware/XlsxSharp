@@ -70,12 +70,12 @@
          directory, so packing does not depend on which target framework of the multi-targeted
          parser was selected. -->
     <ItemGroup>
-      <_ParserOutput Include="$(OutputPath)ClosedXML.Parser.dll;$(OutputPath)ClosedXML.Parser.xml;$(OutputPath)ClosedXML.Parser.pdb" />
+      <_ParserOutput Include="$(OutputPath)XlsxSharp.Parser.dll;$(OutputPath)XlsxSharp.Parser.xml;$(OutputPath)XlsxSharp.Parser.pdb" />
     </ItemGroup>
 
     <Error
-      Condition="!Exists('$(OutputPath)ClosedXML.Parser.dll')"
-      Text="ClosedXML.Parser.dll was not found in $(OutputPath). It has to be packed into the XlsxSharp package, so build the project before packing it."
+      Condition="!Exists('$(OutputPath)XlsxSharp.Parser.dll')"
+      Text="XlsxSharp.Parser.dll was not found in $(OutputPath). It has to be packed into the XlsxSharp package, so build the project before packing it."
     />
 
     <ItemGroup>
