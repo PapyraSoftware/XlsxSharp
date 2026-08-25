@@ -16,7 +16,7 @@ public class SimpleTypeReaderTests
         ClassicAssert.AreEqual(expected, reader.GetPropertyName(0));
     }
 
-    internal static IEnumerable<(IEnumerable, string)> SimpleSourceNames()
+    public static IEnumerable<(IEnumerable, string)> SimpleSourceNames()
     {
         yield return (new[] { 1, 2, 3 }, "Int32");
         yield return (new List<double> { 1.0, 2.0, 3.0 }, "Double");

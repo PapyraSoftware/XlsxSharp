@@ -207,7 +207,7 @@ public class ColorTests
     public void ToStringWorksForAllColorTypes(XLColor colorType, string expectedString) =>
         ClassicAssert.AreEqual(expectedString, colorType.ToString());
 
-    internal static IEnumerable<(XLColor, string)> ToStringTestCases()
+    public static IEnumerable<(XLColor, string)> ToStringTestCases()
     {
         yield return (XLColor.FromArgb(0xFF804010), "FF804010");
         yield return (

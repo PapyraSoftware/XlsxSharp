@@ -176,7 +176,7 @@ public class AlignmentTests
         }
     }
 
-    internal static IEnumerable<FormatTestCase<IXLAlignment>> AlignmentApiSetters()
+    public static IEnumerable<FormatTestCase<IXLAlignment>> AlignmentApiSetters()
     {
         XLAlignmentHorizontalValues[] hAlignValues =
             EnumPolyfill.GetValues<XLAlignmentHorizontalValues>();
@@ -310,7 +310,7 @@ public class AlignmentTests
         );
     }
 
-    internal static IEnumerable<(Action<IXLAlignment, int>, int[])> AlignmentApiSettersLimits()
+    public static IEnumerable<(Action<IXLAlignment, int>, int[])> AlignmentApiSettersLimits()
     {
         yield return ((align, value) => align.Indent = value, [-1, 256]);
         yield return ((align, value) => align.TextRotation = value, [-91, 91, 254, 256]);

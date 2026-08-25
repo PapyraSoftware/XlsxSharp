@@ -17,7 +17,7 @@ public class SimpleNullableTypeReaderTests
         ClassicAssert.AreEqual(expected, reader.GetPropertyName(0));
     }
 
-    internal static IEnumerable<(IEnumerable, string)> SimpleNullableSourceNames()
+    public static IEnumerable<(IEnumerable, string)> SimpleNullableSourceNames()
     {
         yield return (new int?[] { 1, 2, null }, "Int32");
         yield return (new List<double?> { 1.0, 2.0, null }, "Double");

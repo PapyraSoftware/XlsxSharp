@@ -122,7 +122,7 @@ public class StylesTests
 
     // NUnit's [Theory] auto-generated one case per enum value for an otherwise-undecorated enum
     // parameter; TUnit has no equivalent, so this replaces that data source explicitly.
-    internal static IEnumerable<XLThemeColor> AllThemeColors() => Enum.GetValues<XLThemeColor>();
+    public static IEnumerable<XLThemeColor> AllThemeColors() => Enum.GetValues<XLThemeColor>();
 
     [Test]
     public void SetStyleViaRowReference()

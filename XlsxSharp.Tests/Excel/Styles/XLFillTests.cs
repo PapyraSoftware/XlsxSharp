@@ -26,7 +26,7 @@ public class XlFillTests
         }
     }
 
-    internal static IEnumerable<FormatTestCase<IXLFill>> FillApiSetters()
+    public static IEnumerable<FormatTestCase<IXLFill>> FillApiSetters()
     {
         XLFillPatternValues[] patternValues = EnumPolyfill.GetValues<XLFillPatternValues>();
         yield return FormatTestCase<IXLFill>.ForFill(
