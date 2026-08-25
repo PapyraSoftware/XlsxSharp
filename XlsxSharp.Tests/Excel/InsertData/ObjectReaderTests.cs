@@ -63,7 +63,7 @@ public class ObjectReaderTests
         ClassicAssert.AreEqual(expected, reader.GetPropertyName(propertyIndex));
     }
 
-    internal static IEnumerable<(IEnumerable, int, string)> ObjectSourceNames()
+    public static IEnumerable<(IEnumerable, int, string)> ObjectSourceNames()
     {
         IEnumerable data = ObjectWithoutAttributes;
         yield return (data, 0, "Column1");
@@ -94,7 +94,7 @@ public class ObjectReaderTests
         ClassicAssert.AreEqual(expected, reader.GetPropertiesCount());
     }
 
-    internal static IEnumerable<(IEnumerable, int)> PropertyCounts()
+    public static IEnumerable<(IEnumerable, int)> PropertyCounts()
     {
         yield return (ObjectWithoutAttributes, 2);
         yield return (ObjectWithAttributes, 4);

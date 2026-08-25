@@ -418,7 +418,7 @@ public class BorderTests
         }
     }
 
-    internal static IEnumerable<object> BorderApiSetters()
+    public static IEnumerable<object> BorderApiSetters()
     {
         XLBorderStyleValues[] styleValues = EnumPolyfill.GetValues<XLBorderStyleValues>();
         XLColor[] colors = [XLColor.Red, XLColor.Black, XLColor.Automatic];
@@ -688,7 +688,7 @@ public class BorderTests
         );
     }
 
-    internal static IEnumerable<(
+    public static IEnumerable<(
         Func<IXLBorder, XLColor>,
         Action<IXLBorder, XLColor>,
         Action<IXLBorder, XLBorderStyleValues>

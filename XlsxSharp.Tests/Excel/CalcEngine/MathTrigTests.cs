@@ -20,29 +20,29 @@ public class MathTrigTests
         }
     }
 
-    internal static IEnumerable<double> Range0To10Step01() => DoubleRange(0d, 10d, 0.1);
+    public static IEnumerable<double> Range0To10Step01() => DoubleRange(0d, 10d, 0.1);
 
-    internal static IEnumerable<double> RangeNeg10ToNeg01Step01() => DoubleRange(-10d, -0.1, 0.1);
+    public static IEnumerable<double> RangeNeg10ToNeg01Step01() => DoubleRange(-10d, -0.1, 0.1);
 
-    internal static IEnumerable<double> Range11To3Step01() => DoubleRange(1.1, 3d, 0.1);
+    public static IEnumerable<double> Range11To3Step01() => DoubleRange(1.1, 3d, 0.1);
 
-    internal static IEnumerable<double> RangeNeg1To09Step01() => DoubleRange(-1d, 0.9, 0.1);
+    public static IEnumerable<double> RangeNeg1To09Step01() => DoubleRange(-1d, 0.9, 0.1);
 
-    internal static IEnumerable<double> RangeNeg09To09Step01() => DoubleRange(-0.9, 0.9, 0.1);
+    public static IEnumerable<double> RangeNeg09To09Step01() => DoubleRange(-0.9, 0.9, 0.1);
 
-    internal static IEnumerable<double> RangeNeg3ToNeg11Step01() => DoubleRange(-3d, -1.1, 0.1);
+    public static IEnumerable<double> RangeNeg3ToNeg11Step01() => DoubleRange(-3d, -1.1, 0.1);
 
-    internal static IEnumerable<double> Range01To5Step04() => DoubleRange(0.1, 5d, 0.4);
+    public static IEnumerable<double> Range01To5Step04() => DoubleRange(0.1, 5d, 0.4);
 
-    internal static IEnumerable<double> RangeNeg5ToNeg01Step03() => DoubleRange(-5d, -0.1, 0.3);
+    public static IEnumerable<double> RangeNeg5ToNeg01Step03() => DoubleRange(-5d, -0.1, 0.3);
 
-    internal static IEnumerable<double> RangeNeg5ToNeg01Step04() => DoubleRange(-5d, -0.1, 0.4);
+    public static IEnumerable<double> RangeNeg5ToNeg01Step04() => DoubleRange(-5d, -0.1, 0.4);
 
-    internal static IEnumerable<double> Range01To5Step03() => DoubleRange(0.1, 5d, 0.3);
+    public static IEnumerable<double> Range01To5Step03() => DoubleRange(0.1, 5d, 0.3);
 
-    internal static IEnumerable<double> Range1To5Step02() => DoubleRange(1d, 5d, 0.2);
+    public static IEnumerable<double> Range1To5Step02() => DoubleRange(1d, 5d, 0.2);
 
-    internal static IEnumerable<int> IntRange(int from, int to)
+    public static IEnumerable<int> IntRange(int from, int to)
     {
         for (int value = from; value <= to; value++)
         {
