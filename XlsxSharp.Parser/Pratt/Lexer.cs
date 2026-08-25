@@ -12,7 +12,13 @@ internal class Lexer
 
     private static readonly bool[] IsOp;
 
-    private readonly Queue<Token> _queue = new(4);
+    // A small ring buffer of already-lexed lookahead tokens, indexed directly by Peek instead of
+    // walked with an enumerator like a BCL Queue<T> would require - PeekPastWhitespace (see Parser)
+    // calls Peek up to twice per reference atom, the most common leaf in real formulas, so this is
+    // on the hottest path in the parser.
+    private Token[] _lookahead = new Token[4];
+    private int _lookaheadHead;
+    private int _lookaheadCount;
     private string _input = string.Empty; // Currently tokenized formula
     private int _start; // The start index of currently parsed token in Next()
     private int _i; // Index of current code point _c in _input
@@ -50,33 +56,51 @@ internal class Lexer
         this._start = -1;
         this._i = -1;
         this._c = 0;
+        this._lookaheadHead = 0;
+        this._lookaheadCount = 0;
     }
 
     public Token Consume()
     {
-        if (this._queue.Count == 0)
+        if (this._lookaheadCount == 0)
         {
             return this.Next();
         }
 
-        return this._queue.Dequeue();
+        Token token = this._lookahead[this._lookaheadHead];
+        this._lookaheadHead = (this._lookaheadHead + 1) % this._lookahead.Length;
+        this._lookaheadCount--;
+        return token;
     }
 
     public Token Peek(int distance = 1)
     {
-        // TODO: Replace BCL queue with a structure that allows index access
-        while (this._queue.Count < distance)
+        while (this._lookaheadCount < distance)
         {
-            this._queue.Enqueue(this.Next());
+            if (this._lookaheadCount == this._lookahead.Length)
+            {
+                this.GrowLookahead();
+            }
+
+            int writeIndex = (this._lookaheadHead + this._lookaheadCount) % this._lookahead.Length;
+            this._lookahead[writeIndex] = this.Next();
+            this._lookaheadCount++;
         }
 
-        Queue<Token>.Enumerator enumerator = this._queue.GetEnumerator();
-        for (int i = 0; i < distance; ++i)
+        int readIndex = (this._lookaheadHead + distance - 1) % this._lookahead.Length;
+        return this._lookahead[readIndex];
+    }
+
+    private void GrowLookahead()
+    {
+        Token[] grown = new Token[this._lookahead.Length * 2];
+        for (int i = 0; i < this._lookaheadCount; i++)
         {
-            enumerator.MoveNext();
+            grown[i] = this._lookahead[(this._lookaheadHead + i) % this._lookahead.Length];
         }
 
-        return enumerator.Current;
+        this._lookahead = grown;
+        this._lookaheadHead = 0;
     }
 
     private Token Next()
