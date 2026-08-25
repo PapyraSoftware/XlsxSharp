@@ -25,6 +25,7 @@ internal class Lexer
     private int _start; // The start index of currently parsed token in Next()
     private int _i; // Index of current code point _c in _input
     private int _c; // A current code point (including astral planes) or -1 if at the EOF
+    private bool _isR1C1; // True while tokenizing an R1C1-style formula rather than A1
 
 
     static Lexer()
@@ -54,9 +55,9 @@ internal class Lexer
     {
     }
 
-    public Lexer(string input)
+    public Lexer(string input, bool isR1C1 = false)
     {
-        this.Reset(input);
+        this.Reset(input, isR1C1);
     }
 
     private bool IsEof => this._c == EOF;
@@ -65,7 +66,8 @@ internal class Lexer
     /// Prepare lexer to start tokenization of the <paramref name="formula"/>.
     /// </summary>
     /// <param name="formula">Formula to tokenize.</param>
-    public void Reset(string formula)
+    /// <param name="isR1C1">Tokenize <paramref name="formula"/> as R1C1 rather than A1.</param>
+    public void Reset(string formula, bool isR1C1 = false)
     {
         this._input = formula ?? throw new ArgumentNullException();
         this._start = -1;
@@ -73,6 +75,7 @@ internal class Lexer
         this._c = 0;
         this._lookaheadHead = 0;
         this._lookaheadCount = 0;
+        this._isR1C1 = isR1C1;
     }
 
     public Token Consume()
@@ -209,6 +212,19 @@ internal class Lexer
 
         if (IsIdentStart(this._c))
         {
+            if (this._isR1C1 && this._c is 'R' or 'r' or 'C' or 'c')
+            {
+                Token? r1c1Token = this.TryScanR1C1Reference();
+                if (r1c1Token is { } found)
+                {
+                    return found;
+                }
+
+                // Not R1C1-shaped after all (e.g. "Revenue", "Costs", "R1C1style") - the speculative
+                // scan above is guaranteed not to have consumed anything on failure, so fall through
+                // to plain identifier scanning from the same, still-current position.
+            }
+
             this.Advance();
             while (!this.IsEof && IsIdentNext(this._c))
             {
@@ -461,6 +477,102 @@ internal class Lexer
 
             return codepoint <= 0x10FFFF;
         }
+    }
+
+    /// <summary>
+    /// R1C1 mode only, called with <see cref="_c"/> at a leading <c>R</c>/<c>C</c> (either case):
+    /// attempt to scan a full R1C1 reference token - a row (<c>R</c>, <c>R5</c>, <c>R[-14]</c>), a
+    /// column (<c>C</c>, <c>C5</c>, <c>C[-14]</c>), or a cell (row immediately followed by column,
+    /// e.g. <c>RC</c>, <c>R1C1</c>, <c>R[-1]C[-1]</c>). Unlike A1, where a cell's row/column are
+    /// both plain digit runs already covered by ordinary identifier scanning, R1C1's bracketed
+    /// relative form (<c>[-14]</c>) is not itself ident-continuation text, so it needs its own scan
+    /// to end up as a single token rather than three (<c>Ident "R"</c>, <c>SquareIdent "[-14]"</c>,
+    /// ...). Purely speculative: nothing is consumed on failure (a token whose text isn't fully
+    /// R1C1-shaped, or one that's followed by further identifier characters - e.g. "R1C1style",
+    /// where the longer NAME must win, matching the oracle's own maximal-munch lexer), so the caller
+    /// can safely fall back to ordinary identifier scanning from the very first character.
+    /// </summary>
+    private Token? TryScanR1C1Reference()
+    {
+        int i = this._i;
+        bool matchedRow = TryScanR1C1Axis(this._input, ref i, 'R');
+        bool matchedColumn = TryScanR1C1Axis(this._input, ref i, 'C');
+        if (!matchedRow && !matchedColumn)
+        {
+            return null;
+        }
+
+        if (i < this._input.Length && IsR1C1IdentNext(this._input[i]))
+        {
+            return null;
+        }
+
+        this._i = i - 1;
+        this.Advance();
+        return this.T(TokenType.Ident);
+
+        // Duplicates IsIdentStart/IsIdentNext from Next() (both local functions, out of reach from
+        // here) - true for any character that could extend a NAME beyond this R1C1-shaped run.
+        static bool IsR1C1IdentNext(char c)
+        {
+            return
+                (uint)((c | 0x20) - 'a') <= 25u || // ASCII letter
+                c is '$' or '_' or '\\' or '?' or '.' ||
+                c is >= '0' and <= '9' ||
+                c > 0x7F;
+        }
+    }
+
+    /// <summary>
+    /// Try to scan one axis (<paramref name="axisLetter"/> is <c>'R'</c> or <c>'C'</c>, matched case
+    /// insensitively) starting at <c>input[i]</c>, advancing <paramref name="i"/> past it on
+    /// success. Grammar: the axis letter, then either <c>"[" ("-")? digit+ "]"</c> (relative, e.g.
+    /// <c>R[-14]</c>), digit+ (absolute, e.g. <c>R14</c>), or nothing at all (relative zero, e.g.
+    /// bare <c>R</c>). Range validation of the digits themselves (row/column bounds) is left to the
+    /// actual decode in <see cref="TokenParser.ParseR1C1Reference(ReadOnlySpan{char},ref int)"/> -
+    /// this only needs to find the token's extent. Returns false, leaving <paramref name="i"/>
+    /// untouched, if the letter itself doesn't match or an opened bracket is never closed over a
+    /// digit run.
+    /// </summary>
+    private static bool TryScanR1C1Axis(string input, ref int i, char axisLetter)
+    {
+        if (i >= input.Length || (input[i] | 0x20) != (axisLetter | 0x20))
+        {
+            return false;
+        }
+
+        int j = i + 1;
+        if (j < input.Length && input[j] == '[')
+        {
+            j++;
+            if (j < input.Length && input[j] == '-')
+            {
+                j++;
+            }
+
+            int digitsStart = j;
+            while (j < input.Length && input[j] is >= '0' and <= '9')
+            {
+                j++;
+            }
+
+            if (j == digitsStart || j >= input.Length || input[j] != ']')
+            {
+                return false;
+            }
+
+            i = j + 1;
+            return true;
+        }
+
+        while (j < input.Length && input[j] is >= '0' and <= '9')
+        {
+            j++;
+        }
+
+        // Zero digits consumed here is fine - bare "R"/"C" is a valid relative-zero shorthand.
+        i = j;
+        return true;
     }
 
     private Token T(TokenType type)

@@ -171,8 +171,22 @@ internal static class ParserExtensions
         return parser.Consume();
     }
 
+    /// <summary>
+    /// Is <paramref name="token"/> (already known to be <see cref="TokenType.Ident"/> or
+    /// <see cref="TokenType.Number"/>) a reference atom - a cell/area, colspan, or rowspan - and if
+    /// so, does it continue into a range (e.g. <c>A1:B2</c>, <c>A:B</c>) via a following <c>:</c>?
+    /// Dispatches to the A1 or R1C1 form based on <see cref="Parser{T,TContext}.IsR1C1"/> - every
+    /// call site (there are many, across nearly every parselet) is deliberately unaware of which
+    /// style is active, since both share the same grammar shape around references (reference atom,
+    /// optional range continuation, sheet qualification, 3D range, ...).
+    /// </summary>
     public static bool TryReferenceA1<T, TContext>(this Parser<T, TContext> parser, Token token, out ReferenceArea area, out SymbolRange range)
     {
+        if (parser.IsR1C1)
+        {
+            return parser.TryReferenceR1C1(token, out area, out range);
+        }
+
         if (token.Type is not TokenType.Ident and not TokenType.Number)
         {
             area = default;
@@ -199,6 +213,133 @@ internal static class ParserExtensions
         }
 
         return false;
+    }
+
+    /// <summary>
+    /// R1C1 form of <see cref="TryReferenceA1{T,TContext}"/>. Unlike A1 (three separate hand-rolled
+    /// shape checks, since a cell/colspan/rowspan each validate differently), R1C1's single shared
+    /// grammar - row, column, or row+column, each independently absolute/relative - is entirely
+    /// covered by one decode (<see cref="TryGetR1C1Corner{T,TContext}"/>, reusing
+    /// <see cref="TokenParser.ParseR1C1Reference(ReadOnlySpan{char},ref int)"/>), so there's no need
+    /// for the A1 side's separate Area/ColSpan/RowSpan methods.
+    /// </summary>
+    private static bool TryReferenceR1C1<T, TContext>(this Parser<T, TContext> parser, Token token, out ReferenceArea area, out SymbolRange range)
+    {
+        if (token.Type != TokenType.Ident || !parser.TryGetR1C1Corner(token, out RowCol corner1))
+        {
+            area = default;
+            range = default;
+            return false;
+        }
+
+        bool isFullCell = !corner1.IsRow && !corner1.IsColumn;
+        if (parser.TryPeekRangeContinuation(out Token maybeCorner2Token, out int distance) &&
+            maybeCorner2Token.Type == TokenType.Ident &&
+            parser.TryGetR1C1Corner(maybeCorner2Token, out RowCol corner2) &&
+            corner1.IsRow == corner2.IsRow &&
+            corner1.IsColumn == corner2.IsColumn &&
+            // "R5:R10!Sheet2" is a 3D sheet range (IdentParselet has its own dedicated check for
+            // that), not a row span "R5:R10" that happens to be followed by something else - same
+            // guard, and same reasoning, as TryLocalColSpanA1/TryLocalRowSpanA1 use for A1. A full
+            // cell shape (e.g. "R1C1:R2C2") is never ambiguous with a sheet name this way, so it
+            // skips the guard exactly like TryLocalAreaA1 does.
+            (isFullCell || parser.LookAhead(distance + 1).Type != TokenType.Bang))
+        {
+            Token corner2Token = parser.ConsumeRangeContinuation();
+            area = new ReferenceArea(corner1, corner2);
+            range = new SymbolRange(token.Range.Start, corner2Token.Range.End);
+            return true;
+        }
+
+        // Unlike A1 (where a bare column letter or row number alone is never reference-shaped -
+        // only a colspan/rowspan *pair* is, and even a full cell like "A1" can't collide with a
+        // sheet name since NameUtils requires quoting anything A1-cell-shaped), R1C1's row,
+        // column, *and* full cell are all complete, valid, standalone references on their own -
+        // see RowCol's own doc comment - and NameUtils' quoting policy is A1-shape-aware only, so
+        // it never flags an R1C1-shaped sheet name for quoting either. That makes a bare reference
+        // of *any* shape immediately followed by "!" genuinely ambiguous with a sheet name (e.g.
+        // "R6!A1", unquoted sheet "R6" - a real shape in the wild, since it only becomes
+        // R1C1-reference-shaped once an A1 formula is converted; and "R1C1!R2C2", confirmed against
+        // the oracle directly - it reads "R1C1" as a sheet name here, not a cell). IdentParselet's
+        // sheet-qualified check runs *after* this one, so it must be declined here, the same way
+        // TryLocalColSpanA1/TryLocalRowSpanA1 decline "Jan:Dec!A1" for A1.
+        if (parser.LookAhead(1).Type == TokenType.Bang)
+        {
+            area = default;
+            range = default;
+            return false;
+        }
+
+        area = new ReferenceArea(corner1);
+        range = token.Range;
+        return true;
+    }
+
+    /// <summary>
+    /// Decode a single R1C1 corner (row, column, or row+column) from <paramref name="token"/>'s
+    /// full text, or reject it as not R1C1-shaped at all (e.g. a genuine name like "Revenue" or
+    /// "Costs", both of which start with a letter <see cref="TokenParser.ParseR1C1Reference(ReadOnlySpan{char},ref int)"/>
+    /// itself would otherwise treat as the start of a row/column and only partially consume).
+    /// </summary>
+    private static bool TryGetR1C1Corner<T, TContext>(this Parser<T, TContext> parser, Token token, out RowCol corner)
+    {
+        ReadOnlySpan<char> text = token.GetText(parser.Input);
+        if (text.Length == 0 || text[0] is not ('R' or 'r' or 'C' or 'c'))
+        {
+            corner = default;
+            return false;
+        }
+
+        int i = 0;
+        corner = TokenParser.ParseR1C1Reference(text, ref i);
+        return i == text.Length;
+    }
+
+    /// <summary>
+    /// Is <paramref name="text"/> a full cell reference (row and column both present) in whichever
+    /// style is currently active? Used where only a full cell counts (e.g. distinguishing a cell
+    /// function call <c>A1(...)</c>/<c>R1C1(...)</c> from a plain function call, or rejecting a name
+    /// that collides with cell syntax) - a bare colspan/rowspan never qualifies.
+    /// </summary>
+    public static bool TryGetCell<T, TContext>(this Parser<T, TContext> parser, ReadOnlySpan<char> text, out RowCol cell)
+    {
+        if (!parser.IsR1C1)
+        {
+            return TryGetCellA1(text, out cell);
+        }
+
+        if (text.Length == 0 || text[0] is not ('R' or 'r' or 'C' or 'c'))
+        {
+            cell = default;
+            return false;
+        }
+
+        int i = 0;
+        cell = TokenParser.ParseR1C1Reference(text, ref i);
+        return i == text.Length && !cell.IsRow && !cell.IsColumn;
+    }
+
+    /// <summary>
+    /// Does <paramref name="text"/> look like any reference shape (cell, colspan, or rowspan) in
+    /// whichever style is currently active? Used by <c>ErrorParselet</c>/<c>BangReferenceParselet</c>
+    /// to decide whether a following token is swallowed as part of a <c>#REF!</c>/bang reference
+    /// construct.
+    /// </summary>
+    public static bool IsAnyReferenceShape<T, TContext>(this Parser<T, TContext> parser, ReadOnlySpan<char> text)
+    {
+        if (!parser.IsR1C1)
+        {
+            return TryGetCellA1(text, out _) || TryGetColA1(text, out _) || TryGetRowA1(text, out _);
+        }
+
+        if (text.Length == 0 || text[0] is not ('R' or 'r' or 'C' or 'c'))
+        {
+            return false;
+        }
+
+        int i = 0;
+        TokenParser.ParseR1C1Reference(text, ref i);
+        return i == text.Length;
     }
 
     public static bool TryLocalAreaA1<T, TContext>(this Parser<T, TContext> parser, Token identToken, out ReferenceArea area, out SymbolRange range)

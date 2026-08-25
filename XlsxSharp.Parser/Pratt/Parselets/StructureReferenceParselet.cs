@@ -91,7 +91,7 @@ internal class StructureReferenceParselet<TScalar, T, TContext> : IPrefixParsele
                 return this.ParseExternalFunctionCall(ctx, workbookToken, workbookIndex, sheet: null, nameToken);
             }
 
-            if (this._parser.TryGetName(nameToken, out ReadOnlySpan<char> name) && !ParserExtensions.TryGetCellA1(name, out _))
+            if (this._parser.TryGetName(nameToken, out ReadOnlySpan<char> name) && !this._parser.TryGetCell(name, out _))
             {
                 SymbolRange range = new(workbookToken.Range.Start, nameToken.Range.End);
                 T value = this._factory.ExternalName(ctx, range, workbookIndex, name.ToString());
@@ -189,7 +189,7 @@ internal class StructureReferenceParselet<TScalar, T, TContext> : IPrefixParsele
     private Node<T> ParseExternalFunctionCall(TContext ctx, Token workbookToken, int workbookIndex, string? sheet, Token nameToken)
     {
         ReadOnlySpan<char> name = nameToken.GetText(this._parser.Input);
-        if (ParserExtensions.TryGetCellA1(name, out _))
+        if (this._parser.TryGetCell(name, out _))
         {
             throw new ParsingException($"Unable to parse value starting from position {workbookToken.Range.Start}.");
         }

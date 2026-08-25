@@ -51,11 +51,7 @@ internal class ErrorParselet<TScalar, T, TContext> : IPrefixParselet<T, TContext
         if (next.Type is TokenType.Ident or TokenType.Number)
         {
             ReadOnlySpan<char> text = next.GetText(this._parser.Input);
-            bool looksLikeReference =
-                ParserExtensions.TryGetCellA1(text, out _)
-                || ParserExtensions.TryGetColA1(text, out _)
-                || ParserExtensions.TryGetRowA1(text, out _);
-            if (looksLikeReference)
+            if (this._parser.IsAnyReferenceShape(text))
             {
                 Token consumed = this._parser.Consume();
                 this._parser.TryReferenceA1(consumed, out _, out SymbolRange consumedRange);

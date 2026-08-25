@@ -161,7 +161,15 @@ internal static class TokenParser
         return new ReferenceArea(rowCol1, rowCol2);
     }
 
-    private static RowCol ParseR1C1Reference(ReadOnlySpan<char> token, ref int i)
+    /// <summary>
+    /// Decode a single R1C1 axis-pair (row, column, or row+column) starting at <paramref name="i"/>,
+    /// advancing it past whatever was consumed. Used both by the RDS/Rolex-based parser (via
+    /// <see cref="ParseReference"/>, on a token whose span may embed a <c>:</c> continuation) and by
+    /// the pratt parser (see <c>ParserExtensions.TryReferenceR1C1</c>), which only ever decodes one
+    /// corner at a time and detects its own range continuations separately - hence <c>internal</c>
+    /// rather than <c>private</c>.
+    /// </summary>
+    internal static RowCol ParseR1C1Reference(ReadOnlySpan<char> token, ref int i)
     {
         if (token[i] is 'C' or 'c')
         {

@@ -152,7 +152,7 @@ internal class IdentParselet<TScalar, T, TContext> : IPrefixParselet<T, TContext
         // a cell), so `sheet!A1(...)` is rejected rather than silently misparsed.
         if (this._parser.LookAhead(1).Type == TokenType.LeftParen)
         {
-            if (ParserExtensions.TryGetCellA1(sheetRefToken.GetText(this._parser.Input), out _))
+            if (this._parser.TryGetCell(sheetRefToken.GetText(this._parser.Input), out _))
             {
                 throw new ParsingException($"Unable to parse value starting from position {token.Range.Start}.");
             }
@@ -200,7 +200,7 @@ internal class IdentParselet<TScalar, T, TContext> : IPrefixParselet<T, TContext
     private Node<T> ParseFunctionCall(TContext ctx, Token nameToken, string? sheet)
     {
         ReadOnlySpan<char> name = nameToken.GetText(this._parser.Input);
-        bool isCellShaped = ParserExtensions.TryGetCellA1(name, out RowCol cell) && sheet is null;
+        bool isCellShaped = this._parser.TryGetCell(name, out RowCol cell) && sheet is null;
 
         this._parser.Consume(TokenType.LeftParen);
         (List<T> args, Token rightParen) = this._parser.ParseArgumentList(this._factory, ctx);

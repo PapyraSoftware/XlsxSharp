@@ -17,6 +17,13 @@ internal class Parser<T, TContext>
     internal string Input { get; private set; } = string.Empty;
 
     /// <summary>
+    /// True while parsing an R1C1-style formula rather than A1, set for the duration of the current
+    /// <see cref="ParseFormula"/> call. Consulted by <c>ParserExtensions</c>' reference-shape checks
+    /// so that every parselet (registered once, shared between both styles) stays style-agnostic.
+    /// </summary>
+    internal bool IsR1C1 { get; private set; }
+
+    /// <summary>
     /// Combines two pure-reference operands (see <see cref="Node{T}.IsPureReference"/>) of the
     /// range operator (<c>:</c>) into a single node, set once by <see cref="ParserFactory"/>. This
     /// lives behind a delegate rather than a direct <c>IAstFactory{...}.BinaryNode</c> call because
@@ -50,10 +57,11 @@ internal class Parser<T, TContext>
     /// </summary>
     internal bool SkipUnion { get; set; }
 
-    public T ParseFormula(string formula, TContext ctx)
+    public T ParseFormula(string formula, TContext ctx, bool isR1C1 = false)
     {
         this.Input = formula;
-        this._lexer.Reset(formula);
+        this.IsR1C1 = isR1C1;
+        this._lexer.Reset(formula, isR1C1);
         Node<T> node = this.ParseExpression(ctx, 0);
 
         // Trailing whitespace is insignificant at the end of a formula (mirrors the TrimEnd()
