@@ -50,11 +50,7 @@ internal class NumberParselet<TScalar, T, TContext> : IPrefixParselet<T, TContex
             return this._identParselet.ParseSheetQualified(ctx, token, sheetNameSpan.ToString());
         }
 
-#if NETSTANDARD2_1
-        var text = token.GetText(_parser.Input);
-#else
-        string text = token.GetText(this._parser.Input).ToString(); // NetFx has a double whammy, it's slow and gets extra memory to GC
-#endif
+        ReadOnlySpan<char> text = token.GetText(this._parser.Input);
         double number = double.Parse(text, NumberStyles.AllowDecimalPoint | NumberStyles.AllowExponent, CultureInfo.InvariantCulture);
         T node = this._factory.NumberNode(ctx, token.Range, number);
         return new Node<T>(node, token.Range);

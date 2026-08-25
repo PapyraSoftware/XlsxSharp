@@ -164,17 +164,4 @@ internal static class StringBuilderExtensions
 
         return sb;
     }
-
-#if NETSTANDARD2_0
-    /// <summary>
-    /// Compatibility method for NETStandard 2.0, which doesn't have methods with <c>Span</c> arguments.
-    /// </summary>
-    public static StringBuilder Append(this StringBuilder sb, ReadOnlySpan<char> span)
-    {
-        foreach (var c in span)
-            sb.Append(c);
-
-        return sb;
-    }
-#endif
 }

@@ -51,7 +51,7 @@ public class FormulaParser<TScalarValue, TNode, TContext>
     }
 
     /// <summary>
-    /// Parse a formula using A1 semantic for references. 
+    /// Parse a formula using A1 semantic for references.
     /// </summary>
     /// <param name="formula">Formula text that will be parsed.</param>
     /// <param name="context">Context that is going to be passed to every method of the <paramref name="factory"/>.</param>
@@ -64,7 +64,7 @@ public class FormulaParser<TScalarValue, TNode, TContext>
     }
 
     /// <summary>
-    /// Parse a formula using R1C1 semantic for references. 
+    /// Parse a formula using R1C1 semantic for references.
     /// </summary>
     /// <param name="formula">Formula text that will be parsed.</param>
     /// <param name="context">Context that is going to be passed to every method of the <paramref name="factory"/>.</param>
@@ -243,12 +243,12 @@ public class FormulaParser<TScalarValue, TNode, TContext>
     ///     | atom_expression
     ///     ;
     /// </c>
-    /// 
+    ///
     /// <c>
     /// arg_prefix_atom_expression
     ///     : (PLUS | MINUS) arg_prefix_atom_expression
     ///     | arg_atom_expression
-    ///     ;     
+    ///     ;
     /// </c>
     /// </para>
     /// </summary>
@@ -372,7 +372,7 @@ public class FormulaParser<TScalarValue, TNode, TContext>
                     return this._factory.ExternalFunction(this._context, range, wbIndex, functionName, args);
                 }
 
-                // ref_expression 
+                // ref_expression
                 if (skipRangeUnion)
                 {
                     isPureRef = true;
@@ -579,7 +579,7 @@ public class FormulaParser<TScalarValue, TNode, TContext>
                     this.Consume();
                     return this._factory.BangReference(this._context, new SymbolRange(start, this._tokenSource.StartIndex), reference);
                 }
-        
+
             // external_cell_reference: SHEET_RANGE_PREFIX (A1_CELL | A1_CELL COLON A1_CELL | A1_SPAN_REFERENCE)
             case Token.SHEET_RANGE_PREFIX:
                 {
@@ -954,7 +954,7 @@ public class FormulaParser<TScalarValue, TNode, TContext>
                     return args;
                 }
 
-                // Each argument must be followed by a comma. 
+                // Each argument must be followed by a comma.
                 this.Match(Token.COMMA);
             }
         }
@@ -985,11 +985,7 @@ public class FormulaParser<TScalarValue, TNode, TContext>
     private static double ParseNumber(ReadOnlySpan<char> number)
     {
         return double.Parse(
-#if NETSTANDARD2_1
             number,
-#else
-            number.ToString(),
-#endif
             NumberStyles.AllowDecimalPoint | NumberStyles.AllowExponent,
             CultureInfo.InvariantCulture);
     }
