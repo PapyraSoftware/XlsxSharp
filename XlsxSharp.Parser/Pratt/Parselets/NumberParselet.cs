@@ -22,6 +22,16 @@ internal class NumberParselet<TScalar, T, TContext> : IPrefixParselet<T, TContex
 
     public Node<T> Parse(TContext ctx, Token token)
     {
+        // A bare digit-only row span, e.g. "1:2" (as opposed to "$4:6", which starts with "$" and
+        // so lexes as an Ident, handled by IdentParselet instead). TryReferenceA1 only matches here
+        // when a valid ":<row>" continuation actually follows - a plain number like "1" alone falls
+        // through to the normal numeric literal parsing below.
+        if (this._parser.TryReferenceA1(token, out ReferenceArea area, out SymbolRange areaRange))
+        {
+            T reference = this._factory.Reference(ctx, areaRange, area);
+            return new Node<T>(reference, areaRange, isPureReference: true);
+        }
+
 #if NETSTANDARD2_1
         var text = token.GetText(_parser.Input);
 #else

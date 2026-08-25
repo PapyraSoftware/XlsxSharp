@@ -345,6 +345,125 @@ public class PrattParserAcceptanceTests
         );
     }
 
+    [Test]
+    [Arguments("A1:B2")] // Already handled before this round (a narrow, single-area merge).
+    [Arguments("Sheet1!A1:Sheet2!B2")] // Two independently-resolved refs - the generic case.
+    [Arguments("Sheet1!A1:B2:C3")] // A narrow area merge, then a generic chain on top of it.
+    [Arguments("A1:B2:C3:D4")] // Left-associative triple chain.
+    [Arguments("-A1:B2")] // Range binds tighter than every other operator, even unary.
+    [Arguments("A1:B2%")]
+    [Arguments("A1:B2^2")]
+    [Arguments("Sheet1!A1 : B2")] // Whitespace tolerant, same as the oracle's COLON token.
+    [Arguments("A1 : B2")]
+    [Arguments("A1: B2")]
+    [Arguments("A1 :B2")]
+    [Arguments("1:2")] // Bare digit-only row span - a Number token, not an Ident.
+    [Arguments("$4:6")]
+    [Arguments("A:B")]
+    [Arguments("(A1:B2):C3")] // A parenthesized range remains a valid range operand.
+    [Arguments("CHOOSE(1,A1,B2):C3")] // The oracle's 5 reference-returning functions.
+    [Arguments("OFFSET(A1,0,0):C3")]
+    [Arguments("INDIRECT(\"A1\"):C3")]
+    [Arguments("IF(TRUE,A1,B1):C3")]
+    [Arguments("A1:IF(TRUE,A1,B1)")]
+    [Arguments("#REF!:A1")] // #REF! is reference-shaped; every other error isn't.
+    [Arguments("A1:#REF!")]
+    [Arguments("Table1[Col]:B5")]
+    public async Task RangeOperatorMatchesOracle(string formula)
+    {
+        await AssertMatchesOracle(formula);
+    }
+
+    [Test]
+    [Arguments("A1:1")] // Numbers, text, and expressions aren't reference-shaped.
+    [Arguments("1:A1")]
+    [Arguments("A1:\"x\"")]
+    [Arguments("A1:(1+2)")]
+    [Arguments("(1+2):A1")]
+    [Arguments("A1:-B2")] // No unary allowed directly on a range operand.
+    [Arguments("SUM(A1):B2")] // SUM isn't one of the 5 reference-returning functions.
+    [Arguments("A1:SUM(B2)")]
+    [Arguments("Sheet1!INDEX(A1:A10,1):C3")] // Sheet-qualified calls are never reference-shaped.
+    [Arguments("A1:_xlfn.INDEX(A1:A5,1)")] // Only the exact 5 names count, no prefix variants.
+    [Arguments("A1:IFERROR(A1,0)")]
+    public async Task RangeOperatorEdgeCasesAreRejectedByBoth(string formula)
+    {
+        await Assert.ThrowsAsync<Exception>(() =>
+            Task.FromResult(
+                FormulaParser<ScalarValue, AstNode, Ctx>.CellFormulaA1(formula, new Ctx(), new F())
+            )
+        );
+
+        Parser<AstNode, Ctx> parser = ParserFactory.Create(new F());
+        await Assert.ThrowsAsync<Exception>(() =>
+            Task.FromResult(parser.ParseFormula(formula, new Ctx()))
+        );
+    }
+
+    [Test]
+    [Arguments("A1,B2")] // Bare, at the very top of the formula.
+    [Arguments("A1,B2,C3")] // Left-associative chain.
+    [Arguments("(A1,B2)")] // Parenthesized - the common shape.
+    [Arguments("A1:B2,C3")] // A range as one side of a union.
+    [Arguments("(A1:B2,C3)")]
+    [Arguments("(A1,B2):C3")] // A parenthesized union remains a valid range operand.
+    [Arguments("SUM((A1,B2))")] // A union as a whole single argument.
+    [Arguments("SUM((A1,B2),1)")]
+    [Arguments("LARGE((F38,C38),1)")]
+    [Arguments("(Table1[Col],A1)")]
+    [Arguments("1+(A1,B2)")]
+    public async Task UnionOperatorMatchesOracle(string formula)
+    {
+        await AssertMatchesOracle(formula);
+    }
+
+    [Test]
+    [Arguments("SUM(A1,B2)")] // A bare "," directly in an argument list is still 2 arguments.
+    [Arguments("SUM(A1,B2,C3)")]
+    public async Task UnionDoesNotApplyDirectlyInsideAnArgumentList(string formula)
+    {
+        await AssertMatchesOracle(formula);
+    }
+
+    [Test]
+    [Arguments("(1,2)")] // Numbers aren't reference-shaped.
+    [Arguments("(A1,1)")]
+    [Arguments("(SUM(1),A1)")] // A non-ref-function call isn't reference-shaped either.
+    public async Task UnionOperatorEdgeCasesAreRejectedByBoth(string formula)
+    {
+        await Assert.ThrowsAsync<Exception>(() =>
+            Task.FromResult(
+                FormulaParser<ScalarValue, AstNode, Ctx>.CellFormulaA1(formula, new Ctx(), new F())
+            )
+        );
+
+        Parser<AstNode, Ctx> parser = ParserFactory.Create(new F());
+        await Assert.ThrowsAsync<Exception>(() =>
+            Task.FromResult(parser.ParseFormula(formula, new Ctx()))
+        );
+    }
+
+    [Test]
+    [Arguments("'Total Reqs'!#REF!")] // Quoted sheet + #REF! - previously unhandled entirely.
+    [Arguments("'Total Reqs'!#ref!")] // Not uppercased in this path, matching the oracle.
+    [Arguments("+'Offseason Rate'!#REF!+'Offseason Rate'!E3")]
+    [Arguments("'[2]Sheet 1'!#REF!")] // Quoted external sheet + #REF!.
+    public async Task QuotedSheetRefErrorMatchesOracle(string formula)
+    {
+        await AssertMatchesOracle(formula);
+    }
+
+    [Test]
+    [Arguments("#REF!I1")] // Directly adjacent (no whitespace) - swallowed, still just #REF!.
+    [Arguments("#REF!A1:B2")]
+    [Arguments("#REF!#REF!")]
+    [Arguments("0/#REF!I1")]
+    [Arguments("(12/365)*#REF!I1")]
+    public async Task SwallowedReferenceAfterRefErrorMatchesOracle(string formula)
+    {
+        await AssertMatchesOracle(formula);
+    }
+
     private static async Task AssertMatchesOracle(string formula)
     {
         AstNode oracleNode = FormulaParser<ScalarValue, AstNode, Ctx>.CellFormulaA1(

@@ -48,7 +48,13 @@ internal static class ParserExtensions
                 return (args, rightParen);
             }
 
+            // A top-level "," inside an argument means "next argument" here, not "union" - see
+            // Parser.SkipUnion. A nested "(...)" still allows union for its own content (e.g.
+            // SUM((A1,B2))), since GroupParselet resets SkipUnion for whatever it parses.
+            bool previousSkipUnion = parser.SkipUnion;
+            parser.SkipUnion = true;
             Node<T> arg = parser.ParseExpression(ctx, 0);
+            parser.SkipUnion = previousSkipUnion;
             args.Add(arg.Value);
 
             if (parser.LookAhead(1).Type == TokenType.RightParen)
@@ -98,6 +104,73 @@ internal static class ParserExtensions
         return text.CompareTo(other.AsSpan(), StringComparison.OrdinalIgnoreCase) == 0;
     }
 
+    /// <summary>
+    /// The functions the oracle's lexer recognizes (via a dedicated REF_FUNCTION_LIST token,
+    /// distinct from every other function name) as capable of returning a reference, and therefore
+    /// as a valid operand of the range operator (<c>:</c>) - but only called unqualified: even
+    /// <c>Sheet1!INDEX(...)</c> doesn't count, since sheet-qualified calls are always parsed
+    /// through the plain (never reference-shaped) function-call grammar production instead.
+    /// </summary>
+    private static readonly string[] RefFunctionNames = ["CHOOSE", "IF", "INDEX", "INDIRECT", "OFFSET"];
+
+    public static bool IsRefFunctionName(ReadOnlySpan<char> name)
+    {
+        foreach (string candidate in RefFunctionNames)
+        {
+            if (EqualCaseInsensitive(name, candidate))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Peek past a <see cref="TokenType.Range"/> (<c>:</c>) starting at lookahead distance 1,
+    /// tolerating up to one insignificant <see cref="TokenType.Whitespace"/> token immediately
+    /// before and/or after it - matching the oracle's COLON lexer token, whose own regex absorbs
+    /// such whitespace directly into the token. Pure lookahead: nothing is consumed, so a caller
+    /// can use this to decide whether to commit to consuming the pattern at all.
+    /// </summary>
+    private static bool TryPeekRangeContinuation<T, TContext>(this Parser<T, TContext> parser, out Token afterColon)
+    {
+        int distance = 1;
+        Token maybeColon = parser.LookAhead(distance);
+        if (maybeColon.Type == TokenType.Whitespace)
+        {
+            maybeColon = parser.LookAhead(++distance);
+        }
+
+        if (maybeColon.Type != TokenType.Range)
+        {
+            afterColon = default;
+            return false;
+        }
+
+        Token next = parser.LookAhead(++distance);
+        if (next.Type == TokenType.Whitespace)
+        {
+            next = parser.LookAhead(++distance);
+        }
+
+        afterColon = next;
+        return true;
+    }
+
+    /// <summary>
+    /// Having confirmed (via <see cref="TryPeekRangeContinuation{T,TContext}"/>) that a range
+    /// continuation is present, actually consume it: an optional whitespace, the range operator,
+    /// another optional whitespace, then the second-corner token itself.
+    /// </summary>
+    private static Token ConsumeRangeContinuation<T, TContext>(this Parser<T, TContext> parser)
+    {
+        parser.SkipWhitespace();
+        parser.Consume(TokenType.Range);
+        parser.SkipWhitespace();
+        return parser.Consume();
+    }
+
     public static bool TryReferenceA1<T, TContext>(this Parser<T, TContext> parser, Token token, out ReferenceArea area, out SymbolRange range)
     {
         if (token.Type is not TokenType.Ident and not TokenType.Number)
@@ -141,20 +214,17 @@ internal static class ParserExtensions
 
         if (TryGetCellA1(ident, out RowCol cell1))
         {
-            if (parser.LookAhead(1).Type == TokenType.Range &&
-                parser.LookAhead(2) is { Type: TokenType.Ident } maybeCell2Token &&
+            if (parser.TryPeekRangeContinuation(out Token maybeCell2Token) &&
+                maybeCell2Token.Type == TokenType.Ident &&
                 TryGetCellA1(maybeCell2Token.GetText(parser.Input), out RowCol cell2))
             {
                 // Result: area A1:B2
                 // The code is joining two cells into an area through range operator, but that
                 // is allowed. Range is highest priority operator, left to right associativity.
-                Token rangeToken = parser.Consume(TokenType.Range);
-                Token cell2Token = parser.Consume(TokenType.Ident);
+                Token cell2Token = parser.ConsumeRangeContinuation();
 
                 area = new ReferenceArea(cell1, cell2);
-                range = identToken.Range
-                    .ExtendRight(rangeToken.Range)
-                    .ExtendRight(cell2Token.Range);
+                range = new SymbolRange(identToken.Range.Start, cell2Token.Range.End);
                 return true;
             }
 
@@ -182,18 +252,15 @@ internal static class ParserExtensions
 
         // Careful, 'A' can be just a name without the other column
         if (TryGetColA1(ident, out RowCol col1) &&
-            parser.LookAhead(1).Type == TokenType.Range &&
-            parser.LookAhead(2) is { Type: TokenType.Ident } maybeCol2Token &&
+            parser.TryPeekRangeContinuation(out Token maybeCol2Token) &&
+            maybeCol2Token.Type == TokenType.Ident &&
             TryGetColA1(maybeCol2Token.GetText(parser.Input), out RowCol col2))
         {
             // Result: colspan A:B
-            Token rangeToken = parser.Consume(TokenType.Range);
-            Token col2Token = parser.Consume(TokenType.Ident);
+            Token col2Token = parser.ConsumeRangeContinuation();
 
             area = new ReferenceArea(col1, col2);
-            range = identToken.Range
-                .ExtendRight(rangeToken.Range)
-                .ExtendRight(col2Token.Range);
+            range = new SymbolRange(identToken.Range.Start, col2Token.Range.End);
             return true;
         }
 
@@ -214,18 +281,15 @@ internal static class ParserExtensions
         ReadOnlySpan<char> numberOrIdent = numberOrIdentToken.GetText(parser.Input);
 
         if (TryGetRowA1(numberOrIdent, out RowCol row1) &&
-            parser.LookAhead(1).Type == TokenType.Range &&
-            parser.LookAhead(2) is { Type: TokenType.Number or TokenType.Ident } maybeRow2Token &&
+            parser.TryPeekRangeContinuation(out Token maybeRow2Token) &&
+            maybeRow2Token.Type is TokenType.Number or TokenType.Ident &&
             TryGetRowA1(maybeRow2Token.GetText(parser.Input), out RowCol row2))
         {
             // Result: rowspan 1:2
-            Token rangeToken = parser.Consume(TokenType.Range);
-            Token row2Token = parser.Consume();
+            Token row2Token = parser.ConsumeRangeContinuation();
 
             area = new ReferenceArea(row1, row2);
-            range = numberOrIdentToken.Range
-                .ExtendRight(rangeToken.Range)
-                .ExtendRight(row2Token.Range);
+            range = new SymbolRange(numberOrIdentToken.Range.Start, row2Token.Range.End);
             return true;
         }
 

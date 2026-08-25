@@ -45,7 +45,7 @@ internal class StructureReferenceParselet<TScalar, T, TContext> : IPrefixParsele
             out string? lastColumn
         );
         T value = this._factory.StructureReference(ctx, token.Range, area, firstColumn, lastColumn ?? firstColumn);
-        return new Node<T>(value, token.Range);
+        return new Node<T>(value, token.Range, isPureReference: true);
     }
 
     private static bool TryGetWorkbookIndex(ReadOnlySpan<char> squareIdentText, out int workbookIndex)
@@ -95,7 +95,7 @@ internal class StructureReferenceParselet<TScalar, T, TContext> : IPrefixParsele
             {
                 SymbolRange range = new(workbookToken.Range.Start, nameToken.Range.End);
                 T value = this._factory.ExternalName(ctx, range, workbookIndex, name.ToString());
-                return new Node<T>(value, range);
+                return new Node<T>(value, range, isPureReference: true);
             }
 
             throw new ParsingException($"Unable to parse value starting from position {workbookToken.Range.Start}.");
@@ -129,7 +129,7 @@ internal class StructureReferenceParselet<TScalar, T, TContext> : IPrefixParsele
                         sheetEndToken.GetText(this._parser.Input).ToString(),
                         area3D
                     );
-                    return new Node<T>(value, range);
+                    return new Node<T>(value, range, isPureReference: true);
                 }
 
                 throw new ParsingException($"Unable to parse value starting from position {workbookToken.Range.Start}.");
@@ -156,21 +156,21 @@ internal class StructureReferenceParselet<TScalar, T, TContext> : IPrefixParsele
                 {
                     SymbolRange range = new(workbookToken.Range.Start, refOrNameToken.Range.End);
                     T value = this._factory.ErrorNode(ctx, range, refOrNameToken.GetText(this._parser.Input));
-                    return new Node<T>(value, range);
+                    return new Node<T>(value, range, isPureReference: true);
                 }
 
                 if (this._parser.TryReferenceA1(refOrNameToken, out ReferenceArea sheetArea, out SymbolRange sheetAreaRange))
                 {
                     SymbolRange range = new(workbookToken.Range.Start, sheetAreaRange.End);
                     T value = this._factory.ExternalSheetReference(ctx, range, workbookIndex, sheet, sheetArea);
-                    return new Node<T>(value, range);
+                    return new Node<T>(value, range, isPureReference: true);
                 }
 
                 if (this._parser.TryGetName(refOrNameToken, out ReadOnlySpan<char> name))
                 {
                     SymbolRange range = new(workbookToken.Range.Start, refOrNameToken.Range.End);
                     T value = this._factory.ExternalSheetName(ctx, range, workbookIndex, sheet, name.ToString());
-                    return new Node<T>(value, range);
+                    return new Node<T>(value, range, isPureReference: true);
                 }
 
                 throw new ParsingException($"Unable to parse value starting from position {workbookToken.Range.Start}.");

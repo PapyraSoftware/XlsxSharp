@@ -48,7 +48,7 @@ internal class IdentParselet<TScalar, T, TContext> : IPrefixParselet<T, TContext
         if (this._parser.TryReferenceA1(token, out ReferenceArea localArea, out SymbolRange localAreaRange))
         {
             T value = this._factory.Reference(ctx, localAreaRange, localArea);
-            return new Node<T>(value, localAreaRange);
+            return new Node<T>(value, localAreaRange, isPureReference: true);
         }
 
 
@@ -83,7 +83,7 @@ internal class IdentParselet<TScalar, T, TContext> : IPrefixParselet<T, TContext
             {
                 SymbolRange range = sheetWithBangRange.ExtendRight(sheetRefToken.Range);
                 T value = this._factory.ErrorNode(ctx, range, sheetRefToken.GetText(this._parser.Input));
-                return new Node<T>(value, range);
+                return new Node<T>(value, range, isPureReference: true);
             }
 
             // Check for area `sheet!A1:B2` or just cell `sheet!A1`
@@ -93,7 +93,7 @@ internal class IdentParselet<TScalar, T, TContext> : IPrefixParselet<T, TContext
             {
                 SymbolRange range = sheetWithBangRange.ExtendRight(sheetAreaRange);
                 T value = this._factory.SheetReference(ctx, range, sheetName, sheetArea);
-                return new Node<T>(value, range);
+                return new Node<T>(value, range, isPureReference: true);
             }
 
             // Check for `sheet!name`
@@ -101,7 +101,7 @@ internal class IdentParselet<TScalar, T, TContext> : IPrefixParselet<T, TContext
             {
                 SymbolRange range = sheetWithBangRange.ExtendRight(sheetRefToken.Range);
                 T value = this._factory.SheetName(ctx, range, sheetName, name.ToString()); // String allocation, needed for the IAstFactory
-                return new Node<T>(value, range);
+                return new Node<T>(value, range, isPureReference: true);
             }
 
             throw new ParsingException($"Unable to parse value starting from position {token.Range.Start}.");
@@ -147,7 +147,7 @@ internal class IdentParselet<TScalar, T, TContext> : IPrefixParselet<T, TContext
                 string startSheetString = startSheet.ToString(); // String allocation for the IAstFactory
                 string endSheetString = endSheet.ToString();
                 T value = this._factory.Reference3D(ctx, range, startSheetString, endSheetString, sheetRangeReference);
-                return new Node<T>(value, range);
+                return new Node<T>(value, range, isPureReference: true);
             }
 
             throw new ParsingException($"Unable to parse value starting from position {token.Range.Start}.");
@@ -167,14 +167,14 @@ internal class IdentParselet<TScalar, T, TContext> : IPrefixParselet<T, TContext
             );
             SymbolRange range = new(token.Range.Start, squareIdentToken.Range.End);
             T structureReferenceValue = this._factory.StructureReference(ctx, range, tableName.ToString(), area, firstColumn, lastColumn ?? firstColumn);
-            return new Node<T>(structureReferenceValue, range);
+            return new Node<T>(structureReferenceValue, range, isPureReference: true);
         }
 
         // Check for rowspan `name`
         if (this._parser.TryGetName(token, out ReadOnlySpan<char> workbookName))
         {
             T value = this._factory.Name(ctx, token.Range, workbookName.ToString()); // String allocation, needed for the IAstFactory
-            return new Node<T>(value, token.Range);
+            return new Node<T>(value, token.Range, isPureReference: true);
         }
 
         throw new ParsingException($"Unable to parse value starting from position {token.Range.Start}.");
@@ -199,6 +199,11 @@ internal class IdentParselet<TScalar, T, TContext> : IPrefixParselet<T, TContext
                 ? this._factory.CellFunction(ctx, range, cell, args)
                 : this._factory.Function(ctx, range, name, args)
             : this._factory.Function(ctx, range, sheet, name, args);
-        return new Node<T>(value, range);
+
+        // Only an unqualified call to one of the oracle's five "reference functions" (CHOOSE, IF,
+        // INDEX, INDIRECT, OFFSET) can be an operand of the range operator (":") - e.g.
+        // "INDEX(A1:A5,1):C3" is valid, but "Sheet1!INDEX(...)":C3" and "SUM(...):C3" aren't.
+        bool isPureReference = sheet is null && !isCellShaped && ParserExtensions.IsRefFunctionName(name);
+        return new Node<T>(value, range, isPureReference);
     }
 }

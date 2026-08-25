@@ -7,7 +7,13 @@ internal static class ParserFactory
     public static Parser<TNode, TContext> Create<TScalar, TNode, TContext>(
         IAstFactory<TScalar, TNode, TContext> factory)
     {
-        Parser<TNode, TContext> parser = new();
+        Parser<TNode, TContext> parser = new()
+        {
+            RangeCombiner = (ctx, range, left, right) =>
+                factory.BinaryNode(ctx, range, BinaryOperation.Range, left, right),
+            UnionCombiner = (ctx, range, left, right) =>
+                factory.BinaryNode(ctx, range, BinaryOperation.Union, left, right),
+        };
 
         // Register prefix parselets
         parser.Register(TokenType.Number, new NumberParselet<TScalar, TNode, TContext>(factory, parser));

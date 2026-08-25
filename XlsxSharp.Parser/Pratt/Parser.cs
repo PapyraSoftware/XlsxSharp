@@ -11,6 +11,32 @@ internal class Parser<T, TContext>
 
     internal string Input { get; private set; } = string.Empty;
 
+    /// <summary>
+    /// Combines two pure-reference operands (see <see cref="Node{T}.IsPureReference"/>) of the
+    /// range operator (<c>:</c>) into a single node, set once by <see cref="ParserFactory"/>. This
+    /// lives behind a delegate rather than a direct <c>IAstFactory{...}.BinaryNode</c> call because
+    /// <see cref="Parser{T,TContext}"/> is deliberately not generic over <c>TScalarValue</c>.
+    /// </summary>
+    internal Func<TContext, SymbolRange, T, T, T>? RangeCombiner { private get; set; }
+
+    /// <summary>
+    /// Combines two pure-reference operands of the union operator (<c>,</c> - not the argument
+    /// separator or array-row separator) into a single node, set once by <see cref="ParserFactory"/>.
+    /// See the note on <see cref="RangeCombiner"/> for why this is a delegate.
+    /// </summary>
+    internal Func<TContext, SymbolRange, T, T, T>? UnionCombiner { private get; set; }
+
+    /// <summary>
+    /// True while parsing a function-call argument directly (see
+    /// <c>ParserExtensions.ParseArgumentList</c>): there, a top-level <c>,</c> means "next
+    /// argument", not "union" - <c>SUM(A1,B2)</c> is two arguments, not one unioned argument. A
+    /// fresh pair of parentheses (see <see cref="Parselets.GroupParselet{T,TContext}"/>) always
+    /// resets this to <c>false</c> for its own content, since <c>(A1,B2)</c> is a union even as a
+    /// single argument, e.g. in <c>SUM((A1,B2))</c> - matching the oracle's own
+    /// <c>skipRangeUnion</c> parameter, threaded the same way.
+    /// </summary>
+    internal bool SkipUnion { get; set; }
+
     public T ParseFormula(string formula, TContext ctx)
     {
         this.Input = formula;
@@ -75,6 +101,33 @@ internal class Parser<T, TContext>
 
     private Node<T> Prefix(TContext ctx)
     {
+        Node<T> node = this.ParseReferenceAtom(ctx);
+        return this.ParseUnionChain(ctx, node);
+    }
+
+    /// <summary>
+    /// A single atom (see <see cref="ParseAtom"/>) plus any range chain immediately on it (see
+    /// <see cref="ParseRangeChain"/>) - i.e. everything up to, but not including, a union. Used
+    /// both by <see cref="Prefix"/> and directly as each operand of a union: like a range operand,
+    /// a union operand is a single range-chain result, never itself a further union - "A1,B2,C3"
+    /// is a left-associative chain of two union operations, not one union whose right side is
+    /// itself a union.
+    /// </summary>
+    private Node<T> ParseReferenceAtom(TContext ctx)
+    {
+        Node<T> node = this.ParseAtom(ctx);
+        return this.ParseRangeChain(ctx, node);
+    }
+
+    /// <summary>
+    /// Dispatch a single prefix parselet for the upcoming token, without any range- or union-
+    /// chaining. This is also used directly (not through <see cref="Prefix"/>) to parse the
+    /// right-hand operand of a range: that operand must itself be a single atom, never a range -
+    /// <c>A1:B2:C3</c> is a left-associative chain of two range operations, not one range whose
+    /// right side is itself a range.
+    /// </summary>
+    private Node<T> ParseAtom(TContext ctx)
+    {
         this.SkipWhitespace();
         Token token = this._lexer.Consume();
 
@@ -84,6 +137,92 @@ internal class Parser<T, TContext>
         }
 
         return parselet.Parse(ctx, token);
+    }
+
+    /// <summary>
+    /// After a pure-reference atom (see <see cref="Node{T}.IsPureReference"/>), consume any
+    /// following <c>:</c> range operator(s) left-associatively: <c>A1:B2:C3</c> parses as
+    /// <c>(A1:B2):C3</c>, matching the oracle's own left-folding loop. The range operator binds
+    /// tighter than every other operator (even unary +/- and %, which recurse into
+    /// <see cref="ParseExpression"/> - i.e. back into <see cref="Prefix"/> - for their own operand,
+    /// so a chain here is already fully resolved by the time they see it), which is why this lives
+    /// inside <see cref="Prefix"/> rather than as a normal <see cref="IParselet{T,TContext}"/>
+    /// registered at some binding power.
+    /// </summary>
+    private Node<T> ParseRangeChain(TContext ctx, Node<T> left)
+    {
+        if (!left.IsPureReference)
+        {
+            return left;
+        }
+
+        while (true)
+        {
+            // The oracle's COLON lexer token absorbs surrounding whitespace directly into its own
+            // regex, so "A1 : B2" is indistinguishable from "A1:B2" to it. Skipping here mirrors
+            // that - and is safe even when no ":" follows (e.g. "A1 A2", not-yet-implemented
+            // reference intersection): the whitespace is insignificant here regardless, and
+            // whatever follows still won't be claimed by anything, so it's still rejected below.
+            this.SkipWhitespace();
+            if (this._lexer.Peek().Type != TokenType.Range)
+            {
+                break;
+            }
+
+            this._lexer.Consume();
+            this.SkipWhitespace();
+            Node<T> right = this.ParseAtom(ctx);
+            if (!right.IsPureReference)
+            {
+                throw new ParsingException($"Unable to parse value starting from position {right.Range.Start}.");
+            }
+
+            SymbolRange range = new(left.Range.Start, right.Range.End);
+            T value = this.RangeCombiner!(ctx, range, left.Value, right.Value);
+            left = new Node<T>(value, range, isPureReference: true);
+        }
+
+        return left;
+    }
+
+    /// <summary>
+    /// After a pure-reference atom-plus-range-chain (see <see cref="ParseReferenceAtom"/>), and
+    /// unless <see cref="SkipUnion"/> says a "," here means something else (an argument separator),
+    /// consume any following <c>,</c> union operator(s) left-associatively - matching the oracle's
+    /// own left-folding loop, the outermost layer of its reference sub-grammar (looser-binding
+    /// than range, which is why this wraps <see cref="ParseReferenceAtom"/> rather than being
+    /// folded into <see cref="ParseRangeChain"/>). Still binds tighter than every arithmetic
+    /// operator, for the same reason range does - see the note there.
+    /// </summary>
+    private Node<T> ParseUnionChain(TContext ctx, Node<T> left)
+    {
+        if (!left.IsPureReference || this.SkipUnion)
+        {
+            return left;
+        }
+
+        while (true)
+        {
+            this.SkipWhitespace();
+            if (this._lexer.Peek().Type != TokenType.Comma)
+            {
+                break;
+            }
+
+            this._lexer.Consume();
+            this.SkipWhitespace();
+            Node<T> right = this.ParseReferenceAtom(ctx);
+            if (!right.IsPureReference)
+            {
+                throw new ParsingException($"Unable to parse value starting from position {right.Range.Start}.");
+            }
+
+            SymbolRange range = new(left.Range.Start, right.Range.End);
+            T value = this.UnionCombiner!(ctx, range, left.Value, right.Value);
+            left = new Node<T>(value, range, isPureReference: true);
+        }
+
+        return left;
     }
 
     internal void SkipWhitespace()
