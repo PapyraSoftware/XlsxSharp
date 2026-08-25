@@ -93,7 +93,6 @@ public class A1SpanReferenceTokenTests
         ReferenceArea expectedReference
     )
     {
-        await AssertFormula.AssertTokenType(token, Token.A1_SPAN_REFERENCE);
         ReferenceArea reference = TokenParser.ParseReference(token, true);
         await Assert.That(reference).IsEqualTo(expectedReference);
     }

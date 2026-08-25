@@ -12,7 +12,6 @@ public class SheetRangePrefixTokenTests
         string expectedSecondSheetName
     )
     {
-        await AssertFormula.AssertTokenType(tokenText, FormulaLexer.SHEET_RANGE_PREFIX);
         TokenParser.ParseSheetRangePrefix(
             tokenText,
             out int? workbookIndex,

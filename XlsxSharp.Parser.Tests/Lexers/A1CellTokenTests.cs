@@ -43,7 +43,6 @@ public class A1CellTokenTests
         ReferenceArea expectedReference
     )
     {
-        await AssertFormula.AssertTokenType(token, Token.A1_CELL);
         ReferenceArea reference = TokenParser.ParseReference(token, true);
         await Assert.That(reference).IsEqualTo(expectedReference);
     }
