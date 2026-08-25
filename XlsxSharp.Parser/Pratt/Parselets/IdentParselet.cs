@@ -39,7 +39,7 @@ internal class IdentParselet<TScalar, T, TContext> : IPrefixParselet<T, TContext
         // and `TRUE` alone is a logical, but `TRUE(...)` is a call to a function named TRUE.
         if (this._parser.LookAhead(1).Type == TokenType.LeftParen)
         {
-            return this.ParseFunctionCall(ctx, token, sheet: null);
+            return this.ParseFunctionCall(ctx, token, sheet: null, startToken: token);
         }
 
         // Check for area `A1:B2` or just cell `A1`
@@ -144,6 +144,10 @@ internal class IdentParselet<TScalar, T, TContext> : IPrefixParselet<T, TContext
         Token bangToken = this._parser.Consume(TokenType.Bang);
         SymbolRange sheetWithBangRange = token.Range.ExtendRight(bangToken.Range);
 
+        // Whitespace between "!" and the reference is insignificant (e.g. "Sheet2!  A1"), same as
+        // everywhere else an operator is followed by its operand.
+        this._parser.SkipWhitespace();
+
         // No need to check for token type, if EoF, nothing will be matched to such token
         Token sheetRefToken = this._parser.Consume();
 
@@ -157,7 +161,7 @@ internal class IdentParselet<TScalar, T, TContext> : IPrefixParselet<T, TContext
                 throw new ParsingException($"Unable to parse value starting from position {token.Range.Start}.");
             }
 
-            return this.ParseFunctionCall(ctx, sheetRefToken, sheetName);
+            return this.ParseFunctionCall(ctx, sheetRefToken, sheetName, startToken: token);
         }
 
         // Check for `sheet!#REF!` - a reference to a deleted sheet. Only #REF! is special
@@ -166,7 +170,9 @@ internal class IdentParselet<TScalar, T, TContext> : IPrefixParselet<T, TContext
         // particular path, so pass the text through as-is to match it exactly.
         if (sheetRefToken.Type == TokenType.Error && ParserExtensions.EqualCaseInsensitive(sheetRefToken.GetText(this._parser.Input), "#REF!"))
         {
-            SymbolRange range = sheetWithBangRange.ExtendRight(sheetRefToken.Range);
+            // Not ExtendRight: whitespace can now separate "!" from the reference (see the
+            // SkipWhitespace() above), so the two ranges are no longer guaranteed adjacent.
+            SymbolRange range = new(sheetWithBangRange.Start, sheetRefToken.Range.End);
             T value = this._factory.ErrorNode(ctx, range, sheetRefToken.GetText(this._parser.Input));
             return new Node<T>(value, range, isPureReference: true);
         }
@@ -176,7 +182,8 @@ internal class IdentParselet<TScalar, T, TContext> : IPrefixParselet<T, TContext
         // Check for rowspan `sheet!1:2` with absolute or relative start row
         if (this._parser.TryReferenceA1(sheetRefToken, out ReferenceArea sheetArea, out SymbolRange sheetAreaRange))
         {
-            SymbolRange range = sheetWithBangRange.ExtendRight(sheetAreaRange);
+            // Not ExtendRight - see the note above.
+            SymbolRange range = new(sheetWithBangRange.Start, sheetAreaRange.End);
             T value = this._factory.SheetReference(ctx, range, sheetName, sheetArea);
             return new Node<T>(value, range, isPureReference: true);
         }
@@ -184,7 +191,8 @@ internal class IdentParselet<TScalar, T, TContext> : IPrefixParselet<T, TContext
         // Check for `sheet!name`
         if (this._parser.TryGetName(sheetRefToken, out ReadOnlySpan<char> name))
         {
-            SymbolRange range = sheetWithBangRange.ExtendRight(sheetRefToken.Range);
+            // Not ExtendRight - see the note above.
+            SymbolRange range = new(sheetWithBangRange.Start, sheetRefToken.Range.End);
             T value = this._factory.SheetName(ctx, range, sheetName, name.ToString()); // String allocation, needed for the IAstFactory
             return new Node<T>(value, range, isPureReference: true);
         }
@@ -195,16 +203,19 @@ internal class IdentParselet<TScalar, T, TContext> : IPrefixParselet<T, TContext
     /// <summary>
     /// Parse a function call, having already seen its name token (a bare local function/cell
     /// function name, or the name that follows a consumed <c>sheet!</c> prefix) and confirmed the
-    /// next token is <see cref="TokenType.LeftParen"/>.
+    /// next token is <see cref="TokenType.LeftParen"/>. <paramref name="startToken"/> is the token
+    /// the whole construct's range should start from - the same as <paramref name="nameToken"/>
+    /// for a bare call, but the sheet token (before the "!") for a sheet-qualified one, e.g.
+    /// "Sheet!SUM(4)" ranges from "Sheet", not from "SUM".
     /// </summary>
-    private Node<T> ParseFunctionCall(TContext ctx, Token nameToken, string? sheet)
+    private Node<T> ParseFunctionCall(TContext ctx, Token nameToken, string? sheet, Token startToken)
     {
         ReadOnlySpan<char> name = nameToken.GetText(this._parser.Input);
         bool isCellShaped = this._parser.TryGetCell(name, out RowCol cell) && sheet is null;
 
         this._parser.Consume(TokenType.LeftParen);
         (List<T> args, Token rightParen) = this._parser.ParseArgumentList(this._factory, ctx);
-        SymbolRange range = new(nameToken.Range.Start, rightParen.Range.End);
+        SymbolRange range = new(startToken.Range.Start, rightParen.Range.End);
 
         T value = sheet is null
             ? isCellShaped

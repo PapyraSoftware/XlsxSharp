@@ -13,17 +13,22 @@ internal static class OpenXmlGrid
 {
     public static byte[] Write(int rowCount, int columnCount)
     {
-        using var stream = new MemoryStream();
-        using (var document = SpreadsheetDocument.Create(stream, SpreadsheetDocumentType.Workbook))
+        using MemoryStream? stream = new();
+        using (
+            SpreadsheetDocument? document = SpreadsheetDocument.Create(
+                stream,
+                SpreadsheetDocumentType.Workbook
+            )
+        )
         {
-            var workbookPart = document.AddWorkbookPart();
+            WorkbookPart? workbookPart = document.AddWorkbookPart();
             workbookPart.Workbook = new Workbook();
 
             // A real .xlsx always carries a styles part with at least one default cell format
             // (styleId 0). Without it, some readers - XlsxSharp included - fault resolving the
             // default style while computing column widths, so the fixture has to include one to
             // stay representative of an actual Excel-produced file.
-            var stylesPart = workbookPart.AddNewPart<WorkbookStylesPart>();
+            WorkbookStylesPart? stylesPart = workbookPart.AddNewPart<WorkbookStylesPart>();
             stylesPart.Stylesheet = new Stylesheet(
                 new Fonts(new Font()) { Count = 1 },
                 new Fills(
@@ -49,13 +54,13 @@ internal static class OpenXmlGrid
             );
             stylesPart.Stylesheet.Save();
 
-            var worksheetPart = workbookPart.AddNewPart<WorksheetPart>();
-            var sheetData = new SheetData();
+            WorksheetPart? worksheetPart = workbookPart.AddNewPart<WorksheetPart>();
+            SheetData? sheetData = new();
             worksheetPart.Worksheet = new Worksheet(sheetData);
 
             for (int r = 1; r <= rowCount; r++)
             {
-                var row = new Row { RowIndex = (uint)r };
+                Row? row = new() { RowIndex = (uint)r };
                 for (int c = 0; c < columnCount; c++)
                 {
                     row.Append(
@@ -80,7 +85,7 @@ internal static class OpenXmlGrid
                 sheetData.Append(row);
             }
 
-            var sheets = workbookPart.Workbook.AppendChild(new Sheets());
+            Sheets? sheets = workbookPart.Workbook.AppendChild(new Sheets());
             sheets.Append(
                 new Sheet
                 {

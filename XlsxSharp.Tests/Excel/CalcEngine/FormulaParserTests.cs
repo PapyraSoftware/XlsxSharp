@@ -396,12 +396,13 @@ public class FormulaParserTests
     [Test]
     public void ConstArrayCantContainImplicitIntersectionOperator()
     {
-        // XLParser allows @ for number through 'PrefixOp + Number'
+        // Array literal elements are always literal scalar constants - never a reference, a
+        // function call, a nested array, or (as here) the implicit intersection operator.
         XLCalcEngine calcEngine = new(CultureInfo.InvariantCulture);
         ExpressionParseException ex = ClassicAssert.Throws<ExpressionParseException>(() =>
             calcEngine.Parse("{@1}")
         )!;
-        StringAssert.Contains("Unexpected token INTERSECT.", ex.Message);
+        StringAssert.Contains("Unable to parse value starting from position 1.", ex.Message);
     }
 
     [Test]

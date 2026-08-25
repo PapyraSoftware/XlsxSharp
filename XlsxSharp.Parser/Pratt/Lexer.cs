@@ -301,18 +301,18 @@ internal class Lexer
                             return Error("#N/A", 3);
                         }
 
-                        if (char2 == 'A')
+                        if (char2 is 'A' or 'a')
                         {
                             return Error("#NAME?", 3);
                         }
 
                         int char3 = this.Advance();
-                        if (char2 == 'U' && char3 == 'L')
+                        if ((char2 is 'U' or 'u') && (char3 is 'L' or 'l'))
                         {
                             return Error("#NULL!", 4);
                         }
 
-                        if (char2 == 'U' && char3 == 'M')
+                        if ((char2 is 'U' or 'u') && (char3 is 'M' or 'm'))
                         {
                             return Error("#NUM!", 4);
                         }

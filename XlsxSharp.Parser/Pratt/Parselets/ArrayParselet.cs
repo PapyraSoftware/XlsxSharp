@@ -48,7 +48,7 @@ internal class ArrayParselet<TScalar, T, TContext> : IPrefixParselet<T, TContext
                 {
                     if (row.Count != columns)
                     {
-                        throw new ParsingException($"Unable to parse value starting from position {leftCurly.Range.Start}.");
+                        throw new ParsingException("Rows of an array don't have same size.");
                     }
                 }
 

@@ -7,7 +7,7 @@ public class FormulaRuleTests
     {
         await AssertFormula.CheckParsingErrorContains(
             "A1)",
-            "The formula `A1)` wasn't parsed correctly. The expression `A1` was parsed, but the rest `)` wasn't."
+            "Formula wasn't fully consumed, unexpected token RightParen at position 2."
         );
     }
 }

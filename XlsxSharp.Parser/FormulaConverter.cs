@@ -1,4 +1,5 @@
 ﻿using JetBrains.Annotations;
+using XlsxSharp.Parser.Pratt;
 
 namespace XlsxSharp.Parser;
 
@@ -22,7 +23,7 @@ public static class FormulaConverter
     public static string ToR1C1(string formulaA1, int row, int col)
     {
         ModContext ctx = new(formulaA1, string.Empty, row, col, isA1: true);
-        TransformedSymbol transformedFormula = FormulaParser<TransformedSymbol, TransformedSymbol, ModContext>.CellFormulaA1(formulaA1, ctx, s_visitorR1C1);
+        TransformedSymbol transformedFormula = ParserFactory.Create(s_visitorR1C1).ParseFormula(formulaA1, ctx);
         return Normalize(transformedFormula, formulaA1);
     }
 
@@ -37,7 +38,7 @@ public static class FormulaConverter
     public static string ToA1(string formulaR1C1, int row, int col)
     {
         ModContext ctx = new(formulaR1C1, string.Empty, row, col, isA1: false);
-        TransformedSymbol transformedFormula = FormulaParser<TransformedSymbol, TransformedSymbol, ModContext>.CellFormulaR1C1(formulaR1C1, ctx, s_visitorA1);
+        TransformedSymbol transformedFormula = ParserFactory.Create(s_visitorA1).ParseFormula(formulaR1C1, ctx, isR1C1: true);
         return Normalize(transformedFormula, formulaR1C1);
     }
 
@@ -65,7 +66,7 @@ public static class FormulaConverter
     public static string ModifyA1(string formulaA1, string sheet, int row, int col, IAstFactory<TransformedSymbol, TransformedSymbol, ModContext> factory)
     {
         ModContext ctx = new(formulaA1, sheet, row, col, isA1: true);
-        TransformedSymbol transformedFormula = FormulaParser<TransformedSymbol, TransformedSymbol, ModContext>.CellFormulaA1(formulaA1, ctx, factory);
+        TransformedSymbol transformedFormula = ParserFactory.Create(factory).ParseFormula(formulaA1, ctx);
         return Normalize(transformedFormula, formulaA1);
     }
 

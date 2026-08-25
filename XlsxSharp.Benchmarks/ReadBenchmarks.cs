@@ -2,6 +2,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using BenchmarkDotNet.Attributes;
+using ClosedXML.Excel;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 using NPOI.SS.UserModel;
@@ -31,14 +32,14 @@ public class ReadBenchmarks
     [Benchmark(Baseline = true, Description = "OpenXML SDK")]
     public double OpenXmlSdk()
     {
-        using var stream = new MemoryStream(_fileBytes);
-        using var document = SpreadsheetDocument.Open(stream, false);
-        var workbookPart = document.WorkbookPart!;
-        var worksheetPart = (WorksheetPart)
+        using MemoryStream? stream = new(_fileBytes);
+        using SpreadsheetDocument? document = SpreadsheetDocument.Open(stream, false);
+        WorkbookPart? workbookPart = document.WorkbookPart!;
+        WorksheetPart? worksheetPart = (WorksheetPart)
             workbookPart.GetPartById(workbookPart.Workbook.Descendants<Sheet>().First().Id!);
 
         double sum = 0;
-        foreach (var cell in worksheetPart.Worksheet.Descendants<Cell>())
+        foreach (Cell? cell in worksheetPart.Worksheet.Descendants<Cell>())
         {
             if (cell.DataType?.Value == CellValues.Number && cell.CellValue is not null)
             {
@@ -52,12 +53,12 @@ public class ReadBenchmarks
     [Benchmark(Description = "ClosedXML")]
     public double ClosedXml()
     {
-        using var stream = new MemoryStream(_fileBytes);
-        using var workbook = new ClosedXML.Excel.XLWorkbook(stream);
-        var worksheet = workbook.Worksheet(1);
+        using MemoryStream? stream = new(_fileBytes);
+        using XLWorkbook? workbook = new(stream);
+        IXLWorksheet? worksheet = workbook.Worksheet(1);
 
         double sum = 0;
-        foreach (var cell in worksheet.CellsUsed())
+        foreach (IXLCell? cell in worksheet.CellsUsed())
         {
             if (cell.DataType == ClosedXML.Excel.XLDataType.Number)
             {
@@ -71,12 +72,12 @@ public class ReadBenchmarks
     [Benchmark(Description = "XlsxSharp")]
     public double XlsxSharp()
     {
-        using var stream = new MemoryStream(_fileBytes);
-        using var workbook = new Excel.XLWorkbook(stream);
-        var worksheet = workbook.Worksheet(1);
+        using MemoryStream? stream = new(_fileBytes);
+        using Excel.XLWorkbook? workbook = new(stream);
+        Excel.IXLWorksheet? worksheet = workbook.Worksheet(1);
 
         double sum = 0;
-        foreach (var cell in worksheet.CellsUsed())
+        foreach (Excel.IXLCell? cell in worksheet.CellsUsed())
         {
             if (cell.DataType == Excel.XLDataType.Number)
             {
@@ -90,16 +91,16 @@ public class ReadBenchmarks
     [Benchmark(Description = "EPPlus")]
     public double EPPlus()
     {
-        using var stream = new MemoryStream(_fileBytes);
-        using var package = new ExcelPackage(stream);
-        var worksheet = package.Workbook.Worksheets[0];
+        using MemoryStream? stream = new(_fileBytes);
+        using ExcelPackage? package = new(stream);
+        ExcelWorksheet? worksheet = package.Workbook.Worksheets[0];
 
         double sum = 0;
         for (int r = 1; r <= RowCount; r++)
         {
             for (int c = 1; c <= ColumnCount; c++)
             {
-                var cell = worksheet.Cells[r, c];
+                ExcelRange? cell = worksheet.Cells[r, c];
                 if (cell.Value is double or int)
                 {
                     sum += System.Convert.ToDouble(cell.Value, CultureInfo.InvariantCulture);
@@ -113,8 +114,8 @@ public class ReadBenchmarks
     [Benchmark(Description = "NPOI")]
     public double Npoi()
     {
-        using var stream = new MemoryStream(_fileBytes);
-        var workbook = new XSSFWorkbook(stream);
+        using MemoryStream? stream = new(_fileBytes);
+        XSSFWorkbook? workbook = new(stream);
         ISheet sheet = workbook.GetSheetAt(0);
 
         double sum = 0;

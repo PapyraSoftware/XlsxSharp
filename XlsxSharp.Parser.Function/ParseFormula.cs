@@ -4,6 +4,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Newtonsoft.Json;
 using XlsxSharp.Parser.Ast;
+using XlsxSharp.Parser.Pratt;
 
 namespace XlsxSharp.Parser.Function
 {
@@ -26,18 +27,9 @@ namespace XlsxSharp.Parser.Function
 
             try
             {
-                AstNode nodes =
-                    refStyle == ReferenceStyle.A1
-                        ? FormulaParser<ScalarValue, AstNode, Ctx>.CellFormulaA1(
-                            formulaText,
-                            new Ctx(),
-                            new F()
-                        )
-                        : FormulaParser<ScalarValue, AstNode, Ctx>.CellFormulaR1C1(
-                            formulaText,
-                            new Ctx(),
-                            new F()
-                        );
+                AstNode nodes = ParserFactory
+                    .Create(new F())
+                    .ParseFormula(formulaText, new Ctx(), isR1C1: refStyle == ReferenceStyle.R1C1);
                 return Task.FromResult<IActionResult>(
                     new JsonResult(
                         new

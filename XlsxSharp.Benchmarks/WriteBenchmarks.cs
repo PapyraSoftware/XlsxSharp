@@ -1,5 +1,6 @@
 using System.IO;
 using BenchmarkDotNet.Attributes;
+using ClosedXML.Excel;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 using OfficeOpenXml;
@@ -23,11 +24,11 @@ public class WriteBenchmarks
     [Benchmark(Description = "ClosedXML")]
     public byte[] ClosedXml()
     {
-        using var workbook = new ClosedXML.Excel.XLWorkbook();
-        var worksheet = workbook.Worksheets.Add("Sheet1");
+        using XLWorkbook? workbook = new();
+        IXLWorksheet? worksheet = workbook.Worksheets.Add("Sheet1");
         FillGrid(worksheet);
 
-        using var stream = new MemoryStream();
+        using MemoryStream? stream = new();
         workbook.SaveAs(stream);
         return stream.ToArray();
     }
@@ -35,11 +36,11 @@ public class WriteBenchmarks
     [Benchmark(Description = "XlsxSharp")]
     public byte[] XlsxSharp()
     {
-        using var workbook = new Excel.XLWorkbook();
-        var worksheet = workbook.Worksheets.Add("Sheet1");
+        using Excel.XLWorkbook? workbook = new();
+        Excel.IXLWorksheet? worksheet = workbook.Worksheets.Add("Sheet1");
         FillGrid(worksheet);
 
-        using var stream = new MemoryStream();
+        using MemoryStream? stream = new();
         workbook.SaveAs(stream);
         return stream.ToArray();
     }
@@ -47,8 +48,8 @@ public class WriteBenchmarks
     [Benchmark(Description = "EPPlus")]
     public byte[] EPPlus()
     {
-        using var package = new ExcelPackage();
-        var worksheet = package.Workbook.Worksheets.Add("Sheet1");
+        using ExcelPackage? package = new();
+        ExcelWorksheet? worksheet = package.Workbook.Worksheets.Add("Sheet1");
 
         for (int r = 1; r <= RowCount; r++)
         {
@@ -71,7 +72,7 @@ public class WriteBenchmarks
     [Benchmark(Description = "NPOI")]
     public byte[] Npoi()
     {
-        var workbook = new XSSFWorkbook();
+        XSSFWorkbook? workbook = new();
         ISheet sheet = workbook.CreateSheet("Sheet1");
 
         for (int r = 0; r < RowCount; r++)
@@ -91,7 +92,7 @@ public class WriteBenchmarks
             }
         }
 
-        using var stream = new MemoryStream();
+        using MemoryStream? stream = new();
         workbook.Write(stream, leaveOpen: true);
         return stream.ToArray();
     }

@@ -33,6 +33,13 @@ internal static class ParserExtensions
 
         while (true)
         {
+            // Unlike the initial check above (run once, before any argument), this has to run on
+            // every iteration: a blank argument or the closing paren can follow a comma after
+            // whitespace too (e.g. "INDEX(B2:J12, , 4)", "SUM(1, )"), and unlike an ordinary
+            // argument - which reaches ParseAtom's own SkipWhitespace() via ParseExpression below -
+            // these two cases return before ever calling ParseExpression, so nothing else would
+            // skip that whitespace first.
+            parser.SkipWhitespace();
             Token next = parser.LookAhead(1);
             if (next.Type == TokenType.Comma)
             {
@@ -367,6 +374,21 @@ internal static class ParserExtensions
                 area = new ReferenceArea(cell1, cell2);
                 range = new SymbolRange(identToken.Range.Start, cell2Token.Range.End);
                 return true;
+            }
+
+            // A bare cell-shaped token immediately followed by "!" is a sheet name, not a cell -
+            // e.g. "ws1!B1" (a real, working construct: any short letters+digits name collides
+            // with A1 cell shape once it's long enough to have a trailing digit run, and Excel
+            // still accepts it unquoted). IdentParselet's sheet-qualified check runs *after* this
+            // one, so it must be declined here - same reasoning as TryReferenceR1C1's standalone
+            // fallback guard. Unlike that one, the colon-joined "area A1:B2" case above is left
+            // unguarded: two colon-joined cells are never re-interpreted as a 3D sheet range here,
+            // matching the oracle (confirmed directly for the R1C1 equivalent).
+            if (parser.LookAhead(1).Type == TokenType.Bang)
+            {
+                area = default;
+                range = default;
+                return false;
             }
 
             // Result: cell A1

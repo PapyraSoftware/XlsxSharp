@@ -47,6 +47,22 @@ internal class Parser<T, TContext>
     internal Func<TContext, SymbolRange, T, T, T>? IntersectionCombiner { private get; set; }
 
     /// <summary>
+    /// Wraps a pure-reference operand of the postfix spill-range operator (<c>#</c>, e.g.
+    /// <c>A1#</c>) into a single node, set once by <see cref="ParserFactory"/>. See the note on
+    /// <see cref="RangeCombiner"/> for why this is a delegate.
+    /// </summary>
+    internal Func<TContext, SymbolRange, T, T>? SpillCombiner { private get; set; }
+
+    /// <summary>
+    /// Wraps a node whose given range extends past what its own value's range covers (currently
+    /// only leading whitespace before the whole formula - see <see cref="ParseFormula"/> - but
+    /// this is the same "extra raw text surrounds an inner node" shape <see cref="Parselets.GroupParselet{TScalar,T,TContext}"/>
+    /// uses for parens), set once by <see cref="ParserFactory"/>. See the note on
+    /// <see cref="RangeCombiner"/> for why this is a delegate.
+    /// </summary>
+    internal Func<TContext, SymbolRange, T, T>? NestedCombiner { private get; set; }
+
+    /// <summary>
     /// True while parsing a function-call argument directly (see
     /// <c>ParserExtensions.ParseArgumentList</c>): there, a top-level <c>,</c> means "next
     /// argument", not "union" - <c>SUM(A1,B2)</c> is two arguments, not one unioned argument. A
@@ -61,11 +77,35 @@ internal class Parser<T, TContext>
     {
         this.Input = formula;
         this.IsR1C1 = isR1C1;
+
+        // SkipUnion is saved/restored in pairs (see ParseArgumentList, GroupParselet), but a
+        // parselet throwing between the save and its matching restore - e.g. a malformed argument
+        // like "SUM(A1:" - skips the restore. A single Parser instance is routinely reused across
+        // many formulas (every production call site does this), so that leftover `true` would
+        // silently corrupt every top-level comma in every formula parsed afterwards, turning a
+        // union into a rejected trailing token. Force it back to the real default here so no
+        // exception from a previous, unrelated formula can ever survive into this one.
+        this.SkipUnion = false;
+
         this._lexer.Reset(formula, isR1C1);
+
+        // Leading whitespace is significant to the oracle only through which token follows it:
+        // every operator/paren/brace/comma/etc. token absorbs surrounding whitespace directly
+        // into its own lexer regex (see IsContentTokenType), so e.g. "  -8" and "-8" are the same
+        // token stream to it, and the MINUS token's own range already starts at index 0 either
+        // way. A "content" token (Ident, Number, Text, Error, QIdent, SquareIdent) never absorbs
+        // it, so leading whitespace before one of those is genuinely dropped, not carried by any
+        // token's range. ParseAtom's own SkipWhitespace() always discards it either way, so the
+        // only way to preserve it here (needed by a text-reconstructing consumer such as
+        // FormulaConverter, via IAstFactory.Nested) is to detect the case up front and wrap the
+        // whole result in a Nested-shaped span starting at 0.
+        Token firstToken = this.PeekPastWhitespace(out bool hasLeadingWhitespace);
+        bool wrapLeadingWhitespace = hasLeadingWhitespace && !IsContentTokenType(firstToken.Type);
+
         Node<T> node = this.ParseExpression(ctx, 0);
 
-        // Trailing whitespace is insignificant at the end of a formula (mirrors the TrimEnd()
-        // done before FormulaParser<TScalarValue,TNode,TContext> tokenizes with the Rolex lexer).
+        // Trailing whitespace is insignificant at the end of a formula (mirrors the TrimEnd() the
+        // removed recursive-descent parser did before tokenizing with the Rolex lexer).
         Token next = this._lexer.Peek();
         if (next.Type == TokenType.Whitespace)
         {
@@ -78,7 +118,10 @@ internal class Parser<T, TContext>
             throw ParsingException.TrailingToken(next.Range.Start, next.Type);
         }
 
-        return node.Value;
+        T value = wrapLeadingWhitespace
+            ? this.NestedCombiner!(ctx, new SymbolRange(0, node.Range.End), node.Value)
+            : node.Value;
+        return value;
     }
 
     internal Node<T> ParseExpression(TContext ctx, int minBp)
@@ -151,7 +194,42 @@ internal class Parser<T, TContext>
     private Node<T> ParseReferenceAtom(TContext ctx)
     {
         Node<T> node = this.ParseAtom(ctx);
+        node = this.ParseSpillChain(ctx, node);
         return this.ParseRangeChain(ctx, node);
+    }
+
+    /// <summary>
+    /// After a pure-reference atom, consume a following postfix spill-range operator (<c>#</c>,
+    /// e.g. <c>A1#</c>), if present. Lives here - between the bare atom and any range chain -
+    /// rather than as a normal <see cref="IParselet{T,TContext}"/> registered at some binding
+    /// power, for the same reason <see cref="ParseRangeChain"/> does: <c>F2#:A7</c> must be
+    /// <c>Range(SpillRange(F2), A7)</c>, so the spill has to apply *before* the range chain sees
+    /// its left operand, not after the whole <see cref="Prefix"/> chain completes. The result
+    /// stays a pure reference (a spill range is a valid range/union/intersection operand, e.g.
+    /// <c>A1#:B5</c> or <c>A1#,B1</c>), unlike a "value" unary operator such as <c>%</c>.
+    /// </summary>
+    private Node<T> ParseSpillChain(TContext ctx, Node<T> left)
+    {
+        if (!left.IsPureReference)
+        {
+            return left;
+        }
+
+        Token maybeSpill = this.PeekPastWhitespace(out bool hadWhitespace);
+        if (maybeSpill.Type != TokenType.Spill)
+        {
+            return left;
+        }
+
+        if (hadWhitespace)
+        {
+            this._lexer.Consume();
+        }
+
+        Token spillToken = this._lexer.Consume();
+        SymbolRange range = new(left.Range.Start, spillToken.Range.End);
+        T value = this.SpillCombiner!(ctx, range, left.Value);
+        return new Node<T>(value, range, isPureReference: true);
     }
 
     /// <summary>
@@ -215,6 +293,7 @@ internal class Parser<T, TContext>
             this._lexer.Consume();
             this.SkipWhitespace();
             Node<T> right = this.ParseAtom(ctx);
+            right = this.ParseSpillChain(ctx, right);
             if (!right.IsPureReference)
             {
                 throw new ParsingException($"Unable to parse value starting from position {right.Range.Start}.");
@@ -368,7 +447,13 @@ internal class Parser<T, TContext>
         Token token = this._lexer.Consume();
         if (token.Type != expectedType)
         {
-            throw new InvalidOperationException($"Expected token of type {expectedType}, but received {token.Type}.");
+            // Unlike ParseAtom's "No parselet found for X" (a token type with no grammar coverage
+            // at all - a genuine gap), every call site here has already committed to a specific
+            // grammar rule (an argument list, a range, a sheet prefix, ...) and is only checking
+            // that rule's next required token is actually present. A mismatch is always a
+            // malformed formula (e.g. "SUM(A1" with no closing paren), not a missing feature, so
+            // this is a ParsingException like every other formula-rejection reason.
+            throw new ParsingException($"Expected token of type {expectedType}, but received {token.Type}.");
         }
 
         return token;

@@ -111,13 +111,19 @@ public class ConstantRuleTests
     [Test]
     public async Task ArrayCantContainBlanks()
     {
-        await AssertFormula.CheckParsingErrorContains("{1,,}", " Unexpected token COMMA.");
+        await AssertFormula.CheckParsingErrorContains(
+            "{1,,}",
+            "Unable to parse value starting from position 3."
+        );
     }
 
     [Test]
     public async Task EmptyArrayIsUnparsable()
     {
-        await AssertFormula.CheckParsingErrorContains("{}", "Unexpected token CLOSE_CURLY.");
+        await AssertFormula.CheckParsingErrorContains(
+            "{}",
+            "Unable to parse value starting from position 1."
+        );
     }
 
     [Test]

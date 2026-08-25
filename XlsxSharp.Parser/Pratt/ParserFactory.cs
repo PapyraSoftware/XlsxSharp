@@ -15,12 +15,15 @@ internal static class ParserFactory
                 factory.BinaryNode(ctx, range, BinaryOperation.Union, left, right),
             IntersectionCombiner = (ctx, range, left, right) =>
                 factory.BinaryNode(ctx, range, BinaryOperation.Intersection, left, right),
+            SpillCombiner = (ctx, range, operand) =>
+                factory.Unary(ctx, range, UnaryOperation.SpillRange, operand),
+            NestedCombiner = (ctx, range, operand) => factory.Nested(ctx, range, operand),
         };
 
         // Register prefix parselets
         IdentParselet<TScalar, TNode, TContext> identParselet = new(factory, parser);
         parser.Register(TokenType.Number, new NumberParselet<TScalar, TNode, TContext>(factory, parser, identParselet));
-        parser.Register(TokenType.LeftParen, new GroupParselet<TNode, TContext>(parser));
+        parser.Register(TokenType.LeftParen, new GroupParselet<TScalar, TNode, TContext>(factory, parser));
         parser.Register(TokenType.Ident, identParselet);
         parser.Register(TokenType.QIdent, new QIdentParselet<TScalar, TNode, TContext>(factory, parser));
         parser.Register(TokenType.Text, new TextParselet<TScalar, TNode, TContext>(factory, parser));
@@ -30,6 +33,7 @@ internal static class ParserFactory
         parser.Register(TokenType.Bang, new BangReferenceParselet<TScalar, TNode, TContext>(factory, parser));
         parser.Register(TokenType.Plus, new UnaryOpParselet<TScalar, TNode, TContext>(factory, parser, UnaryOperation.Plus));
         parser.Register(TokenType.Minus, new UnaryOpParselet<TScalar, TNode, TContext>(factory, parser, UnaryOperation.Minus));
+        parser.Register(TokenType.Intersection, new UnaryOpParselet<TScalar, TNode, TContext>(factory, parser, UnaryOperation.ImplicitIntersection));
 
         // Register operation parselets
         parser.Register(TokenType.Plus, new BinaryOpParselet<TScalar, TNode, TContext>(factory, parser, BinaryOperation.Addition, BindingPower.Addition));

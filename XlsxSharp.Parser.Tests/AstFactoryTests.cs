@@ -1,4 +1,6 @@
-﻿namespace XlsxSharp.Parser.Tests;
+using XlsxSharp.Parser.Pratt;
+
+namespace XlsxSharp.Parser.Tests;
 
 public class AstFactoryTests
 {
@@ -7,7 +9,7 @@ public class AstFactoryTests
     public async Task LogicalRange(string formula, int start, int end)
     {
         Result result = new();
-        FormulaParser<object?, string, Result>.CellFormulaA1(formula, result, new LogicalVisitor());
+        ParserFactory.Create(new LogicalVisitor()).ParseFormula(formula, result);
         await Assert.That(result.Value).IsEqualTo(new SymbolRange(start, end));
     }
 
@@ -16,7 +18,7 @@ public class AstFactoryTests
     public async Task ErrorRange(string formula, int start, int end)
     {
         Result result = new();
-        FormulaParser<object?, string, Result>.CellFormulaA1(formula, result, new ErrorVisitor());
+        ParserFactory.Create(new ErrorVisitor()).ParseFormula(formula, result);
         await Assert.That(result.Value).IsEqualTo(new SymbolRange(start, end));
     }
 
@@ -25,7 +27,7 @@ public class AstFactoryTests
     public async Task NumberRange(string formula, int start, int end)
     {
         Result result = new();
-        FormulaParser<object?, string, Result>.CellFormulaA1(formula, result, new NumberVisitor());
+        ParserFactory.Create(new NumberVisitor()).ParseFormula(formula, result);
         await Assert.That(result.Value).IsEqualTo(new SymbolRange(start, end));
     }
 
@@ -34,7 +36,7 @@ public class AstFactoryTests
     public async Task TextRange(string formula, int start, int end)
     {
         Result result = new();
-        FormulaParser<object?, string, Result>.CellFormulaA1(formula, result, new TextVisitor());
+        ParserFactory.Create(new TextVisitor()).ParseFormula(formula, result);
         await Assert.That(result.Value).IsEqualTo(new SymbolRange(start, end));
     }
 
@@ -43,7 +45,7 @@ public class AstFactoryTests
     public async Task ArrayRange(string formula, int start, int end)
     {
         Result result = new();
-        FormulaParser<object?, string, Result>.CellFormulaA1(formula, result, new ArrayVisitor());
+        ParserFactory.Create(new ArrayVisitor()).ParseFormula(formula, result);
         await Assert.That(result.Value).IsEqualTo(new SymbolRange(start, end));
     }
 
@@ -57,11 +59,7 @@ public class AstFactoryTests
     public async Task ReferenceRange(string formula, int start, int end)
     {
         Result result = new();
-        FormulaParser<object?, string, Result>.CellFormulaA1(
-            formula,
-            result,
-            new ReferenceVisitor()
-        );
+        ParserFactory.Create(new ReferenceVisitor()).ParseFormula(formula, result);
         await Assert.That(result.Value).IsEqualTo(new SymbolRange(start, end));
     }
 
@@ -72,11 +70,7 @@ public class AstFactoryTests
     public async Task SheetReferenceRange(string formula, int start, int end)
     {
         Result result = new();
-        FormulaParser<object?, string, Result>.CellFormulaA1(
-            formula,
-            result,
-            new SheetReferenceVisitor()
-        );
+        ParserFactory.Create(new SheetReferenceVisitor()).ParseFormula(formula, result);
         await Assert.That(result.Value).IsEqualTo(new SymbolRange(start, end));
     }
 
@@ -86,11 +80,7 @@ public class AstFactoryTests
     public async Task BangReferenceRange(string formula, int start, int end)
     {
         Result result = new();
-        FormulaParser<object?, string, Result>.CellFormulaA1(
-            formula,
-            result,
-            new BangReferenceVisitor()
-        );
+        ParserFactory.Create(new BangReferenceVisitor()).ParseFormula(formula, result);
         await Assert.That(result.Value).IsEqualTo(new SymbolRange(start, end));
     }
 
@@ -101,11 +91,7 @@ public class AstFactoryTests
     public async Task Reference3DRange(string formula, int start, int end)
     {
         Result result = new();
-        FormulaParser<object?, string, Result>.CellFormulaA1(
-            formula,
-            result,
-            new Reference3DVisitor()
-        );
+        ParserFactory.Create(new Reference3DVisitor()).ParseFormula(formula, result);
         await Assert.That(result.Value).IsEqualTo(new SymbolRange(start, end));
     }
 
@@ -115,11 +101,7 @@ public class AstFactoryTests
     public async Task ExternalSheetReferenceRange(string formula, int start, int end)
     {
         Result result = new();
-        FormulaParser<object?, string, Result>.CellFormulaA1(
-            formula,
-            result,
-            new ExternalSheetReferenceVisitor()
-        );
+        ParserFactory.Create(new ExternalSheetReferenceVisitor()).ParseFormula(formula, result);
         await Assert.That(result.Value).IsEqualTo(new SymbolRange(start, end));
     }
 
@@ -129,11 +111,7 @@ public class AstFactoryTests
     public async Task ExternalReference3DRange(string formula, int start, int end)
     {
         Result result = new();
-        FormulaParser<object?, string, Result>.CellFormulaA1(
-            formula,
-            result,
-            new ExternalReference3DVisitor()
-        );
+        ParserFactory.Create(new ExternalReference3DVisitor()).ParseFormula(formula, result);
         await Assert.That(result.Value).IsEqualTo(new SymbolRange(start, end));
     }
 
@@ -142,11 +120,7 @@ public class AstFactoryTests
     public async Task CellFunctionRange(string formula, int start, int end)
     {
         Result result = new();
-        FormulaParser<object?, string, Result>.CellFormulaA1(
-            formula,
-            result,
-            new CellFunctionVisitor()
-        );
+        ParserFactory.Create(new CellFunctionVisitor()).ParseFormula(formula, result);
         await Assert.That(result.Value).IsEqualTo(new SymbolRange(start, end));
     }
 
@@ -155,11 +129,7 @@ public class AstFactoryTests
     public async Task StructureReferenceNoTableRange(string formula, int start, int end)
     {
         Result result = new();
-        FormulaParser<object?, string, Result>.CellFormulaA1(
-            formula,
-            result,
-            new StructureReferenceNoTableVisitor()
-        );
+        ParserFactory.Create(new StructureReferenceNoTableVisitor()).ParseFormula(formula, result);
         await Assert.That(result.Value).IsEqualTo(new SymbolRange(start, end));
     }
 
@@ -168,11 +138,7 @@ public class AstFactoryTests
     public async Task StructureReferenceRange(string formula, int start, int end)
     {
         Result result = new();
-        FormulaParser<object?, string, Result>.CellFormulaA1(
-            formula,
-            result,
-            new StructureReferenceVisitor()
-        );
+        ParserFactory.Create(new StructureReferenceVisitor()).ParseFormula(formula, result);
         await Assert.That(result.Value).IsEqualTo(new SymbolRange(start, end));
     }
 
@@ -181,11 +147,7 @@ public class AstFactoryTests
     public async Task ExternalStructureReferenceRange(string formula, int start, int end)
     {
         Result result = new();
-        FormulaParser<object?, string, Result>.CellFormulaA1(
-            formula,
-            result,
-            new ExternalStructureReferenceVisitor()
-        );
+        ParserFactory.Create(new ExternalStructureReferenceVisitor()).ParseFormula(formula, result);
         await Assert.That(result.Value).IsEqualTo(new SymbolRange(start, end));
     }
 
@@ -194,11 +156,7 @@ public class AstFactoryTests
     public async Task FunctionRange(string formula, int start, int end)
     {
         Result result = new();
-        FormulaParser<object?, string, Result>.CellFormulaA1(
-            formula,
-            result,
-            new FunctionVisitor()
-        );
+        ParserFactory.Create(new FunctionVisitor()).ParseFormula(formula, result);
         await Assert.That(result.Value).IsEqualTo(new SymbolRange(start, end));
     }
 
@@ -207,11 +165,7 @@ public class AstFactoryTests
     public async Task ExternalFunctionRange(string formula, int start, int end)
     {
         Result result = new();
-        FormulaParser<object?, string, Result>.CellFormulaA1(
-            formula,
-            result,
-            new ExternalFunctionVisitor()
-        );
+        ParserFactory.Create(new ExternalFunctionVisitor()).ParseFormula(formula, result);
         await Assert.That(result.Value).IsEqualTo(new SymbolRange(start, end));
     }
 
@@ -220,11 +174,7 @@ public class AstFactoryTests
     public async Task SheetFunctionRange(string formula, int start, int end)
     {
         Result result = new();
-        FormulaParser<object?, string, Result>.CellFormulaA1(
-            formula,
-            result,
-            new SheetFunctionVisitor()
-        );
+        ParserFactory.Create(new SheetFunctionVisitor()).ParseFormula(formula, result);
         await Assert.That(result.Value).IsEqualTo(new SymbolRange(start, end));
     }
 
@@ -233,11 +183,7 @@ public class AstFactoryTests
     public async Task ExternalSheetFunctionRange(string formula, int start, int end)
     {
         Result result = new();
-        FormulaParser<object?, string, Result>.CellFormulaA1(
-            formula,
-            result,
-            new ExternalSheetFunctionVisitor()
-        );
+        ParserFactory.Create(new ExternalSheetFunctionVisitor()).ParseFormula(formula, result);
         await Assert.That(result.Value).IsEqualTo(new SymbolRange(start, end));
     }
 
@@ -246,7 +192,7 @@ public class AstFactoryTests
     public async Task NameRange(string formula, int start, int end)
     {
         Result result = new();
-        FormulaParser<object?, string, Result>.CellFormulaA1(formula, result, new NameVisitor());
+        ParserFactory.Create(new NameVisitor()).ParseFormula(formula, result);
         await Assert.That(result.Value).IsEqualTo(new SymbolRange(start, end));
     }
 
@@ -255,11 +201,7 @@ public class AstFactoryTests
     public async Task SheetNameRange(string formula, int start, int end)
     {
         Result result = new();
-        FormulaParser<object?, string, Result>.CellFormulaA1(
-            formula,
-            result,
-            new SheetNameVisitor()
-        );
+        ParserFactory.Create(new SheetNameVisitor()).ParseFormula(formula, result);
         await Assert.That(result.Value).IsEqualTo(new SymbolRange(start, end));
     }
 
@@ -268,11 +210,7 @@ public class AstFactoryTests
     public async Task ExternalNameRange(string formula, int start, int end)
     {
         Result result = new();
-        FormulaParser<object?, string, Result>.CellFormulaA1(
-            formula,
-            result,
-            new ExternalNameVisitor()
-        );
+        ParserFactory.Create(new ExternalNameVisitor()).ParseFormula(formula, result);
         await Assert.That(result.Value).IsEqualTo(new SymbolRange(start, end));
     }
 
@@ -281,11 +219,7 @@ public class AstFactoryTests
     public async Task ExternalSheetNameRange(string formula, int start, int end)
     {
         Result result = new();
-        FormulaParser<object?, string, Result>.CellFormulaA1(
-            formula,
-            result,
-            new ExternalSheetNameVisitor()
-        );
+        ParserFactory.Create(new ExternalSheetNameVisitor()).ParseFormula(formula, result);
         await Assert.That(result.Value).IsEqualTo(new SymbolRange(start, end));
     }
 
@@ -293,11 +227,7 @@ public class AstFactoryTests
     public async Task BinaryOperationRange()
     {
         List<SymbolRange> result = new();
-        FormulaParser<object?, string, List<SymbolRange>>.CellFormulaA1(
-            "1+2+3+4",
-            result,
-            new BinaryOperationVisitor()
-        );
+        ParserFactory.Create(new BinaryOperationVisitor()).ParseFormula("1+2+3+4", result);
         await Assert
             .That(result)
             .IsEquivalentTo(
@@ -309,11 +239,7 @@ public class AstFactoryTests
     public async Task UnaryOperationRange()
     {
         List<SymbolRange> result = new();
-        FormulaParser<object?, string, List<SymbolRange>>.CellFormulaA1(
-            "-7+8%",
-            result,
-            new UnaryOperationVisitor()
-        );
+        ParserFactory.Create(new UnaryOperationVisitor()).ParseFormula("-7+8%", result);
         await Assert
             .That(result)
             .IsEquivalentTo(new[] { new SymbolRange(0, 2), new SymbolRange(3, 5) });
@@ -323,11 +249,7 @@ public class AstFactoryTests
     public async Task NestedRange()
     {
         List<SymbolRange> result = new();
-        FormulaParser<object?, string, List<SymbolRange>>.CellFormulaA1(
-            "-( 1 + (2))+8%",
-            result,
-            new NestedOperationVisitor()
-        );
+        ParserFactory.Create(new NestedOperationVisitor()).ParseFormula("-( 1 + (2))+8%", result);
         await Assert
             .That(result)
             .IsEquivalentTo(new[] { new SymbolRange(7, 10), new SymbolRange(1, 11) });

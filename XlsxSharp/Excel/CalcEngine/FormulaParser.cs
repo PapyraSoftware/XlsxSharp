@@ -1,5 +1,6 @@
 using XlsxSharp.Extensions;
 using XlsxSharp.Parser;
+using XlsxSharp.Parser.Pratt;
 
 namespace XlsxSharp.Excel.CalcEngine;
 
@@ -27,17 +28,17 @@ internal class FormulaParser
 
         try
         {
+            // A fresh Parser<,> per call, not a cached instance field: a single FormulaParser
+            // (hence a single XLCalcEngine) can be shared and used concurrently by a caller - e.g.
+            // the test suite's XLWorkbook.EvaluateExpr goes through one static, process-wide
+            // XLCalcEngine - and Parser<,>/Lexer carry mutable per-parse state (lookahead buffer,
+            // SkipUnion, ...) that isn't safe to share across threads. ParserFactory.Create's cost
+            // is a handful of array writes, dwarfed by the actual lex/parse work below.
             ValueNode root = isA1
-                ? FormulaParser<ScalarValue, ValueNode, string>.CellFormulaA1(
-                    formula,
-                    formula,
-                    this._nodeFactoryA1
-                )
-                : FormulaParser<ScalarValue, ValueNode, string>.CellFormulaR1C1(
-                    formula,
-                    formula,
-                    this._nodeFactoryR1C1
-                );
+                ? ParserFactory.Create(this._nodeFactoryA1).ParseFormula(formula, formula)
+                : ParserFactory
+                    .Create(this._nodeFactoryR1C1)
+                    .ParseFormula(formula, formula, isR1C1: true);
             return new Formula(formula, root);
         }
         catch (ParsingException ex)

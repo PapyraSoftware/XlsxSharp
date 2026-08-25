@@ -91,6 +91,22 @@ internal class StructureReferenceParselet<TScalar, T, TContext> : IPrefixParsele
                 return this.ParseExternalFunctionCall(ctx, workbookToken, workbookIndex, sheet: null, nameToken);
             }
 
+            // Check for a table-qualified structure reference `[n]!Table1[Column]`, same as the
+            // local case (IdentParselet).
+            if (this._parser.LookAhead(1).Type == TokenType.SquareIdent && this._parser.TryGetName(nameToken, out ReadOnlySpan<char> tableName))
+            {
+                Token squareIdentToken = this._parser.Consume(TokenType.SquareIdent);
+                TokenParser.ParseIntraTableReference(
+                    squareIdentToken.GetText(this._parser.Input),
+                    out StructuredReferenceArea area,
+                    out string? firstColumn,
+                    out string? lastColumn
+                );
+                SymbolRange structureRange = new(workbookToken.Range.Start, squareIdentToken.Range.End);
+                T structureReferenceValue = this._factory.ExternalStructureReference(ctx, structureRange, workbookIndex, tableName.ToString(), area, firstColumn, lastColumn ?? firstColumn);
+                return new Node<T>(structureReferenceValue, structureRange, isPureReference: true);
+            }
+
             if (this._parser.TryGetName(nameToken, out ReadOnlySpan<char> name) && !this._parser.TryGetCell(name, out _))
             {
                 SymbolRange range = new(workbookToken.Range.Start, nameToken.Range.End);

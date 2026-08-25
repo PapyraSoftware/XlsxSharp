@@ -5,8 +5,9 @@ using XlsxSharp.Parser;
 namespace XlsxSharp.Benchmarks;
 
 /// <summary>
-/// Builds <see cref="BenchNode"/>s for <see cref="XlsxSharp.Parser.FormulaParser{TScalarValue,TNode,TContext}"/>,
-/// our vendored fork of ClosedXML.Parser (see <see cref="ClosedXmlAstFactory"/> for the upstream side).
+/// Builds <see cref="BenchNode"/>s for <see cref="XlsxSharp.Parser.Pratt.Parser{T,TContext}"/>,
+/// this project's own formula parser (see <see cref="ClosedXmlAstFactory"/> for the upstream side,
+/// ClosedXML.Parser, the package it was originally forked from).
 /// </summary>
 internal sealed class XlsxSharpAstFactory : IAstFactory<BenchNode, BenchNode, object?>
 {

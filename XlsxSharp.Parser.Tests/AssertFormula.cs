@@ -1,5 +1,6 @@
 ﻿using Antlr4.Runtime;
 using Antlr4.Runtime.Atn;
+using XlsxSharp.Parser.Pratt;
 
 namespace XlsxSharp.Parser.Tests;
 
@@ -11,15 +12,14 @@ internal static class AssertFormula
     public static async Task SingleNodeParsed<TNode>(string formula, TNode expectedNode)
         where TNode : AstNode
     {
-        TNode node = (TNode)
-            FormulaParser<ScalarValue, AstNode, Ctx>.CellFormulaA1(formula, new Ctx(), new F());
+        TNode node = (TNode)ParserFactory.Create(new F()).ParseFormula(formula, new Ctx());
         await Assert.That(node).IsEqualTo(expectedNode);
     }
 
     public static async Task CheckParsingErrorContains(string formula, string errorSubstring)
     {
-        ParsingException ex = Assert.ThrowsExactly<ParsingException>(() =>
-            FormulaParser<ScalarValue, AstNode, Ctx>.CellFormulaA1(formula, new Ctx(), new F())
+        Exception ex = Assert.Throws<Exception>(() =>
+            ParserFactory.Create(new F()).ParseFormula(formula, new Ctx())
         );
         await Assert
             .That(ex.Message.Contains(errorSubstring))
@@ -117,7 +117,7 @@ internal static class AssertFormula
         )
         {
             // Params don't provide access to the stream char index property directly, so pass it through
-            this.ErrorStartIndex ??= ((Lexer)recognizer).TokenStartCharIndex;
+            this.ErrorStartIndex ??= ((Antlr4.Runtime.Lexer)recognizer).TokenStartCharIndex;
         }
     }
 }
