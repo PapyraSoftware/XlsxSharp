@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using System.Xml;
+﻿using System.Xml;
 
 namespace XlsxSharp.Parser.Pratt;
 
@@ -423,12 +422,15 @@ internal class Lexer
 
         static bool IsIdentStart(int c)
         {
-            // Ident must satisfy logical-literal, sheet-name, name and A1-cell/column/row
+            // Ident must satisfy logical-literal, sheet-name, name and A1-cell/column/row.
+            // The oracle's own NAME production (see LexerA1.rl) accepts *any* codepoint above
+            // 0x7F here, not just letters - e.g. "‰" (U+2030, PER MILLE SIGN, a symbol) is just
+            // as valid a NAME character as "é" is.
             return
                 IsAsciiLetter(c) || // name + A1
                 c == '$' || // A1
                 (c is '_' or '\\' or '?') || // name
-                (c > 0x7F && IsLetterOrLetterMark(c)); // name
+                c > 0x7F; // name
         }
 
         static bool IsIdentNext(int c)
@@ -480,18 +482,6 @@ internal class Lexer
             // Really cool use of cast int to uint (-1 to 0xFFFFFFFF), thus saving one comparison
             // and avoiding potential pipeline stall.
             return (uint)((codepoint | 32) - 97) <= 25U;
-        }
-
-        static bool IsLetterOrLetterMark(int codepoint)
-        {
-            // TODO: Only netstandard 2.1 has a parameter of type int, 2.0 has only char.
-            if (codepoint > 0xFFFF)
-            {
-                return false; // No letters from astral planes for us :(
-            }
-
-            // Letters are categories from 0 to OtherLetter category. Then there are NonSpacingMark (accents and such).
-            return CharUnicodeInfo.GetUnicodeCategory((char)codepoint) <= UnicodeCategory.NonSpacingMark;
         }
 
         // Is codepoint a character per XML 1.0 spec (2.2)?

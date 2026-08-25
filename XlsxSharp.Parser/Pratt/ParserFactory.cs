@@ -13,17 +13,21 @@ internal static class ParserFactory
                 factory.BinaryNode(ctx, range, BinaryOperation.Range, left, right),
             UnionCombiner = (ctx, range, left, right) =>
                 factory.BinaryNode(ctx, range, BinaryOperation.Union, left, right),
+            IntersectionCombiner = (ctx, range, left, right) =>
+                factory.BinaryNode(ctx, range, BinaryOperation.Intersection, left, right),
         };
 
         // Register prefix parselets
-        parser.Register(TokenType.Number, new NumberParselet<TScalar, TNode, TContext>(factory, parser));
+        IdentParselet<TScalar, TNode, TContext> identParselet = new(factory, parser);
+        parser.Register(TokenType.Number, new NumberParselet<TScalar, TNode, TContext>(factory, parser, identParselet));
         parser.Register(TokenType.LeftParen, new GroupParselet<TNode, TContext>(parser));
-        parser.Register(TokenType.Ident, new IdentParselet<TScalar,TNode,TContext>(factory, parser));
+        parser.Register(TokenType.Ident, identParselet);
         parser.Register(TokenType.QIdent, new QIdentParselet<TScalar, TNode, TContext>(factory, parser));
         parser.Register(TokenType.Text, new TextParselet<TScalar, TNode, TContext>(factory, parser));
         parser.Register(TokenType.Error, new ErrorParselet<TScalar, TNode, TContext>(factory, parser));
         parser.Register(TokenType.SquareIdent, new StructureReferenceParselet<TScalar, TNode, TContext>(factory, parser));
         parser.Register(TokenType.LeftCurly, new ArrayParselet<TScalar, TNode, TContext>(factory, parser));
+        parser.Register(TokenType.Bang, new BangReferenceParselet<TScalar, TNode, TContext>(factory, parser));
         parser.Register(TokenType.Plus, new UnaryOpParselet<TScalar, TNode, TContext>(factory, parser, UnaryOperation.Plus));
         parser.Register(TokenType.Minus, new UnaryOpParselet<TScalar, TNode, TContext>(factory, parser, UnaryOperation.Minus));
 

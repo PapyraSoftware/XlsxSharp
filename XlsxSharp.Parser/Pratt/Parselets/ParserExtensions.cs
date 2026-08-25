@@ -133,9 +133,9 @@ internal static class ParserExtensions
     /// such whitespace directly into the token. Pure lookahead: nothing is consumed, so a caller
     /// can use this to decide whether to commit to consuming the pattern at all.
     /// </summary>
-    private static bool TryPeekRangeContinuation<T, TContext>(this Parser<T, TContext> parser, out Token afterColon)
+    private static bool TryPeekRangeContinuation<T, TContext>(this Parser<T, TContext> parser, out Token afterColon, out int distance)
     {
-        int distance = 1;
+        distance = 1;
         Token maybeColon = parser.LookAhead(distance);
         if (maybeColon.Type == TokenType.Whitespace)
         {
@@ -214,7 +214,7 @@ internal static class ParserExtensions
 
         if (TryGetCellA1(ident, out RowCol cell1))
         {
-            if (parser.TryPeekRangeContinuation(out Token maybeCell2Token) &&
+            if (parser.TryPeekRangeContinuation(out Token maybeCell2Token, out _) &&
                 maybeCell2Token.Type == TokenType.Ident &&
                 TryGetCellA1(maybeCell2Token.GetText(parser.Input), out RowCol cell2))
             {
@@ -252,9 +252,15 @@ internal static class ParserExtensions
 
         // Careful, 'A' can be just a name without the other column
         if (TryGetColA1(ident, out RowCol col1) &&
-            parser.TryPeekRangeContinuation(out Token maybeCol2Token) &&
+            parser.TryPeekRangeContinuation(out Token maybeCol2Token, out int distance) &&
             maybeCol2Token.Type == TokenType.Ident &&
-            TryGetColA1(maybeCol2Token.GetText(parser.Input), out RowCol col2))
+            TryGetColA1(maybeCol2Token.GetText(parser.Input), out RowCol col2) &&
+            // "Jan:Dec!A1" is a 3D sheet range reference (IdentParselet has its own dedicated
+            // check for that), not a column span "JAN:DEC" that happens to be followed by
+            // something else - column letters and sheet names are lexically indistinguishable, so
+            // this is a genuine ambiguity the oracle's lexer resolves by never treating text
+            // immediately followed by "!" as a bare A1_SPAN_REFERENCE token in the first place.
+            parser.LookAhead(distance + 1).Type != TokenType.Bang)
         {
             // Result: colspan A:B
             Token col2Token = parser.ConsumeRangeContinuation();
@@ -281,9 +287,11 @@ internal static class ParserExtensions
         ReadOnlySpan<char> numberOrIdent = numberOrIdentToken.GetText(parser.Input);
 
         if (TryGetRowA1(numberOrIdent, out RowCol row1) &&
-            parser.TryPeekRangeContinuation(out Token maybeRow2Token) &&
+            parser.TryPeekRangeContinuation(out Token maybeRow2Token, out int distance) &&
             maybeRow2Token.Type is TokenType.Number or TokenType.Ident &&
-            TryGetRowA1(maybeRow2Token.GetText(parser.Input), out RowCol row2))
+            TryGetRowA1(maybeRow2Token.GetText(parser.Input), out RowCol row2) &&
+            // Same "not a 3D sheet range" guard as TryLocalColSpanA1 - see the comment there.
+            parser.LookAhead(distance + 1).Type != TokenType.Bang)
         {
             // Result: rowspan 1:2
             Token row2Token = parser.ConsumeRangeContinuation();

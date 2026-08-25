@@ -27,6 +27,14 @@ internal class Parser<T, TContext>
     internal Func<TContext, SymbolRange, T, T, T>? UnionCombiner { private get; set; }
 
     /// <summary>
+    /// Combines two pure-reference operands of the reference intersection operator (whitespace
+    /// between two references, e.g. <c>NamedRange1 NamedRange2</c>) into a single node, set once
+    /// by <see cref="ParserFactory"/>. See the note on <see cref="RangeCombiner"/> for why this is
+    /// a delegate.
+    /// </summary>
+    internal Func<TContext, SymbolRange, T, T, T>? IntersectionCombiner { private get; set; }
+
+    /// <summary>
     /// True while parsing a function-call argument directly (see
     /// <c>ParserExtensions.ParseArgumentList</c>): there, a top-level <c>,</c> means "next
     /// argument", not "union" - <c>SUM(A1,B2)</c> is two arguments, not one unioned argument. A
@@ -101,17 +109,31 @@ internal class Parser<T, TContext>
 
     private Node<T> Prefix(TContext ctx)
     {
-        Node<T> node = this.ParseReferenceAtom(ctx);
+        Node<T> node = this.ParseIntersectedAtom(ctx);
         return this.ParseUnionChain(ctx, node);
     }
 
     /// <summary>
-    /// A single atom (see <see cref="ParseAtom"/>) plus any range chain immediately on it (see
-    /// <see cref="ParseRangeChain"/>) - i.e. everything up to, but not including, a union. Used
-    /// both by <see cref="Prefix"/> and directly as each operand of a union: like a range operand,
-    /// a union operand is a single range-chain result, never itself a further union - "A1,B2,C3"
+    /// A reference atom (see <see cref="ParseReferenceAtom"/>) plus any intersection chain
+    /// immediately on it (see <see cref="ParseIntersectionChain"/>) - i.e. everything up to, but
+    /// not including, a union. Used both by <see cref="Prefix"/> and directly as each operand of a
+    /// union: like a range operand, a union operand is never itself a further union - "A1,B2,C3"
     /// is a left-associative chain of two union operations, not one union whose right side is
     /// itself a union.
+    /// </summary>
+    private Node<T> ParseIntersectedAtom(TContext ctx)
+    {
+        Node<T> node = this.ParseReferenceAtom(ctx);
+        return this.ParseIntersectionChain(ctx, node);
+    }
+
+    /// <summary>
+    /// A single atom (see <see cref="ParseAtom"/>) plus any range chain immediately on it (see
+    /// <see cref="ParseRangeChain"/>) - i.e. everything up to, but not including, an intersection
+    /// or a union. Used both by <see cref="ParseIntersectedAtom"/> and directly as each operand of
+    /// an intersection - unlike a range operand (which is a single bare atom, see
+    /// <see cref="ParseRangeChain"/>), an intersection operand can itself carry a range, e.g.
+    /// "A1 A2:B2" is Intersection(A1, Range(A2,B2)).
     /// </summary>
     private Node<T> ParseReferenceAtom(TContext ctx)
     {
@@ -159,14 +181,21 @@ internal class Parser<T, TContext>
         while (true)
         {
             // The oracle's COLON lexer token absorbs surrounding whitespace directly into its own
-            // regex, so "A1 : B2" is indistinguishable from "A1:B2" to it. Skipping here mirrors
-            // that - and is safe even when no ":" follows (e.g. "A1 A2", not-yet-implemented
-            // reference intersection): the whitespace is insignificant here regardless, and
-            // whatever follows still won't be claimed by anything, so it's still rejected below.
-            this.SkipWhitespace();
-            if (this._lexer.Peek().Type != TokenType.Range)
+            // regex, so "A1 : B2" is indistinguishable from "A1:B2" to it - peek past (at most) one
+            // insignificant whitespace token to see whether a ":" is really there before consuming
+            // anything. Unlike a plain unconditional skip, this leaves the whitespace untouched
+            // when it's not followed by ":", so a real reference intersection (a run of whitespace
+            // between two references with no ":" in it) is still visible to
+            // <see cref="ParseIntersectionChain"/> afterward.
+            Token maybeColon = this.PeekPastWhitespace(out bool hadWhitespace);
+            if (maybeColon.Type != TokenType.Range)
             {
                 break;
+            }
+
+            if (hadWhitespace)
+            {
+                this._lexer.Consume();
             }
 
             this._lexer.Consume();
@@ -186,13 +215,95 @@ internal class Parser<T, TContext>
     }
 
     /// <summary>
-    /// After a pure-reference atom-plus-range-chain (see <see cref="ParseReferenceAtom"/>), and
-    /// unless <see cref="SkipUnion"/> says a "," here means something else (an argument separator),
-    /// consume any following <c>,</c> union operator(s) left-associatively - matching the oracle's
-    /// own left-folding loop, the outermost layer of its reference sub-grammar (looser-binding
-    /// than range, which is why this wraps <see cref="ParseReferenceAtom"/> rather than being
-    /// folded into <see cref="ParseRangeChain"/>). Still binds tighter than every arithmetic
-    /// operator, for the same reason range does - see the note there.
+    /// After a pure-reference atom-plus-range-chain (see <see cref="ParseReferenceAtom"/>), consume
+    /// any following reference intersection(s) left-associatively - a run of whitespace directly
+    /// between two references, with nothing else in it. This mirrors the oracle exactly at the
+    /// lexer level rather than needing any backtracking: every one of its operator/paren/comma
+    /// tokens absorbs surrounding whitespace directly into its own regex (see e.g. PLUS or COMMA in
+    /// LexerA1.rl), so its lexer only ever emits a literal SPACE token between two tokens that
+    /// aren't otherwise claimed by anything - i.e. exactly the reference-intersection case. Once
+    /// that's confirmed here (a whitespace token immediately followed by one of the "content"
+    /// token types - the ones with no such absorption, listed in <see cref="IsContentTokenType"/>),
+    /// there's nothing to backtrack for either: if the right side then turns out not to be
+    /// reference-shaped, the oracle doesn't fall back to treating the whitespace as insignificant,
+    /// it just fails the whole parse - so this does too.
+    /// </summary>
+    private Node<T> ParseIntersectionChain(TContext ctx, Node<T> left)
+    {
+        if (!left.IsPureReference)
+        {
+            return left;
+        }
+
+        while (true)
+        {
+            Token candidate = this.PeekPastWhitespace(out bool hadWhitespace);
+            if (!hadWhitespace || !IsContentTokenType(candidate.Type))
+            {
+                break;
+            }
+
+            this._lexer.Consume();
+            Node<T> right = this.ParseReferenceAtom(ctx);
+            if (!right.IsPureReference)
+            {
+                throw new ParsingException($"Unable to parse value starting from position {right.Range.Start}.");
+            }
+
+            SymbolRange range = new(left.Range.Start, right.Range.End);
+            T value = this.IntersectionCombiner!(ctx, range, left.Value, right.Value);
+            left = new Node<T>(value, range, isPureReference: true);
+        }
+
+        return left;
+    }
+
+    /// <summary>
+    /// Peek the token that would follow an optional single insignificant whitespace token, without
+    /// consuming anything.
+    /// </summary>
+    private Token PeekPastWhitespace(out bool hadWhitespace)
+    {
+        Token first = this._lexer.Peek(1);
+        if (first.Type != TokenType.Whitespace)
+        {
+            hadWhitespace = false;
+            return first;
+        }
+
+        hadWhitespace = true;
+        return this._lexer.Peek(2);
+    }
+
+    /// <summary>
+    /// The token types whose oracle-side lexer counterpart doesn't absorb surrounding whitespace
+    /// into its own token (unlike every operator, paren, comma, and semicolon) - i.e. the ones that
+    /// can be preceded by a genuine, separately-tokenized whitespace run. Only these can start the
+    /// right-hand operand of a reference intersection - see <see cref="ParseIntersectionChain"/>.
+    /// </summary>
+    private static bool IsContentTokenType(TokenType type)
+    {
+        return type
+            is TokenType.Ident
+                or TokenType.Number
+                or TokenType.Text
+                or TokenType.Error
+                or TokenType.QIdent
+                or TokenType.SquareIdent;
+    }
+
+    /// <summary>
+    /// After a pure-reference atom-plus-range-plus-intersection-chain (see
+    /// <see cref="ParseIntersectedAtom"/>), and unless <see cref="SkipUnion"/> says a "," here
+    /// means something else (an argument separator), consume any following <c>,</c> union
+    /// operator(s) left-associatively - matching the oracle's own left-folding loop, the outermost
+    /// layer of its reference sub-grammar (looser-binding than range or intersection, which is why
+    /// this wraps <see cref="ParseIntersectedAtom"/> rather than being folded into
+    /// <see cref="ParseRangeChain"/> or <see cref="ParseIntersectionChain"/>). Still binds tighter
+    /// than every arithmetic operator, for the same reason range does - see the note there. Unlike
+    /// range/intersection, whitespace around "," needs no special handling here: COMMA absorbs it
+    /// into its own token on the oracle side exactly like every other operator, so an unconditional
+    /// skip (matching how every other operator in this parser is looked for) is already correct.
     /// </summary>
     private Node<T> ParseUnionChain(TContext ctx, Node<T> left)
     {
@@ -211,7 +322,7 @@ internal class Parser<T, TContext>
 
             this._lexer.Consume();
             this.SkipWhitespace();
-            Node<T> right = this.ParseReferenceAtom(ctx);
+            Node<T> right = this.ParseIntersectedAtom(ctx);
             if (!right.IsPureReference)
             {
                 throw new ParsingException($"Unable to parse value starting from position {right.Range.Start}.");

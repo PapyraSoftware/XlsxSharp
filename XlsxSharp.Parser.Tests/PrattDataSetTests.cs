@@ -9,9 +9,9 @@ namespace XlsxSharp.Parser.Tests;
 /// existing recursive-descent parser as the oracle for what a correct result looks like.
 /// </summary>
 /// <remarks>
-/// Unlike <see cref="DataSetTests"/>, these tests don't expect full coverage yet - that's the
-/// whole point of the pratt parser rewrite still being in progress. Instead, for every formula
-/// the oracle accepts:
+/// The pratt parser currently matches the oracle exactly on every formula in all four datasets
+/// (the <c>minimumMatchingCount</c> below equals each dataset's full considered count). For every
+/// formula the oracle accepts:
 /// <list type="bullet">
 ///   <item>If the pratt parser also accepts it, its AST must be identical to the oracle's. A
 ///   mismatch here is always a bug (a wrong result is worse than a thrown exception), so it fails
@@ -20,29 +20,29 @@ namespace XlsxSharp.Parser.Tests;
 ///   failure reason (anything that isn't a plain "this construct isn't implemented yet" error,
 ///   e.g. a crash) fails the test, since that's a real bug rather than a missing feature.</item>
 /// </list>
-/// The number of formulas the pratt parser currently handles correctly is asserted as a floor:
-/// this is the target picture (Zielbild) for the rewrite - the count should only ever go up as
-/// features are implemented. Raise the corresponding constant whenever it does, so the test
-/// documents current progress and catches regressions.
+/// The number of formulas the pratt parser currently handles correctly is asserted as a floor, so
+/// this also catches any future regression: raise the corresponding constant if a new, larger
+/// corpus (or new data appended to an existing one) legitimately raises the count further; a drop
+/// means something that used to work no longer does.
 /// </remarks>
 public class PrattDataSetTests
 {
     [Test]
     public async Task EnronDataSetCoverage()
     {
-        await this.AssertCoverage("./data/enron/formulas.csv", minimumMatchingCount: 943_041);
+        await this.AssertCoverage("./data/enron/formulas.csv", minimumMatchingCount: 943_069);
     }
 
     [Test]
     public async Task EusesDataSetCoverage()
     {
-        await this.AssertCoverage("./data/euses/formulas.csv", minimumMatchingCount: 89_064);
+        await this.AssertCoverage("./data/euses/formulas.csv", minimumMatchingCount: 89_173);
     }
 
     [Test]
     public async Task ContributionsDataSetCoverage()
     {
-        await this.AssertCoverage("./data/contributions/formulas.csv", minimumMatchingCount: 0);
+        await this.AssertCoverage("./data/contributions/formulas.csv", minimumMatchingCount: 1);
     }
 
     [Test]
@@ -50,7 +50,7 @@ public class PrattDataSetTests
     {
         await this.AssertCoverage(
             "./data/structured-references/formulas.csv",
-            minimumMatchingCount: 64
+            minimumMatchingCount: 65
         );
     }
 

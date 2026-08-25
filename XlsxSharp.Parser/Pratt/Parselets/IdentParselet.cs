@@ -54,57 +54,7 @@ internal class IdentParselet<TScalar, T, TContext> : IPrefixParselet<T, TContext
 
         if (this._parser.TryGetUnquotedSheet(token, out ReadOnlySpan<char> sheetNameSpan) && this._parser.LookAhead(1).Type == TokenType.Bang)
         {
-            // We are now in `sheet!` Parse local reference.
-            string sheetName = sheetNameSpan.ToString(); // String allocation, needed for the IAstFactory
-            Token bangToken = this._parser.Consume(TokenType.Bang);
-            SymbolRange sheetWithBangRange = token.Range.ExtendRight(bangToken.Range);
-
-            // No need to check for token type, if EoF, nothing will be matched to such token
-            Token sheetRefToken = this._parser.Consume();
-
-            // Check for a sheet-scoped function call `sheet!NAME(...)`. There is no sheet-scoped
-            // cell function form in the grammar (only a bare `A1(...)` can call a LAMBDA stored in
-            // a cell), so `sheet!A1(...)` is rejected rather than silently misparsed.
-            if (this._parser.LookAhead(1).Type == TokenType.LeftParen)
-            {
-                if (ParserExtensions.TryGetCellA1(sheetRefToken.GetText(this._parser.Input), out _))
-                {
-                    throw new ParsingException($"Unable to parse value starting from position {token.Range.Start}.");
-                }
-
-                return this.ParseFunctionCall(ctx, sheetRefToken, sheetName);
-            }
-
-            // Check for `sheet!#REF!` - a reference to a deleted sheet. Only #REF! is special
-            // here (other errors, e.g. `sheet!#N/A`, aren't valid); the whole thing collapses to
-            // an error. Unlike ErrorParselet, the oracle doesn't normalize the casing in this
-            // particular path, so pass the text through as-is to match it exactly.
-            if (sheetRefToken.Type == TokenType.Error && ParserExtensions.EqualCaseInsensitive(sheetRefToken.GetText(this._parser.Input), "#REF!"))
-            {
-                SymbolRange range = sheetWithBangRange.ExtendRight(sheetRefToken.Range);
-                T value = this._factory.ErrorNode(ctx, range, sheetRefToken.GetText(this._parser.Input));
-                return new Node<T>(value, range, isPureReference: true);
-            }
-
-            // Check for area `sheet!A1:B2` or just cell `sheet!A1`
-            // Check for colspan `sheet!A:B`
-            // Check for rowspan `sheet!1:2` with absolute or relative start row
-            if (this._parser.TryReferenceA1(sheetRefToken, out ReferenceArea sheetArea, out SymbolRange sheetAreaRange))
-            {
-                SymbolRange range = sheetWithBangRange.ExtendRight(sheetAreaRange);
-                T value = this._factory.SheetReference(ctx, range, sheetName, sheetArea);
-                return new Node<T>(value, range, isPureReference: true);
-            }
-
-            // Check for `sheet!name`
-            if (this._parser.TryGetName(sheetRefToken, out ReadOnlySpan<char> name))
-            {
-                SymbolRange range = sheetWithBangRange.ExtendRight(sheetRefToken.Range);
-                T value = this._factory.SheetName(ctx, range, sheetName, name.ToString()); // String allocation, needed for the IAstFactory
-                return new Node<T>(value, range, isPureReference: true);
-            }
-
-            throw new ParsingException($"Unable to parse value starting from position {token.Range.Start}.");
+            return this.ParseSheetQualified(ctx, token, sheetNameSpan.ToString());
         }
 
         ReadOnlySpan<char> tokenText = token.GetText(this._parser.Input);
@@ -175,6 +125,68 @@ internal class IdentParselet<TScalar, T, TContext> : IPrefixParselet<T, TContext
         {
             T value = this._factory.Name(ctx, token.Range, workbookName.ToString()); // String allocation, needed for the IAstFactory
             return new Node<T>(value, token.Range, isPureReference: true);
+        }
+
+        throw new ParsingException($"Unable to parse value starting from position {token.Range.Start}.");
+    }
+
+    /// <summary>
+    /// Parse everything after an unquoted sheet name has already been confirmed (see
+    /// <see cref="ParserExtensions.TryGetUnquotedSheet{T,TContext}"/>) and is immediately followed
+    /// by <c>!</c>. Shared between a bare NAME-shaped sheet prefix (this class's own
+    /// <see cref="Parse"/>) and a purely numeric one (<see cref="NumberParselet{TScalar,T,TContext}"/>,
+    /// e.g. <c>6!A1</c>) - Excel allows an all-digit sheet name, and the oracle's
+    /// SINGLE_SHEET_PREFIX lexer token doesn't care which token type the digits would otherwise
+    /// have lexed as on their own.
+    /// </summary>
+    internal Node<T> ParseSheetQualified(TContext ctx, Token token, string sheetName)
+    {
+        Token bangToken = this._parser.Consume(TokenType.Bang);
+        SymbolRange sheetWithBangRange = token.Range.ExtendRight(bangToken.Range);
+
+        // No need to check for token type, if EoF, nothing will be matched to such token
+        Token sheetRefToken = this._parser.Consume();
+
+        // Check for a sheet-scoped function call `sheet!NAME(...)`. There is no sheet-scoped
+        // cell function form in the grammar (only a bare `A1(...)` can call a LAMBDA stored in
+        // a cell), so `sheet!A1(...)` is rejected rather than silently misparsed.
+        if (this._parser.LookAhead(1).Type == TokenType.LeftParen)
+        {
+            if (ParserExtensions.TryGetCellA1(sheetRefToken.GetText(this._parser.Input), out _))
+            {
+                throw new ParsingException($"Unable to parse value starting from position {token.Range.Start}.");
+            }
+
+            return this.ParseFunctionCall(ctx, sheetRefToken, sheetName);
+        }
+
+        // Check for `sheet!#REF!` - a reference to a deleted sheet. Only #REF! is special
+        // here (other errors, e.g. `sheet!#N/A`, aren't valid); the whole thing collapses to
+        // an error. Unlike ErrorParselet, the oracle doesn't normalize the casing in this
+        // particular path, so pass the text through as-is to match it exactly.
+        if (sheetRefToken.Type == TokenType.Error && ParserExtensions.EqualCaseInsensitive(sheetRefToken.GetText(this._parser.Input), "#REF!"))
+        {
+            SymbolRange range = sheetWithBangRange.ExtendRight(sheetRefToken.Range);
+            T value = this._factory.ErrorNode(ctx, range, sheetRefToken.GetText(this._parser.Input));
+            return new Node<T>(value, range, isPureReference: true);
+        }
+
+        // Check for area `sheet!A1:B2` or just cell `sheet!A1`
+        // Check for colspan `sheet!A:B`
+        // Check for rowspan `sheet!1:2` with absolute or relative start row
+        if (this._parser.TryReferenceA1(sheetRefToken, out ReferenceArea sheetArea, out SymbolRange sheetAreaRange))
+        {
+            SymbolRange range = sheetWithBangRange.ExtendRight(sheetAreaRange);
+            T value = this._factory.SheetReference(ctx, range, sheetName, sheetArea);
+            return new Node<T>(value, range, isPureReference: true);
+        }
+
+        // Check for `sheet!name`
+        if (this._parser.TryGetName(sheetRefToken, out ReadOnlySpan<char> name))
+        {
+            SymbolRange range = sheetWithBangRange.ExtendRight(sheetRefToken.Range);
+            T value = this._factory.SheetName(ctx, range, sheetName, name.ToString()); // String allocation, needed for the IAstFactory
+            return new Node<T>(value, range, isPureReference: true);
         }
 
         throw new ParsingException($"Unable to parse value starting from position {token.Range.Start}.");

@@ -106,6 +106,11 @@ public class NameUtilsTests
     [Arguments("?name", false)] // Can't start with a question mark, unlike after the first char.
     [Arguments("my name", false)] // No spaces.
     [Arguments("my!name", false)]
+    [Arguments("éname", true)] // A Unicode letter, first or later, is allowed.
+    [Arguments("nameé", true)]
+    [Arguments("‰name", true)] // Any codepoint above U+007F is allowed - not just letters,
+    // e.g. U+2030 (PER MILLE SIGN) is a symbol, not a letter.
+    [Arguments("name‰", true)]
     public async Task NameIsValidWhenItMatchesTheNameGrammarProduction(string name, bool expected)
     {
         await Assert.That(NameUtils.IsNameValid(name)).IsEqualTo(expected);

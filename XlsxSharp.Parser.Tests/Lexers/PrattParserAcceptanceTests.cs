@@ -126,21 +126,44 @@ public class PrattParserAcceptanceTests
     }
 
     [Test]
-    [Arguments("A1 B1")] // The reference intersection operator isn't implemented yet.
+    [Arguments("A1 B1")] // The classic example.
     [Arguments("A1:A10 B1:B10")]
-    public async Task ReferenceIntersectionIsNotImplementedYet(string formula)
+    [Arguments("A1  B1")] // Multiple spaces still collapse to a single Whitespace token.
+    [Arguments("not enough space")] // A chain of 3 bare NAMEs - the dominant real-world shape.
+    [Arguments("Ending_Inventory Jan")]
+    [Arguments("A1 A2:B2")] // The right side of an intersection can itself carry a range.
+    [Arguments("A1 A2 A3")] // Left-associative chain.
+    [Arguments("(A1 A2)")] // Parenthesized.
+    [Arguments("SUM(A1 A2)")] // As a function argument.
+    [Arguments("-A1 B2")] // Every other operator still binds outside an intersection.
+    [Arguments("A1 B2%")]
+    [Arguments("A1 B2,C3")] // Intersection as one operand of a union.
+    [Arguments("A1,B2 C3")]
+    [Arguments("#REF! A1")] // #REF! as an intersection operand (contrast with "#REF!A1" - no
+    // space - which is the unrelated "swallowed reference" construct instead).
+    [Arguments("Sheet1!A1 Sheet2!B2")] // Both operands sheet-qualified.
+    [Arguments("A1 + B2")] // NOT an intersection: "+" absorbs its own surrounding whitespace on
+    // the oracle side, so this is Addition(A1,B2) via the ordinary infix operator - same for
+    // every other operator/paren/comma.
+    [Arguments("A1 -1")] // Binary minus, not unary - contrast with "-A1 B2" above.
+    public async Task ReferenceIntersectionMatchesOracle(string formula)
     {
-        // Unlike StillRejectedWhitespaceUsesAreRejectedByBoth, the oracle *does* accept these (as
-        // a BinaryNode with BinaryOperation.Intersection) - only the pratt parser doesn't.
-        AstNode oracleNode = FormulaParser<ScalarValue, AstNode, Ctx>.CellFormulaA1(
-            formula,
-            new Ctx(),
-            new F()
+        await AssertMatchesOracle(formula);
+    }
+
+    [Test]
+    [Arguments("A1 SUM(1)")] // SUM isn't reference-shaped, so once the whitespace commits to an
+    // intersection attempt (there's nothing else it could mean), the whole formula fails - the
+    // oracle doesn't fall back to treating the whitespace as insignificant either.
+    [Arguments("A1 1")] // Same for a number or text operand.
+    [Arguments("A1 \"x\"")]
+    public async Task ReferenceIntersectionEdgeCasesAreRejectedByBoth(string formula)
+    {
+        await Assert.ThrowsAsync<Exception>(() =>
+            Task.FromResult(
+                FormulaParser<ScalarValue, AstNode, Ctx>.CellFormulaA1(formula, new Ctx(), new F())
+            )
         );
-        await Assert.That(oracleNode).IsTypeOf<BinaryNode>();
-        await Assert
-            .That(((BinaryNode)oracleNode).Operation)
-            .IsEqualTo(BinaryOperation.Intersection);
 
         Parser<AstNode, Ctx> parser = ParserFactory.Create(new F());
         await Assert.ThrowsAsync<Exception>(() =>
@@ -460,6 +483,95 @@ public class PrattParserAcceptanceTests
     [Arguments("0/#REF!I1")]
     [Arguments("(12/365)*#REF!I1")]
     public async Task SwallowedReferenceAfterRefErrorMatchesOracle(string formula)
+    {
+        await AssertMatchesOracle(formula);
+    }
+
+    [Test]
+    [Arguments("6!H53:H61")] // A purely numeric sheet name - Excel allows it, unquoted.
+    [Arguments("592101500!D9")]
+    [Arguments("1.5!A1")] // Decimal-looking, still just characters as far as a sheet name goes.
+    [Arguments("6!SUM(1)")] // Every other sheet-qualified form still works the same way too.
+    [Arguments("6!#REF!")]
+    [Arguments("6!name")]
+    [Arguments("592101500!D9+572103200!D9+522100200!D9")]
+    public async Task NumericSheetNameMatchesOracle(string formula)
+    {
+        await AssertMatchesOracle(formula);
+    }
+
+    [Test]
+    [Arguments("1!A1(1)")] // A cell-shaped name still isn't a valid sheet-scoped function name.
+    public async Task NumericSheetNameEdgeCasesAreRejectedByBoth(string formula)
+    {
+        await Assert.ThrowsAsync<Exception>(() =>
+            Task.FromResult(
+                FormulaParser<ScalarValue, AstNode, Ctx>.CellFormulaA1(formula, new Ctx(), new F())
+            )
+        );
+
+        Parser<AstNode, Ctx> parser = ParserFactory.Create(new F());
+        await Assert.ThrowsAsync<Exception>(() =>
+            Task.FromResult(parser.ParseFormula(formula, new Ctx()))
+        );
+    }
+
+    [Test]
+    [Arguments("Jan:Dec!AD12")] // A 3D sheet range, not a column span "JAN:DEC" - column letters
+    // and sheet names are lexically indistinguishable, so this only differs from a genuine colspan
+    // by the trailing "!".
+    [Arguments("SUM(Jan:Dec!AD12)")]
+    [Arguments("SUM(Jan:Dec!AD12,1)")]
+    public async Task SheetRangeVersusColumnSpanAmbiguityMatchesOracle(string formula)
+    {
+        await AssertMatchesOracle(formula);
+    }
+
+    [Test]
+    [Arguments("!$B1")] // A leftover reference to a deleted name.
+    [Arguments("!A1")]
+    [Arguments("!A1:B2")]
+    [Arguments("!A:B")]
+    [Arguments("!1:2")]
+    [Arguments("!#REF!")] // Collapses to a plain #REF! error, not a BangReference.
+    [Arguments("!#ref!")] // Unlike sheet!#REF!, this one *is* normalized to uppercase.
+    [Arguments("A1:!B2")] // A valid range operand too.
+    [Arguments(
+        "OFFSET('Smelter Look-up'!$B$4,MATCH(!$B1,'Smelter Look-up'!$A:$A,0)-4,0,COUNTIF('Smelter Look-up'!$A:$A,!$B1),1)"
+    )]
+    public async Task BangReferenceMatchesOracle(string formula)
+    {
+        await AssertMatchesOracle(formula);
+    }
+
+    [Test]
+    [Arguments("! A1")] // Whitespace anywhere breaks this construct entirely, even at the lexer
+    // level on the oracle side - "!" is only ever valid directly fused to its reference.
+    [Arguments("! $B1")]
+    [Arguments("!name")] // Only a cell/area/colspan/rowspan/#REF! shape is valid after "!" - never
+    // a name or a function call.
+    [Arguments("!SUM(1)")]
+    public async Task BangReferenceEdgeCasesAreRejectedByBoth(string formula)
+    {
+        await Assert.ThrowsAsync<Exception>(() =>
+            Task.FromResult(
+                FormulaParser<ScalarValue, AstNode, Ctx>.CellFormulaA1(formula, new Ctx(), new F())
+            )
+        );
+
+        Parser<AstNode, Ctx> parser = ParserFactory.Create(new F());
+        await Assert.ThrowsAsync<Exception>(() =>
+            Task.FromResult(parser.ParseFormula(formula, new Ctx()))
+        );
+    }
+
+    [Test]
+    [Arguments("éname")] // A Unicode letter - already worked before this round.
+    [Arguments("Ë‰")] // A Unicode letter followed by a Unicode symbol (U+2030, PER MILLE SIGN) -
+    // the oracle's NAME production accepts *any* codepoint above U+007F, not just letters.
+    [Arguments("+Ë‰")]
+    [Arguments("Ë‰+1")]
+    public async Task UnicodeNameMatchesOracle(string formula)
     {
         await AssertMatchesOracle(formula);
     }
