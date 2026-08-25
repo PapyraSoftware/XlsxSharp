@@ -1,8 +1,5 @@
-using System.Globalization;
+using System;
 using BenchmarkDotNet.Attributes;
-using CsvHelper;
-using CsvHelper.Configuration;
-using CsvHelper.Configuration.Attributes;
 
 namespace XlsxSharp.Benchmarks;
 
@@ -27,7 +24,7 @@ public class FormulaParserBenchmarks
     [GlobalSetup]
     public void GlobalSetup()
     {
-        _formulas = ReadFormulas("data/enron/formulas.csv").ToArray();
+        _formulas = FormulaCorpus.LoadEnron();
     }
 
     [Benchmark(Baseline = true, Description = "XlsxSharp.Parser")]
@@ -39,7 +36,11 @@ public class FormulaParserBenchmarks
         {
             try
             {
-                XlsxSharp.Parser.FormulaParser<BenchNode, BenchNode, object?>.CellFormulaA1(formula, null, factory);
+                XlsxSharp.Parser.FormulaParser<BenchNode, BenchNode, object?>.CellFormulaA1(
+                    formula,
+                    null,
+                    factory
+                );
                 parsed++;
             }
             catch (Exception)
@@ -57,7 +58,8 @@ public class FormulaParserBenchmarks
     public int XlsxSharpPrattParser()
     {
         XlsxSharpAstFactory factory = new();
-        XlsxSharp.Parser.Pratt.Parser<BenchNode, object?> parser = XlsxSharp.Parser.Pratt.ParserFactory.Create(factory);
+        XlsxSharp.Parser.Pratt.Parser<BenchNode, object?> parser =
+            XlsxSharp.Parser.Pratt.ParserFactory.Create(factory);
         int parsed = 0;
         foreach (string formula in this._formulas)
         {
@@ -66,9 +68,7 @@ public class FormulaParserBenchmarks
                 parser.ParseFormula(formula, null);
                 parsed++;
             }
-            catch (Exception)
-            {
-            }
+            catch (Exception) { }
         }
 
         return parsed;
@@ -83,27 +83,16 @@ public class FormulaParserBenchmarks
         {
             try
             {
-                ClosedXML.Parser.FormulaParser<BenchNode, BenchNode, object?>.CellFormulaA1(formula, null, factory);
+                ClosedXML.Parser.FormulaParser<BenchNode, BenchNode, object?>.CellFormulaA1(
+                    formula,
+                    null,
+                    factory
+                );
                 parsed++;
             }
-            catch (Exception)
-            {
-            }
+            catch (Exception) { }
         }
 
         return parsed;
     }
-
-    private static IEnumerable<string> ReadFormulas(string filename)
-    {
-        CsvConfiguration config = new(CultureInfo.InvariantCulture) { HasHeaderRecord = false };
-        using StreamReader reader = new(filename);
-        using CsvReader csv = new(reader, config);
-        foreach (FormulaRecord record in csv.GetRecords<FormulaRecord>())
-        {
-            yield return record.Text;
-        }
-    }
-
-    private sealed record FormulaRecord([Index(0)] string Text);
 }

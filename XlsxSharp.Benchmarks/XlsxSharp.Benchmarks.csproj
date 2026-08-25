@@ -23,7 +23,10 @@
   <!-- Reuse the real-world formula corpora already checked into XlsxSharp.Parser.Tests instead of
        shipping a second copy of a 22 MB file. -->
   <ItemGroup>
-    <None Include="..\XlsxSharp.Parser.Tests\data\enron\formulas.csv" Link="data\enron\formulas.csv">
+    <None
+      Include="..\XlsxSharp.Parser.Tests\data\enron\formulas.csv"
+      Link="data\enron\formulas.csv"
+    >
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
