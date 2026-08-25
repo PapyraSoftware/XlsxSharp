@@ -1,4 +1,7 @@
+using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
+using System.Linq;
 using CsvHelper;
 using CsvHelper.Configuration;
 using CsvHelper.Configuration.Attributes;
@@ -11,7 +14,7 @@ namespace XlsxSharp.Benchmarks;
 /// </summary>
 internal static class FormulaCorpus
 {
-    public static string[] LoadEnron() => Read("data/enron/formulas.csv").ToArray();
+    public static string[] LoadEnron() => [.. Read("data/enron/formulas.csv")];
 
     private static IEnumerable<string> Read(string filename)
     {

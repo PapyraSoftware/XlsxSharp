@@ -5,9 +5,14 @@
 /// </summary>
 internal class Parser<T, TContext>
 {
+    // TokenType is a small, dense, zero-based enum - an array indexed by (int)TokenType is a
+    // direct lookup instead of a Dictionary<TokenType,_> hash, on the hottest dispatch path of the
+    // parser (every atom goes through ParseAtom, every operator through ParseExpression's loop).
+    private static readonly int TokenTypeCount = Enum.GetValues<TokenType>().Length;
+
     private readonly Lexer _lexer = new();
-    private readonly Dictionary<TokenType, IPrefixParselet<T, TContext>> _prefixParselets = new();
-    private readonly Dictionary<TokenType, IParselet<T, TContext>> _parselets = new();
+    private readonly IPrefixParselet<T, TContext>?[] _prefixParselets = new IPrefixParselet<T, TContext>?[TokenTypeCount];
+    private readonly IParselet<T, TContext>?[] _parselets = new IParselet<T, TContext>?[TokenTypeCount];
 
     internal string Input { get; private set; } = string.Empty;
 
@@ -88,8 +93,8 @@ internal class Parser<T, TContext>
                 break;
             }
 
-            bool isOp = this._parselets.TryGetValue(maybeOp.Type, out IParselet<T, TContext>? parselet);
-            if (!isOp)
+            IParselet<T, TContext>? parselet = this._parselets[(int)maybeOp.Type];
+            if (parselet is null)
             {
                 break;
             }
@@ -153,7 +158,8 @@ internal class Parser<T, TContext>
         this.SkipWhitespace();
         Token token = this._lexer.Consume();
 
-        if (!this._prefixParselets.TryGetValue(token.Type, out IPrefixParselet<T, TContext>? parselet))
+        IPrefixParselet<T, TContext>? parselet = this._prefixParselets[(int)token.Type];
+        if (parselet is null)
         {
             throw new InvalidOperationException($"No parselet found for {token.Type}.");
         }
@@ -367,11 +373,21 @@ internal class Parser<T, TContext>
 
     internal void Register(TokenType type, IPrefixParselet<T, TContext> parselet)
     {
-        this._prefixParselets.Add(type, parselet);
+        if (this._prefixParselets[(int)type] is not null)
+        {
+            throw new ArgumentException($"A prefix parselet is already registered for {type}.", nameof(type));
+        }
+
+        this._prefixParselets[(int)type] = parselet;
     }
 
     internal void Register(TokenType type, IParselet<T, TContext> parselet)
     {
-        this._parselets.Add(type, parselet);
+        if (this._parselets[(int)type] is not null)
+        {
+            throw new ArgumentException($"A parselet is already registered for {type}.", nameof(type));
+        }
+
+        this._parselets[(int)type] = parselet;
     }
 }

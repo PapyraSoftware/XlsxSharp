@@ -12,6 +12,11 @@ internal class Lexer
 
     private static readonly bool[] IsOp;
 
+    // Every single-char operator that doesn't need lookahead to disambiguate (unlike '<'/'>',
+    // which may start '<=', '<>' or '>=') maps directly to its TokenType here, so Next() can
+    // dispatch it with one array lookup instead of a chain of up to 17 sequential comparisons.
+    private static readonly TokenType?[] SingleCharOperator;
+
     // A small ring buffer of already-lexed lookahead tokens, indexed directly by Peek instead of
     // walked with an enumerator like a BCL Queue<T> would require - PeekPastWhitespace (see Parser)
     // calls Peek up to twice per reference atom, the most common leaf in real formulas, so this is
@@ -32,6 +37,25 @@ internal class Lexer
         {
             IsOp[op] = true;
         }
+
+        SingleCharOperator = new TokenType?[128];
+        SingleCharOperator['+'] = TokenType.Plus;
+        SingleCharOperator['-'] = TokenType.Minus;
+        SingleCharOperator['*'] = TokenType.Mul;
+        SingleCharOperator['/'] = TokenType.Div;
+        SingleCharOperator['^'] = TokenType.Pow;
+        SingleCharOperator['%'] = TokenType.Percent;
+        SingleCharOperator['&'] = TokenType.Concat;
+        SingleCharOperator['!'] = TokenType.Bang;
+        SingleCharOperator['('] = TokenType.LeftParen;
+        SingleCharOperator[')'] = TokenType.RightParen;
+        SingleCharOperator['{'] = TokenType.LeftCurly;
+        SingleCharOperator['}'] = TokenType.RightCurly;
+        SingleCharOperator[','] = TokenType.Comma;
+        SingleCharOperator[';'] = TokenType.Semicolon;
+        SingleCharOperator[':'] = TokenType.Range;
+        SingleCharOperator['@'] = TokenType.Intersection;
+        SingleCharOperator['='] = TokenType.Equal;
     }
 
     public Lexer()
@@ -203,90 +227,13 @@ internal class Lexer
             return this.T(TokenType.Ident);
         }
 
-        if (this._c == '+')
+        if (this._c < SingleCharOperator.Length)
         {
-            return FoundToken(TokenType.Plus);
-        }
-
-        if (this._c == '-')
-        {
-            return FoundToken(TokenType.Minus);
-        }
-
-        if (this._c == '*')
-        {
-            return FoundToken(TokenType.Mul);
-        }
-
-        if (this._c == '/')
-        {
-            return FoundToken(TokenType.Div);
-        }
-
-        if (this._c == '^')
-        {
-            return FoundToken(TokenType.Pow);
-        }
-
-        if (this._c == '%')
-        {
-            return FoundToken(TokenType.Percent);
-        }
-
-        if (this._c == '&')
-        {
-            return FoundToken(TokenType.Concat);
-        }
-
-        if (this._c == '!')
-        {
-            return FoundToken(TokenType.Bang);
-        }
-
-        if (this._c == '(')
-        {
-            return FoundToken(TokenType.LeftParen);
-        }
-
-        if (this._c == ')')
-        {
-            return FoundToken(TokenType.RightParen);
-        }
-
-        if (this._c == '{')
-        {
-            return FoundToken(TokenType.LeftCurly);
-        }
-
-        if (this._c == '}')
-        {
-            return FoundToken(TokenType.RightCurly);
-        }
-
-        if (this._c == ',')
-        {
-            return FoundToken(TokenType.Comma);
-        }
-
-        if (this._c == ';')
-        {
-            return FoundToken(TokenType.Semicolon);
-        }
-
-        if (this._c == ':')
-        {
-            return FoundToken(TokenType.Range);
-        }
-
-        if (this._c == '@')
-        {
-            return FoundToken(TokenType.Intersection);
-        }
-
-        // Comparison
-        if (this._c == '=')
-        {
-            return FoundToken(TokenType.Equal);
+            TokenType? op = SingleCharOperator[this._c];
+            if (op is not null)
+            {
+                return FoundToken(op.Value);
+            }
         }
 
         if (this._c == '<')
@@ -511,6 +458,16 @@ internal class Lexer
         // Is codepoint a character per XML 1.0 spec (2.2)?
         static bool IsXml10Char(int codepoint)
         {
+            // Fast path: printable ASCII, the overwhelming majority of characters inside a text
+            // literal, is always valid per XML 1.0's Char production - verified to agree with
+            // XmlConvert.IsXmlChar for the entire 0x00-0x7F range (only 0x00-0x08, 0x0B, 0x0C and
+            // 0x0E-0x1F are invalid there, none of them in this range). Skips the property lookup
+            // table XmlConvert.IsXmlChar uses internally for the common case.
+            if (codepoint is >= 0x20 and <= 0x7F)
+            {
+                return true;
+            }
+
             // .NET is using a lookup table with properties
             if (codepoint <= 0xFFFF)
             {
@@ -535,6 +492,13 @@ internal class Lexer
         }
 
         char c = this._input[this._i];
+
+        // Fast path: formulas are overwhelmingly ASCII, and no ASCII codepoint is ever a
+        // surrogate, so skip both surrogate checks below entirely for the common case.
+        if (c < 0x80)
+        {
+            return this._c = c;
+        }
 
         if (char.IsLowSurrogate(c))
         {
