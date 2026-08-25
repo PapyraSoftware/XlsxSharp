@@ -33,3 +33,6 @@ _ReSharper*/
 /ClosedXML.IO.CodeGen/Properties/launchSettings.json
 sixlabors.lic
 .DS_Store
+
+# BenchmarkDotNet run output
+BenchmarkDotNet.Artifacts/

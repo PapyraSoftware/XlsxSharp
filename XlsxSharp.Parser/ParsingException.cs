@@ -42,4 +42,14 @@ public class ParsingException : Exception
     {
         throw new ParsingException($"Unable to determine a token at position {start}.");
     }
+
+    /// <summary>
+    /// A whole formula was expected to be consumed, but there is a leftover token that no rule
+    /// claimed (e.g. a stray closing parenthesis, or an operator with no parselet, such as an
+    /// unimplemented function call).
+    /// </summary>
+    internal static Exception TrailingToken(int start, TokenType type)
+    {
+        throw new ParsingException($"Formula wasn't fully consumed, unexpected token {type} at position {start}.");
+    }
 }

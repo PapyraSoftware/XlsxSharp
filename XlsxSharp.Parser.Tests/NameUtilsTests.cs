@@ -89,4 +89,30 @@ public class NameUtilsTests
             string.Join(", ", intArray.Select(x => "0x" + x.ToString("X8")))
         );
     }
+
+    [Test]
+    [Arguments("name", true)]
+    [Arguments("_name", true)]
+    [Arguments("\\name", true)] // A leading backslash is allowed (matches the Rolex NAME regex).
+    [Arguments("name1", true)] // Digits are allowed after the first character.
+    [Arguments("A01", true)] // Not a valid reference, but still a validly-shaped name.
+    [Arguments("my.name", true)] // Periods are allowed after the first character.
+    [Arguments("my_name", true)]
+    [Arguments("my\\name", true)]
+    [Arguments("my?name", true)] // Question marks are allowed after the first character.
+    [Arguments("", false)]
+    [Arguments("1name", false)] // Can't start with a digit.
+    [Arguments(".name", false)] // Can't start with a period.
+    [Arguments("?name", false)] // Can't start with a question mark, unlike after the first char.
+    [Arguments("my name", false)] // No spaces.
+    [Arguments("my!name", false)]
+    [Arguments("éname", true)] // A Unicode letter, first or later, is allowed.
+    [Arguments("nameé", true)]
+    [Arguments("‰name", true)] // Any codepoint above U+007F is allowed - not just letters,
+    // e.g. U+2030 (PER MILLE SIGN) is a symbol, not a letter.
+    [Arguments("name‰", true)]
+    public async Task NameIsValidWhenItMatchesTheNameGrammarProduction(string name, bool expected)
+    {
+        await Assert.That(NameUtils.IsNameValid(name)).IsEqualTo(expected);
+    }
 }

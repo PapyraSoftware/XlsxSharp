@@ -98,7 +98,7 @@ public class RefAtomExpressionRuleTests
     {
         await AssertFormula.CheckParsingErrorContains(
             "(1),#REF!",
-            "The formula `(1),#REF!` wasn't parsed correctly. The expression `(1)` was parsed, but the rest `,#REF!` wasn't."
+            "Formula wasn't fully consumed, unexpected token Comma at position 3."
         );
     }
 
@@ -107,7 +107,7 @@ public class RefAtomExpressionRuleTests
     {
         await AssertFormula.CheckParsingErrorContains(
             "FUNC(),#REF!",
-            "The formula `FUNC(),#REF!` wasn't parsed correctly. The expression `FUNC()` was parsed, but the rest `,#REF!` wasn't."
+            "Formula wasn't fully consumed, unexpected token Comma at position 6."
         );
     }
 

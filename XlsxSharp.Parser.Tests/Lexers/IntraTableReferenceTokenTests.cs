@@ -11,7 +11,6 @@ public class IntraTableReferenceTokenTests
         string expectedLastColumn
     )
     {
-        await AssertFormula.AssertTokenType(tokenText, FormulaLexer.INTRA_TABLE_REFERENCE);
         TokenParser.ParseIntraTableReference(
             tokenText,
             out StructuredReferenceArea area,

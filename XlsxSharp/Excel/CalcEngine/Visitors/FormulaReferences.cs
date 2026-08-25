@@ -1,5 +1,6 @@
 using XlsxSharp.Excel.Tables;
 using XlsxSharp.Parser;
+using XlsxSharp.Parser.Pratt;
 
 namespace XlsxSharp.Excel.CalcEngine.Visitors;
 
@@ -34,11 +35,7 @@ internal class FormulaReferences
     internal static FormulaReferences ForFormula(string formula)
     {
         FormulaReferences references = new(formula);
-        FormulaParser<object?, object?, FormulaReferences>.CellFormulaA1(
-            formula,
-            references,
-            CollectRefsFactory.Instance
-        );
+        ParserFactory.Create(CollectRefsFactory.Instance).ParseFormula(formula, references);
         return references;
     }
 

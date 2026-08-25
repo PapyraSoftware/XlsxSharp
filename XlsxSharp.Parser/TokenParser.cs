@@ -161,7 +161,15 @@ internal static class TokenParser
         return new ReferenceArea(rowCol1, rowCol2);
     }
 
-    private static RowCol ParseR1C1Reference(ReadOnlySpan<char> token, ref int i)
+    /// <summary>
+    /// Decode a single R1C1 axis-pair (row, column, or row+column) starting at <paramref name="i"/>,
+    /// advancing it past whatever was consumed. Used both by the RDS/Rolex-based parser (via
+    /// <see cref="ParseReference"/>, on a token whose span may embed a <c>:</c> continuation) and by
+    /// the pratt parser (see <c>ParserExtensions.TryReferenceR1C1</c>), which only ever decodes one
+    /// corner at a time and detects its own range continuations separately - hence <c>internal</c>
+    /// rather than <c>private</c>.
+    /// </summary>
+    internal static RowCol ParseR1C1Reference(ReadOnlySpan<char> token, ref int i)
     {
         if (token[i] is 'C' or 'c')
         {
@@ -426,7 +434,13 @@ internal static class TokenParser
             i += GetLength(listItem) + 1;
             area |= listItem;
 
-            i = SkipComma(input, i);
+            // Only a genuine second keyword item (e.g. '[#Headers],[#Data]') is preceded by a
+            // comma - a single keyword ('[[#Headers]]', or the second and final item below) is
+            // followed directly by the closing bracket, with nothing left to skip. Blindly calling
+            // SkipComma here would walk i past the end of a short input (e.g. right off the end of
+            // "[[#Headers],[#Data]]" after the second item), since its own Debug.Assert is compiled
+            // out in Release builds and so never actually catches the missing comma.
+            i = TrySkipComma(input, i);
         }
 
         if (input[i + 1] == '#')
@@ -438,12 +452,20 @@ internal static class TokenParser
             i += GetLength(listItem) + 1;
             area |= listItem;
 
-            i = SkipComma(input, i);
+            i = TrySkipComma(input, i);
         }
 
-        // KEYWORD_LIST can contain at most two item specifiers.
-        // After keyword list, we get either a COLUMN or a COLUMN:COLUMN
+        // KEYWORD_LIST can contain at most two item specifiers. After keyword list, we get either
+        // a COLUMN, a COLUMN:COLUMN, or - for a full two-item keyword list, e.g. '[#Headers],[#Data]'
+        // with nothing after it - nothing at all, which GetStructuredName reports as an empty
+        // name rather than null; normalize that back to "no column", matching the plain
+        // single-keyword case above.
         i = GetStructuredName(input, i, out firstColumn);
+        if (firstColumn.Length == 0)
+        {
+            firstColumn = null;
+        }
+
         if (i < input.Length && input[i] == ':')
         {
             GetStructuredName(input, i + 1, out lastColumn);
@@ -462,6 +484,23 @@ internal static class TokenParser
         Debug.Assert(input[i] == ',');
         i++;
         i = SkipWhitespaces(input, i);
+        return i;
+    }
+
+    /// <summary>
+    /// Like <see cref="SkipComma"/>, but tolerant of there being no comma at all (e.g. a keyword
+    /// list with only one item, or already at its last item) - returns <paramref name="i"/> past
+    /// any whitespace, only advancing past a comma if one is actually there.
+    /// </summary>
+    private static int TrySkipComma(ReadOnlySpan<char> input, int i)
+    {
+        i = SkipWhitespaces(input, i);
+        if (i < input.Length && input[i] == ',')
+        {
+            i++;
+            i = SkipWhitespaces(input, i);
+        }
+
         return i;
     }
 

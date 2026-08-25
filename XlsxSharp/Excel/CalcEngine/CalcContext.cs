@@ -4,6 +4,7 @@ using XlsxSharp.Excel.CalcEngine.Functions;
 using XlsxSharp.Excel.CalcEngine.Visitors;
 using XlsxSharp.Excel.Rows;
 using XlsxSharp.Parser;
+using XlsxSharp.Parser.Pratt;
 
 namespace XlsxSharp.Excel.CalcEngine;
 
@@ -274,11 +275,7 @@ internal sealed class CalcContext
                 return false;
             }
 
-            FormulaParser<object?, object?, FunctionVisitor>.CellFormulaA1(
-                formula.A1,
-                visitor,
-                visitor
-            );
+            ParserFactory.Create(visitor).ParseFormula(formula.A1, visitor);
             if (!visitor.Found)
             {
                 return false;

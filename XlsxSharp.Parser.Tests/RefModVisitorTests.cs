@@ -1,4 +1,6 @@
-﻿namespace XlsxSharp.Parser.Tests;
+﻿using XlsxSharp.Parser.Pratt;
+
+namespace XlsxSharp.Parser.Tests;
 
 public class RefModVisitorTests
 {
@@ -125,11 +127,9 @@ public class RefModVisitorTests
     )
     {
         ModContext ctx = new(formula, "Sheet", 1, 1, isA1: true);
-        TransformedSymbol modifiedFormula = FormulaParser<
-            TransformedSymbol,
-            TransformedSymbol,
-            ModContext
-        >.CellFormulaA1(formula, ctx, visitor);
+        TransformedSymbol modifiedFormula = ParserFactory
+            .Create(visitor)
+            .ParseFormula(formula, ctx);
         await Assert.That(modifiedFormula.ToString(string.Empty.AsSpan())).IsEqualTo(expected);
     }
 

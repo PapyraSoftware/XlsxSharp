@@ -41,6 +41,12 @@ public class ParseletIdentTests
     // name
     [Arguments("_name", typeof(NameNode))]
     [Arguments("name", typeof(NameNode))]
+    // Not a valid reference (leading zero, out of range row/column), but a validly-shaped name -
+    // same as the oracle, which doesn't know whether a name is actually defined at parse time.
+    [Arguments("A01", typeof(NameNode))]
+    [Arguments("A0", typeof(NameNode))]
+    [Arguments("A1048577", typeof(NameNode))]
+    [Arguments("XFE1", typeof(NameNode))]
     // sheet1:sheet2!A1:B2
     [Arguments("sheet1:sheet2!A1:B2", typeof(Reference3DNode))]
     [Arguments("sheet1:sheet2!$A$1:$B$2", typeof(Reference3DNode))]
@@ -79,10 +85,6 @@ public class ParseletIdentTests
     [Arguments("sheet!$")]
     [Arguments("sheet!")]
     [Arguments("$")]
-    [Arguments("A01")]
-    [Arguments("A0")]
-    [Arguments("A1048577")]
-    [Arguments("XFE1")]
     [Arguments("sheet1:sheet2!")]
     [Arguments("sheet1:sheet2!A")]
     [Arguments("sheet1:sheet2!name")] // There is no such thing as 3D name

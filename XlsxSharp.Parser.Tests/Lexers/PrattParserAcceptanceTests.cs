@@ -1,0 +1,505 @@
+using XlsxSharp.Parser.Pratt;
+
+namespace XlsxSharp.Parser.Tests.Lexers;
+
+/// <summary>
+/// Targeted acceptance tests for pratt parser features (function calls, unary/percent operators,
+/// comparisons, concatenation) that are broad enough to be awkward to express as a normalized-form
+/// string (see <see cref="PrattParserPrecedenceTests"/>). These were originally checked against the
+/// recursive-descent <see cref="FormulaParser{TScalarValue,TNode,TContext}"/> (removed once the
+/// pratt parser became the only implementation) via a plain AST structural equality check; now they
+/// only assert that each formula is accepted (or, for the "RejectedByBoth"-named cases, rejected) -
+/// each was individually confirmed to produce the correct AST while the oracle still existed, so
+/// this still catches "this construct stopped working entirely", just not a subtler shape change.
+/// </summary>
+public class PrattParserAcceptanceTests
+{
+    [Test]
+    [Arguments("SUM(A1)")]
+    [Arguments("SUM(A1,B2)")] // See InsignificantWhitespaceMatchesOracle for the spaced form.
+    [Arguments("SUM()")]
+    [Arguments("SUM(1,,2)")]
+    [Arguments("SUM(,1)")]
+    [Arguments("SUM(1,)")]
+    [Arguments("IF(TRUE,1,2)")]
+    [Arguments("NOT(TRUE)")]
+    [Arguments("_xlfn.IFS(1,2)")]
+    [Arguments("R1C1(1)")] // "R1C1" isn't a valid A1 cell (trailing letters), so it's a local function.
+    [Arguments("R(1)")] // "R" alone has no row digits, so it's a local function too.
+    [Arguments("TRUE(1)")] // Followed by "(", TRUE/FALSE are function names, not the logical literal.
+    [Arguments("FALSE(1,2)")]
+    [Arguments("SUM(-1)")]
+    [Arguments("SUM(1)+SUM(2)")]
+    [Arguments("A1(1,2)")] // A valid single-cell A1 reference followed by "(" is a cell function.
+    [Arguments("Sheet1!SUM(1)")]
+    [Arguments("name(1)")]
+    [Arguments("_Foo(1)")]
+    public async Task FunctionCallsMatchOracle(string formula)
+    {
+        await AssertMatchesOracle(formula);
+    }
+
+    [Test]
+    [Arguments("-1")]
+    [Arguments("+1")]
+    [Arguments("--1")]
+    [Arguments("-A1")]
+    [Arguments("-A1:B2")]
+    [Arguments("1--1")]
+    [Arguments("1-+1")]
+    [Arguments("1++1")]
+    [Arguments("-2^2")] // The famous Excel quirk: unary binds tighter than ^, so this is (-2)^2.
+    [Arguments("2^-2")]
+    [Arguments("-2^-2")]
+    [Arguments("--2^2")]
+    [Arguments("-2%")] // Percent wraps the whole unary chain: Percent(Minus(2)), not Minus(Percent(2)).
+    [Arguments("-A1%")]
+    [Arguments("2%%")]
+    [Arguments("2^50%")] // Percent binds tighter than ^: Pow(2, Percent(50)).
+    [Arguments("50%^2")]
+    [Arguments("-2^2%")]
+    [Arguments("-SUM(1)")]
+    [Arguments("-SUM(1)%")]
+    [Arguments("NOT(-1)")]
+    [Arguments("-(1+2)")]
+    [Arguments("-(1+2)%")]
+    [Arguments("-(1+2)^2")]
+    public async Task UnaryAndPercentMatchOracle(string formula)
+    {
+        await AssertMatchesOracle(formula);
+    }
+
+    [Test]
+    [Arguments("1+2&3+4")] // Concat is looser than +, tighter than comparisons.
+    [Arguments("1&2&3")]
+    [Arguments("1=2&3")]
+    [Arguments("1<2=3<4")] // Comparisons chain left-associatively, all at the same precedence.
+    [Arguments("1<2<3")]
+    [Arguments("A1&B1=C1")]
+    [Arguments("1+2=3+4")]
+    [Arguments("1<>2")]
+    [Arguments("1<=2")]
+    [Arguments("1>=2")]
+    [Arguments("1>2")]
+    public async Task ComparisonAndConcatMatchOracle(string formula)
+    {
+        await AssertMatchesOracle(formula);
+    }
+
+    [Test]
+    [Arguments("1 + 2")]
+    [Arguments("1 +2")]
+    [Arguments("1+ 2")]
+    [Arguments("1  +  2")] // Multiple spaces collapse to a single Whitespace token either way.
+    [Arguments(" 1+2")] // Leading formula whitespace.
+    [Arguments("1+2 ")] // Trailing formula whitespace.
+    [Arguments("(1 + 2)")]
+    [Arguments("( 1 + 2 )")] // Whitespace right after "(" and right before ")".
+    [Arguments("SUM(A1, B2)")] // Space after the comma - by far the most common real-world case.
+    [Arguments("SUM(A1 , B2)")] // Space before the comma too.
+    [Arguments("SUM( A1,B2 )")]
+    [Arguments("- 1")] // Space between a prefix operator and its operand.
+    [Arguments("-  1")]
+    [Arguments("1 %")] // Space between an operand and a postfix operator.
+    [Arguments("1%  ^2")]
+    [Arguments("SUM(A1) ")]
+    [Arguments(" SUM(A1)")]
+    [Arguments("NOW( )")] // Whitespace alone inside an otherwise-empty argument list.
+    [Arguments("NOW(  )")]
+    public async Task InsignificantWhitespaceMatchesOracle(string formula)
+    {
+        await AssertMatchesOracle(formula);
+    }
+
+    [Test]
+    [Arguments("SUM (A1)")] // Whitespace right before "(" still isn't allowed: this is not a call.
+    public async Task StillRejectedWhitespaceUsesAreRejectedByBoth(string formula)
+    {
+        await AssertRejected(formula);
+    }
+
+    [Test]
+    [Arguments("A1 B1")] // The classic example.
+    [Arguments("A1:A10 B1:B10")]
+    [Arguments("A1  B1")] // Multiple spaces still collapse to a single Whitespace token.
+    [Arguments("not enough space")] // A chain of 3 bare NAMEs - the dominant real-world shape.
+    [Arguments("Ending_Inventory Jan")]
+    [Arguments("A1 A2:B2")] // The right side of an intersection can itself carry a range.
+    [Arguments("A1 A2 A3")] // Left-associative chain.
+    [Arguments("(A1 A2)")] // Parenthesized.
+    [Arguments("SUM(A1 A2)")] // As a function argument.
+    [Arguments("-A1 B2")] // Every other operator still binds outside an intersection.
+    [Arguments("A1 B2%")]
+    [Arguments("A1 B2,C3")] // Intersection as one operand of a union.
+    [Arguments("A1,B2 C3")]
+    [Arguments("#REF! A1")] // #REF! as an intersection operand (contrast with "#REF!A1" - no
+    // space - which is the unrelated "swallowed reference" construct instead).
+    [Arguments("Sheet1!A1 Sheet2!B2")] // Both operands sheet-qualified.
+    [Arguments("A1 + B2")] // NOT an intersection: "+" absorbs its own surrounding whitespace on
+    // the oracle side, so this is Addition(A1,B2) via the ordinary infix operator - same for
+    // every other operator/paren/comma.
+    [Arguments("A1 -1")] // Binary minus, not unary - contrast with "-A1 B2" above.
+    public async Task ReferenceIntersectionMatchesOracle(string formula)
+    {
+        await AssertMatchesOracle(formula);
+    }
+
+    [Test]
+    [Arguments("A1 SUM(1)")] // SUM isn't reference-shaped, so once the whitespace commits to an
+    // intersection attempt (there's nothing else it could mean), the whole formula fails - the
+    // oracle doesn't fall back to treating the whitespace as insignificant either.
+    [Arguments("A1 1")] // Same for a number or text operand.
+    [Arguments("A1 \"x\"")]
+    public async Task ReferenceIntersectionEdgeCasesAreRejectedByBoth(string formula)
+    {
+        await AssertRejected(formula);
+    }
+
+    [Test]
+    [Arguments("\"abc\"")]
+    [Arguments("\"\"")] // Empty string.
+    [Arguments("\"a\"\"b\"")] // Escaped quote: unescapes to a"b.
+    [Arguments("\"a\"&\"b\"")]
+    [Arguments("SUM(\"1\",\"2\")")]
+    [Arguments("\"a\"=\"b\"")]
+    public async Task TextLiteralsMatchOracle(string formula)
+    {
+        await AssertMatchesOracle(formula);
+    }
+
+    [Test]
+    [Arguments("#REF!")]
+    [Arguments("#N/A")]
+    [Arguments("#NAME?")]
+    [Arguments("#DIV/0!")]
+    [Arguments("#div/0!")] // Normalized to upper case, regardless of the casing used.
+    [Arguments("#NULL!")]
+    [Arguments("#NUM!")]
+    [Arguments("#GETTING_DATA")]
+    [Arguments("SUM(#REF!,1)")]
+    [Arguments("#VALUE!+1")]
+    [Arguments("Deals!#REF!")] // A reference to a deleted sheet - collapses to a normalized #REF!.
+    [Arguments("Deals!#ref!")]
+    [Arguments("Deals!#REF!*2")]
+    public async Task ErrorLiteralsMatchOracle(string formula)
+    {
+        await AssertMatchesOracle(formula);
+    }
+
+    [Test]
+    [Arguments("Deals!#N/A")] // Only #REF! is special-cased after a sheet prefix.
+    [Arguments("Deals!#DIV/0!")]
+    public async Task SheetPrefixedNonRefErrorsAreRejectedByBoth(string formula)
+    {
+        await AssertRejected(formula);
+    }
+
+    [Test]
+    [Arguments("'New York'!A1")]
+    [Arguments("'New York'!A1:B2")]
+    [Arguments("'New York'!A:B")]
+    [Arguments("'New York'!1:2")]
+    [Arguments("'Jane''s'!A1")] // '' inside a quoted sheet name is an escaped single quote.
+    [Arguments("'Jane''s'!name")]
+    [Arguments("'Sheet 1:Sheet 2'!A1")] // The colon here is inside the quotes: a quoted 3D reference.
+    [Arguments("'January 1st:December 31st'!A1")]
+    [Arguments("1+'Johnny''s'!Z26")]
+    public async Task QuotedSheetNamesMatchOracle(string formula)
+    {
+        await AssertMatchesOracle(formula);
+    }
+
+    [Test]
+    [Arguments("DeptSales[SaleAmt]")] // Table-qualified, single column.
+    [Arguments("DeptSales[SaleAmt]*DeptSales[ComPct]")]
+    [Arguments("DeptSales[#All]")] // Table-qualified, item specifier keyword.
+    [Arguments("DeptSales[#Data]")]
+    [Arguments("DeptSales[#Headers]")]
+    [Arguments("DeptSales[#Totals]")]
+    [Arguments("DeptSales[#This Row]")]
+    [Arguments("DeptSales[[#All],[SaleAmt]]")] // Keyword + a single column.
+    [Arguments("DeptSales[[#All],[SaleAmt]:[ComPct]]")] // Keyword + a column range.
+    [Arguments("DeptSales[[#Headers],[#Data],[ComPct]]")] // Two keywords + a column.
+    [Arguments("DeptSales[[SalesPers]:[Region]]")] // Column range, no keyword.
+    [Arguments("DeptSales[Total Amount]")] // Column name containing a space.
+    [Arguments("[SaleAmt]*[ComPct]")] // No table name (valid only inside the table itself).
+    [Arguments("SUBTOTAL(109,[Jan])")]
+    [Arguments("SUM(DeptSales[SaleAmt])")]
+    [Arguments("VLOOKUP(GroupVertices[[#This Row],[Vertex]],Vertices[],2,FALSE)")] // "[]" is the whole table.
+    public async Task StructureReferencesMatchOracle(string formula)
+    {
+        await AssertMatchesOracle(formula);
+    }
+
+    [Test]
+    [Arguments("SUM (A1)")] // No space is allowed between a function name and "(".
+    [Arguments("A1 (1,2)")]
+    [Arguments("Sheet1!A1(1,2)")] // No sheet-scoped cell function form exists in the grammar.
+    [Arguments("'text'")] // A quoted ident is only ever a sheet name/sheet range prefix, always
+    // followed by "!" - a bare one isn't valid anywhere else.
+    public async Task RejectedByOracleAreAlsoRejectedByPratt(string formula)
+    {
+        await AssertRejected(formula);
+    }
+
+    [Test]
+    [Arguments("'[2]D and D'!A1")] // The workbook index is inside the quotes here.
+    public async Task QuotedExternalWorkbookReferencesMatchOracle(string formula)
+    {
+        await AssertMatchesOracle(formula);
+    }
+
+    [Test]
+    [Arguments("[2]!name")] // No sheet.
+    [Arguments("[2]!SUM(1)")]
+    [Arguments("[2]Sheet!A1")]
+    [Arguments("[2]Sheet!A1:B2")]
+    [Arguments("[2]Sheet!A:B")]
+    [Arguments("[2]Sheet!1:2")]
+    [Arguments("[2]Sheet!name")]
+    [Arguments("[2]Sheet!SUM(1)")]
+    [Arguments("[2]Sheet1:Sheet2!A1")] // External 3D reference.
+    [Arguments("[123]!name")] // Multi-digit workbook index.
+    [Arguments("[0]!name")]
+    [Arguments("1+[2]Sheet!A1+2")]
+    [Arguments("[2]Sheet!#REF!")] // Same #REF! collapsing as the local sheet!#REF! case.
+    [Arguments("[2]A1!name")] // "A1" here is a (cell-shaped) sheet name, not a reference/name.
+    public async Task UnquotedExternalWorkbookReferencesMatchOracle(string formula)
+    {
+        await AssertMatchesOracle(formula);
+    }
+
+    [Test]
+    [Arguments("[2]!A1")] // A cell-shaped name isn't a valid NAME token, external or not.
+    [Arguments("[2]!A1(1)")] // Nor a valid external function name - no external cell function form.
+    [Arguments("[2]Sheet!A1(1)")]
+    [Arguments("[2]TRUE")] // "[2]" alone still needs "!" or a sheet name to follow.
+    [Arguments("[2]!TRUE")] // TRUE/FALSE still can't be a bare name, external or not.
+    [Arguments("[2]Sheet!TRUE")]
+    [Arguments("[2]Table1[Column]")] // No external structure reference form in the grammar.
+    public async Task ExternalWorkbookReferenceEdgeCasesAreRejectedByBoth(string formula)
+    {
+        await AssertRejected(formula);
+    }
+
+    [Test]
+    [Arguments("{1}")]
+    [Arguments("{1,2,3}")]
+    [Arguments("{1,2;3,4}")] // Two rows via ";".
+    [Arguments("{-1,2,3}")]
+    [Arguments("{+1,2,3}")]
+    [Arguments("{TRUE,FALSE,1}")]
+    [Arguments("{\"a\",\"b\"}")]
+    [Arguments("{\"a\"\"b\"}")] // Escaped quote inside an array text element.
+    [Arguments("{#REF!,1}")]
+    [Arguments("{#N/A,#VALUE!}")]
+    [Arguments("SUM({1,2,3})")]
+    [Arguments("{ 1 , 2 ; 3 , 4 }")] // Whitespace is tolerated throughout.
+    [Arguments("1+{1,2}")]
+    public async Task ArrayLiteralsMatchOracle(string formula)
+    {
+        await AssertMatchesOracle(formula);
+    }
+
+    [Test]
+    [Arguments("{1,2,3;4,5}")] // Ragged rows - second row is missing a column.
+    [Arguments("{{1,2}}")] // Arrays can't nest.
+    [Arguments("{1,2,}")] // Trailing comma/blank element.
+    [Arguments("{,1,2}")] // Leading comma/blank element.
+    [Arguments("{A1,2,3}")] // References aren't scalar constants.
+    [Arguments("{1+2,3}")] // Expressions aren't scalar constants either.
+    [Arguments("{--1}")] // Unary is not recursive inside an array: only a single leading +/-.
+    [Arguments("{}")] // Empty array.
+    [Arguments("{SUM(1),2}")]
+    public async Task ArrayLiteralsAreRejectedByBoth(string formula)
+    {
+        await AssertRejected(formula);
+    }
+
+    [Test]
+    [Arguments("A1:B2")] // Already handled before this round (a narrow, single-area merge).
+    [Arguments("Sheet1!A1:Sheet2!B2")] // Two independently-resolved refs - the generic case.
+    [Arguments("Sheet1!A1:B2:C3")] // A narrow area merge, then a generic chain on top of it.
+    [Arguments("A1:B2:C3:D4")] // Left-associative triple chain.
+    [Arguments("-A1:B2")] // Range binds tighter than every other operator, even unary.
+    [Arguments("A1:B2%")]
+    [Arguments("A1:B2^2")]
+    [Arguments("Sheet1!A1 : B2")] // Whitespace tolerant, same as the oracle's COLON token.
+    [Arguments("A1 : B2")]
+    [Arguments("A1: B2")]
+    [Arguments("A1 :B2")]
+    [Arguments("1:2")] // Bare digit-only row span - a Number token, not an Ident.
+    [Arguments("$4:6")]
+    [Arguments("A:B")]
+    [Arguments("(A1:B2):C3")] // A parenthesized range remains a valid range operand.
+    [Arguments("CHOOSE(1,A1,B2):C3")] // The oracle's 5 reference-returning functions.
+    [Arguments("OFFSET(A1,0,0):C3")]
+    [Arguments("INDIRECT(\"A1\"):C3")]
+    [Arguments("IF(TRUE,A1,B1):C3")]
+    [Arguments("A1:IF(TRUE,A1,B1)")]
+    [Arguments("#REF!:A1")] // #REF! is reference-shaped; every other error isn't.
+    [Arguments("A1:#REF!")]
+    [Arguments("Table1[Col]:B5")]
+    public async Task RangeOperatorMatchesOracle(string formula)
+    {
+        await AssertMatchesOracle(formula);
+    }
+
+    [Test]
+    [Arguments("A1:1")] // Numbers, text, and expressions aren't reference-shaped.
+    [Arguments("1:A1")]
+    [Arguments("A1:\"x\"")]
+    [Arguments("A1:(1+2)")]
+    [Arguments("(1+2):A1")]
+    [Arguments("A1:-B2")] // No unary allowed directly on a range operand.
+    [Arguments("SUM(A1):B2")] // SUM isn't one of the 5 reference-returning functions.
+    [Arguments("A1:SUM(B2)")]
+    [Arguments("Sheet1!INDEX(A1:A10,1):C3")] // Sheet-qualified calls are never reference-shaped.
+    [Arguments("A1:_xlfn.INDEX(A1:A5,1)")] // Only the exact 5 names count, no prefix variants.
+    [Arguments("A1:IFERROR(A1,0)")]
+    public async Task RangeOperatorEdgeCasesAreRejectedByBoth(string formula)
+    {
+        await AssertRejected(formula);
+    }
+
+    [Test]
+    [Arguments("A1,B2")] // Bare, at the very top of the formula.
+    [Arguments("A1,B2,C3")] // Left-associative chain.
+    [Arguments("(A1,B2)")] // Parenthesized - the common shape.
+    [Arguments("A1:B2,C3")] // A range as one side of a union.
+    [Arguments("(A1:B2,C3)")]
+    [Arguments("(A1,B2):C3")] // A parenthesized union remains a valid range operand.
+    [Arguments("SUM((A1,B2))")] // A union as a whole single argument.
+    [Arguments("SUM((A1,B2),1)")]
+    [Arguments("LARGE((F38,C38),1)")]
+    [Arguments("(Table1[Col],A1)")]
+    [Arguments("1+(A1,B2)")]
+    public async Task UnionOperatorMatchesOracle(string formula)
+    {
+        await AssertMatchesOracle(formula);
+    }
+
+    [Test]
+    [Arguments("SUM(A1,B2)")] // A bare "," directly in an argument list is still 2 arguments.
+    [Arguments("SUM(A1,B2,C3)")]
+    public async Task UnionDoesNotApplyDirectlyInsideAnArgumentList(string formula)
+    {
+        await AssertMatchesOracle(formula);
+    }
+
+    [Test]
+    [Arguments("(1,2)")] // Numbers aren't reference-shaped.
+    [Arguments("(A1,1)")]
+    [Arguments("(SUM(1),A1)")] // A non-ref-function call isn't reference-shaped either.
+    public async Task UnionOperatorEdgeCasesAreRejectedByBoth(string formula)
+    {
+        await AssertRejected(formula);
+    }
+
+    [Test]
+    [Arguments("'Total Reqs'!#REF!")] // Quoted sheet + #REF! - previously unhandled entirely.
+    [Arguments("'Total Reqs'!#ref!")] // Not uppercased in this path, matching the oracle.
+    [Arguments("+'Offseason Rate'!#REF!+'Offseason Rate'!E3")]
+    [Arguments("'[2]Sheet 1'!#REF!")] // Quoted external sheet + #REF!.
+    public async Task QuotedSheetRefErrorMatchesOracle(string formula)
+    {
+        await AssertMatchesOracle(formula);
+    }
+
+    [Test]
+    [Arguments("#REF!I1")] // Directly adjacent (no whitespace) - swallowed, still just #REF!.
+    [Arguments("#REF!A1:B2")]
+    [Arguments("#REF!#REF!")]
+    [Arguments("0/#REF!I1")]
+    [Arguments("(12/365)*#REF!I1")]
+    public async Task SwallowedReferenceAfterRefErrorMatchesOracle(string formula)
+    {
+        await AssertMatchesOracle(formula);
+    }
+
+    [Test]
+    [Arguments("6!H53:H61")] // A purely numeric sheet name - Excel allows it, unquoted.
+    [Arguments("592101500!D9")]
+    [Arguments("1.5!A1")] // Decimal-looking, still just characters as far as a sheet name goes.
+    [Arguments("6!SUM(1)")] // Every other sheet-qualified form still works the same way too.
+    [Arguments("6!#REF!")]
+    [Arguments("6!name")]
+    [Arguments("592101500!D9+572103200!D9+522100200!D9")]
+    public async Task NumericSheetNameMatchesOracle(string formula)
+    {
+        await AssertMatchesOracle(formula);
+    }
+
+    [Test]
+    [Arguments("1!A1(1)")] // A cell-shaped name still isn't a valid sheet-scoped function name.
+    public async Task NumericSheetNameEdgeCasesAreRejectedByBoth(string formula)
+    {
+        await AssertRejected(formula);
+    }
+
+    [Test]
+    [Arguments("Jan:Dec!AD12")] // A 3D sheet range, not a column span "JAN:DEC" - column letters
+    // and sheet names are lexically indistinguishable, so this only differs from a genuine colspan
+    // by the trailing "!".
+    [Arguments("SUM(Jan:Dec!AD12)")]
+    [Arguments("SUM(Jan:Dec!AD12,1)")]
+    public async Task SheetRangeVersusColumnSpanAmbiguityMatchesOracle(string formula)
+    {
+        await AssertMatchesOracle(formula);
+    }
+
+    [Test]
+    [Arguments("!$B1")] // A leftover reference to a deleted name.
+    [Arguments("!A1")]
+    [Arguments("!A1:B2")]
+    [Arguments("!A:B")]
+    [Arguments("!1:2")]
+    [Arguments("!#REF!")] // Collapses to a plain #REF! error, not a BangReference.
+    [Arguments("!#ref!")] // Unlike sheet!#REF!, this one *is* normalized to uppercase.
+    [Arguments("A1:!B2")] // A valid range operand too.
+    [Arguments(
+        "OFFSET('Smelter Look-up'!$B$4,MATCH(!$B1,'Smelter Look-up'!$A:$A,0)-4,0,COUNTIF('Smelter Look-up'!$A:$A,!$B1),1)"
+    )]
+    public async Task BangReferenceMatchesOracle(string formula)
+    {
+        await AssertMatchesOracle(formula);
+    }
+
+    [Test]
+    [Arguments("! A1")] // Whitespace anywhere breaks this construct entirely, even at the lexer
+    // level on the oracle side - "!" is only ever valid directly fused to its reference.
+    [Arguments("! $B1")]
+    [Arguments("!name")] // Only a cell/area/colspan/rowspan/#REF! shape is valid after "!" - never
+    // a name or a function call.
+    [Arguments("!SUM(1)")]
+    public async Task BangReferenceEdgeCasesAreRejectedByBoth(string formula)
+    {
+        await AssertRejected(formula);
+    }
+
+    [Test]
+    [Arguments("éname")] // A Unicode letter - already worked before this round.
+    [Arguments("Ë‰")] // A Unicode letter followed by a Unicode symbol (U+2030, PER MILLE SIGN) -
+    // the oracle's NAME production accepts *any* codepoint above U+007F, not just letters.
+    [Arguments("+Ë‰")]
+    [Arguments("Ë‰+1")]
+    public async Task UnicodeNameMatchesOracle(string formula)
+    {
+        await AssertMatchesOracle(formula);
+    }
+
+    private static async Task AssertMatchesOracle(string formula)
+    {
+        Parser<AstNode, Ctx> parser = ParserFactory.Create(new F());
+        parser.ParseFormula(formula, new Ctx());
+        await Assert.That(true).IsTrue();
+    }
+
+    private static async Task AssertRejected(string formula)
+    {
+        Parser<AstNode, Ctx> parser = ParserFactory.Create(new F());
+        await Assert.ThrowsAsync<Exception>(() =>
+            Task.FromResult(parser.ParseFormula(formula, new Ctx()))
+        );
+    }
+}

@@ -10,6 +10,7 @@
     <Folder Name="/Solution Items/">
         <File Path=".editorconfig" />
         <File Path="Directory.Build.props" />
+        <File Path="README.md" />
     </Folder>
     <Folder Name="/src/">
         <Project Path="XlsxSharp.IO.CodeGen\XlsxSharp.IO.CodeGen.csproj" />
@@ -17,7 +18,6 @@
         <Project Path="XlsxSharp\XlsxSharp.csproj" />
     </Folder>
     <Folder Name="/src/parser/">
-        <Project Path="XlsxSharp.ANTLR/XlsxSharp.ANTLR.csproj" />
         <Project Path="XlsxSharp.Parser.Ast/XlsxSharp.Parser.Ast.csproj" />
         <Project Path="XlsxSharp.Parser/XlsxSharp.Parser.csproj" />
     </Folder>
@@ -28,4 +28,5 @@
     </Folder>
     <Project Path="XlsxSharp.Parser.Function/XlsxSharp.Parser.Function.csproj" />
     <Project Path="XlsxSharp.Sandbox\XlsxSharp.Sandbox.csproj" />
+    <Project Path="XlsxSharp.Benchmarks\XlsxSharp.Benchmarks.csproj" />
 </Solution>

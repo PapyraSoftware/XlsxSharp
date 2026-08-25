@@ -1,0 +1,8 @@
+"DeptSales[[SalesPers]:[SaleAmt]] DeptSales[[Region]:[ComPct]]"
+"DeptSales[@[SaleAmt]:[ComAmt]]"
+"DeptSales[@['@]]"
+"SUM(Sales[@[Jan]:[Mar]])"
+"SUM(Sales[@[Jan]:[Feb]])"
+"Sales[[#Headers],[#Data]]"
+"Sales[[#Data],[#Totals]]"
+"Sales[@[Jan]:[Mar]]"

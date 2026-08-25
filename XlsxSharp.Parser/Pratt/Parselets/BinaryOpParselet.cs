@@ -18,9 +18,11 @@ internal class BinaryOpParselet<TScalar, T, TContext> : IParselet<T, TContext>
     public Node<T> Parse(TContext ctx, Node<T> left, Token op)
     {
         Node<T> right = this._parser.ParseExpression(ctx, this._bp);
-        SymbolRange nodeRange = left.Range
-            .ExtendRight(op.Range)
-            .ExtendRight(right.Range);
+
+        // Not left.Range.ExtendRight(op.Range).ExtendRight(right.Range): that asserts strict
+        // adjacency between the tokens, which no longer holds now that whitespace can separate
+        // them (e.g. "1 + 2").
+        SymbolRange nodeRange = new(left.Range.Start, right.Range.End);
 
         T node = this._factory.BinaryNode(ctx, nodeRange, this._op, left, right);
         return new Node<T>(node, nodeRange);

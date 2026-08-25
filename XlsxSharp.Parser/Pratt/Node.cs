@@ -12,9 +12,15 @@ internal readonly struct Node<T>
     }
 
     public Node(T value, SymbolRange range)
+        : this(value, range, isPureReference: false)
+    {
+    }
+
+    public Node(T value, SymbolRange range, bool isPureReference)
     {
         this.Value = value;
         this.Range = range;
+        this.IsPureReference = isPureReference;
     }
 
     /// <summary>
@@ -27,18 +33,20 @@ internal readonly struct Node<T>
     /// </summary>
     public SymbolRange Range { get; }
 
+    /// <summary>
+    /// Is this node one that, standing alone, is reference-shaped (a cell/area reference, a
+    /// defined name, a structure reference, a 3D/external reference, an unresolved <c>#REF!</c>,
+    /// or a call to one of the five functions the oracle's lexer recognizes as capable of
+    /// returning a reference - <c>CHOOSE</c>, <c>IF</c>, <c>INDEX</c>, <c>INDIRECT</c>,
+    /// <c>OFFSET</c>)? Only such nodes can be an operand of the range operator (<c>:</c>) - see
+    /// <see cref="Parser{T,TContext}.ParseRangeChain"/>. Any operator applied on top (unary,
+    /// percent, power, ...) makes a node no longer pure - it's tracked per-node instead of
+    /// per-token-type because e.g. a parenthesized expression is only pure when its content is.
+    /// </summary>
+    public bool IsPureReference { get; }
+
     public static implicit operator T(Node<T> node)
     {
         return node.Value;
-    }
-
-    internal Node<T> ExtendLeft(Token token)
-    {
-        return new Node<T>(this.Value, token.Range.ExtendRight(this.Range));
-    }
-
-    internal Node<T> ExtendRight(Token token)
-    {
-        return new Node<T>(this.Value, this.Range.ExtendRight(token.Range));
     }
 }

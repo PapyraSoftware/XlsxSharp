@@ -115,6 +115,13 @@ public static class NameUtils
         return sheetName.IndexOfAny(InvalidSheetChars) == -1;
     }
 
+    /// <summary>
+    /// Matches the <c>NAME</c> production of the Rolex-based lexer (see <c>LexerA1.rl</c>):
+    /// starts with an ASCII letter, underscore, backslash, or <em>any</em> codepoint above
+    /// <c>U+007F</c> - not just Unicode letters, e.g. <c>‰</c> (U+2030, PER MILLE SIGN, a symbol)
+    /// is just as valid a NAME character as <c>é</c> is - followed by any number of ASCII letters,
+    /// digits, codepoints above <c>U+007F</c>, <c>.</c>, <c>_</c>, <c>\</c> or <c>?</c>.
+    /// </summary>
     internal static bool IsNameValid(ReadOnlySpan<char> name)
     {
         if (name.Length is < 1 or > 255)
@@ -122,24 +129,25 @@ public static class NameUtils
             return false;
         }
 
-        // TODO: Determine what is a valid name and make the method public.
-        // Alert box says:
-        // * Starts with a letter or underscore
-        // * no space or char that is not allowed
-        if (name[0] != '_' && !char.IsLetter(name[0]))
+        if (!IsNameStartChar(name[0]))
         {
             return false;
         }
 
         foreach (char nextNameChar in name.Slice(1))
         {
-            if (!char.IsLetter(nextNameChar))
+            if (!IsNameStartChar(nextNameChar) && nextNameChar is not ('.' or '?') && (nextNameChar < '0' || nextNameChar > '9'))
             {
                 return false;
             }
         }
 
         return true;
+    }
+
+    private static bool IsNameStartChar(char c)
+    {
+        return c is '_' or '\\' || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c > (char)0x7F;
     }
 
     internal static StringBuilder EscapeName(StringBuilder sb, string sheet)

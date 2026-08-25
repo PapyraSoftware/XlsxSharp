@@ -10,7 +10,6 @@ public class SingleSheetPrefixTokenTests
         string expectedSheetName
     )
     {
-        await AssertFormula.AssertTokenType(tokenText, FormulaLexer.SINGLE_SHEET_PREFIX);
         TokenParser.ParseSingleSheetPrefix(tokenText, out int? workbookIndex, out string sheetName);
 
         await Assert.That(workbookIndex).IsEqualTo(expectedWorkbookIndex);

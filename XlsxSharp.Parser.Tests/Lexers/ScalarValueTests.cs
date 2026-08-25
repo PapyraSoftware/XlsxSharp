@@ -1,4 +1,6 @@
-﻿namespace XlsxSharp.Parser.Tests.Lexers;
+﻿using XlsxSharp.Parser.Pratt;
+
+namespace XlsxSharp.Parser.Tests.Lexers;
 
 public class ScalarValueTests
 {
@@ -66,6 +68,6 @@ public class ScalarValueTests
 
     private static AstNode ParseText(string formula, IAstFactory<ScalarValue, AstNode, Ctx> factory)
     {
-        return FormulaParser<ScalarValue, AstNode, Ctx>.CellFormulaA1(formula, new Ctx(), factory);
+        return ParserFactory.Create(factory).ParseFormula(formula, new Ctx());
     }
 }
