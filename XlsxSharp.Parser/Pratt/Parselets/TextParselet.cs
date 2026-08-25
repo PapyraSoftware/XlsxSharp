@@ -17,36 +17,8 @@ internal class TextParselet<TScalar, T, TContext> : IPrefixParselet<T, TContext>
 
     public Node<T> Parse(TContext ctx, Token token)
     {
-        string text = Unescape(token.GetText(this._parser.Input));
+        string text = ParserExtensions.UnescapeText(token.GetText(this._parser.Input));
         T node = this._factory.TextNode(ctx, token.Range, text);
         return new Node<T>(node, token.Range);
-    }
-
-    /// <summary>
-    /// Strip the surrounding double quotes and collapse escaped <c>""</c> pairs into a single
-    /// <c>"</c>, e.g. <c>"a""b"</c> becomes <c>a"b</c>.
-    /// </summary>
-    private static string Unescape(ReadOnlySpan<char> quotedText)
-    {
-        ReadOnlySpan<char> inner = quotedText[1..^1];
-        if (inner.IndexOf('"') < 0)
-        {
-            return inner.ToString();
-        }
-
-        Span<char> buffer = new char[inner.Length];
-        int w = 0;
-        int i = 0;
-        while (i < inner.Length)
-        {
-            if (inner[i] == '"')
-            {
-                i++;
-            }
-
-            buffer[w++] = inner[i++];
-        }
-
-        return buffer[..w].ToString();
     }
 }

@@ -102,6 +102,8 @@ public class PrattParserAcceptanceTests
     [Arguments("1%  ^2")]
     [Arguments("SUM(A1) ")]
     [Arguments(" SUM(A1)")]
+    [Arguments("NOW( )")] // Whitespace alone inside an otherwise-empty argument list.
+    [Arguments("NOW(  )")]
     public async Task InsignificantWhitespaceMatchesOracle(string formula)
     {
         await AssertMatchesOracle(formula);
@@ -287,6 +289,49 @@ public class PrattParserAcceptanceTests
     [Arguments("[2]Sheet!TRUE")]
     [Arguments("[2]Table1[Column]")] // No external structure reference form in the grammar.
     public async Task ExternalWorkbookReferenceEdgeCasesAreRejectedByBoth(string formula)
+    {
+        await Assert.ThrowsAsync<Exception>(() =>
+            Task.FromResult(
+                FormulaParser<ScalarValue, AstNode, Ctx>.CellFormulaA1(formula, new Ctx(), new F())
+            )
+        );
+
+        Parser<AstNode, Ctx> parser = ParserFactory.Create(new F());
+        await Assert.ThrowsAsync<Exception>(() =>
+            Task.FromResult(parser.ParseFormula(formula, new Ctx()))
+        );
+    }
+
+    [Test]
+    [Arguments("{1}")]
+    [Arguments("{1,2,3}")]
+    [Arguments("{1,2;3,4}")] // Two rows via ";".
+    [Arguments("{-1,2,3}")]
+    [Arguments("{+1,2,3}")]
+    [Arguments("{TRUE,FALSE,1}")]
+    [Arguments("{\"a\",\"b\"}")]
+    [Arguments("{\"a\"\"b\"}")] // Escaped quote inside an array text element.
+    [Arguments("{#REF!,1}")]
+    [Arguments("{#N/A,#VALUE!}")]
+    [Arguments("SUM({1,2,3})")]
+    [Arguments("{ 1 , 2 ; 3 , 4 }")] // Whitespace is tolerated throughout.
+    [Arguments("1+{1,2}")]
+    public async Task ArrayLiteralsMatchOracle(string formula)
+    {
+        await AssertMatchesOracle(formula);
+    }
+
+    [Test]
+    [Arguments("{1,2,3;4,5}")] // Ragged rows - second row is missing a column.
+    [Arguments("{{1,2}}")] // Arrays can't nest.
+    [Arguments("{1,2,}")] // Trailing comma/blank element.
+    [Arguments("{,1,2}")] // Leading comma/blank element.
+    [Arguments("{A1,2,3}")] // References aren't scalar constants.
+    [Arguments("{1+2,3}")] // Expressions aren't scalar constants either.
+    [Arguments("{--1}")] // Unary is not recursive inside an array: only a single leading +/-.
+    [Arguments("{}")] // Empty array.
+    [Arguments("{SUM(1),2}")]
+    public async Task ArrayLiteralsAreRejectedByBoth(string formula)
     {
         await Assert.ThrowsAsync<Exception>(() =>
             Task.FromResult(

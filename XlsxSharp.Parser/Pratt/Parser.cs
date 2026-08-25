@@ -86,7 +86,7 @@ internal class Parser<T, TContext>
         return parselet.Parse(ctx, token);
     }
 
-    private void SkipWhitespace()
+    internal void SkipWhitespace()
     {
         if (this._lexer.Peek().Type == TokenType.Whitespace)
         {

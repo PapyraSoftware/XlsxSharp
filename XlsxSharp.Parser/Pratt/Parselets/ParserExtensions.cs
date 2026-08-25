@@ -20,6 +20,12 @@ internal static class ParserExtensions
     public static (List<T> Args, Token RightParen) ParseArgumentList<TScalar, T, TContext>(this Parser<T, TContext> parser, IAstFactory<TScalar, T, TContext> factory, TContext ctx)
     {
         List<T> args = [];
+
+        // Unlike every other whitespace check in the argument list (all reached only after
+        // ParseExpression's own loop already consumed any preceding whitespace as a side effect
+        // of looking for an operator), this one runs before any argument has been parsed, so nothing
+        // has skipped a leading "( )" gap yet.
+        parser.SkipWhitespace();
         if (parser.LookAhead(1).Type == TokenType.RightParen)
         {
             return (args, parser.Consume(TokenType.RightParen));
@@ -52,6 +58,34 @@ internal static class ParserExtensions
 
             parser.Consume(TokenType.Comma);
         }
+    }
+
+    /// <summary>
+    /// Strip the surrounding double quotes of a <see cref="TokenType.Text"/> token and collapse
+    /// escaped <c>""</c> pairs into a single <c>"</c>, e.g. <c>"a""b"</c> becomes <c>a"b</c>.
+    /// </summary>
+    public static string UnescapeText(ReadOnlySpan<char> quotedText)
+    {
+        ReadOnlySpan<char> inner = quotedText[1..^1];
+        if (inner.IndexOf('"') < 0)
+        {
+            return inner.ToString();
+        }
+
+        Span<char> buffer = new char[inner.Length];
+        int w = 0;
+        int i = 0;
+        while (i < inner.Length)
+        {
+            if (inner[i] == '"')
+            {
+                i++;
+            }
+
+            buffer[w++] = inner[i++];
+        }
+
+        return buffer[..w].ToString();
     }
 
     public static bool EqualCaseInsensitive(ReadOnlySpan<char> text, string other)
