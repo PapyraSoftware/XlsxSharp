@@ -13,6 +13,7 @@
         <File Path="README.md" />
     </Folder>
     <Folder Name="/src/">
+        <Project Path="XlsxSharp.ExcelNumberFormat/XlsxSharp.ExcelNumberFormat.csproj" />
         <Project Path="XlsxSharp.IO.CodeGen\XlsxSharp.IO.CodeGen.csproj" />
         <Project Path="XlsxSharp.IO\XlsxSharp.IO.csproj" />
         <Project Path="XlsxSharp\XlsxSharp.csproj" />

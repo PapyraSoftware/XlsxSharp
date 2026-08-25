@@ -6,59 +6,58 @@ using Newtonsoft.Json;
 using XlsxSharp.Parser.Ast;
 using XlsxSharp.Parser.Pratt;
 
-namespace XlsxSharp.Parser.Function
+namespace XlsxSharp.Parser.Function;
+
+public static class ParseFormula
 {
-    public static class ParseFormula
+    [FunctionName("parse-formula")]
+    public static Task<IActionResult> Run(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req
+    )
     {
-        [FunctionName("parse-formula")]
-        public static Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req
-        )
+        ReferenceStyle refStyle =
+            req.Query["style"] == "R1C1" ? ReferenceStyle.R1C1 : ReferenceStyle.A1;
+        string formulaText = req.Query["formula"];
+
+        JsonSerializerSettings serializerSetting = new()
         {
-            ReferenceStyle refStyle =
-                req.Query["style"] == "R1C1" ? ReferenceStyle.R1C1 : ReferenceStyle.A1;
-            string formulaText = req.Query["formula"];
+            Formatting = Formatting.Indented,
+            Converters = { new AstNodeConverter(refStyle) },
+        };
 
-            JsonSerializerSettings serializerSetting = new()
-            {
-                Formatting = Formatting.Indented,
-                Converters = { new AstNodeConverter(refStyle) },
-            };
-
-            try
-            {
-                AstNode nodes = ParserFactory
-                    .Create(new F())
-                    .ParseFormula(formulaText, new Ctx(), isR1C1: refStyle == ReferenceStyle.R1C1);
-                return Task.FromResult<IActionResult>(
-                    new JsonResult(
-                        new
-                        {
-                            formula = formulaText,
-                            style = refStyle.ToString(),
-                            ast = nodes,
-                        },
-                        serializerSetting
-                    )
-                );
-            }
-            catch (ParsingException e)
-            {
-                return Task.FromResult<IActionResult>(
-                    new JsonResult(
-                        new
-                        {
-                            formula = formulaText,
-                            style = refStyle.ToString(),
-                            error = e.Message,
-                        },
-                        serializerSetting
-                    )
+        try
+        {
+            AstNode nodes = ParserFactory
+                .Create(new F())
+                .ParseFormula(formulaText, new Ctx(), isR1C1: refStyle == ReferenceStyle.R1C1);
+            return Task.FromResult<IActionResult>(
+                new JsonResult(
+                    new
                     {
-                        StatusCode = StatusCodes.Status422UnprocessableEntity,
-                    }
-                );
-            }
+                        formula = formulaText,
+                        style = refStyle.ToString(),
+                        ast = nodes,
+                    },
+                    serializerSetting
+                )
+            );
+        }
+        catch (ParsingException e)
+        {
+            return Task.FromResult<IActionResult>(
+                new JsonResult(
+                    new
+                    {
+                        formula = formulaText,
+                        style = refStyle.ToString(),
+                        error = e.Message,
+                    },
+                    serializerSetting
+                )
+                {
+                    StatusCode = StatusCodes.Status422UnprocessableEntity,
+                }
+            );
         }
     }
 }

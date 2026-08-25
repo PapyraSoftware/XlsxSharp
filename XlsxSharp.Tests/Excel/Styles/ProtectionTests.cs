@@ -60,7 +60,7 @@ public class ProtectionTests
         }
     }
 
-    public static IEnumerable<object> ProtectionApiSetters()
+    public static IEnumerable<FormatTestCase<IXLProtection>> ProtectionApiSetters()
     {
         bool[] boolValues = [false, true];
         yield return FormatTestCase<IXLProtection>.ForProtection(

@@ -141,7 +141,7 @@ public class FontTests
         }
     }
 
-    public static IEnumerable<object> FontApiSetters()
+    public static IEnumerable<FormatTestCase<IXLFont>> FontApiSetters()
     {
         yield return FormatTestCase<IXLFont>.ForFont(
             font => font.Bold,

@@ -23,6 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\XlsxSharp.ExcelNumberFormat\XlsxSharp.ExcelNumberFormat.csproj" />
     <ProjectReference Include="..\XlsxSharp.Parser\XlsxSharp.Parser.csproj" />
     <ProjectReference Include="..\XlsxSharp\XlsxSharp.csproj" />
     <!-- XlsxSharp references this privately so it can be packed into the XlsxSharp package, which

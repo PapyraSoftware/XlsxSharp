@@ -125,7 +125,7 @@ public class BorderTests
 
     [Test]
     [Timeout(100)]
-    public void OutsideBorderForColumn()
+    public void OutsideBorderForColumn(CancellationToken cancellationToken)
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -155,7 +155,7 @@ public class BorderTests
 
     [Test]
     [Timeout(100)]
-    public void InsideBorderForOneColumn()
+    public void InsideBorderForOneColumn(CancellationToken cancellationToken)
     {
         using XLWorkbook wb = new();
         IXLWorksheet ws = wb.AddWorksheet();
@@ -376,7 +376,7 @@ public class BorderTests
         string cell,
         int sides,
         XLBorderStyleValues style = XLBorderStyleValues.Thick,
-        XLColor color = null
+        XLColor? color = null
     )
     {
         IXLBorder border = ws.Cell(cell).Style.Border;
@@ -418,7 +418,7 @@ public class BorderTests
         }
     }
 
-    public static IEnumerable<object> BorderApiSetters()
+    public static IEnumerable<FormatTestCase<IXLBorder>> BorderApiSetters()
     {
         XLBorderStyleValues[] styleValues = EnumPolyfill.GetValues<XLBorderStyleValues>();
         XLColor[] colors = [XLColor.Red, XLColor.Black, XLColor.Automatic];
