@@ -1,5 +1,5 @@
 using System.Globalization;
-using ExcelNumberFormat;
+using XlsxSharp.ExcelNumberFormat;
 
 namespace XlsxSharp.Extensions;
 

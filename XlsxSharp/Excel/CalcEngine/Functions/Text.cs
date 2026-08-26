@@ -1,6 +1,6 @@
 using System.Globalization;
 using System.Text;
-using ExcelNumberFormat;
+using XlsxSharp.ExcelNumberFormat;
 using static XlsxSharp.Excel.CalcEngine.Functions.SignatureAdapter;
 
 namespace XlsxSharp.Excel.CalcEngine.Functions;
