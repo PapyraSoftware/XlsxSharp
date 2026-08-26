@@ -511,7 +511,14 @@ internal static class Formatter
 
         if (beforeDecimal != null)
         {
-            FormatThousands(thousandsSpan, thousandSeparator, false, beforeDecimal, culture, result);
+            FormatThousands(
+                thousandsSpan,
+                thousandSeparator,
+                false,
+                beforeDecimal,
+                culture,
+                result
+            );
         }
 
         if (decimalSeparator)
@@ -703,7 +710,12 @@ internal static class Formatter
 
         Span<char> exponentBuffer = stackalloc char[16];
         Math.Abs(exponent)
-            .TryFormat(exponentBuffer, out int exponentWritten, default, CultureInfo.InvariantCulture);
+            .TryFormat(
+                exponentBuffer,
+                out int exponentWritten,
+                default,
+                CultureInfo.InvariantCulture
+            );
         FormatThousands(
             exponentBuffer[..exponentWritten],
             false,
@@ -783,7 +795,12 @@ internal static class Formatter
 
         Span<char> numeratorBuffer = stackalloc char[16];
         Math.Abs(numerator)
-            .TryFormat(numeratorBuffer, out int numeratorWritten, default, CultureInfo.InvariantCulture);
+            .TryFormat(
+                numeratorBuffer,
+                out int numeratorWritten,
+                default,
+                CultureInfo.InvariantCulture
+            );
         Span<char> denominatorBuffer = stackalloc char[16];
         denominator.TryFormat(
             denominatorBuffer,

@@ -175,25 +175,24 @@ internal static class Parser
         afterDecimal = null;
         decimalSeparator = false;
 
-        // Upper-bounded by tokens.Length, so a single exactly-sized buffer replaces what would
-        // otherwise be a growable list surviving only for the duration of this scan.
-        ReadOnlyMemory<char>[] remainderBuffer = new ReadOnlyMemory<char>[tokens.Length];
-        int remainderCount = 0;
+        // ParseSection() never lets a bare "[...]" token reach this array (it's consumed as a
+        // condition/currency symbol or silently dropped there), so the run of tokens accepted
+        // below is always contiguous - it can be sliced directly out of `tokens` instead of
+        // copied into a scratch buffer first.
+        int remainderStart = 0;
         int index;
         for (index = 0; index < tokens.Length; ++index)
         {
-            ReadOnlyMemory<char> token = tokens[index];
-            ReadOnlySpan<char> tokenSpan = token.Span;
+            ReadOnlySpan<char> tokenSpan = tokens[index].Span;
             if (tokenSpan is "." && beforeDecimal == null)
             {
                 decimalSeparator = true;
-                beforeDecimal = tokens[..index]; // TODO: why not remainder? has only valid tokens...
-
-                remainderCount = 0;
+                beforeDecimal = index > remainderStart ? tokens[remainderStart..index] : null;
+                remainderStart = index + 1;
             }
             else if (Token.IsNumberLiteral(tokenSpan))
             {
-                remainderBuffer[remainderCount++] = token;
+                // contiguous run, keep scanning
             }
             else if (tokenSpan.Length > 0 && tokenSpan[0] == '[')
             {
@@ -205,9 +204,9 @@ internal static class Parser
             }
         }
 
-        if (remainderCount > 0)
+        if (index > remainderStart)
         {
-            ReadOnlyMemory<char>[] remainder = remainderBuffer[..remainderCount];
+            ReadOnlyMemory<char>[] remainder = tokens[remainderStart..index];
             if (beforeDecimal != null)
             {
                 afterDecimal = remainder;
@@ -223,12 +222,30 @@ internal static class Parser
 
     private static ReadOnlyMemory<char>[] ParseMilliseconds(ReadOnlyMemory<char>[] tokens)
     {
+        // Most date/duration sections have no "." at all, so check first and return the input
+        // array unchanged rather than paying for a copy that would end up identical to it.
+        int firstDot = -1;
+        for (int i = 0; i < tokens.Length; i++)
+        {
+            if (tokens[i].Span is ".")
+            {
+                firstDot = i;
+                break;
+            }
+        }
+
+        if (firstDot < 0)
+        {
+            return tokens;
+        }
+
         // if tokens form .0 through .000.., combine to single subsecond token. The result can only
         // be shorter than or equal to tokens (consecutive "0"s after a "." collapse into one), so a
         // single upper-bounded buffer replaces a growable list.
         ReadOnlyMemory<char>[] result = new ReadOnlyMemory<char>[tokens.Length];
-        int count = 0;
-        for (int i = 0; i < tokens.Length; i++)
+        Array.Copy(tokens, result, firstDot);
+        int count = firstDot;
+        for (int i = firstDot; i < tokens.Length; i++)
         {
             ReadOnlySpan<char> token = tokens[i].Span;
             if (token is ".")
