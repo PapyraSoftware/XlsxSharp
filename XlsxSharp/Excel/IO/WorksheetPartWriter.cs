@@ -54,6 +54,8 @@ internal class WorksheetPartWriter
         worksheetDom.GetFirstChild<SheetData>()?.RemoveAllChildren();
 
         XElement worksheet = ToXml(worksheetDom);
+        WorksheetXml.Child(worksheet, "sheetData");
+        WriteLegacyDrawing(worksheet, xlWorksheet);
         WriteSheetProperties(worksheet, xlWorksheet);
         WriteDimension(worksheet, xlWorksheet);
         WriteSheetViews(worksheet, xlWorksheet);
@@ -142,26 +144,6 @@ internal class WorksheetPartWriter
 
         XLWorksheetContentManager cm = new(worksheet);
 
-        #region SheetData
-
-        if (!worksheet.Elements<SheetData>().Any())
-        {
-            OpenXmlElement previousElement = cm.GetPreviousElementFor(
-                XLWorksheetContents.SheetData
-            );
-            worksheet.InsertAfter(new SheetData(), previousElement);
-        }
-
-        SheetData sheetData = worksheet.Elements<SheetData>().First();
-        cm.SetElement(XLWorksheetContents.SheetData, sheetData);
-
-        // Sheet data is not updated in the Worksheet DOM here, because it is later being streamed directly to the file
-        // without an intermediate DOM representation. This is done to save memory, which is especially problematic
-        // for large sheets.
-
-        #endregion SheetData
-
-
         #region Tables
 
         PopulateTablePartReferences((XLTables)xlWorksheet.Tables, worksheet, cm);
@@ -225,48 +207,6 @@ internal class WorksheetPartWriter
         }
 
         #endregion Drawings
-
-        #region LegacyDrawing
-
-        // Does worksheet have any comments (stored in legacy VML drawing)
-        if (!string.IsNullOrEmpty(xlWorksheet.LegacyDrawingId))
-        {
-            worksheet.RemoveAllChildren<LegacyDrawing>();
-            OpenXmlElement previousElement = cm.GetPreviousElementFor(
-                XLWorksheetContents.LegacyDrawing
-            );
-            worksheet.InsertAfter(
-                new LegacyDrawing { Id = xlWorksheet.LegacyDrawingId },
-                previousElement
-            );
-
-            cm.SetElement(
-                XLWorksheetContents.LegacyDrawing,
-                worksheet.Elements<LegacyDrawing>().First()
-            );
-        }
-        else
-        {
-            worksheet.RemoveAllChildren<LegacyDrawing>();
-            cm.SetElement(XLWorksheetContents.LegacyDrawing, null);
-        }
-
-        #endregion LegacyDrawing
-
-        #region LegacyDrawingHeaderFooter
-
-        //LegacyDrawingHeaderFooter legacyHeaderFooter = worksheetPart.Worksheet.Elements<LegacyDrawingHeaderFooter>().FirstOrDefault();
-        //if (legacyHeaderFooter != null)
-        //{
-        //    worksheetPart.Worksheet.RemoveAllChildren<LegacyDrawingHeaderFooter>();
-        //    {
-        //            var previousElement = cm.GetPreviousElementFor(XLWSContentManager.XLWSContents.LegacyDrawingHeaderFooter);
-        //            worksheetPart.Worksheet.InsertAfter(new LegacyDrawingHeaderFooter { Id = xlWorksheet.LegacyDrawingId },
-        //                                                previousElement);
-        //    }
-        //}
-
-        #endregion LegacyDrawingHeaderFooter
 
         return worksheet;
     }
@@ -565,6 +505,20 @@ internal class WorksheetPartWriter
             new XAttribute("ref", reference),
             sortCondition
         );
+    }
+
+    /// <summary>
+    /// <c>legacyDrawing</c>, the reference to the VML part that carries the sheet's comments.
+    /// </summary>
+    private static void WriteLegacyDrawing(XElement worksheet, XLWorksheet xlWorksheet)
+    {
+        worksheet.Elements(SpreadsheetXml.Main + "legacyDrawing").Remove();
+        if (!string.IsNullOrEmpty(xlWorksheet.LegacyDrawingId))
+        {
+            WorksheetXml
+                .Child(worksheet, "legacyDrawing")
+                .SetAttributeValue(SpreadsheetXml.Rel + "id", xlWorksheet.LegacyDrawingId);
+        }
     }
 
     /// <summary>
