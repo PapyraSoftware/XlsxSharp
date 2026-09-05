@@ -1,8 +1,8 @@
 #nullable disable
 
 using System.Globalization;
-using System.Reflection;
 using System.Xml;
+using System.Xml.Linq;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Drawing;
 using DocumentFormat.OpenXml.Packaging;
@@ -51,7 +51,12 @@ internal class WorksheetPartWriter
             options,
             context
         );
-        StreamToPart(worksheetDom, worksheetPart, xlWorksheet, context, options);
+
+        // The cells are written from the workbook model rather than from what the part held, so
+        // the rows loaded above are dropped before the rest of the sheet is turned into XML.
+        worksheetDom.GetFirstChild<SheetData>()?.RemoveAllChildren();
+
+        StreamToPart(ToXml(worksheetDom), worksheetPart, xlWorksheet, context, options);
     }
 
     private static Worksheet GetWorksheetDom(
@@ -2645,69 +2650,124 @@ internal class WorksheetPartWriter
     /// Stream detached worksheet DOM to the worksheet part stream.
     /// Replaces the content of the part.
     /// </summary>
+    /// <summary>
+    /// The sheet as XML, with its namespaces declared where the DOM declares them.
+    /// </summary>
+    /// <remarks>
+    /// Writing out a detached SDK element hoists every namespace its descendants use onto the
+    /// element itself, on top of leaving the declarations where they were. The extra ones come
+    /// off again: a declaration stays only if the sheet itself declares it, if it is the sheet's
+    /// own namespace, or if one of the sheet's attributes needs it.
+    /// </remarks>
+    private static XElement ToXml(Worksheet worksheetDom)
+    {
+        XElement worksheet = SpreadsheetXml.FromSdk(worksheetDom);
+        HashSet<string> declared =
+        [
+            .. worksheetDom.NamespaceDeclarations.Select(declaration => declaration.Value),
+            worksheet.Name.NamespaceName,
+            .. worksheet.Attributes().Select(attribute => attribute.Name.NamespaceName),
+        ];
+
+        foreach (
+            XAttribute attribute in worksheet
+                .Attributes()
+                .Where(attribute => attribute.IsNamespaceDeclaration)
+                .ToList()
+        )
+        {
+            if (!declared.Contains(attribute.Value))
+            {
+                attribute.Remove();
+            }
+        }
+
+        return worksheet;
+    }
+
     private static void StreamToPart(
-        Worksheet worksheet,
+        XElement worksheet,
         WorksheetPart worksheetPart,
         XLWorksheet xlWorksheet,
         SaveContext context,
         SaveOptions options
     )
     {
-        // Worksheet part might have some data, but the writer truncates everything upon creation.
-        using OpenXmlWriter writer = OpenXmlWriter.Create(worksheetPart);
-        using OpenXmlReader reader = OpenXmlReader.Create(worksheet);
+        // Worksheet part might have some data, but creating the stream truncates everything.
+        using Stream partStream = worksheetPart.GetStream(FileMode.Create);
+        using XmlWriter xml = XmlWriter.Create(
+            partStream,
+            new XmlWriterSettings { CloseOutput = true, Encoding = XlsxSharp.XLHelper.NoBomUTF8 }
+        );
 
-        writer.WriteStartDocument(true);
+        xml.WriteStartDocument(true);
+        xml.WriteStartElement(
+            worksheet.GetPrefixOfNamespace(worksheet.Name.Namespace),
+            worksheet.Name.LocalName,
+            worksheet.Name.NamespaceName
+        );
 
-        while (reader.Read())
+        foreach (XAttribute attribute in worksheet.Attributes())
         {
-            if (reader.ElementType == typeof(SheetData))
-            {
-                StreamSheetData(writer, xlWorksheet, context, options);
+            WriteAttribute(xml, worksheet, attribute);
+        }
 
-                // Skip whole SheetData elements from original file, already written
-                reader.Skip();
-            }
-
-            if (reader.IsStartElement)
+        foreach (XElement child in worksheet.Elements())
+        {
+            if (child.Name == SpreadsheetXml.Main + "sheetData")
             {
-                writer.WriteStartElement(reader);
-                bool canContainText = typeof(OpenXmlLeafTextElement).IsAssignableFrom(
-                    reader.ElementType
-                );
-                if (canContainText)
-                {
-                    string text = reader.GetText();
-                    if (text.Length > 0)
-                    {
-                        writer.WriteString(text);
-                    }
-                }
+                StreamSheetData(xml, xlWorksheet, context, options);
             }
-            else if (reader.IsEndElement)
+            else
             {
-                writer.WriteEndElement();
+                child.WriteTo(xml);
             }
         }
-        writer.Close();
+
+        xml.WriteEndElement();
+        xml.WriteEndDocument();
+    }
+
+    private static void WriteAttribute(XmlWriter xml, XElement element, XAttribute attribute)
+    {
+        if (attribute.IsNamespaceDeclaration)
+        {
+            // A prefixed declaration is an attribute in the xmlns namespace; the default one is
+            // an attribute called xmlns in no namespace at all.
+            if (attribute.Name.Namespace == XNamespace.Xmlns)
+            {
+                xml.WriteAttributeString(
+                    "xmlns",
+                    attribute.Name.LocalName,
+                    XNamespace.Xmlns.NamespaceName,
+                    attribute.Value
+                );
+            }
+            else
+            {
+                xml.WriteAttributeString("xmlns", attribute.Value);
+            }
+
+            return;
+        }
+
+        xml.WriteAttributeString(
+            attribute.Name.Namespace == XNamespace.None
+                ? null
+                : element.GetPrefixOfNamespace(attribute.Name.Namespace),
+            attribute.Name.LocalName,
+            attribute.Name.NamespaceName,
+            attribute.Value
+        );
     }
 
     private static void StreamSheetData(
-        OpenXmlWriter writer,
+        XmlWriter xml,
         XLWorksheet xlWorksheet,
         SaveContext context,
         SaveOptions options
     )
     {
-        // Steal through reflection for now, whole OpenXmlPartWriter will be replaced by XmlWriter soon. OpenXmlPartWriter has basically
-        // no inner state, unless it is in a string leaf node. By writing SheetData through XmlWriter only, we bypass all that.
-        FieldInfo xmlWriterFieldInfo = typeof(OpenXmlPartWriter).GetField(
-            "_xmlWriter",
-            BindingFlags.Instance | BindingFlags.NonPublic
-        )!;
-        object untypedXmlWriter = xmlWriterFieldInfo.GetValue(writer);
-        XmlWriter xml = (XmlWriter)untypedXmlWriter;
-
         int maxColumn = GetMaxColumn(xlWorksheet);
 
         xml.WriteStartElement("sheetData", Main2006SsNs);
