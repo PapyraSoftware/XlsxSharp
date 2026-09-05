@@ -31,7 +31,7 @@ internal readonly struct Point : IEquatable<Point>, IComparable<Point>
 
     public bool Equals(Point other) => this.Row == other.Row && this.Column == other.Column;
 
-    public override int GetHashCode() => (this.Row * -1) ^ this.Column;
+    public override int GetHashCode() => HashCode.Combine(this.Row, this.Column);
 
     public static bool operator ==(Point a, Point b) => a.Row == b.Row && a.Column == b.Column;
 
