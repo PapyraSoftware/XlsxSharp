@@ -57,6 +57,8 @@ internal class WorksheetPartWriter
 
         XElement worksheet = ToXml(worksheetDom);
         WriteSheetProperties(worksheet, xlWorksheet);
+        WriteDimension(worksheet, xlWorksheet);
+        WriteSheetViews(worksheet, xlWorksheet);
         WriteSheetFormatProperties(worksheet, xlWorksheet);
         WriteConditionalFormats(worksheet, xlWorksheet, context);
         WriteDataValidations(worksheet, xlWorksheet, options);
@@ -140,303 +142,6 @@ internal class WorksheetPartWriter
         #endregion Worksheet
 
         XLWorksheetContentManager cm = new(worksheet);
-
-        // Empty worksheets have dimension A1 (not A1:A1)
-        string sheetDimensionReference = "A1";
-        if (!xlWorksheet.Internals.CellsCollection.IsEmpty)
-        {
-            int maxColumn = xlWorksheet.Internals.CellsCollection.MaxColumnUsed;
-            int maxRow = xlWorksheet.Internals.CellsCollection.MaxRowUsed;
-            sheetDimensionReference =
-                "A1:"
-                + XlsxSharp.XLHelper.GetColumnLetterFromNumber(maxColumn)
-                + maxRow.ToInvariantString();
-        }
-
-        #region SheetViews
-
-        if (worksheet.SheetDimension == null)
-        {
-            worksheet.SheetDimension = new SheetDimension { Reference = sheetDimensionReference };
-        }
-
-        cm.SetElement(XLWorksheetContents.SheetDimension, worksheet.SheetDimension);
-
-        if (worksheet.SheetViews == null)
-        {
-            worksheet.SheetViews = new SheetViews();
-        }
-
-        cm.SetElement(XLWorksheetContents.SheetViews, worksheet.SheetViews);
-
-        SheetView sheetView = (SheetView)worksheet.SheetViews.FirstOrDefault();
-        if (sheetView == null)
-        {
-            sheetView = new SheetView { WorkbookViewId = 0U };
-            worksheet.SheetViews.AppendChild(sheetView);
-        }
-
-        XLSheetViewContentManager svcm = new(sheetView);
-
-        if (xlWorksheet.TabSelected)
-        {
-            sheetView.TabSelected = true;
-        }
-        else
-        {
-            sheetView.TabSelected = null;
-        }
-
-        if (xlWorksheet.RightToLeft)
-        {
-            sheetView.RightToLeft = true;
-        }
-        else
-        {
-            sheetView.RightToLeft = null;
-        }
-
-        if (xlWorksheet.ShowFormulas)
-        {
-            sheetView.ShowFormulas = true;
-        }
-        else
-        {
-            sheetView.ShowFormulas = null;
-        }
-
-        if (xlWorksheet.ShowGridLines)
-        {
-            sheetView.ShowGridLines = null;
-        }
-        else
-        {
-            sheetView.ShowGridLines = false;
-        }
-
-        if (xlWorksheet.ShowOutlineSymbols)
-        {
-            sheetView.ShowOutlineSymbols = null;
-        }
-        else
-        {
-            sheetView.ShowOutlineSymbols = false;
-        }
-
-        if (xlWorksheet.ShowRowColHeaders)
-        {
-            sheetView.ShowRowColHeaders = null;
-        }
-        else
-        {
-            sheetView.ShowRowColHeaders = false;
-        }
-
-        if (xlWorksheet.ShowRuler)
-        {
-            sheetView.ShowRuler = null;
-        }
-        else
-        {
-            sheetView.ShowRuler = false;
-        }
-
-        if (xlWorksheet.ShowWhiteSpace)
-        {
-            sheetView.ShowWhiteSpace = null;
-        }
-        else
-        {
-            sheetView.ShowWhiteSpace = false;
-        }
-
-        if (xlWorksheet.ShowZeros)
-        {
-            sheetView.ShowZeros = null;
-        }
-        else
-        {
-            sheetView.ShowZeros = false;
-        }
-
-        if (xlWorksheet.RightToLeft)
-        {
-            sheetView.RightToLeft = true;
-        }
-        else
-        {
-            sheetView.RightToLeft = null;
-        }
-
-        if (xlWorksheet.SheetView.View == XLSheetViewOptions.Normal)
-        {
-            sheetView.View = null;
-        }
-        else
-        {
-            sheetView.View = xlWorksheet.SheetView.View.ToOpenXml();
-        }
-
-        Pane pane = sheetView.Elements<Pane>().FirstOrDefault();
-        if (pane == null)
-        {
-            pane = new Pane();
-            sheetView.InsertAt(pane, 0);
-        }
-
-        svcm.SetElement(XLSheetViewContents.Pane, pane);
-
-        pane.State = PaneStateValues.FrozenSplit;
-        int hSplit = xlWorksheet.SheetView.SplitColumn;
-        int ySplit = xlWorksheet.SheetView.SplitRow;
-
-        pane.HorizontalSplit = hSplit;
-        pane.VerticalSplit = ySplit;
-
-        // When panes are frozen, which part should move.
-        PaneValues split;
-        if (ySplit == 0 && hSplit == 0)
-        {
-            split = PaneValues.TopLeft;
-        }
-        else if (ySplit == 0 && hSplit != 0)
-        {
-            split = PaneValues.TopRight;
-        }
-        else if (ySplit != 0 && hSplit == 0)
-        {
-            split = PaneValues.BottomLeft;
-        }
-        else if (ySplit != 0 && hSplit != 0)
-        {
-            split = PaneValues.BottomRight;
-        }
-
-        pane.ActivePane = split;
-
-        pane.TopLeftCell =
-            XlsxSharp.XLHelper.GetColumnLetterFromNumber(xlWorksheet.SheetView.SplitColumn + 1)
-            + (xlWorksheet.SheetView.SplitRow + 1);
-
-        if (hSplit == 0 && ySplit == 0)
-        {
-            // We don't have a pane. Just a regular sheet.
-            pane = null;
-            sheetView.RemoveAllChildren<Pane>();
-            svcm.SetElement(XLSheetViewContents.Pane, null);
-        }
-
-        // Do sheet view. Whether it's for a regular sheet or for the bottom-right pane
-        if (
-            !xlWorksheet.SheetView.TopLeftCellAddress.IsValid
-            || xlWorksheet.SheetView.TopLeftCellAddress
-                == new XLAddress(1, 1, fixedRow: false, fixedColumn: false)
-        )
-        {
-            sheetView.TopLeftCell = null;
-        }
-        else
-        {
-            sheetView.TopLeftCell = xlWorksheet.SheetView.TopLeftCellAddress.ToString();
-        }
-
-        if (xlWorksheet.SelectedRanges.Any() || xlWorksheet.ActiveCell is not null)
-        {
-            sheetView.RemoveAllChildren<Selection>();
-            svcm.SetElement(XLSheetViewContents.Selection, null);
-
-            IXLRange firstSelection = xlWorksheet.SelectedRanges.FirstOrDefault();
-
-            Action<Selection> populateSelection = (Selection selection) =>
-            {
-                if (xlWorksheet.ActiveCell is not null)
-                {
-                    selection.ActiveCell = xlWorksheet.ActiveCell.Value.ToString();
-                }
-                else if (firstSelection != null)
-                {
-                    selection.ActiveCell =
-                        firstSelection.RangeAddress.FirstAddress.ToStringRelative(false);
-                }
-
-                List<string> seqRef =
-                [
-                    selection.ActiveCell.Value,
-                    .. xlWorksheet.SelectedRanges.Select(range =>
-                    {
-                        if (range.RangeAddress.FirstAddress.Equals(range.RangeAddress.LastAddress))
-                        {
-                            return range.RangeAddress.FirstAddress.ToStringRelative(false);
-                        }
-                        else
-                        {
-                            return range.RangeAddress.ToStringRelative(false);
-                        }
-                    }),
-                ];
-
-                selection.SequenceOfReferences = new ListValue<StringValue>
-                {
-                    InnerText = string.Join(" ", seqRef.Distinct().ToArray()),
-                };
-
-                sheetView.InsertAfter(
-                    selection,
-                    svcm.GetPreviousElementFor(XLSheetViewContents.Selection)
-                );
-                svcm.SetElement(XLSheetViewContents.Selection, selection);
-            };
-
-            // If a pane exists, we need to set the active pane too
-            // Yes, this might lead to 2 Selection elements!
-            if (pane != null)
-            {
-                populateSelection(new Selection() { Pane = pane.ActivePane });
-            }
-            populateSelection(new Selection());
-        }
-
-        if (xlWorksheet.SheetView.ZoomScale == 100)
-        {
-            sheetView.ZoomScale = null;
-        }
-        else
-        {
-            sheetView.ZoomScale = (uint)
-                Math.Max(10, Math.Min(400, xlWorksheet.SheetView.ZoomScale));
-        }
-
-        if (xlWorksheet.SheetView.ZoomScaleNormal == 100)
-        {
-            sheetView.ZoomScaleNormal = null;
-        }
-        else
-        {
-            sheetView.ZoomScaleNormal = (uint)
-                Math.Max(10, Math.Min(400, xlWorksheet.SheetView.ZoomScaleNormal));
-        }
-
-        if (xlWorksheet.SheetView.ZoomScalePageLayoutView == 100)
-        {
-            sheetView.ZoomScalePageLayoutView = null;
-        }
-        else
-        {
-            sheetView.ZoomScalePageLayoutView = (uint)
-                Math.Max(10, Math.Min(400, xlWorksheet.SheetView.ZoomScalePageLayoutView));
-        }
-
-        if (xlWorksheet.SheetView.ZoomScaleSheetLayoutView == 100)
-        {
-            sheetView.ZoomScaleSheetLayoutView = null;
-        }
-        else
-        {
-            sheetView.ZoomScaleSheetLayoutView = (uint)
-                Math.Max(10, Math.Min(400, xlWorksheet.SheetView.ZoomScaleSheetLayoutView));
-        }
-
-        #endregion SheetViews
 
         double worksheetColumnWidth = GetColumnWidth(xlWorksheet.ColumnWidth).SaveRound();
 
@@ -1548,6 +1253,211 @@ internal class WorksheetPartWriter
                 "fitToPage",
                 true
             );
+        }
+    }
+
+    /// <summary>
+    /// <c>dimension</c>, which is only ever set once - a sheet that already has one from being
+    /// loaded keeps whatever it said, stale or not.
+    /// </summary>
+    private static void WriteDimension(XElement worksheet, XLWorksheet xlWorksheet)
+    {
+        if (worksheet.Element(SpreadsheetXml.Main + "dimension") is not null)
+        {
+            return;
+        }
+
+        // Empty worksheets have dimension A1 (not A1:A1)
+        string reference = "A1";
+        if (!xlWorksheet.Internals.CellsCollection.IsEmpty)
+        {
+            int maxColumn = xlWorksheet.Internals.CellsCollection.MaxColumnUsed;
+            int maxRow = xlWorksheet.Internals.CellsCollection.MaxRowUsed;
+            reference =
+                "A1:"
+                + XlsxSharp.XLHelper.GetColumnLetterFromNumber(maxColumn)
+                + maxRow.ToInvariantString();
+        }
+
+        WorksheetXml.Child(worksheet, "dimension").SetAttributeValue("ref", reference);
+    }
+
+    /// <summary>
+    /// <c>sheetViews</c>, and within it the one <c>sheetView</c> the workbook model tracks.
+    /// </summary>
+    private static void WriteSheetViews(XElement worksheet, XLWorksheet xlWorksheet)
+    {
+        XElement sheetViews = WorksheetXml.Child(worksheet, "sheetViews");
+        XElement sheetView = sheetViews.Element(SpreadsheetXml.Main + "sheetView");
+        if (sheetView is null)
+        {
+            sheetView = new XElement(
+                SpreadsheetXml.Main + "sheetView",
+                new XAttribute("workbookViewId", 0)
+            );
+            sheetViews.Add(sheetView);
+        }
+
+        WorksheetXml.SetBoolOptional(
+            sheetView,
+            "tabSelected",
+            xlWorksheet.TabSelected ? true : null
+        );
+        WorksheetXml.SetBoolOptional(
+            sheetView,
+            "rightToLeft",
+            xlWorksheet.RightToLeft ? true : null
+        );
+        WorksheetXml.SetBoolOptional(
+            sheetView,
+            "showFormulas",
+            xlWorksheet.ShowFormulas ? true : null
+        );
+
+        // These five default to shown; only an explicit "0" turns them off.
+        HideWhenFalse(sheetView, "showGridLines", xlWorksheet.ShowGridLines);
+        HideWhenFalse(sheetView, "showOutlineSymbols", xlWorksheet.ShowOutlineSymbols);
+        HideWhenFalse(sheetView, "showRowColHeaders", xlWorksheet.ShowRowColHeaders);
+        HideWhenFalse(sheetView, "showRuler", xlWorksheet.ShowRuler);
+        HideWhenFalse(sheetView, "showWhiteSpace", xlWorksheet.ShowWhiteSpace);
+        HideWhenFalse(sheetView, "showZeros", xlWorksheet.ShowZeros);
+
+        sheetView.SetAttributeValue(
+            "view",
+            xlWorksheet.SheetView.View == XLSheetViewOptions.Normal
+                ? null
+                : xlWorksheet.SheetView.View.ToXml()
+        );
+
+        XElement pane = WritePane(sheetView, xlWorksheet, out int hSplit, out int ySplit);
+
+        // Whether it's for a regular sheet or the bottom-right pane, the top left cell of the
+        // view is only written when it differs from the sheet's own default.
+        sheetView.SetAttributeValue(
+            "topLeftCell",
+            !xlWorksheet.SheetView.TopLeftCellAddress.IsValid
+            || xlWorksheet.SheetView.TopLeftCellAddress
+                == new XLAddress(1, 1, fixedRow: false, fixedColumn: false)
+                ? null
+                : xlWorksheet.SheetView.TopLeftCellAddress.ToString()
+        );
+
+        WriteSelections(sheetView, xlWorksheet, pane);
+
+        WriteZoom(sheetView, "zoomScale", xlWorksheet.SheetView.ZoomScale);
+        WriteZoom(sheetView, "zoomScaleNormal", xlWorksheet.SheetView.ZoomScaleNormal);
+        WriteZoom(
+            sheetView,
+            "zoomScalePageLayoutView",
+            xlWorksheet.SheetView.ZoomScalePageLayoutView
+        );
+        WriteZoom(
+            sheetView,
+            "zoomScaleSheetLayoutView",
+            xlWorksheet.SheetView.ZoomScaleSheetLayoutView
+        );
+
+        static void HideWhenFalse(XElement element, string name, bool shown) =>
+            element.SetAttributeValue(name, shown ? null : "0");
+
+        static void WriteZoom(XElement element, string name, int zoom) =>
+            element.SetAttributeValue(
+                name,
+                zoom == 100 ? null : (uint)Math.Max(10, Math.Min(400, zoom))
+            );
+    }
+
+    /// <summary>
+    /// The frozen pane, if the sheet has a split. Only <see cref="XLSheetViewOptions"/> that split
+    /// the sheet ever get written - a plain scroll split has nowhere to go in the workbook model.
+    /// </summary>
+    private static XElement WritePane(
+        XElement sheetView,
+        XLWorksheet xlWorksheet,
+        out int hSplit,
+        out int ySplit
+    )
+    {
+        hSplit = xlWorksheet.SheetView.SplitColumn;
+        ySplit = xlWorksheet.SheetView.SplitRow;
+
+        if (hSplit == 0 && ySplit == 0)
+        {
+            sheetView.Elements(SpreadsheetXml.Main + "pane").Remove();
+            return null;
+        }
+
+        XElement pane =
+            sheetView.Element(SpreadsheetXml.Main + "pane")
+            ?? WorksheetXml.Child(sheetView, "pane", WorksheetXml.SheetViewOrder);
+
+        pane.RemoveAttributes();
+        pane.SetAttributeValue("state", "frozenSplit");
+        pane.SetAttributeValue("xSplit", hSplit);
+        pane.SetAttributeValue("ySplit", ySplit);
+
+        // When panes are frozen, which part should move.
+        string activePane = (ySplit: ySplit != 0, hSplit: hSplit != 0) switch
+        {
+            (false, false) => "topLeft",
+            (false, true) => "topRight",
+            (true, false) => "bottomLeft",
+            (true, true) => "bottomRight",
+        };
+        pane.SetAttributeValue("activePane", activePane);
+        pane.SetAttributeValue(
+            "topLeftCell",
+            XlsxSharp.XLHelper.GetColumnLetterFromNumber(hSplit + 1) + (ySplit + 1)
+        );
+
+        return pane;
+    }
+
+    private static void WriteSelections(XElement sheetView, XLWorksheet xlWorksheet, XElement pane)
+    {
+        if (!xlWorksheet.SelectedRanges.Any() && xlWorksheet.ActiveCell is null)
+        {
+            return;
+        }
+
+        sheetView.Elements(SpreadsheetXml.Main + "selection").Remove();
+
+        IXLRange firstSelection = xlWorksheet.SelectedRanges.FirstOrDefault();
+
+        // If a pane exists, we need to set the active pane too. Yes, this might lead to 2
+        // Selection elements!
+        if (pane is not null)
+        {
+            AddSelection(pane.Attribute("activePane")?.Value);
+        }
+
+        AddSelection(null);
+
+        void AddSelection(string activePane)
+        {
+            XElement selection = new(SpreadsheetXml.Main + "selection");
+            if (activePane is not null)
+            {
+                selection.SetAttributeValue("pane", activePane);
+            }
+
+            string activeCell = xlWorksheet.ActiveCell is not null
+                ? xlWorksheet.ActiveCell.Value.ToString()
+                : firstSelection?.RangeAddress.FirstAddress.ToStringRelative(false);
+            selection.SetAttributeValue("activeCell", activeCell);
+
+            List<string> sequence =
+            [
+                activeCell,
+                .. xlWorksheet.SelectedRanges.Select(range =>
+                    range.RangeAddress.FirstAddress.Equals(range.RangeAddress.LastAddress)
+                        ? range.RangeAddress.FirstAddress.ToStringRelative(false)
+                        : range.RangeAddress.ToStringRelative(false)
+                ),
+            ];
+            selection.SetAttributeValue("sqref", string.Join(" ", sequence.Distinct()));
+
+            WorksheetXml.Insert(sheetView, "selection", selection, WorksheetXml.SheetViewOrder);
         }
     }
 

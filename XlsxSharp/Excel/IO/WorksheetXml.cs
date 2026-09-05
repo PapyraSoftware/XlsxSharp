@@ -65,6 +65,17 @@ internal static class WorksheetXml
     internal static readonly string[] SheetPropertyOrder = ["tabColor", "outlinePr", "pageSetUpPr"];
 
     /// <summary>
+    /// The children of <c>sheetView</c>, in the order CT_SheetView requires.
+    /// </summary>
+    internal static readonly string[] SheetViewOrder =
+    [
+        "pane",
+        "selection",
+        "pivotSelection",
+        "extLst",
+    ];
+
+    /// <summary>
     /// The element's only child of that name, added in schema order if it has none yet.
     /// </summary>
     internal static XElement Child(XElement parent, string name, string[]? order = null)
