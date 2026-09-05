@@ -155,61 +155,52 @@ public partial class XLWorkbook
             }
         }
 
-        WorkbookProperties wbProps = workbookPart.Workbook.WorkbookProperties;
-        if (wbProps != null)
+        XElement workbookXml = WorkbookXml.Read(workbookPart);
+
+        if (workbookXml.Element(WorkbookXml.Main + "workbookPr") is { } wbProps)
         {
-            this.Use1904DateSystem = OpenXmlHelper.GetBooleanValueAsBool(wbProps.Date1904, false);
+            this.Use1904DateSystem = WorkbookXml.Bool(wbProps, "date1904") ?? false;
         }
 
-        FileSharing wbFilesharing = workbookPart.Workbook.FileSharing;
-        if (wbFilesharing != null)
+        if (workbookXml.Element(WorkbookXml.Main + "fileSharing") is { } wbFilesharing)
         {
-            this.FileSharing.ReadOnlyRecommended = OpenXmlHelper.GetBooleanValueAsBool(
-                wbFilesharing.ReadOnlyRecommended,
-                false
-            );
-            this.FileSharing.UserName = wbFilesharing.UserName?.Value;
+            this.FileSharing.ReadOnlyRecommended =
+                WorkbookXml.Bool(wbFilesharing, "readOnlyRecommended") ?? false;
+            this.FileSharing.UserName = wbFilesharing.Attribute("userName")?.Value;
         }
 
-        LoadWorkbookProtection(workbookPart.Workbook.WorkbookProtection, this);
+        LoadWorkbookProtection(workbookXml.Element(WorkbookXml.Main + "workbookProtection"), this);
 
-        CalculationProperties calculationProperties = workbookPart.Workbook.CalculationProperties;
-        if (calculationProperties != null)
+        if (workbookXml.Element(WorkbookXml.Main + "calcPr") is { } calcPr)
         {
-            EnumValue<CalculateModeValues> calculateMode = calculationProperties.CalculationMode;
-            if (calculateMode != null)
+            if (calcPr.Attribute("calcMode")?.Value is { } calculateMode)
             {
-                this.CalculateMode = calculateMode.Value.ToXlsxSharp();
+                this.CalculateMode = WorkbookXml.ParseCalculateMode(calculateMode);
             }
 
-            BooleanValue calculationOnSave = calculationProperties.CalculationOnSave;
-            if (calculationOnSave != null)
+            if (WorkbookXml.Bool(calcPr, "calcOnSave") is { } calculationOnSave)
             {
-                this.CalculationOnSave = calculationOnSave.Value;
+                this.CalculationOnSave = calculationOnSave;
             }
 
-            BooleanValue forceFullCalculation = calculationProperties.ForceFullCalculation;
-            if (forceFullCalculation != null)
+            if (WorkbookXml.Bool(calcPr, "forceFullCalc") is { } forceFullCalculation)
             {
-                this.ForceFullCalculation = forceFullCalculation.Value;
+                this.ForceFullCalculation = forceFullCalculation;
             }
 
-            BooleanValue fullCalculationOnLoad = calculationProperties.FullCalculationOnLoad;
-            if (fullCalculationOnLoad != null)
+            if (WorkbookXml.Bool(calcPr, "fullCalcOnLoad") is { } fullCalculationOnLoad)
             {
-                this.FullCalculationOnLoad = fullCalculationOnLoad.Value;
+                this.FullCalculationOnLoad = fullCalculationOnLoad;
             }
 
-            BooleanValue fullPrecision = calculationProperties.FullPrecision;
-            if (fullPrecision != null)
+            if (WorkbookXml.Bool(calcPr, "fullPrecision") is { } fullPrecision)
             {
-                this.FullPrecision = fullPrecision.Value;
+                this.FullPrecision = fullPrecision;
             }
 
-            EnumValue<ReferenceModeValues> referenceMode = calculationProperties.ReferenceMode;
-            if (referenceMode != null)
+            if (calcPr.Attribute("refMode")?.Value is { } referenceMode)
             {
-                this.ReferenceStyle = referenceMode.Value.ToXlsxSharp();
+                this.ReferenceStyle = WorkbookXml.ParseReferenceMode(referenceMode);
             }
         }
 
@@ -242,21 +233,29 @@ public partial class XLWorkbook
         // We do this mainly because it skips a very costly calculation invalidation step, but it also make things more consistent,
         // e.g. when reading calculations that reference other sheets, we know that those sheets always already exist.
         // That consistency point isn't required yet but could be taken advantage of in the future.
-        Sheets sheets = workbookPart.Workbook.Sheets;
+        List<XElement> sheets =
+        [
+            .. workbookXml
+                .Element(WorkbookXml.Main + "sheets")
+                ?.Elements(WorkbookXml.Main + "sheet")
+                ?? [],
+        ];
+
         int position = 0;
-        foreach (Sheet dSheet in sheets.OfType<Sheet>())
+        foreach (XElement dSheet in sheets)
         {
             position++;
-            StringValue sheetName = dSheet.Name;
-            uint sheetId = dSheet.SheetId.Value;
+            string sheetName = dSheet.Attribute("name")?.Value;
+            uint sheetId = WorkbookXml.UInt(dSheet, "sheetId") ?? 0;
+            string sheetRelId = dSheet.Attribute(WorkbookXml.Rel + "id")?.Value;
 
-            if (string.IsNullOrEmpty(dSheet.Id))
+            if (string.IsNullOrEmpty(sheetRelId))
             {
                 // Some non-Excel producers create sheets with empty relId.
                 XLWorksheet emptySheet = this.WorksheetsInternal.Add(sheetName, position, sheetId);
-                if (dSheet.State != null)
+                if (dSheet.Attribute("state")?.Value is { } emptyState)
                 {
-                    emptySheet.Visibility = dSheet.State.Value.ToXlsxSharp();
+                    emptySheet.Visibility = WorkbookXml.ParseSheetState(emptyState);
                 }
 
                 continue;
@@ -265,7 +264,7 @@ public partial class XLWorkbook
             // Although relationship to worksheet is most common, there can be other types
             // than worksheet, e.g. chartSheet. Since we can't load them, add them to list
             // of unsupported sheets and copy them when saving. See Codeplex #6932.
-            WorksheetPart worksheetPart = workbookPart.GetPartById(dSheet.Id) as WorksheetPart;
+            WorksheetPart worksheetPart = workbookPart.GetPartById(sheetRelId) as WorksheetPart;
             if (worksheetPart == null)
             {
                 this.UnsupportedSheets.Add(
@@ -275,22 +274,22 @@ public partial class XLWorkbook
             }
 
             XLWorksheet ws = this.WorksheetsInternal.Add(sheetName, position, sheetId);
-            ws.RelId = dSheet.Id;
+            ws.RelId = sheetRelId;
 
-            if (dSheet.State != null)
+            if (dSheet.Attribute("state")?.Value is { } state)
             {
-                ws.Visibility = dSheet.State.Value.ToXlsxSharp();
+                ws.Visibility = WorkbookXml.ParseSheetState(state);
             }
         }
 
         position = 0;
-        foreach (Sheet dSheet in sheets.OfType<Sheet>())
+        foreach (XElement dSheet in sheets)
         {
             position++;
-            StringValue sheetName = dSheet.Name;
-            uint sheetId = dSheet.SheetId.Value;
+            string sheetName = dSheet.Attribute("name")?.Value;
+            string sheetRelId = dSheet.Attribute(WorkbookXml.Rel + "id")?.Value;
 
-            if (string.IsNullOrEmpty(dSheet.Id))
+            if (string.IsNullOrEmpty(sheetRelId))
             {
                 // Some non-Excel producers create sheets with empty relId.
                 continue;
@@ -299,7 +298,7 @@ public partial class XLWorkbook
             // Although relationship to worksheet is most common, there can be other types
             // than worksheet, e.g. chartSheet. Since we can't load them, add them to list
             // of unsupported sheets and copy them when saving. See Codeplex #6932.
-            WorksheetPart worksheetPart = workbookPart.GetPartById(dSheet.Id) as WorksheetPart;
+            WorksheetPart worksheetPart = workbookPart.GetPartById(sheetRelId) as WorksheetPart;
             if (worksheetPart == null)
             {
                 continue;
@@ -556,19 +555,21 @@ public partial class XLWorkbook
             #endregion LoadComments
         }
 
-        Workbook workbook = workbookPart.Workbook;
-
-        BookViews bookViews = workbook.BookViews;
-        if (bookViews != null && bookViews.FirstOrDefault() is WorkbookView workbookView)
+        if (
+            workbookXml
+                .Element(WorkbookXml.Main + "bookViews")
+                ?.Element(WorkbookXml.Main + "workbookView") is
+            { } workbookView
+        )
         {
-            if (workbookView.ActiveTab == null || !workbookView.ActiveTab.HasValue)
+            if (WorkbookXml.UInt(workbookView, "activeTab") is not { } activeTab)
             {
                 this.Worksheets.First().SetTabActive().Unhide();
             }
             else
             {
                 UnsupportedSheet unsupportedSheet = this.UnsupportedSheets.FirstOrDefault(us =>
-                    us.Position == (int)(workbookView.ActiveTab.Value + 1)
+                    us.Position == (int)(activeTab + 1)
                 );
                 if (unsupportedSheet != null)
                 {
@@ -576,11 +577,12 @@ public partial class XLWorkbook
                 }
                 else
                 {
-                    this.Worksheet((int)(workbookView.ActiveTab.Value + 1)).SetTabActive();
+                    this.Worksheet((int)(activeTab + 1)).SetTabActive();
                 }
             }
         }
-        this.LoadDefinedNames(workbook);
+
+        this.LoadDefinedNames(workbookXml);
 
         // Read cache definition before table definition
         foreach (
@@ -601,20 +603,22 @@ public partial class XLWorkbook
         }
 
         // Delay loading of pivot tables until all sheets have been loaded
-        foreach (Sheet dSheet in sheets.OfType<Sheet>())
+        foreach (XElement dSheet in sheets)
         {
-            if (string.IsNullOrEmpty(dSheet.Id))
+            string sheetRelId = dSheet.Attribute(WorkbookXml.Rel + "id")?.Value;
+            if (string.IsNullOrEmpty(sheetRelId))
             {
                 // Some non-Excel producers create sheets with empty relId.
                 continue;
             }
 
             // The referenced sheet can also be ChartsheetPart. Only look for pivot tables in normal sheet parts.
-            WorksheetPart worksheetPart = workbookPart.GetPartById(dSheet.Id) as WorksheetPart;
+            WorksheetPart worksheetPart = workbookPart.GetPartById(sheetRelId) as WorksheetPart;
 
             if (worksheetPart is not null)
             {
-                XLWorksheet ws = (XLWorksheet)this.WorksheetsInternal.Worksheet(dSheet.Name);
+                XLWorksheet ws = (XLWorksheet)
+                    this.WorksheetsInternal.Worksheet(dSheet.Attribute("name")?.Value);
 
                 foreach (PivotTablePart pivotTablePart in worksheetPart.PivotTableParts)
                 {
@@ -1268,31 +1272,22 @@ public partial class XLWorkbook
         return false;
     }
 
-    private void LoadDefinedNames(Workbook workbook)
+    private void LoadDefinedNames(XElement workbook)
     {
-        if (workbook.DefinedNames == null)
+        if (workbook.Element(WorkbookXml.Main + "definedNames") is not { } definedNames)
         {
             return;
         }
 
-        foreach (DefinedName definedName in workbook.DefinedNames.OfType<DefinedName>())
+        foreach (XElement definedName in definedNames.Elements(WorkbookXml.Main + "definedName"))
         {
-            StringValue name = definedName.Name;
-            bool visible = true;
-            if (definedName.Hidden != null)
-            {
-                visible = !BooleanValue.ToBoolean(definedName.Hidden);
-            }
-
-            int localSheetId = -1;
-            if (definedName.LocalSheetId?.HasValue ?? false)
-            {
-                localSheetId = Convert.ToInt32(definedName.LocalSheetId.Value);
-            }
+            string name = definedName.Attribute("name")?.Value;
+            bool visible = !(WorkbookXml.Bool(definedName, "hidden") ?? false);
+            int localSheetId = (int?)WorkbookXml.UInt(definedName, "localSheetId") ?? -1;
 
             if (name == "_xlnm.Print_Area")
             {
-                IEnumerable<string> fixedNames = validateDefinedNames(definedName.Text.Split(','));
+                IEnumerable<string> fixedNames = validateDefinedNames(definedName.Value.Split(','));
                 foreach (string area in fixedNames)
                 {
                     if (area.Contains('['))
@@ -1329,9 +1324,9 @@ public partial class XLWorkbook
             }
             else
             {
-                string text = definedName.Text;
+                string text = definedName.Value;
 
-                StringValue comment = definedName.Comment;
+                string comment = definedName.Attribute("comment")?.Value;
                 if (localSheetId == -1)
                 {
                     if (this.DefinedNamesInternal.All<XLDefinedName>(nr => nr.Name != name))
@@ -1395,9 +1390,9 @@ public partial class XLWorkbook
         }
     }
 
-    private void LoadPrintTitles(DefinedName definedName)
+    private void LoadPrintTitles(XElement definedName)
     {
-        IEnumerable<string> areas = validateDefinedNames(definedName.Text.Split(','));
+        IEnumerable<string> areas = validateDefinedNames(definedName.Value.Split(','));
         foreach (string item in areas)
         {
             if (this.Range(item) != null)
@@ -1528,7 +1523,7 @@ public partial class XLWorkbook
         }
     }
 
-    private static void LoadWorkbookProtection(WorkbookProtection wp, XLWorkbook wb)
+    private static void LoadWorkbookProtection(XElement wp, XLWorkbook wb)
     {
         if (wp == null)
         {
@@ -1537,10 +1532,10 @@ public partial class XLWorkbook
 
         wb.Protection.IsProtected = true;
 
-        string algorithmName = wp.WorkbookAlgorithmName?.Value ?? string.Empty;
+        string algorithmName = wp.Attribute("workbookAlgorithmName")?.Value ?? string.Empty;
         if (string.IsNullOrEmpty(algorithmName))
         {
-            wb.Protection.PasswordHash = wp.WorkbookPassword?.Value ?? string.Empty;
+            wb.Protection.PasswordHash = wp.Attribute("workbookPassword")?.Value ?? string.Empty;
             wb.Protection.Base64EncodedSalt = string.Empty;
         }
         else if (
@@ -1549,18 +1544,19 @@ public partial class XLWorkbook
         {
             wb.Protection.Algorithm =
                 DescribedEnumParser<XLProtectionAlgorithm.Algorithm>.FromDescription(algorithmName);
-            wb.Protection.PasswordHash = wp.WorkbookHashValue?.Value ?? string.Empty;
-            wb.Protection.SpinCount = wp.WorkbookSpinCount?.Value ?? 0;
-            wb.Protection.Base64EncodedSalt = wp.WorkbookSaltValue?.Value ?? string.Empty;
+            wb.Protection.PasswordHash = wp.Attribute("workbookHashValue")?.Value ?? string.Empty;
+            wb.Protection.SpinCount = WorkbookXml.UInt(wp, "workbookSpinCount") ?? 0;
+            wb.Protection.Base64EncodedSalt =
+                wp.Attribute("workbookSaltValue")?.Value ?? string.Empty;
         }
 
         wb.Protection.AllowElement(
             XLWorkbookProtectionElements.Structure,
-            !OpenXmlHelper.GetBooleanValueAsBool(wp.LockStructure, false)
+            !(WorkbookXml.Bool(wp, "lockStructure") ?? false)
         );
         wb.Protection.AllowElement(
             XLWorkbookProtectionElements.Windows,
-            !OpenXmlHelper.GetBooleanValueAsBool(wp.LockWindows, false)
+            !(WorkbookXml.Bool(wp, "lockWindows") ?? false)
         );
     }
 
