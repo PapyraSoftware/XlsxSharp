@@ -23,8 +23,6 @@ using XlsxSharp.Utils;
 using static XlsxSharp.Excel.IO.OpenXmlConst;
 using static XlsxSharp.Excel.XLWorkbook;
 using Break = DocumentFormat.OpenXml.Spreadsheet.Break;
-using Column = DocumentFormat.OpenXml.Spreadsheet.Column;
-using Columns = DocumentFormat.OpenXml.Spreadsheet.Columns;
 using Drawing = DocumentFormat.OpenXml.Spreadsheet.Drawing;
 using Hyperlink = DocumentFormat.OpenXml.Spreadsheet.Hyperlink;
 using OfficeExcel = DocumentFormat.OpenXml.Office.Excel;
@@ -60,6 +58,7 @@ internal class WorksheetPartWriter
         WriteDimension(worksheet, xlWorksheet);
         WriteSheetViews(worksheet, xlWorksheet);
         WriteSheetFormatProperties(worksheet, xlWorksheet);
+        WriteColumns(worksheet, xlWorksheet, context);
         WriteConditionalFormats(worksheet, xlWorksheet, context);
         WriteDataValidations(worksheet, xlWorksheet, options);
         WriteSparklines(worksheet, xlWorksheet);
@@ -142,165 +141,6 @@ internal class WorksheetPartWriter
         #endregion Worksheet
 
         XLWorksheetContentManager cm = new(worksheet);
-
-        double worksheetColumnWidth = GetColumnWidth(xlWorksheet.ColumnWidth).SaveRound();
-
-        #region Columns
-
-        uint worksheetStyleId = context.GetStyleId(xlWorksheet.FormatValue);
-        if (
-            xlWorksheet.Internals.CellsCollection.IsEmpty
-            && xlWorksheet.Internals.ColumnsCollection.Count == 0
-            && worksheetStyleId == 0
-        )
-        {
-            worksheet.RemoveAllChildren<Columns>();
-        }
-        else
-        {
-            if (!worksheet.Elements<Columns>().Any())
-            {
-                OpenXmlElement previousElement = cm.GetPreviousElementFor(
-                    XLWorksheetContents.Columns
-                );
-                worksheet.InsertAfter(new Columns(), previousElement);
-            }
-
-            Columns columns = worksheet.Elements<Columns>().First();
-            cm.SetElement(XLWorksheetContents.Columns, columns);
-
-            Dictionary<uint, Column> sheetColumnsByMin = columns
-                .Elements<Column>()
-                .ToDictionary(c => c.Min.Value, c => c);
-            //Dictionary<UInt32, Column> sheetColumnsByMax = columns.Elements<Column>().ToDictionary(c => c.Max.Value, c => c);
-
-            int minInColumnsCollection;
-            int maxInColumnsCollection;
-            if (xlWorksheet.Internals.ColumnsCollection.Count > 0)
-            {
-                minInColumnsCollection = xlWorksheet.Internals.ColumnsCollection.Keys.Min();
-                maxInColumnsCollection = xlWorksheet.Internals.ColumnsCollection.Keys.Max();
-            }
-            else
-            {
-                minInColumnsCollection = 1;
-                maxInColumnsCollection = 0;
-            }
-
-            if (minInColumnsCollection > 1)
-            {
-                UInt32Value min = 1;
-                UInt32Value max = (uint)(minInColumnsCollection - 1);
-
-                for (UInt32Value co = min; co <= max; co++)
-                {
-                    Column column = new()
-                    {
-                        Min = co,
-                        Max = co,
-                        Style = worksheetStyleId,
-                        Width = worksheetColumnWidth,
-                        CustomWidth = true,
-                    };
-
-                    UpdateColumn(column, columns, sheetColumnsByMin); //, sheetColumnsByMax);
-                }
-            }
-
-            for (int co = minInColumnsCollection; co <= maxInColumnsCollection; co++)
-            {
-                uint styleId;
-                double columnWidth;
-                bool isHidden = false;
-                bool collapsed = false;
-                int outlineLevel = 0;
-                if (xlWorksheet.Internals.ColumnsCollection.TryGetValue(co, out XLColumn col))
-                {
-                    styleId = col.FormatValue is null
-                        ? worksheetStyleId
-                        : context.GetStyleId(col.FormatValue);
-                    columnWidth = GetColumnWidth(col.Width).SaveRound();
-                    isHidden = col.IsHidden;
-                    collapsed = col.Collapsed;
-                    outlineLevel = col.OutlineLevel;
-                }
-                else
-                {
-                    styleId = worksheetStyleId;
-                    columnWidth = worksheetColumnWidth;
-                }
-
-                Column column = new()
-                {
-                    Min = (uint)co,
-                    Max = (uint)co,
-                    Style = styleId,
-                    Width = columnWidth,
-                    CustomWidth = true,
-                };
-
-                if (isHidden)
-                {
-                    column.Hidden = true;
-                }
-
-                if (collapsed)
-                {
-                    column.Collapsed = true;
-                }
-
-                if (outlineLevel > 0)
-                {
-                    column.OutlineLevel = (byte)outlineLevel;
-                }
-
-                UpdateColumn(column, columns, sheetColumnsByMin); //, sheetColumnsByMax);
-            }
-
-            int collection = maxInColumnsCollection;
-            foreach (
-                Column col in columns
-                    .Elements<Column>()
-                    .Where(c => c.Min > (uint)(collection))
-                    .OrderBy(c => c.Min.Value)
-            )
-            {
-                col.Style = worksheetStyleId;
-                col.Width = worksheetColumnWidth;
-                col.CustomWidth = true;
-
-                if ((int)col.Max.Value > maxInColumnsCollection)
-                {
-                    maxInColumnsCollection = (int)col.Max.Value;
-                }
-            }
-
-            if (
-                maxInColumnsCollection < XlsxSharp.XLHelper.MaxColumnNumber
-                && worksheetStyleId != 0
-            )
-            {
-                Column column = new()
-                {
-                    Min = (uint)(maxInColumnsCollection + 1),
-                    Max = (uint)(XlsxSharp.XLHelper.MaxColumnNumber),
-                    Style = worksheetStyleId,
-                    Width = worksheetColumnWidth,
-                    CustomWidth = true,
-                };
-                columns.AppendChild(column);
-            }
-
-            CollapseColumns(columns, sheetColumnsByMin);
-
-            if (!columns.Any())
-            {
-                worksheet.RemoveAllChildren<Columns>();
-                cm.SetElement(XLWorksheetContents.Columns, null);
-            }
-        }
-
-        #endregion Columns
 
         #region SheetData
 
@@ -727,152 +567,302 @@ internal class WorksheetPartWriter
         );
     }
 
-    private static void CollapseColumns(Columns columns, Dictionary<uint, Column> sheetColumns)
+    /// <summary>
+    /// The columns, patched onto whatever the sheet already had rather than written fresh - a
+    /// loaded workbook can carry column spans this pass never touches (past the last column the
+    /// model names explicitly, say), and those are updated in place rather than discarded.
+    /// </summary>
+    private static void WriteColumns(
+        XElement worksheet,
+        XLWorksheet xlWorksheet,
+        SaveContext context
+    )
     {
-        uint lastMin = 1;
-        int count = sheetColumns.Count;
-        KeyValuePair<uint, Column>[] arr = [.. sheetColumns.OrderBy(kp => kp.Key)];
-        // sheetColumns[kp.Key + 1]
-        //Int32 i = 0;
-        //foreach (KeyValuePair<uint, Column> kp in arr
-        //    //.Where(kp => !(kp.Key < count && ColumnsAreEqual(kp.Value, )))
-        //    )
-        for (int i = 0; i < count; i++)
+        double worksheetColumnWidth = GetColumnWidth(xlWorksheet.ColumnWidth).SaveRound();
+        uint worksheetStyleId = context.GetStyleId(xlWorksheet.FormatValue);
+
+        if (
+            xlWorksheet.Internals.CellsCollection.IsEmpty
+            && xlWorksheet.Internals.ColumnsCollection.Count == 0
+            && worksheetStyleId == 0
+        )
         {
-            KeyValuePair<uint, Column> kp = arr[i];
-            if (i + 1 != count && ColumnsAreEqual(kp.Value, arr[i + 1].Value))
+            worksheet.Element(SpreadsheetXml.Main + "cols")?.Remove();
+            return;
+        }
+
+        XElement columns = WorksheetXml.Child(worksheet, "cols");
+        Dictionary<uint, XElement> sheetColumnsByMin = columns
+            .Elements(SpreadsheetXml.Main + "col")
+            .ToDictionary(col => SpreadsheetXml.UInt(col, "min")!.Value, col => col);
+
+        int minInColumnsCollection;
+        int maxInColumnsCollection;
+        if (xlWorksheet.Internals.ColumnsCollection.Count > 0)
+        {
+            minInColumnsCollection = xlWorksheet.Internals.ColumnsCollection.Keys.Min();
+            maxInColumnsCollection = xlWorksheet.Internals.ColumnsCollection.Keys.Max();
+        }
+        else
+        {
+            minInColumnsCollection = 1;
+            maxInColumnsCollection = 0;
+        }
+
+        // Columns before the first one the workbook model names explicitly get the sheet's own
+        // default, one column at a time - matching the granularity UpdateColumn works at.
+        for (int co = 1; co < minInColumnsCollection; co++)
+        {
+            UpdateColumn(
+                NewColumn((uint)co, (uint)co, worksheetStyleId, worksheetColumnWidth),
+                columns,
+                sheetColumnsByMin
+            );
+        }
+
+        for (int co = minInColumnsCollection; co <= maxInColumnsCollection; co++)
+        {
+            uint styleId = worksheetStyleId;
+            double columnWidth = worksheetColumnWidth;
+            bool isHidden = false;
+            bool collapsed = false;
+            int outlineLevel = 0;
+            if (xlWorksheet.Internals.ColumnsCollection.TryGetValue(co, out XLColumn col))
             {
-                continue;
+                styleId = col.FormatValue is null
+                    ? worksheetStyleId
+                    : context.GetStyleId(col.FormatValue);
+                columnWidth = GetColumnWidth(col.Width).SaveRound();
+                isHidden = col.IsHidden;
+                collapsed = col.Collapsed;
+                outlineLevel = col.OutlineLevel;
             }
 
-            Column newColumn = (Column)kp.Value.CloneNode(true);
-            newColumn.Min = lastMin;
-            uint newColumnMax = newColumn.Max.Value;
-            List<Column> columnsToRemove =
-            [
-                .. columns
-                    .Elements<Column>()
-                    .Where(co => co.Min >= lastMin && co.Max <= newColumnMax)
-                    .Select(co => co),
-            ];
-            columnsToRemove.ForEach(c => columns.RemoveChild(c));
+            UpdateColumn(
+                NewColumn(
+                    (uint)co,
+                    (uint)co,
+                    styleId,
+                    columnWidth,
+                    isHidden ? true : null,
+                    collapsed ? true : null,
+                    outlineLevel > 0 ? (byte)outlineLevel : null
+                ),
+                columns,
+                sheetColumnsByMin
+            );
+        }
 
-            columns.AppendChild(newColumn);
-            lastMin = kp.Key + 1;
-            //i++;
+        // Anything past what the model named explicitly - columns the sheet already carried from
+        // being loaded - takes on the sheet's own style and width too.
+        int lastExplicitColumn = maxInColumnsCollection;
+        foreach (
+            XElement col in columns
+                .Elements(SpreadsheetXml.Main + "col")
+                .Where(col => SpreadsheetXml.UInt(col, "min") > (uint)lastExplicitColumn)
+                .OrderBy(col => SpreadsheetXml.UInt(col, "min"))
+                .ToList()
+        )
+        {
+            col.SetAttributeValue("style", worksheetStyleId);
+            WorksheetXml.Set(col, "width", worksheetColumnWidth);
+            col.SetAttributeValue("customWidth", "1");
+
+            uint colMax = SpreadsheetXml.UInt(col, "max")!.Value;
+            if (colMax > maxInColumnsCollection)
+            {
+                maxInColumnsCollection = (int)colMax;
+            }
+        }
+
+        if (maxInColumnsCollection < XlsxSharp.XLHelper.MaxColumnNumber && worksheetStyleId != 0)
+        {
+            columns.Add(
+                NewColumn(
+                    (uint)(maxInColumnsCollection + 1),
+                    (uint)XlsxSharp.XLHelper.MaxColumnNumber,
+                    worksheetStyleId,
+                    worksheetColumnWidth
+                )
+            );
+        }
+
+        CollapseColumns(columns, sheetColumnsByMin);
+
+        if (!columns.Elements(SpreadsheetXml.Main + "col").Any())
+        {
+            columns.Remove();
         }
     }
 
     private static double GetColumnWidth(double columnWidth) =>
         Math.Min(255.0, Math.Max(0.0, columnWidth + XLConstants.ColumnWidthOffset));
 
-    private static void UpdateColumn(
-        Column column,
-        Columns columns,
-        Dictionary<uint, Column> sheetColumnsByMin
+    private static XElement NewColumn(
+        uint min,
+        uint max,
+        uint style,
+        double width,
+        bool? hidden = null,
+        bool? collapsed = null,
+        byte? outlineLevel = null
     )
     {
-        if (!sheetColumnsByMin.TryGetValue(column.Min.Value, out Column newColumn))
+        XElement column = new(
+            SpreadsheetXml.Main + "col",
+            new XAttribute("min", min),
+            new XAttribute("max", max),
+            new XAttribute("style", style),
+            new XAttribute("customWidth", "1")
+        );
+        WorksheetXml.Set(column, "width", width);
+        if (hidden == true)
         {
-            newColumn = (Column)column.CloneNode(true);
-            columns.AppendChild(newColumn);
-            sheetColumnsByMin.Add(column.Min.Value, newColumn);
+            column.SetAttributeValue("hidden", "1");
+        }
+
+        if (collapsed == true)
+        {
+            column.SetAttributeValue("collapsed", "1");
+        }
+
+        if (outlineLevel is { } level && level > 0)
+        {
+            column.SetAttributeValue("outlineLevel", level);
+        }
+
+        return column;
+    }
+
+    /// <summary>
+    /// Places one column's worth of formatting into the tree, splitting an existing span that
+    /// covers it if there is one. A span wider than a single column is shaved down one column at
+    /// a time as each of its columns is visited in turn, rather than replaced outright, so a
+    /// column the model never mentions keeps whatever of the span's own attributes it had.
+    /// </summary>
+    private static void UpdateColumn(
+        XElement column,
+        XElement columns,
+        Dictionary<uint, XElement> sheetColumnsByMin
+    )
+    {
+        uint columnMin = SpreadsheetXml.UInt(column, "min")!.Value;
+        if (!sheetColumnsByMin.TryGetValue(columnMin, out XElement existingColumn))
+        {
+            XElement newColumn = new(column);
+            columns.Add(newColumn);
+            sheetColumnsByMin.Add(columnMin, newColumn);
+            return;
+        }
+
+        XElement replacement = new(existingColumn);
+        replacement.SetAttributeValue("min", columnMin);
+        replacement.SetAttributeValue("max", SpreadsheetXml.UInt(column, "max"));
+        replacement.SetAttributeValue("style", SpreadsheetXml.UInt(column, "style"));
+        WorksheetXml.Set(
+            replacement,
+            "width",
+            SpreadsheetXml.Double(column, "width")!.Value.SaveRound()
+        );
+        replacement.SetAttributeValue("customWidth", column.Attribute("customWidth")?.Value);
+        replacement.SetAttributeValue(
+            "hidden",
+            column.Attribute("hidden") is not null ? "1" : null
+        );
+        replacement.SetAttributeValue(
+            "collapsed",
+            column.Attribute("collapsed") is not null ? "1" : null
+        );
+        replacement.SetAttributeValue(
+            "outlineLevel",
+            SpreadsheetXml.UInt(column, "outlineLevel") is { } level && level > 0 ? level : null
+        );
+
+        sheetColumnsByMin.Remove(columnMin);
+        uint existingMin = SpreadsheetXml.UInt(existingColumn, "min")!.Value;
+        uint existingMax = SpreadsheetXml.UInt(existingColumn, "max")!.Value;
+        if (existingMin + 1 > existingMax)
+        {
+            // The existing span was exactly one column wide, so it is fully replaced.
+            existingColumn.Remove();
+            columns.Add(replacement);
+            sheetColumnsByMin.Add(columnMin, replacement);
         }
         else
         {
-            Column existingColumn = sheetColumnsByMin[column.Min.Value];
-            newColumn = (Column)existingColumn.CloneNode(true);
-            newColumn.Min = column.Min;
-            newColumn.Max = column.Max;
-            newColumn.Style = column.Style;
-            newColumn.Width = column.Width.SaveRound();
-            newColumn.CustomWidth = column.CustomWidth;
-
-            if (column.Hidden != null)
-            {
-                newColumn.Hidden = true;
-            }
-            else
-            {
-                newColumn.Hidden = null;
-            }
-
-            if (column.Collapsed != null)
-            {
-                newColumn.Collapsed = true;
-            }
-            else
-            {
-                newColumn.Collapsed = null;
-            }
-
-            if (column.OutlineLevel != null && column.OutlineLevel > 0)
-            {
-                newColumn.OutlineLevel = (byte)column.OutlineLevel;
-            }
-            else
-            {
-                newColumn.OutlineLevel = null;
-            }
-
-            sheetColumnsByMin.Remove(column.Min.Value);
-            if (existingColumn.Min + 1 > existingColumn.Max)
-            {
-                //existingColumn.Min = existingColumn.Min + 1;
-                //columns.InsertBefore(existingColumn, newColumn);
-                //existingColumn.Remove();
-                columns.RemoveChild(existingColumn);
-                columns.AppendChild(newColumn);
-                sheetColumnsByMin.Add(newColumn.Min.Value, newColumn);
-            }
-            else
-            {
-                //columns.InsertBefore(existingColumn, newColumn);
-                columns.AppendChild(newColumn);
-                sheetColumnsByMin.Add(newColumn.Min.Value, newColumn);
-                existingColumn.Min = existingColumn.Min + 1;
-                sheetColumnsByMin.Add(existingColumn.Min.Value, existingColumn);
-            }
+            // The existing span continues past this column; shrink it from the front instead of
+            // removing it, so what is left of it can be found under its new starting column.
+            columns.Add(replacement);
+            sheetColumnsByMin.Add(columnMin, replacement);
+            existingColumn.SetAttributeValue("min", existingMin + 1);
+            sheetColumnsByMin.Add(existingMin + 1, existingColumn);
         }
     }
 
-    private static bool ColumnsAreEqual(Column left, Column right) =>
-        (
-            (left.Style == null && right.Style == null)
-            || (left.Style != null && right.Style != null && left.Style.Value == right.Style.Value)
-        )
-        && (
-            (left.Width == null && right.Width == null)
-            || (
-                left.Width != null
-                && right.Width != null
-                && (Math.Abs(left.Width.Value - right.Width.Value) < XlsxSharp.XLHelper.Epsilon)
+    /// <summary>
+    /// Merges adjacent columns that carry the same formatting into a single span, the way Excel
+    /// itself writes them.
+    /// </summary>
+    private static void CollapseColumns(XElement columns, Dictionary<uint, XElement> sheetColumns)
+    {
+        uint lastMin = 1;
+        int count = sheetColumns.Count;
+        KeyValuePair<uint, XElement>[] ordered = [.. sheetColumns.OrderBy(entry => entry.Key)];
+        for (int i = 0; i < count; i++)
+        {
+            KeyValuePair<uint, XElement> entry = ordered[i];
+            if (i + 1 != count && ColumnsAreEqual(entry.Value, ordered[i + 1].Value))
+            {
+                continue;
+            }
+
+            XElement mergedColumn = new(entry.Value);
+            mergedColumn.SetAttributeValue("min", lastMin);
+            uint mergedMax = SpreadsheetXml.UInt(mergedColumn, "max")!.Value;
+
+            foreach (
+                XElement toRemove in columns
+                    .Elements(SpreadsheetXml.Main + "col")
+                    .Where(col =>
+                        SpreadsheetXml.UInt(col, "min") >= lastMin
+                        && SpreadsheetXml.UInt(col, "max") <= mergedMax
+                    )
+                    .ToList()
             )
+            {
+                toRemove.Remove();
+            }
+
+            columns.Add(mergedColumn);
+            lastMin = entry.Key + 1;
+        }
+    }
+
+    private static bool ColumnsAreEqual(XElement left, XElement right) =>
+        NullableEquals(SpreadsheetXml.UInt(left, "style"), SpreadsheetXml.UInt(right, "style"))
+        && NullableEquals(
+            SpreadsheetXml.Double(left, "width"),
+            SpreadsheetXml.Double(right, "width"),
+            XlsxSharp.XLHelper.Epsilon
         )
-        && (
-            (left.Hidden == null && right.Hidden == null)
-            || (
-                left.Hidden != null
-                && right.Hidden != null
-                && left.Hidden.Value == right.Hidden.Value
-            )
+        && NullableEquals(SpreadsheetXml.Bool(left, "hidden"), SpreadsheetXml.Bool(right, "hidden"))
+        && NullableEquals(
+            SpreadsheetXml.Bool(left, "collapsed"),
+            SpreadsheetXml.Bool(right, "collapsed")
         )
-        && (
-            (left.Collapsed == null && right.Collapsed == null)
-            || (
-                left.Collapsed != null
-                && right.Collapsed != null
-                && left.Collapsed.Value == right.Collapsed.Value
-            )
-        )
-        && (
-            (left.OutlineLevel == null && right.OutlineLevel == null)
-            || (
-                left.OutlineLevel != null
-                && right.OutlineLevel != null
-                && left.OutlineLevel.Value == right.OutlineLevel.Value
-            )
+        && NullableEquals(
+            SpreadsheetXml.UInt(left, "outlineLevel"),
+            SpreadsheetXml.UInt(right, "outlineLevel")
         );
+
+    private static bool NullableEquals<T>(T? left, T? right)
+        where T : struct, IEquatable<T> =>
+        (left is null && right is null)
+        || (left is not null && right is not null && left.Value.Equals(right.Value));
+
+    private static bool NullableEquals(double? left, double? right, double epsilon) =>
+        (left is null && right is null)
+        || (left is not null && right is not null && Math.Abs(left.Value - right.Value) < epsilon);
 
     // http://polymathprogrammer.com/2009/10/22/english-metric-units-and-open-xml/
     // http://archive.oreilly.com/pub/post/what_is_an_emu.html
