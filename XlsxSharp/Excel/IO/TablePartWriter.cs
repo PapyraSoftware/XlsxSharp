@@ -4,6 +4,7 @@ using DocumentFormat.OpenXml.Packaging;
 using XlsxSharp.Excel.Tables;
 using XlsxSharp.Extensions;
 using XlsxSharp.IO;
+using XlsxSharp.IO.Packaging;
 using static XlsxSharp.Excel.XLWorkbook;
 
 namespace XlsxSharp.Excel.IO;
@@ -236,9 +237,9 @@ internal class TablePartWriter
     /// <summary>
     /// Reading <c>xl/tables/tableN.xml</c>.
     /// </summary>
-    internal static XElement Read(TableDefinitionPart part)
+    internal static XElement Read(OpcPart part)
     {
-        using Stream stream = part.GetStream(FileMode.Open, FileAccess.Read);
+        using Stream stream = part.GetReadStream();
         return XDocument.Load(stream).Root
             ?? throw PartStructureException.ExpectedElementNotFound("table");
     }

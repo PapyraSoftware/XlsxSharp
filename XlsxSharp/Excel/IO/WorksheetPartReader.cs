@@ -1,7 +1,6 @@
 using System.Globalization;
 using System.Xml;
 using System.Xml.Linq;
-using DocumentFormat.OpenXml.Packaging;
 using XlsxSharp.Excel.CalcEngine;
 using XlsxSharp.Excel.ConditionalFormats;
 using XlsxSharp.Excel.DataValidation;
@@ -13,6 +12,7 @@ using XlsxSharp.Excel.RichText;
 using XlsxSharp.Excel.Rows;
 using XlsxSharp.Extensions;
 using XlsxSharp.IO;
+using XlsxSharp.IO.Packaging;
 using XlsxSharp.Parser;
 using XlsxSharp.Utils;
 
@@ -72,7 +72,7 @@ internal class WorksheetPartReader
 
     internal void LoadWorksheet(
         XLWorksheet ws,
-        WorksheetPart worksheetPart,
+        OpcPart worksheetPart,
         XElement[] sharedStrings,
         LoadContext context
     )
@@ -81,7 +81,7 @@ internal class WorksheetPartReader
 
         this._lastRow = 0;
 
-        using Stream stream = worksheetPart.GetStream(FileMode.Open, FileAccess.Read);
+        using Stream stream = worksheetPart.GetReadStream();
         using XmlReader reader = XmlReader.Create(stream, ReaderSettings);
 
         reader.MoveToContent();
@@ -1361,19 +1361,25 @@ internal class WorksheetPartReader
         }
     }
 
-    private static void LoadHyperlinks(
-        XElement hyperlinks,
-        WorksheetPart worksheetPart,
-        XLWorksheet ws
-    )
+    /// <summary>
+    /// A hyperlink has no part of its own - it is an external relationship, so it does not fit
+    /// <see cref="XlsxSharp.IO.Packaging.OoxmlPartTypes"/>, which only carries the kinds of parts a
+    /// package holds.
+    /// </summary>
+    private const string HyperlinkRelationshipType =
+        "http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink";
+
+    private static void LoadHyperlinks(XElement hyperlinks, OpcPart worksheetPart, XLWorksheet ws)
     {
         if (hyperlinks is null)
         {
             return;
         }
 
-        Dictionary<string, Uri> hyperlinkDictionary =
-            worksheetPart.HyperlinkRelationships?.ToDictionary(hr => hr.Id, hr => hr.Uri) ?? [];
+        Dictionary<string, Uri> hyperlinkDictionary = worksheetPart
+            .Relationships.OfType(HyperlinkRelationshipType)
+            .Where(r => r.TargetMode == OpcTargetMode.External)
+            .ToDictionary(r => r.Id, r => new Uri(r.Target, UriKind.RelativeOrAbsolute));
 
         foreach (XElement hl in hyperlinks.Elements(SpreadsheetXml.Main + "hyperlink"))
         {

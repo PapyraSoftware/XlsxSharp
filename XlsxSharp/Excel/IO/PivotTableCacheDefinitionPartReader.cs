@@ -1,9 +1,9 @@
 using System.Globalization;
 using System.Xml.Linq;
-using DocumentFormat.OpenXml.Packaging;
 using XlsxSharp.Excel.CalcEngine;
 using XlsxSharp.Extensions;
 using XlsxSharp.IO;
+using XlsxSharp.IO.Packaging;
 
 namespace XlsxSharp.Excel.IO;
 
@@ -20,8 +20,8 @@ internal class PivotTableCacheDefinitionPartReader
         "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
 
     internal static XLPivotCache Load(
-        WorkbookPart workbookPart,
-        PivotTableCacheDefinitionPart pivotTableCacheDefinitionPart,
+        OpcPart workbookPart,
+        OpcPart pivotTableCacheDefinitionPart,
         XLWorkbook workbook
     )
     {
@@ -35,7 +35,9 @@ internal class PivotTableCacheDefinitionPartReader
         // A WorkbookCacheRelId that is already set means the pivot source is being reused.
         if (string.IsNullOrWhiteSpace(pivotCache.WorkbookCacheRelId))
         {
-            pivotCache.WorkbookCacheRelId = workbookPart.GetIdOfPart(pivotTableCacheDefinitionPart);
+            pivotCache.WorkbookCacheRelId = workbookPart.Relationships.GetIdOfTarget(
+                pivotTableCacheDefinitionPart.Name
+            );
         }
 
         if (ParseUInt(cacheDefinition.Attribute("missingItemsLimit")) is { } missingItemsLimit)
@@ -61,12 +63,12 @@ internal class PivotTableCacheDefinitionPartReader
     /// The source a cache definition part describes, for the pivot table reader looking for a
     /// cache that reads from the same place.
     /// </summary>
-    internal static IXLPivotSource ReadSource(PivotTableCacheDefinitionPart part) =>
+    internal static IXLPivotSource ReadSource(OpcPart part) =>
         ParsePivotSourceReference(RequireCacheSource(ReadRoot(part)));
 
-    private static XElement ReadRoot(PivotTableCacheDefinitionPart part)
+    private static XElement ReadRoot(OpcPart part)
     {
-        using Stream stream = part.GetStream(FileMode.Open, FileAccess.Read);
+        using Stream stream = part.GetReadStream();
         return XDocument.Load(stream).Root
             ?? throw PartStructureException.ExpectedElementNotFound("pivotCacheDefinition");
     }

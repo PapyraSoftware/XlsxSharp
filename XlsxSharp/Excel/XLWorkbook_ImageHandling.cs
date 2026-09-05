@@ -1,9 +1,9 @@
 #nullable disable
 
 using System.Xml.Linq;
-using DocumentFormat.OpenXml.Packaging;
 using XlsxSharp.Excel.IO;
 using XlsxSharp.IO;
+using XlsxSharp.IO.Packaging;
 
 namespace XlsxSharp.Excel;
 
@@ -21,9 +21,9 @@ public partial class XLWorkbook
         internal static readonly XNamespace A =
             "http://schemas.openxmlformats.org/drawingml/2006/main";
 
-        internal static XElement Read(DrawingsPart part)
+        internal static XElement Read(OpcPart part)
         {
-            using Stream stream = part.GetStream(FileMode.Open, FileAccess.Read);
+            using Stream stream = part.GetReadStream();
             return XDocument.Load(stream).Root
                 ?? throw PartStructureException.ExpectedElementNotFound("wsDr");
         }

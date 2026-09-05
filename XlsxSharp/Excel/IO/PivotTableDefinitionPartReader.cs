@@ -1,10 +1,10 @@
 using System.Globalization;
 using System.Xml.Linq;
-using DocumentFormat.OpenXml.Packaging;
 using XlsxSharp.Excel.ConditionalFormats;
 using XlsxSharp.Excel.Formatting;
 using XlsxSharp.Excel.PivotValues;
 using XlsxSharp.IO;
+using XlsxSharp.IO.Packaging;
 
 namespace XlsxSharp.Excel.IO;
 
@@ -32,9 +32,9 @@ internal class PivotTableDefinitionPartReader
     private const int ValuesFieldIndex = -2;
 
     internal static void Load(
-        WorkbookPart workbookPart,
-        PivotTablePart pivotTablePart,
-        WorksheetPart worksheetPart,
+        OpcPart workbookPart,
+        OpcPart pivotTablePart,
+        OpcPart worksheetPart,
         XLWorksheet ws,
         LoadContext context
     )
@@ -42,12 +42,12 @@ internal class PivotTableDefinitionPartReader
         XLWorkbook workbook = ws.Workbook;
         // Without a cache there is nothing to read the pivot table against. The previous reader
         // would have thrown a NullReferenceException a line later.
-        PivotTableCacheDefinitionPart cache =
-            pivotTablePart.PivotTableCacheDefinitionPart
+        OpcPart cache =
+            pivotTablePart.PartOfType(OoxmlPartTypes.PivotCacheDefinition)
             ?? throw PartStructureException.ExpectedElementNotFound(
                 "the pivot table has no cache definition part"
             );
-        string cacheDefinitionRelId = workbookPart.GetIdOfPart(cache);
+        string? cacheDefinitionRelId = workbookPart.Relationships.GetIdOfTarget(cache.Name);
 
         XLPivotCache? pivotSource = workbook.PivotCachesInternal.FirstOrDefault<XLPivotCache>(ps =>
             ps.WorkbookCacheRelId == cacheDefinitionRelId
@@ -89,15 +89,26 @@ internal class PivotTableDefinitionPartReader
 
             ws.PivotTables.Add(pt);
 
-            pt.RelId = worksheetPart.GetIdOfPart(pivotTablePart);
-            pt.CacheDefinitionRelId = pivotTablePart.GetIdOfPart(cache);
+            pt.RelId = worksheetPart.Relationships.GetIdOfTarget(pivotTablePart.Name);
+            pt.CacheDefinitionRelId = pivotTablePart.Relationships.GetIdOfTarget(cache.Name);
         }
     }
 
-    private static XElement? ReadRoot(PivotTablePart part)
+    private static XElement? ReadRoot(OpcPart part)
     {
-        using Stream stream = part.GetStream(FileMode.OpenOrCreate, FileAccess.Read);
-        return stream.Length > 0 ? XDocument.Load(stream).Root : null;
+        // A part's read stream can be a raw deflate stream straight off the ZIP entry, which does
+        // not support Length - buffer it first so the empty-part check below still works.
+        using Stream stream = part.GetReadStream();
+        using MemoryStream buffer = new();
+        stream.CopyTo(buffer);
+
+        if (buffer.Length == 0)
+        {
+            return null;
+        }
+
+        buffer.Position = 0;
+        return XDocument.Load(buffer).Root;
     }
 
     private static XLPivotTable LoadPivotTableDefinition(

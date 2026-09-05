@@ -4,7 +4,6 @@ using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
-using DocumentFormat.OpenXml.Packaging;
 using XlsxSharp.Excel.Comments;
 using XlsxSharp.Excel.Drawings;
 using XlsxSharp.Excel.Drawings.Style;
@@ -15,6 +14,7 @@ using XlsxSharp.Excel.RichText;
 using XlsxSharp.Excel.Tables;
 using XlsxSharp.Extensions;
 using XlsxSharp.IO;
+using XlsxSharp.IO.Packaging;
 using XlsxSharp.Utils;
 
 namespace XlsxSharp.Excel;
@@ -36,25 +36,27 @@ public partial class XLWorkbook
 
     private void LoadSheets(string fileName)
     {
-        using (SpreadsheetDocument dSpreadsheet = SpreadsheetDocument.Open(fileName, false))
+        using (OpcPackage package = OpcPackage.Open(fileName, writable: false))
         {
-            this.LoadSpreadsheetDocument(dSpreadsheet);
+            this.LoadSpreadsheetDocument(package);
         }
     }
 
     private void LoadSheets(Stream stream)
     {
-        using (SpreadsheetDocument dSpreadsheet = SpreadsheetDocument.Open(stream, false))
+        using (OpcPackage package = OpcPackage.Open(stream, writable: false))
         {
-            this.LoadSpreadsheetDocument(dSpreadsheet);
+            this.LoadSpreadsheetDocument(package);
         }
     }
 
     private void LoadSheetsFromTemplate(string fileName)
     {
-        using (SpreadsheetDocument dSpreadsheet = SpreadsheetDocument.CreateFromTemplate(fileName))
+        // Save always opens or creates its own package rather than reusing this one, so a
+        // read-only open is enough here - nothing is ever written back to this file.
+        using (OpcPackage package = OpcPackage.Open(fileName, writable: false))
         {
-            this.LoadSpreadsheetDocument(dSpreadsheet);
+            this.LoadSpreadsheetDocument(package);
         }
 
         // If we load a workbook as a template, we have to treat it as a "new" workbook.
@@ -95,37 +97,41 @@ public partial class XLWorkbook
         }
     }
 
-    private void LoadSpreadsheetDocument(SpreadsheetDocument dSpreadsheet)
+    /// <summary>
+    /// The worksheet part a sheet's relationship id points at, or null when it points at
+    /// something else - a chartsheet or other sheet type XlsxSharp does not model, which is kept
+    /// around as an <see cref="UnsupportedSheet"/> instead.
+    /// </summary>
+    private static OpcPart GetWorksheetPartOrNull(OpcPart workbookPart, string sheetRelId)
+    {
+        OpcPart part = workbookPart.GetRelatedPart(sheetRelId);
+        return part.ContentType == OoxmlPartTypes.Worksheet.ContentType ? part : null;
+    }
+
+    private void LoadSpreadsheetDocument(OpcPackage package)
     {
         LoadContext context = new();
         this.ShapeIdManager = new XLIdManager();
-        this.SetProperties(dSpreadsheet);
+        this.SetProperties(package);
 
         XElement[] sharedStrings = null;
-        WorkbookPart workbookPart = dSpreadsheet.WorkbookPart;
-        if (workbookPart.GetPartsOfType<SharedStringTablePart>().Any())
+        OpcPart workbookPart =
+            package.PartOfType(OoxmlPartTypes.Workbook)
+            ?? throw PartStructureException.RequiredElementIsMissing("workbook");
+        if (workbookPart.PartOfType(OoxmlPartTypes.SharedStringTable) is { } shareStringPart)
         {
-            SharedStringTablePart shareStringPart = workbookPart
-                .GetPartsOfType<SharedStringTablePart>()
-                .First();
-            using Stream sharedStringsStream = shareStringPart.GetStream(
-                FileMode.Open,
-                FileAccess.Read
-            );
+            using Stream sharedStringsStream = shareStringPart.GetReadStream();
             XElement sharedStringTable =
                 XDocument.Load(sharedStringsStream).Root
                 ?? throw PartStructureException.ExpectedElementNotFound("sst");
             sharedStrings = [.. sharedStringTable.Elements(SpreadsheetXml.Main + "si")];
         }
 
-        LoadWorkbookTheme(workbookPart?.ThemePart, this);
+        LoadWorkbookTheme(workbookPart.PartOfType(OoxmlPartTypes.Theme), this);
 
-        if (dSpreadsheet.CustomFilePropertiesPart is { } customFilePropertiesPart)
+        if (package.PartOfType(OoxmlPartTypes.CustomFileProperties) is { } customFilePropertiesPart)
         {
-            using Stream customPropertiesStream = customFilePropertiesPart.GetStream(
-                FileMode.Open,
-                FileAccess.Read
-            );
+            using Stream customPropertiesStream = customFilePropertiesPart.GetReadStream();
             XElement? customProperties = XDocument.Load(customPropertiesStream).Root;
 
             foreach (
@@ -224,12 +230,12 @@ public partial class XLWorkbook
             }
         }
 
-        if (dSpreadsheet.ExtendedFilePropertiesPart is { } extendedFilePropertiesPart)
+        if (
+            package.PartOfType(OoxmlPartTypes.ExtendedFileProperties) is
+            { } extendedFilePropertiesPart
+        )
         {
-            using Stream extendedPropertiesStream = extendedFilePropertiesPart.GetStream(
-                FileMode.Open,
-                FileAccess.Read
-            );
+            using Stream extendedPropertiesStream = extendedFilePropertiesPart.GetReadStream();
             XElement? extendedProperties = XDocument.Load(extendedPropertiesStream).Root;
 
             if (extendedProperties?.Element(ExtendedPropertiesNs + "Company")?.Value is { } company)
@@ -243,7 +249,7 @@ public partial class XLWorkbook
             }
         }
 
-        WorkbookStylesPart stylesPart = workbookPart.WorkbookStylesPart;
+        OpcPart stylesPart = workbookPart.PartOfType(OoxmlPartTypes.Styles);
         if (stylesPart is not null)
         {
             using XmlTreeReader xmlReader = this.CreateTreeReader(stylesPart);
@@ -289,7 +295,7 @@ public partial class XLWorkbook
             // Although relationship to worksheet is most common, there can be other types
             // than worksheet, e.g. chartSheet. Since we can't load them, add them to list
             // of unsupported sheets and copy them when saving. See Codeplex #6932.
-            WorksheetPart worksheetPart = workbookPart.GetPartById(sheetRelId) as WorksheetPart;
+            OpcPart worksheetPart = GetWorksheetPartOrNull(workbookPart, sheetRelId);
             if (worksheetPart == null)
             {
                 this.UnsupportedSheets.Add(
@@ -323,7 +329,7 @@ public partial class XLWorkbook
             // Although relationship to worksheet is most common, there can be other types
             // than worksheet, e.g. chartSheet. Since we can't load them, add them to list
             // of unsupported sheets and copy them when saving. See Codeplex #6932.
-            WorksheetPart worksheetPart = workbookPart.GetPartById(sheetRelId) as WorksheetPart;
+            OpcPart worksheetPart = GetWorksheetPartOrNull(workbookPart, sheetRelId);
             if (worksheetPart == null)
             {
                 continue;
@@ -342,9 +348,9 @@ public partial class XLWorkbook
 
             #region LoadTables
 
-            foreach (TableDefinitionPart tableDefinitionPart in worksheetPart.TableDefinitionParts)
+            foreach (OpcPart tableDefinitionPart in worksheetPart.PartsOfType(OoxmlPartTypes.Table))
             {
-                string relId = worksheetPart.GetIdOfPart(tableDefinitionPart);
+                string relId = worksheetPart.Relationships.GetIdOfTarget(tableDefinitionPart.Name);
                 XElement dTable = TablePartWriter.Read(tableDefinitionPart);
 
                 string reference = SpreadsheetXml.String(dTable, "ref");
@@ -512,12 +518,9 @@ public partial class XLWorkbook
 
             #region LoadComments
 
-            if (worksheetPart.WorksheetCommentsPart != null)
+            if (worksheetPart.PartOfType(OoxmlPartTypes.Comments) is { } commentsPart)
             {
-                using Stream commentsStream = worksheetPart.WorksheetCommentsPart.GetStream(
-                    FileMode.Open,
-                    FileAccess.Read
-                );
+                using Stream commentsStream = commentsPart.GetReadStream();
                 XElement root =
                     XDocument.Load(commentsStream).Root
                     ?? throw PartStructureException.ExpectedElementNotFound("comments");
@@ -636,7 +639,9 @@ public partial class XLWorkbook
 
         // Read cache definition before table definition
         foreach (
-            PivotTableCacheDefinitionPart pivotTableCacheDefinitionPart in workbookPart.GetPartsOfType<PivotTableCacheDefinitionPart>()
+            OpcPart pivotTableCacheDefinitionPart in workbookPart.PartsOfType(
+                OoxmlPartTypes.PivotCacheDefinition
+            )
         )
         {
             XLPivotCache pivotCache = PivotTableCacheDefinitionPartReader.Load(
@@ -644,7 +649,10 @@ public partial class XLWorkbook
                 pivotTableCacheDefinitionPart,
                 this
             );
-            if (pivotTableCacheDefinitionPart.PivotTableCacheRecordsPart is { } recordsPart)
+            if (
+                pivotTableCacheDefinitionPart.PartOfType(OoxmlPartTypes.PivotCacheRecords) is
+                { } recordsPart
+            )
             {
                 using XmlTreeReader reader = this.CreateTreeReader(recordsPart);
                 PivotCacheRecordsReader recordsReader = new(reader, pivotCache);
@@ -663,14 +671,16 @@ public partial class XLWorkbook
             }
 
             // The referenced sheet can also be ChartsheetPart. Only look for pivot tables in normal sheet parts.
-            WorksheetPart worksheetPart = workbookPart.GetPartById(sheetRelId) as WorksheetPart;
+            OpcPart worksheetPart = GetWorksheetPartOrNull(workbookPart, sheetRelId);
 
             if (worksheetPart is not null)
             {
                 XLWorksheet ws = (XLWorksheet)
                     this.WorksheetsInternal.Worksheet(dSheet.Attribute("name")?.Value);
 
-                foreach (PivotTablePart pivotTablePart in worksheetPart.PivotTableParts)
+                foreach (
+                    OpcPart pivotTablePart in worksheetPart.PartsOfType(OoxmlPartTypes.PivotTable)
+                )
                 {
                     PivotTableDefinitionPartReader.Load(
                         workbookPart,
@@ -684,14 +694,13 @@ public partial class XLWorkbook
         }
     }
 
-    private static void LoadDrawings(WorksheetPart wsPart, XLWorksheet ws)
+    private static void LoadDrawings(OpcPart wsPart, XLWorksheet ws)
     {
-        if (wsPart.DrawingsPart == null)
+        if (wsPart.PartOfType(OoxmlPartTypes.Drawing) is not { } drawingsPart)
         {
             return;
         }
 
-        DrawingsPart drawingsPart = wsPart.DrawingsPart;
         XElement worksheetDrawing = DrawingXml.Read(drawingsPart);
 
         foreach (XElement anchor in worksheetDrawing.Elements())
@@ -704,8 +713,8 @@ public partial class XLWorkbook
                 continue;
             }
 
-            OpenXmlPart imagePart = drawingsPart.GetPartById(imgId);
-            using Stream stream = imagePart.GetStream();
+            OpcPart imagePart = drawingsPart.GetRelatedPart(imgId);
+            using Stream stream = imagePart.GetReadStream();
             using MemoryStream ms = new();
             stream.CopyTo(ms);
 
@@ -821,12 +830,12 @@ public partial class XLWorkbook
 
     #region Comment Helpers
 
-    private static IList<XElement> GetCommentShapes(WorksheetPart worksheetPart)
+    private static IList<XElement> GetCommentShapes(OpcPart worksheetPart)
     {
         // Cannot get this to return Vml.Shape elements
-        foreach (VmlDrawingPart vmlPart in worksheetPart.VmlDrawingParts)
+        foreach (OpcPart vmlPart in worksheetPart.PartsOfType(OoxmlPartTypes.VmlDrawing))
         {
-            using (Stream stream = vmlPart.GetStream(FileMode.Open))
+            using (Stream stream = vmlPart.GetReadStream())
             {
                 XDocument xdoc = XDocumentExtensions.Load(stream);
                 if (xdoc == null)
@@ -1494,14 +1503,14 @@ public partial class XLWorkbook
         }
     }
 
-    private static void LoadWorkbookTheme(ThemePart tp, XLWorkbook wb)
+    private static void LoadWorkbookTheme(OpcPart tp, XLWorkbook wb)
     {
         if (tp is null)
         {
             return;
         }
 
-        using Stream stream = tp.GetStream(FileMode.Open, FileAccess.Read);
+        using Stream stream = tp.GetReadStream();
         XElement colorScheme = XDocument
             .Load(stream)
             .Root?.Element(DrawingNs + "themeElements")
@@ -1588,9 +1597,9 @@ public partial class XLWorkbook
         );
     }
 
-    private void SetProperties(SpreadsheetDocument dSpreadsheet)
+    private void SetProperties(OpcPackage package)
     {
-        IPackageProperties p = dSpreadsheet.PackageProperties;
+        OpcPackageProperties p = package.Properties;
         this.Properties.Author = p.Creator;
         this.Properties.Category = p.Category;
         this.Properties.Comments = p.Description;
@@ -1611,9 +1620,9 @@ public partial class XLWorkbook
         this.Properties.Title = p.Title;
     }
 
-    private XmlTreeReader CreateTreeReader(OpenXmlPart openXmlPart)
+    private XmlTreeReader CreateTreeReader(OpcPart part)
     {
-        Stream stream = openXmlPart.GetStream(FileMode.Open);
+        Stream stream = part.GetReadStream();
         return new XmlTreeReader(stream, XmlToEnumMapper.Instance, this.StrictAttributeParsing);
     }
 }
