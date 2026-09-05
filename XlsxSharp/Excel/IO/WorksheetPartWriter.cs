@@ -56,7 +56,10 @@ internal class WorksheetPartWriter
         // the rows loaded above are dropped before the rest of the sheet is turned into XML.
         worksheetDom.GetFirstChild<SheetData>()?.RemoveAllChildren();
 
-        StreamToPart(ToXml(worksheetDom), worksheetPart, xlWorksheet, context, options);
+        XElement worksheet = ToXml(worksheetDom);
+        WritePageSetup(worksheet, xlWorksheet.PageSetup);
+
+        StreamToPart(worksheet, worksheetPart, xlWorksheet, context, options);
     }
 
     private static Worksheet GetWorksheetDom(
@@ -1495,136 +1498,6 @@ internal class WorksheetPartWriter
 
         #endregion Hyperlinks
 
-        #region PrintOptions
-
-        if (!worksheet.Elements<PrintOptions>().Any())
-        {
-            OpenXmlElement previousElement = cm.GetPreviousElementFor(
-                XLWorksheetContents.PrintOptions
-            );
-            worksheet.InsertAfter(new PrintOptions(), previousElement);
-        }
-
-        PrintOptions printOptions = worksheet.Elements<PrintOptions>().First();
-        cm.SetElement(XLWorksheetContents.PrintOptions, printOptions);
-
-        printOptions.HorizontalCentered = xlWorksheet.PageSetup.CenterHorizontally;
-        printOptions.VerticalCentered = xlWorksheet.PageSetup.CenterVertically;
-        printOptions.Headings = xlWorksheet.PageSetup.ShowRowAndColumnHeadings;
-        printOptions.GridLines = xlWorksheet.PageSetup.ShowGridlines;
-
-        #endregion PrintOptions
-
-        #region PageMargins
-
-        if (!worksheet.Elements<PageMargins>().Any())
-        {
-            OpenXmlElement previousElement = cm.GetPreviousElementFor(
-                XLWorksheetContents.PageMargins
-            );
-            worksheet.InsertAfter(new PageMargins(), previousElement);
-        }
-
-        PageMargins pageMargins = worksheet.Elements<PageMargins>().First();
-        cm.SetElement(XLWorksheetContents.PageMargins, pageMargins);
-        pageMargins.Left = xlWorksheet.PageSetup.Margins.Left;
-        pageMargins.Right = xlWorksheet.PageSetup.Margins.Right;
-        pageMargins.Top = xlWorksheet.PageSetup.Margins.Top;
-        pageMargins.Bottom = xlWorksheet.PageSetup.Margins.Bottom;
-        pageMargins.Header = xlWorksheet.PageSetup.Margins.Header;
-        pageMargins.Footer = xlWorksheet.PageSetup.Margins.Footer;
-
-        #endregion PageMargins
-
-        #region PageSetup
-
-        if (!worksheet.Elements<DocumentFormat.OpenXml.Spreadsheet.PageSetup>().Any())
-        {
-            OpenXmlElement previousElement = cm.GetPreviousElementFor(
-                XLWorksheetContents.PageSetup
-            );
-            worksheet.InsertAfter(
-                new DocumentFormat.OpenXml.Spreadsheet.PageSetup(),
-                previousElement
-            );
-        }
-
-        DocumentFormat.OpenXml.Spreadsheet.PageSetup pageSetup = worksheet
-            .Elements<DocumentFormat.OpenXml.Spreadsheet.PageSetup>()
-            .First();
-        cm.SetElement(XLWorksheetContents.PageSetup, pageSetup);
-
-        pageSetup.Orientation = xlWorksheet.PageSetup.PageOrientation.ToOpenXml();
-        pageSetup.PaperSize = (uint)xlWorksheet.PageSetup.PaperSize;
-        pageSetup.BlackAndWhite = xlWorksheet.PageSetup.BlackAndWhite;
-        pageSetup.Draft = xlWorksheet.PageSetup.DraftQuality;
-        pageSetup.PageOrder = xlWorksheet.PageSetup.PageOrder.ToOpenXml();
-        pageSetup.CellComments = xlWorksheet.PageSetup.ShowComments.ToOpenXml();
-        pageSetup.Errors = xlWorksheet.PageSetup.PrintErrorValue.ToOpenXml();
-
-        if (xlWorksheet.PageSetup.FirstPageNumber.HasValue)
-        {
-            // Negative first page numbers are written as uint, e.g. -1 is 4294967295.
-            pageSetup.FirstPageNumber = UInt32Value.FromUInt32(
-                (uint)xlWorksheet.PageSetup.FirstPageNumber.Value
-            );
-            pageSetup.UseFirstPageNumber = true;
-        }
-        else
-        {
-            pageSetup.FirstPageNumber = null;
-            pageSetup.UseFirstPageNumber = null;
-        }
-
-        if (xlWorksheet.PageSetup.HorizontalDpi > 0)
-        {
-            pageSetup.HorizontalDpi = (uint)xlWorksheet.PageSetup.HorizontalDpi;
-        }
-        else
-        {
-            pageSetup.HorizontalDpi = null;
-        }
-
-        if (xlWorksheet.PageSetup.VerticalDpi > 0)
-        {
-            pageSetup.VerticalDpi = (uint)xlWorksheet.PageSetup.VerticalDpi;
-        }
-        else
-        {
-            pageSetup.VerticalDpi = null;
-        }
-
-        if (xlWorksheet.PageSetup.Scale > 0)
-        {
-            pageSetup.Scale = (uint)xlWorksheet.PageSetup.Scale;
-            pageSetup.FitToWidth = null;
-            pageSetup.FitToHeight = null;
-        }
-        else
-        {
-            pageSetup.Scale = null;
-
-            if (xlWorksheet.PageSetup.PagesWide >= 0 && xlWorksheet.PageSetup.PagesWide != 1)
-            {
-                pageSetup.FitToWidth = (uint)xlWorksheet.PageSetup.PagesWide;
-            }
-
-            if (xlWorksheet.PageSetup.PagesTall >= 0 && xlWorksheet.PageSetup.PagesTall != 1)
-            {
-                pageSetup.FitToHeight = (uint)xlWorksheet.PageSetup.PagesTall;
-            }
-        }
-
-        // For some reason some Excel files already contains pageSetup.Copies = 0
-        // The validation fails for this
-        // Let's remove the attribute of that's the case.
-        if ((pageSetup?.Copies ?? 0) <= 0)
-        {
-            pageSetup.Copies = null;
-        }
-
-        #endregion PageSetup
-
         #region HeaderFooter
 
         HeaderFooter headerFooter = worksheet.Elements<HeaderFooter>().FirstOrDefault();
@@ -2650,6 +2523,98 @@ internal class WorksheetPartWriter
     /// Stream detached worksheet DOM to the worksheet part stream.
     /// Replaces the content of the part.
     /// </summary>
+    /// <summary>
+    /// <c>printOptions</c>, <c>pageMargins</c> and <c>pageSetup</c>, which say how the sheet is
+    /// printed. All three are always written, and all three replace whatever the loaded sheet
+    /// carried - the workbook model holds every one of their attributes.
+    /// </summary>
+    private static void WritePageSetup(XElement worksheet, IXLPageSetup pageSetup)
+    {
+        XElement printOptions = WorksheetXml.Child(worksheet, "printOptions");
+        WorksheetXml.SetBool(printOptions, "horizontalCentered", pageSetup.CenterHorizontally);
+        WorksheetXml.SetBool(printOptions, "verticalCentered", pageSetup.CenterVertically);
+        WorksheetXml.SetBool(printOptions, "headings", pageSetup.ShowRowAndColumnHeadings);
+        WorksheetXml.SetBool(printOptions, "gridLines", pageSetup.ShowGridlines);
+
+        XElement margins = WorksheetXml.Child(worksheet, "pageMargins");
+        WorksheetXml.Set(margins, "left", pageSetup.Margins.Left);
+        WorksheetXml.Set(margins, "right", pageSetup.Margins.Right);
+        WorksheetXml.Set(margins, "top", pageSetup.Margins.Top);
+        WorksheetXml.Set(margins, "bottom", pageSetup.Margins.Bottom);
+        WorksheetXml.Set(margins, "header", pageSetup.Margins.Header);
+        WorksheetXml.Set(margins, "footer", pageSetup.Margins.Footer);
+
+        WritePageSetupElement(WorksheetXml.Child(worksheet, "pageSetup"), pageSetup);
+    }
+
+    private static void WritePageSetupElement(XElement element, IXLPageSetup pageSetup)
+    {
+        WorksheetXml.Set(element, "paperSize", (uint)pageSetup.PaperSize);
+        element.SetAttributeValue("orientation", pageSetup.PageOrientation.ToXml());
+        element.SetAttributeValue("pageOrder", pageSetup.PageOrder.ToXml());
+        element.SetAttributeValue("cellComments", pageSetup.ShowComments.ToXml());
+        element.SetAttributeValue("errors", pageSetup.PrintErrorValue.ToXml());
+        WorksheetXml.SetBool(element, "blackAndWhite", pageSetup.BlackAndWhite);
+        WorksheetXml.SetBool(element, "draft", pageSetup.DraftQuality);
+
+        if (pageSetup.FirstPageNumber is { } firstPageNumber)
+        {
+            // Negative first page numbers are written as uint, e.g. -1 is 4294967295.
+            WorksheetXml.Set(element, "firstPageNumber", (uint)firstPageNumber);
+            WorksheetXml.SetBool(element, "useFirstPageNumber", true);
+        }
+        else
+        {
+            element.SetAttributeValue("firstPageNumber", null);
+            element.SetAttributeValue("useFirstPageNumber", null);
+        }
+
+        WorksheetXml.SetOptional<uint>(
+            element,
+            "horizontalDpi",
+            pageSetup.HorizontalDpi > 0 ? (uint)pageSetup.HorizontalDpi : null
+        );
+        WorksheetXml.SetOptional<uint>(
+            element,
+            "verticalDpi",
+            pageSetup.VerticalDpi > 0 ? (uint)pageSetup.VerticalDpi : null
+        );
+
+        // A sheet is either scaled or fitted to a number of pages, never both, and a count of one
+        // page is the default the attribute exists to override.
+        if (pageSetup.Scale > 0)
+        {
+            WorksheetXml.Set(element, "scale", (uint)pageSetup.Scale);
+            element.SetAttributeValue("fitToWidth", null);
+            element.SetAttributeValue("fitToHeight", null);
+        }
+        else
+        {
+            element.SetAttributeValue("scale", null);
+            WorksheetXml.SetOptional<uint>(
+                element,
+                "fitToWidth",
+                pageSetup.PagesWide >= 0 && pageSetup.PagesWide != 1
+                    ? (uint)pageSetup.PagesWide
+                    : null
+            );
+            WorksheetXml.SetOptional<uint>(
+                element,
+                "fitToHeight",
+                pageSetup.PagesTall >= 0 && pageSetup.PagesTall != 1
+                    ? (uint)pageSetup.PagesTall
+                    : null
+            );
+        }
+
+        // For some reason some Excel files already contains copies="0", which the validator
+        // refuses. Drop the attribute when that is the case.
+        if (SpreadsheetXml.UInt(element, "copies") is null or 0)
+        {
+            element.SetAttributeValue("copies", null);
+        }
+    }
+
     /// <summary>
     /// The sheet as XML, with its namespaces declared where the DOM declares them.
     /// </summary>
