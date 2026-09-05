@@ -22,6 +22,12 @@ internal static class SpreadsheetXml
         "http://schemas.microsoft.com/office/spreadsheetml/2009/9/main";
 
     /// <summary>
+    /// The shared Excel namespace the 2010 extensions reach into for cell references and
+    /// formulas, usually written with the <c>xm</c> prefix.
+    /// </summary>
+    internal static readonly XNamespace Xm = "http://schemas.microsoft.com/office/excel/2006/main";
+
+    /// <summary>
     /// OOXML booleans are written as 1/0 or true/false, and both have to be accepted.
     /// </summary>
     /// <remarks>

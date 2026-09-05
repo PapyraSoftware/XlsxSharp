@@ -141,7 +141,7 @@ internal class WorksheetPartReader
                 }
                 else if (reader.ElementType == typeof(WorksheetExtensionList))
                 {
-                    LoadExtensions((WorksheetExtensionList)reader.LoadCurrentElement(), ws);
+                    LoadExtensions(AsXElement(reader.LoadCurrentElement()), ws);
                 }
                 else if (reader.ElementType == typeof(LegacyDrawing))
                 {
@@ -1643,20 +1643,34 @@ internal class WorksheetPartReader
         }
     }
 
-    private static void LoadExtensions(WorksheetExtensionList extensions, XLWorksheet ws)
+    private static void LoadExtensions(XElement extensions, XLWorksheet ws)
     {
-        if (extensions == null)
+        if (extensions is null)
         {
             return;
         }
 
+        LoadExtensionDataValidations(extensions, ws);
+        LoadExtensionDataBarColors(extensions, ws);
+        LoadSparklineGroups(extensions, ws);
+    }
+
+    /// <summary>
+    /// Validations whose list points at another sheet cannot be written in the 2006 schema, so
+    /// they are repeated here - same attributes, own namespace, and the reference and the
+    /// formulas moved out of the attributes into xm elements.
+    /// </summary>
+    private static void LoadExtensionDataValidations(XElement extensions, XLWorksheet ws)
+    {
         foreach (
-            X14.DataValidation dvs in extensions
-                .Descendants<X14.DataValidations>()
-                .SelectMany(dataValidations => dataValidations.Descendants<X14.DataValidation>())
+            XElement dvs in extensions
+                .Descendants(SpreadsheetXml.X14 + "dataValidations")
+                .SelectMany(dataValidations =>
+                    dataValidations.Descendants(SpreadsheetXml.X14 + "dataValidation")
+                )
         )
         {
-            string txt = dvs.ReferenceSequence.InnerText;
+            string txt = dvs.Element(SpreadsheetXml.Xm + "sqref")?.Value;
             if (string.IsNullOrWhiteSpace(txt))
             {
                 continue;
@@ -1665,246 +1679,185 @@ internal class WorksheetPartReader
             foreach (string rangeAddress in txt.Split(' '))
             {
                 XLDataValidation dvt = ws.DataValidations.Create(Area.Parse(rangeAddress));
-                if (dvs.AllowBlank != null)
-                {
-                    dvt.IgnoreBlanks = dvs.AllowBlank;
-                }
-
-                if (dvs.ShowDropDown != null)
-                {
-                    dvt.InCellDropdown = !dvs.ShowDropDown.Value;
-                }
-
-                if (dvs.ShowErrorMessage != null)
-                {
-                    dvt.ShowErrorMessage = dvs.ShowErrorMessage;
-                }
-
-                if (dvs.ShowInputMessage != null)
-                {
-                    dvt.ShowInputMessage = dvs.ShowInputMessage;
-                }
-
-                if (dvs.PromptTitle != null)
-                {
-                    dvt.InputTitle = dvs.PromptTitle;
-                }
-
-                if (dvs.Prompt != null)
-                {
-                    dvt.InputMessage = dvs.Prompt;
-                }
-
-                if (dvs.ErrorTitle != null)
-                {
-                    dvt.ErrorTitle = dvs.ErrorTitle;
-                }
-
-                if (dvs.Error != null)
-                {
-                    dvt.ErrorMessage = dvs.Error;
-                }
-
-                if (dvs.ErrorStyle != null)
-                {
-                    dvt.ErrorStyle = dvs.ErrorStyle.Value.ToXlsxSharp();
-                }
-
-                if (dvs.Type != null)
-                {
-                    dvt.AllowedValues = dvs.Type.Value.ToXlsxSharp();
-                }
-
-                if (dvs.Operator != null)
-                {
-                    dvt.Operator = dvs.Operator.Value.ToXlsxSharp();
-                }
-
-                if (dvs.DataValidationForumla1 != null)
-                {
-                    dvt.MinValue = dvs.DataValidationForumla1.InnerText;
-                }
-
-                if (dvs.DataValidationForumla2 != null)
-                {
-                    dvt.MaxValue = dvs.DataValidationForumla2.InnerText;
-                }
+                LoadDataValidation(dvs, dvt);
             }
         }
+    }
 
+    /// <summary>
+    /// A data bar's colour for negative values has no place in the 2006 schema, so it is written
+    /// here on a rule that carries the guid of the one it extends.
+    /// </summary>
+    private static void LoadExtensionDataBarColors(XElement extensions, XLWorksheet ws)
+    {
         foreach (
-            X14.ConditionalFormattingRule conditionalFormattingRule in extensions
-                .Descendants<X14.ConditionalFormattingRule>()
-                .Where(cf =>
-                    cf.Type != null
-                    && cf.Type.HasValue
-                    && cf.Type.Value == ConditionalFormatValues.DataBar
-                )
+            XElement rule in extensions
+                .Descendants(SpreadsheetXml.X14 + "cfRule")
+                .Where(cf => SpreadsheetXml.String(cf, "type") == "dataBar")
         )
         {
+            string id = SpreadsheetXml.String(rule, "id");
             XLConditionalFormat xlConditionalFormat = ws
                 .ConditionalFormats.Cast<XLConditionalFormat>()
-                .SingleOrDefault(cf => cf.Id.WrapInBraces() == conditionalFormattingRule.Id);
-            if (xlConditionalFormat != null)
+                .SingleOrDefault(cf => cf.Id.WrapInBraces() == id);
+            if (xlConditionalFormat is not null)
             {
-                X14.NegativeFillColor negativeFillColor = conditionalFormattingRule
-                    .Descendants<X14.NegativeFillColor>()
+                XElement negativeFillColor = rule.Descendants(
+                        SpreadsheetXml.X14 + "negativeFillColor"
+                    )
                     .SingleOrDefault();
-                xlConditionalFormat.Colors.Add(negativeFillColor.ToXlsxSharpColor());
+                xlConditionalFormat.Colors.Add(SpreadsheetXml.ReadColor(negativeFillColor));
             }
         }
+    }
 
+    private static void LoadSparklineGroups(XElement extensions, XLWorksheet ws)
+    {
         foreach (
-            X14.SparklineGroup slg in extensions
-                .Descendants<X14.SparklineGroups>()
-                .SelectMany(sparklineGroups => sparklineGroups.Descendants<X14.SparklineGroup>())
+            XElement slg in extensions
+                .Descendants(SpreadsheetXml.X14 + "sparklineGroups")
+                .SelectMany(sparklineGroups =>
+                    sparklineGroups.Descendants(SpreadsheetXml.X14 + "sparklineGroup")
+                )
         )
         {
             XLSparklineGroup xlSparklineGroup = ws.SparklineGroupsInternal.Add();
 
-            if (slg.Formula != null)
+            if (slg.Element(SpreadsheetXml.Xm + "f") is { } dateRange)
             {
-                xlSparklineGroup.DateRange = ws.Workbook.Range(slg.Formula.Text);
+                xlSparklineGroup.DateRange = ws.Workbook.Range(dateRange.Value);
             }
 
-            IXLSparklineStyle xlSparklineStyle = xlSparklineGroup.Style;
-            if (slg.FirstMarkerColor != null)
+            xlSparklineGroup.Style = LoadSparklineStyle(slg, xlSparklineGroup.Style);
+
+            if (SpreadsheetXml.Bool(slg, "displayHidden") is { } displayHidden)
             {
-                xlSparklineStyle.FirstMarkerColor = slg.FirstMarkerColor.ToXlsxSharpColor();
+                xlSparklineGroup.DisplayHidden = displayHidden;
             }
 
-            if (slg.LastMarkerColor != null)
+            if (SpreadsheetXml.Double(slg, "lineWeight") is { } lineWeight)
             {
-                xlSparklineStyle.LastMarkerColor = slg.LastMarkerColor.ToXlsxSharpColor();
+                xlSparklineGroup.LineWeight = lineWeight;
             }
 
-            if (slg.HighMarkerColor != null)
+            if (SpreadsheetXml.String(slg, "type") is { } type)
             {
-                xlSparklineStyle.HighMarkerColor = slg.HighMarkerColor.ToXlsxSharpColor();
+                xlSparklineGroup.Type = WorksheetXmlEnums.ParseSparklineType(type);
             }
 
-            if (slg.LowMarkerColor != null)
+            if (SpreadsheetXml.String(slg, "displayEmptyCellsAs") is { } displayEmptyCellsAs)
             {
-                xlSparklineStyle.LowMarkerColor = slg.LowMarkerColor.ToXlsxSharpColor();
+                xlSparklineGroup.DisplayEmptyCellsAs = WorksheetXmlEnums.ParseDisplayBlanksAs(
+                    displayEmptyCellsAs
+                );
             }
 
-            if (slg.SeriesColor != null)
+            xlSparklineGroup.ShowMarkers = LoadSparklineMarkers(slg);
+
+            if (slg.Element(SpreadsheetXml.X14 + "colorAxis") is { } axisColor)
             {
-                xlSparklineStyle.SeriesColor = slg.SeriesColor.ToXlsxSharpColor();
+                xlSparklineGroup.HorizontalAxis.Color = XLColor.FromHtml(
+                    SpreadsheetXml.String(axisColor, "rgb")
+                );
             }
 
-            if (slg.NegativeColor != null)
+            if (SpreadsheetXml.Bool(slg, "displayXAxis") is { } displayXAxis)
             {
-                xlSparklineStyle.NegativeColor = slg.NegativeColor.ToXlsxSharpColor();
+                xlSparklineGroup.HorizontalAxis.IsVisible = displayXAxis;
             }
 
-            if (slg.MarkersColor != null)
+            if (SpreadsheetXml.Bool(slg, "rightToLeft") is { } rightToLeft)
             {
-                xlSparklineStyle.MarkersColor = slg.MarkersColor.ToXlsxSharpColor();
+                xlSparklineGroup.HorizontalAxis.RightToLeft = rightToLeft;
             }
 
-            xlSparklineGroup.Style = xlSparklineStyle;
-
-            if (slg.DisplayHidden != null)
+            if (SpreadsheetXml.Double(slg, "manualMax") is { } manualMax)
             {
-                xlSparklineGroup.DisplayHidden = slg.DisplayHidden;
+                xlSparklineGroup.VerticalAxis.ManualMax = manualMax;
             }
 
-            if (slg.LineWeight != null)
+            if (SpreadsheetXml.Double(slg, "manualMin") is { } manualMin)
             {
-                xlSparklineGroup.LineWeight = slg.LineWeight;
+                xlSparklineGroup.VerticalAxis.ManualMin = manualMin;
             }
 
-            if (slg.Type != null)
+            if (SpreadsheetXml.String(slg, "minAxisType") is { } minAxisType)
             {
-                xlSparklineGroup.Type = slg.Type.Value.ToXlsxSharp();
+                xlSparklineGroup.VerticalAxis.MinAxisType =
+                    WorksheetXmlEnums.ParseSparklineAxisMinMax(minAxisType);
             }
 
-            if (slg.DisplayEmptyCellsAs != null)
+            if (SpreadsheetXml.String(slg, "maxAxisType") is { } maxAxisType)
             {
-                xlSparklineGroup.DisplayEmptyCellsAs = slg.DisplayEmptyCellsAs.Value.ToXlsxSharp();
+                xlSparklineGroup.VerticalAxis.MaxAxisType =
+                    WorksheetXmlEnums.ParseSparklineAxisMinMax(maxAxisType);
             }
 
-            xlSparklineGroup.ShowMarkers = XLSparklineMarkers.None;
-            if (OpenXmlHelper.GetBooleanValueAsBool(slg.Markers, false))
-            {
-                xlSparklineGroup.ShowMarkers |= XLSparklineMarkers.Markers;
-            }
+            LoadSparklines(slg, xlSparklineGroup);
+        }
+    }
 
-            if (OpenXmlHelper.GetBooleanValueAsBool(slg.High, false))
-            {
-                xlSparklineGroup.ShowMarkers |= XLSparklineMarkers.HighPoint;
-            }
+    private static IXLSparklineStyle LoadSparklineStyle(
+        XElement slg,
+        IXLSparklineStyle xlSparklineStyle
+    )
+    {
+        SetColor("colorFirst", c => xlSparklineStyle.FirstMarkerColor = c);
+        SetColor("colorLast", c => xlSparklineStyle.LastMarkerColor = c);
+        SetColor("colorHigh", c => xlSparklineStyle.HighMarkerColor = c);
+        SetColor("colorLow", c => xlSparklineStyle.LowMarkerColor = c);
+        SetColor("colorSeries", c => xlSparklineStyle.SeriesColor = c);
+        SetColor("colorNegative", c => xlSparklineStyle.NegativeColor = c);
+        SetColor("colorMarkers", c => xlSparklineStyle.MarkersColor = c);
+        return xlSparklineStyle;
 
-            if (OpenXmlHelper.GetBooleanValueAsBool(slg.Low, false))
+        void SetColor(string name, Action<XLColor> set)
+        {
+            if (slg.Element(SpreadsheetXml.X14 + name) is { } color)
             {
-                xlSparklineGroup.ShowMarkers |= XLSparklineMarkers.LowPoint;
+                set(SpreadsheetXml.ReadColor(color));
             }
+        }
+    }
 
-            if (OpenXmlHelper.GetBooleanValueAsBool(slg.First, false))
+    private static XLSparklineMarkers LoadSparklineMarkers(XElement slg)
+    {
+        XLSparklineMarkers markers = XLSparklineMarkers.None;
+        Add("markers", XLSparklineMarkers.Markers);
+        Add("high", XLSparklineMarkers.HighPoint);
+        Add("low", XLSparklineMarkers.LowPoint);
+        Add("first", XLSparklineMarkers.FirstPoint);
+        Add("last", XLSparklineMarkers.LastPoint);
+        Add("negative", XLSparklineMarkers.NegativePoints);
+        return markers;
+
+        void Add(string attributeName, XLSparklineMarkers marker)
+        {
+            if (SpreadsheetXml.Bool(slg, attributeName) ?? false)
             {
-                xlSparklineGroup.ShowMarkers |= XLSparklineMarkers.FirstPoint;
+                markers |= marker;
             }
+        }
+    }
 
-            if (OpenXmlHelper.GetBooleanValueAsBool(slg.Last, false))
-            {
-                xlSparklineGroup.ShowMarkers |= XLSparklineMarkers.LastPoint;
-            }
+    private static void LoadSparklines(XElement slg, XLSparklineGroup xlSparklineGroup)
+    {
+        foreach (
+            XElement sparkline in slg.Descendants(SpreadsheetXml.X14 + "sparklines")
+                .SelectMany(sparklines => sparklines.Descendants(SpreadsheetXml.X14 + "sparkline"))
+        )
+        {
+            // The sqlref must contain exactly one ref [MS-XLSX]. Excel ignores everything after the first one.
+            string refText = (sparkline.Element(SpreadsheetXml.Xm + "sqref")?.Value ?? string.Empty)
+                .Trim()
+                .Split(' ')[0];
+            Point location = Point.Parse(refText);
 
-            if (OpenXmlHelper.GetBooleanValueAsBool(slg.Negative, false))
-            {
-                xlSparklineGroup.ShowMarkers |= XLSparklineMarkers.NegativePoints;
-            }
-
-            if (slg.AxisColor != null)
-            {
-                xlSparklineGroup.HorizontalAxis.Color = XLColor.FromHtml(slg.AxisColor.Rgb.Value);
-            }
-
-            if (slg.DisplayXAxis != null)
-            {
-                xlSparklineGroup.HorizontalAxis.IsVisible = slg.DisplayXAxis;
-            }
-
-            if (slg.RightToLeft != null)
-            {
-                xlSparklineGroup.HorizontalAxis.RightToLeft = slg.RightToLeft;
-            }
-
-            if (slg.ManualMax != null)
-            {
-                xlSparklineGroup.VerticalAxis.ManualMax = slg.ManualMax;
-            }
-
-            if (slg.ManualMin != null)
-            {
-                xlSparklineGroup.VerticalAxis.ManualMin = slg.ManualMin;
-            }
-
-            if (slg.MinAxisType != null)
-            {
-                xlSparklineGroup.VerticalAxis.MinAxisType = slg.MinAxisType.Value.ToXlsxSharp();
-            }
-
-            if (slg.MaxAxisType != null)
-            {
-                xlSparklineGroup.VerticalAxis.MaxAxisType = slg.MaxAxisType.Value.ToXlsxSharp();
-            }
-
-            foreach (
-                X14.Sparkline sparkline in slg.Descendants<X14.Sparklines>()
-                    .SelectMany(sparklines => sparklines.Descendants<X14.Sparkline>())
-            )
-            {
-                // The sqlref must contain exactly one ref [MS-XLSX]. Excel ignores everything after the first one.
-                string refText = (sparkline.ReferenceSequence?.Text ?? string.Empty)
-                    .Trim()
-                    .Split(' ')[0];
-                Point location = Point.Parse(refText);
-
-                // Technically, there could be more than one sparkline per cell, so use Set instead of Add.
-                xlSparklineGroup.SetSparkline(location, sparkline.Formula?.Text);
-            }
+            // Technically, there could be more than one sparkline per cell, so use Set instead of Add.
+            xlSparklineGroup.SetSparkline(
+                location,
+                sparkline.Element(SpreadsheetXml.Xm + "f")?.Value
+            );
         }
     }
 
