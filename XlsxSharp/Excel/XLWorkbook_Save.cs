@@ -312,22 +312,6 @@ public partial class XLWorkbook
             context
         );
 
-        IEnumerable<string> cacheRelIds = this
-            .PivotCachesInternal.Select<XLPivotCache, string>(ps => ps.WorkbookCacheRelId)
-            .Where(relId => !string.IsNullOrWhiteSpace(relId))
-            .Distinct();
-
-        foreach (string relId in cacheRelIds)
-        {
-            if (
-                workbookPart.GetPartById(relId)
-                is PivotTableCacheDefinitionPart pivotTableCacheDefinitionPart
-            )
-            {
-                pivotTableCacheDefinitionPart.PivotCacheDefinition.CacheFields.RemoveAllChildren();
-            }
-        }
-
         List<IXLPivotTable> allPivotTables =
         [
             .. this.WorksheetsInternal.SelectMany<XLWorksheet, IXLPivotTable>(ws => ws.PivotTables),
