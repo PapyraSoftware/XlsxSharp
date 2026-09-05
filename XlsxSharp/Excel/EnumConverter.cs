@@ -565,7 +565,7 @@ internal static class EnumConverter
 
     #endregion To OpenXml
 
-    #region To ClosedXml
+    #region To XlsxSharp
 
     private static readonly IReadOnlyDictionary<
         UnderlineValues,
@@ -579,7 +579,7 @@ internal static class EnumConverter
         { UnderlineValues.SingleAccounting, XLFontUnderlineValues.SingleAccounting },
     };
 
-    public static XLFontUnderlineValues ToClosedXml(this UnderlineValues value) =>
+    public static XLFontUnderlineValues ToXlsxSharp(this UnderlineValues value) =>
         UnderlineValuesMap[value];
 
     private static readonly IReadOnlyDictionary<FontSchemeValues, XLFontScheme> FontSchemeMap =
@@ -590,7 +590,7 @@ internal static class EnumConverter
             { FontSchemeValues.Minor, XLFontScheme.Minor },
         };
 
-    public static XLFontScheme ToClosedXml(this FontSchemeValues value) => FontSchemeMap[value];
+    public static XLFontScheme ToXlsxSharp(this FontSchemeValues value) => FontSchemeMap[value];
 
     private static readonly IReadOnlyDictionary<
         OrientationValues,
@@ -602,7 +602,7 @@ internal static class EnumConverter
         { OrientationValues.Portrait, XLPageOrientation.Portrait },
     };
 
-    public static XLPageOrientation ToClosedXml(this OrientationValues value) =>
+    public static XLPageOrientation ToXlsxSharp(this OrientationValues value) =>
         OrientationMap[value];
 
     private static readonly IReadOnlyDictionary<
@@ -618,7 +618,7 @@ internal static class EnumConverter
         { VerticalAlignmentRunValues.Superscript, XLFontVerticalTextAlignmentValues.Superscript },
     };
 
-    public static XLFontVerticalTextAlignmentValues ToClosedXml(
+    public static XLFontVerticalTextAlignmentValues ToXlsxSharp(
         this VerticalAlignmentRunValues value
     ) => VerticalAlignmentRunMap[value];
 
@@ -646,7 +646,7 @@ internal static class EnumConverter
             { PatternValues.Solid, XLFillPatternValues.Solid },
         };
 
-    public static XLFillPatternValues ToClosedXml(this PatternValues value) => PatternMap[value];
+    public static XLFillPatternValues ToXlsxSharp(this PatternValues value) => PatternMap[value];
 
     private static readonly IReadOnlyDictionary<
         BorderStyleValues,
@@ -669,7 +669,7 @@ internal static class EnumConverter
         { BorderStyleValues.Thin, XLBorderStyleValues.Thin },
     };
 
-    public static XLBorderStyleValues ToClosedXml(this BorderStyleValues value) =>
+    public static XLBorderStyleValues ToXlsxSharp(this BorderStyleValues value) =>
         BorderStyleMap[value];
 
     private static readonly IReadOnlyDictionary<
@@ -693,7 +693,7 @@ internal static class EnumConverter
         { HorizontalAlignmentValues.Right, XLAlignmentHorizontalValues.Right },
     };
 
-    public static XLAlignmentHorizontalValues ToClosedXml(this HorizontalAlignmentValues value) =>
+    public static XLAlignmentHorizontalValues ToXlsxSharp(this HorizontalAlignmentValues value) =>
         HorizontalAlignmentMap[value];
 
     private static readonly IReadOnlyDictionary<
@@ -708,7 +708,7 @@ internal static class EnumConverter
         { VerticalAlignmentValues.Top, XLAlignmentVerticalValues.Top },
     };
 
-    public static XLAlignmentVerticalValues ToClosedXml(this VerticalAlignmentValues value) =>
+    public static XLAlignmentVerticalValues ToXlsxSharp(this VerticalAlignmentValues value) =>
         VerticalAlignmentMap[value];
 
     private static readonly IReadOnlyDictionary<PageOrderValues, XLPageOrderValues> PageOrdersMap =
@@ -718,7 +718,7 @@ internal static class EnumConverter
             { PageOrderValues.OverThenDown, XLPageOrderValues.OverThenDown },
         };
 
-    public static XLPageOrderValues ToClosedXml(this PageOrderValues value) => PageOrdersMap[value];
+    public static XLPageOrderValues ToXlsxSharp(this PageOrderValues value) => PageOrdersMap[value];
 
     private static readonly IReadOnlyDictionary<
         CellCommentsValues,
@@ -730,7 +730,7 @@ internal static class EnumConverter
         { CellCommentsValues.None, XLShowCommentsValues.None },
     };
 
-    public static XLShowCommentsValues ToClosedXml(this CellCommentsValues value) =>
+    public static XLShowCommentsValues ToXlsxSharp(this CellCommentsValues value) =>
         CellCommentsMap[value];
 
     private static readonly IReadOnlyDictionary<
@@ -744,7 +744,7 @@ internal static class EnumConverter
         { PrintErrorValues.NA, XLPrintErrorValues.NA },
     };
 
-    public static XLPrintErrorValues ToClosedXml(this PrintErrorValues value) =>
+    public static XLPrintErrorValues ToXlsxSharp(this PrintErrorValues value) =>
         PrintErrorMap[value];
 
     private static readonly IReadOnlyDictionary<
@@ -757,7 +757,7 @@ internal static class EnumConverter
         { CalculateModeValues.Manual, XLCalculateMode.Manual },
     };
 
-    public static XLCalculateMode ToClosedXml(this CalculateModeValues value) =>
+    public static XLCalculateMode ToXlsxSharp(this CalculateModeValues value) =>
         CalculateModeMap[value];
 
     private static readonly IReadOnlyDictionary<
@@ -769,10 +769,10 @@ internal static class EnumConverter
         { ReferenceModeValues.A1, XLReferenceStyle.A1 },
     };
 
-    public static XLReferenceStyle ToClosedXml(this ReferenceModeValues value) =>
+    public static XLReferenceStyle ToXlsxSharp(this ReferenceModeValues value) =>
         ReferenceModeMap[value];
 
-    public static XLAlignmentReadingOrderValues ToClosedXml(this uint value)
+    public static XLAlignmentReadingOrderValues ToXlsxSharp(this uint value)
     {
         switch (value)
         {
@@ -807,7 +807,7 @@ internal static class EnumConverter
         { TotalsRowFunctionValues.Custom, XLTotalsRowFunction.Custom },
     };
 
-    public static XLTotalsRowFunction ToClosedXml(this TotalsRowFunctionValues value) =>
+    public static XLTotalsRowFunction ToXlsxSharp(this TotalsRowFunctionValues value) =>
         TotalsRowFunctionMap[value];
 
     private static readonly IReadOnlyDictionary<
@@ -825,7 +825,7 @@ internal static class EnumConverter
         { DataValidationValues.Whole, XLAllowedValues.WholeNumber },
     };
 
-    public static XLAllowedValues ToClosedXml(this DataValidationValues value) =>
+    public static XLAllowedValues ToXlsxSharp(this DataValidationValues value) =>
         DataValidationMap[value];
 
     private static readonly IReadOnlyDictionary<
@@ -838,7 +838,7 @@ internal static class EnumConverter
         { DataValidationErrorStyleValues.Stop, XLErrorStyle.Stop },
     };
 
-    public static XLErrorStyle ToClosedXml(this DataValidationErrorStyleValues value) =>
+    public static XLErrorStyle ToXlsxSharp(this DataValidationErrorStyleValues value) =>
         DataValidationErrorStyleMap[value];
 
     private static readonly IReadOnlyDictionary<
@@ -856,7 +856,7 @@ internal static class EnumConverter
         { DataValidationOperatorValues.NotEqual, XLOperator.NotEqualTo },
     };
 
-    public static XLOperator ToClosedXml(this DataValidationOperatorValues value) =>
+    public static XLOperator ToXlsxSharp(this DataValidationOperatorValues value) =>
         DataValidationOperatorMap[value];
 
     private static readonly IReadOnlyDictionary<
@@ -869,7 +869,7 @@ internal static class EnumConverter
         { SheetStateValues.VeryHidden, XLWorksheetVisibility.VeryHidden },
     };
 
-    public static XLWorksheetVisibility ToClosedXml(this SheetStateValues value) =>
+    public static XLWorksheetVisibility ToXlsxSharp(this SheetStateValues value) =>
         SheetStateMap[value];
 
     private static readonly IReadOnlyDictionary<
@@ -883,7 +883,7 @@ internal static class EnumConverter
         { PhoneticAlignmentValues.NoControl, XLPhoneticAlignment.NoControl },
     };
 
-    public static XLPhoneticAlignment ToClosedXml(this PhoneticAlignmentValues value) =>
+    public static XLPhoneticAlignment ToXlsxSharp(this PhoneticAlignmentValues value) =>
         PhoneticAlignmentMap[value];
 
     private static readonly IReadOnlyDictionary<PhoneticValues, XLPhoneticType> PhoneticMap =
@@ -895,7 +895,7 @@ internal static class EnumConverter
             { PhoneticValues.NoConversion, XLPhoneticType.NoConversion },
         };
 
-    public static XLPhoneticType ToClosedXml(this PhoneticValues value) => PhoneticMap[value];
+    public static XLPhoneticType ToXlsxSharp(this PhoneticValues value) => PhoneticMap[value];
 
     private static readonly IReadOnlyDictionary<
         DataConsolidateFunctionValues,
@@ -918,7 +918,7 @@ internal static class EnumConverter
         { DataConsolidateFunctionValues.VarianceP, XLPivotSummary.PopulationVariance },
     };
 
-    public static XLPivotSummary ToClosedXml(this DataConsolidateFunctionValues value) =>
+    public static XLPivotSummary ToXlsxSharp(this DataConsolidateFunctionValues value) =>
         DataConsolidateFunctionMap[value];
 
     private static readonly IReadOnlyDictionary<
@@ -937,7 +937,7 @@ internal static class EnumConverter
         { ShowDataAsValues.Index, XLPivotCalculation.Index },
     };
 
-    public static XLPivotCalculation ToClosedXml(this ShowDataAsValues value) =>
+    public static XLPivotCalculation ToXlsxSharp(this ShowDataAsValues value) =>
         ShowDataAsMap[value];
 
     private static readonly IReadOnlyDictionary<
@@ -953,7 +953,7 @@ internal static class EnumConverter
         { FilterOperatorValues.LessThanOrEqual, XLFilterOperator.EqualOrLessThan },
     };
 
-    public static XLFilterOperator ToClosedXml(this FilterOperatorValues value) =>
+    public static XLFilterOperator ToXlsxSharp(this FilterOperatorValues value) =>
         FilterOperatorMap[value];
 
     private static readonly IReadOnlyDictionary<
@@ -965,7 +965,7 @@ internal static class EnumConverter
         { DynamicFilterValues.BelowAverage, XLFilterDynamicType.BelowAverage },
     };
 
-    public static XLFilterDynamicType ToClosedXml(this DynamicFilterValues value) =>
+    public static XLFilterDynamicType ToXlsxSharp(this DynamicFilterValues value) =>
         DynamicFilterMap[value];
 
     private static readonly IReadOnlyDictionary<
@@ -981,7 +981,7 @@ internal static class EnumConverter
         { DateTimeGroupingValues.Second, XLDateTimeGrouping.Second },
     };
 
-    public static XLDateTimeGrouping ToClosedXml(this DateTimeGroupingValues value) =>
+    public static XLDateTimeGrouping ToXlsxSharp(this DateTimeGroupingValues value) =>
         DateTimeGroupingMap[value];
 
     private static readonly IReadOnlyDictionary<SheetViewValues, XLSheetViewOptions> SheetViewMap =
@@ -992,7 +992,7 @@ internal static class EnumConverter
             { SheetViewValues.PageLayout, XLSheetViewOptions.PageLayout },
         };
 
-    public static XLSheetViewOptions ToClosedXml(this SheetViewValues value) => SheetViewMap[value];
+    public static XLSheetViewOptions ToXlsxSharp(this SheetViewValues value) => SheetViewMap[value];
 
     private static readonly IReadOnlyDictionary<
         Vml.StrokeLineStyleValues,
@@ -1006,7 +1006,7 @@ internal static class EnumConverter
         { Vml.StrokeLineStyleValues.ThinThin, XLLineStyle.ThinThin },
     };
 
-    public static XLLineStyle ToClosedXml(this Vml.StrokeLineStyleValues value) =>
+    public static XLLineStyle ToXlsxSharp(this Vml.StrokeLineStyleValues value) =>
         StrokeLineStyleMap[value];
 
     private static readonly IReadOnlyDictionary<
@@ -1034,7 +1034,7 @@ internal static class EnumConverter
         { ConditionalFormatValues.AboveAverage, XLConditionalFormatType.AboveAverage },
     };
 
-    public static XLConditionalFormatType ToClosedXml(this ConditionalFormatValues value) =>
+    public static XLConditionalFormatType ToXlsxSharp(this ConditionalFormatValues value) =>
         ConditionalFormatMap[value];
 
     private static readonly IReadOnlyDictionary<
@@ -1053,7 +1053,7 @@ internal static class EnumConverter
         { ConditionalFormatValueObjectValues.Percentile, XLCFContentType.Percentile },
     };
 
-    public static XLCFContentType ToClosedXml(this ConditionalFormatValueObjectValues value) =>
+    public static XLCFContentType ToXlsxSharp(this ConditionalFormatValueObjectValues value) =>
         ConditionalFormatValueObjectMap[value];
 
     private static readonly IReadOnlyDictionary<
@@ -1078,7 +1078,7 @@ internal static class EnumConverter
         { ConditionalFormattingOperatorValues.EndsWith, XLCFOperator.EndsWith },
     };
 
-    public static XLCFOperator ToClosedXml(this ConditionalFormattingOperatorValues value) =>
+    public static XLCFOperator ToXlsxSharp(this ConditionalFormattingOperatorValues value) =>
         ConditionalFormattingOperatorMap[value];
 
     private static readonly IReadOnlyDictionary<IconSetValues, XLIconSetStyle> IconSetMap =
@@ -1103,7 +1103,7 @@ internal static class EnumConverter
             { IconSetValues.FiveQuarters, XLIconSetStyle.FiveQuarters },
         };
 
-    public static XLIconSetStyle ToClosedXml(this IconSetValues value) => IconSetMap[value];
+    public static XLIconSetStyle ToXlsxSharp(this IconSetValues value) => IconSetMap[value];
 
     private static readonly IReadOnlyDictionary<TimePeriodValues, XLTimePeriod> TimePeriodMap =
         new Dictionary<TimePeriodValues, XLTimePeriod>
@@ -1120,7 +1120,7 @@ internal static class EnumConverter
             { TimePeriodValues.NextMonth, XLTimePeriod.NextMonth },
         };
 
-    public static XLTimePeriod ToClosedXml(this TimePeriodValues value) => TimePeriodMap[value];
+    public static XLTimePeriod ToXlsxSharp(this TimePeriodValues value) => TimePeriodMap[value];
 
     private static readonly IReadOnlyDictionary<PivotAreaValues, XLPivotAreaType> PivotAreaMap =
         new Dictionary<PivotAreaValues, XLPivotAreaType>
@@ -1135,7 +1135,7 @@ internal static class EnumConverter
             { PivotAreaValues.TopEnd, XLPivotAreaType.TopEnd },
         };
 
-    public static XLPivotAreaType ToClosedXml(this PivotAreaValues value) => PivotAreaMap[value];
+    public static XLPivotAreaType ToXlsxSharp(this PivotAreaValues value) => PivotAreaMap[value];
 
     private static readonly IReadOnlyDictionary<
         X14.SparklineTypeValues,
@@ -1147,7 +1147,7 @@ internal static class EnumConverter
         { X14.SparklineTypeValues.Stacked, XLSparklineType.Stacked },
     };
 
-    public static XLSparklineType ToClosedXml(this X14.SparklineTypeValues value) =>
+    public static XLSparklineType ToXlsxSharp(this X14.SparklineTypeValues value) =>
         SparklineTypeMap[value];
 
     private static readonly IReadOnlyDictionary<
@@ -1160,7 +1160,7 @@ internal static class EnumConverter
         { X14.SparklineAxisMinMaxValues.Custom, XLSparklineAxisMinMax.Custom },
     };
 
-    public static XLSparklineAxisMinMax ToClosedXml(this X14.SparklineAxisMinMaxValues value) =>
+    public static XLSparklineAxisMinMax ToXlsxSharp(this X14.SparklineAxisMinMaxValues value) =>
         SparklineAxisMinMaxMap[value];
 
     private static readonly IReadOnlyDictionary<
@@ -1173,7 +1173,7 @@ internal static class EnumConverter
         { X14.DisplayBlanksAsValues.Zero, XLDisplayBlanksAsValues.Zero },
     };
 
-    public static XLDisplayBlanksAsValues ToClosedXml(this X14.DisplayBlanksAsValues value) =>
+    public static XLDisplayBlanksAsValues ToXlsxSharp(this X14.DisplayBlanksAsValues value) =>
         DisplayBlanksAsMap[value];
 
     private static readonly IReadOnlyDictionary<FieldSortValues, XLPivotSortType> FieldSortMap =
@@ -1184,7 +1184,7 @@ internal static class EnumConverter
             { FieldSortValues.Descending, XLPivotSortType.Descending },
         };
 
-    public static XLPivotSortType ToClosedXml(this FieldSortValues value) => FieldSortMap[value];
+    public static XLPivotSortType ToXlsxSharp(this FieldSortValues value) => FieldSortMap[value];
 
     private static readonly IReadOnlyDictionary<
         PivotTableAxisValues,
@@ -1197,7 +1197,7 @@ internal static class EnumConverter
         { PivotTableAxisValues.AxisValues, XLPivotAxis.AxisValues },
     };
 
-    internal static XLPivotAxis ToClosedXml(this PivotTableAxisValues value) =>
+    internal static XLPivotAxis ToXlsxSharp(this PivotTableAxisValues value) =>
         PivotTableAxisMap[value];
 
     private static readonly IReadOnlyDictionary<ItemValues, XLPivotItemType> ItemMap =
@@ -1220,7 +1220,7 @@ internal static class EnumConverter
             { ItemValues.Blank, XLPivotItemType.Blank },
         };
 
-    internal static XLPivotItemType ToClosedXml(this ItemValues value) => ItemMap[value];
+    internal static XLPivotItemType ToXlsxSharp(this ItemValues value) => ItemMap[value];
 
     private static readonly IReadOnlyDictionary<
         FormatActionValues,
@@ -1231,7 +1231,7 @@ internal static class EnumConverter
         { FormatActionValues.Formatting, XLPivotFormatAction.Formatting },
     };
 
-    internal static XLPivotFormatAction ToClosedXml(this FormatActionValues value) =>
+    internal static XLPivotFormatAction ToXlsxSharp(this FormatActionValues value) =>
         FormatActionMap[value];
 
     private static readonly IReadOnlyDictionary<ScopeValues, XLPivotCfScope> ScopeMap =
@@ -1242,7 +1242,7 @@ internal static class EnumConverter
             { ScopeValues.Field, XLPivotCfScope.FieldIntersections },
         };
 
-    internal static XLPivotCfScope ToClosedXml(this ScopeValues value) => ScopeMap[value];
+    internal static XLPivotCfScope ToXlsxSharp(this ScopeValues value) => ScopeMap[value];
 
     private static readonly IReadOnlyDictionary<RuleValues, XLPivotCfRuleType> RuleMap =
         new Dictionary<RuleValues, XLPivotCfRuleType>
@@ -1253,7 +1253,7 @@ internal static class EnumConverter
             { RuleValues.Column, XLPivotCfRuleType.Column },
         };
 
-    internal static XLPivotCfRuleType ToClosedXml(this RuleValues value) => RuleMap[value];
+    internal static XLPivotCfRuleType ToXlsxSharp(this RuleValues value) => RuleMap[value];
 
-    #endregion To ClosedXml
+    #endregion To XlsxSharp
 }

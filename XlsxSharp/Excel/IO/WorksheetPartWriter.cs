@@ -120,7 +120,7 @@ internal class WorksheetPartWriter
         }
 
         worksheet.SheetProperties.TabColor = xlWorksheet.TabColor.HasValue
-            ? new TabColor().FromClosedXMLColor<TabColor>(xlWorksheet.TabColor)
+            ? new TabColor().FromXlsxSharpColor<TabColor>(xlWorksheet.TabColor)
             : null;
 
         cm.SetElement(XLWorksheetContents.SheetProperties, worksheet.SheetProperties);
@@ -1118,31 +1118,31 @@ internal class WorksheetPartWriter
                 );
 
                 sparklineGroup.FirstMarkerColor =
-                    new X14.FirstMarkerColor().FromClosedXMLColor<X14.FirstMarkerColor>(
+                    new X14.FirstMarkerColor().FromXlsxSharpColor<X14.FirstMarkerColor>(
                         xlSparklineGroup.Style.FirstMarkerColor
                     );
                 sparklineGroup.LastMarkerColor =
-                    new X14.LastMarkerColor().FromClosedXMLColor<X14.LastMarkerColor>(
+                    new X14.LastMarkerColor().FromXlsxSharpColor<X14.LastMarkerColor>(
                         xlSparklineGroup.Style.LastMarkerColor
                     );
                 sparklineGroup.HighMarkerColor =
-                    new X14.HighMarkerColor().FromClosedXMLColor<X14.HighMarkerColor>(
+                    new X14.HighMarkerColor().FromXlsxSharpColor<X14.HighMarkerColor>(
                         xlSparklineGroup.Style.HighMarkerColor
                     );
                 sparklineGroup.LowMarkerColor =
-                    new X14.LowMarkerColor().FromClosedXMLColor<X14.LowMarkerColor>(
+                    new X14.LowMarkerColor().FromXlsxSharpColor<X14.LowMarkerColor>(
                         xlSparklineGroup.Style.LowMarkerColor
                     );
                 sparklineGroup.SeriesColor =
-                    new X14.SeriesColor().FromClosedXMLColor<X14.SeriesColor>(
+                    new X14.SeriesColor().FromXlsxSharpColor<X14.SeriesColor>(
                         xlSparklineGroup.Style.SeriesColor
                     );
                 sparklineGroup.NegativeColor =
-                    new X14.NegativeColor().FromClosedXMLColor<X14.NegativeColor>(
+                    new X14.NegativeColor().FromXlsxSharpColor<X14.NegativeColor>(
                         xlSparklineGroup.Style.NegativeColor
                     );
                 sparklineGroup.MarkersColor =
-                    new X14.MarkersColor().FromClosedXMLColor<X14.MarkersColor>(
+                    new X14.MarkersColor().FromXlsxSharpColor<X14.MarkersColor>(
                         xlSparklineGroup.Style.MarkersColor
                     );
 

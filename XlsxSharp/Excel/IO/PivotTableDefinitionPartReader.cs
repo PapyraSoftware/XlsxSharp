@@ -151,9 +151,9 @@ internal class PivotTableDefinitionPartReader
                 uint field =
                     dataField.Field?.Value ?? throw PartStructureException.MissingAttribute();
                 XLPivotSummary subtotal =
-                    dataField.Subtotal?.Value.ToClosedXml() ?? XLPivotSummary.Sum;
+                    dataField.Subtotal?.Value.ToXlsxSharp() ?? XLPivotSummary.Sum;
                 XLPivotCalculation showDataAsFormat =
-                    dataField.ShowDataAs?.Value.ToClosedXml() ?? XLPivotCalculation.Normal;
+                    dataField.ShowDataAs?.Value.ToXlsxSharp() ?? XLPivotCalculation.Normal;
                 int baseField = dataField.BaseField?.Value ?? -1;
                 uint baseItem = dataField.BaseItem?.Value ?? 1048832;
                 int? numberFormatId = checked((int?)dataField.NumberFormatId?.Value);
@@ -180,7 +180,7 @@ internal class PivotTableDefinitionPartReader
             foreach (Format format in formats.Cast<Format>())
             {
                 XLPivotFormatAction action =
-                    format.Action?.Value.ToClosedXml() ?? XLPivotFormatAction.Formatting;
+                    format.Action?.Value.ToXlsxSharp() ?? XLPivotFormatAction.Formatting;
                 XLDxfValue? dxf = format.FormatId is { } dxfId
                     ? sheet.Workbook.Styles.DifferentialFormats[checked((int)dxfId.Value)]
                     : null;
@@ -201,9 +201,9 @@ internal class PivotTableDefinitionPartReader
             )
             {
                 XLPivotCfScope scope =
-                    conditionalFormat.Scope?.Value.ToClosedXml() ?? XLPivotCfScope.SelectedCells;
+                    conditionalFormat.Scope?.Value.ToXlsxSharp() ?? XLPivotCfScope.SelectedCells;
                 XLPivotCfRuleType type =
-                    conditionalFormat.Type?.Value.ToClosedXml() ?? XLPivotCfRuleType.None;
+                    conditionalFormat.Type?.Value.ToXlsxSharp() ?? XLPivotCfRuleType.None;
                 uint priority =
                     conditionalFormat.Priority?.Value
                     ?? throw PartStructureException.MissingAttribute();
@@ -403,7 +403,7 @@ internal class PivotTableDefinitionPartReader
     )
     {
         string? customName = pivotField.Name?.Value;
-        XLPivotAxis? axis = pivotField.Axis?.Value.ToClosedXml();
+        XLPivotAxis? axis = pivotField.Axis?.Value.ToXlsxSharp();
         bool dataField = pivotField.DataField?.Value ?? false;
         string? subtotalCaption = pivotField.SubtotalCaption?.Value;
         bool showDropDowns = pivotField.ShowDropDowns?.Value ?? true;
@@ -434,7 +434,7 @@ internal class PivotTableDefinitionPartReader
         bool includeNewItemsInFilter = pivotField.IncludeNewItemsInFilter?.Value ?? false;
         uint itemPageCount = pivotField.ItemPageCount?.Value ?? 10u;
         XLPivotSortType sortType =
-            pivotField.SortType?.Value.ToClosedXml() ?? XLPivotSortType.Default;
+            pivotField.SortType?.Value.ToXlsxSharp() ?? XLPivotSortType.Default;
         bool? dataSourceSort = pivotField.DataSourceSort?.Value;
         bool nonAutoSortDefault = pivotField.NonAutoSortDefault?.Value ?? false;
         uint? rankBy = pivotField.RankBy?.Value;
@@ -574,7 +574,7 @@ internal class PivotTableDefinitionPartReader
                 bool showDetails = item.HideDetails?.Value ?? true;
                 uint? itemIndex = item.Index?.Value;
                 XLPivotItemType itemType =
-                    item.ItemType?.Value.ToClosedXml() ?? XLPivotItemType.Data;
+                    item.ItemType?.Value.ToXlsxSharp() ?? XLPivotItemType.Data;
                 XLPivotFieldItem xlItem = new(
                     xlField,
                     itemIndex is null ? null : checked((int)itemIndex.Value)
@@ -645,7 +645,7 @@ internal class PivotTableDefinitionPartReader
             foreach (RowItem axisItem in axisItems.Cast<RowItem>())
             {
                 XLPivotItemType xlItemType =
-                    axisItem.ItemType?.Value.ToClosedXml() ?? XLPivotItemType.Data;
+                    axisItem.ItemType?.Value.ToXlsxSharp() ?? XLPivotItemType.Data;
                 int dataFieldIndex = checked((int)(axisItem.Index?.Value ?? 0)); // This is used by 'data' field
                 uint repeatedCount = axisItem.RepeatedItemCount?.Value ?? 0;
                 List<int> fieldIndexes = [];
@@ -666,7 +666,7 @@ internal class PivotTableDefinitionPartReader
     private static XLPivotArea LoadPivotArea(PivotArea pivotArea)
     {
         int? field = pivotArea.Field?.Value;
-        XLPivotAreaType type = pivotArea.Type?.Value.ToClosedXml() ?? XLPivotAreaType.Normal;
+        XLPivotAreaType type = pivotArea.Type?.Value.ToXlsxSharp() ?? XLPivotAreaType.Normal;
         bool dataOnly = pivotArea.DataOnly?.Value ?? true;
         bool labelOnly = pivotArea.LabelOnly?.Value ?? false;
         bool grandRow = pivotArea.GrandRow?.Value ?? false;
@@ -677,7 +677,7 @@ internal class PivotTableDefinitionPartReader
             ? Area.Parse(offsetRefText)
             : (Area?)null;
         bool collapsedLevelsAreSubtotals = pivotArea.CollapsedLevelsAreSubtotals?.Value ?? false;
-        XLPivotAxis? axis = pivotArea.Axis?.Value.ToClosedXml();
+        XLPivotAxis? axis = pivotArea.Axis?.Value.ToXlsxSharp();
         uint? fieldPosition = pivotArea.FieldPosition?.Value;
         XLPivotArea xlPivotArea = new()
         {

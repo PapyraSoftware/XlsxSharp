@@ -30,7 +30,7 @@ _ReSharper*/
 [Tt]est[Rr]esult*
 /packages
 .idea/
-/ClosedXML.IO.CodeGen/Properties/launchSettings.json
+/XlsxSharp.IO.CodeGen/Properties/launchSettings.json
 sixlabors.lic
 .DS_Store
 

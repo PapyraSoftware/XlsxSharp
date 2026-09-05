@@ -1,5 +1,5 @@
-# Vendored sources. XlsxSharp.Parser/ is imported from ClosedXML/ClosedXML.Parser with its full
-# history and is kept formatted the way upstream formats it, so that pulling upstream changes stays
-# a merge instead of a reformat. Reformatting it with CSharpier would rewrite every file and turn
-# every future subtree pull into a conflict.
+# Leftover from the time XlsxSharp.Parser/ was a git subtree of ClosedXML/ClosedXML.Parser and
+# had to stay formatted the way upstream formatted it. It is first-party code now and nothing is
+# pulled into it any more, so this exclusion can go, but lifting it reformats every file in the
+# directory and that belongs in a commit of its own. See CONTRIBUTING.md.
 XlsxSharp.Parser/

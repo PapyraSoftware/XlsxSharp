@@ -19,7 +19,7 @@ internal static class OpenXmlHelper
     /// <param name="isDifferential">Flag specifying that the color should be saved in
     /// differential format (affects the transparent color processing).</param>
     /// <returns>The original color in OpenXML format.</returns>
-    public static T FromClosedXMLColor<T>(
+    public static T FromXlsxSharpColor<T>(
         this ColorType openXMLColor,
         XLColor xlColor,
         bool isDifferential = false
@@ -27,7 +27,7 @@ internal static class OpenXmlHelper
         where T : ColorType
     {
         ColorTypeAdapter adapter = new(openXMLColor);
-        FillFromClosedXMLColor(adapter, xlColor, isDifferential);
+        FillFromXlsxSharpColor(adapter, xlColor, isDifferential);
         return (T)adapter.ColorType;
     }
 
@@ -40,7 +40,7 @@ internal static class OpenXmlHelper
     /// <param name="isDifferential">Flag specifying that the color should be saved in
     /// differential format (affects the transparent color processing).</param>
     /// <returns>The original color in OpenXML format.</returns>
-    public static T FromClosedXMLColor<T>(
+    public static T FromXlsxSharpColor<T>(
         this X14.ColorType openXMLColor,
         XLColor xlColor,
         bool isDifferential = false
@@ -48,7 +48,7 @@ internal static class OpenXmlHelper
         where T : X14.ColorType
     {
         X14ColorTypeAdapter adapter = new(openXMLColor);
-        FillFromClosedXMLColor(adapter, xlColor, isDifferential);
+        FillFromXlsxSharpColor(adapter, xlColor, isDifferential);
         return (T)adapter.ColorType;
     }
 
@@ -63,16 +63,16 @@ internal static class OpenXmlHelper
     /// </summary>
     /// <param name="openXMLColor">Color in OpenXML format.</param>
     /// <returns>The color in XlsxSharp format.</returns>
-    public static XLColor ToClosedXMLColor(this ColorType openXMLColor) =>
-        ConvertToClosedXMLColor(new ColorTypeAdapter(openXMLColor));
+    public static XLColor ToXlsxSharpColor(this ColorType openXMLColor) =>
+        ConvertToXlsxSharpColor(new ColorTypeAdapter(openXMLColor));
 
     /// <summary>
     /// Convert color in OpenXML representation to XlsxSharp type.
     /// </summary>
     /// <param name="openXMLColor">Color in OpenXML format.</param>
     /// <returns>The color in XlsxSharp format.</returns>
-    public static XLColor ToClosedXMLColor(this X14.ColorType openXMLColor) =>
-        ConvertToClosedXMLColor(new X14ColorTypeAdapter(openXMLColor));
+    public static XLColor ToXlsxSharpColor(this X14.ColorType openXMLColor) =>
+        ConvertToXlsxSharpColor(new X14ColorTypeAdapter(openXMLColor));
 
 #nullable disable
 
@@ -143,12 +143,12 @@ internal static class OpenXmlHelper
         {
             if (source.Style != null)
             {
-                setBorder(source.Style.Value.ToClosedXml());
+                setBorder(source.Style.Value.ToXlsxSharp());
             }
 
             if (source.Color != null)
             {
-                setColor(source.Color.ToClosedXMLColor());
+                setColor(source.Color.ToXlsxSharpColor());
             }
         }
     }
@@ -158,7 +158,7 @@ internal static class OpenXmlHelper
     // 'Other' fills store the bg color in the fg field when pattern type is solid
     internal static void LoadFill(
         Fill openXMLFill,
-        IXLFill closedXMLFill,
+        IXLFill xlsxSharpFill,
         bool differentialFillFormat
     )
     {
@@ -169,14 +169,14 @@ internal static class OpenXmlHelper
 
         if (openXMLFill.PatternFill.PatternType != null)
         {
-            closedXMLFill.PatternType = openXMLFill.PatternFill.PatternType.Value.ToClosedXml();
+            xlsxSharpFill.PatternType = openXMLFill.PatternFill.PatternType.Value.ToXlsxSharp();
         }
         else
         {
-            closedXMLFill.PatternType = XLFillPatternValues.Solid;
+            xlsxSharpFill.PatternType = XLFillPatternValues.Solid;
         }
 
-        switch (closedXMLFill.PatternType)
+        switch (xlsxSharpFill.PatternType)
         {
             case XLFillPatternValues.None:
                 break;
@@ -186,12 +186,12 @@ internal static class OpenXmlHelper
                 {
                     if (openXMLFill.PatternFill.BackgroundColor != null)
                     {
-                        closedXMLFill.BackgroundColor =
-                            openXMLFill.PatternFill.BackgroundColor.ToClosedXMLColor();
+                        xlsxSharpFill.BackgroundColor =
+                            openXMLFill.PatternFill.BackgroundColor.ToXlsxSharpColor();
                     }
                     else
                     {
-                        closedXMLFill.BackgroundColor = XLColor.FromIndex(64);
+                        xlsxSharpFill.BackgroundColor = XLColor.FromIndex(64);
                     }
                 }
                 else
@@ -199,12 +199,12 @@ internal static class OpenXmlHelper
                     // yes, source is foreground!
                     if (openXMLFill.PatternFill.ForegroundColor != null)
                     {
-                        closedXMLFill.BackgroundColor =
-                            openXMLFill.PatternFill.ForegroundColor.ToClosedXMLColor();
+                        xlsxSharpFill.BackgroundColor =
+                            openXMLFill.PatternFill.ForegroundColor.ToXlsxSharpColor();
                     }
                     else
                     {
-                        closedXMLFill.BackgroundColor = XLColor.FromIndex(64);
+                        xlsxSharpFill.BackgroundColor = XLColor.FromIndex(64);
                     }
                 }
                 break;
@@ -212,18 +212,18 @@ internal static class OpenXmlHelper
             default:
                 if (openXMLFill.PatternFill.ForegroundColor != null)
                 {
-                    closedXMLFill.PatternColor =
-                        openXMLFill.PatternFill.ForegroundColor.ToClosedXMLColor();
+                    xlsxSharpFill.PatternColor =
+                        openXMLFill.PatternFill.ForegroundColor.ToXlsxSharpColor();
                 }
 
                 if (openXMLFill.PatternFill.BackgroundColor != null)
                 {
-                    closedXMLFill.BackgroundColor =
-                        openXMLFill.PatternFill.BackgroundColor.ToClosedXMLColor();
+                    xlsxSharpFill.BackgroundColor =
+                        openXMLFill.PatternFill.BackgroundColor.ToXlsxSharpColor();
                 }
                 else
                 {
-                    closedXMLFill.BackgroundColor = XLColor.FromIndex(64);
+                    xlsxSharpFill.BackgroundColor = XLColor.FromIndex(64);
                 }
 
                 break;
@@ -243,7 +243,7 @@ internal static class OpenXmlHelper
             .FirstOrDefault();
         if (fontColor != null)
         {
-            fontBase.FontColor = fontColor.ToClosedXMLColor();
+            fontBase.FontColor = fontColor.ToXlsxSharpColor();
         }
 
         FontFamily fontFamilyNumbering = fontSource
@@ -281,7 +281,7 @@ internal static class OpenXmlHelper
         {
             fontBase.Underline =
                 underline.Val != null
-                    ? underline.Val.Value.ToClosedXml()
+                    ? underline.Val.Value.ToXlsxSharp()
                     : XLFontUnderlineValues.Single;
         }
 
@@ -291,7 +291,7 @@ internal static class OpenXmlHelper
         if (verticalTextAlignment is not null)
         {
             fontBase.VerticalAlignment = verticalTextAlignment.Val is not null
-                ? verticalTextAlignment.Val.Value.ToClosedXml()
+                ? verticalTextAlignment.Val.Value.ToXlsxSharp()
                 : XLFontVerticalTextAlignmentValues.Baseline;
         }
 
@@ -299,7 +299,7 @@ internal static class OpenXmlHelper
         if (fontScheme is not null)
         {
             fontBase.FontScheme = fontScheme.Val is not null
-                ? fontScheme.Val.Value.ToClosedXml()
+                ? fontScheme.Val.Value.ToXlsxSharp()
                 : XLFontScheme.None;
         }
     }
@@ -331,7 +331,7 @@ internal static class OpenXmlHelper
     /// <param name="openXMLColor">OpenXML color. Must be either <see cref="ColorType"/> or <see cref="X14.ColorType"/>.
     /// Since these types do not implement a common interface we use dynamic.</param>
     /// <returns>The color in XlsxSharp format.</returns>
-    private static XLColor ConvertToClosedXMLColor(IColorTypeAdapter openXMLColor)
+    private static XLColor ConvertToXlsxSharpColor(IColorTypeAdapter openXMLColor)
     {
         XLColor? retVal = null;
         if (openXMLColor.Rgb?.Value is not null)
@@ -363,7 +363,7 @@ internal static class OpenXmlHelper
     /// <param name="xlColor">Color in XlsxSharp format.</param>
     /// <param name="isDifferential">Flag specifying that the color should be saved in
     /// differential format (affects the transparent color processing).</param>
-    private static void FillFromClosedXMLColor(
+    private static void FillFromXlsxSharpColor(
         IColorTypeAdapter openXMLColor,
         XLColor xlColor,
         bool isDifferential

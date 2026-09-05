@@ -51,28 +51,15 @@ To ensure you follow the coding conventions, please do the following steps befor
 - In Visual Studio, run `CodeMaid > Cleanup Active Document` or `Ctrl+M, Space` on each file that you have altered. This will ensure the correct whitespace consistency.
 - Some files, not all, have a header in the first line: `// Keep this file CodeMaid organised and cleaned`. For these files, also run `CodeMaid > Reorganize Active Document` or `Ctrl+M, Z`. This will reorder properties and methods alphabetically into a predetermined order. For example, public properties and methods will be organized before private properties and methods. Not all files require this yet. Please take note of the headers.
 
-## Vendored formula parser
+## Formula parser
 
-`XlsxSharp.Parser/` holds the sources of [ClosedXML.Parser](https://github.com/ClosedXML/ClosedXML.Parser) (MIT), which XlsxSharp used to consume as a NuGet package. They were imported with `git subtree`, so the full upstream history is part of this repository and `git log XlsxSharp.Parser/` shows it. The lexer and parser are on the hot path of every formula we read, convert or evaluate, and having the sources here is what makes profiling and optimising them possible.
+`XlsxSharp.Parser/` started out as the sources of [ClosedXML.Parser](https://github.com/ClosedXML/ClosedXML.Parser) (MIT), which XlsxSharp used to consume as a NuGet package. They were imported with `git subtree`, so the full upstream history is part of this repository and `git log XlsxSharp.Parser/` shows it. Having the sources in the tree is what made profiling and optimising them possible: the lexer and parser are on the hot path of every formula we read, convert or evaluate.
 
-To pull upstream changes, add the remote once and merge:
+Since the import the code has been rewritten rather than tracked. The ANTLR-generated parser was replaced by a hand-written Pratt parser, the namespaces are `XlsxSharp.Parser`, and the directory no longer mirrors the upstream `src/` layout. There is no upstream remote left to pull from, so treat these files as first-party code and change them in place. The attribution above stays either way, the code descends from MIT-licensed sources.
 
-```
-git remote add closedxml-parser https://github.com/ClosedXML/ClosedXML.Parser
-git subtree pull --prefix=XlsxSharp.Parser closedxml-parser develop
-```
+`.csharpierignore` still excludes `XlsxSharp.Parser/`. That exclusion is a leftover from the time the directory had to stay byte-identical to upstream so that subtree pulls stayed a merge instead of a reformat. It has no reason to be there any more, but lifting it rewrites every file in the directory, so do it in a commit of its own rather than as a side effect of an unrelated change.
 
-Two things keep that merge from turning into a conflict, and both are worth preserving:
-
-- `XlsxSharp.Parser/Directory.Build.props` deliberately does not import the repository-wide `Directory.Build.props`. Integration settings belong in that file so that the vendored project files stay byte-identical to upstream.
-- `.csharpierignore` excludes the directory. Reformatting it would rewrite every file and conflict with every future pull.
-
-The parser brings its own xUnit suite in `XlsxSharp.Parser/src/ClosedXML.Parser.Tests/`, including the Enron and EUSES formula corpora. It is not part of `XlsxSharp.slnx`: it targets `net8.0` and runs on VSTest, while this repository is `net10.0` on Microsoft.Testing.Platform. Run it on its own:
-
-```
-dotnet build XlsxSharp.Parser/src/ClosedXML.Parser.Tests/ClosedXML.Parser.Tests.csproj -c Release
-DOTNET_ROLL_FORWARD=Major dotnet vstest XlsxSharp.Parser/src/ClosedXML.Parser.Tests/bin/Release/net8.0/ClosedXML.Parser.Tests.dll
-```
+The parser's tests live in `XlsxSharp.Parser.Tests/` and are a normal part of `XlsxSharp.slnx`: `net10.0` and TUnit on Microsoft.Testing.Platform, like the rest of the repository, so `dotnet test` covers them. They carry the Enron and EUSES formula corpora, which `XlsxSharp.Benchmarks` links to instead of shipping a second copy of a 22 MB file.
 
 ## Versioning and releases
 

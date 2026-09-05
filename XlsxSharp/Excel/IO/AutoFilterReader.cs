@@ -40,7 +40,7 @@ internal class AutoFilterReader
                     // Equal or NotEqual use wildcards, not value comparison. The rest does value comparison.
                     // There is no filter operation for equal of numbers (maybe combine >= and <=).
                     XLFilterOperator op = filter.Operator is not null
-                        ? filter.Operator.Value.ToClosedXml()
+                        ? filter.Operator.Value.ToXlsxSharp()
                         : XLFilterOperator.Equal;
                     XLFilter xlFilter;
                     string filterValue = filter.Val.Value;
@@ -93,7 +93,7 @@ internal class AutoFilterReader
                     }
 
                     XLDateTimeGrouping xlGrouping =
-                        dateGroupItem.DateTimeGrouping.Value.ToClosedXml();
+                        dateGroupItem.DateTimeGrouping.Value.ToXlsxSharp();
                     int year = 1900;
                     int month = 1;
                     int day = 1;
@@ -210,7 +210,7 @@ internal class AutoFilterReader
             {
                 xlFilterColumn.FilterType = XLFilterType.Dynamic;
                 XLFilterDynamicType dynamicType = dynamicFilter.Type is { } dynamicFilterType
-                    ? dynamicFilterType.Value.ToClosedXml()
+                    ? dynamicFilterType.Value.ToXlsxSharp()
                     : XLFilterDynamicType.AboveAverage;
                 double dynamicValue = filterColumn.DynamicFilter.Val.Value;
 

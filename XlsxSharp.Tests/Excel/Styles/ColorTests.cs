@@ -44,16 +44,16 @@ public class ColorTests
         XLColor xlColor3 = XLColor.FromTheme(XLThemeColor.Accent1);
         XLColor xlColor4 = XLColor.FromTheme(XLThemeColor.Accent2, 0.4);
 
-        ForegroundColor color1 = new ForegroundColor().FromClosedXMLColor<ForegroundColor>(
+        ForegroundColor color1 = new ForegroundColor().FromXlsxSharpColor<ForegroundColor>(
             xlColor1
         );
-        ForegroundColor color2 = new ForegroundColor().FromClosedXMLColor<ForegroundColor>(
+        ForegroundColor color2 = new ForegroundColor().FromXlsxSharpColor<ForegroundColor>(
             xlColor2
         );
-        BackgroundColor color3 = new BackgroundColor().FromClosedXMLColor<BackgroundColor>(
+        BackgroundColor color3 = new BackgroundColor().FromXlsxSharpColor<BackgroundColor>(
             xlColor3
         );
-        BackgroundColor color4 = new BackgroundColor().FromClosedXMLColor<BackgroundColor>(
+        BackgroundColor color4 = new BackgroundColor().FromXlsxSharpColor<BackgroundColor>(
             xlColor4
         );
 
@@ -86,13 +86,13 @@ public class ColorTests
         XLColor xlColor3 = XLColor.FromTheme(XLThemeColor.Accent1);
         XLColor xlColor4 = XLColor.FromTheme(XLThemeColor.Accent2, 0.4);
 
-        X14.AxisColor color1 = new X14.AxisColor().FromClosedXMLColor<X14.AxisColor>(xlColor1);
-        X14.BorderColor color2 = new X14.BorderColor().FromClosedXMLColor<X14.BorderColor>(
+        X14.AxisColor color1 = new X14.AxisColor().FromXlsxSharpColor<X14.AxisColor>(xlColor1);
+        X14.BorderColor color2 = new X14.BorderColor().FromXlsxSharpColor<X14.BorderColor>(
             xlColor2
         );
-        X14.FillColor color3 = new X14.FillColor().FromClosedXMLColor<X14.FillColor>(xlColor3);
+        X14.FillColor color3 = new X14.FillColor().FromXlsxSharpColor<X14.FillColor>(xlColor3);
         X14.HighMarkerColor color4 =
-            new X14.HighMarkerColor().FromClosedXMLColor<X14.HighMarkerColor>(xlColor4);
+            new X14.HighMarkerColor().FromXlsxSharpColor<X14.HighMarkerColor>(xlColor4);
 
         ClassicAssert.AreEqual("FFFF0000", color1.Rgb.Value);
         ClassicAssert.IsNull(color1.Indexed);
@@ -133,10 +133,10 @@ public class ColorTests
             Tint = new DocumentFormat.OpenXml.DoubleValue(0.4),
         };
 
-        XLColor xlColor1 = color1.ToClosedXMLColor();
-        XLColor xlColor2 = color2.ToClosedXMLColor();
-        XLColor xlColor3 = color3.ToClosedXMLColor();
-        XLColor xlColor4 = color4.ToClosedXMLColor();
+        XLColor xlColor1 = color1.ToXlsxSharpColor();
+        XLColor xlColor2 = color2.ToXlsxSharpColor();
+        XLColor xlColor3 = color3.ToXlsxSharpColor();
+        XLColor xlColor4 = color4.ToXlsxSharpColor();
 
         ClassicAssert.AreEqual(XLColorType.Color, xlColor1.ColorType);
         ClassicAssert.AreEqual(XLColor.Red.Color, xlColor1.Color);
@@ -171,10 +171,10 @@ public class ColorTests
             Tint = new DocumentFormat.OpenXml.DoubleValue(0.4),
         };
 
-        XLColor xlColor1 = color1.ToClosedXMLColor();
-        XLColor xlColor2 = color2.ToClosedXMLColor();
-        XLColor xlColor3 = color3.ToClosedXMLColor();
-        XLColor xlColor4 = color4.ToClosedXMLColor();
+        XLColor xlColor1 = color1.ToXlsxSharpColor();
+        XLColor xlColor2 = color2.ToXlsxSharpColor();
+        XLColor xlColor3 = color3.ToXlsxSharpColor();
+        XLColor xlColor4 = color4.ToXlsxSharpColor();
 
         ClassicAssert.AreEqual(XLColorType.Color, xlColor1.ColorType);
         ClassicAssert.AreEqual(XLColor.Red.Color, xlColor1.Color);

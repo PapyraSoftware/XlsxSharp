@@ -210,7 +210,7 @@ internal class WorksheetPartReader
 
         if (sheetProperty.TabColor != null)
         {
-            ws.TabColor = sheetProperty.TabColor.ToClosedXMLColor();
+            ws.TabColor = sheetProperty.TabColor.ToXlsxSharpColor();
         }
 
         if (sheetProperty.OutlineProperties != null)
@@ -794,7 +794,7 @@ internal class WorksheetPartReader
                 FontScheme fontScheme = runProperties.Elements<FontScheme>().FirstOrDefault();
                 if (fontScheme != null && fontScheme.Val is not null)
                 {
-                    rt.SetFontScheme(fontScheme.Val.Value.ToClosedXml());
+                    rt.SetFontScheme(fontScheme.Val.Value.ToXlsxSharp());
                 }
 
                 OpenXmlHelper.LoadFont(runProperties, rt);
@@ -815,12 +815,12 @@ internal class WorksheetPartReader
 
             if (pp.Alignment != null)
             {
-                xlPhoneticPr.Alignment = pp.Alignment.Value.ToClosedXml();
+                xlPhoneticPr.Alignment = pp.Alignment.Value.ToXlsxSharp();
             }
 
             if (pp.Type != null)
             {
-                xlPhoneticPr.Type = pp.Type.Value.ToClosedXml();
+                xlPhoneticPr.Type = pp.Type.Value.ToXlsxSharp();
             }
 
             if (pp.FontId?.Value is { } fontId)
@@ -1112,7 +1112,7 @@ internal class WorksheetPartReader
                 continue;
             }
 
-            conditionalFormat.ConditionalFormatType = fr.Type.Value.ToClosedXml();
+            conditionalFormat.ConditionalFormatType = fr.Type.Value.ToXlsxSharp();
             conditionalFormat.Priority = fr.Priority?.Value ?? int.MaxValue;
 
             // Although formulas are directly used only by CellIs and Expression type, other
@@ -1120,7 +1120,7 @@ internal class WorksheetPartReader
             // IsBlank writes `LEN(TRIM(A2))=0` or ContainsText writes `NOT(ISERROR(SEARCH("hello",A2)))`.
             if (conditionalFormat.ConditionalFormatType == XLConditionalFormatType.CellIs)
             {
-                conditionalFormat.Operator = fr.Operator.Value.ToClosedXml();
+                conditionalFormat.Operator = fr.Operator.Value.ToXlsxSharp();
 
                 // The XML schema allows up to three <formula> tags, but at most two are used.
                 // Some producers emit empty <formula> tags that should be ignored and extra
@@ -1200,7 +1200,7 @@ internal class WorksheetPartReader
             {
                 if (fr.TimePeriod != null)
                 {
-                    conditionalFormat.TimePeriod = fr.TimePeriod.Value.ToClosedXml();
+                    conditionalFormat.TimePeriod = fr.TimePeriod.Value.ToXlsxSharp();
                 }
                 else
                 {
@@ -1244,7 +1244,7 @@ internal class WorksheetPartReader
 
                 if (iconSet.IconSetValue != null)
                 {
-                    conditionalFormat.IconSetStyle = iconSet.IconSetValue.Value.ToClosedXml();
+                    conditionalFormat.IconSetStyle = iconSet.IconSetValue.Value.ToXlsxSharp();
                 }
                 else
                 {
@@ -1283,7 +1283,7 @@ internal class WorksheetPartReader
         {
             if (c.Type != null)
             {
-                conditionalFormat.ContentTypes.Add(c.Type.Value.ToClosedXml());
+                conditionalFormat.ContentTypes.Add(c.Type.Value.ToXlsxSharp());
             }
 
             if (c.Val != null)
@@ -1310,7 +1310,7 @@ internal class WorksheetPartReader
         }
         foreach (Color c in element.Elements<Color>())
         {
-            conditionalFormat.Colors.Add(c.ToClosedXMLColor());
+            conditionalFormat.Colors.Add(c.ToXlsxSharpColor());
         }
     }
 
@@ -1376,17 +1376,17 @@ internal class WorksheetPartReader
 
                 if (dvs.ErrorStyle != null)
                 {
-                    dvt.ErrorStyle = dvs.ErrorStyle.Value.ToClosedXml();
+                    dvt.ErrorStyle = dvs.ErrorStyle.Value.ToXlsxSharp();
                 }
 
                 if (dvs.Type != null)
                 {
-                    dvt.AllowedValues = dvs.Type.Value.ToClosedXml();
+                    dvt.AllowedValues = dvs.Type.Value.ToXlsxSharp();
                 }
 
                 if (dvs.Operator != null)
                 {
-                    dvt.Operator = dvs.Operator.Value.ToClosedXml();
+                    dvt.Operator = dvs.Operator.Value.ToXlsxSharp();
                 }
 
                 if (dvs.Formula1 != null)
@@ -1562,12 +1562,12 @@ internal class WorksheetPartReader
         }
         if (pageSetup.PageOrder != null)
         {
-            ws.PageSetup.PageOrder = pageSetup.PageOrder.Value.ToClosedXml();
+            ws.PageSetup.PageOrder = pageSetup.PageOrder.Value.ToXlsxSharp();
         }
 
         if (pageSetup.Orientation != null)
         {
-            ws.PageSetup.PageOrientation = pageSetup.Orientation.Value.ToClosedXml();
+            ws.PageSetup.PageOrientation = pageSetup.Orientation.Value.ToXlsxSharp();
         }
 
         if (pageSetup.BlackAndWhite != null)
@@ -1582,12 +1582,12 @@ internal class WorksheetPartReader
 
         if (pageSetup.CellComments != null)
         {
-            ws.PageSetup.ShowComments = pageSetup.CellComments.Value.ToClosedXml();
+            ws.PageSetup.ShowComments = pageSetup.CellComments.Value.ToXlsxSharp();
         }
 
         if (pageSetup.Errors != null)
         {
-            ws.PageSetup.PrintErrorValue = pageSetup.Errors.Value.ToClosedXml();
+            ws.PageSetup.PrintErrorValue = pageSetup.Errors.Value.ToXlsxSharp();
         }
 
         if (pageSetup.HorizontalDpi != null)
@@ -1771,17 +1771,17 @@ internal class WorksheetPartReader
 
                 if (dvs.ErrorStyle != null)
                 {
-                    dvt.ErrorStyle = dvs.ErrorStyle.Value.ToClosedXml();
+                    dvt.ErrorStyle = dvs.ErrorStyle.Value.ToXlsxSharp();
                 }
 
                 if (dvs.Type != null)
                 {
-                    dvt.AllowedValues = dvs.Type.Value.ToClosedXml();
+                    dvt.AllowedValues = dvs.Type.Value.ToXlsxSharp();
                 }
 
                 if (dvs.Operator != null)
                 {
-                    dvt.Operator = dvs.Operator.Value.ToClosedXml();
+                    dvt.Operator = dvs.Operator.Value.ToXlsxSharp();
                 }
 
                 if (dvs.DataValidationForumla1 != null)
@@ -1814,7 +1814,7 @@ internal class WorksheetPartReader
                 X14.NegativeFillColor negativeFillColor = conditionalFormattingRule
                     .Descendants<X14.NegativeFillColor>()
                     .SingleOrDefault();
-                xlConditionalFormat.Colors.Add(negativeFillColor.ToClosedXMLColor());
+                xlConditionalFormat.Colors.Add(negativeFillColor.ToXlsxSharpColor());
             }
         }
 
@@ -1834,37 +1834,37 @@ internal class WorksheetPartReader
             IXLSparklineStyle xlSparklineStyle = xlSparklineGroup.Style;
             if (slg.FirstMarkerColor != null)
             {
-                xlSparklineStyle.FirstMarkerColor = slg.FirstMarkerColor.ToClosedXMLColor();
+                xlSparklineStyle.FirstMarkerColor = slg.FirstMarkerColor.ToXlsxSharpColor();
             }
 
             if (slg.LastMarkerColor != null)
             {
-                xlSparklineStyle.LastMarkerColor = slg.LastMarkerColor.ToClosedXMLColor();
+                xlSparklineStyle.LastMarkerColor = slg.LastMarkerColor.ToXlsxSharpColor();
             }
 
             if (slg.HighMarkerColor != null)
             {
-                xlSparklineStyle.HighMarkerColor = slg.HighMarkerColor.ToClosedXMLColor();
+                xlSparklineStyle.HighMarkerColor = slg.HighMarkerColor.ToXlsxSharpColor();
             }
 
             if (slg.LowMarkerColor != null)
             {
-                xlSparklineStyle.LowMarkerColor = slg.LowMarkerColor.ToClosedXMLColor();
+                xlSparklineStyle.LowMarkerColor = slg.LowMarkerColor.ToXlsxSharpColor();
             }
 
             if (slg.SeriesColor != null)
             {
-                xlSparklineStyle.SeriesColor = slg.SeriesColor.ToClosedXMLColor();
+                xlSparklineStyle.SeriesColor = slg.SeriesColor.ToXlsxSharpColor();
             }
 
             if (slg.NegativeColor != null)
             {
-                xlSparklineStyle.NegativeColor = slg.NegativeColor.ToClosedXMLColor();
+                xlSparklineStyle.NegativeColor = slg.NegativeColor.ToXlsxSharpColor();
             }
 
             if (slg.MarkersColor != null)
             {
-                xlSparklineStyle.MarkersColor = slg.MarkersColor.ToClosedXMLColor();
+                xlSparklineStyle.MarkersColor = slg.MarkersColor.ToXlsxSharpColor();
             }
 
             xlSparklineGroup.Style = xlSparklineStyle;
@@ -1881,12 +1881,12 @@ internal class WorksheetPartReader
 
             if (slg.Type != null)
             {
-                xlSparklineGroup.Type = slg.Type.Value.ToClosedXml();
+                xlSparklineGroup.Type = slg.Type.Value.ToXlsxSharp();
             }
 
             if (slg.DisplayEmptyCellsAs != null)
             {
-                xlSparklineGroup.DisplayEmptyCellsAs = slg.DisplayEmptyCellsAs.Value.ToClosedXml();
+                xlSparklineGroup.DisplayEmptyCellsAs = slg.DisplayEmptyCellsAs.Value.ToXlsxSharp();
             }
 
             xlSparklineGroup.ShowMarkers = XLSparklineMarkers.None;
@@ -1947,12 +1947,12 @@ internal class WorksheetPartReader
 
             if (slg.MinAxisType != null)
             {
-                xlSparklineGroup.VerticalAxis.MinAxisType = slg.MinAxisType.Value.ToClosedXml();
+                xlSparklineGroup.VerticalAxis.MinAxisType = slg.MinAxisType.Value.ToXlsxSharp();
             }
 
             if (slg.MaxAxisType != null)
             {
-                xlSparklineGroup.VerticalAxis.MaxAxisType = slg.MaxAxisType.Value.ToClosedXml();
+                xlSparklineGroup.VerticalAxis.MaxAxisType = slg.MaxAxisType.Value.ToXlsxSharp();
             }
 
             foreach (

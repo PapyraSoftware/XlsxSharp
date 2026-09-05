@@ -179,7 +179,7 @@ public partial class XLWorkbook
             EnumValue<CalculateModeValues> calculateMode = calculationProperties.CalculationMode;
             if (calculateMode != null)
             {
-                this.CalculateMode = calculateMode.Value.ToClosedXml();
+                this.CalculateMode = calculateMode.Value.ToXlsxSharp();
             }
 
             BooleanValue calculationOnSave = calculationProperties.CalculationOnSave;
@@ -209,7 +209,7 @@ public partial class XLWorkbook
             EnumValue<ReferenceModeValues> referenceMode = calculationProperties.ReferenceMode;
             if (referenceMode != null)
             {
-                this.ReferenceStyle = referenceMode.Value.ToClosedXml();
+                this.ReferenceStyle = referenceMode.Value.ToXlsxSharp();
             }
         }
 
@@ -256,7 +256,7 @@ public partial class XLWorkbook
                 XLWorksheet emptySheet = this.WorksheetsInternal.Add(sheetName, position, sheetId);
                 if (dSheet.State != null)
                 {
-                    emptySheet.Visibility = dSheet.State.Value.ToClosedXml();
+                    emptySheet.Visibility = dSheet.State.Value.ToXlsxSharp();
                 }
 
                 continue;
@@ -279,7 +279,7 @@ public partial class XLWorkbook
 
             if (dSheet.State != null)
             {
-                ws.Visibility = dSheet.State.Value.ToClosedXml();
+                ws.Visibility = dSheet.State.Value.ToXlsxSharp();
             }
         }
 
@@ -435,7 +435,7 @@ public partial class XLWorkbook
                         if (tableColumn.TotalsRowFunction != null)
                         {
                             xlTable.Field(tableColumnName).TotalsRowFunction =
-                                tableColumn.TotalsRowFunction.Value.ToClosedXml();
+                                tableColumn.TotalsRowFunction.Value.ToXlsxSharp();
                         }
 
                         if (tableColumn.TotalsRowFormula != null)
