@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
+using System.Xml.Linq;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
@@ -48,7 +49,7 @@ internal class WorksheetPartReader
         LoadContext context
     )
     {
-        PageSetupProperties pageSetupProperties = null;
+        XElement pageSetupProperties = null;
 
         this._lastRow = 0;
 
@@ -68,37 +69,7 @@ internal class WorksheetPartReader
 
                 if (reader.ElementType == typeof(SheetFormatProperties))
                 {
-                    SheetFormatProperties sheetFormatProperties = (SheetFormatProperties)
-                        reader.LoadCurrentElement();
-                    if (sheetFormatProperties != null)
-                    {
-                        if (sheetFormatProperties.DefaultRowHeight != null)
-                        {
-                            ws.RowHeight = sheetFormatProperties.DefaultRowHeight;
-                        }
-
-                        ws.RowHeightChanged = (
-                            sheetFormatProperties.CustomHeight != null
-                            && sheetFormatProperties.CustomHeight.Value
-                        );
-
-                        if (sheetFormatProperties.DefaultColumnWidth != null)
-                        {
-                            ws.ColumnWidth = XlsxSharp.XLHelper.ConvertWidthToNoC(
-                                sheetFormatProperties.DefaultColumnWidth.Value,
-                                ws.Style.Font,
-                                ws.Workbook
-                            );
-                        }
-                        else if (sheetFormatProperties.BaseColumnWidth != null)
-                        {
-                            ws.ColumnWidth = XlsxSharp.XLHelper.CalculateColumnWidth(
-                                sheetFormatProperties.BaseColumnWidth.Value,
-                                ws.Style.Font,
-                                ws.Workbook
-                            );
-                        }
-                    }
+                    LoadSheetFormatProperties(AsXElement(reader.LoadCurrentElement()), ws);
                 }
                 else if (reader.ElementType == typeof(SheetViews))
                 {
@@ -106,14 +77,7 @@ internal class WorksheetPartReader
                 }
                 else if (reader.ElementType == typeof(MergeCells))
                 {
-                    MergeCells mergedCells = (MergeCells)reader.LoadCurrentElement();
-                    if (mergedCells != null)
-                    {
-                        foreach (MergeCell mergeCell in mergedCells.Elements<MergeCell>())
-                        {
-                            ws.Range(mergeCell.Reference).Merge(false);
-                        }
-                    }
+                    LoadMergeCells(AsXElement(reader.LoadCurrentElement()), ws);
                 }
                 else if (reader.ElementType == typeof(Columns))
                 {
@@ -149,39 +113,35 @@ internal class WorksheetPartReader
                 }
                 else if (reader.ElementType == typeof(PrintOptions))
                 {
-                    LoadPrintOptions((PrintOptions)reader.LoadCurrentElement(), ws);
+                    LoadPrintOptions(AsXElement(reader.LoadCurrentElement()), ws);
                 }
                 else if (reader.ElementType == typeof(PageMargins))
                 {
-                    LoadPageMargins((PageMargins)reader.LoadCurrentElement(), ws);
+                    LoadPageMargins(AsXElement(reader.LoadCurrentElement()), ws);
                 }
                 else if (reader.ElementType == typeof(DocumentFormat.OpenXml.Spreadsheet.PageSetup))
                 {
-                    LoadPageSetup(
-                        (DocumentFormat.OpenXml.Spreadsheet.PageSetup)reader.LoadCurrentElement(),
-                        ws,
-                        pageSetupProperties
-                    );
+                    LoadPageSetup(AsXElement(reader.LoadCurrentElement()), ws, pageSetupProperties);
                 }
                 else if (reader.ElementType == typeof(HeaderFooter))
                 {
-                    LoadHeaderFooter((HeaderFooter)reader.LoadCurrentElement(), ws);
+                    LoadHeaderFooter(AsXElement(reader.LoadCurrentElement()), ws);
                 }
                 else if (reader.ElementType == typeof(SheetProperties))
                 {
                     LoadSheetProperties(
-                        (SheetProperties)reader.LoadCurrentElement(),
+                        AsXElement(reader.LoadCurrentElement()),
                         ws,
                         out pageSetupProperties
                     );
                 }
                 else if (reader.ElementType == typeof(RowBreaks))
                 {
-                    LoadRowBreaks((RowBreaks)reader.LoadCurrentElement(), ws);
+                    LoadRowBreaks(AsXElement(reader.LoadCurrentElement()), ws);
                 }
                 else if (reader.ElementType == typeof(ColumnBreaks))
                 {
-                    LoadColumnBreaks((ColumnBreaks)reader.LoadCurrentElement(), ws);
+                    LoadColumnBreaks(AsXElement(reader.LoadCurrentElement()), ws);
                 }
                 else if (reader.ElementType == typeof(WorksheetExtensionList))
                 {
@@ -189,51 +149,97 @@ internal class WorksheetPartReader
                 }
                 else if (reader.ElementType == typeof(LegacyDrawing))
                 {
-                    ws.LegacyDrawingId = (reader.LoadCurrentElement() as LegacyDrawing).Id.Value;
+                    ws.LegacyDrawingId = AsXElement(reader.LoadCurrentElement())
+                        .Attribute(SpreadsheetXml.Rel + "id")
+                        ?.Value;
                 }
             }
             reader.Close();
         }
     }
 
-    private static void LoadSheetProperties(
-        SheetProperties sheetProperty,
-        XLWorksheet ws,
-        out PageSetupProperties pageSetupProperties
-    )
+    private static void LoadSheetFormatProperties(XElement sheetFormatProperties, XLWorksheet ws)
     {
-        pageSetupProperties = null;
-        if (sheetProperty == null)
+        if (sheetFormatProperties is null)
         {
             return;
         }
 
-        if (sheetProperty.TabColor != null)
+        if (SpreadsheetXml.Double(sheetFormatProperties, "defaultRowHeight") is { } rowHeight)
         {
-            ws.TabColor = sheetProperty.TabColor.ToXlsxSharpColor();
+            ws.RowHeight = rowHeight;
         }
 
-        if (sheetProperty.OutlineProperties != null)
+        ws.RowHeightChanged = SpreadsheetXml.Bool(sheetFormatProperties, "customHeight") ?? false;
+
+        if (SpreadsheetXml.Double(sheetFormatProperties, "defaultColWidth") is { } columnWidth)
         {
-            if (sheetProperty.OutlineProperties.SummaryBelow != null)
+            ws.ColumnWidth = XlsxSharp.XLHelper.ConvertWidthToNoC(
+                columnWidth,
+                ws.Style.Font,
+                ws.Workbook
+            );
+        }
+        else if (SpreadsheetXml.UInt(sheetFormatProperties, "baseColWidth") is { } baseWidth)
+        {
+            ws.ColumnWidth = XlsxSharp.XLHelper.CalculateColumnWidth(
+                baseWidth,
+                ws.Style.Font,
+                ws.Workbook
+            );
+        }
+    }
+
+    private static void LoadMergeCells(XElement mergedCells, XLWorksheet ws)
+    {
+        if (mergedCells is null)
+        {
+            return;
+        }
+
+        foreach (XElement mergeCell in mergedCells.Elements(SpreadsheetXml.Main + "mergeCell"))
+        {
+            ws.Range(SpreadsheetXml.String(mergeCell, "ref")).Merge(false);
+        }
+    }
+
+    private static void LoadSheetProperties(
+        XElement sheetProperty,
+        XLWorksheet ws,
+        out XElement pageSetupProperties
+    )
+    {
+        pageSetupProperties = null;
+        if (sheetProperty is null)
+        {
+            return;
+        }
+
+        if (sheetProperty.Element(SpreadsheetXml.Main + "tabColor") is { } tabColor)
+        {
+            ws.TabColor = SpreadsheetXml.ReadColor(tabColor);
+        }
+
+        if (sheetProperty.Element(SpreadsheetXml.Main + "outlinePr") is { } outline)
+        {
+            if (SpreadsheetXml.Bool(outline, "summaryBelow") is { } summaryBelow)
             {
-                ws.Outline.SummaryVLocation = sheetProperty.OutlineProperties.SummaryBelow
+                ws.Outline.SummaryVLocation = summaryBelow
                     ? XLOutlineSummaryVLocation.Bottom
                     : XLOutlineSummaryVLocation.Top;
             }
 
-            if (sheetProperty.OutlineProperties.SummaryRight != null)
+            if (SpreadsheetXml.Bool(outline, "summaryRight") is { } summaryRight)
             {
-                ws.Outline.SummaryHLocation = sheetProperty.OutlineProperties.SummaryRight
+                ws.Outline.SummaryHLocation = summaryRight
                     ? XLOutlineSummaryHLocation.Right
                     : XLOutlineSummaryHLocation.Left;
             }
         }
 
-        if (sheetProperty.PageSetupProperties != null)
-        {
-            pageSetupProperties = sheetProperty.PageSetupProperties;
-        }
+        // The fitToPage flag lives here, but the page counts it turns on are on pageSetup, which
+        // is read further down the part - so hand it to the caller to thread through.
+        pageSetupProperties = sheetProperty.Element(SpreadsheetXml.Main + "pageSetUpPr");
     }
 
     private static void LoadColumns(XLWorksheet ws, Columns columns)
@@ -1449,261 +1455,251 @@ internal class WorksheetPartReader
         }
     }
 
-    private static void LoadPrintOptions(PrintOptions printOptions, XLWorksheet ws)
+    private static void LoadPrintOptions(XElement printOptions, XLWorksheet ws)
     {
-        if (printOptions == null)
+        if (printOptions is null)
         {
             return;
         }
 
-        if (printOptions.GridLines != null)
+        if (SpreadsheetXml.Bool(printOptions, "gridLines") is { } gridLines)
         {
-            ws.PageSetup.ShowGridlines = printOptions.GridLines;
+            ws.PageSetup.ShowGridlines = gridLines;
         }
 
-        if (printOptions.HorizontalCentered != null)
+        if (SpreadsheetXml.Bool(printOptions, "horizontalCentered") is { } horizontalCentered)
         {
-            ws.PageSetup.CenterHorizontally = printOptions.HorizontalCentered;
+            ws.PageSetup.CenterHorizontally = horizontalCentered;
         }
 
-        if (printOptions.VerticalCentered != null)
+        if (SpreadsheetXml.Bool(printOptions, "verticalCentered") is { } verticalCentered)
         {
-            ws.PageSetup.CenterVertically = printOptions.VerticalCentered;
+            ws.PageSetup.CenterVertically = verticalCentered;
         }
 
-        if (printOptions.Headings != null)
+        if (SpreadsheetXml.Bool(printOptions, "headings") is { } headings)
         {
-            ws.PageSetup.ShowRowAndColumnHeadings = printOptions.Headings;
+            ws.PageSetup.ShowRowAndColumnHeadings = headings;
         }
     }
 
-    private static void LoadPageMargins(PageMargins pageMargins, XLWorksheet ws)
+    private static void LoadPageMargins(XElement pageMargins, XLWorksheet ws)
     {
-        if (pageMargins == null)
+        if (pageMargins is null)
         {
             return;
         }
 
-        if (pageMargins.Bottom != null)
+        IXLMargins margins = ws.PageSetup.Margins;
+
+        if (SpreadsheetXml.Double(pageMargins, "bottom") is { } bottom)
         {
-            ws.PageSetup.Margins.Bottom = pageMargins.Bottom;
+            margins.Bottom = bottom;
         }
 
-        if (pageMargins.Footer != null)
+        if (SpreadsheetXml.Double(pageMargins, "footer") is { } footer)
         {
-            ws.PageSetup.Margins.Footer = pageMargins.Footer;
+            margins.Footer = footer;
         }
 
-        if (pageMargins.Header != null)
+        if (SpreadsheetXml.Double(pageMargins, "header") is { } header)
         {
-            ws.PageSetup.Margins.Header = pageMargins.Header;
+            margins.Header = header;
         }
 
-        if (pageMargins.Left != null)
+        if (SpreadsheetXml.Double(pageMargins, "left") is { } left)
         {
-            ws.PageSetup.Margins.Left = pageMargins.Left;
+            margins.Left = left;
         }
 
-        if (pageMargins.Right != null)
+        if (SpreadsheetXml.Double(pageMargins, "right") is { } right)
         {
-            ws.PageSetup.Margins.Right = pageMargins.Right;
+            margins.Right = right;
         }
 
-        if (pageMargins.Top != null)
+        if (SpreadsheetXml.Double(pageMargins, "top") is { } top)
         {
-            ws.PageSetup.Margins.Top = pageMargins.Top;
+            margins.Top = top;
         }
     }
 
     private static void LoadPageSetup(
-        DocumentFormat.OpenXml.Spreadsheet.PageSetup pageSetup,
+        XElement pageSetup,
         XLWorksheet ws,
-        PageSetupProperties pageSetupProperties
+        XElement pageSetupProperties
     )
     {
-        if (pageSetup == null)
+        if (pageSetup is null)
         {
             return;
         }
 
-        if (pageSetup.PaperSize != null)
+        if (SpreadsheetXml.Int(pageSetup, "paperSize") is { } paperSize)
         {
-            ws.PageSetup.PaperSize = (XLPaperSize)int.Parse(pageSetup.PaperSize.InnerText);
+            ws.PageSetup.PaperSize = (XLPaperSize)paperSize;
         }
 
-        if (pageSetup.Scale != null)
+        if (SpreadsheetXml.Int(pageSetup, "scale") is { } scale)
         {
-            ws.PageSetup.Scale = int.Parse(pageSetup.Scale.InnerText);
+            ws.PageSetup.Scale = scale;
         }
 
-        if (
-            pageSetupProperties != null
-            && pageSetupProperties.FitToPage != null
-            && pageSetupProperties.FitToPage.Value
-        )
+        // Both counts default to one page, so a sheet that is set to fit to page but names
+        // neither fits on a single page.
+        if (SpreadsheetXml.Bool(pageSetupProperties, "fitToPage") ?? false)
         {
-            if (pageSetup.FitToWidth == null)
-            {
-                ws.PageSetup.PagesWide = 1;
-            }
-            else
-            {
-                ws.PageSetup.PagesWide = int.Parse(pageSetup.FitToWidth.InnerText);
-            }
-
-            if (pageSetup.FitToHeight == null)
-            {
-                ws.PageSetup.PagesTall = 1;
-            }
-            else
-            {
-                ws.PageSetup.PagesTall = int.Parse(pageSetup.FitToHeight.InnerText);
-            }
-        }
-        if (pageSetup.PageOrder != null)
-        {
-            ws.PageSetup.PageOrder = pageSetup.PageOrder.Value.ToXlsxSharp();
+            ws.PageSetup.PagesWide = SpreadsheetXml.Int(pageSetup, "fitToWidth") ?? 1;
+            ws.PageSetup.PagesTall = SpreadsheetXml.Int(pageSetup, "fitToHeight") ?? 1;
         }
 
-        if (pageSetup.Orientation != null)
+        if (SpreadsheetXml.String(pageSetup, "pageOrder") is { } pageOrder)
         {
-            ws.PageSetup.PageOrientation = pageSetup.Orientation.Value.ToXlsxSharp();
+            ws.PageSetup.PageOrder = WorksheetXmlEnums.ParsePageOrder(pageOrder);
         }
 
-        if (pageSetup.BlackAndWhite != null)
+        if (SpreadsheetXml.String(pageSetup, "orientation") is { } orientation)
         {
-            ws.PageSetup.BlackAndWhite = pageSetup.BlackAndWhite;
+            ws.PageSetup.PageOrientation = WorksheetXmlEnums.ParsePageOrientation(orientation);
         }
 
-        if (pageSetup.Draft != null)
+        if (SpreadsheetXml.Bool(pageSetup, "blackAndWhite") is { } blackAndWhite)
         {
-            ws.PageSetup.DraftQuality = pageSetup.Draft;
+            ws.PageSetup.BlackAndWhite = blackAndWhite;
         }
 
-        if (pageSetup.CellComments != null)
+        if (SpreadsheetXml.Bool(pageSetup, "draft") is { } draft)
         {
-            ws.PageSetup.ShowComments = pageSetup.CellComments.Value.ToXlsxSharp();
+            ws.PageSetup.DraftQuality = draft;
         }
 
-        if (pageSetup.Errors != null)
+        if (SpreadsheetXml.String(pageSetup, "cellComments") is { } cellComments)
         {
-            ws.PageSetup.PrintErrorValue = pageSetup.Errors.Value.ToXlsxSharp();
+            ws.PageSetup.ShowComments = WorksheetXmlEnums.ParseShowComments(cellComments);
         }
 
-        if (pageSetup.HorizontalDpi != null)
+        if (SpreadsheetXml.String(pageSetup, "errors") is { } errors)
         {
-            ws.PageSetup.HorizontalDpi = (int)pageSetup.HorizontalDpi.Value;
+            ws.PageSetup.PrintErrorValue = WorksheetXmlEnums.ParsePrintError(errors);
         }
 
-        if (pageSetup.VerticalDpi != null)
+        if (SpreadsheetXml.UInt(pageSetup, "horizontalDpi") is { } horizontalDpi)
         {
-            ws.PageSetup.VerticalDpi = (int)pageSetup.VerticalDpi.Value;
+            ws.PageSetup.HorizontalDpi = (int)horizontalDpi;
         }
 
-        if (pageSetup.FirstPageNumber?.HasValue ?? false)
+        if (SpreadsheetXml.UInt(pageSetup, "verticalDpi") is { } verticalDpi)
         {
-            ws.PageSetup.FirstPageNumber = (int)pageSetup.FirstPageNumber.Value;
+            ws.PageSetup.VerticalDpi = (int)verticalDpi;
+        }
+
+        // The page number is unsigned in the schema, and a file that writes a negative one - as
+        // one of the test workbooks does - leaves the sheet numbering from its own default.
+        if (SpreadsheetXml.UInt(pageSetup, "firstPageNumber") is { } firstPageNumber)
+        {
+            ws.PageSetup.FirstPageNumber = (int)firstPageNumber;
         }
     }
 
-    private static void LoadHeaderFooter(HeaderFooter headerFooter, XLWorksheet ws)
+    private static void LoadHeaderFooter(XElement headerFooter, XLWorksheet ws)
     {
-        if (headerFooter == null)
+        if (headerFooter is null)
         {
             return;
         }
 
-        if (headerFooter.AlignWithMargins != null)
+        if (SpreadsheetXml.Bool(headerFooter, "alignWithMargins") is { } alignWithMargins)
         {
-            ws.PageSetup.AlignHFWithMargins = headerFooter.AlignWithMargins;
+            ws.PageSetup.AlignHFWithMargins = alignWithMargins;
         }
 
-        if (headerFooter.ScaleWithDoc != null)
+        if (SpreadsheetXml.Bool(headerFooter, "scaleWithDoc") is { } scaleWithDoc)
         {
-            ws.PageSetup.ScaleHFWithDocument = headerFooter.ScaleWithDoc;
+            ws.PageSetup.ScaleHFWithDocument = scaleWithDoc;
         }
 
-        if (headerFooter.DifferentFirst != null)
+        if (SpreadsheetXml.Bool(headerFooter, "differentFirst") is { } differentFirst)
         {
-            ws.PageSetup.DifferentFirstPageOnHF = headerFooter.DifferentFirst;
+            ws.PageSetup.DifferentFirstPageOnHF = differentFirst;
         }
 
-        if (headerFooter.DifferentOddEven != null)
+        if (SpreadsheetXml.Bool(headerFooter, "differentOddEven") is { } differentOddEven)
         {
-            ws.PageSetup.DifferentOddEvenPagesOnHF = headerFooter.DifferentOddEven;
+            ws.PageSetup.DifferentOddEvenPagesOnHF = differentOddEven;
         }
 
-        // Footers
-        XLHeaderFooter xlFooter = (XLHeaderFooter)ws.PageSetup.Footer;
-        EvenFooter evenFooter = headerFooter.EvenFooter;
-        if (evenFooter != null)
-        {
-            xlFooter.SetInnerText(XLHFOccurrence.EvenPages, evenFooter.Text);
-        }
-
-        OddFooter oddFooter = headerFooter.OddFooter;
-        if (oddFooter != null)
-        {
-            xlFooter.SetInnerText(XLHFOccurrence.OddPages, oddFooter.Text);
-        }
-
-        FirstFooter firstFooter = headerFooter.FirstFooter;
-        if (firstFooter != null)
-        {
-            xlFooter.SetInnerText(XLHFOccurrence.FirstPage, firstFooter.Text);
-        }
-
-        // Headers
-        XLHeaderFooter xlHeader = (XLHeaderFooter)ws.PageSetup.Header;
-        EvenHeader evenHeader = headerFooter.EvenHeader;
-        if (evenHeader != null)
-        {
-            xlHeader.SetInnerText(XLHFOccurrence.EvenPages, evenHeader.Text);
-        }
-
-        OddHeader oddHeader = headerFooter.OddHeader;
-        if (oddHeader != null)
-        {
-            xlHeader.SetInnerText(XLHFOccurrence.OddPages, oddHeader.Text);
-        }
-
-        FirstHeader firstHeader = headerFooter.FirstHeader;
-        if (firstHeader != null)
-        {
-            xlHeader.SetInnerText(XLHFOccurrence.FirstPage, firstHeader.Text);
-        }
+        SetHeaderFooterText(
+            headerFooter,
+            "evenFooter",
+            ws.PageSetup.Footer,
+            XLHFOccurrence.EvenPages
+        );
+        SetHeaderFooterText(
+            headerFooter,
+            "oddFooter",
+            ws.PageSetup.Footer,
+            XLHFOccurrence.OddPages
+        );
+        SetHeaderFooterText(
+            headerFooter,
+            "firstFooter",
+            ws.PageSetup.Footer,
+            XLHFOccurrence.FirstPage
+        );
+        SetHeaderFooterText(
+            headerFooter,
+            "evenHeader",
+            ws.PageSetup.Header,
+            XLHFOccurrence.EvenPages
+        );
+        SetHeaderFooterText(
+            headerFooter,
+            "oddHeader",
+            ws.PageSetup.Header,
+            XLHFOccurrence.OddPages
+        );
+        SetHeaderFooterText(
+            headerFooter,
+            "firstHeader",
+            ws.PageSetup.Header,
+            XLHFOccurrence.FirstPage
+        );
 
         ((XLHeaderFooter)ws.PageSetup.Header).SetAsInitial();
         ((XLHeaderFooter)ws.PageSetup.Footer).SetAsInitial();
     }
 
-    private static void LoadRowBreaks(RowBreaks rowBreaks, XLWorksheet ws)
+    private static void SetHeaderFooterText(
+        XElement headerFooter,
+        string name,
+        IXLHeaderFooter target,
+        XLHFOccurrence occurrence
+    )
     {
-        if (rowBreaks == null)
+        if (headerFooter.Element(SpreadsheetXml.Main + name) is { } text)
         {
-            return;
-        }
-
-        foreach (Break rowBreak in rowBreaks.Elements<Break>())
-        {
-            ws.PageSetup.RowBreaks.Add(int.Parse(rowBreak.Id.InnerText));
+            ((XLHeaderFooter)target).SetInnerText(occurrence, text.Value);
         }
     }
 
-    private static void LoadColumnBreaks(ColumnBreaks columnBreaks, XLWorksheet ws)
+    private static void LoadRowBreaks(XElement rowBreaks, XLWorksheet ws) =>
+        LoadBreaks(rowBreaks, ws.PageSetup.RowBreaks);
+
+    private static void LoadColumnBreaks(XElement columnBreaks, XLWorksheet ws) =>
+        LoadBreaks(columnBreaks, ws.PageSetup.ColumnBreaks);
+
+    private static void LoadBreaks(XElement breaks, List<int> target)
     {
-        if (columnBreaks == null)
+        if (breaks is null)
         {
             return;
         }
 
-        foreach (
-            Break columnBreak in columnBreaks
-                .Elements<Break>()
-                .Where(columnBreak => columnBreak.Id != null)
-        )
+        foreach (XElement brk in breaks.Elements(SpreadsheetXml.Main + "brk"))
         {
-            ws.PageSetup.ColumnBreaks.Add(int.Parse(columnBreak.Id.InnerText));
+            if (SpreadsheetXml.Int(brk, "id") is { } id)
+            {
+                target.Add(id);
+            }
         }
     }
 
@@ -1971,6 +1967,13 @@ internal class WorksheetPartReader
             }
         }
     }
+
+    /// <summary>
+    /// Hands a loader the element as XML while the dispatch loop above still runs on the SDK
+    /// reader. It goes away with the loop.
+    /// </summary>
+    private static XElement AsXElement(OpenXmlElement element) =>
+        element is null ? null : XElement.Parse(element.OuterXml);
 
     private static void ApplyStyle(
         IXLFormatContainer container,
