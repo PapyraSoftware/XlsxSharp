@@ -58,4 +58,22 @@ public class PointTests
         Point r = Point.Parse(cellRef);
         ClassicAssert.AreEqual(cellRef, r.ToString());
     }
+
+    [Test]
+    public async Task Hash_codes_of_points_in_area_have_few_collisions()
+    {
+        // Points are used in sets or dictionaries. Make sure the hash function doesn't produce
+        // too many collision. The hash function originally produced hash codes only from
+        // a small range of values instead of all possible integer values. That significantly
+        // increased number of collisions and led to a bad performance.
+        var hashes = new HashSet<int>();
+        for (var row = 1; row <= 1000; ++row)
+        {
+            for (var column = 1; column <= 100; ++column)
+                hashes.Add(new Point(row, column).GetHashCode());
+        }
+
+        // Some collisions are inevitable, but the vast majority of points must be distinguishable.
+        await Assert.That(hashes.Count).IsGreaterThan(99000);
+    }
 }

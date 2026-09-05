@@ -84,8 +84,7 @@ internal readonly struct Area : IEquatable<Area>, IEnumerable<Point>
     public bool Equals(Area other) =>
         this.FirstPoint.Equals(other.FirstPoint) && this.LastPoint.Equals(other.LastPoint);
 
-    public override int GetHashCode() =>
-        this.FirstPoint.GetHashCode() ^ this.LastPoint.GetHashCode();
+    public override int GetHashCode() => HashCode.Combine(this.FirstPoint, this.LastPoint);
 
     public static bool operator ==(Area left, Area right) => left.Equals(right);
 
