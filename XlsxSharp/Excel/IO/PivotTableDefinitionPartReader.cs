@@ -36,11 +36,11 @@ internal class PivotTableDefinitionPartReader
         if (pivotSource == null)
         {
             // If it's missing, find a 'similar' pivot cache, i.e. one that's based on the same source range/table
+            // Reading the part again is cheap next to the alternative, which is keeping the
+            // cache definition's DOM alive just for this fallback.
+            IXLPivotSource cacheSource = PivotTableCacheDefinitionPartReader.ReadSource(cache);
             pivotSource = workbook.PivotCachesInternal.FirstOrDefault<XLPivotCache>(ps =>
-                cache.PivotCacheDefinition?.CacheSource is { } cacheSource
-                && ps.Source.Equals(
-                    PivotTableCacheDefinitionPartReader.ParsePivotSourceReference(cacheSource)
-                )
+                ps.Source.Equals(cacheSource)
             );
         }
 
