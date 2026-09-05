@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Xml.Linq;
+using XlsxSharp.Extensions;
 using XlsxSharp.Utils;
 
 namespace XlsxSharp.Excel.IO;
@@ -123,6 +124,43 @@ internal static class SpreadsheetXml
         }
 
         return XLColor.Automatic;
+    }
+
+    /// <summary>
+    /// Writes a colour into a <c>CT_Color</c>, in whichever of the three ways the workbook model
+    /// holds it. An automatic colour says nothing at all.
+    /// </summary>
+    /// <param name="isDifferential">
+    /// A differential format leaves index 64 - the transparent one - unsaid.
+    /// </param>
+    internal static void SetColor(XElement element, XLColor color, bool isDifferential = false)
+    {
+        switch (color.ColorType)
+        {
+            case XLColorType.Color:
+                element.SetAttributeValue("rgb", color.Color.ToHex());
+                break;
+
+            case XLColorType.Indexed:
+                if (!isDifferential || color.Indexed != 64)
+                {
+                    element.SetAttributeValue("indexed", (uint)color.Indexed);
+                }
+
+                break;
+
+            case XLColorType.Theme:
+                element.SetAttributeValue("theme", (uint)color.ThemeColor);
+                if (color.ThemeTint != 0)
+                {
+                    element.SetAttributeValue(
+                        "tint",
+                        color.ThemeTint.ToString(CultureInfo.InvariantCulture)
+                    );
+                }
+
+                break;
+        }
     }
 
     internal static string? ElementText(XElement? element, string name) =>

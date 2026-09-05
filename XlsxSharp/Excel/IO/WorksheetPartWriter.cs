@@ -58,6 +58,7 @@ internal class WorksheetPartWriter
         XElement worksheet = ToXml(worksheetDom);
         WriteConditionalFormats(worksheet, xlWorksheet, context);
         WriteDataValidations(worksheet, xlWorksheet, options);
+        WriteSparklines(worksheet, xlWorksheet);
         WriteSheetProtection(worksheet, xlWorksheet.Protection);
         WriteAutoFilter(worksheet, xlWorksheet.AutoFilter);
         WriteMergedCells(worksheet, xlWorksheet.Internals.MergedRanges);
@@ -711,202 +712,6 @@ internal class WorksheetPartWriter
 
         #endregion SheetData
 
-
-        #region Sparklines
-
-        const string sparklineGroupsExtensionUri = "{05C60535-1F16-4fd2-B633-F4F36F0B64E0}";
-
-        if (!xlWorksheet.SparklineGroups.Any())
-        {
-            WorksheetExtensionList worksheetExtensionList = worksheet
-                .Elements<WorksheetExtensionList>()
-                .FirstOrDefault();
-            WorksheetExtension worksheetExtension = worksheetExtensionList
-                ?.Elements<WorksheetExtension>()
-                .FirstOrDefault(ext =>
-                    string.Equals(
-                        ext.Uri,
-                        sparklineGroupsExtensionUri,
-                        StringComparison.InvariantCultureIgnoreCase
-                    )
-                );
-
-            worksheetExtension?.RemoveAllChildren<X14.SparklineGroups>();
-
-            if (worksheetExtensionList != null)
-            {
-                if (worksheetExtension != null && !worksheetExtension.HasChildren)
-                {
-                    worksheetExtensionList.RemoveChild(worksheetExtension);
-                }
-
-                if (!worksheetExtensionList.HasChildren)
-                {
-                    worksheet.RemoveChild(worksheetExtensionList);
-                    cm.SetElement(XLWorksheetContents.WorksheetExtensionList, null);
-                }
-            }
-        }
-        else
-        {
-            if (!worksheet.Elements<WorksheetExtensionList>().Any())
-            {
-                OpenXmlElement previousElement = cm.GetPreviousElementFor(
-                    XLWorksheetContents.WorksheetExtensionList
-                );
-                worksheet.InsertAfter(new WorksheetExtensionList(), previousElement);
-            }
-
-            WorksheetExtensionList worksheetExtensionList = worksheet
-                .Elements<WorksheetExtensionList>()
-                .First();
-            cm.SetElement(XLWorksheetContents.WorksheetExtensionList, worksheetExtensionList);
-
-            X14.SparklineGroups sparklineGroups = worksheetExtensionList
-                .Descendants<X14.SparklineGroups>()
-                .SingleOrDefault();
-
-            if (sparklineGroups == null || !sparklineGroups.Any())
-            {
-                WorksheetExtension worksheetExtension1 = new()
-                {
-                    Uri = sparklineGroupsExtensionUri,
-                };
-                worksheetExtension1.AddNamespaceDeclaration("x14", X14Main2009SsNs);
-                worksheetExtensionList.Append(worksheetExtension1);
-
-                sparklineGroups = new X14.SparklineGroups();
-                sparklineGroups.AddNamespaceDeclaration("xm", XmMain2006);
-                worksheetExtension1.Append(sparklineGroups);
-            }
-            else
-            {
-                sparklineGroups.RemoveAllChildren();
-            }
-
-            foreach (XLSparklineGroup xlSparklineGroup in xlWorksheet.SparklineGroupsInternal)
-            {
-                // Do not create an empty Sparkline group
-                if (!xlSparklineGroup.Sparklines.Any())
-                {
-                    continue;
-                }
-
-                X14.SparklineGroup sparklineGroup = new();
-                sparklineGroup.SetAttribute(
-                    new OpenXmlAttribute(
-                        "xr2",
-                        "uid",
-                        "http://schemas.microsoft.com/office/spreadsheetml/2015/revision2",
-                        "{A98FF5F8-AE60-43B5-8001-AD89004F45D3}"
-                    )
-                );
-
-                sparklineGroup.FirstMarkerColor =
-                    new X14.FirstMarkerColor().FromXlsxSharpColor<X14.FirstMarkerColor>(
-                        xlSparklineGroup.Style.FirstMarkerColor
-                    );
-                sparklineGroup.LastMarkerColor =
-                    new X14.LastMarkerColor().FromXlsxSharpColor<X14.LastMarkerColor>(
-                        xlSparklineGroup.Style.LastMarkerColor
-                    );
-                sparklineGroup.HighMarkerColor =
-                    new X14.HighMarkerColor().FromXlsxSharpColor<X14.HighMarkerColor>(
-                        xlSparklineGroup.Style.HighMarkerColor
-                    );
-                sparklineGroup.LowMarkerColor =
-                    new X14.LowMarkerColor().FromXlsxSharpColor<X14.LowMarkerColor>(
-                        xlSparklineGroup.Style.LowMarkerColor
-                    );
-                sparklineGroup.SeriesColor =
-                    new X14.SeriesColor().FromXlsxSharpColor<X14.SeriesColor>(
-                        xlSparklineGroup.Style.SeriesColor
-                    );
-                sparklineGroup.NegativeColor =
-                    new X14.NegativeColor().FromXlsxSharpColor<X14.NegativeColor>(
-                        xlSparklineGroup.Style.NegativeColor
-                    );
-                sparklineGroup.MarkersColor =
-                    new X14.MarkersColor().FromXlsxSharpColor<X14.MarkersColor>(
-                        xlSparklineGroup.Style.MarkersColor
-                    );
-
-                sparklineGroup.High = xlSparklineGroup.ShowMarkers.HasFlag(
-                    XLSparklineMarkers.HighPoint
-                );
-                sparklineGroup.Low = xlSparklineGroup.ShowMarkers.HasFlag(
-                    XLSparklineMarkers.LowPoint
-                );
-                sparklineGroup.First = xlSparklineGroup.ShowMarkers.HasFlag(
-                    XLSparklineMarkers.FirstPoint
-                );
-                sparklineGroup.Last = xlSparklineGroup.ShowMarkers.HasFlag(
-                    XLSparklineMarkers.LastPoint
-                );
-                sparklineGroup.Negative = xlSparklineGroup.ShowMarkers.HasFlag(
-                    XLSparklineMarkers.NegativePoints
-                );
-                sparklineGroup.Markers = xlSparklineGroup.ShowMarkers.HasFlag(
-                    XLSparklineMarkers.Markers
-                );
-
-                sparklineGroup.DisplayHidden = xlSparklineGroup.DisplayHidden;
-                sparklineGroup.LineWeight = xlSparklineGroup.LineWeight;
-                sparklineGroup.Type = xlSparklineGroup.Type.ToOpenXml();
-                sparklineGroup.DisplayEmptyCellsAs =
-                    xlSparklineGroup.DisplayEmptyCellsAs.ToOpenXml();
-
-                sparklineGroup.AxisColor = new X14.AxisColor()
-                {
-                    Rgb = xlSparklineGroup.HorizontalAxis.Color.Color.ToHex(),
-                };
-                sparklineGroup.DisplayXAxis = xlSparklineGroup.HorizontalAxis.IsVisible;
-                sparklineGroup.RightToLeft = xlSparklineGroup.HorizontalAxis.RightToLeft;
-                sparklineGroup.DateAxis = xlSparklineGroup.HorizontalAxis.DateAxis;
-                if (xlSparklineGroup.HorizontalAxis.DateAxis)
-                {
-                    sparklineGroup.Formula = new OfficeExcel.Formula(
-                        xlSparklineGroup.DateRange.RangeAddress.ToString(XLReferenceStyle.A1, true)
-                    );
-                }
-
-                sparklineGroup.MinAxisType = xlSparklineGroup.VerticalAxis.MinAxisType.ToOpenXml();
-                if (xlSparklineGroup.VerticalAxis.MinAxisType == XLSparklineAxisMinMax.Custom)
-                {
-                    sparklineGroup.ManualMin = xlSparklineGroup.VerticalAxis.ManualMin;
-                }
-
-                sparklineGroup.MaxAxisType = xlSparklineGroup.VerticalAxis.MaxAxisType.ToOpenXml();
-                if (xlSparklineGroup.VerticalAxis.MaxAxisType == XLSparklineAxisMinMax.Custom)
-                {
-                    sparklineGroup.ManualMax = xlSparklineGroup.VerticalAxis.ManualMax;
-                }
-
-                X14.Sparklines sparklines = new(
-                    xlSparklineGroup.Sparklines.Select(xlSparkline => new X14.Sparkline
-                    {
-                        // When sparkline source data area is deleted, Excel shows it as #REF! and is saved in file as an empty string
-                        Formula = new OfficeExcel.Formula(
-                            xlSparkline.SourceDataFormula ?? string.Empty
-                        ),
-                        ReferenceSequence = new OfficeExcel.ReferenceSequence(
-                            xlSparkline.Location.ToString()
-                        ),
-                    })
-                );
-
-                sparklineGroup.Append(sparklines);
-                sparklineGroups.Append(sparklineGroup);
-            }
-
-            // if all Sparkline groups had no Sparklines, remove the entire SparklineGroup element
-            if (sparklineGroups.ChildElements.Count == 0)
-            {
-                sparklineGroups.Remove();
-            }
-        }
-
-        #endregion Sparklines
 
         #region Tables
 
@@ -1795,6 +1600,196 @@ internal class WorksheetPartWriter
     /// Stream detached worksheet DOM to the worksheet part stream.
     /// Replaces the content of the part.
     /// </summary>
+    /// <summary>
+    /// The sparkline groups, which live in an x14 extension of their own - the 2006 schema
+    /// predates them.
+    /// </summary>
+    private static void WriteSparklines(XElement worksheet, XLWorksheet xlWorksheet)
+    {
+        const string uri = "{05C60535-1F16-4fd2-B633-F4F36F0B64E0}";
+
+        if (!xlWorksheet.SparklineGroups.Any())
+        {
+            RemoveExtension(worksheet, uri, SpreadsheetXml.X14 + "sparklineGroups");
+            return;
+        }
+
+        XElement sparklineGroups = Extension(worksheet, uri, "sparklineGroups");
+
+        foreach (XLSparklineGroup xlSparklineGroup in xlWorksheet.SparklineGroupsInternal)
+        {
+            // Do not create an empty Sparkline group
+            if (!xlSparklineGroup.Sparklines.Any())
+            {
+                continue;
+            }
+
+            sparklineGroups.Add(WriteSparklineGroup(xlSparklineGroup));
+        }
+
+        // if all Sparkline groups had no Sparklines, remove the entire SparklineGroup element
+        if (!sparklineGroups.Elements().Any())
+        {
+            sparklineGroups.Remove();
+        }
+    }
+
+    private static XElement WriteSparklineGroup(XLSparklineGroup xlSparklineGroup)
+    {
+        XNamespace revision2 = "http://schemas.microsoft.com/office/spreadsheetml/2015/revision2";
+        XElement sparklineGroup = new(
+            SpreadsheetXml.X14 + "sparklineGroup",
+            new XAttribute(XNamespace.Xmlns + "xr2", revision2.NamespaceName),
+            new XAttribute(revision2 + "uid", "{A98FF5F8-AE60-43B5-8001-AD89004F45D3}")
+        );
+
+        WorksheetXml.Set(sparklineGroup, "lineWeight", xlSparklineGroup.LineWeight);
+        sparklineGroup.SetAttributeValue("type", xlSparklineGroup.Type.ToXml());
+        sparklineGroup.SetAttributeValue(
+            "displayEmptyCellsAs",
+            xlSparklineGroup.DisplayEmptyCellsAs.ToXml()
+        );
+        WorksheetXml.SetBool(sparklineGroup, "displayHidden", xlSparklineGroup.DisplayHidden);
+
+        Marker("markers", XLSparklineMarkers.Markers);
+        Marker("high", XLSparklineMarkers.HighPoint);
+        Marker("low", XLSparklineMarkers.LowPoint);
+        Marker("first", XLSparklineMarkers.FirstPoint);
+        Marker("last", XLSparklineMarkers.LastPoint);
+        Marker("negative", XLSparklineMarkers.NegativePoints);
+
+        IXLSparklineHorizontalAxis horizontalAxis = xlSparklineGroup.HorizontalAxis;
+        WorksheetXml.SetBool(sparklineGroup, "displayXAxis", horizontalAxis.IsVisible);
+        WorksheetXml.SetBool(sparklineGroup, "rightToLeft", horizontalAxis.RightToLeft);
+        WorksheetXml.SetBool(sparklineGroup, "dateAxis", horizontalAxis.DateAxis);
+
+        IXLSparklineVerticalAxis verticalAxis = xlSparklineGroup.VerticalAxis;
+        sparklineGroup.SetAttributeValue("minAxisType", verticalAxis.MinAxisType.ToXml());
+        sparklineGroup.SetAttributeValue("maxAxisType", verticalAxis.MaxAxisType.ToXml());
+
+        // A bound is only named when the axis is set to a bound of its own.
+        if (verticalAxis.MinAxisType == XLSparklineAxisMinMax.Custom)
+        {
+            WorksheetXml.SetOptional(sparklineGroup, "manualMin", verticalAxis.ManualMin);
+        }
+
+        if (verticalAxis.MaxAxisType == XLSparklineAxisMinMax.Custom)
+        {
+            WorksheetXml.SetOptional(sparklineGroup, "manualMax", verticalAxis.ManualMax);
+        }
+
+        IXLSparklineStyle style = xlSparklineGroup.Style;
+        Color("colorSeries", style.SeriesColor);
+        Color("colorNegative", style.NegativeColor);
+        Color("colorAxis", horizontalAxis.Color);
+        Color("colorMarkers", style.MarkersColor);
+        Color("colorFirst", style.FirstMarkerColor);
+        Color("colorLast", style.LastMarkerColor);
+        Color("colorHigh", style.HighMarkerColor);
+        Color("colorLow", style.LowMarkerColor);
+
+        if (horizontalAxis.DateAxis)
+        {
+            sparklineGroup.Add(
+                new XElement(
+                    SpreadsheetXml.Xm + "f",
+                    xlSparklineGroup.DateRange.RangeAddress.ToString(XLReferenceStyle.A1, true)
+                )
+            );
+        }
+
+        sparklineGroup.Add(
+            new XElement(
+                SpreadsheetXml.X14 + "sparklines",
+                xlSparklineGroup.Sparklines.Select(xlSparkline => new XElement(
+                    SpreadsheetXml.X14 + "sparkline",
+                    // When sparkline source data area is deleted, Excel shows it as #REF! and is
+                    // saved in file as an empty string
+                    new XElement(
+                        SpreadsheetXml.Xm + "f",
+                        xlSparkline.SourceDataFormula ?? string.Empty
+                    ),
+                    new XElement(SpreadsheetXml.Xm + "sqref", xlSparkline.Location.ToString())
+                ))
+            )
+        );
+
+        return sparklineGroup;
+
+        void Marker(string name, XLSparklineMarkers marker) =>
+            WorksheetXml.SetBool(
+                sparklineGroup,
+                name,
+                xlSparklineGroup.ShowMarkers.HasFlag(marker)
+            );
+
+        void Color(string name, XLColor color)
+        {
+            XElement element = new(SpreadsheetXml.X14 + name);
+            SpreadsheetXml.SetColor(element, color);
+            sparklineGroup.Add(element);
+        }
+    }
+
+    /// <summary>
+    /// The named extension's content element, made along with the extension and the list around
+    /// it if the sheet has none, and emptied if it has.
+    /// </summary>
+    private static XElement Extension(XElement worksheet, string uri, string contentName)
+    {
+        XElement extensionList = WorksheetXml.Child(worksheet, "extLst");
+        XElement content = extensionList
+            .Descendants(SpreadsheetXml.X14 + contentName)
+            .SingleOrDefault();
+        if (content is not null && content.Elements().Any())
+        {
+            content.RemoveNodes();
+            return content;
+        }
+
+        content = new XElement(
+            SpreadsheetXml.X14 + contentName,
+            new XAttribute(XNamespace.Xmlns + "xm", SpreadsheetXml.Xm.NamespaceName)
+        );
+        extensionList.Add(
+            new XElement(
+                SpreadsheetXml.Main + "ext",
+                new XAttribute(XNamespace.Xmlns + "x14", SpreadsheetXml.X14.NamespaceName),
+                new XAttribute("uri", uri),
+                content
+            )
+        );
+        return content;
+    }
+
+    /// <summary>
+    /// Drops the named extension, and the list around it if nothing else is in it.
+    /// </summary>
+    private static void RemoveExtension(XElement worksheet, string uri, XName contentName)
+    {
+        XElement extensionList = worksheet.Element(SpreadsheetXml.Main + "extLst");
+        XElement extension = extensionList
+            ?.Elements(SpreadsheetXml.Main + "ext")
+            .FirstOrDefault(candidate =>
+                string.Equals(
+                    SpreadsheetXml.String(candidate, "uri"),
+                    uri,
+                    StringComparison.OrdinalIgnoreCase
+                )
+            );
+
+        extension?.Elements(contentName).Remove();
+        if (extension is not null && !extension.Elements().Any())
+        {
+            extension.Remove();
+        }
+
+        if (extensionList is not null && !extensionList.Elements().Any())
+        {
+            extensionList.Remove();
+        }
+    }
+
     /// <summary>
     /// The sheet's data validations, which go to one of two places. A validation whose list or
     /// bounds point at another sheet cannot be said in the 2006 schema at all, so it is written
