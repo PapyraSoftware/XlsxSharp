@@ -58,6 +58,7 @@ internal class WorksheetPartWriter
 
         XElement worksheet = ToXml(worksheetDom);
         WriteSheetProtection(worksheet, xlWorksheet.Protection);
+        WriteAutoFilter(worksheet, xlWorksheet.AutoFilter);
         WriteMergedCells(worksheet, xlWorksheet.Internals.MergedRanges);
         WriteHyperlinks(worksheet, worksheetPart, xlWorksheet, context);
         WritePageSetup(worksheet, xlWorksheet.PageSetup);
@@ -708,28 +709,6 @@ internal class WorksheetPartWriter
         // for large sheets.
 
         #endregion SheetData
-
-        #region AutoFilter
-
-        worksheet.RemoveAllChildren<AutoFilter>();
-        if (xlWorksheet.AutoFilter.IsEnabled)
-        {
-            OpenXmlElement previousElement = cm.GetPreviousElementFor(
-                XLWorksheetContents.AutoFilter
-            );
-            worksheet.InsertAfter(new AutoFilter(), previousElement);
-
-            AutoFilter autoFilter = worksheet.Elements<AutoFilter>().First();
-            cm.SetElement(XLWorksheetContents.AutoFilter, autoFilter);
-
-            PopulateAutoFilter(xlWorksheet.AutoFilter, autoFilter);
-        }
-        else
-        {
-            cm.SetElement(XLWorksheetContents.AutoFilter, null);
-        }
-
-        #endregion AutoFilter
 
 
         #region Conditional Formatting
@@ -1516,167 +1495,205 @@ internal class WorksheetPartWriter
         }
     }
 
-    internal static void PopulateAutoFilter(XLAutoFilter xlAutoFilter, AutoFilter autoFilter)
+    /// <summary>
+    /// <c>autoFilter</c>, which is written only when the sheet has one.
+    /// </summary>
+    private static void WriteAutoFilter(XElement worksheet, XLAutoFilter xlAutoFilter)
+    {
+        worksheet.Element(SpreadsheetXml.Main + "autoFilter")?.Remove();
+        if (xlAutoFilter.IsEnabled)
+        {
+            PopulateAutoFilter(xlAutoFilter, WorksheetXml.Child(worksheet, "autoFilter"));
+        }
+    }
+
+    /// <summary>
+    /// The filter, its columns and its sort state. A sheet has one of these and so does every
+    /// table, which is why it is filled into an element it is handed.
+    /// </summary>
+    internal static void PopulateAutoFilter(XLAutoFilter xlAutoFilter, XElement autoFilter)
     {
         IXLRange filterRange = xlAutoFilter.Range;
-        autoFilter.Reference = filterRange.RangeAddress.ToString();
+        autoFilter.SetAttributeValue("ref", filterRange.RangeAddress.ToString());
 
         foreach ((int columnNumber, XLFilterColumn xlFilterColumn) in xlAutoFilter.Columns)
         {
-            FilterColumn filterColumn = new() { ColumnId = (uint)columnNumber - 1 };
+            XElement filterColumn = new(
+                SpreadsheetXml.Main + "filterColumn",
+                new XAttribute("colId", (uint)columnNumber - 1)
+            );
 
-            switch (xlFilterColumn.FilterType)
-            {
-                case XLFilterType.Custom:
-                    CustomFilters customFilters = new();
-                    foreach (XLFilter xlFilter in xlFilterColumn)
-                    {
-                        // Since OOXML allows only string, the operand for custom filter must be serialized.
-                        string filterValue = xlFilter.CustomValue.ToString(
-                            CultureInfo.InvariantCulture
-                        );
-                        CustomFilter customFilter = new() { Val = filterValue };
+            filterColumn.Add(
+                xlFilterColumn.FilterType switch
+                {
+                    XLFilterType.Custom => CustomFilters(xlFilterColumn),
+                    XLFilterType.TopBottom => TopBottomFilter(xlFilterColumn),
+                    XLFilterType.Dynamic => DynamicFilter(xlFilterColumn),
+                    XLFilterType.Regular => RegularFilters(xlFilterColumn),
+                    _ => throw new NotSupportedException(),
+                }
+            );
 
-                        if (xlFilter.Operator != XLFilterOperator.Equal)
-                        {
-                            customFilter.Operator = xlFilter.Operator.ToOpenXml();
-                        }
-
-                        if (xlFilter.Connector == XLConnector.And)
-                        {
-                            customFilters.And = true;
-                        }
-
-                        customFilters.Append(customFilter);
-                    }
-                    filterColumn.Append(customFilters);
-                    break;
-
-                case XLFilterType.TopBottom:
-                    // Although there is FilterValue attribute, populating it seems like more
-                    // trouble than it's worth due to consistency issues. It's optional, so we
-                    // can't rely on it during load anyway.
-                    Top10 top101 = new()
-                    {
-                        Val = xlFilterColumn.TopBottomValue,
-                        Percent = OpenXmlHelper.GetBooleanValue(
-                            xlFilterColumn.TopBottomType == XLTopBottomType.Percent,
-                            false
-                        ),
-                        Top = OpenXmlHelper.GetBooleanValue(
-                            xlFilterColumn.TopBottomPart == XLTopBottomPart.Top,
-                            true
-                        ),
-                    };
-                    filterColumn.Append(top101);
-                    break;
-
-                case XLFilterType.Dynamic:
-                    DynamicFilter dynamicFilter = new()
-                    {
-                        Type = xlFilterColumn.DynamicType.ToOpenXml(),
-                        Val = xlFilterColumn.DynamicValue,
-                    };
-                    filterColumn.Append(dynamicFilter);
-                    break;
-
-                case XLFilterType.Regular:
-                    Filters filters = new();
-                    foreach (XLFilter filter in xlFilterColumn)
-                    {
-                        if (filter.Value is string s)
-                        {
-                            filters.Append(new Filter { Val = s });
-                        }
-                    }
-
-                    foreach (XLFilter filter in xlFilterColumn)
-                    {
-                        if (filter.Value is DateTime)
-                        {
-                            DateTime d = (DateTime)filter.Value;
-                            DateGroupItem dgi = new()
-                            {
-                                Year = (ushort)d.Year,
-                                DateTimeGrouping = filter.DateTimeGrouping.ToOpenXml(),
-                            };
-
-                            if (filter.DateTimeGrouping >= XLDateTimeGrouping.Month)
-                            {
-                                dgi.Month = (ushort)d.Month;
-                            }
-
-                            if (filter.DateTimeGrouping >= XLDateTimeGrouping.Day)
-                            {
-                                dgi.Day = (ushort)d.Day;
-                            }
-
-                            if (filter.DateTimeGrouping >= XLDateTimeGrouping.Hour)
-                            {
-                                dgi.Hour = (ushort)d.Hour;
-                            }
-
-                            if (filter.DateTimeGrouping >= XLDateTimeGrouping.Minute)
-                            {
-                                dgi.Minute = (ushort)d.Minute;
-                            }
-
-                            if (filter.DateTimeGrouping >= XLDateTimeGrouping.Second)
-                            {
-                                dgi.Second = (ushort)d.Second;
-                            }
-
-                            filters.Append(dgi);
-                        }
-                    }
-
-                    filterColumn.Append(filters);
-                    break;
-
-                default:
-                    throw new NotSupportedException();
-            }
-            autoFilter.Append(filterColumn);
+            autoFilter.Add(filterColumn);
         }
 
         if (xlAutoFilter.Sorted)
         {
-            string reference = null;
+            autoFilter.Add(SortState(xlAutoFilter, filterRange));
+        }
+    }
 
-            if (
-                filterRange.FirstCell().Address.RowNumber < filterRange.LastCell().Address.RowNumber
-            )
+    private static XElement CustomFilters(XLFilterColumn xlFilterColumn)
+    {
+        XElement customFilters = new(SpreadsheetXml.Main + "customFilters");
+        foreach (XLFilter xlFilter in xlFilterColumn)
+        {
+            // Since OOXML allows only string, the operand for custom filter must be serialized.
+            XElement customFilter = new(
+                SpreadsheetXml.Main + "customFilter",
+                new XAttribute("val", xlFilter.CustomValue.ToString(CultureInfo.InvariantCulture))
+            );
+
+            if (xlFilter.Operator != XLFilterOperator.Equal)
             {
-                reference = filterRange
+                customFilter.SetAttributeValue("operator", xlFilter.Operator.ToXml());
+            }
+
+            if (xlFilter.Connector == XLConnector.And)
+            {
+                WorksheetXml.SetBool(customFilters, "and", true);
+            }
+
+            customFilters.Add(customFilter);
+        }
+
+        return customFilters;
+    }
+
+    private static XElement TopBottomFilter(XLFilterColumn xlFilterColumn)
+    {
+        // Although there is a filterVal attribute, populating it seems like more trouble than
+        // it's worth due to consistency issues. It's optional, so we can't rely on it during
+        // load anyway.
+        XElement top10 = new(SpreadsheetXml.Main + "top10");
+        WorksheetXml.Set(top10, "val", xlFilterColumn.TopBottomValue);
+        WorksheetXml.SetBoolDefault(
+            top10,
+            "percent",
+            xlFilterColumn.TopBottomType == XLTopBottomType.Percent,
+            false
+        );
+        WorksheetXml.SetBoolDefault(
+            top10,
+            "top",
+            xlFilterColumn.TopBottomPart == XLTopBottomPart.Top,
+            true
+        );
+        return top10;
+    }
+
+    private static XElement DynamicFilter(XLFilterColumn xlFilterColumn)
+    {
+        XElement dynamicFilter = new(
+            SpreadsheetXml.Main + "dynamicFilter",
+            new XAttribute("type", xlFilterColumn.DynamicType.ToXml())
+        );
+        WorksheetXml.Set(dynamicFilter, "val", xlFilterColumn.DynamicValue);
+        return dynamicFilter;
+    }
+
+    /// <summary>
+    /// The plain value filters, and the date group filters after them - the schema puts every
+    /// filter before every dateGroupItem, whatever order the workbook model holds them in.
+    /// </summary>
+    private static XElement RegularFilters(XLFilterColumn xlFilterColumn)
+    {
+        XElement filters = new(SpreadsheetXml.Main + "filters");
+
+        foreach (XLFilter filter in xlFilterColumn)
+        {
+            if (filter.Value is string value)
+            {
+                filters.Add(
+                    new XElement(SpreadsheetXml.Main + "filter", new XAttribute("val", value))
+                );
+            }
+        }
+
+        foreach (XLFilter filter in xlFilterColumn)
+        {
+            if (filter.Value is DateTime date)
+            {
+                filters.Add(DateGroupItem(date, filter.DateTimeGrouping));
+            }
+        }
+
+        return filters;
+    }
+
+    /// <summary>
+    /// A date named only down to the unit the filter groups by.
+    /// </summary>
+    private static XElement DateGroupItem(DateTime date, XLDateTimeGrouping grouping)
+    {
+        XElement dateGroupItem = new(
+            SpreadsheetXml.Main + "dateGroupItem",
+            new XAttribute("year", (ushort)date.Year),
+            new XAttribute("dateTimeGrouping", grouping.ToXml())
+        );
+
+        Part(XLDateTimeGrouping.Month, "month", date.Month);
+        Part(XLDateTimeGrouping.Day, "day", date.Day);
+        Part(XLDateTimeGrouping.Hour, "hour", date.Hour);
+        Part(XLDateTimeGrouping.Minute, "minute", date.Minute);
+        Part(XLDateTimeGrouping.Second, "second", date.Second);
+        return dateGroupItem;
+
+        void Part(XLDateTimeGrouping unit, string name, int value)
+        {
+            if (grouping >= unit)
+            {
+                dateGroupItem.SetAttributeValue(name, (ushort)value);
+            }
+        }
+    }
+
+    private static XElement SortState(XLAutoFilter xlAutoFilter, IXLRange filterRange)
+    {
+        // The sorted range is the filtered one without its header row, unless there is only the
+        // one row to sort.
+        string reference =
+            filterRange.FirstCell().Address.RowNumber < filterRange.LastCell().Address.RowNumber
+                ? filterRange
                     .Range(filterRange.FirstCell().CellBelow(), filterRange.LastCell())
-                    .RangeAddress.ToString();
-            }
-            else
-            {
-                reference = filterRange.RangeAddress.ToString();
-            }
+                    .RangeAddress.ToString()
+                : filterRange.RangeAddress.ToString();
 
-            SortState sortState = new() { Reference = reference };
-
-            SortCondition sortCondition = new()
-            {
-                Reference = filterRange
+        XElement sortCondition = new(
+            SpreadsheetXml.Main + "sortCondition",
+            new XAttribute(
+                "ref",
+                filterRange
                     .Range(
                         1,
                         xlAutoFilter.SortColumn,
                         filterRange.RowCount(),
                         xlAutoFilter.SortColumn
                     )
-                    .RangeAddress.ToString(),
-            };
-            if (xlAutoFilter.SortOrder == XLSortOrder.Descending)
-            {
-                sortCondition.Descending = true;
-            }
+                    .RangeAddress.ToString()
+            )
+        );
 
-            sortState.Append(sortCondition);
-            autoFilter.Append(sortState);
+        if (xlAutoFilter.SortOrder == XLSortOrder.Descending)
+        {
+            WorksheetXml.SetBool(sortCondition, "descending", true);
         }
+
+        return new XElement(
+            SpreadsheetXml.Main + "sortState",
+            new XAttribute("ref", reference),
+            sortCondition
+        );
     }
 
     private static void CollapseColumns(Columns columns, Dictionary<uint, Column> sheetColumns)
