@@ -4,7 +4,6 @@ using System.Globalization;
 using System.Xml;
 using System.Xml.Linq;
 using DocumentFormat.OpenXml;
-using DocumentFormat.OpenXml.Drawing;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 using XlsxSharp.Excel.ConditionalFormats;
@@ -19,6 +18,7 @@ using XlsxSharp.Excel.Rows;
 using XlsxSharp.Excel.Sort;
 using XlsxSharp.Excel.Tables;
 using XlsxSharp.Extensions;
+using XlsxSharp.IO;
 using XlsxSharp.Utils;
 using static XlsxSharp.Excel.IO.OpenXmlConst;
 using static XlsxSharp.Excel.XLWorkbook;
@@ -27,7 +27,6 @@ using Drawing = DocumentFormat.OpenXml.Spreadsheet.Drawing;
 using Hyperlink = DocumentFormat.OpenXml.Spreadsheet.Hyperlink;
 using OfficeExcel = DocumentFormat.OpenXml.Office.Excel;
 using X14 = DocumentFormat.OpenXml.Office2010.Excel;
-using Xdr = DocumentFormat.OpenXml.Drawing.Spreadsheet;
 
 namespace XlsxSharp.Excel.IO;
 
@@ -162,14 +161,25 @@ internal class WorksheetPartWriter
             xlPictures.Deleted.Clear();
         }
 
-        foreach (XLPicture pic in xlWorksheet.Pictures)
-        {
-            AddPictureAnchor(worksheetPart, pic, context);
-        }
-
         if (xlWorksheet.Pictures.Count > 0)
         {
-            RebaseNonVisualDrawingPropertiesIds(worksheetPart);
+            DrawingsPart drawingsPart =
+                worksheetPart.DrawingsPart
+                ?? worksheetPart.AddNewPart<DrawingsPart>(
+                    context.RelIdGenerator.GetNext(RelType.Workbook)
+                );
+            (XElement worksheetDrawingXml, bool standalone) = ReadOrCreateWorksheetDrawing(
+                drawingsPart
+            );
+
+            foreach (XLPicture pic in xlWorksheet.Pictures)
+            {
+                AddPictureAnchor(worksheetDrawingXml, drawingsPart, pic, context);
+            }
+
+            RebaseNonVisualDrawingPropertiesIds(worksheetDrawingXml);
+            HoistNamespaceDeclarations(worksheetDrawingXml);
+            SaveWorksheetDrawing(drawingsPart, worksheetDrawingXml, standalone);
         }
 
         TableParts tableParts = worksheet.Elements<TableParts>().First();
@@ -821,56 +831,71 @@ internal class WorksheetPartWriter
     // http://polymathprogrammer.com/2009/10/22/english-metric-units-and-open-xml/
     // http://archive.oreilly.com/pub/post/what_is_an_emu.html
     // https://en.wikipedia.org/wiki/Office_Open_XML_file_formats#DrawingML
+    // http://polymathprogrammer.com/2009/10/22/english-metric-units-and-open-xml/
+    // http://archive.oreilly.com/pub/post/what_is_an_emu.html
+    // https://en.wikipedia.org/wiki/Office_Open_XML_file_formats#DrawingML
     private static long ConvertToEnglishMetricUnits(int pixels, double resolution) =>
         Convert.ToInt64(914400L * pixels / resolution);
 
+    /// <summary>
+    /// The drawing part as it was, patched with the picture anchors that changed rather than
+    /// rebuilt - a loaded sheet's shapes, text boxes and connectors have no place in the picture
+    /// model and are carried through untouched, in the order they were in.
+    /// </summary>
+    private static (XElement Root, bool Standalone) ReadOrCreateWorksheetDrawing(
+        DrawingsPart drawingsPart
+    )
+    {
+        using (Stream stream = drawingsPart.GetStream(FileMode.OpenOrCreate, FileAccess.Read))
+        {
+            if (stream.Length > 0)
+            {
+                XDocument existing = XDocument.Load(stream);
+                XElement root =
+                    existing.Root ?? throw PartStructureException.ExpectedElementNotFound("wsDr");
+                bool standalone = string.Equals(
+                    existing.Declaration?.Standalone,
+                    "yes",
+                    StringComparison.OrdinalIgnoreCase
+                );
+                return (root, standalone);
+            }
+        }
+
+        XElement fresh = new(
+            DrawingXml.Xdr + "wsDr",
+            new XAttribute(XNamespace.Xmlns + "xdr", DrawingXml.Xdr.NamespaceName),
+            new XAttribute(XNamespace.Xmlns + "a", DrawingXml.A.NamespaceName),
+            new XAttribute(XNamespace.Xmlns + "r", SpreadsheetXml.Rel.NamespaceName)
+        );
+        return (fresh, false);
+    }
+
+    private static void SaveWorksheetDrawing(
+        DrawingsPart drawingsPart,
+        XElement worksheetDrawing,
+        bool standalone
+    )
+    {
+        using Stream stream = drawingsPart.GetStream(FileMode.Create);
+        using XmlWriter xml = XmlWriter.Create(
+            stream,
+            new XmlWriterSettings { CloseOutput = true, Encoding = XlsxSharp.XLHelper.NoBomUTF8 }
+        );
+        XDocument document = standalone
+            ? new XDocument(new XDeclaration("1.0", "utf-8", "yes"), worksheetDrawing)
+            : new XDocument(worksheetDrawing);
+        document.Save(xml);
+    }
+
     private static void AddPictureAnchor(
-        WorksheetPart worksheetPart,
+        XElement worksheetDrawing,
+        DrawingsPart drawingsPart,
         Drawings.IXLPicture picture,
         SaveContext context
     )
     {
         XLPicture pic = picture as Drawings.XLPicture;
-        DrawingsPart drawingsPart =
-            worksheetPart.DrawingsPart
-            ?? worksheetPart.AddNewPart<DrawingsPart>(
-                context.RelIdGenerator.GetNext(RelType.Workbook)
-            );
-
-        if (drawingsPart.WorksheetDrawing == null)
-        {
-            drawingsPart.WorksheetDrawing = new Xdr.WorksheetDrawing();
-        }
-
-        Xdr.WorksheetDrawing worksheetDrawing = drawingsPart.WorksheetDrawing;
-
-        // Add namespaces
-        if (
-            !worksheetDrawing.NamespaceDeclarations.Any(nd =>
-                nd.Value.Equals("http://schemas.openxmlformats.org/drawingml/2006/main")
-            )
-        )
-        {
-            worksheetDrawing.AddNamespaceDeclaration(
-                "a",
-                "http://schemas.openxmlformats.org/drawingml/2006/main"
-            );
-        }
-
-        if (
-            !worksheetDrawing.NamespaceDeclarations.Any(nd =>
-                nd.Value.Equals(
-                    "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
-                )
-            )
-        )
-        {
-            worksheetDrawing.AddNamespaceDeclaration(
-                "r",
-                "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
-            );
-        }
-        /////////
 
         // Overwrite actual image binary data
         ImagePart imagePart;
@@ -891,225 +916,288 @@ internal class WorksheetPartWriter
             stream.Seek(0, SeekOrigin.Begin);
             imagePart.FeedData(stream);
         }
-        /////////
 
-        // Clear current anchors
-        OpenXmlElement existingAnchor = GetAnchorFromImageId(drawingsPart, pic.RelId);
+        string embedId = drawingsPart.GetIdOfPart(imagePart);
+
+        // Find the anchor this picture already had, if it has one, so it can be replaced in
+        // place rather than moved to the end.
+        XElement existingAnchor = worksheetDrawing
+            .Elements()
+            .FirstOrDefault(anchor => DrawingXml.PictureRelId(anchor) == pic.RelId);
 
         XLWorkbook wb = pic.Worksheet.Workbook;
         long extentsCx = ConvertToEnglishMetricUnits(pic.Width, wb.DpiX);
         long extentsCy = ConvertToEnglishMetricUnits(pic.Height, wb.DpiY);
+        uint nvpId = NextNonVisualDrawingPropertiesId(worksheetDrawing);
 
-        IEnumerable<Xdr.NonVisualDrawingProperties> nvps =
-            worksheetDrawing.Descendants<Xdr.NonVisualDrawingProperties>();
-        uint nvpId = nvps.Any()
-            ? (UInt32Value)
-                worksheetDrawing.Descendants<Xdr.NonVisualDrawingProperties>().Max(p => p.Id.Value)
-                + 1
-            : 1U;
-
-        Xdr.FromMarker fMark;
-        Xdr.ToMarker tMark;
-        switch (pic.Placement)
+        XElement anchor = pic.Placement switch
         {
-            case Drawings.XLPicturePlacement.FreeFloating:
-                Xdr.AbsoluteAnchor absoluteAnchor = new(
-                    new Xdr.Position
-                    {
-                        X = ConvertToEnglishMetricUnits(pic.Left, wb.DpiX),
-                        Y = ConvertToEnglishMetricUnits(pic.Top, wb.DpiY),
-                    },
-                    new Xdr.Extent { Cx = extentsCx, Cy = extentsCy },
-                    new Xdr.Picture(
-                        new Xdr.NonVisualPictureProperties(
-                            new Xdr.NonVisualDrawingProperties { Id = nvpId, Name = pic.Name },
-                            new Xdr.NonVisualPictureDrawingProperties(
-                                new PictureLocks { NoChangeAspect = true }
-                            )
-                        ),
-                        new Xdr.BlipFill(
-                            new Blip
-                            {
-                                Embed = drawingsPart.GetIdOfPart(imagePart),
-                                CompressionState = BlipCompressionValues.Print,
-                            },
-                            new Stretch((FillRectangle)[])
-                        ),
-                        new Xdr.ShapeProperties(
-                            new Transform2D(
-                                new Offset { X = 0, Y = 0 },
-                                new Extents { Cx = extentsCx, Cy = extentsCy }
-                            ),
-                            new PresetGeometry { Preset = ShapeTypeValues.Rectangle }
-                        )
-                    ),
-                    new Xdr.ClientData()
-                );
+            Drawings.XLPicturePlacement.FreeFloating => AbsoluteAnchor(
+                pic,
+                wb,
+                extentsCx,
+                extentsCy,
+                nvpId,
+                embedId
+            ),
+            Drawings.XLPicturePlacement.MoveAndSize => TwoCellAnchor(
+                pic,
+                wb,
+                extentsCx,
+                extentsCy,
+                nvpId,
+                embedId
+            ),
+            Drawings.XLPicturePlacement.Move => OneCellAnchor(
+                pic,
+                wb,
+                extentsCx,
+                extentsCy,
+                nvpId,
+                embedId
+            ),
+            _ => null,
+        };
 
-                AttachAnchor(absoluteAnchor, existingAnchor);
-                break;
-
-            case Drawings.XLPicturePlacement.MoveAndSize:
-                XLMarker moveAndSizeFromMarker = pic.Markers[Drawings.XLMarkerPosition.TopLeft];
-                if (moveAndSizeFromMarker == null)
-                {
-                    moveAndSizeFromMarker = new Drawings.XLMarker(picture.Worksheet.Cell("A1"));
-                }
-
-                fMark = new Xdr.FromMarker
-                {
-                    ColumnId = new Xdr.ColumnId(
-                        (moveAndSizeFromMarker.ColumnNumber - 1).ToInvariantString()
-                    ),
-                    RowId = new Xdr.RowId(
-                        (moveAndSizeFromMarker.RowNumber - 1).ToInvariantString()
-                    ),
-                    ColumnOffset = new Xdr.ColumnOffset(
-                        ConvertToEnglishMetricUnits(moveAndSizeFromMarker.Offset.X, wb.DpiX)
-                            .ToInvariantString()
-                    ),
-                    RowOffset = new Xdr.RowOffset(
-                        ConvertToEnglishMetricUnits(moveAndSizeFromMarker.Offset.Y, wb.DpiY)
-                            .ToInvariantString()
-                    ),
-                };
-
-                XLMarker moveAndSizeToMarker = pic.Markers[Drawings.XLMarkerPosition.BottomRight];
-                if (moveAndSizeToMarker == null)
-                {
-                    moveAndSizeToMarker = new Drawings.XLMarker(
-                        picture.Worksheet.Cell("A1"),
-                        new System.Drawing.Point(picture.Width, picture.Height)
-                    );
-                }
-
-                tMark = new Xdr.ToMarker
-                {
-                    ColumnId = new Xdr.ColumnId(
-                        (moveAndSizeToMarker.ColumnNumber - 1).ToInvariantString()
-                    ),
-                    RowId = new Xdr.RowId((moveAndSizeToMarker.RowNumber - 1).ToInvariantString()),
-                    ColumnOffset = new Xdr.ColumnOffset(
-                        ConvertToEnglishMetricUnits(moveAndSizeToMarker.Offset.X, wb.DpiX)
-                            .ToInvariantString()
-                    ),
-                    RowOffset = new Xdr.RowOffset(
-                        ConvertToEnglishMetricUnits(moveAndSizeToMarker.Offset.Y, wb.DpiY)
-                            .ToInvariantString()
-                    ),
-                };
-
-                Xdr.TwoCellAnchor twoCellAnchor = new(
-                    fMark,
-                    tMark,
-                    new Xdr.Picture(
-                        new Xdr.NonVisualPictureProperties(
-                            new Xdr.NonVisualDrawingProperties { Id = nvpId, Name = pic.Name },
-                            new Xdr.NonVisualPictureDrawingProperties(
-                                new PictureLocks { NoChangeAspect = true }
-                            )
-                        ),
-                        new Xdr.BlipFill(
-                            new Blip
-                            {
-                                Embed = drawingsPart.GetIdOfPart(imagePart),
-                                CompressionState = BlipCompressionValues.Print,
-                            },
-                            new Stretch((FillRectangle)[])
-                        ),
-                        new Xdr.ShapeProperties(
-                            new Transform2D(
-                                new Offset { X = 0, Y = 0 },
-                                new Extents { Cx = extentsCx, Cy = extentsCy }
-                            ),
-                            new PresetGeometry { Preset = ShapeTypeValues.Rectangle }
-                        )
-                    ),
-                    new Xdr.ClientData()
-                );
-
-                AttachAnchor(twoCellAnchor, existingAnchor);
-                break;
-
-            case Drawings.XLPicturePlacement.Move:
-                XLMarker moveFromMarker = pic.Markers[Drawings.XLMarkerPosition.TopLeft];
-                if (moveFromMarker == null)
-                {
-                    moveFromMarker = new Drawings.XLMarker(picture.Worksheet.Cell("A1"));
-                }
-
-                fMark = new Xdr.FromMarker
-                {
-                    ColumnId = new Xdr.ColumnId(
-                        (moveFromMarker.ColumnNumber - 1).ToInvariantString()
-                    ),
-                    RowId = new Xdr.RowId((moveFromMarker.RowNumber - 1).ToInvariantString()),
-                    ColumnOffset = new Xdr.ColumnOffset(
-                        ConvertToEnglishMetricUnits(moveFromMarker.Offset.X, wb.DpiX)
-                            .ToInvariantString()
-                    ),
-                    RowOffset = new Xdr.RowOffset(
-                        ConvertToEnglishMetricUnits(moveFromMarker.Offset.Y, wb.DpiY)
-                            .ToInvariantString()
-                    ),
-                };
-
-                Xdr.OneCellAnchor oneCellAnchor = new(
-                    fMark,
-                    new Xdr.Extent { Cx = extentsCx, Cy = extentsCy },
-                    new Xdr.Picture(
-                        new Xdr.NonVisualPictureProperties(
-                            new Xdr.NonVisualDrawingProperties { Id = nvpId, Name = pic.Name },
-                            new Xdr.NonVisualPictureDrawingProperties(
-                                new PictureLocks { NoChangeAspect = true }
-                            )
-                        ),
-                        new Xdr.BlipFill(
-                            new Blip
-                            {
-                                Embed = drawingsPart.GetIdOfPart(imagePart),
-                                CompressionState = BlipCompressionValues.Print,
-                            },
-                            new Stretch((FillRectangle)[])
-                        ),
-                        new Xdr.ShapeProperties(
-                            new Transform2D(
-                                new Offset { X = 0, Y = 0 },
-                                new Extents { Cx = extentsCx, Cy = extentsCy }
-                            ),
-                            new PresetGeometry { Preset = ShapeTypeValues.Rectangle }
-                        )
-                    ),
-                    new Xdr.ClientData()
-                );
-
-                AttachAnchor(oneCellAnchor, existingAnchor);
-                break;
+        if (anchor is null)
+        {
+            return;
         }
 
-        void AttachAnchor(OpenXmlElement pictureAnchor, OpenXmlElement existingAnchor)
+        if (existingAnchor is not null)
         {
-            if (existingAnchor is not null)
+            existingAnchor.ReplaceWith(anchor);
+        }
+        else
+        {
+            worksheetDrawing.Add(anchor);
+        }
+    }
+
+    private static XElement AbsoluteAnchor(
+        XLPicture pic,
+        XLWorkbook wb,
+        long extentsCx,
+        long extentsCy,
+        uint nvpId,
+        string embedId
+    ) =>
+        new(
+            DrawingXml.Xdr + "absoluteAnchor",
+            new XElement(
+                DrawingXml.Xdr + "pos",
+                new XAttribute("x", ConvertToEnglishMetricUnits(pic.Left, wb.DpiX)),
+                new XAttribute("y", ConvertToEnglishMetricUnits(pic.Top, wb.DpiY))
+            ),
+            Extent(extentsCx, extentsCy),
+            PictureElement(pic, nvpId, extentsCx, extentsCy, embedId),
+            new XElement(DrawingXml.Xdr + "clientData")
+        );
+
+    private static XElement TwoCellAnchor(
+        XLPicture pic,
+        XLWorkbook wb,
+        long extentsCx,
+        long extentsCy,
+        uint nvpId,
+        string embedId
+    )
+    {
+        XLMarker from =
+            pic.Markers[Drawings.XLMarkerPosition.TopLeft]
+            ?? new Drawings.XLMarker(pic.Worksheet.Cell("A1"));
+        XLMarker to =
+            pic.Markers[Drawings.XLMarkerPosition.BottomRight]
+            ?? new Drawings.XLMarker(
+                pic.Worksheet.Cell("A1"),
+                new System.Drawing.Point(pic.Width, pic.Height)
+            );
+
+        return new XElement(
+            DrawingXml.Xdr + "twoCellAnchor",
+            Marker("from", from, wb),
+            Marker("to", to, wb),
+            PictureElement(pic, nvpId, extentsCx, extentsCy, embedId),
+            new XElement(DrawingXml.Xdr + "clientData")
+        );
+    }
+
+    private static XElement OneCellAnchor(
+        XLPicture pic,
+        XLWorkbook wb,
+        long extentsCx,
+        long extentsCy,
+        uint nvpId,
+        string embedId
+    )
+    {
+        XLMarker from =
+            pic.Markers[Drawings.XLMarkerPosition.TopLeft]
+            ?? new Drawings.XLMarker(pic.Worksheet.Cell("A1"));
+
+        return new XElement(
+            DrawingXml.Xdr + "oneCellAnchor",
+            Marker("from", from, wb),
+            Extent(extentsCx, extentsCy),
+            PictureElement(pic, nvpId, extentsCx, extentsCy, embedId),
+            new XElement(DrawingXml.Xdr + "clientData")
+        );
+    }
+
+    /// <summary>
+    /// A <c>from</c> or <c>to</c> marker: a cell and pixel offset written as EMU child elements
+    /// rather than attributes.
+    /// </summary>
+    private static XElement Marker(string name, XLMarker marker, XLWorkbook wb) =>
+        new(
+            DrawingXml.Xdr + name,
+            new XElement(DrawingXml.Xdr + "col", marker.ColumnNumber - 1),
+            new XElement(
+                DrawingXml.Xdr + "colOff",
+                ConvertToEnglishMetricUnits(marker.Offset.X, wb.DpiX)
+            ),
+            new XElement(DrawingXml.Xdr + "row", marker.RowNumber - 1),
+            new XElement(
+                DrawingXml.Xdr + "rowOff",
+                ConvertToEnglishMetricUnits(marker.Offset.Y, wb.DpiY)
+            )
+        );
+
+    private static XElement Extent(long cx, long cy) =>
+        new(DrawingXml.Xdr + "ext", new XAttribute("cx", cx), new XAttribute("cy", cy));
+
+    /// <summary>
+    /// The extents of a shape's own transform, in the drawingml namespace rather than the
+    /// spreadsheet drawing one the anchor-level extent uses.
+    /// </summary>
+    private static XElement TransformExtent(long cx, long cy) =>
+        new(DrawingXml.A + "ext", new XAttribute("cx", cx), new XAttribute("cy", cy));
+
+    private static XElement PictureElement(
+        XLPicture pic,
+        uint nvpId,
+        long extentsCx,
+        long extentsCy,
+        string embedId
+    ) =>
+        new(
+            DrawingXml.Xdr + "pic",
+            new XElement(
+                DrawingXml.Xdr + "nvPicPr",
+                new XElement(
+                    DrawingXml.Xdr + "cNvPr",
+                    new XAttribute("id", nvpId),
+                    new XAttribute("name", pic.Name)
+                ),
+                new XElement(
+                    DrawingXml.Xdr + "cNvPicPr",
+                    new XElement(DrawingXml.A + "picLocks", new XAttribute("noChangeAspect", "1"))
+                )
+            ),
+            new XElement(
+                DrawingXml.Xdr + "blipFill",
+                new XElement(
+                    DrawingXml.A + "blip",
+                    new XAttribute(SpreadsheetXml.Rel + "embed", embedId),
+                    new XAttribute("cstate", "print")
+                ),
+                new XElement(DrawingXml.A + "stretch", new XElement(DrawingXml.A + "fillRect"))
+            ),
+            new XElement(
+                DrawingXml.Xdr + "spPr",
+                new XElement(
+                    DrawingXml.A + "xfrm",
+                    new XElement(
+                        DrawingXml.A + "off",
+                        new XAttribute("x", 0),
+                        new XAttribute("y", 0)
+                    ),
+                    TransformExtent(extentsCx, extentsCy)
+                ),
+                new XElement(DrawingXml.A + "prstGeom", new XAttribute("prst", "rect"))
+            )
+        );
+
+    /// <summary>
+    /// Makes sure the root declares every namespace the drawing uses - which is where the SDK
+    /// always put them in addition to wherever else they were declared, regardless of where a
+    /// loaded part itself declared them. A shape written by Excel typically declares an
+    /// extension's namespace locally, on the element that first needs it, and a newly built
+    /// picture anchor has nowhere of its own to declare "r" at all; both are topped up here,
+    /// under whatever prefix is already in use, without touching a declaration that already
+    /// exists somewhere in the tree.
+    /// </summary>
+    private static void HoistNamespaceDeclarations(XElement root)
+    {
+        // Seeded with the three namespaces a freshly built anchor introduces, since a picture
+        // anchor being replaced can take its own local declaration of one of these down with it
+        // - the relationships namespace in particular is often declared only on the blip that
+        // uses it, never on the root, in a file Excel wrote.
+        Dictionary<XNamespace, string> prefixes = new()
+        {
+            [DrawingXml.Xdr] = "xdr",
+            [DrawingXml.A] = "a",
+            [SpreadsheetXml.Rel] = "r",
+        };
+        foreach (XElement element in root.DescendantsAndSelf())
+        {
+            Record(element.Name);
+            foreach (XAttribute attribute in element.Attributes())
             {
-                worksheetDrawing.ReplaceChild(pictureAnchor, existingAnchor);
+                if (!attribute.IsNamespaceDeclaration)
+                {
+                    Record(attribute.Name);
+                }
             }
-            else
+
+            void Record(XName name)
             {
-                worksheetDrawing.Append(pictureAnchor);
+                if (name.Namespace != XNamespace.None && !prefixes.ContainsKey(name.Namespace))
+                {
+                    prefixes[name.Namespace] =
+                        element.GetPrefixOfNamespace(name.Namespace)
+                        ?? throw new InvalidOperationException(
+                            $"No prefix in scope for namespace '{name.NamespaceName}'."
+                        );
+                }
+            }
+        }
+
+        foreach ((XNamespace ns, string prefix) in prefixes)
+        {
+            if (root.GetPrefixOfNamespace(ns) is null)
+            {
+                root.SetAttributeValue(XNamespace.Xmlns + prefix, ns.NamespaceName);
             }
         }
     }
 
-    private static void RebaseNonVisualDrawingPropertiesIds(WorksheetPart worksheetPart)
+    /// <summary>
+    /// One more than the largest id any shape, connector or picture in the drawing already
+    /// carries - ids are shared across every kind of anchor, not just pictures.
+    /// </summary>
+    private static uint NextNonVisualDrawingPropertiesId(XElement worksheetDrawing)
     {
-        Xdr.WorksheetDrawing worksheetDrawing = worksheetPart.DrawingsPart.WorksheetDrawing;
-
-        List<Xdr.NonVisualDrawingProperties> toRebase =
+        List<uint> ids =
         [
-            .. worksheetDrawing.Descendants<Xdr.NonVisualDrawingProperties>(),
+            .. worksheetDrawing
+                .Descendants(DrawingXml.Xdr + "cNvPr")
+                .Select(el => SpreadsheetXml.UInt(el, "id")!.Value),
         ];
+        return ids.Count == 0 ? 1U : ids.Max() + 1;
+    }
 
-        toRebase.ForEach(nvdpr => nvdpr.Id = Convert.ToUInt32(toRebase.IndexOf(nvdpr) + 1));
+    /// <summary>
+    /// Ids are shared across every anchor in the drawing, picture or not, so they are renumbered
+    /// as a whole in document order whenever a picture is added or changed.
+    /// </summary>
+    private static void RebaseNonVisualDrawingPropertiesIds(XElement worksheetDrawing)
+    {
+        List<XElement> toRebase = [.. worksheetDrawing.Descendants(DrawingXml.Xdr + "cNvPr")];
+        for (int i = 0; i < toRebase.Count; i++)
+        {
+            toRebase[i].SetAttributeValue("id", i + 1);
+        }
     }
 
     private static void PopulateTablePartReferences(

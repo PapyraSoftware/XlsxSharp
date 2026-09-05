@@ -1,64 +1,55 @@
 #nullable disable
 
-using DocumentFormat.OpenXml;
-using DocumentFormat.OpenXml.Drawing.Spreadsheet;
+using System.Xml.Linq;
 using DocumentFormat.OpenXml.Packaging;
-using Xdr = DocumentFormat.OpenXml.Drawing.Spreadsheet;
+using XlsxSharp.Excel.IO;
+using XlsxSharp.IO;
 
 namespace XlsxSharp.Excel;
 
 public partial class XLWorkbook
 {
-    internal static OpenXmlElement GetAnchorFromImageId(DrawingsPart drawingsPart, string relId)
+    /// <summary>
+    /// Reading and writing <c>xl/drawings/drawingN.xml</c>, shared between load and save because
+    /// both sides walk the same three anchor shapes.
+    /// </summary>
+    internal static class DrawingXml
     {
-        IEnumerable<OpenXmlElement> matchingAnchor = drawingsPart.WorksheetDrawing.Where(wsdr =>
-            wsdr.Descendants<Xdr.BlipFill>().Any(x => x?.Blip?.Embed?.Value.Equals(relId) ?? false)
-        );
-        return matchingAnchor.FirstOrDefault();
-    }
+        internal static readonly XNamespace Xdr =
+            "http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing";
 
-    internal static NonVisualDrawingProperties GetPropertiesFromAnchor(OpenXmlElement anchor)
-    {
-        if (!IsAllowedAnchor(anchor))
+        internal static readonly XNamespace A =
+            "http://schemas.openxmlformats.org/drawingml/2006/main";
+
+        internal static XElement Read(DrawingsPart part)
         {
-            return null;
+            using Stream stream = part.GetStream(FileMode.Open, FileAccess.Read);
+            return XDocument.Load(stream).Root
+                ?? throw PartStructureException.ExpectedElementNotFound("wsDr");
         }
 
-        // Maybe we should not restrict here, and just search for all NonVisualDrawingProperties in an anchor?
-        OpenXmlCompositeElement shape =
-            anchor.Descendants<Xdr.Picture>().Cast<OpenXmlCompositeElement>().FirstOrDefault()
-            ?? anchor
-                .Descendants<Xdr.ConnectionShape>()
-                .Cast<OpenXmlCompositeElement>()
-                .FirstOrDefault();
+        /// <summary>
+        /// The relationship id of the picture a <c>pic</c> anchor embeds, or null for any other
+        /// kind of anchor (a shape, a text box, a connector) - the drawing part holds more than
+        /// XlsxSharp's own picture model does, and only the anchor that carries a picture is
+        /// this model's to touch.
+        /// </summary>
+        internal static string PictureRelId(XElement anchor) =>
+            anchor
+                .Element(Xdr + "pic")
+                ?.Element(Xdr + "blipFill")
+                ?.Element(A + "blip")
+                ?.Attribute(SpreadsheetXml.Rel + "embed")
+                ?.Value;
 
-        if (shape == null)
-        {
-            return null;
-        }
+        internal static XElement PictureProperties(XElement anchor) =>
+            anchor.Element(Xdr + "pic")?.Element(Xdr + "nvPicPr")?.Element(Xdr + "cNvPr");
 
-        return shape.Descendants<Xdr.NonVisualDrawingProperties>().FirstOrDefault();
-    }
-
-    internal static string GetImageRelIdFromAnchor(OpenXmlElement anchor)
-    {
-        if (!IsAllowedAnchor(anchor))
-        {
-            return null;
-        }
-
-        BlipFill blipFill = anchor.Descendants<Xdr.BlipFill>().FirstOrDefault();
-        return blipFill?.Blip?.Embed?.Value;
-    }
-
-    private static bool IsAllowedAnchor(OpenXmlElement anchor)
-    {
-        Type[] allowedAnchorTypes =
-        [
-            typeof(AbsoluteAnchor),
-            typeof(OneCellAnchor),
-            typeof(TwoCellAnchor),
-        ];
-        return (allowedAnchorTypes.Any(t => t == anchor.GetType()));
+        internal static XElement Extents(XElement anchor) =>
+            anchor
+                .Element(Xdr + "pic")
+                ?.Element(Xdr + "spPr")
+                ?.Element(A + "xfrm")
+                ?.Element(A + "ext");
     }
 }

@@ -23,7 +23,6 @@ using XlsxSharp.IO;
 using XlsxSharp.Utils;
 using Run = DocumentFormat.OpenXml.Spreadsheet.Run;
 using RunProperties = DocumentFormat.OpenXml.Spreadsheet.RunProperties;
-using Xdr = DocumentFormat.OpenXml.Drawing.Spreadsheet;
 
 namespace XlsxSharp.Excel;
 
@@ -656,108 +655,102 @@ public partial class XLWorkbook
 
     private static void LoadDrawings(WorksheetPart wsPart, XLWorksheet ws)
     {
-        if (wsPart.DrawingsPart != null)
+        if (wsPart.DrawingsPart == null)
         {
-            DrawingsPart drawingsPart = wsPart.DrawingsPart;
+            return;
+        }
 
-            foreach (OpenXmlElement anchor in drawingsPart.WorksheetDrawing.ChildElements)
+        DrawingsPart drawingsPart = wsPart.DrawingsPart;
+        XElement worksheetDrawing = DrawingXml.Read(drawingsPart);
+
+        foreach (XElement anchor in worksheetDrawing.Elements())
+        {
+            string imgId = DrawingXml.PictureRelId(anchor);
+
+            // If imgId is null, we're probably dealing with a TextBox (or another shape) instead of a picture
+            if (imgId == null)
             {
-                string imgId = GetImageRelIdFromAnchor(anchor);
+                continue;
+            }
 
-                //If imgId is null, we're probably dealing with a TextBox (or another shape) instead of a picture
-                if (imgId == null)
+            OpenXmlPart imagePart = drawingsPart.GetPartById(imgId);
+            using Stream stream = imagePart.GetStream();
+            using MemoryStream ms = new();
+            stream.CopyTo(ms);
+
+            XElement nonVisualProperties = DrawingXml.PictureProperties(anchor);
+            uint id = SpreadsheetXml.UInt(nonVisualProperties, "id").Value;
+            string name = SpreadsheetXml.String(nonVisualProperties, "name");
+
+            XLPicture picture = ws.AddPicture(ms, name, checked((int)id)) as XLPicture;
+            picture.RelId = imgId;
+            picture.Placement = XLPicturePlacement.FreeFloating;
+
+            XElement extents = DrawingXml.Extents(anchor);
+            if (SpreadsheetXml.Int(extents, "cx") is { } cx)
+            {
+                picture.Width = ConvertFromEnglishMetricUnits(cx, ws.Workbook.DpiX);
+            }
+
+            if (SpreadsheetXml.Int(extents, "cy") is { } cy)
+            {
+                picture.Height = ConvertFromEnglishMetricUnits(cy, ws.Workbook.DpiY);
+            }
+
+            if (anchor.Name == DrawingXml.Xdr + "absoluteAnchor")
+            {
+                XElement position = anchor.Element(DrawingXml.Xdr + "pos");
+                picture.MoveTo(
+                    ConvertFromEnglishMetricUnits(
+                        SpreadsheetXml.Int(position, "x").Value,
+                        ws.Workbook.DpiX
+                    ),
+                    ConvertFromEnglishMetricUnits(
+                        SpreadsheetXml.Int(position, "y").Value,
+                        ws.Workbook.DpiY
+                    )
+                );
+            }
+            else if (anchor.Name == DrawingXml.Xdr + "oneCellAnchor")
+            {
+                XLMarker from = LoadMarker(ws, anchor.Element(DrawingXml.Xdr + "from"));
+                picture.MoveTo(from.Cell, from.Offset);
+            }
+            else if (anchor.Name == DrawingXml.Xdr + "twoCellAnchor")
+            {
+                XLMarker from = LoadMarker(ws, anchor.Element(DrawingXml.Xdr + "from"));
+                XLMarker to = LoadMarker(ws, anchor.Element(DrawingXml.Xdr + "to"));
+
+                // An absent editAs is the same as "twoCell", per the schema's default.
+                string editAs = SpreadsheetXml.String(anchor, "editAs") ?? "twoCell";
+                if (editAs == "twoCell")
                 {
-                    continue;
+                    picture.MoveTo(from.Cell, from.Offset, to.Cell, to.Offset);
                 }
-
-                OpenXmlPart imagePart = drawingsPart.GetPartById(imgId);
-                using (Stream stream = imagePart.GetStream())
-                using (MemoryStream ms = new())
+                else if (editAs == "absolute")
                 {
-                    stream.CopyTo(ms);
-                    Xdr.NonVisualDrawingProperties vsdp = GetPropertiesFromAnchor(anchor);
-
-                    XLPicture picture =
-                        ws.AddPicture(ms, vsdp.Name, Convert.ToInt32(vsdp.Id.Value)) as XLPicture;
-                    picture.RelId = imgId;
-
-                    Xdr.ShapeProperties spPr = anchor.Descendants<Xdr.ShapeProperties>().First();
-                    picture.Placement = XLPicturePlacement.FreeFloating;
-
-                    if (spPr?.Transform2D?.Extents?.Cx.HasValue ?? false)
+                    XElement offset = anchor
+                        .Element(DrawingXml.Xdr + "pic")
+                        ?.Element(DrawingXml.Xdr + "spPr")
+                        ?.Element(DrawingXml.A + "xfrm")
+                        ?.Element(DrawingXml.A + "off");
+                    if (offset != null)
                     {
-                        picture.Width = ConvertFromEnglishMetricUnits(
-                            spPr.Transform2D.Extents.Cx,
-                            ws.Workbook.DpiX
-                        );
-                    }
-
-                    if (spPr?.Transform2D?.Extents?.Cy.HasValue ?? false)
-                    {
-                        picture.Height = ConvertFromEnglishMetricUnits(
-                            spPr.Transform2D.Extents.Cy,
-                            ws.Workbook.DpiY
-                        );
-                    }
-
-                    if (anchor is Xdr.AbsoluteAnchor)
-                    {
-                        Xdr.AbsoluteAnchor absoluteAnchor = anchor as Xdr.AbsoluteAnchor;
                         picture.MoveTo(
                             ConvertFromEnglishMetricUnits(
-                                absoluteAnchor.Position.X.Value,
+                                SpreadsheetXml.Int(offset, "x").Value,
                                 ws.Workbook.DpiX
                             ),
                             ConvertFromEnglishMetricUnits(
-                                absoluteAnchor.Position.Y.Value,
+                                SpreadsheetXml.Int(offset, "y").Value,
                                 ws.Workbook.DpiY
                             )
                         );
                     }
-                    else if (anchor is Xdr.OneCellAnchor)
-                    {
-                        Xdr.OneCellAnchor oneCellAnchor = anchor as Xdr.OneCellAnchor;
-                        XLMarker from = LoadMarker(ws, oneCellAnchor.FromMarker);
-                        picture.MoveTo(from.Cell, from.Offset);
-                    }
-                    else if (anchor is Xdr.TwoCellAnchor)
-                    {
-                        Xdr.TwoCellAnchor twoCellAnchor = anchor as Xdr.TwoCellAnchor;
-                        XLMarker from = LoadMarker(ws, twoCellAnchor.FromMarker);
-                        XLMarker to = LoadMarker(ws, twoCellAnchor.ToMarker);
-
-                        if (
-                            twoCellAnchor.EditAs == null
-                            || !twoCellAnchor.EditAs.HasValue
-                            || twoCellAnchor.EditAs.Value == Xdr.EditAsValues.TwoCell
-                        )
-                        {
-                            picture.MoveTo(from.Cell, from.Offset, to.Cell, to.Offset);
-                        }
-                        else if (twoCellAnchor.EditAs.Value == Xdr.EditAsValues.Absolute)
-                        {
-                            Xdr.ShapeProperties shapeProperties = twoCellAnchor
-                                .Descendants<Xdr.ShapeProperties>()
-                                .FirstOrDefault();
-                            if (shapeProperties != null)
-                            {
-                                picture.MoveTo(
-                                    ConvertFromEnglishMetricUnits(
-                                        spPr.Transform2D.Offset.X,
-                                        ws.Workbook.DpiX
-                                    ),
-                                    ConvertFromEnglishMetricUnits(
-                                        spPr.Transform2D.Offset.Y,
-                                        ws.Workbook.DpiY
-                                    )
-                                );
-                            }
-                        }
-                        else if (twoCellAnchor.EditAs.Value == Xdr.EditAsValues.OneCell)
-                        {
-                            picture.MoveTo(from.Cell, from.Offset);
-                        }
-                    }
+                }
+                else if (editAs == "oneCell")
+                {
+                    picture.MoveTo(from.Cell, from.Offset);
                 }
             }
         }
@@ -766,25 +759,29 @@ public partial class XLWorkbook
     private static int ConvertFromEnglishMetricUnits(long emu, double resolution) =>
         Convert.ToInt32(emu * resolution / 914400);
 
-    private static XLMarker LoadMarker(XLWorksheet ws, Xdr.MarkerType marker)
+    /// <summary>
+    /// A <c>from</c> or <c>to</c> marker: a cell and pixel offset given as EMU child elements
+    /// rather than attributes.
+    /// </summary>
+    private static XLMarker LoadMarker(XLWorksheet ws, XElement marker)
     {
         int row = Math.Min(
             XlsxSharp.XLHelper.MaxRowNumber,
-            Math.Max(1, Convert.ToInt32(marker.RowId.InnerText) + 1)
+            Math.Max(1, (int)marker.Element(DrawingXml.Xdr + "row") + 1)
         );
         int column = Math.Min(
             XlsxSharp.XLHelper.MaxColumnNumber,
-            Math.Max(1, Convert.ToInt32(marker.ColumnId.InnerText) + 1)
+            Math.Max(1, (int)marker.Element(DrawingXml.Xdr + "col") + 1)
         );
         return new XLMarker(
             ws.Cell(row, column),
             new System.Drawing.Point(
                 ConvertFromEnglishMetricUnits(
-                    Convert.ToInt32(marker.ColumnOffset.InnerText),
+                    (int)marker.Element(DrawingXml.Xdr + "colOff"),
                     ws.Workbook.DpiX
                 ),
                 ConvertFromEnglishMetricUnits(
-                    Convert.ToInt32(marker.RowOffset.InnerText),
+                    (int)marker.Element(DrawingXml.Xdr + "rowOff"),
                     ws.Workbook.DpiY
                 )
             )
