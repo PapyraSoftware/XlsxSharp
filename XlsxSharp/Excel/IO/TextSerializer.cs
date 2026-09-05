@@ -56,12 +56,12 @@ internal class TextSerializer
 
             if (phoneticsProps.Alignment != XLPhoneticAlignment.Left)
             {
-                w.WriteAttributeString("alignment", phoneticsProps.Alignment.ToOpenXmlString());
+                w.WriteAttributeString("alignment", phoneticsProps.Alignment.ToXml());
             }
 
             if (phoneticsProps.Type != XLPhoneticType.FullWidthKatakana)
             {
-                w.WriteAttributeString("type", phoneticsProps.Type.ToOpenXmlString());
+                w.WriteAttributeString("type", phoneticsProps.Type.ToXml());
             }
 
             w.WriteEndElement(); // phoneticPr
@@ -112,10 +112,10 @@ internal class TextSerializer
 
         if (font.Underline != defaultFont.Underline)
         {
-            WriteRunProperty(w, "u", font.Underline.ToOpenXmlString());
+            WriteRunProperty(w, "u", font.Underline.ToXml());
         }
 
-        WriteRunProperty(w, @"vertAlign", font.VerticalAlignment.ToOpenXmlString());
+        WriteRunProperty(w, @"vertAlign", font.VerticalAlignment.ToXml());
         WriteRunProperty(w, "sz", font.Size.Points);
         w.WriteColor("color", font.Color);
         WriteRunProperty(w, "rFont", font.Name.Text);
@@ -128,7 +128,7 @@ internal class TextSerializer
 
         if (font.Scheme != defaultFont.Scheme)
         {
-            WriteRunProperty(w, "scheme", font.Scheme.ToOpenXml());
+            WriteRunProperty(w, "scheme", font.Scheme.ToXml());
         }
 
         w.WriteEndElement(); // rPr

@@ -3,6 +3,7 @@ using System.Xml.Linq;
 using DocumentFormat.OpenXml.Packaging;
 using XlsxSharp.Excel.Tables;
 using XlsxSharp.Extensions;
+using XlsxSharp.IO;
 using static XlsxSharp.Excel.XLWorkbook;
 
 namespace XlsxSharp.Excel.IO;
@@ -230,6 +231,16 @@ internal class TablePartWriter
         WorksheetXml.SetBool(tableStyleInfo, "showRowStripes", xlTable.ShowRowStripes);
         WorksheetXml.SetBool(tableStyleInfo, "showColumnStripes", xlTable.ShowColumnStripes);
         return tableStyleInfo;
+    }
+
+    /// <summary>
+    /// Reading <c>xl/tables/tableN.xml</c>.
+    /// </summary>
+    internal static XElement Read(TableDefinitionPart part)
+    {
+        using Stream stream = part.GetStream(FileMode.Open, FileAccess.Read);
+        return XDocument.Load(stream).Root
+            ?? throw PartStructureException.ExpectedElementNotFound("table");
     }
 
     private static string GetTableName(string originalTableName, SaveContext context)
