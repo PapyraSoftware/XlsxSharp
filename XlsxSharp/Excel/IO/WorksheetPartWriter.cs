@@ -57,6 +57,9 @@ internal class WorksheetPartWriter
         worksheetDom.GetFirstChild<SheetData>()?.RemoveAllChildren();
 
         XElement worksheet = ToXml(worksheetDom);
+        WriteSheetProtection(worksheet, xlWorksheet.Protection);
+        WriteMergedCells(worksheet, xlWorksheet.Internals.MergedRanges);
+        WriteHyperlinks(worksheet, worksheetPart, xlWorksheet, context);
         WritePageSetup(worksheet, xlWorksheet.PageSetup);
         WriteHeaderFooter(worksheet, xlWorksheet.PageSetup);
         WriteBreaks(
@@ -706,120 +709,6 @@ internal class WorksheetPartWriter
 
         #endregion SheetData
 
-        #region SheetProtection
-
-        if (xlWorksheet.Protection.IsProtected)
-        {
-            if (!worksheet.Elements<SheetProtection>().Any())
-            {
-                OpenXmlElement previousElement = cm.GetPreviousElementFor(
-                    XLWorksheetContents.SheetProtection
-                );
-                worksheet.InsertAfter(new SheetProtection(), previousElement);
-            }
-
-            SheetProtection sheetProtection = worksheet.Elements<SheetProtection>().First();
-            cm.SetElement(XLWorksheetContents.SheetProtection, sheetProtection);
-
-            XLSheetProtection protection = xlWorksheet.Protection;
-            sheetProtection.Sheet = OpenXmlHelper.GetBooleanValue(protection.IsProtected, false);
-
-            sheetProtection.Password = null;
-            sheetProtection.AlgorithmName = null;
-            sheetProtection.HashValue = null;
-            sheetProtection.SpinCount = null;
-            sheetProtection.SaltValue = null;
-
-            if (protection.Algorithm == XLProtectionAlgorithm.Algorithm.SimpleHash)
-            {
-                if (!string.IsNullOrWhiteSpace(protection.PasswordHash))
-                {
-                    sheetProtection.Password = protection.PasswordHash;
-                }
-            }
-            else
-            {
-                sheetProtection.AlgorithmName =
-                    DescribedEnumParser<XLProtectionAlgorithm.Algorithm>.ToDescription(
-                        protection.Algorithm
-                    );
-                sheetProtection.HashValue = protection.PasswordHash;
-                sheetProtection.SpinCount = protection.SpinCount;
-                sheetProtection.SaltValue = protection.Base64EncodedSalt;
-            }
-
-            // default value of "1"
-            sheetProtection.FormatCells = OpenXmlHelper.GetBooleanValue(
-                !protection.AllowedElements.HasFlag(XLSheetProtectionElements.FormatCells),
-                true
-            );
-            sheetProtection.FormatColumns = OpenXmlHelper.GetBooleanValue(
-                !protection.AllowedElements.HasFlag(XLSheetProtectionElements.FormatColumns),
-                true
-            );
-            sheetProtection.FormatRows = OpenXmlHelper.GetBooleanValue(
-                !protection.AllowedElements.HasFlag(XLSheetProtectionElements.FormatRows),
-                true
-            );
-            sheetProtection.InsertColumns = OpenXmlHelper.GetBooleanValue(
-                !protection.AllowedElements.HasFlag(XLSheetProtectionElements.InsertColumns),
-                true
-            );
-            sheetProtection.InsertRows = OpenXmlHelper.GetBooleanValue(
-                !protection.AllowedElements.HasFlag(XLSheetProtectionElements.InsertRows),
-                true
-            );
-            sheetProtection.InsertHyperlinks = OpenXmlHelper.GetBooleanValue(
-                !protection.AllowedElements.HasFlag(XLSheetProtectionElements.InsertHyperlinks),
-                true
-            );
-            sheetProtection.DeleteColumns = OpenXmlHelper.GetBooleanValue(
-                !protection.AllowedElements.HasFlag(XLSheetProtectionElements.DeleteColumns),
-                true
-            );
-            sheetProtection.DeleteRows = OpenXmlHelper.GetBooleanValue(
-                !protection.AllowedElements.HasFlag(XLSheetProtectionElements.DeleteRows),
-                true
-            );
-            sheetProtection.Sort = OpenXmlHelper.GetBooleanValue(
-                !protection.AllowedElements.HasFlag(XLSheetProtectionElements.Sort),
-                true
-            );
-            sheetProtection.AutoFilter = OpenXmlHelper.GetBooleanValue(
-                !protection.AllowedElements.HasFlag(XLSheetProtectionElements.AutoFilter),
-                true
-            );
-            sheetProtection.PivotTables = OpenXmlHelper.GetBooleanValue(
-                !protection.AllowedElements.HasFlag(XLSheetProtectionElements.PivotTables),
-                true
-            );
-            sheetProtection.Scenarios = OpenXmlHelper.GetBooleanValue(
-                !protection.AllowedElements.HasFlag(XLSheetProtectionElements.EditScenarios),
-                true
-            );
-
-            // default value of "0"
-            sheetProtection.Objects = OpenXmlHelper.GetBooleanValue(
-                !protection.AllowedElements.HasFlag(XLSheetProtectionElements.EditObjects),
-                false
-            );
-            sheetProtection.SelectLockedCells = OpenXmlHelper.GetBooleanValue(
-                !protection.AllowedElements.HasFlag(XLSheetProtectionElements.SelectLockedCells),
-                false
-            );
-            sheetProtection.SelectUnlockedCells = OpenXmlHelper.GetBooleanValue(
-                !protection.AllowedElements.HasFlag(XLSheetProtectionElements.SelectUnlockedCells),
-                false
-            );
-        }
-        else
-        {
-            worksheet.RemoveAllChildren<SheetProtection>();
-            cm.SetElement(XLWorksheetContents.SheetProtection, null);
-        }
-
-        #endregion SheetProtection
-
         #region AutoFilter
 
         worksheet.RemoveAllChildren<AutoFilter>();
@@ -842,44 +731,6 @@ internal class WorksheetPartWriter
 
         #endregion AutoFilter
 
-        #region MergeCells
-
-        if (xlWorksheet.Internals.MergedRanges.Count > 0)
-        {
-            if (!worksheet.Elements<MergeCells>().Any())
-            {
-                OpenXmlElement previousElement = cm.GetPreviousElementFor(
-                    XLWorksheetContents.MergeCells
-                );
-                worksheet.InsertAfter(new MergeCells(), previousElement);
-            }
-
-            MergeCells mergeCells = worksheet.Elements<MergeCells>().First();
-            cm.SetElement(XLWorksheetContents.MergeCells, mergeCells);
-            mergeCells.RemoveAllChildren<MergeCell>();
-
-            foreach (
-                MergeCell mergeCell in xlWorksheet
-                    .Internals.MergedRanges.Select<XLRange, string>(m =>
-                        m.RangeAddress.FirstAddress.ToString()
-                        + ":"
-                        + m.RangeAddress.LastAddress.ToString()
-                    )
-                    .Select(merged => new MergeCell { Reference = merged })
-            )
-            {
-                mergeCells.AppendChild(mergeCell);
-            }
-
-            mergeCells.Count = (uint)mergeCells.Count();
-        }
-        else
-        {
-            worksheet.RemoveAllChildren<MergeCells>();
-            cm.SetElement(XLWorksheetContents.MergeCells, null);
-        }
-
-        #endregion MergeCells
 
         #region Conditional Formatting
 
@@ -1459,57 +1310,6 @@ internal class WorksheetPartWriter
         }
 
         #endregion DataValidations
-
-        #region Hyperlinks
-
-        List<HyperlinkRelationship> relToRemove = [.. worksheetPart.HyperlinkRelationships];
-        relToRemove.ForEach(worksheetPart.DeleteReferenceRelationship);
-        if (!xlWorksheet.Hyperlinks.Any())
-        {
-            worksheet.RemoveAllChildren<Hyperlinks>();
-            cm.SetElement(XLWorksheetContents.Hyperlinks, null);
-        }
-        else
-        {
-            if (!worksheet.Elements<Hyperlinks>().Any())
-            {
-                OpenXmlElement previousElement = cm.GetPreviousElementFor(
-                    XLWorksheetContents.Hyperlinks
-                );
-                worksheet.InsertAfter(new Hyperlinks(), previousElement);
-            }
-
-            Hyperlinks hyperlinks = worksheet.Elements<Hyperlinks>().First();
-            cm.SetElement(XLWorksheetContents.Hyperlinks, hyperlinks);
-            hyperlinks.RemoveAllChildren<Hyperlink>();
-            foreach (XLHyperlink hl in xlWorksheet.Hyperlinks)
-            {
-                Hyperlink hyperlink;
-                if (hl.IsExternal)
-                {
-                    string rId = context.RelIdGenerator.GetNext(XLWorkbook.RelType.Workbook);
-                    hyperlink = new Hyperlink { Reference = hl.Cell.Address.ToString(), Id = rId };
-                    worksheetPart.AddHyperlinkRelationship(hl.ExternalAddress, true, rId);
-                }
-                else
-                {
-                    hyperlink = new Hyperlink
-                    {
-                        Reference = hl.Cell.Address.ToString(),
-                        Location = hl.InternalAddress,
-                        Display = hl.Cell.GetFormattedString(),
-                    };
-                }
-                if (!string.IsNullOrWhiteSpace(hl.Tooltip))
-                {
-                    hyperlink.Tooltip = hl.Tooltip;
-                }
-
-                hyperlinks.AppendChild(hyperlink);
-            }
-        }
-
-        #endregion Hyperlinks
 
 
         #region Tables
@@ -2361,6 +2161,159 @@ internal class WorksheetPartWriter
     /// Stream detached worksheet DOM to the worksheet part stream.
     /// Replaces the content of the part.
     /// </summary>
+    /// <summary>
+    /// <c>sheetProtection</c>, which is written only for a protected sheet.
+    /// </summary>
+    private static void WriteSheetProtection(XElement worksheet, XLSheetProtection protection)
+    {
+        if (!protection.IsProtected)
+        {
+            worksheet.Element(SpreadsheetXml.Main + "sheetProtection")?.Remove();
+            return;
+        }
+
+        XElement element = WorksheetXml.Child(worksheet, "sheetProtection");
+        WorksheetXml.SetBoolDefault(element, "sheet", true, false);
+
+        // The password is written one way or the other, never both, so the way not taken is
+        // cleared off whatever the loaded sheet carried.
+        element.SetAttributeValue("password", null);
+        element.SetAttributeValue("algorithmName", null);
+        element.SetAttributeValue("hashValue", null);
+        element.SetAttributeValue("spinCount", null);
+        element.SetAttributeValue("saltValue", null);
+
+        if (protection.Algorithm == XLProtectionAlgorithm.Algorithm.SimpleHash)
+        {
+            if (!string.IsNullOrWhiteSpace(protection.PasswordHash))
+            {
+                element.SetAttributeValue("password", protection.PasswordHash);
+            }
+        }
+        else
+        {
+            element.SetAttributeValue(
+                "algorithmName",
+                DescribedEnumParser<XLProtectionAlgorithm.Algorithm>.ToDescription(
+                    protection.Algorithm
+                )
+            );
+            element.SetAttributeValue("hashValue", protection.PasswordHash);
+            WorksheetXml.Set(element, "spinCount", protection.SpinCount);
+            element.SetAttributeValue("saltValue", protection.Base64EncodedSalt);
+        }
+
+        // Every attribute says what is denied, so an element the sheet allows turns its attribute
+        // off. They differ only in what the schema already says about them.
+        Deny(XLSheetProtectionElements.FormatCells, "formatCells", true);
+        Deny(XLSheetProtectionElements.FormatColumns, "formatColumns", true);
+        Deny(XLSheetProtectionElements.FormatRows, "formatRows", true);
+        Deny(XLSheetProtectionElements.InsertColumns, "insertColumns", true);
+        Deny(XLSheetProtectionElements.InsertRows, "insertRows", true);
+        Deny(XLSheetProtectionElements.InsertHyperlinks, "insertHyperlinks", true);
+        Deny(XLSheetProtectionElements.DeleteColumns, "deleteColumns", true);
+        Deny(XLSheetProtectionElements.DeleteRows, "deleteRows", true);
+        Deny(XLSheetProtectionElements.Sort, "sort", true);
+        Deny(XLSheetProtectionElements.AutoFilter, "autoFilter", true);
+        Deny(XLSheetProtectionElements.PivotTables, "pivotTables", true);
+        Deny(XLSheetProtectionElements.EditScenarios, "scenarios", true);
+        Deny(XLSheetProtectionElements.EditObjects, "objects", false);
+        Deny(XLSheetProtectionElements.SelectLockedCells, "selectLockedCells", false);
+        Deny(XLSheetProtectionElements.SelectUnlockedCells, "selectUnlockedCells", false);
+
+        void Deny(XLSheetProtectionElements allowed, string name, bool deniedByDefault) =>
+            WorksheetXml.SetBoolDefault(
+                element,
+                name,
+                !protection.AllowedElements.HasFlag(allowed),
+                deniedByDefault
+            );
+    }
+
+    /// <summary>
+    /// <c>mergeCells</c>, which is written whole from the workbook model.
+    /// </summary>
+    private static void WriteMergedCells(XElement worksheet, XLRanges mergedRanges)
+    {
+        if (mergedRanges.Count == 0)
+        {
+            worksheet.Element(SpreadsheetXml.Main + "mergeCells")?.Remove();
+            return;
+        }
+
+        XElement element = WorksheetXml.Child(worksheet, "mergeCells");
+        element.RemoveNodes();
+        foreach (XLRange range in mergedRanges)
+        {
+            element.Add(
+                new XElement(
+                    SpreadsheetXml.Main + "mergeCell",
+                    new XAttribute(
+                        "ref",
+                        $"{range.RangeAddress.FirstAddress}:{range.RangeAddress.LastAddress}"
+                    )
+                )
+            );
+        }
+
+        WorksheetXml.Set(element, "count", (uint)mergedRanges.Count);
+    }
+
+    /// <summary>
+    /// <c>hyperlinks</c>, with a relationship for each link that points outside the workbook.
+    /// The relationships of the sheet's previous links go first, so a link removed from the
+    /// workbook takes its relationship with it.
+    /// </summary>
+    private static void WriteHyperlinks(
+        XElement worksheet,
+        WorksheetPart worksheetPart,
+        XLWorksheet xlWorksheet,
+        SaveContext context
+    )
+    {
+        foreach (
+            HyperlinkRelationship relationship in worksheetPart.HyperlinkRelationships.ToList()
+        )
+        {
+            worksheetPart.DeleteReferenceRelationship(relationship);
+        }
+
+        if (!xlWorksheet.Hyperlinks.Any())
+        {
+            worksheet.Element(SpreadsheetXml.Main + "hyperlinks")?.Remove();
+            return;
+        }
+
+        XElement element = WorksheetXml.Child(worksheet, "hyperlinks");
+        element.RemoveNodes();
+        foreach (XLHyperlink hyperlink in xlWorksheet.Hyperlinks)
+        {
+            XElement written = new(
+                SpreadsheetXml.Main + "hyperlink",
+                new XAttribute("ref", hyperlink.Cell.Address.ToString())
+            );
+
+            if (hyperlink.IsExternal)
+            {
+                string relId = context.RelIdGenerator.GetNext(XLWorkbook.RelType.Workbook);
+                written.SetAttributeValue(SpreadsheetXml.Rel + "id", relId);
+                worksheetPart.AddHyperlinkRelationship(hyperlink.ExternalAddress, true, relId);
+            }
+            else
+            {
+                written.SetAttributeValue("location", hyperlink.InternalAddress);
+                written.SetAttributeValue("display", hyperlink.Cell.GetFormattedString());
+            }
+
+            if (!string.IsNullOrWhiteSpace(hyperlink.Tooltip))
+            {
+                written.SetAttributeValue("tooltip", hyperlink.Tooltip);
+            }
+
+            element.Add(written);
+        }
+    }
+
     /// <summary>
     /// <c>printOptions</c>, <c>pageMargins</c> and <c>pageSetup</c>, which say how the sheet is
     /// printed. All three are always written, and all three replace whatever the loaded sheet

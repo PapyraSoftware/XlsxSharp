@@ -113,6 +113,22 @@ internal static class WorksheetXml
         element.SetAttributeValue(name, value ? "1" : "0");
 
     /// <summary>
+    /// An OOXML boolean that is left off the element when it says what the schema already says.
+    /// </summary>
+    internal static void SetBoolDefault(
+        XElement element,
+        string name,
+        bool value,
+        bool defaultValue
+    ) =>
+        element.SetAttributeValue(
+            name,
+            value == defaultValue ? null
+                : value ? "1"
+                : "0"
+        );
+
+    /// <summary>
     /// An attribute that is left off the element when it has no value.
     /// </summary>
     internal static void SetOptional<T>(XElement element, string name, T? value)
