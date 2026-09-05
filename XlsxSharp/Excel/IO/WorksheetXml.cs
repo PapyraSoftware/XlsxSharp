@@ -74,6 +74,13 @@ internal static class WorksheetXml
         return child;
     }
 
+    /// <summary>
+    /// Adds a child in schema order without looking for one that is already there, for the
+    /// elements a sheet may carry more than one of.
+    /// </summary>
+    internal static void Insert(XElement worksheet, string name, XElement child) =>
+        InsertInOrder(worksheet, name, child);
+
     private static void InsertInOrder(XElement worksheet, string name, XElement child)
     {
         int rank = Array.IndexOf(ChildOrder, name);
@@ -82,7 +89,7 @@ internal static class WorksheetXml
             throw new ArgumentOutOfRangeException(nameof(name), name, "Not a sheet element.");
         }
 
-        XElement previous = null;
+        XElement? previous = null;
         foreach (XElement candidate in worksheet.Elements())
         {
             int candidateRank = Array.IndexOf(ChildOrder, candidate.Name.LocalName);
