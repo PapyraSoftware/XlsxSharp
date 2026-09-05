@@ -57,6 +57,7 @@ internal class WorksheetPartWriter
 
         XElement worksheet = ToXml(worksheetDom);
         WriteConditionalFormats(worksheet, xlWorksheet, context);
+        WriteDataValidations(worksheet, xlWorksheet, options);
         WriteSheetProtection(worksheet, xlWorksheet.Protection);
         WriteAutoFilter(worksheet, xlWorksheet.AutoFilter);
         WriteMergedCells(worksheet, xlWorksheet.Internals.MergedRanges);
@@ -906,223 +907,6 @@ internal class WorksheetPartWriter
         }
 
         #endregion Sparklines
-
-        #region DataValidations
-
-        // Saving of data validations happens in 2 phases because depending on the data validation
-        // content, it gets saved into 1 of 2 possible locations in the XML structure.
-        // First phase, save all the data validations that aren't references to other sheets into
-        // the standard data validations section.
-        List<(
-            IXLDataValidation DataValidation,
-            string MinValue,
-            string MaxValue
-        )> dataValidationsStandard = [];
-        List<(
-            IXLDataValidation DataValidation,
-            string MinValue,
-            string MaxValue
-        )> dataValidationsExtension = [];
-        if (options.ConsolidateDataValidationRanges)
-        {
-            xlWorksheet.DataValidations.Consolidate();
-        }
-
-        foreach (XLDataValidation dv in xlWorksheet.DataValidations)
-        {
-            (bool minReferencesAnotherSheet, string minValue) = UsesExternalSheet(
-                xlWorksheet,
-                dv.MinValue
-            );
-            (bool maxReferencesAnotherSheet, string maxValue) = UsesExternalSheet(
-                xlWorksheet,
-                dv.MaxValue
-            );
-
-            static (bool, string) UsesExternalSheet(XLWorksheet sheet, string value)
-            {
-                if (!XlsxSharp.XLHelper.IsValidRangeAddress(value))
-                {
-                    return (false, value);
-                }
-
-                int separatorIndex = value.LastIndexOf('!');
-                bool hasSheet = separatorIndex >= 0;
-                if (!hasSheet)
-                {
-                    return (false, value);
-                }
-
-                string sheetName = value[..separatorIndex].UnescapeSheetName();
-                if (XlsxSharp.XLHelper.SheetComparer.Equals(sheet.Name, sheetName))
-                {
-                    // The spec wants us to include references to ranges on the same worksheet without the sheet name
-                    return (false, value.Substring(separatorIndex + 1));
-                }
-
-                return (true, value);
-            }
-
-            if (minReferencesAnotherSheet || maxReferencesAnotherSheet)
-            {
-                // We're dealing with a data validation that references another sheet so has to be saved to extensions
-                dataValidationsExtension.Add((dv, minValue, maxValue));
-            }
-            else
-            {
-                // We're dealing with a standard data validation
-                dataValidationsStandard.Add((dv, minValue, maxValue));
-            }
-        }
-
-        // Save validations that don't use another sheet. It must have at least 1 child, XML doesn't allow 0.
-        if (!dataValidationsStandard.Any(d => d.DataValidation.IsDirty()))
-        {
-            worksheet.RemoveAllChildren<DataValidations>();
-            cm.SetElement(XLWorksheetContents.DataValidations, null);
-        }
-        else
-        {
-            if (!worksheet.Elements<DataValidations>().Any())
-            {
-                OpenXmlElement previousElement = cm.GetPreviousElementFor(
-                    XLWorksheetContents.DataValidations
-                );
-                worksheet.InsertAfter(new DataValidations(), previousElement);
-            }
-
-            DataValidations dataValidations = worksheet.Elements<DataValidations>().First();
-            cm.SetElement(XLWorksheetContents.DataValidations, dataValidations);
-            dataValidations.RemoveAllChildren<DocumentFormat.OpenXml.Spreadsheet.DataValidation>();
-
-            foreach (
-                (IXLDataValidation dv, string minValue, string maxValue) in dataValidationsStandard
-            )
-            {
-                string sequence = string.Join(" ", dv.Ranges.Select(x => x.RangeAddress));
-                DocumentFormat.OpenXml.Spreadsheet.DataValidation dataValidation = new()
-                {
-                    AllowBlank = dv.IgnoreBlanks,
-                    Formula1 = new Formula1(minValue),
-                    Formula2 = new Formula2(maxValue),
-                    Type = dv.AllowedValues.ToOpenXml(),
-                    ShowErrorMessage = dv.ShowErrorMessage,
-                    Prompt = dv.InputMessage,
-                    PromptTitle = dv.InputTitle,
-                    ErrorTitle = dv.ErrorTitle,
-                    Error = dv.ErrorMessage,
-                    ShowDropDown = !dv.InCellDropdown,
-                    ShowInputMessage = dv.ShowInputMessage,
-                    ErrorStyle = dv.ErrorStyle.ToOpenXml(),
-                    Operator = dv.Operator.ToOpenXml(),
-                    SequenceOfReferences = new ListValue<StringValue> { InnerText = sequence },
-                };
-
-                dataValidations.AppendChild(dataValidation);
-            }
-            dataValidations.Count = (uint)dataValidationsStandard.Count;
-        }
-
-        // Second phase, save all the data validations that reference other sheets into the worksheet extensions.
-        const string dataValidationsExtensionUri = "{CCE6A557-97BC-4b89-ADB6-D9C93CAAB3DF}";
-        if (dataValidationsExtension.Count == 0)
-        {
-            WorksheetExtensionList worksheetExtensionList = worksheet
-                .Elements<WorksheetExtensionList>()
-                .FirstOrDefault();
-            WorksheetExtension worksheetExtension = worksheetExtensionList
-                ?.Elements<WorksheetExtension>()
-                .FirstOrDefault(ext =>
-                    string.Equals(
-                        ext.Uri,
-                        dataValidationsExtensionUri,
-                        StringComparison.OrdinalIgnoreCase
-                    )
-                );
-
-            worksheetExtension?.RemoveAllChildren<X14.DataValidations>();
-
-            if (worksheetExtensionList != null)
-            {
-                if (worksheetExtension != null && !worksheetExtension.HasChildren)
-                {
-                    worksheetExtensionList.RemoveChild(worksheetExtension);
-                }
-
-                if (!worksheetExtensionList.HasChildren)
-                {
-                    worksheet.RemoveChild(worksheetExtensionList);
-                    cm.SetElement(XLWorksheetContents.WorksheetExtensionList, null);
-                }
-            }
-        }
-        else
-        {
-            if (!worksheet.Elements<WorksheetExtensionList>().Any())
-            {
-                OpenXmlElement previousElement = cm.GetPreviousElementFor(
-                    XLWorksheetContents.WorksheetExtensionList
-                );
-                worksheet.InsertAfter(new WorksheetExtensionList(), previousElement);
-            }
-
-            WorksheetExtensionList worksheetExtensionList = worksheet
-                .Elements<WorksheetExtensionList>()
-                .First();
-            cm.SetElement(XLWorksheetContents.WorksheetExtensionList, worksheetExtensionList);
-
-            X14.DataValidations extensionDataValidations = worksheetExtensionList
-                .Descendants<X14.DataValidations>()
-                .SingleOrDefault();
-
-            if (extensionDataValidations == null || !extensionDataValidations.Any())
-            {
-                WorksheetExtension worksheetExtension = new() { Uri = dataValidationsExtensionUri };
-                worksheetExtension.AddNamespaceDeclaration("x14", X14Main2009SsNs);
-                worksheetExtensionList.Append(worksheetExtension);
-
-                extensionDataValidations = new X14.DataValidations();
-                extensionDataValidations.AddNamespaceDeclaration("xm", XmMain2006);
-                worksheetExtension.Append(extensionDataValidations);
-            }
-            else
-            {
-                extensionDataValidations.RemoveAllChildren();
-            }
-
-            foreach (
-                (IXLDataValidation dv, string minValue, string maxValue) in dataValidationsExtension
-            )
-            {
-                string sequence = string.Join(" ", dv.Ranges.Select(x => x.RangeAddress));
-                X14.DataValidation dataValidation = new()
-                {
-                    AllowBlank = dv.IgnoreBlanks,
-                    DataValidationForumla1 = !string.IsNullOrWhiteSpace(minValue)
-                        ? new X14.DataValidationForumla1(new OfficeExcel.Formula(minValue))
-                        : null,
-                    DataValidationForumla2 = !string.IsNullOrWhiteSpace(maxValue)
-                        ? new X14.DataValidationForumla2(new OfficeExcel.Formula(maxValue))
-                        : null,
-                    Type = dv.AllowedValues.ToOpenXml(),
-                    ShowErrorMessage = dv.ShowErrorMessage,
-                    Prompt = dv.InputMessage,
-                    PromptTitle = dv.InputTitle,
-                    ErrorTitle = dv.ErrorTitle,
-                    Error = dv.ErrorMessage,
-                    ShowDropDown = !dv.InCellDropdown,
-                    ShowInputMessage = dv.ShowInputMessage,
-                    ErrorStyle = dv.ErrorStyle.ToOpenXml(),
-                    Operator = dv.Operator.ToOpenXml(),
-                    ReferenceSequence = new OfficeExcel.ReferenceSequence() { Text = sequence },
-                };
-                extensionDataValidations.AppendChild(dataValidation);
-            }
-            extensionDataValidations.Count = (uint)dataValidationsExtension.Count;
-        }
-
-        #endregion DataValidations
-
 
         #region Tables
 
@@ -2011,6 +1795,209 @@ internal class WorksheetPartWriter
     /// Stream detached worksheet DOM to the worksheet part stream.
     /// Replaces the content of the part.
     /// </summary>
+    /// <summary>
+    /// The sheet's data validations, which go to one of two places. A validation whose list or
+    /// bounds point at another sheet cannot be said in the 2006 schema at all, so it is written
+    /// in the x14 extension instead; the rest go in dataValidations where they belong.
+    /// </summary>
+    private static void WriteDataValidations(
+        XElement worksheet,
+        XLWorksheet xlWorksheet,
+        SaveOptions options
+    )
+    {
+        if (options.ConsolidateDataValidationRanges)
+        {
+            xlWorksheet.DataValidations.Consolidate();
+        }
+
+        List<(IXLDataValidation Validation, string MinValue, string MaxValue)> standard = [];
+        List<(IXLDataValidation Validation, string MinValue, string MaxValue)> extension = [];
+        foreach (XLDataValidation validation in xlWorksheet.DataValidations)
+        {
+            (bool minIsElsewhere, string minValue) = OnAnotherSheet(
+                xlWorksheet,
+                validation.MinValue
+            );
+            (bool maxIsElsewhere, string maxValue) = OnAnotherSheet(
+                xlWorksheet,
+                validation.MaxValue
+            );
+
+            (minIsElsewhere || maxIsElsewhere ? extension : standard).Add(
+                (validation, minValue, maxValue)
+            );
+        }
+
+        WriteStandardDataValidations(worksheet, standard);
+        WriteExtensionDataValidations(worksheet, extension);
+
+        // The spec wants a reference to a range on this sheet written without the sheet name,
+        // and one to another sheet is what forces the validation into the extension.
+        static (bool, string) OnAnotherSheet(XLWorksheet sheet, string value)
+        {
+            if (!XlsxSharp.XLHelper.IsValidRangeAddress(value))
+            {
+                return (false, value);
+            }
+
+            int separatorIndex = value.LastIndexOf('!');
+            if (separatorIndex < 0)
+            {
+                return (false, value);
+            }
+
+            string sheetName = value[..separatorIndex].UnescapeSheetName();
+            return XlsxSharp.XLHelper.SheetComparer.Equals(sheet.Name, sheetName)
+                ? (false, value[(separatorIndex + 1)..])
+                : (true, value);
+        }
+    }
+
+    private static void WriteStandardDataValidations(
+        XElement worksheet,
+        List<(IXLDataValidation Validation, string MinValue, string MaxValue)> validations
+    )
+    {
+        // The element must have at least one child, so a sheet whose validations all say nothing
+        // has none at all.
+        if (!validations.Any(validation => validation.Validation.IsDirty()))
+        {
+            worksheet.Element(SpreadsheetXml.Main + "dataValidations")?.Remove();
+            return;
+        }
+
+        XElement dataValidations = WorksheetXml.Child(worksheet, "dataValidations");
+        dataValidations.Elements(SpreadsheetXml.Main + "dataValidation").Remove();
+
+        foreach ((IXLDataValidation validation, string minValue, string maxValue) in validations)
+        {
+            XElement element = new(SpreadsheetXml.Main + "dataValidation");
+            SetDataValidationAttributes(element, validation);
+            element.SetAttributeValue(
+                "sqref",
+                string.Join(" ", validation.Ranges.Select(range => range.RangeAddress))
+            );
+            element.Add(
+                new XElement(SpreadsheetXml.Main + "formula1", minValue),
+                new XElement(SpreadsheetXml.Main + "formula2", maxValue)
+            );
+            dataValidations.Add(element);
+        }
+
+        WorksheetXml.Set(dataValidations, "count", (uint)validations.Count);
+    }
+
+    private static void WriteExtensionDataValidations(
+        XElement worksheet,
+        List<(IXLDataValidation Validation, string MinValue, string MaxValue)> validations
+    )
+    {
+        const string uri = "{CCE6A557-97BC-4b89-ADB6-D9C93CAAB3DF}";
+        XElement extensionList = worksheet.Element(SpreadsheetXml.Main + "extLst");
+
+        if (validations.Count == 0)
+        {
+            // The extension the sheet was loaded with goes, and the list around it goes too if
+            // nothing else is in it.
+            XElement extension = extensionList
+                ?.Elements(SpreadsheetXml.Main + "ext")
+                .FirstOrDefault(candidate =>
+                    string.Equals(
+                        SpreadsheetXml.String(candidate, "uri"),
+                        uri,
+                        StringComparison.OrdinalIgnoreCase
+                    )
+                );
+
+            extension?.Elements(SpreadsheetXml.X14 + "dataValidations").Remove();
+            if (extension is not null && !extension.Elements().Any())
+            {
+                extension.Remove();
+            }
+
+            if (extensionList is not null && !extensionList.Elements().Any())
+            {
+                extensionList.Remove();
+            }
+
+            return;
+        }
+
+        extensionList = WorksheetXml.Child(worksheet, "extLst");
+        XElement dataValidations = extensionList
+            .Descendants(SpreadsheetXml.X14 + "dataValidations")
+            .SingleOrDefault();
+        if (dataValidations is null || !dataValidations.Elements().Any())
+        {
+            dataValidations = new XElement(
+                SpreadsheetXml.X14 + "dataValidations",
+                new XAttribute(XNamespace.Xmlns + "xm", SpreadsheetXml.Xm.NamespaceName)
+            );
+            extensionList.Add(
+                new XElement(
+                    SpreadsheetXml.Main + "ext",
+                    new XAttribute(XNamespace.Xmlns + "x14", SpreadsheetXml.X14.NamespaceName),
+                    new XAttribute("uri", uri),
+                    dataValidations
+                )
+            );
+        }
+        else
+        {
+            dataValidations.RemoveNodes();
+        }
+
+        foreach ((IXLDataValidation validation, string minValue, string maxValue) in validations)
+        {
+            XElement element = new(SpreadsheetXml.X14 + "dataValidation");
+            SetDataValidationAttributes(element, validation);
+            Formula("formula1", minValue);
+            Formula("formula2", maxValue);
+            element.Add(
+                new XElement(
+                    SpreadsheetXml.Xm + "sqref",
+                    string.Join(" ", validation.Ranges.Select(range => range.RangeAddress))
+                )
+            );
+            dataValidations.Add(element);
+
+            void Formula(string name, string value)
+            {
+                if (!string.IsNullOrWhiteSpace(value))
+                {
+                    element.Add(
+                        new XElement(
+                            SpreadsheetXml.X14 + name,
+                            new XElement(SpreadsheetXml.Xm + "f", value)
+                        )
+                    );
+                }
+            }
+        }
+
+        WorksheetXml.Set(dataValidations, "count", (uint)validations.Count);
+    }
+
+    /// <summary>
+    /// The attributes a data validation carries, which the 2006 schema and the x14 extension
+    /// spell the same way.
+    /// </summary>
+    private static void SetDataValidationAttributes(XElement element, IXLDataValidation validation)
+    {
+        element.SetAttributeValue("type", validation.AllowedValues.ToXml());
+        element.SetAttributeValue("errorStyle", validation.ErrorStyle.ToXml());
+        element.SetAttributeValue("operator", validation.Operator.ToXml());
+        WorksheetXml.SetBool(element, "allowBlank", validation.IgnoreBlanks);
+        WorksheetXml.SetBool(element, "showDropDown", !validation.InCellDropdown);
+        WorksheetXml.SetBool(element, "showInputMessage", validation.ShowInputMessage);
+        WorksheetXml.SetBool(element, "showErrorMessage", validation.ShowErrorMessage);
+        element.SetAttributeValue("errorTitle", validation.ErrorTitle);
+        element.SetAttributeValue("error", validation.ErrorMessage);
+        element.SetAttributeValue("promptTitle", validation.InputTitle);
+        element.SetAttributeValue("prompt", validation.InputMessage);
+    }
+
     /// <summary>
     /// The <c>conditionalFormatting</c> groups, one per set of ranges, and the x14 extension the
     /// data bars among them need.
