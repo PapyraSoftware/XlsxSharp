@@ -21,8 +21,6 @@ using XlsxSharp.Excel.Tables;
 using XlsxSharp.Extensions;
 using XlsxSharp.IO;
 using XlsxSharp.Utils;
-using Run = DocumentFormat.OpenXml.Spreadsheet.Run;
-using RunProperties = DocumentFormat.OpenXml.Spreadsheet.RunProperties;
 
 namespace XlsxSharp.Excel;
 
@@ -106,12 +104,14 @@ public partial class XLWorkbook
             SharedStringTablePart shareStringPart = workbookPart
                 .GetPartsOfType<SharedStringTablePart>()
                 .First();
-            sharedStrings =
-            [
-                .. SpreadsheetXml
-                    .FromSdk(shareStringPart.SharedStringTable)
-                    .Elements(SpreadsheetXml.Main + "si"),
-            ];
+            using Stream sharedStringsStream = shareStringPart.GetStream(
+                FileMode.Open,
+                FileAccess.Read
+            );
+            XElement sharedStringTable =
+                XDocument.Load(sharedStringsStream).Root
+                ?? throw PartStructureException.ExpectedElementNotFound("sst");
+            sharedStrings = [.. sharedStringTable.Elements(SpreadsheetXml.Main + "si")];
         }
 
         LoadWorkbookTheme(workbookPart?.ThemePart, this);
@@ -495,16 +495,24 @@ public partial class XLWorkbook
 
             if (worksheetPart.WorksheetCommentsPart != null)
             {
-                DocumentFormat.OpenXml.Spreadsheet.Comments root = worksheetPart
-                    .WorksheetCommentsPart
-                    .Comments;
-                List<Author> authors =
+                using Stream commentsStream = worksheetPart.WorksheetCommentsPart.GetStream(
+                    FileMode.Open,
+                    FileAccess.Read
+                );
+                XElement root =
+                    XDocument.Load(commentsStream).Root
+                    ?? throw PartStructureException.ExpectedElementNotFound("comments");
+                List<XElement> authors =
                 [
-                    .. root.GetFirstChild<Authors>().ChildElements.OfType<Author>(),
+                    .. root.Element(SpreadsheetXml.Main + "authors")
+                        ?.Elements(SpreadsheetXml.Main + "author")
+                        ?? [],
                 ];
-                List<Comment> comments =
+                List<XElement> comments =
                 [
-                    .. root.GetFirstChild<CommentList>().ChildElements.OfType<Comment>(),
+                    .. root.Element(SpreadsheetXml.Main + "commentList")
+                        ?.Elements(SpreadsheetXml.Main + "comment")
+                        ?? [],
                 ];
 
                 // **** MAYBE FUTURE SHAPE SIZE SUPPORT
@@ -512,7 +520,7 @@ public partial class XLWorkbook
 
                 for (int i = 0; i < comments.Count; i++)
                 {
-                    Comment c = comments[i];
+                    XElement c = comments[i];
 
                     XElement shape = null;
                     if (i < shapes.Count)
@@ -521,7 +529,7 @@ public partial class XLWorkbook
                     }
 
                     // find cell by reference
-                    XLCell cell = ws.Cell(c.Reference);
+                    XLCell cell = ws.Cell(SpreadsheetXml.String(c, "ref"));
 
                     string shapeIdString = shape?.Attribute("id")?.Value;
                     if (shapeIdString?.StartsWith("_x0000_s") ?? false)
@@ -532,15 +540,19 @@ public partial class XLWorkbook
                     int? shapeId = int.TryParse(shapeIdString, out int sid) ? (int?)sid : null;
                     XLComment xlComment = cell.CreateComment(shapeId);
 
-                    xlComment.Author = authors[(int)c.AuthorId.Value].InnerText;
+                    xlComment.Author = authors[(int)SpreadsheetXml.UInt(c, "authorId")].Value;
                     this.ShapeIdManager.Add(xlComment.ShapeId);
 
-                    IEnumerable<Run> runs = c.GetFirstChild<CommentText>().Elements<Run>();
-                    foreach (Run run in runs)
+                    IEnumerable<XElement> runs =
+                        c.Element(SpreadsheetXml.Main + "text")?.Elements(SpreadsheetXml.Main + "r")
+                        ?? [];
+                    foreach (XElement run in runs)
                     {
-                        string text = run.Text.InnerText.FixNewLines();
+                        string text = (
+                            run.Element(SpreadsheetXml.Main + "t")?.Value ?? ""
+                        ).FixNewLines();
                         IXLRichString rt = xlComment.AddText(text);
-                        StyleXml.LoadFont(SpreadsheetXml.FromSdk(run.RunProperties), rt);
+                        StyleXml.LoadFont(run.Element(SpreadsheetXml.Main + "rPr"), rt);
                     }
 
                     if (shape != null)
