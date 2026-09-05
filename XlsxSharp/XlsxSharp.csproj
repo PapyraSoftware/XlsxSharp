@@ -13,6 +13,7 @@
     <EmbeddedResource Include="Graphics\Fonts\CarlitoBare-BoldItalic.ttf" />
     <EmbeddedResource Include="Graphics\Fonts\CarlitoBare-Italic.ttf" />
     <EmbeddedResource Include="Graphics\Fonts\CarlitoBare-Regular.ttf" />
+    <EmbeddedResource Include="Excel\IO\OfficeTheme.xml" />
   </ItemGroup>
 
   <ItemGroup>
