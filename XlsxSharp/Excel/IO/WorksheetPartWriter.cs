@@ -56,6 +56,8 @@ internal class WorksheetPartWriter
         worksheetDom.GetFirstChild<SheetData>()?.RemoveAllChildren();
 
         XElement worksheet = ToXml(worksheetDom);
+        WriteSheetProperties(worksheet, xlWorksheet);
+        WriteSheetFormatProperties(worksheet, xlWorksheet);
         WriteConditionalFormats(worksheet, xlWorksheet, context);
         WriteDataValidations(worksheet, xlWorksheet, options);
         WriteSparklines(worksheet, xlWorksheet);
@@ -138,44 +140,6 @@ internal class WorksheetPartWriter
         #endregion Worksheet
 
         XLWorksheetContentManager cm = new(worksheet);
-
-        #region SheetProperties
-
-        if (worksheet.SheetProperties == null)
-        {
-            worksheet.SheetProperties = new SheetProperties();
-        }
-
-        worksheet.SheetProperties.TabColor = xlWorksheet.TabColor.HasValue
-            ? new TabColor().FromXlsxSharpColor<TabColor>(xlWorksheet.TabColor)
-            : null;
-
-        cm.SetElement(XLWorksheetContents.SheetProperties, worksheet.SheetProperties);
-
-        if (worksheet.SheetProperties.OutlineProperties == null)
-        {
-            worksheet.SheetProperties.OutlineProperties = new OutlineProperties();
-        }
-
-        worksheet.SheetProperties.OutlineProperties.SummaryBelow = (
-            xlWorksheet.Outline.SummaryVLocation == XLOutlineSummaryVLocation.Bottom
-        );
-        worksheet.SheetProperties.OutlineProperties.SummaryRight = (
-            xlWorksheet.Outline.SummaryHLocation == XLOutlineSummaryHLocation.Right
-        );
-
-        if (
-            worksheet.SheetProperties.PageSetupProperties == null
-            && (xlWorksheet.PageSetup.PagesTall > 0 || xlWorksheet.PageSetup.PagesWide > 0)
-        )
-        {
-            worksheet.SheetProperties.PageSetupProperties = new PageSetupProperties
-            {
-                FitToPage = true,
-            };
-        }
-
-        #endregion SheetProperties
 
         // Empty worksheets have dimension A1 (not A1:A1)
         string sheetDimensionReference = "A1";
@@ -474,67 +438,7 @@ internal class WorksheetPartWriter
 
         #endregion SheetViews
 
-        int maxOutlineColumn = 0;
-        if (xlWorksheet.ColumnCount() > 0)
-        {
-            maxOutlineColumn = xlWorksheet.GetMaxColumnOutline();
-        }
-
-        int maxOutlineRow = 0;
-        if (xlWorksheet.RowCount() > 0)
-        {
-            maxOutlineRow = xlWorksheet.GetMaxRowOutline();
-        }
-
-        #region SheetFormatProperties
-
-        if (worksheet.SheetFormatProperties == null)
-        {
-            worksheet.SheetFormatProperties = new SheetFormatProperties();
-        }
-
-        cm.SetElement(XLWorksheetContents.SheetFormatProperties, worksheet.SheetFormatProperties);
-
-        worksheet.SheetFormatProperties.DefaultRowHeight = xlWorksheet.RowHeight.SaveRound();
-
-        if (xlWorksheet.RowHeightChanged)
-        {
-            worksheet.SheetFormatProperties.CustomHeight = true;
-        }
-        else
-        {
-            worksheet.SheetFormatProperties.CustomHeight = null;
-        }
-
         double worksheetColumnWidth = GetColumnWidth(xlWorksheet.ColumnWidth).SaveRound();
-        if (xlWorksheet.ColumnWidthChanged)
-        {
-            worksheet.SheetFormatProperties.DefaultColumnWidth = worksheetColumnWidth;
-        }
-        else
-        {
-            worksheet.SheetFormatProperties.DefaultColumnWidth = null;
-        }
-
-        if (maxOutlineColumn > 0)
-        {
-            worksheet.SheetFormatProperties.OutlineLevelColumn = (byte)maxOutlineColumn;
-        }
-        else
-        {
-            worksheet.SheetFormatProperties.OutlineLevelColumn = null;
-        }
-
-        if (maxOutlineRow > 0)
-        {
-            worksheet.SheetFormatProperties.OutlineLevelRow = (byte)maxOutlineRow;
-        }
-        else
-        {
-            worksheet.SheetFormatProperties.OutlineLevelRow = null;
-        }
-
-        #endregion SheetFormatProperties
 
         #region Columns
 
@@ -1600,6 +1504,90 @@ internal class WorksheetPartWriter
     /// Stream detached worksheet DOM to the worksheet part stream.
     /// Replaces the content of the part.
     /// </summary>
+    /// <summary>
+    /// <c>sheetPr</c>, which carries the tab colour and how the sheet's outlines are laid out.
+    /// </summary>
+    private static void WriteSheetProperties(XElement worksheet, XLWorksheet xlWorksheet)
+    {
+        XElement sheetProperties = WorksheetXml.Child(worksheet, "sheetPr");
+
+        sheetProperties.Element(SpreadsheetXml.Main + "tabColor")?.Remove();
+        if (xlWorksheet.TabColor.HasValue)
+        {
+            SpreadsheetXml.SetColor(
+                WorksheetXml.Child(sheetProperties, "tabColor", WorksheetXml.SheetPropertyOrder),
+                xlWorksheet.TabColor
+            );
+        }
+
+        XElement outline = WorksheetXml.Child(
+            sheetProperties,
+            "outlinePr",
+            WorksheetXml.SheetPropertyOrder
+        );
+        WorksheetXml.SetBool(
+            outline,
+            "summaryBelow",
+            xlWorksheet.Outline.SummaryVLocation == XLOutlineSummaryVLocation.Bottom
+        );
+        WorksheetXml.SetBool(
+            outline,
+            "summaryRight",
+            xlWorksheet.Outline.SummaryHLocation == XLOutlineSummaryHLocation.Right
+        );
+
+        // A sheet set to fit to a number of pages says so here; the counts themselves are on
+        // pageSetup. A sheet that already says it is left alone.
+        if (
+            sheetProperties.Element(SpreadsheetXml.Main + "pageSetUpPr") is null
+            && (xlWorksheet.PageSetup.PagesTall > 0 || xlWorksheet.PageSetup.PagesWide > 0)
+        )
+        {
+            WorksheetXml.SetBool(
+                WorksheetXml.Child(sheetProperties, "pageSetUpPr", WorksheetXml.SheetPropertyOrder),
+                "fitToPage",
+                true
+            );
+        }
+    }
+
+    /// <summary>
+    /// <c>sheetFormatPr</c>, which carries the sheet's default row height and column width and
+    /// how deep its outlines go.
+    /// </summary>
+    private static void WriteSheetFormatProperties(XElement worksheet, XLWorksheet xlWorksheet)
+    {
+        XElement element = WorksheetXml.Child(worksheet, "sheetFormatPr");
+
+        WorksheetXml.Set(element, "defaultRowHeight", xlWorksheet.RowHeight.SaveRound());
+        WorksheetXml.SetBoolOptional(
+            element,
+            "customHeight",
+            xlWorksheet.RowHeightChanged ? true : null
+        );
+        WorksheetXml.SetOptional<double>(
+            element,
+            "defaultColWidth",
+            xlWorksheet.ColumnWidthChanged
+                ? GetColumnWidth(xlWorksheet.ColumnWidth).SaveRound()
+                : null
+        );
+
+        int maxOutlineColumn =
+            xlWorksheet.ColumnCount() > 0 ? xlWorksheet.GetMaxColumnOutline() : 0;
+        int maxOutlineRow = xlWorksheet.RowCount() > 0 ? xlWorksheet.GetMaxRowOutline() : 0;
+        WorksheetXml.SetOptional<byte>(
+            element,
+            "outlineLevelCol",
+            maxOutlineColumn > 0 ? (byte)maxOutlineColumn : null
+        );
+        WorksheetXml.SetOptional<byte>(
+            element,
+            "outlineLevelRow",
+            maxOutlineRow > 0 ? (byte)maxOutlineRow : null
+        );
+    }
+
     /// <summary>
     /// The sparkline groups, which live in an x14 extension of their own - the 2006 schema
     /// predates them.

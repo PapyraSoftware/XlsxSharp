@@ -60,39 +60,47 @@ internal static class WorksheetXml
     ];
 
     /// <summary>
-    /// The sheet's only child of that name, added in schema order if it has none yet.
+    /// The children of <c>sheetPr</c>, in the order CT_SheetPr requires.
     /// </summary>
-    internal static XElement Child(XElement worksheet, string name)
+    internal static readonly string[] SheetPropertyOrder = ["tabColor", "outlinePr", "pageSetUpPr"];
+
+    /// <summary>
+    /// The element's only child of that name, added in schema order if it has none yet.
+    /// </summary>
+    internal static XElement Child(XElement parent, string name, string[]? order = null)
     {
-        if (worksheet.Element(SpreadsheetXml.Main + name) is { } existing)
+        if (parent.Element(SpreadsheetXml.Main + name) is { } existing)
         {
             return existing;
         }
 
         XElement child = new(SpreadsheetXml.Main + name);
-        InsertInOrder(worksheet, name, child);
+        Insert(parent, name, child, order);
         return child;
     }
 
     /// <summary>
     /// Adds a child in schema order without looking for one that is already there, for the
-    /// elements a sheet may carry more than one of.
+    /// elements a parent may carry more than one of.
     /// </summary>
-    internal static void Insert(XElement worksheet, string name, XElement child) =>
-        InsertInOrder(worksheet, name, child);
-
-    private static void InsertInOrder(XElement worksheet, string name, XElement child)
+    internal static void Insert(
+        XElement parent,
+        string name,
+        XElement child,
+        string[]? order = null
+    )
     {
-        int rank = Array.IndexOf(ChildOrder, name);
+        order ??= ChildOrder;
+        int rank = Array.IndexOf(order, name);
         if (rank < 0)
         {
-            throw new ArgumentOutOfRangeException(nameof(name), name, "Not a sheet element.");
+            throw new ArgumentOutOfRangeException(nameof(name), name, "Not a known element.");
         }
 
         XElement? previous = null;
-        foreach (XElement candidate in worksheet.Elements())
+        foreach (XElement candidate in parent.Elements())
         {
-            int candidateRank = Array.IndexOf(ChildOrder, candidate.Name.LocalName);
+            int candidateRank = Array.IndexOf(order, candidate.Name.LocalName);
             if (
                 candidate.Name.Namespace == SpreadsheetXml.Main
                 && candidateRank >= 0
@@ -105,7 +113,7 @@ internal static class WorksheetXml
 
         if (previous is null)
         {
-            worksheet.AddFirst(child);
+            parent.AddFirst(child);
         }
         else
         {
@@ -133,6 +141,19 @@ internal static class WorksheetXml
             value == defaultValue ? null
                 : value ? "1"
                 : "0"
+        );
+
+    /// <summary>
+    /// An OOXML boolean that is left off the element when it has no value.
+    /// </summary>
+    internal static void SetBoolOptional(XElement element, string name, bool? value) =>
+        element.SetAttributeValue(
+            name,
+            value is { } present
+                ? present
+                    ? "1"
+                    : "0"
+                : null
         );
 
     /// <summary>
