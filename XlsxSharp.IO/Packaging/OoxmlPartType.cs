@@ -50,6 +50,14 @@ public static class OoxmlPartTypes
             "/xl/workbook.xml"
         );
 
+    /// <summary>The workbook part of an <c>.xltm</c> macro enabled template.</summary>
+    public static OoxmlPartType MacroEnabledWorkbookTemplate { get; } =
+        new(
+            OfficeRel + "officeDocument",
+            "application/vnd.ms-excel.template.macroEnabled.main+xml",
+            "/xl/workbook.xml"
+        );
+
     public static OoxmlPartType Worksheet { get; } =
         new(
             OfficeRel + "worksheet",

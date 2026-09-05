@@ -69,9 +69,25 @@ public partial class XLWorkbook
         }
     }
 
+    /// <summary>
+    /// The one place the workbook's own document type meets the SDK's, so that nothing else in
+    /// the model has to know the SDK has an enum for this.
+    /// </summary>
+    private static SpreadsheetDocumentType ToOpenXml(XLSpreadsheetDocumentType documentType) =>
+        documentType switch
+        {
+            XLSpreadsheetDocumentType.Workbook => SpreadsheetDocumentType.Workbook,
+            XLSpreadsheetDocumentType.Template => SpreadsheetDocumentType.Template,
+            XLSpreadsheetDocumentType.MacroEnabledWorkbook =>
+                SpreadsheetDocumentType.MacroEnabledWorkbook,
+            XLSpreadsheetDocumentType.MacroEnabledTemplate =>
+                SpreadsheetDocumentType.MacroEnabledTemplate,
+            _ => throw new ArgumentOutOfRangeException(nameof(documentType)),
+        };
+
     private void CreatePackage(
         string filePath,
-        SpreadsheetDocumentType spreadsheetDocumentType,
+        XLSpreadsheetDocumentType spreadsheetDocumentType,
         SaveOptions options
     )
     {
@@ -81,15 +97,16 @@ public partial class XLWorkbook
             Directory.CreateDirectory(directoryName);
         }
 
+        SpreadsheetDocumentType documentType = ToOpenXml(spreadsheetDocumentType);
         SpreadsheetDocument package = File.Exists(filePath)
             ? SpreadsheetDocument.Open(filePath, true)
-            : SpreadsheetDocument.Create(filePath, spreadsheetDocumentType);
+            : SpreadsheetDocument.Create(filePath, documentType);
 
         using (package)
         {
-            if (package.DocumentType != spreadsheetDocumentType)
+            if (package.DocumentType != documentType)
             {
-                package.ChangeDocumentType(spreadsheetDocumentType);
+                package.ChangeDocumentType(documentType);
             }
 
             this.CreateParts(package, options);
@@ -103,12 +120,12 @@ public partial class XLWorkbook
     private void CreatePackage(
         Stream stream,
         bool newStream,
-        SpreadsheetDocumentType spreadsheetDocumentType,
+        XLSpreadsheetDocumentType spreadsheetDocumentType,
         SaveOptions options
     )
     {
         SpreadsheetDocument package = newStream
-            ? SpreadsheetDocument.Create(stream, spreadsheetDocumentType)
+            ? SpreadsheetDocument.Create(stream, ToOpenXml(spreadsheetDocumentType))
             : SpreadsheetDocument.Open(stream, true);
 
         using (package)

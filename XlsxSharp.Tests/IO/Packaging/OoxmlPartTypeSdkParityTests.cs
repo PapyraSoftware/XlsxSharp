@@ -36,6 +36,14 @@ public class OoxmlPartTypeSdkParityTests
         );
 
     [Test]
+    public void MacroEnabledWorkbookTemplateMatchesTheSdk() =>
+        AssertParity(
+            OoxmlPartTypes.MacroEnabledWorkbookTemplate,
+            SpreadsheetDocumentType.MacroEnabledTemplate,
+            d => d.WorkbookPart!
+        );
+
+    [Test]
     public void WorksheetMatchesTheSdk() =>
         AssertParity(OoxmlPartTypes.Worksheet, AddToWorkbook<WorksheetPart>());
 
