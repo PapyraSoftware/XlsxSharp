@@ -38,6 +38,38 @@ public class CommentVmlOutputTests
         ClassicAssert.AreEqual(ExpectedVml, vml);
     }
 
+    [Test]
+    public void ExoticCommentStylingIsWrittenAsRecorded()
+    {
+        string vml = SaveAndReadVml(worksheet =>
+        {
+            IXLComment comment = worksheet.Cell("C3").CreateComment();
+            comment.AddText("Exotic");
+
+            // The branches the plain and styled comments above do not reach: the two opacities,
+            // every textbox style fragment, explicit margins and the alternate text.
+            comment.Style.ColorsAndLines.FillTransparency = 0.375;
+            comment.Style.ColorsAndLines.LineTransparency = 0.125;
+            comment.Style.Alignment.Direction = XLDrawingTextDirection.RightToLeft;
+            comment.Style.Alignment.Orientation = XLDrawingTextOrientation.BottomToTop;
+            comment.Style.Alignment.AutomaticSize = true;
+            comment.Style.Margins.Automatic = false;
+            comment.Style.Margins.Left = 0.1;
+            comment.Style.Margins.Top = 0.2;
+            comment.Style.Margins.Right = 0.3;
+            comment.Style.Margins.Bottom = 0.4;
+            comment.Style.Web.AlternateText = "Alternative";
+            comment.Style.Properties.Positioning = XLDrawingAnchor.Absolute;
+        });
+
+        ClassicAssert.AreEqual(ExpectedExoticVml, vml);
+    }
+
+    /// <summary>Recorded from the writer, like <see cref="ExpectedVml"/>.</summary>
+    private const string ExpectedExoticVml = """
+        <xml><v:shapetype id="_x0000_t202" coordsize="21600,21600" o:spt="202" path="m,l,21600r21600,l21600,xe" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:v="urn:schemas-microsoft-com:vml"><v:stroke joinstyle="miter" /><v:path gradientshapeok="true" o:connecttype="rect" /></v:shapetype><v:shape id="_x0000_s1" style="position:absolute; visibility:hidden;width:144pt;height:59.25pt;z-index:1" alt="Alternative" o:insetmode="custom" fillcolor="#FFFFE1" strokecolor="#000000" strokeweight="0.75pt" type="#_x0000_t202" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:v="urn:schemas-microsoft-com:vml"><v:fill opacity="0.38" color2="#FFFFE1" /><v:stroke opacity="0.12" linestyle="single" dashstyle="solid" /><v:shadow obscured="true" color="black" /><v:path o:connecttype="none" /><v:textbox style="direction:RTL;layout-flow:vertical;mso-layout-flow-alt:bottom-to-top;mso-fit-shape-to-text:t;" inset="0.1in,0.2in,0.3in,0.4in" /><xvml:ClientData ObjectType="Note" xmlns:xvml="urn:schemas-microsoft-com:office:excel"><xvml:MoveWithCells>True</xvml:MoveWithCells><xvml:SizeWithCells>True</xvml:SizeWithCells><xvml:Anchor>3, 15, 1, 8, 5, 33, 5, 7</xvml:Anchor><xvml:TextHAlign>left</xvml:TextHAlign><xvml:TextVAlign>top</xvml:TextVAlign><xvml:AutoFill>False</xvml:AutoFill><xvml:Row>2</xvml:Row><xvml:Column>2</xvml:Column><xvml:Locked>True</xvml:Locked><xvml:LockText>True</xvml:LockText><xvml:Visible>False</xvml:Visible></xvml:ClientData></v:shape></xml>
+        """;
+
     /// <summary>
     /// Recorded from the writer. Regenerate deliberately, never to make a red test green: a
     /// change here is a change to what Excel gets handed.
