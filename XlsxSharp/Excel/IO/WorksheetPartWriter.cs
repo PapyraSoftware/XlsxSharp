@@ -58,6 +58,19 @@ internal class WorksheetPartWriter
 
         XElement worksheet = ToXml(worksheetDom);
         WritePageSetup(worksheet, xlWorksheet.PageSetup);
+        WriteHeaderFooter(worksheet, xlWorksheet.PageSetup);
+        WriteBreaks(
+            worksheet,
+            "rowBreaks",
+            xlWorksheet.PageSetup.RowBreaks,
+            (uint)xlWorksheet.RangeAddress.LastAddress.RowNumber
+        );
+        WriteBreaks(
+            worksheet,
+            "colBreaks",
+            xlWorksheet.PageSetup.ColumnBreaks,
+            (uint)xlWorksheet.RangeAddress.LastAddress.ColumnNumber
+        );
 
         StreamToPart(worksheet, worksheetPart, xlWorksheet, context, options);
     }
@@ -1498,181 +1511,6 @@ internal class WorksheetPartWriter
 
         #endregion Hyperlinks
 
-        #region HeaderFooter
-
-        HeaderFooter headerFooter = worksheet.Elements<HeaderFooter>().FirstOrDefault();
-        if (headerFooter == null)
-        {
-            headerFooter = new HeaderFooter();
-        }
-        else
-        {
-            worksheet.RemoveAllChildren<HeaderFooter>();
-        }
-
-        {
-            OpenXmlElement previousElement = cm.GetPreviousElementFor(
-                XLWorksheetContents.HeaderFooter
-            );
-            worksheet.InsertAfter(headerFooter, previousElement);
-            cm.SetElement(XLWorksheetContents.HeaderFooter, headerFooter);
-        }
-        if (
-            ((XLHeaderFooter)xlWorksheet.PageSetup.Header).Changed
-            || ((XLHeaderFooter)xlWorksheet.PageSetup.Footer).Changed
-        )
-        {
-            headerFooter.RemoveAllChildren();
-
-            headerFooter.ScaleWithDoc = xlWorksheet.PageSetup.ScaleHFWithDocument;
-            headerFooter.AlignWithMargins = xlWorksheet.PageSetup.AlignHFWithMargins;
-            headerFooter.DifferentFirst = xlWorksheet.PageSetup.DifferentFirstPageOnHF;
-            headerFooter.DifferentOddEven = xlWorksheet.PageSetup.DifferentOddEvenPagesOnHF;
-
-            OddHeader oddHeader = new(
-                xlWorksheet.PageSetup.Header.GetText(XLHFOccurrence.OddPages)
-            );
-            headerFooter.AppendChild(oddHeader);
-            OddFooter oddFooter = new(
-                xlWorksheet.PageSetup.Footer.GetText(XLHFOccurrence.OddPages)
-            );
-            headerFooter.AppendChild(oddFooter);
-
-            EvenHeader evenHeader = new(
-                xlWorksheet.PageSetup.Header.GetText(XLHFOccurrence.EvenPages)
-            );
-            headerFooter.AppendChild(evenHeader);
-            EvenFooter evenFooter = new(
-                xlWorksheet.PageSetup.Footer.GetText(XLHFOccurrence.EvenPages)
-            );
-            headerFooter.AppendChild(evenFooter);
-
-            FirstHeader firstHeader = new(
-                xlWorksheet.PageSetup.Header.GetText(XLHFOccurrence.FirstPage)
-            );
-            headerFooter.AppendChild(firstHeader);
-            FirstFooter firstFooter = new(
-                xlWorksheet.PageSetup.Footer.GetText(XLHFOccurrence.FirstPage)
-            );
-            headerFooter.AppendChild(firstFooter);
-        }
-
-        #endregion HeaderFooter
-
-        #region RowBreaks
-
-        int rowBreakCount = xlWorksheet.PageSetup.RowBreaks.Count;
-        if (rowBreakCount > 0)
-        {
-            if (!worksheet.Elements<RowBreaks>().Any())
-            {
-                OpenXmlElement previousElement = cm.GetPreviousElementFor(
-                    XLWorksheetContents.RowBreaks
-                );
-                worksheet.InsertAfter(new RowBreaks(), previousElement);
-            }
-
-            RowBreaks rowBreaks = worksheet.Elements<RowBreaks>().First();
-
-            Break[] existingBreaks = [.. rowBreaks.ChildElements.OfType<Break>()];
-            List<Break> rowBreaksToDelete =
-            [
-                .. existingBreaks.Where(rb =>
-                    !rb.Id.HasValue || !xlWorksheet.PageSetup.RowBreaks.Contains((int)rb.Id.Value)
-                ),
-            ];
-
-            foreach (Break rb in rowBreaksToDelete)
-            {
-                rowBreaks.RemoveChild(rb);
-            }
-
-            IEnumerable<int> rowBreaksToAdd = xlWorksheet.PageSetup.RowBreaks.Where(xlRb =>
-                !existingBreaks.Any(rb => rb.Id.HasValue && rb.Id.Value == xlRb)
-            );
-
-            rowBreaks.Count = (uint)rowBreakCount;
-            rowBreaks.ManualBreakCount = (uint)rowBreakCount;
-            uint lastRowNum = (uint)xlWorksheet.RangeAddress.LastAddress.RowNumber;
-            foreach (
-                Break break1 in rowBreaksToAdd.Select(rb => new Break
-                {
-                    Id = (uint)rb,
-                    Max = lastRowNum,
-                    ManualPageBreak = true,
-                })
-            )
-            {
-                rowBreaks.AppendChild(break1);
-            }
-
-            cm.SetElement(XLWorksheetContents.RowBreaks, rowBreaks);
-        }
-        else
-        {
-            worksheet.RemoveAllChildren<RowBreaks>();
-            cm.SetElement(XLWorksheetContents.RowBreaks, null);
-        }
-
-        #endregion RowBreaks
-
-        #region ColumnBreaks
-
-        int columnBreakCount = xlWorksheet.PageSetup.ColumnBreaks.Count;
-        if (columnBreakCount > 0)
-        {
-            if (!worksheet.Elements<ColumnBreaks>().Any())
-            {
-                OpenXmlElement previousElement = cm.GetPreviousElementFor(
-                    XLWorksheetContents.ColumnBreaks
-                );
-                worksheet.InsertAfter(new ColumnBreaks(), previousElement);
-            }
-
-            ColumnBreaks columnBreaks = worksheet.Elements<ColumnBreaks>().First();
-
-            Break[] existingBreaks = [.. columnBreaks.ChildElements.OfType<Break>()];
-            List<Break> columnBreaksToDelete =
-            [
-                .. existingBreaks.Where(cb =>
-                    !cb.Id.HasValue
-                    || !xlWorksheet.PageSetup.ColumnBreaks.Contains((int)cb.Id.Value)
-                ),
-            ];
-
-            foreach (Break rb in columnBreaksToDelete)
-            {
-                columnBreaks.RemoveChild(rb);
-            }
-
-            IEnumerable<int> columnBreaksToAdd = xlWorksheet.PageSetup.ColumnBreaks.Where(xlCb =>
-                !existingBreaks.Any(cb => cb.Id.HasValue && cb.Id.Value == xlCb)
-            );
-
-            columnBreaks.Count = (uint)columnBreakCount;
-            columnBreaks.ManualBreakCount = (uint)columnBreakCount;
-            uint maxColumnNumber = (uint)xlWorksheet.RangeAddress.LastAddress.ColumnNumber;
-            foreach (
-                Break break1 in columnBreaksToAdd.Select(cb => new Break
-                {
-                    Id = (uint)cb,
-                    Max = maxColumnNumber,
-                    ManualPageBreak = true,
-                })
-            )
-            {
-                columnBreaks.AppendChild(break1);
-            }
-
-            cm.SetElement(XLWorksheetContents.ColumnBreaks, columnBreaks);
-        }
-        else
-        {
-            worksheet.RemoveAllChildren<ColumnBreaks>();
-            cm.SetElement(XLWorksheetContents.ColumnBreaks, null);
-        }
-
-        #endregion ColumnBreaks
 
         #region Tables
 
@@ -2612,6 +2450,88 @@ internal class WorksheetPartWriter
         if (SpreadsheetXml.UInt(element, "copies") is null or 0)
         {
             element.SetAttributeValue("copies", null);
+        }
+    }
+
+    /// <summary>
+    /// <c>headerFooter</c>, which is always written even when it says nothing - an empty element
+    /// is what a sheet with untouched headers gets. Only a header or footer the workbook model
+    /// has changed replaces what the loaded sheet carried.
+    /// </summary>
+    private static void WriteHeaderFooter(XElement worksheet, IXLPageSetup pageSetup)
+    {
+        XElement headerFooter = WorksheetXml.Child(worksheet, "headerFooter");
+        if (
+            !((XLHeaderFooter)pageSetup.Header).Changed
+            && !((XLHeaderFooter)pageSetup.Footer).Changed
+        )
+        {
+            return;
+        }
+
+        headerFooter.RemoveNodes();
+
+        WorksheetXml.SetBool(headerFooter, "scaleWithDoc", pageSetup.ScaleHFWithDocument);
+        WorksheetXml.SetBool(headerFooter, "alignWithMargins", pageSetup.AlignHFWithMargins);
+        WorksheetXml.SetBool(headerFooter, "differentFirst", pageSetup.DifferentFirstPageOnHF);
+        WorksheetXml.SetBool(headerFooter, "differentOddEven", pageSetup.DifferentOddEvenPagesOnHF);
+
+        Text("oddHeader", pageSetup.Header, XLHFOccurrence.OddPages);
+        Text("oddFooter", pageSetup.Footer, XLHFOccurrence.OddPages);
+        Text("evenHeader", pageSetup.Header, XLHFOccurrence.EvenPages);
+        Text("evenFooter", pageSetup.Footer, XLHFOccurrence.EvenPages);
+        Text("firstHeader", pageSetup.Header, XLHFOccurrence.FirstPage);
+        Text("firstFooter", pageSetup.Footer, XLHFOccurrence.FirstPage);
+
+        void Text(string name, IXLHeaderFooter source, XLHFOccurrence occurrence) =>
+            headerFooter.Add(new XElement(SpreadsheetXml.Main + name, source.GetText(occurrence)));
+    }
+
+    /// <summary>
+    /// A list of manual page breaks. The breaks the sheet already carries are left where they
+    /// are, so a file that names a break's width or its first row keeps saying so; only the ones
+    /// the workbook model no longer has go, and the ones it has gained are added at the end.
+    /// </summary>
+    private static void WriteBreaks(
+        XElement worksheet,
+        string name,
+        List<int> breaks,
+        uint lastLine
+    )
+    {
+        if (breaks.Count == 0)
+        {
+            worksheet.Element(SpreadsheetXml.Main + name)?.Remove();
+            return;
+        }
+
+        XElement element = WorksheetXml.Child(worksheet, name);
+        List<uint> kept = [];
+        foreach (XElement brk in element.Elements(SpreadsheetXml.Main + "brk").ToList())
+        {
+            if (SpreadsheetXml.UInt(brk, "id") is { } id && breaks.Contains(checked((int)id)))
+            {
+                kept.Add(id);
+            }
+            else
+            {
+                brk.Remove();
+            }
+        }
+
+        WorksheetXml.Set(element, "count", (uint)breaks.Count);
+        WorksheetXml.Set(element, "manualBreakCount", (uint)breaks.Count);
+
+        foreach (int id in breaks.Where(id => !kept.Contains((uint)id)))
+        {
+            element.Add(
+                new XElement(
+                    SpreadsheetXml.Main + "brk",
+                    new XAttribute("id", id),
+                    new XAttribute("max", lastLine),
+                    new XAttribute("man", "1")
+                )
+            );
         }
     }
 
