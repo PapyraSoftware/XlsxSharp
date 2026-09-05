@@ -110,6 +110,16 @@ internal static class PivotXmlEnums
             _ => throw PartStructureException.InvalidAttributeValue(value),
         };
 
+    internal static XLPivotAxis ParseAxis(string value) =>
+        value switch
+        {
+            "axisRow" => XLPivotAxis.AxisRow,
+            "axisCol" => XLPivotAxis.AxisCol,
+            "axisPage" => XLPivotAxis.AxisPage,
+            "axisValues" => XLPivotAxis.AxisValues,
+            _ => throw PartStructureException.InvalidAttributeValue(value),
+        };
+
     internal static XLPivotCfRuleType ParseCfRuleType(string value) =>
         value switch
         {

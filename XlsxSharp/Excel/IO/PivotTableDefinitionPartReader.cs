@@ -1,7 +1,6 @@
-#nullable disable
-using DocumentFormat.OpenXml;
+using System.Globalization;
+using System.Xml.Linq;
 using DocumentFormat.OpenXml.Packaging;
-using DocumentFormat.OpenXml.Spreadsheet;
 using XlsxSharp.Excel.ConditionalFormats;
 using XlsxSharp.Excel.Formatting;
 using XlsxSharp.Excel.PivotValues;
@@ -9,8 +8,23 @@ using XlsxSharp.IO;
 
 namespace XlsxSharp.Excel.IO;
 
+/// <summary>
+/// Reads a <c>pivotTableDefinition</c> part.
+/// </summary>
+/// <remarks>
+/// The attribute names are not always what the workbook model calls them, and a name that does
+/// not match reads as absent and silently takes the default. They were taken from the SDK rather
+/// than from the schema; <see cref="PivotXmlEnums"/> does the same for the enumerations.
+/// </remarks>
 internal class PivotTableDefinitionPartReader
 {
+    private static readonly XNamespace Main =
+        "http://schemas.openxmlformats.org/spreadsheetml/2006/main";
+
+    /// <summary>The 2009 extension namespace, which carries the few x14 attributes read here.</summary>
+    private static readonly XNamespace X14 =
+        "http://schemas.microsoft.com/office/spreadsheetml/2009/9/main";
+
     /// <summary>
     /// A field displayed as <c>∑Values</c> in a pivot table that contains names of all aggregation
     /// function in value fields collection. Also commonly called 'data' field.
@@ -26,34 +40,45 @@ internal class PivotTableDefinitionPartReader
     )
     {
         XLWorkbook workbook = ws.Workbook;
-        PivotTableCacheDefinitionPart cache = pivotTablePart.PivotTableCacheDefinitionPart;
+        // Without a cache there is nothing to read the pivot table against. The previous reader
+        // would have thrown a NullReferenceException a line later.
+        PivotTableCacheDefinitionPart cache =
+            pivotTablePart.PivotTableCacheDefinitionPart
+            ?? throw PartStructureException.ExpectedElementNotFound(
+                "the pivot table has no cache definition part"
+            );
         string cacheDefinitionRelId = workbookPart.GetIdOfPart(cache);
 
-        XLPivotCache pivotSource = workbook.PivotCachesInternal.FirstOrDefault<XLPivotCache>(ps =>
+        XLPivotCache? pivotSource = workbook.PivotCachesInternal.FirstOrDefault<XLPivotCache>(ps =>
             ps.WorkbookCacheRelId == cacheDefinitionRelId
         );
 
-        if (pivotSource == null)
+        if (pivotSource is null)
         {
-            // If it's missing, find a 'similar' pivot cache, i.e. one that's based on the same source range/table
-            // Reading the part again is cheap next to the alternative, which is keeping the
-            // cache definition's DOM alive just for this fallback.
+            // If it's missing, find a 'similar' pivot cache, i.e. one that's based on the same
+            // source range/table. Reading the part again is cheap next to the alternative, which
+            // is keeping the cache definition's DOM alive just for this fallback.
             IXLPivotSource cacheSource = PivotTableCacheDefinitionPartReader.ReadSource(cache);
             pivotSource = workbook.PivotCachesInternal.FirstOrDefault<XLPivotCache>(ps =>
                 ps.Source.Equals(cacheSource)
             );
         }
 
-        PivotTableDefinition pivotTableDefinition = pivotTablePart.PivotTableDefinition;
+        XElement? pivotTableDefinition = ReadRoot(pivotTablePart);
 
-        XLCell target = ws.FirstCell();
-        if (pivotTableDefinition?.Location?.Reference?.HasValue ?? false)
+        XLCell? target = ws.FirstCell();
+        string? locationReference = pivotTableDefinition
+            ?.Element(Main + "location")
+            ?.Attribute("ref")
+            ?.Value;
+
+        if (locationReference is not null && ws.Range(locationReference) is { } locationRange)
         {
-            ws.Range(pivotTableDefinition.Location.Reference.Value).Clear();
-            target = ws.Range(pivotTableDefinition.Location.Reference.Value).FirstCell();
+            locationRange.Clear();
+            target = (XLCell)locationRange.FirstCell();
         }
 
-        if (target != null && pivotSource != null)
+        if (target is not null && pivotSource is not null && pivotTableDefinition is not null)
         {
             XLPivotTable pt = LoadPivotTableDefinition(
                 pivotTableDefinition,
@@ -61,6 +86,7 @@ internal class PivotTableDefinitionPartReader
                 pivotSource,
                 context
             );
+
             ws.PivotTables.Add(pt);
 
             pt.RelId = worksheetPart.GetIdOfPart(pivotTablePart);
@@ -68,9 +94,14 @@ internal class PivotTableDefinitionPartReader
         }
     }
 
-#nullable enable
+    private static XElement? ReadRoot(PivotTablePart part)
+    {
+        using Stream stream = part.GetStream(FileMode.OpenOrCreate, FileAccess.Read);
+        return stream.Length > 0 ? XDocument.Load(stream).Root : null;
+    }
+
     private static XLPivotTable LoadPivotTableDefinition(
-        PivotTableDefinition pivotTable,
+        XElement pivotTable,
         XLWorksheet sheet,
         XLPivotCache cache,
         LoadContext context
@@ -82,155 +113,127 @@ internal class PivotTableDefinitionPartReader
         XLPivotTable xlPivotTable = LoadPivotTableAttributes(pivotTable, sheet, cache);
 
         // Load location
-        Location? location = pivotTable.Location;
-        if (location is null)
-        {
-            throw PartStructureException.ExpectedElementNotFound();
-        }
+        XElement location =
+            pivotTable.Element(Main + "location")
+            ?? throw PartStructureException.ExpectedElementNotFound();
 
-        string referenceText =
-            location.Reference?.Value ?? throw PartStructureException.MissingAttribute();
-        xlPivotTable.Area = Area.Parse(referenceText);
-        xlPivotTable.FirstHeaderRow =
-            location.FirstHeaderRow?.Value ?? throw PartStructureException.MissingAttribute();
-        xlPivotTable.FirstDataRow =
-            location.FirstDataRow?.Value ?? throw PartStructureException.MissingAttribute();
-        xlPivotTable.FirstDataCol =
-            location.FirstDataColumn?.Value ?? throw PartStructureException.MissingAttribute();
+        xlPivotTable.Area = Area.Parse(RequiredString(location, "ref"));
+        xlPivotTable.FirstHeaderRow = RequiredUInt(location, "firstHeaderRow");
+        xlPivotTable.FirstDataRow = RequiredUInt(location, "firstDataRow");
+        xlPivotTable.FirstDataCol = RequiredUInt(location, "firstDataCol");
 
         // Skip `rowPageCount` and `colPageCount`, because they are derived from filterAreaOrder, filterFieldsPageWrap and pageField count
 
         // Load pivot fields
-        PivotFields? pivotFields = pivotTable.PivotFields;
-        if (pivotFields is not null)
+        foreach (XElement pivotField in Children(pivotTable, "pivotFields", "pivotField"))
         {
-            foreach (PivotField pivotField in pivotFields.Cast<PivotField>())
-            {
-                xlPivotTable.AddField(LoadPivotField(pivotField, xlPivotTable, styles));
-            }
+            xlPivotTable.AddField(LoadPivotField(pivotField, xlPivotTable, styles));
         }
 
         // Load row axis fields and items
-        LoadAxisFields(pivotTable.RowFields, xlPivotTable.RowAxis, xlPivotTable);
-        LoadAxisItems(pivotTable.RowItems, xlPivotTable.RowAxis);
+        LoadAxisFields(pivotTable.Element(Main + "rowFields"), xlPivotTable.RowAxis, xlPivotTable);
+        LoadAxisItems(pivotTable.Element(Main + "rowItems"), xlPivotTable.RowAxis);
 
         // Load column axis fields and items
-        LoadAxisFields(pivotTable.ColumnFields, xlPivotTable.ColumnAxis, xlPivotTable);
-        LoadAxisItems(pivotTable.ColumnItems, xlPivotTable.ColumnAxis);
+        LoadAxisFields(
+            pivotTable.Element(Main + "colFields"),
+            xlPivotTable.ColumnAxis,
+            xlPivotTable
+        );
+        LoadAxisItems(pivotTable.Element(Main + "colItems"), xlPivotTable.ColumnAxis);
 
         // Load page fields, i.e. the filters region.
-        PageFields? pageFields = pivotTable.PageFields;
-        if (pageFields is not null)
+        foreach (XElement pageField in Children(pivotTable, "pageFields", "pageField"))
         {
-            foreach (PageField pageField in pageFields.Cast<PageField>())
+            XLPivotPageField xlPageField = new(RequiredInt(pageField, "fld"))
             {
-                int field =
-                    pageField.Field?.Value ?? throw PartStructureException.MissingAttribute();
-                int? itemIndex = checked((int?)pageField.Item?.Value);
-                int? hierarchyIndex = pageField.Hierarchy?.Value;
-                StringValue? hierarchyUniqueName = pageField.Name;
-                StringValue? hierarchyDisplayName = pageField.Caption;
-                XLPivotPageField xlPageField = new(field)
-                {
-                    ItemIndex = itemIndex,
-                    HierarchyIndex = hierarchyIndex,
-                    HierarchyUniqueName = hierarchyUniqueName,
-                    HierarchyDisplayName = hierarchyDisplayName,
-                };
-                xlPivotTable.Filters.AddField(xlPageField);
-            }
+                ItemIndex = checked((int?)OptionalUInt(pageField, "item")),
+                HierarchyIndex = OptionalInt(pageField, "hier"),
+                HierarchyUniqueName = pageField.Attribute("name")?.Value,
+                HierarchyDisplayName = pageField.Attribute("cap")?.Value,
+            };
+
+            xlPivotTable.Filters.AddField(xlPageField);
         }
 
         // Load data fields.
-        DataFields? dataFields = pivotTable.DataFields;
-        if (dataFields is not null)
+        foreach (XElement dataField in Children(pivotTable, "dataFields", "dataField"))
         {
-            foreach (DataField dataField in dataFields.Cast<DataField>())
+            int? numberFormatId = checked((int?)OptionalUInt(dataField, "numFmtId"));
+            XLPivotDataField xlDataField = new(
+                xlPivotTable,
+                checked((int)RequiredUInt(dataField, "fld"))
+            )
             {
-                string? name = dataField.Name?.Value;
-                uint field =
-                    dataField.Field?.Value ?? throw PartStructureException.MissingAttribute();
-                XLPivotSummary subtotal =
-                    dataField.Subtotal?.Value.ToXlsxSharp() ?? XLPivotSummary.Sum;
-                XLPivotCalculation showDataAsFormat =
-                    dataField.ShowDataAs?.Value.ToXlsxSharp() ?? XLPivotCalculation.Normal;
-                int baseField = dataField.BaseField?.Value ?? -1;
-                uint baseItem = dataField.BaseItem?.Value ?? 1048832;
-                int? numberFormatId = checked((int?)dataField.NumberFormatId?.Value);
-                XLNumberFormat? numberFormat = numberFormatId is not null
+                DataFieldName = dataField.Attribute("name")?.Value,
+                Subtotal =
+                    Enum(dataField, "subtotal", PivotXmlEnums.ParseSubtotal) ?? XLPivotSummary.Sum,
+                ShowDataAsFormat =
+                    Enum(dataField, "showDataAs", PivotXmlEnums.ParseShowDataAs)
+                    ?? XLPivotCalculation.Normal,
+                BaseField = OptionalInt(dataField, "baseField") ?? -1,
+                BaseItem = OptionalUInt(dataField, "baseItem") ?? 1048832,
+                NumberFormatValue = numberFormatId is not null
                     ? styles.NumberFormats[numberFormatId.Value]
-                    : (XLNumberFormat?)null;
-                XLPivotDataField xlDataField = new(xlPivotTable, checked((int)field))
-                {
-                    DataFieldName = name,
-                    Subtotal = subtotal,
-                    ShowDataAsFormat = showDataAsFormat,
-                    BaseField = baseField,
-                    BaseItem = baseItem,
-                    NumberFormatValue = numberFormat,
-                };
-                xlPivotTable.DataFields.AddField(xlDataField);
-            }
+                    : null,
+            };
+
+            xlPivotTable.DataFields.AddField(xlDataField);
         }
 
         // Load formats
-        Formats? formats = pivotTable.Formats;
-        if (formats is not null)
+        foreach (XElement format in Children(pivotTable, "formats", "format"))
         {
-            foreach (Format format in formats.Cast<Format>())
-            {
-                XLPivotFormatAction action =
-                    format.Action?.Value.ToXlsxSharp() ?? XLPivotFormatAction.Formatting;
-                XLDxfValue? dxf = format.FormatId is { } dxfId
-                    ? sheet.Workbook.Styles.DifferentialFormats[checked((int)dxfId.Value)]
-                    : null;
-                PivotArea pivotArea =
-                    format.PivotArea ?? throw PartStructureException.ExpectedElementNotFound();
-                XLPivotArea xlPivotArea = LoadPivotArea(pivotArea);
-                XLPivotFormat xlFormat = new(xlPivotArea) { Action = action, FormatValue = dxf };
-                xlPivotTable.AddFormat(xlFormat);
-            }
+            XLDxfValue? dxf = OptionalUInt(format, "dxfId") is { } dxfId
+                ? sheet.Workbook.Styles.DifferentialFormats[checked((int)dxfId)]
+                : null;
+
+            XElement pivotArea =
+                format.Element(Main + "pivotArea")
+                ?? throw PartStructureException.ExpectedElementNotFound();
+
+            xlPivotTable.AddFormat(
+                new XLPivotFormat(LoadPivotArea(pivotArea))
+                {
+                    Action =
+                        Enum(format, "action", PivotXmlEnums.ParseFormatAction)
+                        ?? XLPivotFormatAction.Formatting,
+                    FormatValue = dxf,
+                }
+            );
         }
 
-        DocumentFormat.OpenXml.Spreadsheet.ConditionalFormats? conditionalFormats =
-            pivotTable.ConditionalFormats;
-        if (conditionalFormats is not null)
-        {
-            foreach (
-                ConditionalFormat conditionalFormat in conditionalFormats.Cast<ConditionalFormat>()
+        foreach (
+            XElement conditionalFormat in Children(
+                pivotTable,
+                "conditionalFormats",
+                "conditionalFormat"
             )
+        )
+        {
+            uint priority = RequiredUInt(conditionalFormat, "priority");
+            XLConditionalFormat format = context.GetPivotCf(sheet.Name, checked((int)priority));
+            XLPivotConditionalFormat xlConditionalFormat = new(format)
             {
-                XLPivotCfScope scope =
-                    conditionalFormat.Scope?.Value.ToXlsxSharp() ?? XLPivotCfScope.SelectedCells;
-                XLPivotCfRuleType type =
-                    conditionalFormat.Type?.Value.ToXlsxSharp() ?? XLPivotCfRuleType.None;
-                uint priority =
-                    conditionalFormat.Priority?.Value
-                    ?? throw PartStructureException.MissingAttribute();
-                XLConditionalFormat format = context.GetPivotCf(sheet.Name, checked((int)priority));
-                XLPivotConditionalFormat xlConditionalFormat = new(format)
-                {
-                    Scope = scope,
-                    Type = type,
-                };
-                PivotAreas? pivotAreas = conditionalFormat.PivotAreas;
-                if (pivotAreas is not null)
-                {
-                    foreach (PivotArea pivotArea in pivotAreas.Cast<PivotArea>())
-                    {
-                        XLPivotArea xlPivotArea = LoadPivotArea(pivotArea);
-                        xlConditionalFormat.AddArea(xlPivotArea);
-                    }
-                }
+                Scope =
+                    Enum(conditionalFormat, "scope", PivotXmlEnums.ParseCfScope)
+                    ?? XLPivotCfScope.SelectedCells,
+                Type =
+                    Enum(conditionalFormat, "type", PivotXmlEnums.ParseCfRuleType)
+                    ?? XLPivotCfRuleType.None,
+            };
 
-                xlPivotTable.AddConditionalFormat(xlConditionalFormat);
+            foreach (XElement pivotArea in Children(conditionalFormat, "pivotAreas", "pivotArea"))
+            {
+                xlConditionalFormat.AddArea(LoadPivotArea(pivotArea));
             }
+
+            xlPivotTable.AddConditionalFormat(xlConditionalFormat);
         }
 
         // TODO: chartFormats
         // pivotHierarchies is OLAP and thus for now out of scope.
-        PivotTableStyle? pivotTableStyle = pivotTable.GetFirstChild<PivotTableStyle>();
-        LoadPivotTableStyle(pivotTableStyle, xlPivotTable);
+        LoadPivotTableStyle(pivotTable.Element(Main + "pivotTableStyleInfo"), xlPivotTable);
 
         // TODO: filters
         // rowHierarchiesUsage is OLAP and thus for now out of scope.
@@ -241,612 +244,410 @@ internal class PivotTableDefinitionPartReader
     }
 
     private static XLPivotTable LoadPivotTableAttributes(
-        PivotTableDefinition pivotTable,
+        XElement pivotTable,
         XLWorksheet sheet,
         XLPivotCache cache
     )
     {
-        string name = pivotTable.Name?.Value ?? throw PartStructureException.MissingAttribute();
-        uint cacheId = pivotTable.CacheId?.Value ?? throw PartStructureException.MissingAttribute();
-        bool dataOnRows = pivotTable.DataOnRows?.Value ?? false;
-
         // DataPosition attribute is skipped, because it basically represents a field on one of axis.
         // Excel requires that dataPosition and field with index -2 must be in list of respective axis
         // at correct place, otherwise it crashes. To make things simple, we set the value when it is
         // encountered on the correct axis (plus there is a check that field is not used on multiple axes
         // that would cause exception).
-        uint? autoFormatId = pivotTable.AutoFormatId?.Value;
-        bool applyNumberFormats = pivotTable.ApplyNumberFormats?.Value ?? false;
-        bool applyBorderFormats = pivotTable.ApplyBorderFormats?.Value ?? false;
-        bool applyFontFormats = pivotTable.ApplyFontFormats?.Value ?? false;
-        bool applyPatternFormats = pivotTable.ApplyPatternFormats?.Value ?? false;
-        bool applyAlignmentFormats = pivotTable.ApplyAlignmentFormats?.Value ?? false;
-        bool applyWidthHeightFormats = pivotTable.ApplyWidthHeightFormats?.Value ?? false;
-        string dataCaption =
-            pivotTable.DataCaption?.Value ?? throw PartStructureException.MissingAttribute();
-        string? grandTotalCaption = pivotTable.GrandTotalCaption?.Value;
-        string? errorCaption = pivotTable.ErrorCaption?.Value;
-        bool showError = pivotTable.ShowError?.Value ?? false;
-        string missingCaption = pivotTable.MissingCaption?.Value ?? string.Empty;
-        bool showMissing = pivotTable.ShowMissing?.Value ?? true;
-        string? pageStyle = pivotTable.PageStyle?.Value;
-        string? pivotTableStyleName = pivotTable.PivotTableStyleName?.Value;
-        string? vacatedStyle = pivotTable.VacatedStyle?.Value;
-        string? tag = pivotTable.Tag?.Value;
-        byte updatedVersion = pivotTable.UpdatedVersion?.Value ?? 0;
-        byte minRefreshableVersion = pivotTable.MinRefreshableVersion?.Value ?? 0;
-        bool asteriskTotals = pivotTable.AsteriskTotals?.Value ?? false;
-        bool showItems = pivotTable.ShowItems?.Value ?? true;
-        bool editData = pivotTable.EditData?.Value ?? false;
-        bool disableFieldList = pivotTable.DisableFieldList?.Value ?? false;
-        bool showCalculatedMembers = pivotTable.ShowCalculatedMembers?.Value ?? true;
-        bool visualTotals = pivotTable.VisualTotals?.Value ?? true;
-        bool showMultipleLabel = pivotTable.ShowMultipleLabel?.Value ?? true;
-        bool showDataDropDown = pivotTable.ShowDataDropDown?.Value ?? true;
-        bool showDrill = pivotTable.ShowDrill?.Value ?? true;
-        bool printDrill = pivotTable.PrintDrill?.Value ?? false;
-        bool showMemberPropertyTips = pivotTable.ShowMemberPropertyTips?.Value ?? true;
-        bool showDataTips = pivotTable.ShowDataTips?.Value ?? true;
-        bool enableWizard = pivotTable.EnableWizard?.Value ?? true;
-        bool enableDrill = pivotTable.EnableDrill?.Value ?? true;
-        bool enableFieldProperties = pivotTable.EnableFieldProperties?.Value ?? true;
-        bool preserveFormatting = pivotTable.PreserveFormatting?.Value ?? true;
-        bool useAutoFormatting = pivotTable.UseAutoFormatting?.Value ?? false;
-        uint pageWrap = pivotTable.PageWrap?.Value ?? 0;
-        bool pageOverThenDown = pivotTable.PageOverThenDown?.Value ?? false;
-        bool subtotalHiddenItems = pivotTable.SubtotalHiddenItems?.Value ?? false;
-        bool rowGrandTotals = pivotTable.RowGrandTotals?.Value ?? true;
-        bool columnGrandTotals = pivotTable.ColumnGrandTotals?.Value ?? true;
-        bool fieldPrintTitles = pivotTable.FieldPrintTitles?.Value ?? false;
-        bool itemPrintTitles = pivotTable.ItemPrintTitles?.Value ?? false;
-        bool mergeItem = pivotTable.MergeItem?.Value ?? false;
-        bool showDropZones = pivotTable.ShowDropZones?.Value ?? true;
-        byte createdVersion = pivotTable.CreatedVersion?.Value ?? 0;
-        uint indent = pivotTable.Indent?.Value ?? 1;
-        bool showEmptyRow = pivotTable.ShowEmptyRow?.Value ?? false;
-        bool showEmptyColumn = pivotTable.ShowEmptyColumn?.Value ?? false;
-        bool showHeaders = pivotTable.ShowHeaders?.Value ?? true;
-        bool compact = pivotTable.Compact?.Value ?? true;
-        bool outline = pivotTable.Outline?.Value ?? false;
-        bool outlineData = pivotTable.OutlineData?.Value ?? false;
-        bool compactData = pivotTable.CompactData?.Value ?? true;
-        bool published = pivotTable.Published?.Value ?? false;
-        bool gridDropZones = pivotTable.GridDropZones?.Value ?? false;
-        bool stopImmersiveUi = pivotTable.StopImmersiveUi?.Value ?? true;
-        bool multipleFieldFilters = pivotTable.MultipleFieldFilters?.Value ?? true;
-        uint chartFormat = pivotTable.ChartFormat?.Value ?? 0;
-        string? rowHeaderCaption = pivotTable.RowHeaderCaption?.Value;
-        string? columnHeaderCaption = pivotTable.ColumnHeaderCaption?.Value;
-        bool fieldListSortAscending = pivotTable.FieldListSortAscending?.Value ?? false;
-        bool mdxSubQueries = pivotTable.MdxSubqueries?.Value ?? false;
-        bool customSortList = pivotTable.CustomListSort?.Value ?? true;
-
-        XLPivotTable xlPivotTable = new(sheet, cache)
+        return new XLPivotTable(sheet, cache)
         {
-            Name = name,
-            DataOnRows = dataOnRows,
+            Name = RequiredString(pivotTable, "name"),
+            DataOnRows = Bool(pivotTable, "dataOnRows") ?? false,
             DataPosition = null, // 'data' field is set when during axis loading (if present).
-            AutoFormatId = autoFormatId,
-            ApplyNumberFormats = applyNumberFormats,
-            ApplyBorderFormats = applyBorderFormats,
-            ApplyFontFormats = applyFontFormats,
-            ApplyPatternFormats = applyPatternFormats,
-            ApplyAlignmentFormats = applyAlignmentFormats,
-            ApplyWidthHeightFormats = applyWidthHeightFormats,
-            DataCaption = dataCaption,
-            GrandTotalCaption = grandTotalCaption,
-            ErrorValueReplacement = errorCaption,
-            ShowError = showError,
-            MissingCaption = missingCaption,
-            ShowMissing = showMissing,
-            PageStyle = pageStyle,
-            PivotTableStyleName = pivotTableStyleName,
-            VacatedStyle = vacatedStyle,
-            Tag = tag,
-            UpdatedVersion = updatedVersion,
-            MinRefreshableVersion = minRefreshableVersion,
-            AsteriskTotals = asteriskTotals,
-            DisplayItemLabels = showItems,
-            EditData = editData,
-            DisableFieldList = disableFieldList,
-            ShowCalculatedMembers = showCalculatedMembers,
-            VisualTotals = visualTotals,
-            ShowMultipleLabel = showMultipleLabel,
-            ShowDataDropDown = showDataDropDown,
-            ShowExpandCollapseButtons = showDrill,
-            PrintExpandCollapsedButtons = printDrill,
-            ShowPropertiesInTooltips = showMemberPropertyTips,
-            ShowContextualTooltips = showDataTips,
-            EnableEditingMechanism = enableWizard,
-            EnableShowDetails = enableDrill,
-            EnableFieldProperties = enableFieldProperties,
-            PreserveCellFormatting = preserveFormatting,
-            AutofitColumns = useAutoFormatting,
-            FilterFieldsPageWrap = checked((int)pageWrap),
-            FilterAreaOrder = pageOverThenDown
-                ? XLFilterAreaOrder.OverThenDown
-                : XLFilterAreaOrder.DownThenOver,
-            FilteredItemsInSubtotals = subtotalHiddenItems,
-            ShowGrandTotalsRows = rowGrandTotals,
-            ShowGrandTotalsColumns = columnGrandTotals,
-            PrintTitles = fieldPrintTitles,
-            RepeatRowLabels = itemPrintTitles,
-            MergeAndCenterWithLabels = mergeItem,
-            ShowDropZones = showDropZones,
-            PivotCacheCreatedVersion = createdVersion,
-            RowLabelIndent = checked((int)indent),
-            ShowEmptyItemsOnRows = showEmptyRow,
-            ShowEmptyItemsOnColumns = showEmptyColumn,
-            DisplayCaptionsAndDropdowns = showHeaders,
-            Compact = compact,
-            Outline = outline,
-            OutlineData = outlineData,
-            CompactData = compactData,
-            Published = published,
-            ClassicPivotTableLayout = gridDropZones,
-            StopImmersiveUi = stopImmersiveUi,
-            AllowMultipleFilters = multipleFieldFilters,
-            ChartFormat = chartFormat,
-            RowHeaderCaption = rowHeaderCaption,
-            ColumnHeaderCaption = columnHeaderCaption,
-            SortFieldsAtoZ = fieldListSortAscending,
-            MdxSubQueries = mdxSubQueries,
-            UseCustomListsForSorting = customSortList,
+            AutoFormatId = OptionalUInt(pivotTable, "autoFormatId"),
+            ApplyNumberFormats = Bool(pivotTable, "applyNumberFormats") ?? false,
+            ApplyBorderFormats = Bool(pivotTable, "applyBorderFormats") ?? false,
+            ApplyFontFormats = Bool(pivotTable, "applyFontFormats") ?? false,
+            ApplyPatternFormats = Bool(pivotTable, "applyPatternFormats") ?? false,
+            ApplyAlignmentFormats = Bool(pivotTable, "applyAlignmentFormats") ?? false,
+            ApplyWidthHeightFormats = Bool(pivotTable, "applyWidthHeightFormats") ?? false,
+            DataCaption = RequiredString(pivotTable, "dataCaption"),
+            GrandTotalCaption = pivotTable.Attribute("grandTotalCaption")?.Value,
+            ErrorValueReplacement = pivotTable.Attribute("errorCaption")?.Value,
+            ShowError = Bool(pivotTable, "showError") ?? false,
+            MissingCaption = pivotTable.Attribute("missingCaption")?.Value ?? string.Empty,
+            ShowMissing = Bool(pivotTable, "showMissing") ?? true,
+            PageStyle = pivotTable.Attribute("pageStyle")?.Value,
+
+            // The attribute is pivotTableStyle, not pivotTableStyleName.
+            PivotTableStyleName = pivotTable.Attribute("pivotTableStyle")?.Value,
+            VacatedStyle = pivotTable.Attribute("vacatedStyle")?.Value,
+            Tag = pivotTable.Attribute("tag")?.Value,
+            UpdatedVersion = OptionalByte(pivotTable, "updatedVersion") ?? 0,
+            MinRefreshableVersion = OptionalByte(pivotTable, "minRefreshableVersion") ?? 0,
+            AsteriskTotals = Bool(pivotTable, "asteriskTotals") ?? false,
+            DisplayItemLabels = Bool(pivotTable, "showItems") ?? true,
+            EditData = Bool(pivotTable, "editData") ?? false,
+            DisableFieldList = Bool(pivotTable, "disableFieldList") ?? false,
+            ShowCalculatedMembers = Bool(pivotTable, "showCalcMbrs") ?? true,
+            VisualTotals = Bool(pivotTable, "visualTotals") ?? true,
+            ShowMultipleLabel = Bool(pivotTable, "showMultipleLabel") ?? true,
+            ShowDataDropDown = Bool(pivotTable, "showDataDropDown") ?? true,
+            ShowExpandCollapseButtons = Bool(pivotTable, "showDrill") ?? true,
+            PrintExpandCollapsedButtons = Bool(pivotTable, "printDrill") ?? false,
+            ShowPropertiesInTooltips = Bool(pivotTable, "showMemberPropertyTips") ?? true,
+            ShowContextualTooltips = Bool(pivotTable, "showDataTips") ?? true,
+            EnableEditingMechanism = Bool(pivotTable, "enableWizard") ?? true,
+            EnableShowDetails = Bool(pivotTable, "enableDrill") ?? true,
+            EnableFieldProperties = Bool(pivotTable, "enableFieldProperties") ?? true,
+            PreserveCellFormatting = Bool(pivotTable, "preserveFormatting") ?? true,
+            AutofitColumns = Bool(pivotTable, "useAutoFormatting") ?? false,
+            FilterFieldsPageWrap = checked((int)(OptionalUInt(pivotTable, "pageWrap") ?? 0)),
+            FilterAreaOrder =
+                Bool(pivotTable, "pageOverThenDown") ?? false
+                    ? XLFilterAreaOrder.OverThenDown
+                    : XLFilterAreaOrder.DownThenOver,
+            FilteredItemsInSubtotals = Bool(pivotTable, "subtotalHiddenItems") ?? false,
+            ShowGrandTotalsRows = Bool(pivotTable, "rowGrandTotals") ?? true,
+            ShowGrandTotalsColumns = Bool(pivotTable, "colGrandTotals") ?? true,
+            PrintTitles = Bool(pivotTable, "fieldPrintTitles") ?? false,
+            RepeatRowLabels = Bool(pivotTable, "itemPrintTitles") ?? false,
+            MergeAndCenterWithLabels = Bool(pivotTable, "mergeItem") ?? false,
+            ShowDropZones = Bool(pivotTable, "showDropZones") ?? true,
+            PivotCacheCreatedVersion = OptionalByte(pivotTable, "createdVersion") ?? 0,
+            RowLabelIndent = checked((int)(OptionalUInt(pivotTable, "indent") ?? 1)),
+            ShowEmptyItemsOnRows = Bool(pivotTable, "showEmptyRow") ?? false,
+            ShowEmptyItemsOnColumns = Bool(pivotTable, "showEmptyCol") ?? false,
+            DisplayCaptionsAndDropdowns = Bool(pivotTable, "showHeaders") ?? true,
+            Compact = Bool(pivotTable, "compact") ?? true,
+            Outline = Bool(pivotTable, "outline") ?? false,
+            OutlineData = Bool(pivotTable, "outlineData") ?? false,
+            CompactData = Bool(pivotTable, "compactData") ?? true,
+            Published = Bool(pivotTable, "published") ?? false,
+            ClassicPivotTableLayout = Bool(pivotTable, "gridDropZones") ?? false,
+            StopImmersiveUi = Bool(pivotTable, "immersive") ?? true,
+            AllowMultipleFilters = Bool(pivotTable, "multipleFieldFilters") ?? true,
+            ChartFormat = OptionalUInt(pivotTable, "chartFormat") ?? 0,
+            RowHeaderCaption = pivotTable.Attribute("rowHeaderCaption")?.Value,
+            ColumnHeaderCaption = pivotTable.Attribute("colHeaderCaption")?.Value,
+            SortFieldsAtoZ = Bool(pivotTable, "fieldListSortAscending") ?? false,
+            MdxSubQueries = Bool(pivotTable, "mdxSubqueries") ?? false,
+            UseCustomListsForSorting = Bool(pivotTable, "customListSort") ?? true,
         };
-        return xlPivotTable;
     }
 
     private static XLPivotTableField LoadPivotField(
-        PivotField pivotField,
+        XElement pivotField,
         XLPivotTable xlPivotTable,
         XLWorkbookStyles styles
     )
     {
-        string? customName = pivotField.Name?.Value;
-        XLPivotAxis? axis = pivotField.Axis?.Value.ToXlsxSharp();
-        bool dataField = pivotField.DataField?.Value ?? false;
-        string? subtotalCaption = pivotField.SubtotalCaption?.Value;
-        bool showDropDowns = pivotField.ShowDropDowns?.Value ?? true;
-        bool hiddenLevel = pivotField.HiddenLevel?.Value ?? false;
-        string? uniqueMemberProperty = pivotField.UniqueMemberProperty?.Value;
-        bool compact = pivotField.Compact?.Value ?? true;
-        bool allDrilled = pivotField.AllDrilled?.Value ?? false;
-        int? numberFormatId = checked((int?)pivotField.NumberFormatId?.Value);
-        XLNumberFormat? numberFormat = numberFormatId is not null
-            ? styles.NumberFormats[numberFormatId.Value]
-            : (XLNumberFormat?)null;
-        bool outline = pivotField.Outline?.Value ?? true;
-        bool subtotalTop = pivotField.SubtotalTop?.Value ?? true;
-        bool dragToRow = pivotField.DragToRow?.Value ?? true;
-        bool dragToColumn = pivotField.DragToColumn?.Value ?? true;
-        bool multipleItemSelectionAllowed = pivotField.MultipleItemSelectionAllowed?.Value ?? false;
-        bool dragToPage = pivotField.DragToPage?.Value ?? true;
-        bool dragToData = pivotField.DragToData?.Value ?? true;
-        bool dragOff = pivotField.DragOff?.Value ?? true;
-        bool showAll = pivotField.ShowAll?.Value ?? true;
-        bool insertBlankRow = pivotField.InsertBlankRow?.Value ?? false;
-        bool serverField = pivotField.ServerField?.Value ?? false;
-        bool insertPageBreak = pivotField.InsertPageBreak?.Value ?? false;
-        bool autoShow = pivotField.AutoShow?.Value ?? false;
-        bool topAutoShow = pivotField.TopAutoShow?.Value ?? true;
-        bool hideNewItems = pivotField.HideNewItems?.Value ?? false;
-        bool measureFilter = pivotField.MeasureFilter?.Value ?? false;
-        bool includeNewItemsInFilter = pivotField.IncludeNewItemsInFilter?.Value ?? false;
-        uint itemPageCount = pivotField.ItemPageCount?.Value ?? 10u;
-        XLPivotSortType sortType =
-            pivotField.SortType?.Value.ToXlsxSharp() ?? XLPivotSortType.Default;
-        bool? dataSourceSort = pivotField.DataSourceSort?.Value;
-        bool nonAutoSortDefault = pivotField.NonAutoSortDefault?.Value ?? false;
-        uint? rankBy = pivotField.RankBy?.Value;
-        bool defaultSubtotal = pivotField.DefaultSubtotal?.Value ?? true;
-        bool sumSubtotal = pivotField.SumSubtotal?.Value ?? false;
-        bool countASubtotal = pivotField.CountASubtotal?.Value ?? false;
-        bool avgSubtotal = pivotField.AverageSubTotal?.Value ?? false;
-        bool maxSubtotal = pivotField.MaxSubtotal?.Value ?? false;
-        bool minSubtotal = pivotField.MinSubtotal?.Value ?? false;
-        bool productSubtotal = pivotField.ApplyProductInSubtotal?.Value ?? false;
-        bool countSubtotal = pivotField.CountSubtotal?.Value ?? false;
-        bool stdDevSubtotal = pivotField.ApplyStandardDeviationInSubtotal?.Value ?? false;
-        bool stdDevPSubtotal = pivotField.ApplyStandardDeviationPInSubtotal?.Value ?? false;
-        bool varSubtotal = pivotField.ApplyVarianceInSubtotal?.Value ?? false;
-        bool varPSubtotal = pivotField.ApplyVariancePInSubtotal?.Value ?? false;
-        bool showPropCell = pivotField.ShowPropCell?.Value ?? false;
-        bool showPropTip = pivotField.ShowPropertyTooltip?.Value ?? false;
-        bool showPropAsCaption = pivotField.ShowPropAsCaption?.Value ?? false;
-        bool defaultAttributeDrillState = pivotField.DefaultAttributeDrillState?.Value ?? false;
-
-        HashSet<XLSubtotalFunction> subtotals = [];
-        if (defaultSubtotal)
-        {
-            subtotals.Add(XLSubtotalFunction.Automatic);
-        }
-
-        if (sumSubtotal)
-        {
-            subtotals.Add(XLSubtotalFunction.Sum);
-        }
-
-        if (countASubtotal)
-        {
-            subtotals.Add(XLSubtotalFunction.Count);
-        }
-
-        if (avgSubtotal)
-        {
-            subtotals.Add(XLSubtotalFunction.Average);
-        }
-
-        if (maxSubtotal)
-        {
-            subtotals.Add(XLSubtotalFunction.Maximum);
-        }
-
-        if (minSubtotal)
-        {
-            subtotals.Add(XLSubtotalFunction.Minimum);
-        }
-
-        if (productSubtotal)
-        {
-            subtotals.Add(XLSubtotalFunction.Product);
-        }
-
-        if (countSubtotal)
-        {
-            subtotals.Add(XLSubtotalFunction.CountNumbers);
-        }
-
-        if (stdDevSubtotal)
-        {
-            subtotals.Add(XLSubtotalFunction.StandardDeviation);
-        }
-
-        if (stdDevPSubtotal)
-        {
-            subtotals.Add(XLSubtotalFunction.PopulationStandardDeviation);
-        }
-
-        if (varSubtotal)
-        {
-            subtotals.Add(XLSubtotalFunction.Variance);
-        }
-
-        if (varPSubtotal)
-        {
-            subtotals.Add(XLSubtotalFunction.PopulationVariance);
-        }
+        int? numberFormatId = checked((int?)OptionalUInt(pivotField, "numFmtId"));
 
         XLPivotTableField xlField = new(xlPivotTable)
         {
-            Name = customName,
-            Axis = axis,
-            DataField = dataField,
-            SubtotalCaption = subtotalCaption ?? string.Empty,
-            ShowDropDowns = showDropDowns,
-            HiddenLevel = hiddenLevel,
-            UniqueMemberProperty = uniqueMemberProperty,
-            Compact = compact,
-            AllDrilled = allDrilled,
-            NumberFormatValue = numberFormat,
-            Outline = outline,
-            SubtotalTop = subtotalTop,
-            DragToRow = dragToRow,
-            DragToColumn = dragToColumn,
-            MultipleItemSelectionAllowed = multipleItemSelectionAllowed,
-            DragToPage = dragToPage,
-            DragToData = dragToData,
-            DragOff = dragOff,
-            ShowAll = showAll,
-            InsertBlankRow = insertBlankRow,
-            ServerField = serverField,
-            InsertPageBreak = insertPageBreak,
-            AutoShow = autoShow,
-            TopAutoShow = topAutoShow,
-            HideNewItems = hideNewItems,
-            MeasureFilter = measureFilter,
-            IncludeNewItemsInFilter = includeNewItemsInFilter,
-            ItemPageCount = itemPageCount,
-            SortType = sortType,
-            DataSourceSort = dataSourceSort,
-            NonAutoSortDefault = nonAutoSortDefault,
-            RankBy = rankBy,
-            Subtotals = subtotals,
-            ShowPropCell = showPropCell,
-            ShowPropTip = showPropTip,
-            ShowPropAsCaption = showPropAsCaption,
-            DefaultAttributeDrillState = defaultAttributeDrillState,
+            Name = pivotField.Attribute("name")?.Value,
+            Axis = Enum(pivotField, "axis", PivotXmlEnums.ParseAxis),
+            DataField = Bool(pivotField, "dataField") ?? false,
+            SubtotalCaption = pivotField.Attribute("subtotalCaption")?.Value ?? string.Empty,
+            ShowDropDowns = Bool(pivotField, "showDropDowns") ?? true,
+            HiddenLevel = Bool(pivotField, "hiddenLevel") ?? false,
+            UniqueMemberProperty = pivotField.Attribute("uniqueMemberProperty")?.Value,
+            Compact = Bool(pivotField, "compact") ?? true,
+            AllDrilled = Bool(pivotField, "allDrilled") ?? false,
+            NumberFormatValue = numberFormatId is not null
+                ? styles.NumberFormats[numberFormatId.Value]
+                : null,
+            Outline = Bool(pivotField, "outline") ?? true,
+            SubtotalTop = Bool(pivotField, "subtotalTop") ?? true,
+            DragToRow = Bool(pivotField, "dragToRow") ?? true,
+            DragToColumn = Bool(pivotField, "dragToCol") ?? true,
+            MultipleItemSelectionAllowed =
+                Bool(pivotField, "multipleItemSelectionAllowed") ?? false,
+            DragToPage = Bool(pivotField, "dragToPage") ?? true,
+            DragToData = Bool(pivotField, "dragToData") ?? true,
+            DragOff = Bool(pivotField, "dragOff") ?? true,
+            ShowAll = Bool(pivotField, "showAll") ?? true,
+            InsertBlankRow = Bool(pivotField, "insertBlankRow") ?? false,
+            ServerField = Bool(pivotField, "serverField") ?? false,
+            InsertPageBreak = Bool(pivotField, "insertPageBreak") ?? false,
+            AutoShow = Bool(pivotField, "autoShow") ?? false,
+            TopAutoShow = Bool(pivotField, "topAutoShow") ?? true,
+            HideNewItems = Bool(pivotField, "hideNewItems") ?? false,
+            MeasureFilter = Bool(pivotField, "measureFilter") ?? false,
+            IncludeNewItemsInFilter = Bool(pivotField, "includeNewItemsInFilter") ?? false,
+            ItemPageCount = OptionalUInt(pivotField, "itemPageCount") ?? 10u,
+            SortType =
+                Enum(pivotField, "sortType", PivotXmlEnums.ParseFieldSort)
+                ?? XLPivotSortType.Default,
+            DataSourceSort = Bool(pivotField, "dataSourceSort"),
+            NonAutoSortDefault = Bool(pivotField, "nonAutoSortDefault") ?? false,
+            RankBy = OptionalUInt(pivotField, "rankBy"),
+            Subtotals = ReadSubtotals(pivotField, defaultSubtotalDefault: true),
+            ShowPropCell = Bool(pivotField, "showPropCell") ?? false,
+            ShowPropTip = Bool(pivotField, "showPropTip") ?? false,
+            ShowPropAsCaption = Bool(pivotField, "showPropAsCaption") ?? false,
+            DefaultAttributeDrillState = Bool(pivotField, "defaultAttributeDrillState") ?? false,
         };
 
-        Items? items = pivotField.Items;
-        if (items is not null)
+        foreach (XElement item in Children(pivotField, "items", "item"))
         {
-            foreach (Item item in items.Cast<Item>())
+            uint? itemIndex = OptionalUInt(item, "x");
+            XLPivotFieldItem xlItem = new(
+                xlField,
+                itemIndex is null ? null : checked((int)itemIndex.Value)
+            )
             {
                 // Attributes `sd` and `d` were swapped in spec.
-                bool approximatelyHasChildren = item.ChildItems?.Value ?? false;
-                bool details = item.Expanded?.Value ?? false;
-                bool drillAcrossAttributes = item.DrillAcrossAttributes?.Value ?? true;
-                bool calculatedMember = item.Calculated?.Value ?? false;
-                bool hidden = item.Hidden?.Value ?? false;
-                bool missing = item.Missing?.Value ?? false;
-                StringValue? itemUserCaption = item.ItemName;
-                bool valueIsString = item.HasStringVlue?.Value ?? false;
-                bool showDetails = item.HideDetails?.Value ?? true;
-                uint? itemIndex = item.Index?.Value;
-                XLPivotItemType itemType =
-                    item.ItemType?.Value.ToXlsxSharp() ?? XLPivotItemType.Data;
-                XLPivotFieldItem xlItem = new(
-                    xlField,
-                    itemIndex is null ? null : checked((int)itemIndex.Value)
-                )
-                {
-                    ApproximatelyHasChildren = approximatelyHasChildren,
-                    Details = details,
-                    DrillAcrossAttributes = drillAcrossAttributes,
-                    CalculatedMember = calculatedMember,
-                    Hidden = hidden,
-                    Missing = missing,
-                    ItemUserCaption = itemUserCaption,
-                    ValueIsString = valueIsString,
-                    ShowDetails = showDetails,
-                    ItemType = itemType,
-                };
+                ApproximatelyHasChildren = Bool(item, "c") ?? false,
+                Details = Bool(item, "d") ?? false,
+                DrillAcrossAttributes = Bool(item, "e") ?? true,
+                CalculatedMember = Bool(item, "f") ?? false,
+                Hidden = Bool(item, "h") ?? false,
+                Missing = Bool(item, "m") ?? false,
+                ItemUserCaption = item.Attribute("n")?.Value,
+                ValueIsString = Bool(item, "s") ?? false,
+                ShowDetails = Bool(item, "sd") ?? true,
+                ItemType = Enum(item, "t", PivotXmlEnums.ParseItemType) ?? XLPivotItemType.Data,
+            };
 
-                xlField.AddItem(xlItem);
-            }
+            xlField.AddItem(xlItem);
         }
 
         // TODO: autoSortScope
 
         // extLst
-        PivotFieldExtensionList? pivotFieldExtensionList =
-            pivotField.GetFirstChild<PivotFieldExtensionList>();
-        PivotFieldExtension? pivotFieldExtension =
-            pivotFieldExtensionList?.GetFirstChild<PivotFieldExtension>();
-        DocumentFormat.OpenXml.Office2010.Excel.PivotField? field2010 =
-            pivotFieldExtension?.GetFirstChild<DocumentFormat.OpenXml.Office2010.Excel.PivotField>();
-        xlField.RepeatItemLabels = field2010?.FillDownLabels?.Value ?? false;
+        xlField.RepeatItemLabels =
+            Bool(Extension(pivotField, X14 + "pivotField"), "fillDownLabels") ?? false;
 
         return xlField;
     }
 
     private static void LoadAxisFields(
-        OpenXmlCompositeElement? fields,
+        XElement? fields,
         XLPivotTableAxis axis,
         XLPivotTable xlPivotTable
     )
     {
-        if (fields is not null)
+        if (fields is null)
         {
-            foreach (Field field in fields.Cast<Field>())
-            {
-                // Axis can contain 'data' field.
-                int fieldIndex =
-                    field.Index?.Value ?? throw PartStructureException.MissingAttribute();
-                if (
-                    fieldIndex >= xlPivotTable.PivotFields.Count
-                    || (fieldIndex < 0 && fieldIndex != ValuesFieldIndex)
-                )
-                {
-                    throw PartStructureException.InvalidAttributeValue();
-                }
+            return;
+        }
 
-                axis.AddField(fieldIndex);
+        foreach (XElement field in fields.Elements(Main + "field"))
+        {
+            // Axis can contain 'data' field.
+            int fieldIndex = RequiredInt(field, "x");
+            if (
+                fieldIndex >= xlPivotTable.PivotFields.Count
+                || (fieldIndex < 0 && fieldIndex != ValuesFieldIndex)
+            )
+            {
+                throw PartStructureException.InvalidAttributeValue();
             }
+
+            axis.AddField(fieldIndex);
         }
     }
 
-    private static void LoadAxisItems(OpenXmlCompositeElement? axisItems, XLPivotTableAxis axis)
+    private static void LoadAxisItems(XElement? axisItems, XLPivotTableAxis axis)
     {
-        if (axisItems is not null)
+        if (axisItems is null)
         {
-            // Both row and column use RowItem type for axis item.
-            List<int> previous = [];
-            foreach (RowItem axisItem in axisItems.Cast<RowItem>())
-            {
-                XLPivotItemType xlItemType =
-                    axisItem.ItemType?.Value.ToXlsxSharp() ?? XLPivotItemType.Data;
-                int dataFieldIndex = checked((int)(axisItem.Index?.Value ?? 0)); // This is used by 'data' field
-                uint repeatedCount = axisItem.RepeatedItemCount?.Value ?? 0;
-                List<int> fieldIndexes = [];
-                foreach (
-                    MemberPropertyIndex dataIndex in axisItem.ChildElements.Cast<MemberPropertyIndex>()
-                )
-                {
-                    fieldIndexes.Add(dataIndex.Val?.Value ?? 0);
-                }
+            return;
+        }
 
-                List<int> allFieldIndexes = [.. previous.Take((int)repeatedCount), .. fieldIndexes];
-                axis.AddItem(new XLPivotFieldAxisItem(xlItemType, dataFieldIndex, allFieldIndexes));
-                previous = allFieldIndexes;
-            }
+        // Both row and column use RowItem type for axis item, whose element name is `i`.
+        List<int> previous = [];
+        foreach (XElement axisItem in axisItems.Elements(Main + "i"))
+        {
+            XLPivotItemType xlItemType =
+                Enum(axisItem, "t", PivotXmlEnums.ParseItemType) ?? XLPivotItemType.Data;
+
+            // This is used by the 'data' field.
+            int dataFieldIndex = checked((int)(OptionalUInt(axisItem, "i") ?? 0));
+            uint repeatedCount = OptionalUInt(axisItem, "r") ?? 0;
+
+            List<int> fieldIndexes =
+            [
+                .. axisItem.Elements(Main + "x").Select(x => OptionalInt(x, "v") ?? 0),
+            ];
+
+            List<int> allFieldIndexes = [.. previous.Take((int)repeatedCount), .. fieldIndexes];
+            axis.AddItem(new XLPivotFieldAxisItem(xlItemType, dataFieldIndex, allFieldIndexes));
+            previous = allFieldIndexes;
         }
     }
 
-    private static XLPivotArea LoadPivotArea(PivotArea pivotArea)
+    private static XLPivotArea LoadPivotArea(XElement pivotArea)
     {
-        int? field = pivotArea.Field?.Value;
-        XLPivotAreaType type = pivotArea.Type?.Value.ToXlsxSharp() ?? XLPivotAreaType.Normal;
-        bool dataOnly = pivotArea.DataOnly?.Value ?? true;
-        bool labelOnly = pivotArea.LabelOnly?.Value ?? false;
-        bool grandRow = pivotArea.GrandRow?.Value ?? false;
-        bool grandCol = pivotArea.GrandColumn?.Value ?? false;
-        bool cacheIndex = pivotArea.CacheIndex?.Value ?? false;
-        bool outline = pivotArea.Outline?.Value ?? true;
-        Area? offset = pivotArea.Offset?.Value is { } offsetRefText
-            ? Area.Parse(offsetRefText)
-            : (Area?)null;
-        bool collapsedLevelsAreSubtotals = pivotArea.CollapsedLevelsAreSubtotals?.Value ?? false;
-        XLPivotAxis? axis = pivotArea.Axis?.Value.ToXlsxSharp();
-        uint? fieldPosition = pivotArea.FieldPosition?.Value;
         XLPivotArea xlPivotArea = new()
         {
-            Field = field,
-            Type = type,
-            DataOnly = dataOnly,
-            LabelOnly = labelOnly,
-            GrandRow = grandRow,
-            GrandCol = grandCol,
-            CacheIndex = cacheIndex,
-            Outline = outline,
-            Offset = offset,
-            CollapsedLevelsAreSubtotals = collapsedLevelsAreSubtotals,
-            Axis = axis,
-            FieldPosition = fieldPosition,
+            Field = OptionalInt(pivotArea, "field"),
+            Type =
+                Enum(pivotArea, "type", PivotXmlEnums.ParsePivotAreaType) ?? XLPivotAreaType.Normal,
+            DataOnly = Bool(pivotArea, "dataOnly") ?? true,
+            LabelOnly = Bool(pivotArea, "labelOnly") ?? false,
+            GrandRow = Bool(pivotArea, "grandRow") ?? false,
+            GrandCol = Bool(pivotArea, "grandCol") ?? false,
+            CacheIndex = Bool(pivotArea, "cacheIndex") ?? false,
+            Outline = Bool(pivotArea, "outline") ?? true,
+            Offset = pivotArea.Attribute("offset")?.Value is { } offsetRefText
+                ? Area.Parse(offsetRefText)
+                : null,
+            CollapsedLevelsAreSubtotals = Bool(pivotArea, "collapsedLevelsAreSubtotals") ?? false,
+            Axis = Enum(pivotArea, "axis", PivotXmlEnums.ParseAxis),
+            FieldPosition = OptionalUInt(pivotArea, "fieldPosition"),
         };
 
         // Can contain extensions, in theory at least.
-        PivotAreaReferences? references = pivotArea.PivotAreaReferences;
-        if (references is not null)
+        foreach (XElement reference in Children(pivotArea, "references", "reference"))
         {
-            foreach (PivotAreaReference reference in references.Cast<PivotAreaReference>())
-            {
-                xlPivotArea.AddReference(LoadPivotReference(reference));
-            }
+            xlPivotArea.AddReference(LoadPivotReference(reference));
         }
 
         return xlPivotArea;
     }
 
-    private static XLPivotReference LoadPivotReference(PivotAreaReference reference)
+    private static XLPivotReference LoadPivotReference(XElement reference)
     {
-        uint? field = reference.Field?.Value;
-        bool selected = reference.Selected?.Value ?? true;
-        bool byPosition = reference.ByPosition?.Value ?? false;
-        bool relative = reference.Relative?.Value ?? false;
-        bool defaultSubtotal = reference.DefaultSubtotal?.Value ?? false;
-        bool sumSubtotal = reference.SumSubtotal?.Value ?? false;
-        bool countASubtotal = reference.CountASubtotal?.Value ?? false;
-        bool avgSubtotal = reference.AverageSubtotal?.Value ?? false;
-        bool maxSubtotal = reference.MaxSubtotal?.Value ?? false;
-        bool minSubtotal = reference.MinSubtotal?.Value ?? false;
-        bool productSubtotal = reference.ApplyProductInSubtotal?.Value ?? false;
-        bool countSubtotal = reference.CountSubtotal?.Value ?? false;
-        bool stdDevSubtotal = reference.ApplyStandardDeviationInSubtotal?.Value ?? false;
-        bool stdDevPSubtotal = reference.ApplyStandardDeviationPInSubtotal?.Value ?? false;
-        bool varSubtotal = reference.ApplyVarianceInSubtotal?.Value ?? false;
-        bool varPSubtotal = reference.ApplyVariancePInSubtotal?.Value ?? false;
-
-        HashSet<XLSubtotalFunction> subtotals = [];
-        if (defaultSubtotal)
-        {
-            subtotals.Add(XLSubtotalFunction.Automatic);
-        }
-
-        if (sumSubtotal)
-        {
-            subtotals.Add(XLSubtotalFunction.Sum);
-        }
-
-        if (countASubtotal)
-        {
-            subtotals.Add(XLSubtotalFunction.Count);
-        }
-
-        if (avgSubtotal)
-        {
-            subtotals.Add(XLSubtotalFunction.Average);
-        }
-
-        if (maxSubtotal)
-        {
-            subtotals.Add(XLSubtotalFunction.Maximum);
-        }
-
-        if (minSubtotal)
-        {
-            subtotals.Add(XLSubtotalFunction.Minimum);
-        }
-
-        if (productSubtotal)
-        {
-            subtotals.Add(XLSubtotalFunction.Product);
-        }
-
-        if (countSubtotal)
-        {
-            subtotals.Add(XLSubtotalFunction.CountNumbers);
-        }
-
-        if (stdDevSubtotal)
-        {
-            subtotals.Add(XLSubtotalFunction.StandardDeviation);
-        }
-
-        if (stdDevPSubtotal)
-        {
-            subtotals.Add(XLSubtotalFunction.PopulationStandardDeviation);
-        }
-
-        if (varSubtotal)
-        {
-            subtotals.Add(XLSubtotalFunction.Variance);
-        }
-
-        if (varPSubtotal)
-        {
-            subtotals.Add(XLSubtotalFunction.PopulationVariance);
-        }
-
         XLPivotReference xlReference = new()
         {
-            Field = field,
-            Selected = selected,
-            ByPosition = byPosition,
-            Relative = relative,
-            Subtotals = subtotals,
+            Field = OptionalUInt(reference, "field"),
+            Selected = Bool(reference, "selected") ?? true,
+            ByPosition = Bool(reference, "byPosition") ?? false,
+            Relative = Bool(reference, "relative") ?? false,
+            Subtotals = ReadSubtotals(reference, defaultSubtotalDefault: false),
         };
 
-        // Add indexes after the reference is initialized, so it can check values by cacheIndex/byPosition.
-        foreach (FieldItem fieldItem in reference.OfType<FieldItem>())
+        // Add indexes after the reference is initialized, so it can check values by
+        // cacheIndex/byPosition. A field item is an `x` element, like a member property index.
+        foreach (XElement fieldItem in reference.Elements(Main + "x"))
         {
-            uint fieldItemValue =
-                fieldItem.Val?.Value ?? throw PartStructureException.MissingAttribute();
-            xlReference.AddFieldItem(fieldItemValue);
+            xlReference.AddFieldItem(RequiredUInt(fieldItem, "v"));
         }
 
         return xlReference;
     }
 
-    private static void LoadPivotTableStyle(
-        PivotTableStyle? pivotTableStyle,
-        XLPivotTable xlPivotTable
+    /// <summary>
+    /// The subtotal flags, which are the same set of attributes on a pivot field and on a pivot
+    /// area reference, except that a field defaults to having the automatic subtotal on.
+    /// </summary>
+    private static HashSet<XLSubtotalFunction> ReadSubtotals(
+        XElement element,
+        bool defaultSubtotalDefault
     )
     {
-        if (pivotTableStyle is not null)
+        HashSet<XLSubtotalFunction> subtotals = [];
+
+        Add("defaultSubtotal", XLSubtotalFunction.Automatic, defaultSubtotalDefault);
+        Add("sumSubtotal", XLSubtotalFunction.Sum, false);
+        Add("countASubtotal", XLSubtotalFunction.Count, false);
+        Add("avgSubtotal", XLSubtotalFunction.Average, false);
+        Add("maxSubtotal", XLSubtotalFunction.Maximum, false);
+        Add("minSubtotal", XLSubtotalFunction.Minimum, false);
+        Add("productSubtotal", XLSubtotalFunction.Product, false);
+        Add("countSubtotal", XLSubtotalFunction.CountNumbers, false);
+        Add("stdDevSubtotal", XLSubtotalFunction.StandardDeviation, false);
+        Add("stdDevPSubtotal", XLSubtotalFunction.PopulationStandardDeviation, false);
+        Add("varSubtotal", XLSubtotalFunction.Variance, false);
+        Add("varPSubtotal", XLSubtotalFunction.PopulationVariance, false);
+
+        return subtotals;
+
+        void Add(string attribute, XLSubtotalFunction function, bool defaultValue)
         {
-            xlPivotTable.Theme =
-                pivotTableStyle.Name is not null
-                && Enum.TryParse<XLPivotTableTheme>(
-                    pivotTableStyle.Name,
-                    out XLPivotTableTheme xlPivotTableTheme
-                )
-                    ? xlPivotTableTheme
-                    : XLPivotTableTheme.None;
-            xlPivotTable.ShowRowHeaders = pivotTableStyle.ShowRowHeaders?.Value ?? false;
-            xlPivotTable.ShowColumnHeaders = pivotTableStyle.ShowColumnHeaders?.Value ?? false;
-            xlPivotTable.ShowRowStripes = pivotTableStyle.ShowRowStripes?.Value ?? false;
-            xlPivotTable.ShowColumnStripes = pivotTableStyle.ShowColumnStripes?.Value ?? false;
-            xlPivotTable.ShowLastColumn = pivotTableStyle.ShowColumnStripes?.Value ?? false;
+            if (Bool(element, attribute) ?? defaultValue)
+            {
+                subtotals.Add(function);
+            }
         }
     }
 
-    private static void LoadExtensionList(
-        PivotTableDefinition pivotTable,
-        XLPivotTable xlPivotTable
-    )
+    private static void LoadPivotTableStyle(XElement? pivotTableStyle, XLPivotTable xlPivotTable)
     {
-        PivotTableDefinitionExtensionList? extList =
-            pivotTable.GetFirstChild<PivotTableDefinitionExtensionList>();
-        PivotTableDefinitionExtension? ext2010 =
-            extList?.GetFirstChild<PivotTableDefinitionExtension>();
-        DocumentFormat.OpenXml.Office2010.Excel.PivotTableDefinition? ptExt2010 =
-            ext2010?.GetFirstChild<DocumentFormat.OpenXml.Office2010.Excel.PivotTableDefinition>();
+        if (pivotTableStyle is null)
+        {
+            return;
+        }
+
+        xlPivotTable.Theme =
+            pivotTableStyle.Attribute("name")?.Value is { } themeName
+            && System.Enum.TryParse(themeName, out XLPivotTableTheme xlPivotTableTheme)
+                ? xlPivotTableTheme
+                : XLPivotTableTheme.None;
+
+        xlPivotTable.ShowRowHeaders = Bool(pivotTableStyle, "showRowHeaders") ?? false;
+        xlPivotTable.ShowColumnHeaders = Bool(pivotTableStyle, "showColHeaders") ?? false;
+        xlPivotTable.ShowRowStripes = Bool(pivotTableStyle, "showRowStripes") ?? false;
+        xlPivotTable.ShowColumnStripes = Bool(pivotTableStyle, "showColStripes") ?? false;
+
+        // Reading showColStripes into ShowLastColumn is what the previous reader did. It looks
+        // like a copy and paste slip, but changing it here would change what loads, so it stays
+        // until someone decides that separately.
+        xlPivotTable.ShowLastColumn = Bool(pivotTableStyle, "showColStripes") ?? false;
+    }
+
+    private static void LoadExtensionList(XElement pivotTable, XLPivotTable xlPivotTable)
+    {
+        XElement? ptExt2010 = Extension(pivotTable, X14 + "pivotTableDefinition");
         if (ptExt2010 is not null)
         {
-            xlPivotTable.EnableCellEditing = ptExt2010.EnableEdit?.Value ?? false;
-            bool hideValuesRow = ptExt2010.HideValuesRow?.Value ?? false;
-            xlPivotTable.ShowValuesRow = !hideValuesRow;
+            xlPivotTable.EnableCellEditing = Bool(ptExt2010, "enableEdit") ?? false;
+            xlPivotTable.ShowValuesRow = !(Bool(ptExt2010, "hideValuesRow") ?? false);
         }
     }
+
+    /// <summary>The first extension of the given name in the element's extension list.</summary>
+    private static XElement? Extension(XElement element, XName extensionName) =>
+        element
+            .Element(Main + "extLst")
+            ?.Elements(Main + "ext")
+            .Select(ext => ext.Element(extensionName))
+            .FirstOrDefault(e => e is not null);
+
+    /// <summary>The children of a container element, or nothing when the container is absent.</summary>
+    private static IEnumerable<XElement> Children(
+        XElement parent,
+        string containerName,
+        string childName
+    ) => parent.Element(Main + containerName)?.Elements(Main + childName) ?? [];
+
+    private static string RequiredString(XElement element, string name) =>
+        element.Attribute(name)?.Value ?? throw PartStructureException.MissingAttribute(name);
+
+    private static uint RequiredUInt(XElement element, string name) =>
+        OptionalUInt(element, name) ?? throw PartStructureException.MissingAttribute(name);
+
+    private static int RequiredInt(XElement element, string name) =>
+        OptionalInt(element, name) ?? throw PartStructureException.MissingAttribute(name);
+
+    /// <summary>
+    /// OOXML booleans are written as 1/0 or true/false, and both have to be accepted.
+    /// </summary>
+    private static bool? Bool(XElement? element, string name) =>
+        element?.Attribute(name)?.Value switch
+        {
+            null => null,
+            "1" or "true" or "on" or "True" => true,
+            "0" or "false" or "off" or "False" => false,
+            _ => throw PartStructureException.InvalidAttributeFormat(),
+        };
+
+    private static uint? OptionalUInt(XElement element, string name) =>
+        element.Attribute(name)?.Value is not { } value ? null
+        : uint.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out uint parsed)
+            ? parsed
+        : throw PartStructureException.InvalidAttributeFormat();
+
+    private static int? OptionalInt(XElement element, string name) =>
+        element.Attribute(name)?.Value is not { } value ? null
+        : int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out int parsed)
+            ? parsed
+        : throw PartStructureException.InvalidAttributeFormat();
+
+    private static byte? OptionalByte(XElement element, string name) =>
+        element.Attribute(name)?.Value is not { } value ? null
+        : byte.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out byte parsed)
+            ? parsed
+        : throw PartStructureException.InvalidAttributeFormat();
+
+    private static TEnum? Enum<TEnum>(XElement element, string name, Func<string, TEnum> parse)
+        where TEnum : struct => element.Attribute(name)?.Value is { } value ? parse(value) : null;
 }

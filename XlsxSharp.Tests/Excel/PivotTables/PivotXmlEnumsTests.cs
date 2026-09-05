@@ -50,6 +50,10 @@ public class PivotXmlEnumsTests
         AssertParity((RuleValues v) => v.ToXlsxSharp(), PivotXmlEnums.ParseCfRuleType);
 
     [Test]
+    public void AxisMatchesTheSdk() =>
+        AssertParity((PivotTableAxisValues v) => v.ToXlsxSharp(), PivotXmlEnums.ParseAxis);
+
+    [Test]
     public void AnUnknownValueIsRejected() =>
         ClassicAssert.Throws<XlsxSharp.IO.PartStructureException>(() =>
             PivotXmlEnums.ParseSubtotal("notAFunction")
