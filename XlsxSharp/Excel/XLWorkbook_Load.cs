@@ -101,14 +101,19 @@ public partial class XLWorkbook
         this.ShapeIdManager = new XLIdManager();
         this.SetProperties(dSpreadsheet);
 
-        SharedStringItem[] sharedStrings = null;
+        XElement[] sharedStrings = null;
         WorkbookPart workbookPart = dSpreadsheet.WorkbookPart;
         if (workbookPart.GetPartsOfType<SharedStringTablePart>().Any())
         {
             SharedStringTablePart shareStringPart = workbookPart
                 .GetPartsOfType<SharedStringTablePart>()
                 .First();
-            sharedStrings = [.. shareStringPart.SharedStringTable.Elements<SharedStringItem>()];
+            sharedStrings =
+            [
+                .. SpreadsheetXml
+                    .FromSdk(shareStringPart.SharedStringTable)
+                    .Elements(SpreadsheetXml.Main + "si"),
+            ];
         }
 
         LoadWorkbookTheme(workbookPart?.ThemePart, this);
@@ -524,10 +529,9 @@ public partial class XLWorkbook
                     IEnumerable<Run> runs = c.GetFirstChild<CommentText>().Elements<Run>();
                     foreach (Run run in runs)
                     {
-                        RunProperties runProperties = run.RunProperties;
                         string text = run.Text.InnerText.FixNewLines();
                         IXLRichString rt = xlComment.AddText(text);
-                        OpenXmlHelper.LoadFont(runProperties, rt);
+                        StyleXml.LoadFont(SpreadsheetXml.FromSdk(run.RunProperties), rt);
                     }
 
                     if (shape != null)

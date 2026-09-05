@@ -45,7 +45,7 @@ internal class WorksheetPartReader
     internal void LoadWorksheet(
         XLWorksheet ws,
         WorksheetPart worksheetPart,
-        SharedStringItem[] sharedStrings,
+        XElement[] sharedStrings,
         LoadContext context
     )
     {
@@ -335,7 +335,7 @@ internal class WorksheetPartReader
         }
     }
 
-    private void LoadRow(XLWorksheet ws, SharedStringItem[] sharedStrings, OpenXmlPartReader reader)
+    private void LoadRow(XLWorksheet ws, XElement[] sharedStrings, OpenXmlPartReader reader)
     {
         Debug.Assert(reader.LocalName == "row");
 
@@ -423,7 +423,7 @@ internal class WorksheetPartReader
     }
 
     private void LoadCell(
-        SharedStringItem[] sharedStrings,
+        XElement[] sharedStrings,
         XLWorksheet ws,
         OpenXmlPartReader reader,
         int rowIndex
@@ -521,21 +521,18 @@ internal class WorksheetPartReader
             if (dataType == CellValues.InlineString)
             {
                 xlCell.ShareString = false;
-                RstType inlineString = (RstType)reader.LoadCurrentElement();
-                if (inlineString is not null)
+                XElement inlineString = SpreadsheetXml.FromSdk(reader.LoadCurrentElement());
+                if (inlineString is null)
                 {
-                    if (inlineString.Text is not null)
-                    {
-                        xlCell.SetOnlyValue(inlineString.Text.Text.FixNewLines());
-                    }
-                    else
-                    {
-                        this.SetCellText(xlCell, inlineString);
-                    }
+                    xlCell.SetOnlyValue(string.Empty);
+                }
+                else if (inlineString.Element(SpreadsheetXml.Main + "t") is { } text)
+                {
+                    xlCell.SetOnlyValue(text.Value.FixNewLines());
                 }
                 else
                 {
-                    xlCell.SetOnlyValue(string.Empty);
+                    this.SetCellText(xlCell, inlineString);
                 }
 
                 // Move from end 'is' element to the end of a 'c' element.
@@ -698,7 +695,7 @@ internal class WorksheetPartReader
         string cellValue,
         XLCell xlCell,
         XLCellFormatValue format,
-        SharedStringItem[] sharedStrings
+        XElement[] sharedStrings
     )
     {
         if (dataType == CellValues.Number)
@@ -738,7 +735,7 @@ internal class WorksheetPartReader
                 && sharedStringId < sharedStrings.Length
             )
             {
-                SharedStringItem sharedString = sharedStrings[sharedStringId];
+                XElement sharedString = sharedStrings[sharedStringId];
 
                 this.SetCellText(xlCell, sharedString);
             }
@@ -791,57 +788,55 @@ internal class WorksheetPartReader
     /// </summary>
     /// <param name="xlCell">The cell.</param>
     /// <param name="element">The element (either a shared string or inline string)</param>
-    private void SetCellText(XLCell xlCell, RstType element)
+    private void SetCellText(XLCell xlCell, XElement element)
     {
         // TODO Styles: Create XLImmutableRichText and assign directly instead of using the API.
-        IEnumerable<Run> runs = element.Elements<Run>();
         bool hasRuns = false;
-        foreach (Run run in runs)
+        foreach (XElement run in element.Elements(SpreadsheetXml.Main + "r"))
         {
             hasRuns = true;
-            RunProperties runProperties = run.RunProperties;
-            string text = run.Text.InnerText.FixNewLines();
+            XElement runProperties = run.Element(SpreadsheetXml.Main + "rPr");
+            string text = run.Element(SpreadsheetXml.Main + "t").Value.FixNewLines();
 
-            if (runProperties == null)
+            if (runProperties is null)
             {
                 xlCell.GetRichText().AddText(text, xlCell.Style.Font);
             }
             else
             {
                 IXLRichString rt = xlCell.GetRichText().AddText(text);
-                FontScheme fontScheme = runProperties.Elements<FontScheme>().FirstOrDefault();
-                if (fontScheme != null && fontScheme.Val is not null)
-                {
-                    rt.SetFontScheme(fontScheme.Val.Value.ToXlsxSharp());
-                }
-
-                OpenXmlHelper.LoadFont(runProperties, rt);
+                StyleXml.LoadFont(runProperties, rt);
             }
         }
 
         if (!hasRuns)
         {
-            xlCell.SetOnlyValue(XStringConvert.Decode(element.Text?.InnerText) ?? string.Empty);
+            xlCell.SetOnlyValue(
+                XStringConvert.Decode(element.Element(SpreadsheetXml.Main + "t")?.Value)
+                    ?? string.Empty
+            );
         }
 
-        // Load phonetic properties
-        IEnumerable<PhoneticProperties> phoneticProperties = element.Elements<PhoneticProperties>();
-        PhoneticProperties pp = phoneticProperties.FirstOrDefault();
-        if (pp != null)
+        LoadPhonetics(xlCell, element);
+    }
+
+    private static void LoadPhonetics(XLCell xlCell, XElement element)
+    {
+        if (element.Element(SpreadsheetXml.Main + "phoneticPr") is { } pp)
         {
             XLPhonetics xlPhoneticPr = xlCell.GetRichText().Phonetics;
 
-            if (pp.Alignment != null)
+            if (SpreadsheetXml.String(pp, "alignment") is { } alignment)
             {
-                xlPhoneticPr.Alignment = pp.Alignment.Value.ToXlsxSharp();
+                xlPhoneticPr.Alignment = WorksheetXmlEnums.ParsePhoneticAlignment(alignment);
             }
 
-            if (pp.Type != null)
+            if (SpreadsheetXml.String(pp, "type") is { } type)
             {
-                xlPhoneticPr.Type = pp.Type.Value.ToXlsxSharp();
+                xlPhoneticPr.Type = WorksheetXmlEnums.ParsePhoneticType(type);
             }
 
-            if (pp.FontId?.Value is { } fontId)
+            if (SpreadsheetXml.UInt(pp, "fontId") is { } fontId)
             {
                 XLFontFormatValue phoneticsFont = xlCell.Worksheet.Workbook.Styles.Fonts[
                     checked((int)fontId)
@@ -862,16 +857,14 @@ internal class WorksheetPartReader
             }
         }
 
-        // Load phonetic runs
-        IEnumerable<PhoneticRun> phoneticRuns = element.Elements<PhoneticRun>();
-        foreach (PhoneticRun pr in phoneticRuns)
+        foreach (XElement pr in element.Elements(SpreadsheetXml.Main + "rPh"))
         {
             xlCell
                 .GetRichText()
                 .Phonetics.Add(
-                    pr.Text.InnerText.FixNewLines(),
-                    (int)pr.BaseTextStartIndex.Value,
-                    (int)pr.EndingBaseIndex.Value
+                    pr.Element(SpreadsheetXml.Main + "t").Value.FixNewLines(),
+                    checked((int)SpreadsheetXml.UInt(pr, "sb")),
+                    checked((int)SpreadsheetXml.UInt(pr, "eb"))
                 );
         }
     }
