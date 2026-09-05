@@ -284,7 +284,10 @@ public partial class XLWorkbook
 
         ExtendedFilePropertiesPartWriter.GenerateContent(extendedFilePropertiesPart, this);
 
-        WorkbookPartWriter.GenerateContent(workbookPart, this, options, context);
+        // Only the relationship ids here. The XML goes out at the end of this method, once the
+        // pivot caches exist, but the ids have to be handed out at this point so that the parts
+        // created below get the same ones they did before.
+        WorkbookPartWriter.AssignSheetRelIds(this, context);
 
         WorkbookStylesPart workbookStylesPart =
             workbookPart.WorkbookStylesPart
@@ -476,6 +479,10 @@ public partial class XLWorkbook
         }
         this.SetPackageProperties(document);
 
+        // Last, because the pivot cache references it writes are only known once the cache parts
+        // above have been created.
+        WorkbookPartWriter.GenerateContent(workbookPart, this, options, context);
+
         // Clear list of deleted worksheets to prevent errors on multiple saves
         worksheets.Deleted.Clear();
     }
@@ -607,27 +614,11 @@ public partial class XLWorkbook
         [
             .. allPivotTables.Select(pt => pt.PivotCache).Distinct().Cast<XLPivotCache>(),
         ];
-        if (xlUsedCaches.Any())
+        // Only the cache ids are handed out here. The <pivotCaches> element they end up in is
+        // written by WorkbookPartWriter, which runs after this and reads them back off the model.
+        foreach (XLPivotCache source in xlUsedCaches)
         {
-            // Recreate the workbook pivot cache references to remove previous gunk
-            PivotCaches pivotCaches = new();
-            workbookPart.Workbook.PivotCaches = pivotCaches;
-
-            foreach (XLPivotCache source in xlUsedCaches)
-            {
-                uint cacheId = context.PivotSourceCacheId++;
-                source.CacheId = cacheId;
-                PivotCache pivotCache = new() { CacheId = cacheId, Id = source.WorkbookCacheRelId };
-                pivotCaches.AppendChild(pivotCache);
-            }
-        }
-        else
-        {
-            // Remove empty pivot cache part
-            if (workbookPart.Workbook.PivotCaches is not null)
-            {
-                workbookPart.Workbook.RemoveChild(workbookPart.Workbook.PivotCaches);
-            }
+            source.CacheId = context.PivotSourceCacheId++;
         }
 
         // Remove pivot cache parts that are a part of the loaded document, but aren't used by a pivot table of the xlWorkbook
@@ -655,16 +646,6 @@ public partial class XLWorkbook
             {
                 orphanPart.DeletePart(orphanPart.PivotTableCacheRecordsPart);
                 workbookPart.DeletePart(orphanPart);
-            }
-
-            // Remove deleted pivot cache parts
-            if (workbookPart.Workbook.PivotCaches is not null)
-            {
-                workbookPart
-                    .Workbook.PivotCaches.Elements<PivotCache>()
-                    .Where(pc => !workbookPart.HasPartWithId(pc.Id))
-                    .ToList()
-                    .ForEach(pc => pc.Remove());
             }
         }
 
@@ -711,7 +692,9 @@ public partial class XLWorkbook
             .Distinct();
         foreach (XLPivotCache xlPivotCache in xlPivotCaches)
         {
-            Debug.Assert(workbookPart.Workbook.PivotCaches is not null);
+            // The <pivotCaches> element is written later, from the model; what has to hold here
+            // is that the cache knows which part it lives in.
+            Debug.Assert(xlPivotCache.CacheId is not null);
             Debug.Assert(!string.IsNullOrEmpty(xlPivotCache.WorkbookCacheRelId));
 
             PivotTableCacheDefinitionPart pivotTableCacheDefinitionPart =
