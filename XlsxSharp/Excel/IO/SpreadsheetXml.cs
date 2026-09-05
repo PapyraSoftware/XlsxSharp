@@ -22,6 +22,13 @@ internal static class SpreadsheetXml
         "http://schemas.microsoft.com/office/spreadsheetml/2009/9/main";
 
     /// <summary>
+    /// Hands a loader its element as XML while the part around it is still read through the SDK.
+    /// Every use of this goes away with the reader it sits in.
+    /// </summary>
+    internal static XElement? FromSdk(DocumentFormat.OpenXml.OpenXmlElement? element) =>
+        element is null ? null : XElement.Parse(element.OuterXml);
+
+    /// <summary>
     /// The shared Excel namespace the 2010 extensions reach into for cell references and
     /// formulas, usually written with the <c>xm</c> prefix.
     /// </summary>

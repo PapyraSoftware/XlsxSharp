@@ -69,19 +69,22 @@ internal class WorksheetPartReader
 
                 if (reader.ElementType == typeof(SheetFormatProperties))
                 {
-                    LoadSheetFormatProperties(AsXElement(reader.LoadCurrentElement()), ws);
+                    LoadSheetFormatProperties(
+                        SpreadsheetXml.FromSdk(reader.LoadCurrentElement()),
+                        ws
+                    );
                 }
                 else if (reader.ElementType == typeof(SheetViews))
                 {
-                    LoadSheetViews(AsXElement(reader.LoadCurrentElement()), ws);
+                    LoadSheetViews(SpreadsheetXml.FromSdk(reader.LoadCurrentElement()), ws);
                 }
                 else if (reader.ElementType == typeof(MergeCells))
                 {
-                    LoadMergeCells(AsXElement(reader.LoadCurrentElement()), ws);
+                    LoadMergeCells(SpreadsheetXml.FromSdk(reader.LoadCurrentElement()), ws);
                 }
                 else if (reader.ElementType == typeof(Columns))
                 {
-                    LoadColumns(ws, AsXElement(reader.LoadCurrentElement()));
+                    LoadColumns(ws, SpreadsheetXml.FromSdk(reader.LoadCurrentElement()));
                 }
                 else if (reader.ElementType == typeof(Row))
                 {
@@ -89,63 +92,79 @@ internal class WorksheetPartReader
                 }
                 else if (reader.ElementType == typeof(AutoFilter))
                 {
-                    AutoFilterReader.LoadAutoFilter((AutoFilter)reader.LoadCurrentElement(), ws);
+                    AutoFilterReader.LoadAutoFilter(
+                        SpreadsheetXml.FromSdk(reader.LoadCurrentElement()),
+                        ws
+                    );
                 }
                 else if (reader.ElementType == typeof(SheetProtection))
                 {
-                    LoadSheetProtection(AsXElement(reader.LoadCurrentElement()), ws);
+                    LoadSheetProtection(SpreadsheetXml.FromSdk(reader.LoadCurrentElement()), ws);
                 }
                 else if (reader.ElementType == typeof(DataValidations))
                 {
-                    LoadDataValidations(AsXElement(reader.LoadCurrentElement()), ws);
+                    LoadDataValidations(SpreadsheetXml.FromSdk(reader.LoadCurrentElement()), ws);
                 }
                 else if (reader.ElementType == typeof(ConditionalFormatting))
                 {
-                    LoadConditionalFormatting(AsXElement(reader.LoadCurrentElement()), ws, context);
+                    LoadConditionalFormatting(
+                        SpreadsheetXml.FromSdk(reader.LoadCurrentElement()),
+                        ws,
+                        context
+                    );
                 }
                 else if (reader.ElementType == typeof(Hyperlinks))
                 {
-                    LoadHyperlinks(AsXElement(reader.LoadCurrentElement()), worksheetPart, ws);
+                    LoadHyperlinks(
+                        SpreadsheetXml.FromSdk(reader.LoadCurrentElement()),
+                        worksheetPart,
+                        ws
+                    );
                 }
                 else if (reader.ElementType == typeof(PrintOptions))
                 {
-                    LoadPrintOptions(AsXElement(reader.LoadCurrentElement()), ws);
+                    LoadPrintOptions(SpreadsheetXml.FromSdk(reader.LoadCurrentElement()), ws);
                 }
                 else if (reader.ElementType == typeof(PageMargins))
                 {
-                    LoadPageMargins(AsXElement(reader.LoadCurrentElement()), ws);
+                    LoadPageMargins(SpreadsheetXml.FromSdk(reader.LoadCurrentElement()), ws);
                 }
                 else if (reader.ElementType == typeof(DocumentFormat.OpenXml.Spreadsheet.PageSetup))
                 {
-                    LoadPageSetup(AsXElement(reader.LoadCurrentElement()), ws, pageSetupProperties);
+                    LoadPageSetup(
+                        SpreadsheetXml.FromSdk(reader.LoadCurrentElement()),
+                        ws,
+                        pageSetupProperties
+                    );
                 }
                 else if (reader.ElementType == typeof(HeaderFooter))
                 {
-                    LoadHeaderFooter(AsXElement(reader.LoadCurrentElement()), ws);
+                    LoadHeaderFooter(SpreadsheetXml.FromSdk(reader.LoadCurrentElement()), ws);
                 }
                 else if (reader.ElementType == typeof(SheetProperties))
                 {
                     LoadSheetProperties(
-                        AsXElement(reader.LoadCurrentElement()),
+                        SpreadsheetXml.FromSdk(reader.LoadCurrentElement()),
                         ws,
                         out pageSetupProperties
                     );
                 }
                 else if (reader.ElementType == typeof(RowBreaks))
                 {
-                    LoadRowBreaks(AsXElement(reader.LoadCurrentElement()), ws);
+                    LoadRowBreaks(SpreadsheetXml.FromSdk(reader.LoadCurrentElement()), ws);
                 }
                 else if (reader.ElementType == typeof(ColumnBreaks))
                 {
-                    LoadColumnBreaks(AsXElement(reader.LoadCurrentElement()), ws);
+                    LoadColumnBreaks(SpreadsheetXml.FromSdk(reader.LoadCurrentElement()), ws);
                 }
                 else if (reader.ElementType == typeof(WorksheetExtensionList))
                 {
-                    LoadExtensions(AsXElement(reader.LoadCurrentElement()), ws);
+                    LoadExtensions(SpreadsheetXml.FromSdk(reader.LoadCurrentElement()), ws);
                 }
                 else if (reader.ElementType == typeof(LegacyDrawing))
                 {
-                    ws.LegacyDrawingId = AsXElement(reader.LoadCurrentElement())
+                    ws.LegacyDrawingId = SpreadsheetXml
+                        .FromSdk(reader.LoadCurrentElement())
                         .Attribute(SpreadsheetXml.Rel + "id")
                         ?.Value;
                 }
@@ -1860,13 +1879,6 @@ internal class WorksheetPartReader
             );
         }
     }
-
-    /// <summary>
-    /// Hands a loader the element as XML while the dispatch loop above still runs on the SDK
-    /// reader. It goes away with the loop.
-    /// </summary>
-    private static XElement AsXElement(OpenXmlElement element) =>
-        element is null ? null : XElement.Parse(element.OuterXml);
 
     private static void ApplyStyle(
         IXLFormatContainer container,

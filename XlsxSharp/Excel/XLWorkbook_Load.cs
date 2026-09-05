@@ -422,7 +422,10 @@ public partial class XLWorkbook
                 if (dTable.AutoFilter != null)
                 {
                     xlTable.ShowAutoFilter = true;
-                    AutoFilterReader.LoadAutoFilterColumns(dTable.AutoFilter, xlTable.AutoFilter);
+                    AutoFilterReader.LoadAutoFilterColumns(
+                        SpreadsheetXml.FromSdk(dTable.AutoFilter),
+                        xlTable.AutoFilter
+                    );
                 }
                 else
                 {
