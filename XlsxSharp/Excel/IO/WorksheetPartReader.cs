@@ -97,15 +97,11 @@ internal class WorksheetPartReader
                 }
                 else if (reader.ElementType == typeof(DataValidations))
                 {
-                    LoadDataValidations((DataValidations)reader.LoadCurrentElement(), ws);
+                    LoadDataValidations(AsXElement(reader.LoadCurrentElement()), ws);
                 }
                 else if (reader.ElementType == typeof(ConditionalFormatting))
                 {
-                    LoadConditionalFormatting(
-                        (ConditionalFormatting)reader.LoadCurrentElement(),
-                        ws,
-                        context
-                    );
+                    LoadConditionalFormatting(AsXElement(reader.LoadCurrentElement()), ws, context);
                 }
                 else if (reader.ElementType == typeof(Hyperlinks))
                 {
@@ -1030,12 +1026,12 @@ internal class WorksheetPartReader
     /// </summary>
     // https://msdn.microsoft.com/en-us/library/documentformat.openxml.spreadsheet.conditionalformattingrule%28v=office.15%29.aspx?f=255&MSPPError=-2147217396
     private static void LoadConditionalFormatting(
-        ConditionalFormatting conditionalFormatting,
+        XElement conditionalFormatting,
         XLWorksheet ws,
         LoadContext context
     )
     {
-        if (conditionalFormatting == null)
+        if (conditionalFormatting is null)
         {
             return;
         }
@@ -1043,53 +1039,48 @@ internal class WorksheetPartReader
         IReadOnlyBiDictionary<int, XLDxfValue> differentialFormats = ws.Workbook
             .Styles
             .DifferentialFormats;
-        foreach (
-            ConditionalFormattingRule fr in conditionalFormatting.Elements<ConditionalFormattingRule>()
-        )
+        foreach (XElement fr in conditionalFormatting.Elements(SpreadsheetXml.Main + "cfRule"))
         {
-            IEnumerable<XLRange> ranges = conditionalFormatting.SequenceOfReferences.Items.Select(
-                sor => ws.Range(sor.Value)
-            );
+            // The reference is a whitespace separated list, which is what the SDK's list value
+            // parsed it as.
+            IEnumerable<XLRange> ranges = SpreadsheetXml
+                .String(conditionalFormatting, "sqref")
+                .Split((char[])null, StringSplitOptions.RemoveEmptyEntries)
+                .Select(ws.Range);
             XLConditionalFormat conditionalFormat = new(ws, XLAreaList.FromRanges(ws, ranges));
 
-            conditionalFormat.StopIfTrue = OpenXmlHelper.GetBooleanValueAsBool(
-                fr.StopIfTrue,
-                false
-            );
+            conditionalFormat.StopIfTrue = SpreadsheetXml.Bool(fr, "stopIfTrue") ?? false;
 
             // TODO Styles: CF with empty format is technically legal, but seriously suss. Investigate.
-            if (fr.FormatId is not null)
+            if (SpreadsheetXml.UInt(fr, "dxfId") is { } formatId)
             {
-                conditionalFormat.FormatValue = differentialFormats[
-                    checked((int)fr.FormatId.Value)
-                ];
+                conditionalFormat.FormatValue = differentialFormats[checked((int)formatId)];
             }
 
             // The conditional formatting type is compulsory. If it doesn't exist, skip the entire rule.
-            if (fr.Type == null)
+            if (SpreadsheetXml.String(fr, "type") is not { } type)
             {
                 continue;
             }
 
-            conditionalFormat.ConditionalFormatType = fr.Type.Value.ToXlsxSharp();
-            conditionalFormat.Priority = fr.Priority?.Value ?? int.MaxValue;
+            conditionalFormat.ConditionalFormatType = WorksheetXmlEnums.ParseConditionalFormatType(
+                type
+            );
+            conditionalFormat.Priority = SpreadsheetXml.Int(fr, "priority") ?? int.MaxValue;
 
             // Although formulas are directly used only by CellIs and Expression type, other
             // format types also write them for evaluation to the workbook, e.g. rule to
             // IsBlank writes `LEN(TRIM(A2))=0` or ContainsText writes `NOT(ISERROR(SEARCH("hello",A2)))`.
             if (conditionalFormat.ConditionalFormatType == XLConditionalFormatType.CellIs)
             {
-                conditionalFormat.Operator = fr.Operator.Value.ToXlsxSharp();
+                conditionalFormat.Operator = WorksheetXmlEnums.ParseCfOperator(
+                    SpreadsheetXml.String(fr, "operator")
+                );
 
                 // The XML schema allows up to three <formula> tags, but at most two are used.
                 // Some producers emit empty <formula> tags that should be ignored and extra
                 // non-empty formulas should also be ignored (Excel behavior).
-                List<XLFormula> nonEmptyFormulas =
-                [
-                    .. fr.Elements<Formula>()
-                        .Where(static f => !string.IsNullOrEmpty(f.Text))
-                        .Select<Formula, XLFormula>(f => GetFormula(f.Text)),
-                ];
+                List<XLFormula> nonEmptyFormulas = [.. NonEmptyFormulas(fr).Select(GetFormula)];
                 if (conditionalFormat.Operator is XLCFOperator.Between or XLCFOperator.NotBetween)
                 {
                     List<XLFormula> formulas = [.. nonEmptyFormulas.Take(2)];
@@ -1115,16 +1106,12 @@ internal class WorksheetPartReader
             }
             else if (conditionalFormat.ConditionalFormatType == XLConditionalFormatType.Expression)
             {
-                Formula formula = fr.Elements<Formula>()
-                    .Where(static f => !string.IsNullOrEmpty(f.Text))
-                    .FirstOrDefault();
-
-                if (formula is null)
+                if (NonEmptyFormulas(fr).FirstOrDefault() is not { } formula)
                 {
                     throw PartStructureException.IncorrectElementsCount();
                 }
 
-                conditionalFormat.Values.Add(GetFormula(formula.Text));
+                conditionalFormat.Values.Add(GetFormula(formula));
             }
             else if (
                 conditionalFormat.ConditionalFormatType
@@ -1135,85 +1122,82 @@ internal class WorksheetPartReader
             )
             {
                 conditionalFormat.Values.Add(
-                    new XLFormula(fr.Text?.Value ?? string.Empty) { IsFormula = false }
+                    new XLFormula(SpreadsheetXml.String(fr, "text") ?? string.Empty)
+                    {
+                        IsFormula = false,
+                    }
                 );
             }
             else if (conditionalFormat.ConditionalFormatType == XLConditionalFormatType.Top10)
             {
-                if (fr.Percent != null)
+                if (SpreadsheetXml.Bool(fr, "percent") is { } percent)
                 {
-                    conditionalFormat.Percent = fr.Percent.Value;
+                    conditionalFormat.Percent = percent;
                 }
 
-                if (fr.Bottom != null)
+                if (SpreadsheetXml.Bool(fr, "bottom") is { } bottom)
                 {
-                    conditionalFormat.Bottom = fr.Bottom.Value;
+                    conditionalFormat.Bottom = bottom;
                 }
 
-                if (fr.Rank != null)
+                if (SpreadsheetXml.UInt(fr, "rank") is { } rank)
                 {
-                    conditionalFormat.Values.Add(GetFormula(fr.Rank.Value.ToString()));
+                    conditionalFormat.Values.Add(
+                        GetFormula(rank.ToString(CultureInfo.InvariantCulture))
+                    );
                 }
             }
             else if (conditionalFormat.ConditionalFormatType == XLConditionalFormatType.TimePeriod)
             {
-                if (fr.TimePeriod != null)
-                {
-                    conditionalFormat.TimePeriod = fr.TimePeriod.Value.ToXlsxSharp();
-                }
-                else
-                {
-                    conditionalFormat.TimePeriod = XLTimePeriod.Yesterday;
-                }
+                conditionalFormat.TimePeriod = SpreadsheetXml.String(fr, "timePeriod")
+                    is { } timePeriod
+                    ? WorksheetXmlEnums.ParseTimePeriod(timePeriod)
+                    : XLTimePeriod.Yesterday;
             }
 
-            if (fr.Elements<ColorScale>().Any())
+            if (fr.Element(SpreadsheetXml.Main + "colorScale") is { } colorScale)
             {
-                ColorScale colorScale = fr.Elements<ColorScale>().First();
                 ExtractConditionalFormatValueObjects(conditionalFormat, colorScale);
             }
-            else if (fr.Elements<DataBar>().Any())
+            else if (fr.Element(SpreadsheetXml.Main + "dataBar") is { } dataBar)
             {
-                DataBar dataBar = fr.Elements<DataBar>().First();
-                if (dataBar.ShowValue != null)
+                if (SpreadsheetXml.Bool(dataBar, "showValue") is { } showValue)
                 {
-                    conditionalFormat.ShowBarOnly = !dataBar.ShowValue.Value;
+                    conditionalFormat.ShowBarOnly = !showValue;
                 }
 
-                X14.Id id = fr.Descendants<X14.Id>().FirstOrDefault();
-                if (id != null && id.Text != null && !string.IsNullOrWhiteSpace(id.Text))
+                // The x14 extension of a data bar carries the guid that ties this rule to the
+                // richer x14 rule further down the part, written as "{...}".
+                string id = fr.Descendants(SpreadsheetXml.X14 + "id").FirstOrDefault()?.Value;
+                if (!string.IsNullOrWhiteSpace(id))
                 {
-                    conditionalFormat.Id = new Guid(id.Text.Substring(1, id.Text.Length - 2));
+                    conditionalFormat.Id = new Guid(id[1..^1]);
                 }
 
                 ExtractConditionalFormatValueObjects(conditionalFormat, dataBar);
             }
-            else if (fr.Elements<IconSet>().Any())
+            else if (fr.Element(SpreadsheetXml.Main + "iconSet") is { } iconSet)
             {
-                IconSet iconSet = fr.Elements<IconSet>().First();
-                if (iconSet.ShowValue != null)
+                if (SpreadsheetXml.Bool(iconSet, "showValue") is { } showValue)
                 {
-                    conditionalFormat.ShowIconOnly = !iconSet.ShowValue.Value;
+                    conditionalFormat.ShowIconOnly = !showValue;
                 }
 
-                if (iconSet.Reverse != null)
+                if (SpreadsheetXml.Bool(iconSet, "reverse") is { } reverse)
                 {
-                    conditionalFormat.ReverseIconOrder = iconSet.Reverse.Value;
+                    conditionalFormat.ReverseIconOrder = reverse;
                 }
 
-                if (iconSet.IconSetValue != null)
-                {
-                    conditionalFormat.IconSetStyle = iconSet.IconSetValue.Value.ToXlsxSharp();
-                }
-                else
-                {
-                    conditionalFormat.IconSetStyle = XLIconSetStyle.ThreeTrafficLights1;
-                }
+                conditionalFormat.IconSetStyle = SpreadsheetXml.String(iconSet, "iconSet")
+                    is { } iconSetStyle
+                    ? WorksheetXmlEnums.ParseIconSetStyle(iconSetStyle)
+                    : XLIconSetStyle.ThreeTrafficLights1;
 
                 ExtractConditionalFormatValueObjects(conditionalFormat, iconSet);
             }
 
-            bool isPivotTableFormatting = conditionalFormatting.Pivot?.Value ?? false;
+            bool isPivotTableFormatting =
+                SpreadsheetXml.Bool(conditionalFormatting, "pivot") ?? false;
             if (isPivotTableFormatting)
             {
                 context.AddPivotTableCf(ws.Name, conditionalFormat);
@@ -1225,66 +1209,61 @@ internal class WorksheetPartReader
         }
     }
 
+    private static IEnumerable<string> NonEmptyFormulas(XElement cfRule) =>
+        cfRule
+            .Elements(SpreadsheetXml.Main + "formula")
+            .Select(static f => f.Value)
+            .Where(static f => !string.IsNullOrEmpty(f));
+
     private static XLFormula GetFormula(string value)
     {
         XLFormula formula = new();
         formula._value = value;
-        formula.IsFormula = !(value[0] == '"' && value.EndsWith("\""));
+        formula.IsFormula = !(value[0] == '"' && value.EndsWith('"'));
         return formula;
     }
 
     private static void ExtractConditionalFormatValueObjects(
         XLConditionalFormat conditionalFormat,
-        OpenXmlElement element
+        XElement element
     )
     {
-        foreach (ConditionalFormatValueObject c in element.Elements<ConditionalFormatValueObject>())
+        foreach (XElement c in element.Elements(SpreadsheetXml.Main + "cfvo"))
         {
-            if (c.Type != null)
+            if (SpreadsheetXml.String(c, "type") is { } type)
             {
-                conditionalFormat.ContentTypes.Add(c.Type.Value.ToXlsxSharp());
+                conditionalFormat.ContentTypes.Add(WorksheetXmlEnums.ParseCfContentType(type));
             }
 
-            if (c.Val != null)
-            {
-                conditionalFormat.Values.Add(new XLFormula { Value = c.Val.Value });
-            }
-            else
-            {
-                conditionalFormat.Values.Add(null);
-            }
+            conditionalFormat.Values.Add(
+                SpreadsheetXml.String(c, "val") is { } value
+                    ? new XLFormula { Value = value }
+                    : null
+            );
 
-            if (c.GreaterThanOrEqual != null)
-            {
-                conditionalFormat.IconSetOperators.Add(
-                    c.GreaterThanOrEqual.Value
-                        ? XLCFIconSetOperator.EqualOrGreaterThan
-                        : XLCFIconSetOperator.GreaterThan
-                );
-            }
-            else
-            {
-                conditionalFormat.IconSetOperators.Add(XLCFIconSetOperator.EqualOrGreaterThan);
-            }
+            conditionalFormat.IconSetOperators.Add(
+                SpreadsheetXml.Bool(c, "gte") == false
+                    ? XLCFIconSetOperator.GreaterThan
+                    : XLCFIconSetOperator.EqualOrGreaterThan
+            );
         }
-        foreach (Color c in element.Elements<Color>())
+
+        foreach (XElement c in element.Elements(SpreadsheetXml.Main + "color"))
         {
-            conditionalFormat.Colors.Add(c.ToXlsxSharpColor());
+            conditionalFormat.Colors.Add(SpreadsheetXml.ReadColor(c));
         }
     }
 
-    private static void LoadDataValidations(DataValidations dataValidations, XLWorksheet ws)
+    private static void LoadDataValidations(XElement dataValidations, XLWorksheet ws)
     {
-        if (dataValidations == null)
+        if (dataValidations is null)
         {
             return;
         }
 
-        foreach (
-            DocumentFormat.OpenXml.Spreadsheet.DataValidation dvs in dataValidations.Elements<DocumentFormat.OpenXml.Spreadsheet.DataValidation>()
-        )
+        foreach (XElement dvs in dataValidations.Elements(SpreadsheetXml.Main + "dataValidation"))
         {
-            string txt = dvs.SequenceOfReferences.InnerText;
+            string txt = SpreadsheetXml.String(dvs, "sqref");
             if (string.IsNullOrWhiteSpace(txt))
             {
                 continue;
@@ -1293,71 +1272,82 @@ internal class WorksheetPartReader
             foreach (string rangeAddress in txt.Split(' '))
             {
                 XLDataValidation dvt = ws.DataValidations.Create(Area.Parse(rangeAddress));
-                if (dvs.AllowBlank != null)
-                {
-                    dvt.IgnoreBlanks = dvs.AllowBlank;
-                }
-
-                if (dvs.ShowDropDown != null)
-                {
-                    dvt.InCellDropdown = !dvs.ShowDropDown.Value;
-                }
-
-                if (dvs.ShowErrorMessage != null)
-                {
-                    dvt.ShowErrorMessage = dvs.ShowErrorMessage;
-                }
-
-                if (dvs.ShowInputMessage != null)
-                {
-                    dvt.ShowInputMessage = dvs.ShowInputMessage;
-                }
-
-                if (dvs.PromptTitle != null)
-                {
-                    dvt.InputTitle = dvs.PromptTitle;
-                }
-
-                if (dvs.Prompt != null)
-                {
-                    dvt.InputMessage = dvs.Prompt;
-                }
-
-                if (dvs.ErrorTitle != null)
-                {
-                    dvt.ErrorTitle = dvs.ErrorTitle;
-                }
-
-                if (dvs.Error != null)
-                {
-                    dvt.ErrorMessage = dvs.Error;
-                }
-
-                if (dvs.ErrorStyle != null)
-                {
-                    dvt.ErrorStyle = dvs.ErrorStyle.Value.ToXlsxSharp();
-                }
-
-                if (dvs.Type != null)
-                {
-                    dvt.AllowedValues = dvs.Type.Value.ToXlsxSharp();
-                }
-
-                if (dvs.Operator != null)
-                {
-                    dvt.Operator = dvs.Operator.Value.ToXlsxSharp();
-                }
-
-                if (dvs.Formula1 != null)
-                {
-                    dvt.MinValue = dvs.Formula1.Text;
-                }
-
-                if (dvs.Formula2 != null)
-                {
-                    dvt.MaxValue = dvs.Formula2.Text;
-                }
+                LoadDataValidation(dvs, dvt);
             }
+        }
+    }
+
+    /// <summary>
+    /// The attributes of one <c>dataValidation</c>, which the x14 extension list repeats verbatim
+    /// in its own namespace for the validations that reference another sheet.
+    /// </summary>
+    private static void LoadDataValidation(XElement dvs, XLDataValidation dvt)
+    {
+        XNamespace ns = dvs.Name.Namespace;
+
+        if (SpreadsheetXml.Bool(dvs, "allowBlank") is { } allowBlank)
+        {
+            dvt.IgnoreBlanks = allowBlank;
+        }
+
+        if (SpreadsheetXml.Bool(dvs, "showDropDown") is { } showDropDown)
+        {
+            dvt.InCellDropdown = !showDropDown;
+        }
+
+        if (SpreadsheetXml.Bool(dvs, "showErrorMessage") is { } showErrorMessage)
+        {
+            dvt.ShowErrorMessage = showErrorMessage;
+        }
+
+        if (SpreadsheetXml.Bool(dvs, "showInputMessage") is { } showInputMessage)
+        {
+            dvt.ShowInputMessage = showInputMessage;
+        }
+
+        if (SpreadsheetXml.String(dvs, "promptTitle") is { } promptTitle)
+        {
+            dvt.InputTitle = promptTitle;
+        }
+
+        if (SpreadsheetXml.String(dvs, "prompt") is { } prompt)
+        {
+            dvt.InputMessage = prompt;
+        }
+
+        if (SpreadsheetXml.String(dvs, "errorTitle") is { } errorTitle)
+        {
+            dvt.ErrorTitle = errorTitle;
+        }
+
+        if (SpreadsheetXml.String(dvs, "error") is { } error)
+        {
+            dvt.ErrorMessage = error;
+        }
+
+        if (SpreadsheetXml.String(dvs, "errorStyle") is { } errorStyle)
+        {
+            dvt.ErrorStyle = WorksheetXmlEnums.ParseErrorStyle(errorStyle);
+        }
+
+        if (SpreadsheetXml.String(dvs, "type") is { } type)
+        {
+            dvt.AllowedValues = WorksheetXmlEnums.ParseAllowedValues(type);
+        }
+
+        if (SpreadsheetXml.String(dvs, "operator") is { } op)
+        {
+            dvt.Operator = WorksheetXmlEnums.ParseDataValidationOperator(op);
+        }
+
+        if (dvs.Element(ns + "formula1") is { } formula1)
+        {
+            dvt.MinValue = formula1.Value;
+        }
+
+        if (dvs.Element(ns + "formula2") is { } formula2)
+        {
+            dvt.MaxValue = formula2.Value;
         }
     }
 
