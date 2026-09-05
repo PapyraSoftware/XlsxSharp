@@ -33,6 +33,8 @@ public sealed class OpcPackage : IDisposable
     /// <summary>Whether disposing the package also disposes <see cref="_stream"/>.</summary>
     private readonly bool _ownsStream;
 
+    private OpcPackageProperties? _properties;
+
     private bool _disposed;
 
     private OpcPackage(
@@ -59,6 +61,12 @@ public sealed class OpcPackage : IDisposable
 
     /// <summary>Every part of the package, excluding the relationship parts.</summary>
     public IReadOnlyCollection<OpcPart> Parts => this._parts.Values;
+
+    /// <summary>
+    /// The core properties of the package. Reading them loads the part they live in; writing one
+    /// makes <see cref="SaveTo"/> rewrite that part, creating it if the package has none.
+    /// </summary>
+    public OpcPackageProperties Properties => this._properties ??= this.ReadProperties();
 
     /// <summary>Opens a package from a file.</summary>
     /// <param name="path">The path of the package.</param>
@@ -162,7 +170,7 @@ public sealed class OpcPackage : IDisposable
             );
         }
 
-        OpcPart part = new(this, name, contentType, entry: null, content: new MemoryStream());
+        OpcPart part = new(this, name, contentType, entry: null, content: []);
         this._parts.Add(name, part);
         this._contentTypes.SetContentType(name, contentType);
         return part;
@@ -248,6 +256,7 @@ public sealed class OpcPackage : IDisposable
     {
         ArgumentNullException.ThrowIfNull(stream);
         this.ThrowIfDisposed();
+        this.FlushProperties();
 
         using ZipArchive archive = new(stream, ZipArchiveMode.Create, leaveOpen: true);
 
@@ -295,6 +304,65 @@ public sealed class OpcPackage : IDisposable
                 this._stream?.Dispose();
             }
         }
+    }
+
+    /// <summary>
+    /// Loads the core properties from the part related from the package, or starts an empty set
+    /// when the package has none.
+    /// </summary>
+    private OpcPackageProperties ReadProperties()
+    {
+        OpcRelationship? relationship = this
+            .Relationships.OfType(OpcRelationshipType.CoreProperties)
+            .FirstOrDefault(r => r.TargetMode == OpcTargetMode.Internal);
+
+        if (
+            relationship?.TargetPartName is null
+            || !this._parts.TryGetValue(relationship.TargetPartName, out OpcPart? part)
+        )
+        {
+            return new OpcPackageProperties();
+        }
+
+        using Stream stream = part.GetReadStream();
+        return OpcPackageProperties.Read(stream);
+    }
+
+    /// <summary>
+    /// Writes the core properties back into their part, adding the part and the relationship to
+    /// it when the package does not have them yet.
+    /// </summary>
+    private void FlushProperties()
+    {
+        if (this._properties is not { IsDirty: true })
+        {
+            return;
+        }
+
+        OpcRelationship? relationship = this
+            .Relationships.OfType(OpcRelationshipType.CoreProperties)
+            .FirstOrDefault(r => r.TargetMode == OpcTargetMode.Internal);
+
+        OpcPart part;
+        if (
+            relationship?.TargetPartName is not null
+            && this._parts.TryGetValue(relationship.TargetPartName, out OpcPart? existing)
+        )
+        {
+            part = existing;
+        }
+        else
+        {
+            part = this.AddPart(
+                OpcPackageProperties.DefaultPartName,
+                OpcContentType.CoreProperties
+            );
+
+            this.Relationships.Add(part.Name, OpcRelationshipType.CoreProperties);
+        }
+
+        using Stream stream = part.GetWriteStream();
+        this._properties.Write(stream);
     }
 
     internal OpcPart ResolveRelatedPart(OpcRelationship relationship)

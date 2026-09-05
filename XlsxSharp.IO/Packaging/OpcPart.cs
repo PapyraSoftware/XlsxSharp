@@ -19,14 +19,14 @@ public sealed class OpcPart
     private ZipArchiveEntry? _entry;
 
     /// <summary>The content after it was written to, or <c>null</c> while it still is in the ZIP.</summary>
-    private MemoryStream? _content;
+    private byte[]? _content;
 
     internal OpcPart(
         OpcPackage package,
         string name,
         string contentType,
         ZipArchiveEntry? entry,
-        MemoryStream? content
+        byte[]? content
     )
     {
         this._package = package;
@@ -56,12 +56,7 @@ public sealed class OpcPart
 
         if (this._content is not null)
         {
-            return new MemoryStream(
-                this._content.GetBuffer(),
-                0,
-                (int)this._content.Length,
-                writable: false
-            );
+            return new MemoryStream(this._content, writable: false);
         }
 
         if (this._entry is not null)
@@ -73,17 +68,21 @@ public sealed class OpcPart
     }
 
     /// <summary>
-    /// Opens the content for writing, discarding whatever the part held before. The returned
-    /// stream is the caller's to dispose, and the part keeps what was written to it.
+    /// Opens the content for writing, discarding whatever the part held before.
     /// </summary>
+    /// <remarks>
+    /// The returned stream is the caller's to dispose, and what was written reaches the part when
+    /// that stream is flushed or disposed. Every writer over a part therefore has to be closed
+    /// before the package is saved, which the <c>using</c> around it takes care of.
+    /// </remarks>
     public Stream GetWriteStream()
     {
         this._package.ThrowIfDisposed();
         this._package.ThrowIfReadOnly();
 
         this._entry = null;
-        this._content = new MemoryStream();
-        return new OpcPartWriteStream(this._content);
+        this._content = [];
+        return new OpcPartWriteStream(this);
     }
 
     /// <summary>
@@ -133,11 +132,13 @@ public sealed class OpcPart
         && !contentType.EndsWith("xml", StringComparison.OrdinalIgnoreCase);
 
     /// <summary>
-    /// Hands out a writable view of the part's buffer without letting the caller disposing the
-    /// handle take the buffer away from the part.
+    /// Buffers what is written to a part and hands it over on every flush, so that the part holds
+    /// plain bytes rather than a stream it would have to own and dispose.
     /// </summary>
-    private sealed class OpcPartWriteStream(MemoryStream content) : Stream
+    private sealed class OpcPartWriteStream(OpcPart part) : Stream
     {
+        private readonly MemoryStream content = new();
+
         public override bool CanRead => false;
 
         public override bool CanSeek => true;
@@ -152,7 +153,11 @@ public sealed class OpcPart
             set => content.Position = value;
         }
 
-        public override void Flush() => content.Flush();
+        public override void Flush()
+        {
+            content.Flush();
+            this.Publish();
+        }
 
         public override int Read(byte[] buffer, int offset, int count) =>
             throw new NotSupportedException("The part was opened for writing.");
@@ -170,10 +175,15 @@ public sealed class OpcPart
 
         protected override void Dispose(bool disposing)
         {
-            // Deliberately does not dispose the underlying MemoryStream: it is the part's
-            // content and outlives this handle.
-            content.Flush();
+            if (disposing)
+            {
+                this.Publish();
+                content.Dispose();
+            }
+
             base.Dispose(disposing);
         }
+
+        private void Publish() => part._content = content.ToArray();
     }
 }
