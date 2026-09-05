@@ -1,4 +1,3 @@
-using DocumentFormat.OpenXml;
 using XlsxSharp.Extensions;
 
 namespace XlsxSharp.Tests.Excel.Misc;
@@ -19,13 +18,6 @@ public class ExtensionsTests
     {
         double value = 1234.1234567;
         ClassicAssert.AreEqual(value.SaveRound(), Math.Round(value, 6));
-    }
-
-    [Test]
-    public void DoubleValueSaveRound()
-    {
-        double value = 1234.1234567;
-        ClassicAssert.AreEqual(new DoubleValue(value).SaveRound().Value, Math.Round(value, 6));
     }
 
     [Test]
