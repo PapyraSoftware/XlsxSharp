@@ -111,12 +111,8 @@ internal static class WorksheetXml
         XElement? previous = null;
         foreach (XElement candidate in parent.Elements())
         {
-            int candidateRank = Array.IndexOf(order, candidate.Name.LocalName);
-            if (
-                candidate.Name.Namespace == SpreadsheetXml.Main
-                && candidateRank >= 0
-                && candidateRank < rank
-            )
+            int candidateRank = Array.IndexOf(order, EffectiveLocalName(candidate));
+            if (candidateRank >= 0 && candidateRank < rank)
             {
                 previous = candidate;
             }
@@ -130,6 +126,28 @@ internal static class WorksheetXml
         {
             previous.AddAfterSelf(child);
         }
+    }
+
+    /// <summary>
+    /// A markup-compatibility wrapper stands in for whatever it wraps, for ordering purposes -
+    /// the schema orders the sheet by what it actually contains, and an AlternateContent's
+    /// Choice or Fallback carries the element that would otherwise sit here directly.
+    /// </summary>
+    private static string EffectiveLocalName(XElement candidate)
+    {
+        if (candidate.Name.LocalName == "AlternateContent")
+        {
+            XElement? wrapped = candidate
+                .Elements()
+                .SelectMany(branch => branch.Elements())
+                .FirstOrDefault();
+            if (wrapped is not null)
+            {
+                return wrapped.Name.LocalName;
+            }
+        }
+
+        return candidate.Name.LocalName;
     }
 
     /// <summary>

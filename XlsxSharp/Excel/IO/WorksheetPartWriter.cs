@@ -3,11 +3,8 @@
 using System.Globalization;
 using System.Xml;
 using System.Xml.Linq;
-using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
-using DocumentFormat.OpenXml.Spreadsheet;
 using XlsxSharp.Excel.ConditionalFormats;
-using XlsxSharp.Excel.ContentManagers;
 using XlsxSharp.Excel.DataValidation;
 using XlsxSharp.Excel.Drawings;
 using XlsxSharp.Excel.Exceptions;
@@ -22,11 +19,6 @@ using XlsxSharp.IO;
 using XlsxSharp.Utils;
 using static XlsxSharp.Excel.IO.OpenXmlConst;
 using static XlsxSharp.Excel.XLWorkbook;
-using Break = DocumentFormat.OpenXml.Spreadsheet.Break;
-using Drawing = DocumentFormat.OpenXml.Spreadsheet.Drawing;
-using Hyperlink = DocumentFormat.OpenXml.Spreadsheet.Hyperlink;
-using OfficeExcel = DocumentFormat.OpenXml.Office.Excel;
-using X14 = DocumentFormat.OpenXml.Office2010.Excel;
 
 namespace XlsxSharp.Excel.IO;
 
@@ -40,20 +32,20 @@ internal class WorksheetPartWriter
         SaveContext context
     )
     {
-        Worksheet worksheetDom = GetWorksheetDom(
-            partIsEmpty,
-            worksheetPart,
-            xlWorksheet,
-            options,
-            context
-        );
+        if (options.ConsolidateConditionalFormatRanges)
+        {
+            xlWorksheet.ConditionalFormats.Consolidate();
+        }
+
+        XElement worksheet = ReadOrCreateWorksheet(partIsEmpty, worksheetPart);
 
         // The cells are written from the workbook model rather than from what the part held, so
         // the rows loaded above are dropped before the rest of the sheet is turned into XML.
-        worksheetDom.GetFirstChild<SheetData>()?.RemoveAllChildren();
-
-        XElement worksheet = ToXml(worksheetDom);
+        worksheet.Element(SpreadsheetXml.Main + "sheetData")?.RemoveNodes();
         WorksheetXml.Child(worksheet, "sheetData");
+
+        WriteTableParts(worksheet, (XLTables)xlWorksheet.Tables);
+        WritePictures(worksheet, worksheetPart, xlWorksheet, context);
         WriteLegacyDrawing(worksheet, xlWorksheet);
         WriteSheetProperties(worksheet, xlWorksheet);
         WriteDimension(worksheet, xlWorksheet);
@@ -85,138 +77,70 @@ internal class WorksheetPartWriter
         StreamToPart(worksheet, worksheetPart, xlWorksheet, context, options);
     }
 
-    private static Worksheet GetWorksheetDom(
-        bool partIsEmpty,
-        WorksheetPart worksheetPart,
-        XLWorksheet xlWorksheet,
-        SaveOptions options,
-        SaveContext context
-    )
+    /// <summary>
+    /// The sheet as it was loaded, patched rather than replaced, or a fresh one for a part that
+    /// has no content yet.
+    /// </summary>
+    private static XElement ReadOrCreateWorksheet(bool partIsEmpty, WorksheetPart worksheetPart)
     {
-        if (options.ConsolidateConditionalFormatRanges)
-        {
-            xlWorksheet.ConditionalFormats.Consolidate();
-        }
-
-        #region Worksheet
-
-        Worksheet worksheet;
+        XElement worksheet;
         if (!partIsEmpty)
         {
-            // Accessing the worksheet through worksheetPart.Worksheet creates an attached DOM
-            // worksheet that is tracked and later saved automatically to the part.
-            // Using the reader, we get a detached DOM.
-            // The OpenXmlReader.Create method only reads xml declaration, but doesn't read content.
-            using OpenXmlReader reader = OpenXmlReader.Create(worksheetPart);
-            if (!reader.Read())
-            {
-                throw new ArgumentException(
-                    "Worksheet part should contain worksheet xml, but is empty."
-                );
-            }
-
-            worksheet = (Worksheet)reader.LoadCurrentElement();
+            using Stream stream = worksheetPart.GetStream(FileMode.Open, FileAccess.Read);
+            worksheet =
+                XDocument.Load(stream).Root
+                ?? throw PartStructureException.ExpectedElementNotFound("worksheet");
         }
         else
         {
-            worksheet = new Worksheet();
-        }
-
-        if (worksheet.NamespaceDeclarations.All(ns => ns.Value != RelationshipsNs))
-        {
-            worksheet.AddNamespaceDeclaration("r", RelationshipsNs);
-        }
-
-        // We store the x14ac:dyDescent attribute (if set by a xlRow) in a row element. It's an optional attribute and it
-        // needs a declared namespace. To avoid writing namespace to each <x:row> element during streaming, write it to
-        // every sheet part ahead of time. The namespace has to be marked as ignorable, because OpenXML SDK validator will
-        // refuse to validate it because it's an optional extension (see ISO29500 part 3).
-        if (worksheet.NamespaceDeclarations.All(ns => ns.Value != X14Ac2009SsNs))
-        {
-            worksheet.AddNamespaceDeclaration("x14ac", X14Ac2009SsNs);
-            worksheet.SetAttribute(
-                new OpenXmlAttribute("mc", "Ignorable", MarkupCompatibilityNs, "x14ac")
+            worksheet = new XElement(
+                SpreadsheetXml.Main + "worksheet",
+                new XAttribute(XNamespace.Xmlns + "x", SpreadsheetXml.Main.NamespaceName)
             );
         }
 
-        #endregion Worksheet
-
-        XLWorksheetContentManager cm = new(worksheet);
-
-        #region Tables
-
-        PopulateTablePartReferences((XLTables)xlWorksheet.Tables, worksheet, cm);
-
-        #endregion Tables
-
-        #region Drawings
-
-        if (worksheetPart.DrawingsPart != null)
+        // The main namespace is always declared under the prefix "x", the way the SDK's own
+        // writer always did regardless of what a loaded file used - a file that declares it as
+        // the default namespace, or under some other prefix, is normalised here.
+        if (worksheet.GetPrefixOfNamespace(SpreadsheetXml.Main) is not "x")
         {
-            XLPictures xlPictures = xlWorksheet.Pictures as Drawings.XLPictures;
-            foreach (string removedPicture in xlPictures.Deleted)
-            {
-                worksheetPart.DrawingsPart.DeletePart(removedPicture);
-            }
-            xlPictures.Deleted.Clear();
+            worksheet
+                .Attributes()
+                .Where(attribute =>
+                    attribute.IsNamespaceDeclaration
+                    && attribute.Value == SpreadsheetXml.Main.NamespaceName
+                )
+                .ToList()
+                .ForEach(attribute => attribute.Remove());
+            worksheet.SetAttributeValue(XNamespace.Xmlns + "x", SpreadsheetXml.Main.NamespaceName);
         }
 
-        if (xlWorksheet.Pictures.Count > 0)
-        {
-            DrawingsPart drawingsPart =
-                worksheetPart.DrawingsPart
-                ?? worksheetPart.AddNewPart<DrawingsPart>(
-                    context.RelIdGenerator.GetNext(RelType.Workbook)
-                );
-            (XElement worksheetDrawingXml, bool standalone) = ReadOrCreateWorksheetDrawing(
-                drawingsPart
-            );
-
-            foreach (XLPicture pic in xlWorksheet.Pictures)
-            {
-                AddPictureAnchor(worksheetDrawingXml, drawingsPart, pic, context);
-            }
-
-            RebaseNonVisualDrawingPropertiesIds(worksheetDrawingXml);
-            HoistNamespaceDeclarations(worksheetDrawingXml);
-            SaveWorksheetDrawing(drawingsPart, worksheetDrawingXml, standalone);
-        }
-
-        TableParts tableParts = worksheet.Elements<TableParts>().First();
-        if (xlWorksheet.Pictures.Count > 0 && !worksheet.OfType<Drawing>().Any())
-        {
-            Drawing worksheetDrawing = new()
-            {
-                Id = worksheetPart.GetIdOfPart(worksheetPart.DrawingsPart),
-            };
-            worksheetDrawing.AddNamespaceDeclaration(
-                "r",
-                "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
-            );
-            worksheet.InsertBefore(worksheetDrawing, tableParts);
-            cm.SetElement(XLWorksheetContents.Drawing, worksheet.Elements<Drawing>().First());
-        }
-
-        // Instead of saving a file with an empty Drawings.xml file, rather remove the .xml file
-        bool hasCharts =
-            worksheetPart.DrawingsPart is not null && worksheetPart.DrawingsPart.Parts.Any();
         if (
-            worksheetPart.DrawingsPart is not null
-            && // There is a drawing part for the sheet that could be deleted
-            xlWorksheet.LegacyDrawingId is null
-            && // and sheet doesn't contain any form controls or comments or other shapes
-            xlWorksheet.Pictures.Count == 0
-            && // and also no pictures.
-            !hasCharts
-        ) // and no charts
+            worksheet
+                .Attributes()
+                .Where(attribute => attribute.IsNamespaceDeclaration)
+                .All(attribute => attribute.Value != RelationshipsNs)
+        )
         {
-            string id = worksheetPart.GetIdOfPart(worksheetPart.DrawingsPart);
-            worksheet.RemoveChild(worksheet.OfType<Drawing>().FirstOrDefault(p => p.Id == id));
-            worksheetPart.DeletePart(worksheetPart.DrawingsPart);
-            cm.SetElement(XLWorksheetContents.Drawing, null);
+            worksheet.SetAttributeValue(XNamespace.Xmlns + "r", RelationshipsNs);
         }
 
-        #endregion Drawings
+        // We store the x14ac:dyDescent attribute (if set by a xlRow) in a row element. It's an
+        // optional attribute and it needs a declared namespace. To avoid writing namespace to
+        // each <x:row> element during streaming, write it to every sheet part ahead of time. The
+        // namespace has to be marked as ignorable, because Excel's own validator refuses to
+        // validate it otherwise, being an optional extension (see ISO29500 part 3).
+        if (
+            worksheet
+                .Attributes()
+                .Where(attribute => attribute.IsNamespaceDeclaration)
+                .All(attribute => attribute.Value != X14Ac2009SsNs)
+        )
+        {
+            worksheet.SetAttributeValue(XNamespace.Xmlns + "x14ac", X14Ac2009SsNs);
+            worksheet.SetAttributeValue(XNamespace.Xmlns + "mc", MarkupCompatibilityNs);
+            worksheet.SetAttributeValue(XName.Get("Ignorable", MarkupCompatibilityNs), "x14ac");
+        }
 
         return worksheet;
     }
@@ -1200,11 +1124,11 @@ internal class WorksheetPartWriter
         }
     }
 
-    private static void PopulateTablePartReferences(
-        XLTables xlTables,
-        Worksheet worksheet,
-        XLWorksheetContentManager cm
-    )
+    /// <summary>
+    /// <c>tableParts</c>, which the sheet always carries once any table has ever been added -
+    /// an empty tableParts is written rather than removed, matching what the loaded sheet had.
+    /// </summary>
+    private static void WriteTableParts(XElement worksheet, XLTables xlTables)
     {
         XLTable emptyTable = xlTables.FirstOrDefault<XLTable>(t => t.DataRange is null);
         if (emptyTable != null)
@@ -1212,29 +1136,97 @@ internal class WorksheetPartWriter
             throw new EmptyTableException($"Table '{emptyTable.Name}' should have at least 1 row.");
         }
 
-        TableParts tableParts;
-        if (worksheet.Elements<TableParts>().Any())
-        {
-            tableParts = worksheet.Elements<TableParts>().First();
-        }
-        else
-        {
-            OpenXmlElement previousElement = cm.GetPreviousElementFor(
-                XLWorksheetContents.TableParts
-            );
-            tableParts = new TableParts();
-            worksheet.InsertAfter(tableParts, previousElement);
-        }
-        cm.SetElement(XLWorksheetContents.TableParts, tableParts);
+        XElement tableParts = WorksheetXml.Child(worksheet, "tableParts");
 
         xlTables.Deleted.Clear();
-        tableParts.RemoveAllChildren();
+        tableParts.RemoveNodes();
         foreach (XLTable xlTable in xlTables.Cast<XLTable>())
         {
-            tableParts.AppendChild(new TablePart { Id = xlTable.RelId });
+            tableParts.Add(
+                new XElement(
+                    SpreadsheetXml.Main + "tablePart",
+                    new XAttribute(SpreadsheetXml.Rel + "id", xlTable.RelId)
+                )
+            );
         }
 
-        tableParts.Count = (uint)xlTables.Count<XLTable>();
+        WorksheetXml.Set(tableParts, "count", (uint)xlTables.Count<XLTable>());
+    }
+
+    /// <summary>
+    /// Everything to do with pictures that isn't the anchors themselves: the parts of deleted
+    /// pictures, the sheet's own reference to the drawing part, and dropping that part and the
+    /// reference to it once nothing needs it any more.
+    /// </summary>
+    private static void WritePictures(
+        XElement worksheet,
+        WorksheetPart worksheetPart,
+        XLWorksheet xlWorksheet,
+        SaveContext context
+    )
+    {
+        if (worksheetPart.DrawingsPart != null)
+        {
+            XLPictures xlPictures = xlWorksheet.Pictures as Drawings.XLPictures;
+            foreach (string removedPicture in xlPictures.Deleted)
+            {
+                worksheetPart.DrawingsPart.DeletePart(removedPicture);
+            }
+            xlPictures.Deleted.Clear();
+        }
+
+        if (xlWorksheet.Pictures.Count > 0)
+        {
+            DrawingsPart drawingsPart =
+                worksheetPart.DrawingsPart
+                ?? worksheetPart.AddNewPart<DrawingsPart>(
+                    context.RelIdGenerator.GetNext(RelType.Workbook)
+                );
+            (XElement worksheetDrawingXml, bool standalone) = ReadOrCreateWorksheetDrawing(
+                drawingsPart
+            );
+
+            foreach (XLPicture pic in xlWorksheet.Pictures)
+            {
+                AddPictureAnchor(worksheetDrawingXml, drawingsPart, pic, context);
+            }
+
+            RebaseNonVisualDrawingPropertiesIds(worksheetDrawingXml);
+            HoistNamespaceDeclarations(worksheetDrawingXml);
+            SaveWorksheetDrawing(drawingsPart, worksheetDrawingXml, standalone);
+
+            // A sheet that already carries a drawing reference keeps it exactly as it was
+            // loaded; only a sheet gaining pictures for the first time gets one written.
+            if (worksheet.Element(SpreadsheetXml.Main + "drawing") is null)
+            {
+                XElement drawingElement = WorksheetXml.Child(worksheet, "drawing");
+                // The SDK always redeclared "r" locally on a newly created element too,
+                // redundantly with the root's own declaration, and the reference workbooks
+                // record that redundancy.
+                drawingElement.SetAttributeValue(XNamespace.Xmlns + "r", RelationshipsNs);
+                drawingElement.SetAttributeValue(
+                    SpreadsheetXml.Rel + "id",
+                    worksheetPart.GetIdOfPart(drawingsPart)
+                );
+            }
+        }
+
+        // Instead of saving a file with an empty Drawings.xml file, rather remove the .xml file
+        bool hasCharts =
+            worksheetPart.DrawingsPart is not null && worksheetPart.DrawingsPart.Parts.Any();
+        if (
+            worksheetPart.DrawingsPart is not null
+            && // There is a drawing part for the sheet that could be deleted
+            xlWorksheet.LegacyDrawingId is null
+            && // and sheet doesn't contain any form controls or comments or other shapes
+            xlWorksheet.Pictures.Count == 0
+            && // and also no pictures.
+            !hasCharts
+        ) // and no charts
+        {
+            worksheet.Element(SpreadsheetXml.Main + "drawing")?.Remove();
+            worksheetPart.DeletePart(worksheetPart.DrawingsPart);
+        }
     }
 
     /// <summary>
@@ -2390,41 +2382,6 @@ internal class WorksheetPartWriter
                 )
             );
         }
-    }
-
-    /// <summary>
-    /// The sheet as XML, with its namespaces declared where the DOM declares them.
-    /// </summary>
-    /// <remarks>
-    /// Writing out a detached SDK element hoists every namespace its descendants use onto the
-    /// element itself, on top of leaving the declarations where they were. The extra ones come
-    /// off again: a declaration stays only if the sheet itself declares it, if it is the sheet's
-    /// own namespace, or if one of the sheet's attributes needs it.
-    /// </remarks>
-    private static XElement ToXml(Worksheet worksheetDom)
-    {
-        XElement worksheet = SpreadsheetXml.FromSdk(worksheetDom);
-        HashSet<string> declared =
-        [
-            .. worksheetDom.NamespaceDeclarations.Select(declaration => declaration.Value),
-            worksheet.Name.NamespaceName,
-            .. worksheet.Attributes().Select(attribute => attribute.Name.NamespaceName),
-        ];
-
-        foreach (
-            XAttribute attribute in worksheet
-                .Attributes()
-                .Where(attribute => attribute.IsNamespaceDeclaration)
-                .ToList()
-        )
-        {
-            if (!declared.Contains(attribute.Value))
-            {
-                attribute.Remove();
-            }
-        }
-
-        return worksheet;
     }
 
     private static void StreamToPart(
