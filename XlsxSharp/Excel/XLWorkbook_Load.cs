@@ -4,12 +4,7 @@ using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
-using DocumentFormat.OpenXml;
-using DocumentFormat.OpenXml.CustomProperties;
-using DocumentFormat.OpenXml.Drawing;
-using DocumentFormat.OpenXml.ExtendedProperties;
 using DocumentFormat.OpenXml.Packaging;
-using DocumentFormat.OpenXml.Spreadsheet;
 using XlsxSharp.Excel.Comments;
 using XlsxSharp.Excel.Drawings;
 using XlsxSharp.Excel.Drawings.Style;
@@ -26,6 +21,15 @@ namespace XlsxSharp.Excel;
 
 public partial class XLWorkbook
 {
+    private static readonly XNamespace CustomPropertiesNs =
+        "http://schemas.openxmlformats.org/officeDocument/2006/custom-properties";
+
+    private static readonly XNamespace ExtendedPropertiesNs =
+        "http://schemas.openxmlformats.org/officeDocument/2006/extended-properties";
+
+    private static readonly XNamespace DrawingNs =
+        "http://schemas.openxmlformats.org/drawingml/2006/main";
+
     private void Load(string file) => this.LoadSheets(file);
 
     private void Load(Stream stream) => this.LoadSheets(stream);
@@ -116,44 +120,54 @@ public partial class XLWorkbook
 
         LoadWorkbookTheme(workbookPart?.ThemePart, this);
 
-        if (dSpreadsheet.CustomFilePropertiesPart != null)
+        if (dSpreadsheet.CustomFilePropertiesPart is { } customFilePropertiesPart)
         {
+            using Stream customPropertiesStream = customFilePropertiesPart.GetStream(
+                FileMode.Open,
+                FileAccess.Read
+            );
+            XElement? customProperties = XDocument.Load(customPropertiesStream).Root;
+
             foreach (
-                CustomDocumentProperty m in dSpreadsheet.CustomFilePropertiesPart.Properties.Elements<CustomDocumentProperty>()
+                XElement property in customProperties?.Elements(CustomPropertiesNs + "property")
+                    ?? []
             )
             {
-                string name = m.Name?.Value;
+                string name = property.Attribute("name")?.Value;
 
                 if (string.IsNullOrWhiteSpace(name))
                 {
                     continue;
                 }
 
-                if (m.VTLPWSTR != null)
+                XElement value = property.Elements().FirstOrDefault();
+                switch (value?.Name.LocalName)
                 {
-                    this.CustomProperties.Add(name, m.VTLPWSTR.Text);
-                }
-                else if (m.VTFileTime != null)
-                {
-                    this.CustomProperties.Add(
-                        name,
-                        DateTime.ParseExact(
-                            m.VTFileTime.Text,
-                            "yyyy'-'MM'-'dd'T'HH':'mm':'ssK",
-                            CultureInfo.InvariantCulture
-                        )
-                    );
-                }
-                else if (m.VTDouble != null)
-                {
-                    this.CustomProperties.Add(
-                        name,
-                        double.Parse(m.VTDouble.Text, CultureInfo.InvariantCulture)
-                    );
-                }
-                else if (m.VTBool != null)
-                {
-                    this.CustomProperties.Add(name, m.VTBool.Text == "true");
+                    case "lpwstr":
+                        this.CustomProperties.Add(name, value.Value);
+                        break;
+
+                    case "filetime":
+                        this.CustomProperties.Add(
+                            name,
+                            DateTime.ParseExact(
+                                value.Value,
+                                "yyyy'-'MM'-'dd'T'HH':'mm':'ssK",
+                                CultureInfo.InvariantCulture
+                            )
+                        );
+                        break;
+
+                    case "r8":
+                        this.CustomProperties.Add(
+                            name,
+                            double.Parse(value.Value, CultureInfo.InvariantCulture)
+                        );
+                        break;
+
+                    case "bool":
+                        this.CustomProperties.Add(name, value.Value == "true");
+                        break;
                 }
             }
         }
@@ -210,17 +224,22 @@ public partial class XLWorkbook
             }
         }
 
-        ExtendedFilePropertiesPart efp = dSpreadsheet.ExtendedFilePropertiesPart;
-        if (efp != null && efp.Properties != null)
+        if (dSpreadsheet.ExtendedFilePropertiesPart is { } extendedFilePropertiesPart)
         {
-            if (efp.Properties.Elements<Company>().Any())
+            using Stream extendedPropertiesStream = extendedFilePropertiesPart.GetStream(
+                FileMode.Open,
+                FileAccess.Read
+            );
+            XElement? extendedProperties = XDocument.Load(extendedPropertiesStream).Root;
+
+            if (extendedProperties?.Element(ExtendedPropertiesNs + "Company")?.Value is { } company)
             {
-                this.Properties.Company = efp.Properties.GetFirstChild<Company>().Text;
+                this.Properties.Company = company;
             }
 
-            if (efp.Properties.Elements<Manager>().Any())
+            if (extendedProperties?.Element(ExtendedPropertiesNs + "Manager")?.Value is { } manager)
             {
-                this.Properties.Manager = efp.Properties.GetFirstChild<Manager>().Text;
+                this.Properties.Manager = manager;
             }
         }
 
@@ -1482,73 +1501,53 @@ public partial class XLWorkbook
             return;
         }
 
-        ColorScheme colorScheme = tp.Theme?.ThemeElements?.ColorScheme;
-        if (colorScheme is not null)
+        using Stream stream = tp.GetStream(FileMode.Open, FileAccess.Read);
+        XElement colorScheme = XDocument
+            .Load(stream)
+            .Root?.Element(DrawingNs + "themeElements")
+            ?.Element(DrawingNs + "clrScheme");
+
+        if (colorScheme is null)
         {
-            string background1 = colorScheme.Light1Color?.RgbColorModelHex?.Val?.Value;
-            if (!string.IsNullOrEmpty(background1))
-            {
-                wb.Theme.Background1 = XLColor.FromHexRgb(background1);
-            }
-            string text1 = colorScheme.Dark1Color?.RgbColorModelHex?.Val?.Value;
-            if (!string.IsNullOrEmpty(text1))
-            {
-                wb.Theme.Text1 = XLColor.FromHexRgb(text1);
-            }
-            string background2 = colorScheme.Light2Color?.RgbColorModelHex?.Val?.Value;
-            if (!string.IsNullOrEmpty(background2))
-            {
-                wb.Theme.Background2 = XLColor.FromHexRgb(background2);
-            }
-            string text2 = colorScheme.Dark2Color?.RgbColorModelHex?.Val?.Value;
-            if (!string.IsNullOrEmpty(text2))
-            {
-                wb.Theme.Text2 = XLColor.FromHexRgb(text2);
-            }
-            string accent1 = colorScheme.Accent1Color?.RgbColorModelHex?.Val?.Value;
-            if (!string.IsNullOrEmpty(accent1))
-            {
-                wb.Theme.Accent1 = XLColor.FromHexRgb(accent1);
-            }
-            string accent2 = colorScheme.Accent2Color?.RgbColorModelHex?.Val?.Value;
-            if (!string.IsNullOrEmpty(accent2))
-            {
-                wb.Theme.Accent2 = XLColor.FromHexRgb(accent2);
-            }
-            string accent3 = colorScheme.Accent3Color?.RgbColorModelHex?.Val?.Value;
-            if (!string.IsNullOrEmpty(accent3))
-            {
-                wb.Theme.Accent3 = XLColor.FromHexRgb(accent3);
-            }
-            string accent4 = colorScheme.Accent4Color?.RgbColorModelHex?.Val?.Value;
-            if (!string.IsNullOrEmpty(accent4))
-            {
-                wb.Theme.Accent4 = XLColor.FromHexRgb(accent4);
-            }
-            string accent5 = colorScheme.Accent5Color?.RgbColorModelHex?.Val?.Value;
-            if (!string.IsNullOrEmpty(accent5))
-            {
-                wb.Theme.Accent5 = XLColor.FromHexRgb(accent5);
-            }
-            string accent6 = colorScheme.Accent6Color?.RgbColorModelHex?.Val?.Value;
-            if (!string.IsNullOrEmpty(accent6))
-            {
-                wb.Theme.Accent6 = XLColor.FromHexRgb(accent6);
-            }
-            string hyperlink = colorScheme.Hyperlink?.RgbColorModelHex?.Val?.Value;
-            if (!string.IsNullOrEmpty(hyperlink))
-            {
-                wb.Theme.Hyperlink = XLColor.FromHexRgb(hyperlink);
-            }
-            string followedHyperlink = colorScheme
-                .FollowedHyperlinkColor
-                ?.RgbColorModelHex
-                ?.Val
-                ?.Value;
-            if (!string.IsNullOrEmpty(followedHyperlink))
-            {
-                wb.Theme.FollowedHyperlink = XLColor.FromHexRgb(followedHyperlink);
-            }
+            return;
+        }
+
+        // lt1/dk1 carry the background/text pair the schema calls "light"/"dark", which is the
+        // opposite of what the workbook model calls them.
+        SetThemeColor(colorScheme, "lt1", c => wb.Theme.Background1 = c);
+        SetThemeColor(colorScheme, "dk1", c => wb.Theme.Text1 = c);
+        SetThemeColor(colorScheme, "lt2", c => wb.Theme.Background2 = c);
+        SetThemeColor(colorScheme, "dk2", c => wb.Theme.Text2 = c);
+        SetThemeColor(colorScheme, "accent1", c => wb.Theme.Accent1 = c);
+        SetThemeColor(colorScheme, "accent2", c => wb.Theme.Accent2 = c);
+        SetThemeColor(colorScheme, "accent3", c => wb.Theme.Accent3 = c);
+        SetThemeColor(colorScheme, "accent4", c => wb.Theme.Accent4 = c);
+        SetThemeColor(colorScheme, "accent5", c => wb.Theme.Accent5 = c);
+        SetThemeColor(colorScheme, "accent6", c => wb.Theme.Accent6 = c);
+        SetThemeColor(colorScheme, "hlink", c => wb.Theme.Hyperlink = c);
+        SetThemeColor(colorScheme, "folHlink", c => wb.Theme.FollowedHyperlink = c);
+    }
+
+    /// <summary>
+    /// Only the plain sRGB form of a theme colour is read - a system colour (e.g. a stock lt1/dk1
+    /// pair left as <c>sysClr</c>) is left at the model's default, matching the SDK-backed reader
+    /// this replaces.
+    /// </summary>
+    private static void SetThemeColor(
+        XElement colorScheme,
+        string elementName,
+        Action<XLColor> setColor
+    )
+    {
+        string rgb = colorScheme
+            .Element(DrawingNs + elementName)
+            ?.Element(DrawingNs + "srgbClr")
+            ?.Attribute("val")
+            ?.Value;
+
+        if (!string.IsNullOrEmpty(rgb))
+        {
+            setColor(XLColor.FromHexRgb(rgb));
         }
     }
 
