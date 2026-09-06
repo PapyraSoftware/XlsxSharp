@@ -363,16 +363,22 @@ internal class WorksheetPartWriter
                 new XAttribute("colId", (uint)columnNumber - 1)
             );
 
-            filterColumn.Add(
-                xlFilterColumn.FilterType switch
-                {
-                    XLFilterType.Custom => CustomFilters(xlFilterColumn),
-                    XLFilterType.TopBottom => TopBottomFilter(xlFilterColumn),
-                    XLFilterType.Dynamic => DynamicFilter(xlFilterColumn),
-                    XLFilterType.Regular => RegularFilters(xlFilterColumn),
-                    _ => throw new NotSupportedException(),
-                }
-            );
+            // None means the column has a filter button but nothing is actively filtered on it -
+            // CT_FilterColumn's filter content is optional, so such a column is written bare.
+            XElement? filterContent = xlFilterColumn.FilterType switch
+            {
+                XLFilterType.Custom => CustomFilters(xlFilterColumn),
+                XLFilterType.TopBottom => TopBottomFilter(xlFilterColumn),
+                XLFilterType.Dynamic => DynamicFilter(xlFilterColumn),
+                XLFilterType.Regular => RegularFilters(xlFilterColumn),
+                XLFilterType.None => null,
+                _ => throw new NotSupportedException(),
+            };
+
+            if (filterContent is not null)
+            {
+                filterColumn.Add(filterContent);
+            }
 
             autoFilter.Add(filterColumn);
         }

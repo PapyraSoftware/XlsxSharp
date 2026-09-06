@@ -267,12 +267,23 @@ public sealed class OpcPackage : IDisposable
     public OpcPart GetRelatedPart(string id) =>
         this.ResolveRelatedPart(this.Relationships.GetById(id));
 
-    /// <summary>The parts related from the package with the given relationship type.</summary>
+    /// <summary>
+    /// The parts related from the package with the given relationship type. A relationship whose
+    /// target part does not actually exist in the package - real files with a dangling reference
+    /// to an optional, regenerable part like <c>calcChain.xml</c> do turn up - is skipped rather
+    /// than treated as an error; unlike <see cref="GetRelatedPart"/>, nothing here asks for one
+    /// specific, expected-to-exist relationship by id.
+    /// </summary>
     public IEnumerable<OpcPart> GetRelatedParts(string relationshipType) =>
         this
             .Relationships.OfType(relationshipType)
             .Where(r => r.TargetMode == OpcTargetMode.Internal)
-            .Select(this.ResolveRelatedPart);
+            .Select(r =>
+                r.TargetPartName is not null && this.TryGetPart(r.TargetPartName, out OpcPart? part)
+                    ? part
+                    : null
+            )
+            .OfType<OpcPart>();
 
     /// <summary>Writes the package out. Only valid for a package that knows where to write to.</summary>
     public void Save()

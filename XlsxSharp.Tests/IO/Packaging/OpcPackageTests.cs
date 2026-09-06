@@ -87,6 +87,28 @@ public class OpcPackageTests
     }
 
     [Test]
+    public void GetRelatedPartsSkipsADanglingRelationshipFromThePackage()
+    {
+        using OpcPackage package = OpcPackage.Create();
+        package.Relationships.Add("/xl/workbook.xml", OfficeDocumentRel);
+
+        // The relationship exists, but nothing ever added the part it names - a real file with a
+        // dangling reference to an optional, regenerable part (e.g. a missing calcChain.xml) does
+        // turn up, and it must not make every relationship of that type unusable.
+        ClassicAssert.IsEmpty(package.GetRelatedParts(OfficeDocumentRel));
+    }
+
+    [Test]
+    public void GetRelatedPartsSkipsADanglingRelationshipFromAPart()
+    {
+        using OpcPackage package = OpcPackage.Create();
+        OpcPart workbook = package.AddPart("/xl/workbook.xml", WorkbookContentType);
+        workbook.Relationships.Add("/xl/worksheets/sheet1.xml", WorksheetRel);
+
+        ClassicAssert.IsEmpty(workbook.GetRelatedParts(WorksheetRel));
+    }
+
+    [Test]
     public void GeneratedRelationshipIdsSkipTheOnesAlreadyTaken()
     {
         using OpcPackage package = OpcPackage.Create();

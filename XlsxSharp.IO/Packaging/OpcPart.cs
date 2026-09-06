@@ -122,13 +122,22 @@ public sealed class OpcPart
             : null;
 
     /// <summary>
-    /// The parts related from here with the given relationship type, in document order.
+    /// The parts related from here with the given relationship type, in document order. A
+    /// dangling relationship - one whose target part does not actually exist in the package - is
+    /// skipped rather than treated as an error; unlike <see cref="GetRelatedPart"/>, nothing here
+    /// asks for one specific, expected-to-exist relationship by id.
     /// </summary>
     public IEnumerable<OpcPart> GetRelatedParts(string relationshipType) =>
         this
             .Relationships.OfType(relationshipType)
             .Where(r => r.TargetMode == OpcTargetMode.Internal)
-            .Select(this._package.ResolveRelatedPart);
+            .Select(r =>
+                r.TargetPartName is not null
+                && this._package.TryGetPart(r.TargetPartName, out OpcPart? part)
+                    ? part
+                    : null
+            )
+            .OfType<OpcPart>();
 
     /// <summary>
     /// Copies the content of this part into <paramref name="archive"/> as a new entry.

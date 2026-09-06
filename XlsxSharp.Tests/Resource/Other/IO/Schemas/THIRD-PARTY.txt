@@ -1,0 +1,5 @@
+The .xlsx files in this directory (and in Robustness/) are test assets taken from
+https://github.com/dotnet/Open-XML-SDK, licensed under the MIT license. They are real,
+Excel-authored files the Open XML SDK itself uses to exercise markup-compatibility handling,
+extLst/ext content, a missing calcChain relationship, and general robustness against real-world
+files (its own "OFCAT" corpus) - see RealWorldFixtureTests.cs for how XlsxSharp uses them.

@@ -283,16 +283,11 @@ internal static class ConditionalFormatXml
         // A second colour is the one negative bars are painted with; with only one, the bars are
         // painted the same colour in both directions.
         XLColor negative = cf.Colors.Count == 2 ? cf.Colors[2] : cf.Colors[1];
-        dataBar.Add(
-            new XElement(
-                SpreadsheetXml.X14 + "negativeFillColor",
-                new XAttribute("rgb", negative.Color.ToHex())
-            ),
-            new XElement(
-                SpreadsheetXml.X14 + "axisColor",
-                new XAttribute("rgb", XLColor.Black.Color.ToHex())
-            )
-        );
+        XElement negativeFillColor = new(SpreadsheetXml.X14 + "negativeFillColor");
+        SpreadsheetXml.SetColor(negativeFillColor, negative);
+        XElement axisColor = new(SpreadsheetXml.X14 + "axisColor");
+        SpreadsheetXml.SetColor(axisColor, XLColor.Black);
+        dataBar.Add(negativeFillColor, axisColor);
 
         return new XElement(
             SpreadsheetXml.X14 + "cfRule",

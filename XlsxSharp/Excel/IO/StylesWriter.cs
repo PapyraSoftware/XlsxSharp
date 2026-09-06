@@ -1078,7 +1078,7 @@ internal class StylesWriter
 
         if (alignment.ReadingOrder is { } readingOrder)
         {
-            xml.WriteAttribute("readingOrder", readingOrder);
+            xml.WriteAttribute("readingOrder", (uint)readingOrder);
         }
 
         xml.WriteEndElement();
