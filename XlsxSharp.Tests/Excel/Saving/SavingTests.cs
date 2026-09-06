@@ -278,6 +278,69 @@ public class SavingTests
     }
 
     [Test]
+    public void SaveAsPreservesContentWhenSourceAndDestinationDiffer()
+    {
+        // Covers the three "loaded from one place, saved to a different one" combinations where
+        // CreatePackage used to stage a full copy of the original bytes into the destination
+        // before OpcPackage read it right back into its own buffer to modify it - it now reads
+        // straight from the original source instead, so there is nothing left to regress on
+        // besides plain content fidelity, which is what this asserts.
+        using MemoryStream original = new();
+        using (XLWorkbook wb = new())
+        {
+            wb.AddWorksheet("Sheet1").Cell("A1").Value = "hello";
+            wb.SaveAs(original);
+        }
+
+        // Loaded from a stream, saved to a file.
+        using (TemporaryFile streamToFile = new())
+        {
+            original.Position = 0;
+            using (XLWorkbook wb = new(original))
+            {
+                wb.SaveAs(streamToFile.Path);
+            }
+
+            using XLWorkbook reloaded = new(streamToFile.Path);
+            ClassicAssert.AreEqual("hello", reloaded.Worksheet("Sheet1").Cell("A1").GetString());
+        }
+
+        // Loaded from a file, saved to a stream.
+        using (TemporaryFile file = new())
+        {
+            original.Position = 0;
+            using (FileStream fs = File.Create(file.Path))
+            {
+                original.CopyTo(fs);
+            }
+
+            using MemoryStream fileToStream = new();
+            using (XLWorkbook wb = new(file.Path))
+            {
+                wb.SaveAs(fileToStream);
+            }
+
+            fileToStream.Position = 0;
+            using XLWorkbook reloaded = new(fileToStream);
+            ClassicAssert.AreEqual("hello", reloaded.Worksheet("Sheet1").Cell("A1").GetString());
+        }
+
+        // Loaded from a stream, saved to a different stream.
+        using (MemoryStream streamToStream = new())
+        {
+            original.Position = 0;
+            using (XLWorkbook wb = new(original))
+            {
+                wb.SaveAs(streamToStream);
+            }
+
+            streamToStream.Position = 0;
+            using XLWorkbook reloaded = new(streamToStream);
+            ClassicAssert.AreEqual("hello", reloaded.Worksheet("Sheet1").Cell("A1").GetString());
+        }
+    }
+
+    [Test]
     public void PageBreaksDontDuplicateAtSaving()
     {
         // https://github.com/XlsxSharp/XlsxSharp/issues/666

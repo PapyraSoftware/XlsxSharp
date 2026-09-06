@@ -70,10 +70,9 @@ public partial class XLWorkbook
         SaveOptions options
     )
     {
-        OoxmlPartType workbookPartType = WorkbookPartType(spreadsheetDocumentType);
-
         if (newStream)
         {
+            OoxmlPartType workbookPartType = WorkbookPartType(spreadsheetDocumentType);
             using OpcPackage package = OpcPackage.Create();
             this.CreateParts(package, workbookPartType, options);
             if (options.ValidatePackage)
@@ -85,13 +84,29 @@ public partial class XLWorkbook
             return;
         }
 
-        using (OpcPackage package = OpcPackage.Open(stream, writable: true))
+        this.CreatePackage(stream, stream, spreadsheetDocumentType, options);
+    }
+
+    /// <summary>
+    /// Reads the existing package from <paramref name="source"/> and saves the result to the
+    /// separate <paramref name="destination"/>, without a caller-side copy from one to the other
+    /// first: <see cref="OpcPackage.Open(Stream, Stream)"/> already reads all of
+    /// <paramref name="source"/> into its own buffer, so staging the same bytes into
+    /// <paramref name="destination"/> beforehand would only copy the whole package a second time
+    /// for nothing.
+    /// </summary>
+    private void CreatePackage(
+        Stream source,
+        Stream destination,
+        XLSpreadsheetDocumentType spreadsheetDocumentType,
+        SaveOptions options
+    )
+    {
+        using OpcPackage package = OpcPackage.Open(source, destination);
+        this.CreateParts(package, WorkbookPartType(spreadsheetDocumentType), options);
+        if (options.ValidatePackage)
         {
-            this.CreateParts(package, workbookPartType, options);
-            if (options.ValidatePackage)
-            {
-                Validate(package);
-            }
+            Validate(package);
         }
     }
 

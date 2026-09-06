@@ -569,12 +569,14 @@ public sealed partial class XLWorkbook : IXLWorkbook
         }
         else if (this._loadSource == XLLoadSource.Stream)
         {
-            this._originalStream.Position = 0;
-
             using (FileStream fileStream = File.Create(file))
             {
-                CopyStream(this._originalStream, fileStream);
-                this.CreatePackage(fileStream, false, this._spreadsheetDocumentType, options);
+                this.CreatePackage(
+                    this._originalStream,
+                    fileStream,
+                    this._spreadsheetDocumentType,
+                    options
+                );
             }
         }
 
@@ -689,19 +691,24 @@ public sealed partial class XLWorkbook : IXLWorkbook
         {
             using (FileStream fileStream = new(this._originalFile, FileMode.Open, FileAccess.Read))
             {
-                CopyStream(fileStream, stream);
+                this.CreatePackage(fileStream, stream, this._spreadsheetDocumentType, options);
             }
-            this.CreatePackage(stream, false, this._spreadsheetDocumentType, options);
         }
         else if (this._loadSource == XLLoadSource.Stream)
         {
-            this._originalStream.Position = 0;
-            if (this._originalStream != stream)
+            if (this._originalStream == stream)
             {
-                CopyStream(this._originalStream, stream);
+                this.CreatePackage(stream, false, this._spreadsheetDocumentType, options);
             }
-
-            this.CreatePackage(stream, false, this._spreadsheetDocumentType, options);
+            else
+            {
+                this.CreatePackage(
+                    this._originalStream,
+                    stream,
+                    this._spreadsheetDocumentType,
+                    options
+                );
+            }
         }
 
         this._loadSource = XLLoadSource.Stream;

@@ -106,26 +106,40 @@ public sealed class OpcPackage : IDisposable
     /// write the same stream at once - overwriting a live ZIP archive while parts still point into
     /// it would corrupt the package.
     /// </param>
-    public static OpcPackage Open(Stream stream, bool writable = false)
+    public static OpcPackage Open(Stream stream, bool writable = false) =>
+        writable
+            ? Open(stream, stream)
+            : OpenCore(stream, ownsStream: false, readOnly: true, saveTo: null);
+
+    /// <summary>
+    /// Opens a package for reading from <paramref name="source"/> and modification, saving the
+    /// result to the separate <paramref name="destination"/> instead of back to
+    /// <paramref name="source"/>. Both streams stay the caller's to dispose.
+    /// </summary>
+    /// <remarks>
+    /// Reading and writing through two different streams is exactly the "load, modify, save
+    /// somewhere else" case a caller with its own copy of the original bytes already sitting in
+    /// <paramref name="destination"/> would otherwise reach by opening <paramref name="destination"/>
+    /// itself as writable - which reads it right back into the same internal buffer this
+    /// constructs from <paramref name="source"/>, a second full copy for nothing. Reading directly
+    /// from <paramref name="source"/> needs only the one copy this method itself makes.
+    /// </remarks>
+    public static OpcPackage Open(Stream source, Stream destination)
     {
-        ArgumentNullException.ThrowIfNull(stream);
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(destination);
 
-        if (!writable)
+        if (source.CanSeek)
         {
-            return OpenCore(stream, ownsStream: false, readOnly: true, saveTo: null);
-        }
-
-        if (stream.CanSeek)
-        {
-            stream.Position = 0;
+            source.Position = 0;
         }
 
         MemoryStream buffer = new();
-        stream.CopyTo(buffer);
+        source.CopyTo(buffer);
         buffer.Position = 0;
 
         OpcPackage package = OpenCore(buffer, ownsStream: true, readOnly: false, saveTo: null);
-        package.SaveToStream = stream;
+        package.SaveToStream = destination;
         return package;
     }
 
