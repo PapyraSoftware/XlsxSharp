@@ -1,6 +1,7 @@
 #nullable disable
 
 using DocumentFormat.OpenXml.Spreadsheet;
+using XlsxSharp.Excel;
 using XlsxSharp.Excel.ConditionalFormats;
 using XlsxSharp.Excel.DataValidation;
 using XlsxSharp.Excel.Drawings;
@@ -13,8 +14,18 @@ using Vml = DocumentFormat.OpenXml.Vml;
 using X14 = DocumentFormat.OpenXml.Office2010.Excel;
 using Xdr = DocumentFormat.OpenXml.Drawing.Spreadsheet;
 
-namespace XlsxSharp.Excel;
+namespace XlsxSharp.Tests.Utils;
 
+/// <summary>
+/// Converts between XlsxSharp's own enums and the OpenXML SDK's, in both directions. Nothing in
+/// the library itself calls these any more - every writer and reader now goes straight from the
+/// model to XML and back without an SDK-typed enum in between - so this exists purely as a test
+/// oracle: <see cref="XlsxSharp.Tests.Excel.IO.StyleXmlEnumsTests"/>,
+/// <see cref="XlsxSharp.Tests.Excel.IO.WorksheetXmlEnumsTests"/> and
+/// <see cref="XlsxSharp.Tests.Excel.PivotTables.PivotXmlEnumsTests"/> check the strings XlsxSharp
+/// reads and writes against what the SDK itself considers each enum value to mean. It lives here
+/// rather than in the XlsxSharp project so the SDK stays out of the library's own dependencies.
+/// </summary>
 internal static class EnumConverter
 {
     #region To OpenXml
