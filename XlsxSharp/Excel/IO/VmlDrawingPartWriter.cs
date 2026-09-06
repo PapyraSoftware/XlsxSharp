@@ -29,10 +29,14 @@ internal class VmlDrawingPartWriter
 
     internal static bool GenerateContent(OpcPart vmlDrawingPart, XLWorksheet xlWorksheet)
     {
-        using MemoryStream ms = new();
-        using (Stream readStream = vmlDrawingPart.GetReadStream())
+        // Read and parse before opening the write stream below, which discards whatever the part
+        // held before - and before that, skip opening a read stream at all for a part that has no
+        // content yet.
+        XDocument existing = null;
+        if (vmlDrawingPart.Length > 0)
         {
-            XLWorkbook.CopyStream(readStream, ms);
+            using Stream readStream = vmlDrawingPart.GetReadStream();
+            existing = XDocumentExtensions.Load(readStream);
         }
 
         using Stream stream = vmlDrawingPart.GetWriteStream();
@@ -57,12 +61,10 @@ internal class VmlDrawingPartWriter
             hasAnyVmlElements |= true;
         }
 
-        if (ms.Length > 0)
+        if (existing is not null)
         {
-            ms.Position = 0;
-            XDocument xdoc = XDocumentExtensions.Load(ms);
-            xdoc.Root.Elements().ForEach(e => writer.WriteRaw(e.ToXmlString()));
-            hasAnyVmlElements |= xdoc.Root.HasElements;
+            existing.Root.Elements().ForEach(e => writer.WriteRaw(e.ToXmlString()));
+            hasAnyVmlElements |= existing.Root.HasElements;
         }
 
         writer.WriteEndElement();

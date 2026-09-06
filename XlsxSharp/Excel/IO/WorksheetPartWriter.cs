@@ -771,23 +771,18 @@ internal class WorksheetPartWriter
         OpcPart drawingsPart
     )
     {
-        using (Stream stream = drawingsPart.GetReadStream())
-        using (MemoryStream buffer = new())
+        if (drawingsPart.Length > 0)
         {
-            stream.CopyTo(buffer);
-            if (buffer.Length > 0)
-            {
-                buffer.Position = 0;
-                XDocument existing = XDocument.Load(buffer);
-                XElement root =
-                    existing.Root ?? throw PartStructureException.ExpectedElementNotFound("wsDr");
-                bool standalone = string.Equals(
-                    existing.Declaration?.Standalone,
-                    "yes",
-                    StringComparison.OrdinalIgnoreCase
-                );
-                return (root, standalone);
-            }
+            using Stream stream = drawingsPart.GetReadStream();
+            XDocument existing = XDocument.Load(stream);
+            XElement root =
+                existing.Root ?? throw PartStructureException.ExpectedElementNotFound("wsDr");
+            bool standalone = string.Equals(
+                existing.Declaration?.Standalone,
+                "yes",
+                StringComparison.OrdinalIgnoreCase
+            );
+            return (root, standalone);
         }
 
         XElement fresh = new(

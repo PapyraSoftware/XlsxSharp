@@ -96,19 +96,13 @@ internal class PivotTableDefinitionPartReader
 
     private static XElement? ReadRoot(OpcPart part)
     {
-        // A part's read stream can be a raw deflate stream straight off the ZIP entry, which does
-        // not support Length - buffer it first so the empty-part check below still works.
-        using Stream stream = part.GetReadStream();
-        using MemoryStream buffer = new();
-        stream.CopyTo(buffer);
-
-        if (buffer.Length == 0)
+        if (part.Length == 0)
         {
             return null;
         }
 
-        buffer.Position = 0;
-        return XDocument.Load(buffer).Root;
+        using Stream stream = part.GetReadStream();
+        return XDocument.Load(stream).Root;
     }
 
     private static XLPivotTable LoadPivotTableDefinition(

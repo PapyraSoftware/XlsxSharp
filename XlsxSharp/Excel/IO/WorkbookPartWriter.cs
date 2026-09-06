@@ -112,21 +112,16 @@ internal class WorkbookPartWriter
     {
         XElement? loaded = null;
 
-        using (Stream stream = part.GetReadStream())
-        using (MemoryStream buffer = new())
+        if (part.Length > 0)
         {
-            stream.CopyTo(buffer);
-            if (buffer.Length > 0)
+            using Stream stream = part.GetReadStream();
+            try
             {
-                buffer.Position = 0;
-                try
-                {
-                    loaded = XDocument.Load(buffer).Root;
-                }
-                catch (XmlException)
-                {
-                    // A workbook.xml we cannot read is one we are about to replace.
-                }
+                loaded = XDocument.Load(stream).Root;
+            }
+            catch (XmlException)
+            {
+                // A workbook.xml we cannot read is one we are about to replace.
             }
         }
 

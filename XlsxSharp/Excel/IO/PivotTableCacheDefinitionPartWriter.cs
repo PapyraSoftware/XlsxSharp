@@ -111,27 +111,22 @@ internal class PivotTableCacheDefinitionPartWriter
         XElement loaded = null;
         bool standalone = false;
 
-        using (Stream stream = part.GetReadStream())
-        using (MemoryStream buffer = new())
+        if (part.Length > 0)
         {
-            stream.CopyTo(buffer);
-            if (buffer.Length > 0)
+            using Stream stream = part.GetReadStream();
+            try
             {
-                buffer.Position = 0;
-                try
-                {
-                    XDocument existing = XDocument.Load(buffer);
-                    loaded = existing.Root;
-                    standalone = string.Equals(
-                        existing.Declaration?.Standalone,
-                        "yes",
-                        StringComparison.OrdinalIgnoreCase
-                    );
-                }
-                catch (XmlException)
-                {
-                    // A cache definition we cannot read is one we are about to replace anyway.
-                }
+                XDocument existing = XDocument.Load(stream);
+                loaded = existing.Root;
+                standalone = string.Equals(
+                    existing.Declaration?.Standalone,
+                    "yes",
+                    StringComparison.OrdinalIgnoreCase
+                );
+            }
+            catch (XmlException)
+            {
+                // A cache definition we cannot read is one we are about to replace anyway.
             }
         }
 

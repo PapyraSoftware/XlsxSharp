@@ -47,6 +47,17 @@ public sealed class OpcPart
     public OpcRelationshipCollection Relationships { get; internal set; }
 
     /// <summary>
+    /// The uncompressed size of the part's content in bytes, without reading it. A part backed by
+    /// a ZIP entry gets this straight from the entry's own directory record - unlike
+    /// <see cref="GetReadStream"/>, which for such a part is a raw deflate stream and does not
+    /// support <see cref="Stream.Length"/> at all.
+    /// </summary>
+    public long Length =>
+        this._content is { } content ? content.Length
+        : this._entry is { } entry ? entry.Length
+        : 0;
+
+    /// <summary>
     /// Opens the content for reading. The returned stream is positioned at the start and is the
     /// caller's to dispose.
     /// </summary>

@@ -209,6 +209,40 @@ public class OpcPackageTests
     }
 
     [Test]
+    public void LengthIsTheContentSizeForAPartWrittenInMemory()
+    {
+        using OpcPackage package = OpcPackage.Create();
+        OpcPart part = package.AddPart("/a.xml", OpcContentType.Xml);
+        ClassicAssert.AreEqual(0, part.Length);
+
+        Write(part, "<first/>");
+        ClassicAssert.AreEqual(Encoding.UTF8.GetByteCount("<first/>"), part.Length);
+    }
+
+    [Test]
+    public void LengthIsTheUncompressedSizeForAPartBackedByTheZipWithoutReadingIt()
+    {
+        const string content = "<first/>";
+
+        using MemoryStream stream = new();
+        using (OpcPackage package = OpcPackage.Create())
+        {
+            Write(package.AddPart("/a.xml", OpcContentType.Xml), content);
+            package.SaveTo(stream);
+        }
+
+        stream.Position = 0;
+        using OpcPackage reopened = OpcPackage.Open(stream);
+        OpcPart part = reopened.GetPart("/a.xml");
+
+        // Asserted before GetReadStream() is ever called on this part: a part read back from the
+        // ZIP reports its length straight from the entry's own directory record, not by
+        // decompressing it first.
+        ClassicAssert.AreEqual(Encoding.UTF8.GetByteCount(content), part.Length);
+        ClassicAssert.AreEqual(content, Read(part));
+    }
+
+    [Test]
     public void AnUntouchedPartSurvivesAReadModifyWriteCycle()
     {
         using MemoryStream original = new();
