@@ -2,7 +2,7 @@
 
 namespace XlsxSharp.Excel.Exceptions;
 
-public class EmptyTableException : ClosedXMLException
+public class EmptyTableException : XlsxSharpException
 {
     public EmptyTableException()
         : base() { }

@@ -3,196 +3,190 @@
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
-using DocumentFormat.OpenXml;
-using DocumentFormat.OpenXml.Packaging;
-using DocumentFormat.OpenXml.Vml.Office;
-using DocumentFormat.OpenXml.Vml.Spreadsheet;
 using XlsxSharp.Excel.Comments;
 using XlsxSharp.Excel.Drawings;
 using XlsxSharp.Excel.Drawings.Style;
 using XlsxSharp.Extensions;
-using Anchor = DocumentFormat.OpenXml.Vml.Spreadsheet.Anchor;
-using Locked = DocumentFormat.OpenXml.Vml.Spreadsheet.Locked;
-using Vml = DocumentFormat.OpenXml.Vml;
+using XlsxSharp.IO.Packaging;
 
 namespace XlsxSharp.Excel.IO;
 
+/// <summary>
+/// Writes the legacy VML that carries the shapes of cell comments.
+/// </summary>
+/// <remarks>
+/// The namespace declarations are repeated on every shape instead of sitting on the root, and the
+/// attributes come in the order the VML schema declares rather than the order they are set here.
+/// Both are what the SDK produced and what Excel has been reading from XlsxSharp all along, so
+/// the writer works with namespace handling switched off and writes the qualified names itself.
+/// <see cref="XlsxSharp.Tests"/> records the output of this class; see CommentVmlOutputTests.
+/// </remarks>
 internal class VmlDrawingPartWriter
 {
-    // Generates content of vmlDrawingPart1.
-    internal static bool GenerateContent(VmlDrawingPart vmlDrawingPart, XLWorksheet xlWorksheet)
+    private const string VmlNs = "urn:schemas-microsoft-com:vml";
+    private const string OfficeNs = "urn:schemas-microsoft-com:office:office";
+    private const string ExcelNs = "urn:schemas-microsoft-com:office:excel";
+
+    internal static bool GenerateContent(OpcPart vmlDrawingPart, XLWorksheet xlWorksheet)
     {
-        using (MemoryStream ms = new())
-        using (Stream stream = vmlDrawingPart.GetStream(FileMode.OpenOrCreate))
+        // Read and parse before opening the write stream below, which discards whatever the part
+        // held before - and before that, skip opening a read stream at all for a part that has no
+        // content yet.
+        XDocument existing = null;
+        if (vmlDrawingPart.Length > 0)
         {
-            XLWorkbook.CopyStream(stream, ms);
-            stream.Position = 0;
-            XmlTextWriter writer = new(stream, Encoding.UTF8);
-
-            writer.WriteStartElement("xml");
-
-            // https://docs.microsoft.com/en-us/dotnet/api/documentformat.openxml.vml.shapetype?view=openxml-2.8.1#remarks
-            // This element defines a shape template that can be used to create other shapes.
-            // Shapetype is identical to the shape element(§14.1.2.19) except it cannot reference another shapetype element.
-            // The type attribute shall not be used with shapetype.
-            // Attributes defined in the shape override any that appear in the shapetype positioning attributes
-            // (such as top, width, z-index, rotation, flip) are not passed to a shape from a shapetype.
-            // To use this element, create a shapetype with a specific id attribute.
-            // Then create a shape and reference the shapetype's id using the type attribute.
-            new Vml.Shapetype(
-                new Vml.Stroke { JoinStyle = Vml.StrokeJoinStyleValues.Miter },
-                new Vml.Path
-                {
-                    AllowGradientShape = true,
-                    ConnectionPointType = ConnectValues.Rectangle,
-                }
-            )
-            {
-                Id = XLConstants.Comment.ShapeTypeId,
-                CoordinateSize = "21600,21600",
-                OptionalNumber = 202,
-                EdgePath = "m,l,21600r21600,l21600,xe",
-            }.WriteTo(writer);
-
-            IEnumerable<XLCell> cellWithComments = xlWorksheet.Internals.CellsCollection.GetCells(
-                c => c.HasComment
-            );
-
-            bool hasAnyVmlElements = false;
-
-            foreach (XLCell c in cellWithComments)
-            {
-                GenerateCommentShape(c).WriteTo(writer);
-                hasAnyVmlElements |= true;
-            }
-
-            if (ms.Length > 0)
-            {
-                ms.Position = 0;
-                XDocument xdoc = XDocumentExtensions.Load(ms);
-                xdoc.Root.Elements().ForEach(e => writer.WriteRaw(e.ToXmlString()));
-                hasAnyVmlElements |= xdoc.Root.HasElements;
-            }
-
-            writer.WriteEndElement();
-            writer.Flush();
-            writer.Close();
-
-            return hasAnyVmlElements;
+            using Stream readStream = vmlDrawingPart.GetReadStream();
+            existing = XDocumentExtensions.Load(readStream);
         }
+
+        using Stream stream = vmlDrawingPart.GetWriteStream();
+
+        // Namespaces off: the qualified names and the xmlns attributes are written by hand,
+        // so that they land in the same places the SDK put them.
+        XmlTextWriter writer = new(stream, Encoding.UTF8) { Namespaces = false };
+
+        writer.WriteStartElement("xml");
+
+        WriteShapeType(writer);
+
+        IEnumerable<XLCell> cellWithComments = xlWorksheet.Internals.CellsCollection.GetCells(c =>
+            c.HasComment
+        );
+
+        bool hasAnyVmlElements = false;
+
+        foreach (XLCell c in cellWithComments)
+        {
+            WriteCommentShape(writer, c);
+            hasAnyVmlElements |= true;
+        }
+
+        if (existing is not null)
+        {
+            existing.Root.Elements().ForEach(e => writer.WriteRaw(e.ToXmlString()));
+            hasAnyVmlElements |= existing.Root.HasElements;
+        }
+
+        writer.WriteEndElement();
+        writer.Flush();
+        writer.Close();
+
+        return hasAnyVmlElements;
     }
 
-    // VML Shape for Comment
-    private static Vml.Shape GenerateCommentShape(XLCell c)
+    /// <summary>
+    /// The shape template every comment shape refers to through its type attribute. See
+    /// https://docs.microsoft.com/en-us/dotnet/api/documentformat.openxml.vml.shapetype - a
+    /// shapetype is a shape that cannot itself reference another shapetype, and positioning
+    /// attributes are not inherited from it.
+    /// </summary>
+    private static void WriteShapeType(XmlWriter writer)
     {
-        int rowNumber = c.Address.RowNumber;
-        int columnNumber = c.Address.ColumnNumber;
+        writer.WriteStartElement("v:shapetype");
+        writer.WriteAttributeString("id", XLConstants.Comment.ShapeTypeId);
+        writer.WriteAttributeString("coordsize", "21600,21600");
+        writer.WriteAttributeString("o:spt", "202");
+        writer.WriteAttributeString("path", "m,l,21600r21600,l21600,xe");
+        WriteVmlNamespaces(writer);
 
+        writer.WriteStartElement("v:stroke");
+        writer.WriteAttributeString("joinstyle", "miter");
+        writer.WriteEndElement();
+
+        writer.WriteStartElement("v:path");
+        writer.WriteAttributeString("gradientshapeok", "true");
+        writer.WriteAttributeString("o:connecttype", "rect");
+        writer.WriteEndElement();
+
+        writer.WriteEndElement();
+    }
+
+    private static void WriteCommentShape(XmlWriter writer, XLCell c)
+    {
         XLComment comment = c.GetComment();
-        string shapeId = string.Concat("_x0000_s", comment.ShapeId);
-        // Unique per cell (workbook?), e.g.: "_x0000_s1026"
-        Anchor anchor = GetAnchor(c);
-        Vml.TextBox textBox = GetTextBox(comment.Style);
-        Vml.Fill fill = new()
-        {
-            Color2 = "#" + comment.Style.ColorsAndLines.FillColor.Color.ToHex().Substring(2),
-        };
-        if (comment.Style.ColorsAndLines.FillTransparency < 1)
-        {
-            fill.Opacity = Math.Round(
-                    Convert.ToDouble(comment.Style.ColorsAndLines.FillTransparency),
-                    2
-                )
-                .ToInvariantString();
-        }
+        IXLDrawingColorsAndLines colors = comment.Style.ColorsAndLines;
 
-        Vml.Stroke stroke = GetStroke(c);
-        Vml.Shape shape = new(
-            fill,
-            stroke,
-            new Vml.Shadow { Color = "black", Obscured = true },
-            new Vml.Path { ConnectionPointType = ConnectValues.None },
-            textBox,
-            new ClientData(
-                new MoveWithCells(
-                    comment.Style.Properties.Positioning == XLDrawingAnchor.Absolute
-                        ? "True"
-                        : "False"
-                ), // Counterintuitive
-                new ResizeWithCells(
-                    comment.Style.Properties.Positioning == XLDrawingAnchor.MoveAndSizeWithCells
-                        ? "False"
-                        : "True"
-                ), // Counterintuitive
-                anchor,
-                new HorizontalTextAlignment(
-                    comment.Style.Alignment.Horizontal.ToString().ToCamel()
-                ),
-                new Vml.Spreadsheet.VerticalTextAlignment(
-                    comment.Style.Alignment.Vertical.ToString().ToCamel()
-                ),
-                new AutoFill("False"),
-                new CommentRowTarget { Text = (rowNumber - 1).ToInvariantString() },
-                new CommentColumnTarget { Text = (columnNumber - 1).ToInvariantString() },
-                new Locked(comment.Style.Protection.Locked ? "True" : "False"),
-                new LockText(comment.Style.Protection.LockText ? "True" : "False"),
-                new Visible(comment.Visible ? "True" : "False")
-            )
-            {
-                ObjectType = ObjectValues.Note,
-            }
-        )
-        {
-            Id = shapeId,
-            Type = "#" + XLConstants.Comment.ShapeTypeId,
-            Style = GetCommentStyle(c),
-            FillColor = "#" + comment.Style.ColorsAndLines.FillColor.Color.ToHex().Substring(2),
-            StrokeColor = "#" + comment.Style.ColorsAndLines.LineColor.Color.ToHex().Substring(2),
-            StrokeWeight = string.Concat(
-                comment.Style.ColorsAndLines.LineWeight.ToInvariantString(),
-                "pt"
-            ),
-            InsetMode = comment.Style.Margins.Automatic
-                ? InsetMarginValues.Auto
-                : InsetMarginValues.Custom,
-        };
+        writer.WriteStartElement("v:shape");
+        writer.WriteAttributeString("id", string.Concat("_x0000_s", comment.ShapeId));
+        writer.WriteAttributeString("style", GetCommentStyle(c));
         if (!string.IsNullOrWhiteSpace(comment.Style.Web.AlternateText))
         {
-            shape.Alternate = comment.Style.Web.AlternateText;
+            writer.WriteAttributeString("alt", comment.Style.Web.AlternateText);
         }
 
-        return shape;
+        writer.WriteAttributeString(
+            "o:insetmode",
+            comment.Style.Margins.Automatic ? "auto" : "custom"
+        );
+
+        writer.WriteAttributeString("fillcolor", Hex(colors.FillColor));
+        writer.WriteAttributeString("strokecolor", Hex(colors.LineColor));
+        writer.WriteAttributeString(
+            "strokeweight",
+            string.Concat(colors.LineWeight.ToInvariantString(), "pt")
+        );
+
+        writer.WriteAttributeString("type", "#" + XLConstants.Comment.ShapeTypeId);
+        WriteVmlNamespaces(writer);
+
+        WriteFill(writer, colors);
+        WriteStroke(writer, colors);
+
+        writer.WriteStartElement("v:shadow");
+        writer.WriteAttributeString("obscured", "true");
+        writer.WriteAttributeString("color", "black");
+        writer.WriteEndElement();
+
+        writer.WriteStartElement("v:path");
+        writer.WriteAttributeString("o:connecttype", "none");
+        writer.WriteEndElement();
+
+        WriteTextBox(writer, comment.Style);
+        WriteClientData(writer, c, comment);
+
+        writer.WriteEndElement();
     }
 
-    private static Vml.Stroke GetStroke(XLCell c)
+    private static void WriteFill(XmlWriter writer, IXLDrawingColorsAndLines colors)
     {
-        XLDashStyle lineDash = c.GetComment().Style.ColorsAndLines.LineDash;
-        Vml.Stroke stroke = new()
+        writer.WriteStartElement("v:fill");
+        if (colors.FillTransparency < 1)
         {
-            LineStyle = c.GetComment().Style.ColorsAndLines.LineStyle.ToOpenXml(),
-            DashStyle =
-                lineDash == XLDashStyle.RoundDot || lineDash == XLDashStyle.SquareDot
-                    ? "shortDot"
-                    : lineDash.ToString().ToCamel(),
-        };
+            writer.WriteAttributeString("opacity", Opacity(colors.FillTransparency));
+        }
+
+        writer.WriteAttributeString("color2", Hex(colors.FillColor));
+        writer.WriteEndElement();
+    }
+
+    private static void WriteStroke(XmlWriter writer, IXLDrawingColorsAndLines colors)
+    {
+        XLDashStyle lineDash = colors.LineDash;
+
+        writer.WriteStartElement("v:stroke");
+        if (colors.LineTransparency < 1)
+        {
+            writer.WriteAttributeString("opacity", Opacity(colors.LineTransparency));
+        }
+
+        writer.WriteAttributeString("linestyle", LineStyle(colors.LineStyle));
         if (lineDash == XLDashStyle.RoundDot)
         {
-            stroke.EndCap = Vml.StrokeEndCapValues.Round;
+            writer.WriteAttributeString("endcap", "round");
         }
 
-        if (c.GetComment().Style.ColorsAndLines.LineTransparency < 1)
-        {
-            stroke.Opacity = Math.Round(
-                    Convert.ToDouble(c.GetComment().Style.ColorsAndLines.LineTransparency),
-                    2
-                )
-                .ToInvariantString();
-        }
+        // Both dotted styles are the same dash pattern in VML.
+        writer.WriteAttributeString(
+            "dashstyle",
+            lineDash is XLDashStyle.RoundDot or XLDashStyle.SquareDot
+                ? "shortDot"
+                : lineDash.ToString().ToCamel()
+        );
 
-        return stroke;
+        writer.WriteEndElement();
     }
 
-    private static Vml.TextBox GetTextBox(IXLDrawingStyle ds)
+    private static void WriteTextBox(XmlWriter writer, IXLDrawingStyle ds)
     {
         StringBuilder sb = new();
         IXLDrawingAlignment a = ds.Alignment;
@@ -218,37 +212,113 @@ internal class VmlDrawingPartWriter
                 sb.Append("mso-layout-flow-alt:top-to-bottom;");
             }
         }
+
         if (a.AutomaticSize)
         {
             sb.Append("mso-fit-shape-to-text:t;");
         }
 
-        Vml.TextBox tb = new();
-
+        writer.WriteStartElement("v:textbox");
         if (sb.Length > 0)
         {
-            tb.Style = sb.ToString();
+            writer.WriteAttributeString("style", sb.ToString());
         }
 
         IXLDrawingMargins dm = ds.Margins;
         if (!dm.Automatic)
         {
-            tb.Inset = string.Concat(
-                dm.Left.ToInvariantString(),
-                "in,",
-                dm.Top.ToInvariantString(),
-                "in,",
-                dm.Right.ToInvariantString(),
-                "in,",
-                dm.Bottom.ToInvariantString(),
-                "in"
+            writer.WriteAttributeString(
+                "inset",
+                string.Concat(
+                    dm.Left.ToInvariantString(),
+                    "in,",
+                    dm.Top.ToInvariantString(),
+                    "in,",
+                    dm.Right.ToInvariantString(),
+                    "in,",
+                    dm.Bottom.ToInvariantString(),
+                    "in"
+                )
             );
         }
 
-        return tb;
+        writer.WriteEndElement();
     }
 
-    private static Anchor GetAnchor(XLCell cell)
+    private static void WriteClientData(XmlWriter writer, XLCell c, XLComment comment)
+    {
+        writer.WriteStartElement("xvml:ClientData");
+        writer.WriteAttributeString("ObjectType", "Note");
+        writer.WriteAttributeString("xmlns:xvml", ExcelNs);
+
+        // Both of these read backwards, and did before this was rewritten: an absolutely
+        // positioned comment is the one that says it moves with cells.
+        WriteText(
+            writer,
+            "xvml:MoveWithCells",
+            comment.Style.Properties.Positioning == XLDrawingAnchor.Absolute ? "True" : "False"
+        );
+
+        WriteText(
+            writer,
+            "xvml:SizeWithCells",
+            comment.Style.Properties.Positioning == XLDrawingAnchor.MoveAndSizeWithCells
+                ? "False"
+                : "True"
+        );
+
+        WriteText(writer, "xvml:Anchor", GetAnchor(c));
+        WriteText(
+            writer,
+            "xvml:TextHAlign",
+            comment.Style.Alignment.Horizontal.ToString().ToCamel()
+        );
+
+        WriteText(writer, "xvml:TextVAlign", comment.Style.Alignment.Vertical.ToString().ToCamel());
+        WriteText(writer, "xvml:AutoFill", "False");
+        WriteText(writer, "xvml:Row", (c.Address.RowNumber - 1).ToInvariantString());
+        WriteText(writer, "xvml:Column", (c.Address.ColumnNumber - 1).ToInvariantString());
+        WriteText(writer, "xvml:Locked", comment.Style.Protection.Locked ? "True" : "False");
+        WriteText(writer, "xvml:LockText", comment.Style.Protection.LockText ? "True" : "False");
+        WriteText(writer, "xvml:Visible", comment.Visible ? "True" : "False");
+
+        writer.WriteEndElement();
+    }
+
+    private static void WriteText(XmlWriter writer, string qualifiedName, string text)
+    {
+        writer.WriteStartElement(qualifiedName);
+        writer.WriteString(text);
+        writer.WriteEndElement();
+    }
+
+    /// <summary>
+    /// The two prefixes go on every shape, after its own attributes, because each shape used to
+    /// be serialised as a document of its own.
+    /// </summary>
+    private static void WriteVmlNamespaces(XmlWriter writer)
+    {
+        writer.WriteAttributeString("xmlns:o", OfficeNs);
+        writer.WriteAttributeString("xmlns:v", VmlNs);
+    }
+
+    private static string Hex(XLColor color) => "#" + color.Color.ToHex().Substring(2);
+
+    private static string Opacity(double transparency) =>
+        Math.Round(Convert.ToDouble(transparency), 2).ToInvariantString();
+
+    private static string LineStyle(XLLineStyle lineStyle) =>
+        lineStyle switch
+        {
+            XLLineStyle.Single => "single",
+            XLLineStyle.ThinThin => "thinThin",
+            XLLineStyle.ThinThick => "thinThick",
+            XLLineStyle.ThickThin => "thickThin",
+            XLLineStyle.ThickBetweenThin => "thickBetweenThin",
+            _ => throw new ArgumentOutOfRangeException(nameof(lineStyle)),
+        };
+
+    private static string GetAnchor(XLCell cell)
     {
         XLComment c = cell.GetComment();
         double cWidth = c.Style.Size.Width;
@@ -268,7 +338,7 @@ internal class VmlDrawingPartWriter
             (lastCell.WorksheetColumn().Width - (widthFromColumns - cWidth)) * 7.5
         );
 
-        double cHeight = c.Style.Size.Height; //c.Style.Size.Height * 72.0;
+        double cHeight = c.Style.Size.Height;
         int frNumber = c.Position.Row - 1;
         int frOffset = Convert.ToInt32(c.Position.RowOffset);
         double heightFromRows = cell.Worksheet.Row(c.Position.Row).Height - c.Position.RowOffset;
@@ -281,36 +351,34 @@ internal class VmlDrawingPartWriter
 
         int lrNumber = lastCell.WorksheetRow().RowNumber() - 1;
         int lrOffset = Convert.ToInt32(lastCell.WorksheetRow().Height - (heightFromRows - cHeight));
-        return new Anchor
-        {
-            Text = string.Concat(
-                fcNumber,
-                ", ",
-                fcOffset,
-                ", ",
-                frNumber,
-                ", ",
-                frOffset,
-                ", ",
-                lcNumber,
-                ", ",
-                lcOffset,
-                ", ",
-                lrNumber,
-                ", ",
-                lrOffset
-            ),
-        };
+
+        return string.Concat(
+            fcNumber,
+            ", ",
+            fcOffset,
+            ", ",
+            frNumber,
+            ", ",
+            frOffset,
+            ", ",
+            lcNumber,
+            ", ",
+            lcOffset,
+            ", ",
+            lrNumber,
+            ", ",
+            lrOffset
+        );
     }
 
-    private static StringValue GetCommentStyle(XLCell cell)
+    private static string GetCommentStyle(XLCell cell)
     {
         XLComment c = cell.GetComment();
         StringBuilder sb = new("position:absolute; ");
 
         sb.Append("visibility:");
         sb.Append(c.Visible ? "visible" : "hidden");
-        sb.Append(";");
+        sb.Append(';');
 
         sb.Append("width:");
         sb.Append(Math.Round(c.Style.Size.Width * 7.5, 2).ToInvariantString());

@@ -1,9 +1,9 @@
 #nullable disable
 
 using System.Diagnostics;
-using DocumentFormat.OpenXml.Packaging;
 using XlsxSharp.Excel.Formatting;
 using XlsxSharp.Excel.Tables;
+using XlsxSharp.IO.Packaging;
 
 namespace XlsxSharp.Excel;
 
@@ -122,9 +122,9 @@ public partial class XLWorkbook
         /// <summary>
         /// Add all existing rel ids present on the parts or workbook to the generator, so they are not duplicated again.
         /// </summary>
-        public void AddExistingValues(WorkbookPart workbookPart, XLWorkbook xlWorkbook)
+        public void AddExistingValues(OpcPart workbookPart, XLWorkbook xlWorkbook)
         {
-            this.AddValues(workbookPart.Parts.Select(p => p.RelationshipId), RelType.Workbook);
+            this.AddValues(InternalRelationshipIds(workbookPart), RelType.Workbook);
             this.AddValues(
                 xlWorkbook
                     .WorksheetsInternal.Cast<XLWorksheet>()
@@ -153,27 +153,30 @@ public partial class XLWorkbook
                 // if the worksheet is a new one, it doesn't have RelId yet.
                 if (
                     string.IsNullOrEmpty(xlWorksheet.RelId)
-                    || !workbookPart.TryGetPartById(xlWorksheet.RelId, out OpenXmlPart part)
+                    || workbookPart.GetRelatedPartOrDefault(xlWorksheet.RelId)
+                        is not { } worksheetPart
                 )
                 {
                     continue;
                 }
 
-                WorksheetPart worksheetPart = (WorksheetPart)part;
                 this.AddValues(
-                    worksheetPart.HyperlinkRelationships.Select(hr => hr.Id),
+                    worksheetPart
+                        .Relationships.OfType(OoxmlPartTypes.HyperlinkRelationshipType)
+                        .Select(r => r.Id),
                     RelType.Workbook
                 );
-                this.AddValues(worksheetPart.Parts.Select(p => p.RelationshipId), RelType.Workbook);
-                if (worksheetPart.DrawingsPart != null)
+                this.AddValues(InternalRelationshipIds(worksheetPart), RelType.Workbook);
+                if (worksheetPart.PartOfType(OoxmlPartTypes.Drawing) is { } drawingsPart)
                 {
-                    this.AddValues(
-                        worksheetPart.DrawingsPart.Parts.Select(p => p.RelationshipId),
-                        RelType.Workbook
-                    );
+                    this.AddValues(InternalRelationshipIds(drawingsPart), RelType.Workbook);
                 }
             }
         }
+
+        /// <summary>The ids of the relationships pointing at one of the part's own children.</summary>
+        private static IEnumerable<string> InternalRelationshipIds(OpcPart part) =>
+            part.Relationships.Where(r => r.TargetMode == OpcTargetMode.Internal).Select(r => r.Id);
 
         public string GetNext(RelType relType)
         {

@@ -95,7 +95,7 @@ internal class XLDefinedName : IXLDefinedName, IWorkbookListener
                 // `[MS-XLSX] 2.2.2.5: The formula MUST NOT use the local-cell-reference production
                 // rule.` Excel will refuse to load a workbook with such a defined name (e.g. `A1`).
                 // In theory, defined name should support bang references as a replacement for local
-                // references, but ClosedParser doesn't support it yet.
+                // references, but XlsxSharp.Parser does not support it yet.
                 throw new ArgumentException(
                     $"Formula '{formula}' contains references without a sheet."
                 );

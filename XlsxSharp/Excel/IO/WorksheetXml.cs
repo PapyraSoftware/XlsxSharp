@@ -1,0 +1,197 @@
+using System.Xml.Linq;
+using XlsxSharp.Extensions;
+
+namespace XlsxSharp.Excel.IO;
+
+/// <summary>
+/// Placing the children of <c>xl/worksheets/sheetN.xml</c>, which the schema fixes the order of.
+/// </summary>
+/// <remarks>
+/// The worksheet writer patches the sheet the workbook was loaded from rather than writing a
+/// fresh one, so an element it adds has to land where the schema says it goes, between whichever
+/// of its neighbours the loaded sheet happens to carry.
+/// </remarks>
+internal static class WorksheetXml
+{
+    /// <summary>
+    /// The children of <c>worksheet</c>, in the order CT_Worksheet requires.
+    /// </summary>
+    private static readonly string[] ChildOrder =
+    [
+        "sheetPr",
+        "dimension",
+        "sheetViews",
+        "sheetFormatPr",
+        "cols",
+        "sheetData",
+        "sheetCalcPr",
+        "sheetProtection",
+        "protectedRanges",
+        "scenarios",
+        "autoFilter",
+        "sortState",
+        "dataConsolidate",
+        "customSheetViews",
+        "mergeCells",
+        "phoneticPr",
+        "conditionalFormatting",
+        "dataValidations",
+        "hyperlinks",
+        "printOptions",
+        "pageMargins",
+        "pageSetup",
+        "headerFooter",
+        "rowBreaks",
+        "colBreaks",
+        "customProperties",
+        "cellWatches",
+        "ignoredErrors",
+        "smartTags",
+        "drawing",
+        "legacyDrawing",
+        "legacyDrawingHF",
+        "drawingHF",
+        "picture",
+        "oleObjects",
+        "controls",
+        "webPublishItems",
+        "tableParts",
+        "extLst",
+    ];
+
+    /// <summary>
+    /// The children of <c>sheetPr</c>, in the order CT_SheetPr requires.
+    /// </summary>
+    internal static readonly string[] SheetPropertyOrder = ["tabColor", "outlinePr", "pageSetUpPr"];
+
+    /// <summary>
+    /// The children of <c>sheetView</c>, in the order CT_SheetView requires.
+    /// </summary>
+    internal static readonly string[] SheetViewOrder =
+    [
+        "pane",
+        "selection",
+        "pivotSelection",
+        "extLst",
+    ];
+
+    /// <summary>
+    /// The element's only child of that name, added in schema order if it has none yet.
+    /// </summary>
+    internal static XElement Child(XElement parent, string name, string[]? order = null)
+    {
+        if (parent.Element(SpreadsheetXml.Main + name) is { } existing)
+        {
+            return existing;
+        }
+
+        XElement child = new(SpreadsheetXml.Main + name);
+        Insert(parent, name, child, order);
+        return child;
+    }
+
+    /// <summary>
+    /// Adds a child in schema order without looking for one that is already there, for the
+    /// elements a parent may carry more than one of.
+    /// </summary>
+    internal static void Insert(
+        XElement parent,
+        string name,
+        XElement child,
+        string[]? order = null
+    )
+    {
+        order ??= ChildOrder;
+        int rank = Array.IndexOf(order, name);
+        if (rank < 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(name), name, "Not a known element.");
+        }
+
+        XElement? previous = null;
+        foreach (XElement candidate in parent.Elements())
+        {
+            int candidateRank = Array.IndexOf(order, EffectiveLocalName(candidate));
+            if (candidateRank >= 0 && candidateRank < rank)
+            {
+                previous = candidate;
+            }
+        }
+
+        if (previous is null)
+        {
+            parent.AddFirst(child);
+        }
+        else
+        {
+            previous.AddAfterSelf(child);
+        }
+    }
+
+    /// <summary>
+    /// A markup-compatibility wrapper stands in for whatever it wraps, for ordering purposes -
+    /// the schema orders the sheet by what it actually contains, and an AlternateContent's
+    /// Choice or Fallback carries the element that would otherwise sit here directly.
+    /// </summary>
+    private static string EffectiveLocalName(XElement candidate)
+    {
+        if (candidate.Name.LocalName == "AlternateContent")
+        {
+            XElement? wrapped = candidate
+                .Elements()
+                .SelectMany(branch => branch.Elements())
+                .FirstOrDefault();
+            if (wrapped is not null)
+            {
+                return wrapped.Name.LocalName;
+            }
+        }
+
+        return candidate.Name.LocalName;
+    }
+
+    /// <summary>
+    /// An attribute carrying an OOXML boolean, which is written as 1 or 0.
+    /// </summary>
+    internal static void SetBool(XElement element, string name, bool value) =>
+        element.SetAttributeValue(name, value ? "1" : "0");
+
+    /// <summary>
+    /// An OOXML boolean that is left off the element when it says what the schema already says.
+    /// </summary>
+    internal static void SetBoolDefault(
+        XElement element,
+        string name,
+        bool value,
+        bool defaultValue
+    ) =>
+        element.SetAttributeValue(
+            name,
+            value == defaultValue ? null
+                : value ? "1"
+                : "0"
+        );
+
+    /// <summary>
+    /// An OOXML boolean that is left off the element when it has no value.
+    /// </summary>
+    internal static void SetBoolOptional(XElement element, string name, bool? value) =>
+        element.SetAttributeValue(
+            name,
+            value is { } present
+                ? present
+                    ? "1"
+                    : "0"
+                : null
+        );
+
+    /// <summary>
+    /// An attribute that is left off the element when it has no value.
+    /// </summary>
+    internal static void SetOptional<T>(XElement element, string name, T? value)
+        where T : struct =>
+        element.SetAttributeValue(name, value is { } present ? present.ToInvariantString() : null);
+
+    internal static void Set<T>(XElement element, string name, T value)
+        where T : struct => element.SetAttributeValue(name, value.ToInvariantString());
+}

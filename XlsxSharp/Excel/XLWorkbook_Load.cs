@@ -4,12 +4,6 @@ using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
-using DocumentFormat.OpenXml;
-using DocumentFormat.OpenXml.CustomProperties;
-using DocumentFormat.OpenXml.Drawing;
-using DocumentFormat.OpenXml.ExtendedProperties;
-using DocumentFormat.OpenXml.Packaging;
-using DocumentFormat.OpenXml.Spreadsheet;
 using XlsxSharp.Excel.Comments;
 using XlsxSharp.Excel.Drawings;
 using XlsxSharp.Excel.Drawings.Style;
@@ -20,41 +14,49 @@ using XlsxSharp.Excel.RichText;
 using XlsxSharp.Excel.Tables;
 using XlsxSharp.Extensions;
 using XlsxSharp.IO;
+using XlsxSharp.IO.Packaging;
 using XlsxSharp.Utils;
-using Run = DocumentFormat.OpenXml.Spreadsheet.Run;
-using RunProperties = DocumentFormat.OpenXml.Spreadsheet.RunProperties;
-using Table = DocumentFormat.OpenXml.Spreadsheet.Table;
-using Xdr = DocumentFormat.OpenXml.Drawing.Spreadsheet;
 
 namespace XlsxSharp.Excel;
 
 public partial class XLWorkbook
 {
+    private static readonly XNamespace CustomPropertiesNs =
+        "http://schemas.openxmlformats.org/officeDocument/2006/custom-properties";
+
+    private static readonly XNamespace ExtendedPropertiesNs =
+        "http://schemas.openxmlformats.org/officeDocument/2006/extended-properties";
+
+    private static readonly XNamespace DrawingNs =
+        "http://schemas.openxmlformats.org/drawingml/2006/main";
+
     private void Load(string file) => this.LoadSheets(file);
 
     private void Load(Stream stream) => this.LoadSheets(stream);
 
     private void LoadSheets(string fileName)
     {
-        using (SpreadsheetDocument dSpreadsheet = SpreadsheetDocument.Open(fileName, false))
+        using (OpcPackage package = OpcPackage.Open(fileName, writable: false))
         {
-            this.LoadSpreadsheetDocument(dSpreadsheet);
+            this.LoadSpreadsheetDocument(package);
         }
     }
 
     private void LoadSheets(Stream stream)
     {
-        using (SpreadsheetDocument dSpreadsheet = SpreadsheetDocument.Open(stream, false))
+        using (OpcPackage package = OpcPackage.Open(stream, writable: false))
         {
-            this.LoadSpreadsheetDocument(dSpreadsheet);
+            this.LoadSpreadsheetDocument(package);
         }
     }
 
     private void LoadSheetsFromTemplate(string fileName)
     {
-        using (SpreadsheetDocument dSpreadsheet = SpreadsheetDocument.CreateFromTemplate(fileName))
+        // Save always opens or creates its own package rather than reusing this one, so a
+        // read-only open is enough here - nothing is ever written back to this file.
+        using (OpcPackage package = OpcPackage.Open(fileName, writable: false))
         {
-            this.LoadSpreadsheetDocument(dSpreadsheet);
+            this.LoadSpreadsheetDocument(package);
         }
 
         // If we load a workbook as a template, we have to treat it as a "new" workbook.
@@ -95,139 +97,159 @@ public partial class XLWorkbook
         }
     }
 
-    private void LoadSpreadsheetDocument(SpreadsheetDocument dSpreadsheet)
+    /// <summary>
+    /// The worksheet part a sheet's relationship id points at, or null when it points at
+    /// something else - a chartsheet or other sheet type XlsxSharp does not model, which is kept
+    /// around as an <see cref="UnsupportedSheet"/> instead.
+    /// </summary>
+    private static OpcPart GetWorksheetPartOrNull(OpcPart workbookPart, string sheetRelId)
+    {
+        OpcPart part = workbookPart.GetRelatedPart(sheetRelId);
+        return part.ContentType == OoxmlPartTypes.Worksheet.ContentType ? part : null;
+    }
+
+    private void LoadSpreadsheetDocument(OpcPackage package)
     {
         LoadContext context = new();
         this.ShapeIdManager = new XLIdManager();
-        this.SetProperties(dSpreadsheet);
+        this.SetProperties(package);
 
-        SharedStringItem[] sharedStrings = null;
-        WorkbookPart workbookPart = dSpreadsheet.WorkbookPart;
-        if (workbookPart.GetPartsOfType<SharedStringTablePart>().Any())
+        XElement[] sharedStrings = null;
+        OpcPart workbookPart =
+            package.PartOfType(OoxmlPartTypes.Workbook)
+            ?? throw PartStructureException.RequiredElementIsMissing("workbook");
+        if (workbookPart.PartOfType(OoxmlPartTypes.SharedStringTable) is { } shareStringPart)
         {
-            SharedStringTablePart shareStringPart = workbookPart
-                .GetPartsOfType<SharedStringTablePart>()
-                .First();
-            sharedStrings = [.. shareStringPart.SharedStringTable.Elements<SharedStringItem>()];
+            using Stream sharedStringsStream = shareStringPart.GetReadStream();
+            XElement sharedStringTable =
+                XDocument.Load(sharedStringsStream).Root
+                ?? throw PartStructureException.ExpectedElementNotFound("sst");
+            sharedStrings = [.. sharedStringTable.Elements(SpreadsheetXml.Main + "si")];
         }
 
-        LoadWorkbookTheme(workbookPart?.ThemePart, this);
+        LoadWorkbookTheme(workbookPart.PartOfType(OoxmlPartTypes.Theme), this);
 
-        if (dSpreadsheet.CustomFilePropertiesPart != null)
+        if (package.PartOfType(OoxmlPartTypes.CustomFileProperties) is { } customFilePropertiesPart)
         {
+            using Stream customPropertiesStream = customFilePropertiesPart.GetReadStream();
+            XElement? customProperties = XDocument.Load(customPropertiesStream).Root;
+
             foreach (
-                CustomDocumentProperty m in dSpreadsheet.CustomFilePropertiesPart.Properties.Elements<CustomDocumentProperty>()
+                XElement property in customProperties?.Elements(CustomPropertiesNs + "property")
+                    ?? []
             )
             {
-                string name = m.Name?.Value;
+                string name = property.Attribute("name")?.Value;
 
                 if (string.IsNullOrWhiteSpace(name))
                 {
                     continue;
                 }
 
-                if (m.VTLPWSTR != null)
+                XElement value = property.Elements().FirstOrDefault();
+                switch (value?.Name.LocalName)
                 {
-                    this.CustomProperties.Add(name, m.VTLPWSTR.Text);
+                    case "lpwstr":
+                        this.CustomProperties.Add(name, value.Value);
+                        break;
+
+                    case "filetime":
+                        this.CustomProperties.Add(
+                            name,
+                            DateTime.ParseExact(
+                                value.Value,
+                                "yyyy'-'MM'-'dd'T'HH':'mm':'ssK",
+                                CultureInfo.InvariantCulture
+                            )
+                        );
+                        break;
+
+                    case "r8":
+                        this.CustomProperties.Add(
+                            name,
+                            double.Parse(value.Value, CultureInfo.InvariantCulture)
+                        );
+                        break;
+
+                    case "bool":
+                        this.CustomProperties.Add(name, value.Value == "true");
+                        break;
                 }
-                else if (m.VTFileTime != null)
-                {
-                    this.CustomProperties.Add(
-                        name,
-                        DateTime.ParseExact(
-                            m.VTFileTime.Text,
-                            "yyyy'-'MM'-'dd'T'HH':'mm':'ssK",
-                            CultureInfo.InvariantCulture
-                        )
-                    );
-                }
-                else if (m.VTDouble != null)
-                {
-                    this.CustomProperties.Add(
-                        name,
-                        double.Parse(m.VTDouble.Text, CultureInfo.InvariantCulture)
-                    );
-                }
-                else if (m.VTBool != null)
-                {
-                    this.CustomProperties.Add(name, m.VTBool.Text == "true");
-                }
             }
         }
 
-        WorkbookProperties wbProps = workbookPart.Workbook.WorkbookProperties;
-        if (wbProps != null)
+        XElement workbookXml = WorkbookXml.Read(workbookPart);
+
+        if (workbookXml.Element(SpreadsheetXml.Main + "workbookPr") is { } wbProps)
         {
-            this.Use1904DateSystem = OpenXmlHelper.GetBooleanValueAsBool(wbProps.Date1904, false);
+            this.Use1904DateSystem = SpreadsheetXml.Bool(wbProps, "date1904") ?? false;
         }
 
-        FileSharing wbFilesharing = workbookPart.Workbook.FileSharing;
-        if (wbFilesharing != null)
+        if (workbookXml.Element(SpreadsheetXml.Main + "fileSharing") is { } wbFilesharing)
         {
-            this.FileSharing.ReadOnlyRecommended = OpenXmlHelper.GetBooleanValueAsBool(
-                wbFilesharing.ReadOnlyRecommended,
-                false
-            );
-            this.FileSharing.UserName = wbFilesharing.UserName?.Value;
+            this.FileSharing.ReadOnlyRecommended =
+                SpreadsheetXml.Bool(wbFilesharing, "readOnlyRecommended") ?? false;
+            this.FileSharing.UserName = wbFilesharing.Attribute("userName")?.Value;
         }
 
-        LoadWorkbookProtection(workbookPart.Workbook.WorkbookProtection, this);
+        LoadWorkbookProtection(
+            workbookXml.Element(SpreadsheetXml.Main + "workbookProtection"),
+            this
+        );
 
-        CalculationProperties calculationProperties = workbookPart.Workbook.CalculationProperties;
-        if (calculationProperties != null)
+        if (workbookXml.Element(SpreadsheetXml.Main + "calcPr") is { } calcPr)
         {
-            EnumValue<CalculateModeValues> calculateMode = calculationProperties.CalculationMode;
-            if (calculateMode != null)
+            if (calcPr.Attribute("calcMode")?.Value is { } calculateMode)
             {
-                this.CalculateMode = calculateMode.Value.ToClosedXml();
+                this.CalculateMode = WorkbookXml.ParseCalculateMode(calculateMode);
             }
 
-            BooleanValue calculationOnSave = calculationProperties.CalculationOnSave;
-            if (calculationOnSave != null)
+            if (SpreadsheetXml.Bool(calcPr, "calcOnSave") is { } calculationOnSave)
             {
-                this.CalculationOnSave = calculationOnSave.Value;
+                this.CalculationOnSave = calculationOnSave;
             }
 
-            BooleanValue forceFullCalculation = calculationProperties.ForceFullCalculation;
-            if (forceFullCalculation != null)
+            if (SpreadsheetXml.Bool(calcPr, "forceFullCalc") is { } forceFullCalculation)
             {
-                this.ForceFullCalculation = forceFullCalculation.Value;
+                this.ForceFullCalculation = forceFullCalculation;
             }
 
-            BooleanValue fullCalculationOnLoad = calculationProperties.FullCalculationOnLoad;
-            if (fullCalculationOnLoad != null)
+            if (SpreadsheetXml.Bool(calcPr, "fullCalcOnLoad") is { } fullCalculationOnLoad)
             {
-                this.FullCalculationOnLoad = fullCalculationOnLoad.Value;
+                this.FullCalculationOnLoad = fullCalculationOnLoad;
             }
 
-            BooleanValue fullPrecision = calculationProperties.FullPrecision;
-            if (fullPrecision != null)
+            if (SpreadsheetXml.Bool(calcPr, "fullPrecision") is { } fullPrecision)
             {
-                this.FullPrecision = fullPrecision.Value;
+                this.FullPrecision = fullPrecision;
             }
 
-            EnumValue<ReferenceModeValues> referenceMode = calculationProperties.ReferenceMode;
-            if (referenceMode != null)
+            if (calcPr.Attribute("refMode")?.Value is { } referenceMode)
             {
-                this.ReferenceStyle = referenceMode.Value.ToClosedXml();
+                this.ReferenceStyle = WorkbookXml.ParseReferenceMode(referenceMode);
             }
         }
 
-        ExtendedFilePropertiesPart efp = dSpreadsheet.ExtendedFilePropertiesPart;
-        if (efp != null && efp.Properties != null)
+        if (
+            package.PartOfType(OoxmlPartTypes.ExtendedFileProperties) is
+            { } extendedFilePropertiesPart
+        )
         {
-            if (efp.Properties.Elements<Company>().Any())
+            using Stream extendedPropertiesStream = extendedFilePropertiesPart.GetReadStream();
+            XElement? extendedProperties = XDocument.Load(extendedPropertiesStream).Root;
+
+            if (extendedProperties?.Element(ExtendedPropertiesNs + "Company")?.Value is { } company)
             {
-                this.Properties.Company = efp.Properties.GetFirstChild<Company>().Text;
+                this.Properties.Company = company;
             }
 
-            if (efp.Properties.Elements<Manager>().Any())
+            if (extendedProperties?.Element(ExtendedPropertiesNs + "Manager")?.Value is { } manager)
             {
-                this.Properties.Manager = efp.Properties.GetFirstChild<Manager>().Text;
+                this.Properties.Manager = manager;
             }
         }
 
-        WorkbookStylesPart stylesPart = workbookPart.WorkbookStylesPart;
+        OpcPart stylesPart = workbookPart.PartOfType(OoxmlPartTypes.Styles);
         if (stylesPart is not null)
         {
             using XmlTreeReader xmlReader = this.CreateTreeReader(stylesPart);
@@ -242,21 +264,29 @@ public partial class XLWorkbook
         // We do this mainly because it skips a very costly calculation invalidation step, but it also make things more consistent,
         // e.g. when reading calculations that reference other sheets, we know that those sheets always already exist.
         // That consistency point isn't required yet but could be taken advantage of in the future.
-        Sheets sheets = workbookPart.Workbook.Sheets;
+        List<XElement> sheets =
+        [
+            .. workbookXml
+                .Element(SpreadsheetXml.Main + "sheets")
+                ?.Elements(SpreadsheetXml.Main + "sheet")
+                ?? [],
+        ];
+
         int position = 0;
-        foreach (Sheet dSheet in sheets.OfType<Sheet>())
+        foreach (XElement dSheet in sheets)
         {
             position++;
-            StringValue sheetName = dSheet.Name;
-            uint sheetId = dSheet.SheetId.Value;
+            string sheetName = dSheet.Attribute("name")?.Value;
+            uint sheetId = SpreadsheetXml.UInt(dSheet, "sheetId") ?? 0;
+            string sheetRelId = dSheet.Attribute(SpreadsheetXml.Rel + "id")?.Value;
 
-            if (string.IsNullOrEmpty(dSheet.Id))
+            if (string.IsNullOrEmpty(sheetRelId))
             {
                 // Some non-Excel producers create sheets with empty relId.
                 XLWorksheet emptySheet = this.WorksheetsInternal.Add(sheetName, position, sheetId);
-                if (dSheet.State != null)
+                if (dSheet.Attribute("state")?.Value is { } emptyState)
                 {
-                    emptySheet.Visibility = dSheet.State.Value.ToClosedXml();
+                    emptySheet.Visibility = WorkbookXml.ParseSheetState(emptyState);
                 }
 
                 continue;
@@ -265,7 +295,7 @@ public partial class XLWorkbook
             // Although relationship to worksheet is most common, there can be other types
             // than worksheet, e.g. chartSheet. Since we can't load them, add them to list
             // of unsupported sheets and copy them when saving. See Codeplex #6932.
-            WorksheetPart worksheetPart = workbookPart.GetPartById(dSheet.Id) as WorksheetPart;
+            OpcPart worksheetPart = GetWorksheetPartOrNull(workbookPart, sheetRelId);
             if (worksheetPart == null)
             {
                 this.UnsupportedSheets.Add(
@@ -275,22 +305,22 @@ public partial class XLWorkbook
             }
 
             XLWorksheet ws = this.WorksheetsInternal.Add(sheetName, position, sheetId);
-            ws.RelId = dSheet.Id;
+            ws.RelId = sheetRelId;
 
-            if (dSheet.State != null)
+            if (dSheet.Attribute("state")?.Value is { } state)
             {
-                ws.Visibility = dSheet.State.Value.ToClosedXml();
+                ws.Visibility = WorkbookXml.ParseSheetState(state);
             }
         }
 
         position = 0;
-        foreach (Sheet dSheet in sheets.OfType<Sheet>())
+        foreach (XElement dSheet in sheets)
         {
             position++;
-            StringValue sheetName = dSheet.Name;
-            uint sheetId = dSheet.SheetId.Value;
+            string sheetName = dSheet.Attribute("name")?.Value;
+            string sheetRelId = dSheet.Attribute(SpreadsheetXml.Rel + "id")?.Value;
 
-            if (string.IsNullOrEmpty(dSheet.Id))
+            if (string.IsNullOrEmpty(sheetRelId))
             {
                 // Some non-Excel producers create sheets with empty relId.
                 continue;
@@ -299,7 +329,7 @@ public partial class XLWorkbook
             // Although relationship to worksheet is most common, there can be other types
             // than worksheet, e.g. chartSheet. Since we can't load them, add them to list
             // of unsupported sheets and copy them when saving. See Codeplex #6932.
-            WorksheetPart worksheetPart = workbookPart.GetPartById(dSheet.Id) as WorksheetPart;
+            OpcPart worksheetPart = GetWorksheetPartOrNull(workbookPart, sheetRelId);
             if (worksheetPart == null)
             {
                 continue;
@@ -318,13 +348,16 @@ public partial class XLWorkbook
 
             #region LoadTables
 
-            foreach (TableDefinitionPart tableDefinitionPart in worksheetPart.TableDefinitionParts)
+            foreach (OpcPart tableDefinitionPart in worksheetPart.PartsOfType(OoxmlPartTypes.Table))
             {
-                string relId = worksheetPart.GetIdOfPart(tableDefinitionPart);
-                Table dTable = tableDefinitionPart.Table;
+                string relId = worksheetPart.Relationships.GetIdOfTarget(tableDefinitionPart.Name);
+                XElement dTable = TablePartWriter.Read(tableDefinitionPart);
 
-                string reference = dTable.Reference.Value;
-                string tableName = dTable.Name ?? dTable.DisplayName ?? string.Empty;
+                string reference = SpreadsheetXml.String(dTable, "ref");
+                string tableName =
+                    SpreadsheetXml.String(dTable, "name")
+                    ?? SpreadsheetXml.String(dTable, "displayName")
+                    ?? string.Empty;
                 if (string.IsNullOrWhiteSpace(tableName))
                 {
                     throw new InvalidDataException("The table name is missing.");
@@ -333,35 +366,44 @@ public partial class XLWorkbook
                 XLTable xlTable = ws.Range(reference).CreateTable(tableName, false) as XLTable;
                 xlTable.RelId = relId;
 
+                XElement[] tableColumns =
+                [
+                    .. dTable
+                        .Element(SpreadsheetXml.Main + "tableColumns")
+                        .Elements(SpreadsheetXml.Main + "tableColumn"),
+                ];
+
                 // Add columns to the table
-                foreach (TableColumn tableColumn in dTable.TableColumns)
+                foreach (XElement tableColumn in tableColumns)
                 {
-                    string fieldName = GetTableColumnName(tableColumn.Name.Value);
+                    string fieldName = GetTableColumnName(
+                        SpreadsheetXml.String(tableColumn, "name")
+                    );
                     XLTableField xlField = xlTable.AddField(fieldName);
 
-                    if (tableColumn.HeaderRowDifferentialFormattingId is { } headerDxfId)
+                    if (SpreadsheetXml.UInt(tableColumn, "headerRowDxfId") is { } headerDxfId)
                     {
                         xlField.HeaderFormatValue = this.Styles.DifferentialFormats[
-                            checked((int)headerDxfId.Value)
+                            checked((int)headerDxfId)
                         ];
                     }
 
-                    if (tableColumn.DataFormatId is { } dataDxfId)
+                    if (SpreadsheetXml.UInt(tableColumn, "dataDxfId") is { } dataDxfId)
                     {
                         xlField.DataFormatValue = this.Styles.DifferentialFormats[
-                            checked((int)dataDxfId.Value)
+                            checked((int)dataDxfId)
                         ];
                     }
 
-                    if (tableColumn.TotalsRowDifferentialFormattingId is { } totalsDxfId)
+                    if (SpreadsheetXml.UInt(tableColumn, "totalsRowDxfId") is { } totalsDxfId)
                     {
                         xlField.TotalFormatValue = this.Styles.DifferentialFormats[
-                            checked((int)totalsDxfId.Value)
+                            checked((int)totalsDxfId)
                         ];
                     }
                 }
 
-                if (dTable.HeaderRowCount != null && dTable.HeaderRowCount == 0)
+                if (SpreadsheetXml.UInt(dTable, "headerRowCount") == 0)
                 {
                     xlTable._showHeaderRow = false;
                 }
@@ -370,46 +412,40 @@ public partial class XLWorkbook
                     xlTable.InitializeAutoFilter();
                 }
 
-                if (dTable.TotalsRowCount != null && dTable.TotalsRowCount.Value > 0)
+                if (SpreadsheetXml.UInt(dTable, "totalsRowCount") > 0)
                 {
                     xlTable._showTotalsRow = true;
                 }
 
-                if (dTable.TableStyleInfo != null)
+                if (dTable.Element(SpreadsheetXml.Main + "tableStyleInfo") is { } tableStyleInfo)
                 {
-                    if (dTable.TableStyleInfo.ShowFirstColumn != null)
+                    if (SpreadsheetXml.Bool(tableStyleInfo, "showFirstColumn") is { } showFirst)
                     {
-                        xlTable.EmphasizeFirstColumn = dTable.TableStyleInfo.ShowFirstColumn.Value;
+                        xlTable.EmphasizeFirstColumn = showFirst;
                     }
 
-                    if (dTable.TableStyleInfo.ShowLastColumn != null)
+                    if (SpreadsheetXml.Bool(tableStyleInfo, "showLastColumn") is { } showLast)
                     {
-                        xlTable.EmphasizeLastColumn = dTable.TableStyleInfo.ShowLastColumn.Value;
+                        xlTable.EmphasizeLastColumn = showLast;
                     }
 
-                    if (dTable.TableStyleInfo.ShowRowStripes != null)
+                    if (SpreadsheetXml.Bool(tableStyleInfo, "showRowStripes") is { } showRowStripes)
                     {
-                        xlTable.ShowRowStripes = dTable.TableStyleInfo.ShowRowStripes.Value;
+                        xlTable.ShowRowStripes = showRowStripes;
                     }
 
-                    if (dTable.TableStyleInfo.ShowColumnStripes != null)
+                    if (
+                        SpreadsheetXml.Bool(tableStyleInfo, "showColumnStripes") is
+                        { } showColumnStripes
+                    )
                     {
-                        xlTable.ShowColumnStripes = dTable.TableStyleInfo.ShowColumnStripes.Value;
+                        xlTable.ShowColumnStripes = showColumnStripes;
                     }
 
-                    if (dTable.TableStyleInfo.Name != null)
+                    if (SpreadsheetXml.String(tableStyleInfo, "name") is { } styleName)
                     {
-                        XLTableTheme theme = XLTableTheme.FromName(
-                            dTable.TableStyleInfo.Name.Value
-                        );
-                        if (theme != null)
-                        {
-                            xlTable.Theme = theme;
-                        }
-                        else
-                        {
-                            xlTable.Theme = new XLTableTheme(dTable.TableStyleInfo.Name.Value);
-                        }
+                        xlTable.Theme =
+                            XLTableTheme.FromName(styleName) ?? new XLTableTheme(styleName);
                     }
                     else
                     {
@@ -417,10 +453,10 @@ public partial class XLWorkbook
                     }
                 }
 
-                if (dTable.AutoFilter != null)
+                if (dTable.Element(SpreadsheetXml.Main + "autoFilter") is { } autoFilter)
                 {
                     xlTable.ShowAutoFilter = true;
-                    AutoFilterReader.LoadAutoFilterColumns(dTable.AutoFilter, xlTable.AutoFilter);
+                    AutoFilterReader.LoadAutoFilterColumns(autoFilter, xlTable.AutoFilter);
                 }
                 else
                 {
@@ -429,27 +465,35 @@ public partial class XLWorkbook
 
                 if (xlTable.ShowTotalsRow)
                 {
-                    foreach (TableColumn tableColumn in dTable.TableColumns.Cast<TableColumn>())
+                    foreach (XElement tableColumn in tableColumns)
                     {
-                        string tableColumnName = GetTableColumnName(tableColumn.Name.Value);
-                        if (tableColumn.TotalsRowFunction != null)
+                        string tableColumnName = GetTableColumnName(
+                            SpreadsheetXml.String(tableColumn, "name")
+                        );
+                        if (
+                            SpreadsheetXml.String(tableColumn, "totalsRowFunction") is
+                            { } totalsRowFunction
+                        )
                         {
                             xlTable.Field(tableColumnName).TotalsRowFunction =
-                                tableColumn.TotalsRowFunction.Value.ToClosedXml();
+                                WorksheetXmlEnums.ParseTotalsRowFunction(totalsRowFunction);
                         }
 
-                        if (tableColumn.TotalsRowFormula != null)
+                        if (
+                            tableColumn.Element(SpreadsheetXml.Main + "totalsRowFormula") is
+                            { } totalsRowFormula
+                        )
                         {
-                            xlTable.Field(tableColumnName).TotalsRowFormulaA1 = tableColumn
-                                .TotalsRowFormula
-                                .Text;
+                            xlTable.Field(tableColumnName).TotalsRowFormulaA1 =
+                                totalsRowFormula.Value;
                         }
 
-                        if (tableColumn.TotalsRowLabel != null)
+                        if (
+                            SpreadsheetXml.String(tableColumn, "totalsRowLabel") is
+                            { } totalsRowLabel
+                        )
                         {
-                            xlTable.Field(tableColumnName).TotalsRowLabel = tableColumn
-                                .TotalsRowLabel
-                                .Value;
+                            xlTable.Field(tableColumnName).TotalsRowLabel = totalsRowLabel;
                         }
                     }
                     if (xlTable.AutoFilter != null)
@@ -474,18 +518,23 @@ public partial class XLWorkbook
 
             #region LoadComments
 
-            if (worksheetPart.WorksheetCommentsPart != null)
+            if (worksheetPart.PartOfType(OoxmlPartTypes.Comments) is { } commentsPart)
             {
-                DocumentFormat.OpenXml.Spreadsheet.Comments root = worksheetPart
-                    .WorksheetCommentsPart
-                    .Comments;
-                List<Author> authors =
+                using Stream commentsStream = commentsPart.GetReadStream();
+                XElement root =
+                    XDocument.Load(commentsStream).Root
+                    ?? throw PartStructureException.ExpectedElementNotFound("comments");
+                List<XElement> authors =
                 [
-                    .. root.GetFirstChild<Authors>().ChildElements.OfType<Author>(),
+                    .. root.Element(SpreadsheetXml.Main + "authors")
+                        ?.Elements(SpreadsheetXml.Main + "author")
+                        ?? [],
                 ];
-                List<Comment> comments =
+                List<XElement> comments =
                 [
-                    .. root.GetFirstChild<CommentList>().ChildElements.OfType<Comment>(),
+                    .. root.Element(SpreadsheetXml.Main + "commentList")
+                        ?.Elements(SpreadsheetXml.Main + "comment")
+                        ?? [],
                 ];
 
                 // **** MAYBE FUTURE SHAPE SIZE SUPPORT
@@ -493,7 +542,7 @@ public partial class XLWorkbook
 
                 for (int i = 0; i < comments.Count; i++)
                 {
-                    Comment c = comments[i];
+                    XElement c = comments[i];
 
                     XElement shape = null;
                     if (i < shapes.Count)
@@ -502,7 +551,7 @@ public partial class XLWorkbook
                     }
 
                     // find cell by reference
-                    XLCell cell = ws.Cell(c.Reference);
+                    XLCell cell = ws.Cell(SpreadsheetXml.String(c, "ref"));
 
                     string shapeIdString = shape?.Attribute("id")?.Value;
                     if (shapeIdString?.StartsWith("_x0000_s") ?? false)
@@ -513,16 +562,19 @@ public partial class XLWorkbook
                     int? shapeId = int.TryParse(shapeIdString, out int sid) ? (int?)sid : null;
                     XLComment xlComment = cell.CreateComment(shapeId);
 
-                    xlComment.Author = authors[(int)c.AuthorId.Value].InnerText;
+                    xlComment.Author = authors[(int)SpreadsheetXml.UInt(c, "authorId")].Value;
                     this.ShapeIdManager.Add(xlComment.ShapeId);
 
-                    IEnumerable<Run> runs = c.GetFirstChild<CommentText>().Elements<Run>();
-                    foreach (Run run in runs)
+                    IEnumerable<XElement> runs =
+                        c.Element(SpreadsheetXml.Main + "text")?.Elements(SpreadsheetXml.Main + "r")
+                        ?? [];
+                    foreach (XElement run in runs)
                     {
-                        RunProperties runProperties = run.RunProperties;
-                        string text = run.Text.InnerText.FixNewLines();
+                        string text = (
+                            run.Element(SpreadsheetXml.Main + "t")?.Value ?? ""
+                        ).FixNewLines();
                         IXLRichString rt = xlComment.AddText(text);
-                        OpenXmlHelper.LoadFont(runProperties, rt);
+                        StyleXml.LoadFont(run.Element(SpreadsheetXml.Main + "rPr"), rt);
                     }
 
                     if (shape != null)
@@ -556,19 +608,21 @@ public partial class XLWorkbook
             #endregion LoadComments
         }
 
-        Workbook workbook = workbookPart.Workbook;
-
-        BookViews bookViews = workbook.BookViews;
-        if (bookViews != null && bookViews.FirstOrDefault() is WorkbookView workbookView)
+        if (
+            workbookXml
+                .Element(SpreadsheetXml.Main + "bookViews")
+                ?.Element(SpreadsheetXml.Main + "workbookView") is
+            { } workbookView
+        )
         {
-            if (workbookView.ActiveTab == null || !workbookView.ActiveTab.HasValue)
+            if (SpreadsheetXml.UInt(workbookView, "activeTab") is not { } activeTab)
             {
                 this.Worksheets.First().SetTabActive().Unhide();
             }
             else
             {
                 UnsupportedSheet unsupportedSheet = this.UnsupportedSheets.FirstOrDefault(us =>
-                    us.Position == (int)(workbookView.ActiveTab.Value + 1)
+                    us.Position == (int)(activeTab + 1)
                 );
                 if (unsupportedSheet != null)
                 {
@@ -576,15 +630,18 @@ public partial class XLWorkbook
                 }
                 else
                 {
-                    this.Worksheet((int)(workbookView.ActiveTab.Value + 1)).SetTabActive();
+                    this.Worksheet((int)(activeTab + 1)).SetTabActive();
                 }
             }
         }
-        this.LoadDefinedNames(workbook);
+
+        this.LoadDefinedNames(workbookXml);
 
         // Read cache definition before table definition
         foreach (
-            PivotTableCacheDefinitionPart pivotTableCacheDefinitionPart in workbookPart.GetPartsOfType<PivotTableCacheDefinitionPart>()
+            OpcPart pivotTableCacheDefinitionPart in workbookPart.PartsOfType(
+                OoxmlPartTypes.PivotCacheDefinition
+            )
         )
         {
             XLPivotCache pivotCache = PivotTableCacheDefinitionPartReader.Load(
@@ -592,7 +649,10 @@ public partial class XLWorkbook
                 pivotTableCacheDefinitionPart,
                 this
             );
-            if (pivotTableCacheDefinitionPart.PivotTableCacheRecordsPart is { } recordsPart)
+            if (
+                pivotTableCacheDefinitionPart.PartOfType(OoxmlPartTypes.PivotCacheRecords) is
+                { } recordsPart
+            )
             {
                 using XmlTreeReader reader = this.CreateTreeReader(recordsPart);
                 PivotCacheRecordsReader recordsReader = new(reader, pivotCache);
@@ -601,22 +661,26 @@ public partial class XLWorkbook
         }
 
         // Delay loading of pivot tables until all sheets have been loaded
-        foreach (Sheet dSheet in sheets.OfType<Sheet>())
+        foreach (XElement dSheet in sheets)
         {
-            if (string.IsNullOrEmpty(dSheet.Id))
+            string sheetRelId = dSheet.Attribute(SpreadsheetXml.Rel + "id")?.Value;
+            if (string.IsNullOrEmpty(sheetRelId))
             {
                 // Some non-Excel producers create sheets with empty relId.
                 continue;
             }
 
             // The referenced sheet can also be ChartsheetPart. Only look for pivot tables in normal sheet parts.
-            WorksheetPart worksheetPart = workbookPart.GetPartById(dSheet.Id) as WorksheetPart;
+            OpcPart worksheetPart = GetWorksheetPartOrNull(workbookPart, sheetRelId);
 
             if (worksheetPart is not null)
             {
-                XLWorksheet ws = (XLWorksheet)this.WorksheetsInternal.Worksheet(dSheet.Name);
+                XLWorksheet ws = (XLWorksheet)
+                    this.WorksheetsInternal.Worksheet(dSheet.Attribute("name")?.Value);
 
-                foreach (PivotTablePart pivotTablePart in worksheetPart.PivotTableParts)
+                foreach (
+                    OpcPart pivotTablePart in worksheetPart.PartsOfType(OoxmlPartTypes.PivotTable)
+                )
                 {
                     PivotTableDefinitionPartReader.Load(
                         workbookPart,
@@ -630,110 +694,103 @@ public partial class XLWorkbook
         }
     }
 
-    private static void LoadDrawings(WorksheetPart wsPart, XLWorksheet ws)
+    private static void LoadDrawings(OpcPart wsPart, XLWorksheet ws)
     {
-        if (wsPart.DrawingsPart != null)
+        if (wsPart.PartOfType(OoxmlPartTypes.Drawing) is not { } drawingsPart)
         {
-            DrawingsPart drawingsPart = wsPart.DrawingsPart;
+            return;
+        }
 
-            foreach (OpenXmlElement anchor in drawingsPart.WorksheetDrawing.ChildElements)
+        XElement worksheetDrawing = DrawingXml.Read(drawingsPart);
+
+        foreach (XElement anchor in worksheetDrawing.Elements())
+        {
+            string imgId = DrawingXml.PictureRelId(anchor);
+
+            // If imgId is null, we're probably dealing with a TextBox (or another shape) instead of a picture
+            if (imgId == null)
             {
-                string imgId = GetImageRelIdFromAnchor(anchor);
+                continue;
+            }
 
-                //If imgId is null, we're probably dealing with a TextBox (or another shape) instead of a picture
-                if (imgId == null)
+            OpcPart imagePart = drawingsPart.GetRelatedPart(imgId);
+            using Stream stream = imagePart.GetReadStream();
+            using MemoryStream ms = new();
+            stream.CopyTo(ms);
+
+            XElement nonVisualProperties = DrawingXml.PictureProperties(anchor);
+            uint id = SpreadsheetXml.UInt(nonVisualProperties, "id").Value;
+            string name = SpreadsheetXml.String(nonVisualProperties, "name");
+
+            XLPicture picture = ws.AddPicture(ms, name, checked((int)id)) as XLPicture;
+            picture.RelId = imgId;
+            picture.Placement = XLPicturePlacement.FreeFloating;
+
+            XElement extents = DrawingXml.Extents(anchor);
+            if (SpreadsheetXml.Int(extents, "cx") is { } cx)
+            {
+                picture.Width = ConvertFromEnglishMetricUnits(cx, ws.Workbook.DpiX);
+            }
+
+            if (SpreadsheetXml.Int(extents, "cy") is { } cy)
+            {
+                picture.Height = ConvertFromEnglishMetricUnits(cy, ws.Workbook.DpiY);
+            }
+
+            if (anchor.Name == DrawingXml.Xdr + "absoluteAnchor")
+            {
+                XElement position = anchor.Element(DrawingXml.Xdr + "pos");
+                picture.MoveTo(
+                    ConvertFromEnglishMetricUnits(
+                        SpreadsheetXml.Int(position, "x").Value,
+                        ws.Workbook.DpiX
+                    ),
+                    ConvertFromEnglishMetricUnits(
+                        SpreadsheetXml.Int(position, "y").Value,
+                        ws.Workbook.DpiY
+                    )
+                );
+            }
+            else if (anchor.Name == DrawingXml.Xdr + "oneCellAnchor")
+            {
+                XLMarker from = LoadMarker(ws, anchor.Element(DrawingXml.Xdr + "from"));
+                picture.MoveTo(from.Cell, from.Offset);
+            }
+            else if (anchor.Name == DrawingXml.Xdr + "twoCellAnchor")
+            {
+                XLMarker from = LoadMarker(ws, anchor.Element(DrawingXml.Xdr + "from"));
+                XLMarker to = LoadMarker(ws, anchor.Element(DrawingXml.Xdr + "to"));
+
+                // An absent editAs is the same as "twoCell", per the schema's default.
+                string editAs = SpreadsheetXml.String(anchor, "editAs") ?? "twoCell";
+                if (editAs == "twoCell")
                 {
-                    continue;
+                    picture.MoveTo(from.Cell, from.Offset, to.Cell, to.Offset);
                 }
-
-                OpenXmlPart imagePart = drawingsPart.GetPartById(imgId);
-                using (Stream stream = imagePart.GetStream())
-                using (MemoryStream ms = new())
+                else if (editAs == "absolute")
                 {
-                    stream.CopyTo(ms);
-                    Xdr.NonVisualDrawingProperties vsdp = GetPropertiesFromAnchor(anchor);
-
-                    XLPicture picture =
-                        ws.AddPicture(ms, vsdp.Name, Convert.ToInt32(vsdp.Id.Value)) as XLPicture;
-                    picture.RelId = imgId;
-
-                    Xdr.ShapeProperties spPr = anchor.Descendants<Xdr.ShapeProperties>().First();
-                    picture.Placement = XLPicturePlacement.FreeFloating;
-
-                    if (spPr?.Transform2D?.Extents?.Cx.HasValue ?? false)
+                    XElement offset = anchor
+                        .Element(DrawingXml.Xdr + "pic")
+                        ?.Element(DrawingXml.Xdr + "spPr")
+                        ?.Element(DrawingXml.A + "xfrm")
+                        ?.Element(DrawingXml.A + "off");
+                    if (offset != null)
                     {
-                        picture.Width = ConvertFromEnglishMetricUnits(
-                            spPr.Transform2D.Extents.Cx,
-                            ws.Workbook.DpiX
-                        );
-                    }
-
-                    if (spPr?.Transform2D?.Extents?.Cy.HasValue ?? false)
-                    {
-                        picture.Height = ConvertFromEnglishMetricUnits(
-                            spPr.Transform2D.Extents.Cy,
-                            ws.Workbook.DpiY
-                        );
-                    }
-
-                    if (anchor is Xdr.AbsoluteAnchor)
-                    {
-                        Xdr.AbsoluteAnchor absoluteAnchor = anchor as Xdr.AbsoluteAnchor;
                         picture.MoveTo(
                             ConvertFromEnglishMetricUnits(
-                                absoluteAnchor.Position.X.Value,
+                                SpreadsheetXml.Int(offset, "x").Value,
                                 ws.Workbook.DpiX
                             ),
                             ConvertFromEnglishMetricUnits(
-                                absoluteAnchor.Position.Y.Value,
+                                SpreadsheetXml.Int(offset, "y").Value,
                                 ws.Workbook.DpiY
                             )
                         );
                     }
-                    else if (anchor is Xdr.OneCellAnchor)
-                    {
-                        Xdr.OneCellAnchor oneCellAnchor = anchor as Xdr.OneCellAnchor;
-                        XLMarker from = LoadMarker(ws, oneCellAnchor.FromMarker);
-                        picture.MoveTo(from.Cell, from.Offset);
-                    }
-                    else if (anchor is Xdr.TwoCellAnchor)
-                    {
-                        Xdr.TwoCellAnchor twoCellAnchor = anchor as Xdr.TwoCellAnchor;
-                        XLMarker from = LoadMarker(ws, twoCellAnchor.FromMarker);
-                        XLMarker to = LoadMarker(ws, twoCellAnchor.ToMarker);
-
-                        if (
-                            twoCellAnchor.EditAs == null
-                            || !twoCellAnchor.EditAs.HasValue
-                            || twoCellAnchor.EditAs.Value == Xdr.EditAsValues.TwoCell
-                        )
-                        {
-                            picture.MoveTo(from.Cell, from.Offset, to.Cell, to.Offset);
-                        }
-                        else if (twoCellAnchor.EditAs.Value == Xdr.EditAsValues.Absolute)
-                        {
-                            Xdr.ShapeProperties shapeProperties = twoCellAnchor
-                                .Descendants<Xdr.ShapeProperties>()
-                                .FirstOrDefault();
-                            if (shapeProperties != null)
-                            {
-                                picture.MoveTo(
-                                    ConvertFromEnglishMetricUnits(
-                                        spPr.Transform2D.Offset.X,
-                                        ws.Workbook.DpiX
-                                    ),
-                                    ConvertFromEnglishMetricUnits(
-                                        spPr.Transform2D.Offset.Y,
-                                        ws.Workbook.DpiY
-                                    )
-                                );
-                            }
-                        }
-                        else if (twoCellAnchor.EditAs.Value == Xdr.EditAsValues.OneCell)
-                        {
-                            picture.MoveTo(from.Cell, from.Offset);
-                        }
-                    }
+                }
+                else if (editAs == "oneCell")
+                {
+                    picture.MoveTo(from.Cell, from.Offset);
                 }
             }
         }
@@ -742,25 +799,29 @@ public partial class XLWorkbook
     private static int ConvertFromEnglishMetricUnits(long emu, double resolution) =>
         Convert.ToInt32(emu * resolution / 914400);
 
-    private static XLMarker LoadMarker(XLWorksheet ws, Xdr.MarkerType marker)
+    /// <summary>
+    /// A <c>from</c> or <c>to</c> marker: a cell and pixel offset given as EMU child elements
+    /// rather than attributes.
+    /// </summary>
+    private static XLMarker LoadMarker(XLWorksheet ws, XElement marker)
     {
         int row = Math.Min(
             XlsxSharp.XLHelper.MaxRowNumber,
-            Math.Max(1, Convert.ToInt32(marker.RowId.InnerText) + 1)
+            Math.Max(1, (int)marker.Element(DrawingXml.Xdr + "row") + 1)
         );
         int column = Math.Min(
             XlsxSharp.XLHelper.MaxColumnNumber,
-            Math.Max(1, Convert.ToInt32(marker.ColumnId.InnerText) + 1)
+            Math.Max(1, (int)marker.Element(DrawingXml.Xdr + "col") + 1)
         );
         return new XLMarker(
             ws.Cell(row, column),
             new System.Drawing.Point(
                 ConvertFromEnglishMetricUnits(
-                    Convert.ToInt32(marker.ColumnOffset.InnerText),
+                    (int)marker.Element(DrawingXml.Xdr + "colOff"),
                     ws.Workbook.DpiX
                 ),
                 ConvertFromEnglishMetricUnits(
-                    Convert.ToInt32(marker.RowOffset.InnerText),
+                    (int)marker.Element(DrawingXml.Xdr + "rowOff"),
                     ws.Workbook.DpiY
                 )
             )
@@ -769,12 +830,12 @@ public partial class XLWorkbook
 
     #region Comment Helpers
 
-    private static IList<XElement> GetCommentShapes(WorksheetPart worksheetPart)
+    private static IList<XElement> GetCommentShapes(OpcPart worksheetPart)
     {
         // Cannot get this to return Vml.Shape elements
-        foreach (VmlDrawingPart vmlPart in worksheetPart.VmlDrawingParts)
+        foreach (OpcPart vmlPart in worksheetPart.PartsOfType(OoxmlPartTypes.VmlDrawing))
         {
-            using (Stream stream = vmlPart.GetStream(FileMode.Open))
+            using (Stream stream = vmlPart.GetReadStream())
             {
                 XDocument xdoc = XDocumentExtensions.Load(stream);
                 if (xdoc == null)
@@ -1268,31 +1329,22 @@ public partial class XLWorkbook
         return false;
     }
 
-    private void LoadDefinedNames(Workbook workbook)
+    private void LoadDefinedNames(XElement workbook)
     {
-        if (workbook.DefinedNames == null)
+        if (workbook.Element(SpreadsheetXml.Main + "definedNames") is not { } definedNames)
         {
             return;
         }
 
-        foreach (DefinedName definedName in workbook.DefinedNames.OfType<DefinedName>())
+        foreach (XElement definedName in definedNames.Elements(SpreadsheetXml.Main + "definedName"))
         {
-            StringValue name = definedName.Name;
-            bool visible = true;
-            if (definedName.Hidden != null)
-            {
-                visible = !BooleanValue.ToBoolean(definedName.Hidden);
-            }
-
-            int localSheetId = -1;
-            if (definedName.LocalSheetId?.HasValue ?? false)
-            {
-                localSheetId = Convert.ToInt32(definedName.LocalSheetId.Value);
-            }
+            string name = definedName.Attribute("name")?.Value;
+            bool visible = !(SpreadsheetXml.Bool(definedName, "hidden") ?? false);
+            int localSheetId = (int?)SpreadsheetXml.UInt(definedName, "localSheetId") ?? -1;
 
             if (name == "_xlnm.Print_Area")
             {
-                IEnumerable<string> fixedNames = validateDefinedNames(definedName.Text.Split(','));
+                IEnumerable<string> fixedNames = validateDefinedNames(definedName.Value.Split(','));
                 foreach (string area in fixedNames)
                 {
                     if (area.Contains('['))
@@ -1329,9 +1381,9 @@ public partial class XLWorkbook
             }
             else
             {
-                string text = definedName.Text;
+                string text = definedName.Value;
 
-                StringValue comment = definedName.Comment;
+                string comment = definedName.Attribute("comment")?.Value;
                 if (localSheetId == -1)
                 {
                     if (this.DefinedNamesInternal.All<XLDefinedName>(nr => nr.Name != name))
@@ -1395,9 +1447,9 @@ public partial class XLWorkbook
         }
     }
 
-    private void LoadPrintTitles(DefinedName definedName)
+    private void LoadPrintTitles(XElement definedName)
     {
-        IEnumerable<string> areas = validateDefinedNames(definedName.Text.Split(','));
+        IEnumerable<string> areas = validateDefinedNames(definedName.Value.Split(','));
         foreach (string item in areas)
         {
             if (this.Range(item) != null)
@@ -1451,84 +1503,64 @@ public partial class XLWorkbook
         }
     }
 
-    private static void LoadWorkbookTheme(ThemePart tp, XLWorkbook wb)
+    private static void LoadWorkbookTheme(OpcPart tp, XLWorkbook wb)
     {
         if (tp is null)
         {
             return;
         }
 
-        ColorScheme colorScheme = tp.Theme?.ThemeElements?.ColorScheme;
-        if (colorScheme is not null)
+        using Stream stream = tp.GetReadStream();
+        XElement colorScheme = XDocument
+            .Load(stream)
+            .Root?.Element(DrawingNs + "themeElements")
+            ?.Element(DrawingNs + "clrScheme");
+
+        if (colorScheme is null)
         {
-            string background1 = colorScheme.Light1Color?.RgbColorModelHex?.Val?.Value;
-            if (!string.IsNullOrEmpty(background1))
-            {
-                wb.Theme.Background1 = XLColor.FromHexRgb(background1);
-            }
-            string text1 = colorScheme.Dark1Color?.RgbColorModelHex?.Val?.Value;
-            if (!string.IsNullOrEmpty(text1))
-            {
-                wb.Theme.Text1 = XLColor.FromHexRgb(text1);
-            }
-            string background2 = colorScheme.Light2Color?.RgbColorModelHex?.Val?.Value;
-            if (!string.IsNullOrEmpty(background2))
-            {
-                wb.Theme.Background2 = XLColor.FromHexRgb(background2);
-            }
-            string text2 = colorScheme.Dark2Color?.RgbColorModelHex?.Val?.Value;
-            if (!string.IsNullOrEmpty(text2))
-            {
-                wb.Theme.Text2 = XLColor.FromHexRgb(text2);
-            }
-            string accent1 = colorScheme.Accent1Color?.RgbColorModelHex?.Val?.Value;
-            if (!string.IsNullOrEmpty(accent1))
-            {
-                wb.Theme.Accent1 = XLColor.FromHexRgb(accent1);
-            }
-            string accent2 = colorScheme.Accent2Color?.RgbColorModelHex?.Val?.Value;
-            if (!string.IsNullOrEmpty(accent2))
-            {
-                wb.Theme.Accent2 = XLColor.FromHexRgb(accent2);
-            }
-            string accent3 = colorScheme.Accent3Color?.RgbColorModelHex?.Val?.Value;
-            if (!string.IsNullOrEmpty(accent3))
-            {
-                wb.Theme.Accent3 = XLColor.FromHexRgb(accent3);
-            }
-            string accent4 = colorScheme.Accent4Color?.RgbColorModelHex?.Val?.Value;
-            if (!string.IsNullOrEmpty(accent4))
-            {
-                wb.Theme.Accent4 = XLColor.FromHexRgb(accent4);
-            }
-            string accent5 = colorScheme.Accent5Color?.RgbColorModelHex?.Val?.Value;
-            if (!string.IsNullOrEmpty(accent5))
-            {
-                wb.Theme.Accent5 = XLColor.FromHexRgb(accent5);
-            }
-            string accent6 = colorScheme.Accent6Color?.RgbColorModelHex?.Val?.Value;
-            if (!string.IsNullOrEmpty(accent6))
-            {
-                wb.Theme.Accent6 = XLColor.FromHexRgb(accent6);
-            }
-            string hyperlink = colorScheme.Hyperlink?.RgbColorModelHex?.Val?.Value;
-            if (!string.IsNullOrEmpty(hyperlink))
-            {
-                wb.Theme.Hyperlink = XLColor.FromHexRgb(hyperlink);
-            }
-            string followedHyperlink = colorScheme
-                .FollowedHyperlinkColor
-                ?.RgbColorModelHex
-                ?.Val
-                ?.Value;
-            if (!string.IsNullOrEmpty(followedHyperlink))
-            {
-                wb.Theme.FollowedHyperlink = XLColor.FromHexRgb(followedHyperlink);
-            }
+            return;
+        }
+
+        // lt1/dk1 carry the background/text pair the schema calls "light"/"dark", which is the
+        // opposite of what the workbook model calls them.
+        SetThemeColor(colorScheme, "lt1", c => wb.Theme.Background1 = c);
+        SetThemeColor(colorScheme, "dk1", c => wb.Theme.Text1 = c);
+        SetThemeColor(colorScheme, "lt2", c => wb.Theme.Background2 = c);
+        SetThemeColor(colorScheme, "dk2", c => wb.Theme.Text2 = c);
+        SetThemeColor(colorScheme, "accent1", c => wb.Theme.Accent1 = c);
+        SetThemeColor(colorScheme, "accent2", c => wb.Theme.Accent2 = c);
+        SetThemeColor(colorScheme, "accent3", c => wb.Theme.Accent3 = c);
+        SetThemeColor(colorScheme, "accent4", c => wb.Theme.Accent4 = c);
+        SetThemeColor(colorScheme, "accent5", c => wb.Theme.Accent5 = c);
+        SetThemeColor(colorScheme, "accent6", c => wb.Theme.Accent6 = c);
+        SetThemeColor(colorScheme, "hlink", c => wb.Theme.Hyperlink = c);
+        SetThemeColor(colorScheme, "folHlink", c => wb.Theme.FollowedHyperlink = c);
+    }
+
+    /// <summary>
+    /// Only the plain sRGB form of a theme colour is read - a system colour (e.g. a stock lt1/dk1
+    /// pair left as <c>sysClr</c>) is left at the model's default, matching the SDK-backed reader
+    /// this replaces.
+    /// </summary>
+    private static void SetThemeColor(
+        XElement colorScheme,
+        string elementName,
+        Action<XLColor> setColor
+    )
+    {
+        string rgb = colorScheme
+            .Element(DrawingNs + elementName)
+            ?.Element(DrawingNs + "srgbClr")
+            ?.Attribute("val")
+            ?.Value;
+
+        if (!string.IsNullOrEmpty(rgb))
+        {
+            setColor(XLColor.FromHexRgb(rgb));
         }
     }
 
-    private static void LoadWorkbookProtection(WorkbookProtection wp, XLWorkbook wb)
+    private static void LoadWorkbookProtection(XElement wp, XLWorkbook wb)
     {
         if (wp == null)
         {
@@ -1537,10 +1569,10 @@ public partial class XLWorkbook
 
         wb.Protection.IsProtected = true;
 
-        string algorithmName = wp.WorkbookAlgorithmName?.Value ?? string.Empty;
+        string algorithmName = wp.Attribute("workbookAlgorithmName")?.Value ?? string.Empty;
         if (string.IsNullOrEmpty(algorithmName))
         {
-            wb.Protection.PasswordHash = wp.WorkbookPassword?.Value ?? string.Empty;
+            wb.Protection.PasswordHash = wp.Attribute("workbookPassword")?.Value ?? string.Empty;
             wb.Protection.Base64EncodedSalt = string.Empty;
         }
         else if (
@@ -1549,24 +1581,25 @@ public partial class XLWorkbook
         {
             wb.Protection.Algorithm =
                 DescribedEnumParser<XLProtectionAlgorithm.Algorithm>.FromDescription(algorithmName);
-            wb.Protection.PasswordHash = wp.WorkbookHashValue?.Value ?? string.Empty;
-            wb.Protection.SpinCount = wp.WorkbookSpinCount?.Value ?? 0;
-            wb.Protection.Base64EncodedSalt = wp.WorkbookSaltValue?.Value ?? string.Empty;
+            wb.Protection.PasswordHash = wp.Attribute("workbookHashValue")?.Value ?? string.Empty;
+            wb.Protection.SpinCount = SpreadsheetXml.UInt(wp, "workbookSpinCount") ?? 0;
+            wb.Protection.Base64EncodedSalt =
+                wp.Attribute("workbookSaltValue")?.Value ?? string.Empty;
         }
 
         wb.Protection.AllowElement(
             XLWorkbookProtectionElements.Structure,
-            !OpenXmlHelper.GetBooleanValueAsBool(wp.LockStructure, false)
+            !(SpreadsheetXml.Bool(wp, "lockStructure") ?? false)
         );
         wb.Protection.AllowElement(
             XLWorkbookProtectionElements.Windows,
-            !OpenXmlHelper.GetBooleanValueAsBool(wp.LockWindows, false)
+            !(SpreadsheetXml.Bool(wp, "lockWindows") ?? false)
         );
     }
 
-    private void SetProperties(SpreadsheetDocument dSpreadsheet)
+    private void SetProperties(OpcPackage package)
     {
-        IPackageProperties p = dSpreadsheet.PackageProperties;
+        OpcPackageProperties p = package.Properties;
         this.Properties.Author = p.Creator;
         this.Properties.Category = p.Category;
         this.Properties.Comments = p.Description;
@@ -1587,9 +1620,9 @@ public partial class XLWorkbook
         this.Properties.Title = p.Title;
     }
 
-    private XmlTreeReader CreateTreeReader(OpenXmlPart openXmlPart)
+    private XmlTreeReader CreateTreeReader(OpcPart part)
     {
-        Stream stream = openXmlPart.GetStream(FileMode.Open);
+        Stream stream = part.GetReadStream();
         return new XmlTreeReader(stream, XmlToEnumMapper.Instance, this.StrictAttributeParsing);
     }
 }

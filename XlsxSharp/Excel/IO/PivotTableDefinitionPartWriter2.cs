@@ -1,8 +1,8 @@
 using System.Diagnostics;
 using System.Xml;
-using DocumentFormat.OpenXml.Packaging;
 using XlsxSharp.Excel.PivotValues;
 using XlsxSharp.Extensions;
+using XlsxSharp.IO.Packaging;
 using static XlsxSharp.Excel.IO.OpenXmlConst;
 using static XlsxSharp.Excel.XLWorkbook;
 using Array = System.Array;
@@ -11,15 +11,11 @@ namespace XlsxSharp.Excel.IO;
 
 internal class PivotTableDefinitionPartWriter2
 {
-    internal static void WriteContent(
-        PivotTablePart pivotTablePart,
-        XLPivotTable pt,
-        SaveContext context
-    )
+    internal static void WriteContent(OpcPart pivotTablePart, XLPivotTable pt, SaveContext context)
     {
         XmlWriterSettings settings = new() { Encoding = XlsxSharp.XLHelper.NoBomUTF8 };
 
-        using Stream partStream = pivotTablePart.GetStream(FileMode.Create);
+        using Stream partStream = pivotTablePart.GetWriteStream();
         using XmlWriter xml = XmlWriter.Create(partStream, settings);
 
         xml.WriteStartDocument();

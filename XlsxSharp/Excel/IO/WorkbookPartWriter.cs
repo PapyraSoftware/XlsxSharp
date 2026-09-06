@@ -1,275 +1,437 @@
-﻿#nullable disable
+#nullable enable
 
-using DocumentFormat.OpenXml;
-using DocumentFormat.OpenXml.Packaging;
-using DocumentFormat.OpenXml.Spreadsheet;
+using System.Xml;
+using System.Xml.Linq;
 using XlsxSharp.Excel.Protection;
 using XlsxSharp.Extensions;
+using XlsxSharp.IO.Packaging;
 using XlsxSharp.Utils;
 
 namespace XlsxSharp.Excel.IO;
 
+/// <summary>
+/// Writes <c>xl/workbook.xml</c>.
+/// </summary>
+/// <remarks>
+/// <para>
+/// The part is patched, not rewritten: a workbook from Excel carries a fileVersion, external
+/// references and an extLst that XlsxSharp does not model and that have to survive a save.
+/// </para>
+/// <para>
+/// Writing happens in two steps, and they are not next to each other in the save. The
+/// relationship ids of the sheets are handed out early, where the previous writer ran, because
+/// every part created after that point takes the next id and moving the allocation would
+/// renumber all of them. The XML itself is written at the end, once the pivot caches exist,
+/// because the list of them belongs in this part.
+/// </para>
+/// </remarks>
 internal class WorkbookPartWriter
 {
-    internal static void GenerateContent(
-        WorkbookPart workbookPart,
-        XLWorkbook xlWorkbook,
-        SaveOptions options,
-        XLWorkbook.SaveContext context
-    )
+    private static readonly XNamespace Main =
+        "http://schemas.openxmlformats.org/spreadsheetml/2006/main";
+
+    private static readonly XNamespace Rel =
+        "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
+
+    /// <summary>Child order on the root, from the schema (ECMA-376 Part 1 §18.2.27).</summary>
+    private static readonly string[] ElementOrder =
+    [
+        "fileVersion",
+        "fileSharing",
+        "workbookPr",
+        "workbookProtection",
+        "bookViews",
+        "sheets",
+        "functionGroups",
+        "externalReferences",
+        "definedNames",
+        "calcPr",
+        "oleSize",
+        "customWorkbookViews",
+        "pivotCaches",
+        "smartTagPr",
+        "smartTagTypes",
+        "webPublishing",
+        "fileRecoveryPr",
+        "webPublishObjects",
+        "extLst",
+    ];
+
+    /// <summary>
+    /// Hands out a relationship id to every sheet that does not have one yet, keeping the ones a
+    /// loaded workbook already used. Runs where the old writer ran, so that the ids of the parts
+    /// created afterwards do not move.
+    /// </summary>
+    internal static void AssignSheetRelIds(XLWorkbook xlWorkbook, XLWorkbook.SaveContext context)
     {
-        if (workbookPart.Workbook == null)
-        {
-            workbookPart.Workbook = new Workbook();
-        }
-
-        Workbook workbook = workbookPart.Workbook;
-        if (
-            !workbook.NamespaceDeclarations.Contains(
-                new KeyValuePair<string, string>(
-                    "r",
-                    "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
-                )
-            )
-        )
-        {
-            workbook.AddNamespaceDeclaration(
-                "r",
-                "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
-            );
-        }
-
-        #region WorkbookProperties
-
-        if (workbook.WorkbookProperties == null)
-        {
-            workbook.WorkbookProperties = new WorkbookProperties();
-        }
-
-        if (workbook.WorkbookProperties.CodeName == null)
-        {
-            workbook.WorkbookProperties.CodeName = "ThisWorkbook";
-        }
-
-        workbook.WorkbookProperties.Date1904 = OpenXmlHelper.GetBooleanValue(
-            xlWorkbook.Use1904DateSystem,
-            false
-        );
-
-        if (options.FilterPrivacy.HasValue)
-        {
-            workbook.WorkbookProperties.FilterPrivacy = OpenXmlHelper.GetBooleanValue(
-                options.FilterPrivacy.Value,
-                false
-            );
-        }
-
-        #endregion WorkbookProperties
-
-        #region FileSharing
-
-        if (workbook.FileSharing == null)
-        {
-            workbook.FileSharing = new FileSharing();
-        }
-
-        workbook.FileSharing.ReadOnlyRecommended = OpenXmlHelper.GetBooleanValue(
-            xlWorkbook.FileSharing.ReadOnlyRecommended,
-            false
-        );
-        workbook.FileSharing.UserName = string.IsNullOrWhiteSpace(xlWorkbook.FileSharing.UserName)
-            ? null
-            : StringValue.FromString(xlWorkbook.FileSharing.UserName);
-
-        if (!workbook.FileSharing.HasChildren && !workbook.FileSharing.HasAttributes)
-        {
-            workbook.FileSharing = null;
-        }
-
-        #endregion FileSharing
-
-        #region WorkbookProtection
-
-        if (xlWorkbook.Protection.IsProtected)
-        {
-            if (workbook.WorkbookProtection == null)
-            {
-                workbook.WorkbookProtection = new WorkbookProtection();
-            }
-
-            WorkbookProtection workbookProtection = workbook.WorkbookProtection;
-
-            XLWorkbookProtection protection = xlWorkbook.Protection;
-
-            workbookProtection.WorkbookPassword = null;
-            workbookProtection.WorkbookAlgorithmName = null;
-            workbookProtection.WorkbookHashValue = null;
-            workbookProtection.WorkbookSpinCount = null;
-            workbookProtection.WorkbookSaltValue = null;
-
-            if (protection.Algorithm == XLProtectionAlgorithm.Algorithm.SimpleHash)
-            {
-                if (!string.IsNullOrWhiteSpace(protection.PasswordHash))
-                {
-                    workbookProtection.WorkbookPassword = protection.PasswordHash;
-                }
-            }
-            else
-            {
-                workbookProtection.WorkbookAlgorithmName =
-                    DescribedEnumParser<XLProtectionAlgorithm.Algorithm>.ToDescription(
-                        protection.Algorithm
-                    );
-                workbookProtection.WorkbookHashValue = protection.PasswordHash;
-                workbookProtection.WorkbookSpinCount = protection.SpinCount;
-                workbookProtection.WorkbookSaltValue = protection.Base64EncodedSalt;
-            }
-
-            workbookProtection.LockStructure = OpenXmlHelper.GetBooleanValue(
-                !protection.AllowedElements.HasFlag(XLWorkbookProtectionElements.Structure),
-                false
-            );
-            workbookProtection.LockWindows = OpenXmlHelper.GetBooleanValue(
-                !protection.AllowedElements.HasFlag(XLWorkbookProtectionElements.Windows),
-                false
-            );
-        }
-        else
-        {
-            workbook.WorkbookProtection = null;
-        }
-
-        #endregion WorkbookProtection
-
-        if (workbook.BookViews == null)
-        {
-            workbook.BookViews = new BookViews();
-        }
-
-        if (workbook.Sheets == null)
-        {
-            workbook.Sheets = new Sheets();
-        }
-
-        XLWorksheets worksheets = xlWorkbook.WorksheetsInternal;
-        workbook
-            .Sheets.Elements<Sheet>()
-            .Where(s => worksheets.Deleted.Contains(s.Id))
-            .ToList()
-            .ForEach(s => s.Remove());
-
-        foreach (Sheet sheet in workbook.Sheets.Elements<Sheet>())
-        {
-            int sheetId = (int)sheet.SheetId.Value;
-
-            if (xlWorkbook.WorksheetsInternal.All<XLWorksheet>(w => w.SheetId != sheetId))
-            {
-                continue;
-            }
-
-            XLWorksheet wks = xlWorkbook.WorksheetsInternal.Single<XLWorksheet>(w =>
-                w.SheetId == sheetId
-            );
-            wks.RelId = sheet.Id;
-            sheet.Name = wks.Name;
-        }
-
         foreach (
             XLWorksheet xlSheet in xlWorkbook.WorksheetsInternal.OrderBy<XLWorksheet, int>(w =>
                 w.Position
             )
         )
         {
-            string rId;
             if (string.IsNullOrWhiteSpace(xlSheet.RelId))
             {
                 // Sheet isn't from loaded file and hasn't been saved yet.
-                rId = xlSheet.RelId = context.RelIdGenerator.GetNext(XLWorkbook.RelType.Workbook);
+                xlSheet.RelId = context.RelIdGenerator.GetNext(XLWorkbook.RelType.Workbook);
             }
-            else
+        }
+    }
+
+    internal static void GenerateContent(
+        OpcPart workbookPart,
+        XLWorkbook xlWorkbook,
+        SaveOptions options,
+        XLWorkbook.SaveContext context
+    )
+    {
+        XDocument document = ReadExisting(workbookPart);
+        XElement workbook = document.Root!;
+
+        WriteWorkbookProperties(workbook, xlWorkbook, options);
+        WriteFileSharing(workbook, xlWorkbook);
+        WriteProtection(workbook, xlWorkbook);
+        WriteSheetsAndViews(workbook, xlWorkbook);
+        SetElement(workbook, "definedNames", BuildDefinedNames(workbook, xlWorkbook));
+        WriteCalculationProperties(workbook, xlWorkbook);
+        WritePivotCaches(workbook, xlWorkbook);
+
+        using Stream partStream = workbookPart.GetWriteStream();
+        using XmlWriter xml = XmlWriter.Create(
+            partStream,
+            new XmlWriterSettings { Encoding = XlsxSharp.XLHelper.NoBomUTF8 }
+        );
+
+        document.Save(xml);
+    }
+
+    /// <summary>
+    /// The part's document with the two prefixes the writer needs on the root, or a fresh one.
+    /// </summary>
+    private static XDocument ReadExisting(OpcPart part)
+    {
+        XElement? loaded = null;
+
+        if (part.Length > 0)
+        {
+            using Stream stream = part.GetReadStream();
+            try
             {
-                // Keep same r:id from previous file
-                rId = xlSheet.RelId;
+                loaded = XDocument.Load(stream).Root;
             }
-
-            if (workbook.Sheets.Cast<Sheet>().All(s => s.Id != rId))
+            catch (XmlException)
             {
-                Sheet newSheet = new()
-                {
-                    Name = xlSheet.Name,
-                    Id = rId,
-                    SheetId = xlSheet.SheetId,
-                };
-
-                workbook.Sheets.AppendChild(newSheet);
+                // A workbook.xml we cannot read is one we are about to replace.
             }
         }
 
-        IEnumerable<Sheet> sheetElements =
-            from sheet in workbook.Sheets.Elements<Sheet>()
-            join worksheet in ((IEnumerable<XLWorksheet>)xlWorkbook.WorksheetsInternal)
-                on sheet.Id.Value equals worksheet.RelId
-            orderby worksheet.Position
-            select sheet;
+        XElement workbook = new(
+            Main + "workbook",
+            new XAttribute(XNamespace.Xmlns + "r", Rel.NamespaceName),
+            new XAttribute(XNamespace.Xmlns + "x", Main.NamespaceName)
+        );
 
+        if (loaded is not null)
+        {
+            foreach (XAttribute attribute in loaded.Attributes())
+            {
+                if (
+                    attribute.IsNamespaceDeclaration
+                    && (attribute.Name.LocalName == "xmlns" || IsDeclared(workbook, attribute))
+                )
+                {
+                    continue;
+                }
+
+                workbook.Add(new XAttribute(attribute));
+            }
+
+            foreach (XElement child in loaded.Elements())
+            {
+                XElement copy = new(child);
+                copy.DescendantsAndSelf()
+                    .Attributes()
+                    .Where(a => a.IsNamespaceDeclaration && a.Name.LocalName == "xmlns")
+                    .ToList()
+                    .ForEach(a => a.Remove());
+
+                workbook.Add(copy);
+            }
+
+            HoistDeclarations(workbook);
+        }
+
+        return new XDocument(workbook);
+    }
+
+    private static bool IsDeclared(XElement root, XAttribute declaration) =>
+        root.Attributes().Any(a => a.IsNamespaceDeclaration && a.Value == declaration.Value);
+
+    /// <summary>
+    /// Copies the namespace declarations of the descendants onto the root, which is what the SDK
+    /// did when it re-serialised a part.
+    /// </summary>
+    private static void HoistDeclarations(XElement root)
+    {
+        foreach (XElement descendant in root.Descendants())
+        {
+            foreach (XAttribute attribute in descendant.Attributes().ToList())
+            {
+                if (
+                    attribute.IsNamespaceDeclaration
+                    && attribute.Name.LocalName != "xmlns"
+                    && !root.Attributes()
+                        .Any(a => a.IsNamespaceDeclaration && a.Name == attribute.Name)
+                )
+                {
+                    root.Add(new XAttribute(attribute));
+                }
+            }
+        }
+    }
+
+    private static void WriteWorkbookProperties(
+        XElement workbook,
+        XLWorkbook xlWorkbook,
+        SaveOptions options
+    )
+    {
+        XElement properties = Ensure(workbook, "workbookPr");
+
+        if (properties.Attribute("codeName") is null)
+        {
+            properties.SetAttributeValue("codeName", "ThisWorkbook");
+        }
+
+        SetOptionalBool(properties, "date1904", xlWorkbook.Use1904DateSystem, false);
+        if (options.FilterPrivacy.HasValue)
+        {
+            SetOptionalBool(properties, "filterPrivacy", options.FilterPrivacy.Value, false);
+        }
+    }
+
+    private static void WriteFileSharing(XElement workbook, XLWorkbook xlWorkbook)
+    {
+        XElement fileSharing = Ensure(workbook, "fileSharing");
+
+        SetOptionalBool(
+            fileSharing,
+            "readOnlyRecommended",
+            xlWorkbook.FileSharing.ReadOnlyRecommended,
+            false
+        );
+
+        fileSharing.SetAttributeValue(
+            "userName",
+            string.IsNullOrWhiteSpace(xlWorkbook.FileSharing.UserName)
+                ? null
+                : xlWorkbook.FileSharing.UserName
+        );
+
+        // An element with nothing in it says nothing, and the previous writer dropped it.
+        if (!fileSharing.HasAttributes && !fileSharing.HasElements)
+        {
+            fileSharing.Remove();
+        }
+    }
+
+    private static void WriteProtection(XElement workbook, XLWorkbook xlWorkbook)
+    {
+        if (!xlWorkbook.Protection.IsProtected)
+        {
+            workbook.Element(Main + "workbookProtection")?.Remove();
+            return;
+        }
+
+        XElement protectionElement = Ensure(workbook, "workbookProtection");
+        XLWorkbookProtection protection = xlWorkbook.Protection;
+
+        // Whichever of the two ways of storing the password was used before, only one of them
+        // goes back out.
+        foreach (
+            string attribute in new[]
+            {
+                "workbookPassword",
+                "workbookAlgorithmName",
+                "workbookHashValue",
+                "workbookSpinCount",
+                "workbookSaltValue",
+            }
+        )
+        {
+            protectionElement.Attribute(attribute)?.Remove();
+        }
+
+        if (protection.Algorithm == XLProtectionAlgorithm.Algorithm.SimpleHash)
+        {
+            if (!string.IsNullOrWhiteSpace(protection.PasswordHash))
+            {
+                protectionElement.SetAttributeValue("workbookPassword", protection.PasswordHash);
+            }
+        }
+        else
+        {
+            protectionElement.SetAttributeValue(
+                "workbookAlgorithmName",
+                DescribedEnumParser<XLProtectionAlgorithm.Algorithm>.ToDescription(
+                    protection.Algorithm
+                )
+            );
+
+            protectionElement.SetAttributeValue("workbookHashValue", protection.PasswordHash);
+            protectionElement.SetAttributeValue(
+                "workbookSpinCount",
+                protection.SpinCount.ToInvariantString()
+            );
+
+            protectionElement.SetAttributeValue("workbookSaltValue", protection.Base64EncodedSalt);
+        }
+
+        SetOptionalBool(
+            protectionElement,
+            "lockStructure",
+            !protection.AllowedElements.HasFlag(XLWorkbookProtectionElements.Structure),
+            false
+        );
+
+        SetOptionalBool(
+            protectionElement,
+            "lockWindows",
+            !protection.AllowedElements.HasFlag(XLWorkbookProtectionElements.Windows),
+            false
+        );
+    }
+
+    /// <summary>
+    /// Rebuilds the sheet list in its final order and the book view that points into it.
+    /// </summary>
+    private static void WriteSheetsAndViews(XElement workbook, XLWorkbook xlWorkbook)
+    {
+        XElement sheets = Ensure(workbook, "sheets");
+        XLWorksheets worksheets = xlWorkbook.WorksheetsInternal;
+
+        // Drop the sheets that were deleted from the workbook since it was loaded.
+        sheets
+            .Elements(Main + "sheet")
+            .Where(s => worksheets.Deleted.Contains(s.Attribute(Rel + "id")?.Value ?? string.Empty))
+            .ToList()
+            .ForEach(s => s.Remove());
+
+        // A sheet that survived may have been renamed, and the model is the authority on that.
+        Dictionary<string, XElement> byRelId = new(StringComparer.Ordinal);
+        foreach (XElement sheet in sheets.Elements(Main + "sheet"))
+        {
+            if (sheet.Attribute(Rel + "id")?.Value is { } relId)
+            {
+                byRelId[relId] = sheet;
+            }
+        }
+
+        List<XElement> supported = [];
+        foreach (XLWorksheet xlSheet in worksheets.OrderBy<XLWorksheet, int>(w => w.Position))
+        {
+            // AssignSheetRelIds ran earlier in the save, so every sheet has one by now.
+            string relId = xlSheet.RelId ?? string.Empty;
+            if (!byRelId.TryGetValue(relId, out XElement? sheet))
+            {
+                sheet = new XElement(Main + "sheet");
+                sheet.SetAttributeValue(Rel + "id", relId);
+            }
+
+            sheet.SetAttributeValue("name", xlSheet.Name);
+            sheet.SetAttributeValue("sheetId", xlSheet.SheetId.ToInvariantString());
+            sheet.SetAttributeValue(
+                "state",
+                xlSheet.Visibility == XLWorksheetVisibility.Visible
+                    ? null
+                    : SheetState(xlSheet.Visibility)
+            );
+
+            supported.Add(sheet);
+        }
+
+        // The unsupported sheets keep the elements they were loaded with; they are only put back
+        // in the right place among the supported ones.
+        Dictionary<uint, XElement> unsupportedById = new();
+        foreach (XElement sheet in sheets.Elements(Main + "sheet"))
+        {
+            if (
+                uint.TryParse(sheet.Attribute("sheetId")?.Value, out uint sheetId)
+                && xlWorkbook.UnsupportedSheets.Any(us => us.SheetId == sheetId)
+            )
+            {
+                unsupportedById[sheetId] = sheet;
+            }
+        }
+
+        int totalSheets = supported.Count + xlWorkbook.UnsupportedSheets.Count;
+        List<XElement> ordered = [];
         uint firstSheetVisible = 0;
+        bool foundVisible = false;
+        int nextSupported = 0;
+
+        for (int p = 1; p <= totalSheets; p++)
+        {
+            XLWorkbook.UnsupportedSheet? unsupported = xlWorkbook.UnsupportedSheets.FirstOrDefault(
+                us => us.Position == p
+            );
+
+            if (unsupported is not null)
+            {
+                if (unsupportedById.TryGetValue(unsupported.SheetId, out XElement? sheet))
+                {
+                    ordered.Add(sheet);
+                }
+
+                continue;
+            }
+
+            if (nextSupported >= supported.Count)
+            {
+                continue;
+            }
+
+            XElement supportedSheet = supported[nextSupported++];
+            ordered.Add(supportedSheet);
+
+            if (foundVisible)
+            {
+                continue;
+            }
+
+            if (supportedSheet.Attribute("state")?.Value is null or "visible")
+            {
+                foundVisible = true;
+            }
+            else
+            {
+                firstSheetVisible++;
+            }
+        }
+
+        sheets.RemoveNodes();
+        sheets.Add(ordered);
+
+        WriteBookViews(workbook, xlWorkbook, firstSheetVisible);
+    }
+
+    private static void WriteBookViews(
+        XElement workbook,
+        XLWorkbook xlWorkbook,
+        uint firstSheetVisible
+    )
+    {
         uint activeTab = (
             from us in xlWorkbook.UnsupportedSheets
             where us.IsActive
             select (uint)us.Position - 1
         ).FirstOrDefault();
-        bool foundVisible = false;
-
-        int totalSheets = sheetElements.Count() + xlWorkbook.UnsupportedSheets.Count;
-        for (int p = 1; p <= totalSheets; p++)
-        {
-            if (xlWorkbook.UnsupportedSheets.All(us => us.Position != p))
-            {
-                Sheet sheet = sheetElements.ElementAt(
-                    p - xlWorkbook.UnsupportedSheets.Count(us => us.Position <= p) - 1
-                );
-                workbook.Sheets.RemoveChild(sheet);
-                workbook.Sheets.AppendChild(sheet);
-                IXLWorksheet xlSheet = xlWorkbook.Worksheet(sheet.Name);
-                if (xlSheet.Visibility != XLWorksheetVisibility.Visible)
-                {
-                    sheet.State = xlSheet.Visibility.ToOpenXml();
-                }
-                else
-                {
-                    sheet.State = null;
-                }
-
-                if (foundVisible)
-                {
-                    continue;
-                }
-
-                if (sheet.State == null || sheet.State == SheetStateValues.Visible)
-                {
-                    foundVisible = true;
-                }
-                else
-                {
-                    firstSheetVisible++;
-                }
-            }
-            else
-            {
-                uint sheetId = xlWorkbook.UnsupportedSheets.First(us => us.Position == p).SheetId;
-                Sheet sheet = workbook.Sheets.Elements<Sheet>().First(s => s.SheetId == sheetId);
-                workbook.Sheets.RemoveChild(sheet);
-                workbook.Sheets.AppendChild(sheet);
-            }
-        }
-
-        WorkbookView workbookView = workbook.BookViews.Elements<WorkbookView>().FirstOrDefault();
 
         if (activeTab == 0)
         {
             uint? firstActiveTab = null;
             uint? firstSelectedTab = null;
-            foreach (XLWorksheet ws in worksheets)
+            foreach (XLWorksheet ws in xlWorkbook.WorksheetsInternal)
             {
                 if (ws.TabActive)
                 {
@@ -286,77 +448,71 @@ internal class WorkbookPartWriter
             activeTab = firstActiveTab ?? firstSelectedTab ?? firstSheetVisible;
         }
 
-        if (workbookView == null)
+        XElement bookViews = Ensure(workbook, "bookViews");
+        XElement? workbookView = bookViews.Element(Main + "workbookView");
+        if (workbookView is null)
         {
-            workbookView = new WorkbookView
-            {
-                ActiveTab = activeTab,
-                FirstSheet = firstSheetVisible,
-            };
-            workbook.BookViews.AppendChild(workbookView);
-        }
-        else
-        {
-            workbookView.ActiveTab = activeTab;
-            workbookView.FirstSheet = firstSheetVisible;
+            workbookView = new XElement(Main + "workbookView");
+            bookViews.Add(workbookView);
         }
 
-        DefinedNames definedNames = new();
+        workbookView.SetAttributeValue("firstSheet", firstSheetVisible.ToInvariantString());
+        workbookView.SetAttributeValue("activeTab", activeTab.ToInvariantString());
+    }
+
+    private static XElement BuildDefinedNames(XElement workbook, XLWorkbook xlWorkbook)
+    {
+        XElement definedNames = new(Main + "definedNames");
+
+        // The local sheet id of a defined name is the sheet's index in the sheet list, not its
+        // sheetId, so it has to be read off the list that was just built.
+        List<uint> sheetIds =
+        [
+            .. workbook
+                .Element(Main + "sheets")
+                ?.Elements(Main + "sheet")
+                .Select(s => uint.TryParse(s.Attribute("sheetId")?.Value, out uint id) ? id : 0u)
+                ?? [],
+        ];
+
         foreach (XLWorksheet worksheet in xlWorkbook.WorksheetsInternal)
         {
-            uint wsSheetId = worksheet.SheetId;
-            uint sheetId = 0;
-            foreach (
-                Sheet s in workbook.Sheets.Elements<Sheet>().TakeWhile(s => s.SheetId != wsSheetId)
-            )
-            {
-                sheetId++;
-            }
+            uint localSheetId = (uint)Math.Max(0, sheetIds.IndexOf(worksheet.SheetId));
 
             if (worksheet.PageSetup.PrintAreas.Any())
             {
-                DefinedName definedName = new()
-                {
-                    Name = "_xlnm.Print_Area",
-                    LocalSheetId = sheetId,
-                };
-                string worksheetName = worksheet.Name;
-                string definedNameText = worksheet.PageSetup.PrintAreas.Aggregate(
-                    string.Empty,
-                    (current, printArea) =>
-                        current
-                        + (
-                            worksheetName.EscapeSheetName()
-                            + "!"
-                            + printArea.RangeAddress.FirstAddress.ToStringFixed(XLReferenceStyle.A1)
-                            + ":"
-                            + printArea.RangeAddress.LastAddress.ToStringFixed(XLReferenceStyle.A1)
-                            + ","
-                        )
+                string printAreas = string.Join(
+                    ",",
+                    worksheet.PageSetup.PrintAreas.Select(printArea =>
+                        worksheet.Name.EscapeSheetName()
+                        + "!"
+                        + printArea.RangeAddress.FirstAddress.ToStringFixed(XLReferenceStyle.A1)
+                        + ":"
+                        + printArea.RangeAddress.LastAddress.ToStringFixed(XLReferenceStyle.A1)
+                    )
                 );
-                definedName.Text = definedNameText.Substring(0, definedNameText.Length - 1);
-                definedNames.AppendChild(definedName);
+
+                definedNames.Add(
+                    DefinedName("_xlnm.Print_Area", printAreas, localSheetId, hidden: false, null)
+                );
             }
 
             if (worksheet.AutoFilter.IsEnabled)
             {
-                DefinedName definedName = new()
-                {
-                    Name = "_xlnm._FilterDatabase",
-                    LocalSheetId = sheetId,
-                    Text =
-                        worksheet.Name.EscapeSheetName()
-                        + "!"
-                        + worksheet.AutoFilter.Range.RangeAddress.FirstAddress.ToStringFixed(
-                            XLReferenceStyle.A1
-                        )
-                        + ":"
-                        + worksheet.AutoFilter.Range.RangeAddress.LastAddress.ToStringFixed(
-                            XLReferenceStyle.A1
-                        ),
-                    Hidden = BooleanValue.FromBoolean(true),
-                };
-                definedNames.AppendChild(definedName);
+                string range =
+                    worksheet.Name.EscapeSheetName()
+                    + "!"
+                    + worksheet.AutoFilter.Range.RangeAddress.FirstAddress.ToStringFixed(
+                        XLReferenceStyle.A1
+                    )
+                    + ":"
+                    + worksheet.AutoFilter.Range.RangeAddress.LastAddress.ToStringFixed(
+                        XLReferenceStyle.A1
+                    );
+
+                definedNames.Add(
+                    DefinedName("_xlnm._FilterDatabase", range, localSheetId, hidden: true, null)
+                );
             }
 
             foreach (
@@ -365,142 +521,256 @@ internal class WorkbookPartWriter
                 )
             )
             {
-                DefinedName definedName = new()
-                {
-                    Name = xlDefinedName.Name,
-                    LocalSheetId = sheetId,
-                    Text = xlDefinedName.ToString(),
-                };
-
-                if (!xlDefinedName.Visible)
-                {
-                    definedName.Hidden = BooleanValue.FromBoolean(true);
-                }
-
-                if (!string.IsNullOrWhiteSpace(xlDefinedName.Comment))
-                {
-                    definedName.Comment = xlDefinedName.Comment;
-                }
-
-                definedNames.AppendChild(definedName);
+                definedNames.Add(
+                    DefinedName(
+                        xlDefinedName.Name,
+                        xlDefinedName.ToString(),
+                        localSheetId,
+                        !xlDefinedName.Visible,
+                        xlDefinedName.Comment
+                    )
+                );
             }
 
-            string definedNameTextRow = string.Empty;
-            string definedNameTextColumn = string.Empty;
-            if (worksheet.PageSetup.FirstRowToRepeatAtTop > 0)
+            if (PrintTitles(worksheet) is { } titles)
             {
-                definedNameTextRow =
-                    worksheet.Name.EscapeSheetName()
-                    + "!"
-                    + worksheet.PageSetup.FirstRowToRepeatAtTop
-                    + ":"
-                    + worksheet.PageSetup.LastRowToRepeatAtTop;
+                definedNames.Add(
+                    DefinedName("_xlnm.Print_Titles", titles, localSheetId, hidden: false, null)
+                );
             }
-            if (worksheet.PageSetup.FirstColumnToRepeatAtLeft > 0)
-            {
-                int minColumn = worksheet.PageSetup.FirstColumnToRepeatAtLeft;
-                int maxColumn = worksheet.PageSetup.LastColumnToRepeatAtLeft;
-                definedNameTextColumn =
-                    worksheet.Name.EscapeSheetName()
-                    + "!"
-                    + XlsxSharp.XLHelper.GetColumnLetterFromNumber(minColumn)
-                    + ":"
-                    + XlsxSharp.XLHelper.GetColumnLetterFromNumber(maxColumn);
-            }
-
-            string titles;
-            if (definedNameTextColumn.Length > 0)
-            {
-                titles = definedNameTextColumn;
-                if (definedNameTextRow.Length > 0)
-                {
-                    titles += "," + definedNameTextRow;
-                }
-            }
-            else
-            {
-                titles = definedNameTextRow;
-            }
-
-            if (titles.Length <= 0)
-            {
-                continue;
-            }
-
-            DefinedName definedName2 = new()
-            {
-                Name = "_xlnm.Print_Titles",
-                LocalSheetId = sheetId,
-                Text = titles,
-            };
-
-            definedNames.AppendChild(definedName2);
         }
 
         foreach (XLDefinedName xlDefinedName in xlWorkbook.DefinedNamesInternal)
         {
-            DefinedName definedName = new()
-            {
-                Name = xlDefinedName.Name,
-                Text = xlDefinedName.RefersTo,
-            };
-
-            if (!xlDefinedName.Visible)
-            {
-                definedName.Hidden = BooleanValue.FromBoolean(true);
-            }
-
-            if (!string.IsNullOrWhiteSpace(xlDefinedName.Comment))
-            {
-                definedName.Comment = xlDefinedName.Comment;
-            }
-
-            definedNames.AppendChild(definedName);
+            definedNames.Add(
+                DefinedName(
+                    xlDefinedName.Name,
+                    xlDefinedName.RefersTo,
+                    localSheetId: null,
+                    !xlDefinedName.Visible,
+                    xlDefinedName.Comment
+                )
+            );
         }
 
-        workbook.DefinedNames = definedNames;
+        return definedNames;
+    }
 
-        if (workbook.CalculationProperties == null)
+    /// <summary>The rows and columns repeated on every printed page, or nothing when there are none.</summary>
+    private static string? PrintTitles(XLWorksheet worksheet)
+    {
+        string rows =
+            worksheet.PageSetup.FirstRowToRepeatAtTop > 0
+                ? worksheet.Name.EscapeSheetName()
+                    + "!"
+                    + worksheet.PageSetup.FirstRowToRepeatAtTop
+                    + ":"
+                    + worksheet.PageSetup.LastRowToRepeatAtTop
+                : string.Empty;
+
+        string columns =
+            worksheet.PageSetup.FirstColumnToRepeatAtLeft > 0
+                ? worksheet.Name.EscapeSheetName()
+                    + "!"
+                    + XlsxSharp.XLHelper.GetColumnLetterFromNumber(
+                        worksheet.PageSetup.FirstColumnToRepeatAtLeft
+                    )
+                    + ":"
+                    + XlsxSharp.XLHelper.GetColumnLetterFromNumber(
+                        worksheet.PageSetup.LastColumnToRepeatAtLeft
+                    )
+                : string.Empty;
+
+        string titles =
+            columns.Length > 0
+                ? rows.Length > 0
+                    ? columns + "," + rows
+                    : columns
+                : rows;
+
+        return titles.Length > 0 ? titles : null;
+    }
+
+    private static XElement DefinedName(
+        string name,
+        string text,
+        uint? localSheetId,
+        bool hidden,
+        string? comment
+    )
+    {
+        XElement definedName = new(Main + "definedName", text);
+        definedName.SetAttributeValue("name", name);
+        if (comment is not null && !string.IsNullOrWhiteSpace(comment))
         {
-            workbook.CalculationProperties = new CalculationProperties { CalculationId = 125725U };
+            definedName.SetAttributeValue("comment", comment);
         }
 
-        if (xlWorkbook.CalculateMode == XLCalculateMode.Default)
+        if (localSheetId is not null)
         {
-            workbook.CalculationProperties.CalculationMode = null;
+            definedName.SetAttributeValue(
+                "localSheetId",
+                localSheetId.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)
+            );
+        }
+
+        if (hidden)
+        {
+            definedName.SetAttributeValue("hidden", "1");
+        }
+
+        return definedName;
+    }
+
+    private static void WriteCalculationProperties(XElement workbook, XLWorkbook xlWorkbook)
+    {
+        XElement calcPr = Ensure(workbook, "calcPr");
+
+        if (calcPr.Attribute("calcId") is null)
+        {
+            calcPr.SetAttributeValue("calcId", "125725");
+        }
+
+        calcPr.SetAttributeValue(
+            "calcMode",
+            xlWorkbook.CalculateMode == XLCalculateMode.Default
+                ? null
+                : CalculateMode(xlWorkbook.CalculateMode)
+        );
+
+        calcPr.SetAttributeValue(
+            "refMode",
+            xlWorkbook.ReferenceStyle == XLReferenceStyle.Default
+                ? null
+                : ReferenceMode(xlWorkbook.ReferenceStyle)
+        );
+
+        // These four are only written when set; the previous writer left whatever was loaded
+        // otherwise, and so does this one.
+        SetIfTrue(calcPr, "calcOnSave", xlWorkbook.CalculationOnSave);
+        SetIfTrue(calcPr, "forceFullCalc", xlWorkbook.ForceFullCalculation);
+        SetIfTrue(calcPr, "fullCalcOnLoad", xlWorkbook.FullCalculationOnLoad);
+        SetIfTrue(calcPr, "fullPrecision", xlWorkbook.FullPrecision);
+    }
+
+    private static void WritePivotCaches(XElement workbook, XLWorkbook xlWorkbook)
+    {
+        List<XLPivotCache> used =
+        [
+            .. xlWorkbook
+                .WorksheetsInternal.SelectMany<XLWorksheet, XLPivotTable>(ws => ws.PivotTables)
+                .Select(pt => pt.PivotCache)
+                .Distinct()
+                .Cast<XLPivotCache>(),
+        ];
+
+        if (used.Count == 0)
+        {
+            workbook.Element(Main + "pivotCaches")?.Remove();
+            return;
+        }
+
+        // Rebuilt rather than patched, to drop references a previous save left behind.
+        XElement pivotCaches = new(Main + "pivotCaches");
+        foreach (XLPivotCache source in used)
+        {
+            XElement pivotCache = new(Main + "pivotCache");
+            pivotCache.SetAttributeValue("cacheId", (source.CacheId ?? 0u).ToInvariantString());
+            pivotCache.SetAttributeValue(Rel + "id", source.WorkbookCacheRelId);
+            pivotCaches.Add(pivotCache);
+        }
+
+        SetElement(workbook, "pivotCaches", pivotCaches);
+    }
+
+    private static string SheetState(XLWorksheetVisibility visibility) =>
+        visibility switch
+        {
+            XLWorksheetVisibility.Visible => "visible",
+            XLWorksheetVisibility.Hidden => "hidden",
+            XLWorksheetVisibility.VeryHidden => "veryHidden",
+            _ => throw new ArgumentOutOfRangeException(nameof(visibility)),
+        };
+
+    private static string CalculateMode(XLCalculateMode mode) =>
+        mode switch
+        {
+            XLCalculateMode.Auto => "auto",
+            XLCalculateMode.AutoNoTable => "autoNoTable",
+            XLCalculateMode.Manual => "manual",
+            _ => throw new ArgumentOutOfRangeException(nameof(mode)),
+        };
+
+    private static string ReferenceMode(XLReferenceStyle style) =>
+        style switch
+        {
+            XLReferenceStyle.A1 => "A1",
+            XLReferenceStyle.R1C1 => "R1C1",
+            _ => throw new ArgumentOutOfRangeException(nameof(style)),
+        };
+
+    /// <summary>The child of that name, added at its place in the schema order when missing.</summary>
+    private static XElement Ensure(XElement workbook, string localName)
+    {
+        XElement? existing = workbook.Element(Main + localName);
+        if (existing is not null)
+        {
+            return existing;
+        }
+
+        XElement created = new(Main + localName);
+        SetElement(workbook, localName, created);
+        return created;
+    }
+
+    private static void SetElement(XElement workbook, string localName, XElement replacement)
+    {
+        XElement? existing = workbook.Element(Main + localName);
+        if (existing is not null)
+        {
+            existing.ReplaceWith(replacement);
+            return;
+        }
+
+        XElement? predecessor = null;
+        int position = Array.IndexOf(ElementOrder, localName);
+        for (int i = 0; i < position; i++)
+        {
+            if (workbook.Element(Main + ElementOrder[i]) is { } candidate)
+            {
+                predecessor = candidate;
+            }
+        }
+
+        if (predecessor is null)
+        {
+            workbook.AddFirst(replacement);
         }
         else
         {
-            workbook.CalculationProperties.CalculationMode = xlWorkbook.CalculateMode.ToOpenXml();
+            predecessor.AddAfterSelf(replacement);
         }
+    }
 
-        if (xlWorkbook.ReferenceStyle == XLReferenceStyle.Default)
-        {
-            workbook.CalculationProperties.ReferenceMode = null;
-        }
-        else
-        {
-            workbook.CalculationProperties.ReferenceMode = xlWorkbook.ReferenceStyle.ToOpenXml();
-        }
+    /// <summary>Writes the attribute only when it differs from what a reader would assume.</summary>
+    private static void SetOptionalBool(
+        XElement element,
+        string name,
+        bool value,
+        bool defaultValue
+    ) =>
+        element.SetAttributeValue(
+            name,
+            value == defaultValue ? null
+                : value ? "1"
+                : "0"
+        );
 
-        if (xlWorkbook.CalculationOnSave)
+    private static void SetIfTrue(XElement element, string name, bool value)
+    {
+        if (value)
         {
-            workbook.CalculationProperties.CalculationOnSave = xlWorkbook.CalculationOnSave;
-        }
-
-        if (xlWorkbook.ForceFullCalculation)
-        {
-            workbook.CalculationProperties.ForceFullCalculation = xlWorkbook.ForceFullCalculation;
-        }
-
-        if (xlWorkbook.FullCalculationOnLoad)
-        {
-            workbook.CalculationProperties.FullCalculationOnLoad = xlWorkbook.FullCalculationOnLoad;
-        }
-
-        if (xlWorkbook.FullPrecision)
-        {
-            workbook.CalculationProperties.FullPrecision = xlWorkbook.FullPrecision;
+            element.SetAttributeValue(name, "1");
         }
     }
 }

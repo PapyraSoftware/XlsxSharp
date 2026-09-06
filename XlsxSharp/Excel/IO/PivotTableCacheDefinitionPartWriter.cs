@@ -1,390 +1,617 @@
 #nullable disable
 
 using System.Diagnostics;
-using DocumentFormat.OpenXml;
-using DocumentFormat.OpenXml.Packaging;
-using DocumentFormat.OpenXml.Spreadsheet;
+using System.Xml;
+using System.Xml.Linq;
 using XlsxSharp.Extensions;
-using XlsxSharp.Utils;
+using XlsxSharp.IO.Packaging;
 using static XlsxSharp.Excel.XLWorkbook;
 
 namespace XlsxSharp.Excel.IO;
 
+/// <summary>
+/// Writes a <c>pivotCacheDefinition</c> part.
+/// </summary>
+/// <remarks>
+/// The part is patched, not rewritten. A cache definition that came from Excel carries plenty
+/// XlsxSharp does not model - <c>extLst</c>, who refreshed it and when, the revision uid - and
+/// all of it has to survive a load and save, so only the source and the fields are replaced.
+/// </remarks>
 internal class PivotTableCacheDefinitionPartWriter
 {
+    private static readonly XNamespace Main =
+        "http://schemas.openxmlformats.org/spreadsheetml/2006/main";
+
+    private static readonly XNamespace Rel =
+        "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
+
+    /// <summary>
+    /// Child order on the root, from the schema (ECMA-376 Part 1 §18.10.1.67). Element order is
+    /// part of what the reference workbooks compare, unlike attribute order.
+    /// </summary>
+    private static readonly string[] ElementOrder =
+    [
+        "cacheSource",
+        "cacheFields",
+        "cacheHierarchies",
+        "kpis",
+        "tupleCache",
+        "calculatedItems",
+        "calculatedMembers",
+        "dimensions",
+        "measureGroups",
+        "maps",
+        "extLst",
+    ];
+
     internal static void GenerateContent(
-        PivotTableCacheDefinitionPart pivotTableCacheDefinitionPart,
+        OpcPart pivotTableCacheDefinitionPart,
         XLPivotCache pivotCache,
         SaveContext context
     )
     {
-        PivotCacheDefinition pivotCacheDefinition =
-            pivotTableCacheDefinitionPart.PivotCacheDefinition;
+        (XDocument document, bool isNew) = ReadExisting(pivotTableCacheDefinitionPart);
+        XElement root = document.Root;
 
-        if (pivotCacheDefinition == null)
+        if (isNew)
         {
-            pivotCacheDefinition = new PivotCacheDefinition { Id = "rId1" };
-
-            pivotCacheDefinition.AddNamespaceDeclaration(
-                "r",
-                "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
-            );
-            pivotTableCacheDefinitionPart.PivotCacheDefinition = pivotCacheDefinition;
+            root.SetAttributeValue(Rel + "id", "rId1");
         }
 
-        #region CreatedVersion
+        // The three versions only ever go up: a workbook written by a newer Excel must not be
+        // told it was created by an older one.
+        SetVersion(root, "createdVersion", XLConstants.PivotTable.CreatedVersion);
+        SetVersion(root, "refreshedVersion", XLConstants.PivotTable.RefreshedVersion);
+        SetVersion(root, "minRefreshableVersion", 3);
 
-        byte createdVersion = XLConstants.PivotTable.CreatedVersion;
-
-        if (pivotCacheDefinition.CreatedVersion?.HasValue ?? false)
-        {
-            pivotCacheDefinition.CreatedVersion = Math.Max(
-                createdVersion,
-                pivotCacheDefinition.CreatedVersion.Value
-            );
-        }
-        else
-        {
-            pivotCacheDefinition.CreatedVersion = createdVersion;
-        }
-
-        #endregion CreatedVersion
-
-        #region RefreshedVersion
-
-        byte refreshedVersion = XLConstants.PivotTable.RefreshedVersion;
-        if (pivotCacheDefinition.RefreshedVersion?.HasValue ?? false)
-        {
-            pivotCacheDefinition.RefreshedVersion = Math.Max(
-                refreshedVersion,
-                pivotCacheDefinition.RefreshedVersion.Value
-            );
-        }
-        else
-        {
-            pivotCacheDefinition.RefreshedVersion = refreshedVersion;
-        }
-
-        #endregion RefreshedVersion
-
-        #region MinRefreshableVersion
-
-        byte minRefreshableVersion = 3;
-        if (pivotCacheDefinition.MinRefreshableVersion?.HasValue ?? false)
-        {
-            pivotCacheDefinition.MinRefreshableVersion = Math.Max(
-                minRefreshableVersion,
-                pivotCacheDefinition.MinRefreshableVersion.Value
-            );
-        }
-        else
-        {
-            pivotCacheDefinition.MinRefreshableVersion = minRefreshableVersion;
-        }
-
-        #endregion MinRefreshableVersion
-
-        pivotCacheDefinition.SaveData = pivotCache.SaveSourceData;
-        pivotCacheDefinition.RefreshOnLoad = true; //pt.RefreshDataOnOpen
+        root.SetAttributeValue("saveData", Bool(pivotCache.SaveSourceData));
+        root.SetAttributeValue("refreshOnLoad", Bool(true));
 
         if (pivotCache.ItemsToRetainPerField == XLItemsToRetain.None)
         {
-            pivotCacheDefinition.MissingItemsLimit = 0U;
+            root.SetAttributeValue("missingItemsLimit", "0");
         }
         else if (pivotCache.ItemsToRetainPerField == XLItemsToRetain.Max)
         {
-            pivotCacheDefinition.MissingItemsLimit = XlsxSharp.XLHelper.MaxRowNumber;
+            root.SetAttributeValue(
+                "missingItemsLimit",
+                XlsxSharp.XLHelper.MaxRowNumber.ToInvariantString()
+            );
         }
 
-        // Begin CacheSource
-        CacheSource cacheSource = new();
+        SetElement(root, "cacheSource", BuildCacheSource(pivotCache));
 
-        if (pivotCache.Source is XLPivotSourceReference localSource)
-        {
-            // Do not quote worksheet name with whitespace here - issue #955
-            WorksheetSource worksheetSource = localSource.UsesName
-                ? new WorksheetSource { Name = localSource.Name }
-                : new WorksheetSource
-                {
-                    Reference = localSource.Area.Value.Area.ToString(),
-                    Sheet = localSource.Area.Value.Name,
-                };
-            cacheSource.Type = SourceValues.Worksheet;
-            cacheSource.AddChild(worksheetSource);
-        }
-        else if (pivotCache.Source is XLPivotSourceExternalWorkbook externalSource)
-        {
-            WorksheetSource worksheetSource = externalSource.UsesName
-                ? new WorksheetSource
-                {
-                    Id = externalSource.RelId,
-                    Name = externalSource.TableOrName,
-                }
-                : new WorksheetSource
-                {
-                    Id = externalSource.RelId,
-                    Sheet = externalSource.Area.Value.Name,
-                    Reference = externalSource.Area.Value.Area.ToString(),
-                };
-            cacheSource.Type = SourceValues.Worksheet;
-            cacheSource.AddChild(worksheetSource);
-        }
-        else if (pivotCache.Source is XLPivotSourceConnection connectionSource)
-        {
-            cacheSource.Type = SourceValues.External;
-            cacheSource.ConnectionId = connectionSource.ConnectionId;
-        }
-        else if (pivotCache.Source is XLPivotSourceConsolidation consolidationSource)
-        {
-            cacheSource.Type = SourceValues.Consolidation;
-            Consolidation consolidation = new() { AutoPage = consolidationSource.AutoPage };
+        // Only the fields themselves are rebuilt. The cacheFields element that a loaded part
+        // brought along keeps its own attributes - Excel writes a count there, and the previous
+        // writer kept it because it emptied the element instead of replacing it.
+        SetElement(root, "cacheFields", BuildCacheFields(pivotCache), keepAttributes: true);
 
-            // OpenXML SDK has few bugs here. Use AppendChild to add more children, AddChild keeps only one child.
-            if (consolidationSource.Pages.Count > 0)
+        using Stream partStream = pivotTableCacheDefinitionPart.GetWriteStream();
+        using XmlWriter xml = XmlWriter.Create(
+            partStream,
+            new XmlWriterSettings { Encoding = XlsxSharp.XLHelper.NoBomUTF8 }
+        );
+
+        document.Save(xml);
+    }
+
+    /// <summary>
+    /// The part's document with the namespaces the writer needs declared on the root, or a fresh
+    /// one when the part is empty.
+    /// </summary>
+    /// <remarks>
+    /// The prefixes matter: the reference workbooks record which declarations sit on the root,
+    /// and a default namespace where a prefixed one is expected counts as a difference even
+    /// though the elements are the same. A part loaded from Excel declares the main namespace as
+    /// the default one, so that declaration is dropped and the prefixed pair put in its place,
+    /// which is what the SDK did when it re-serialised the part.
+    /// </remarks>
+    private static (XDocument Document, bool IsNew) ReadExisting(OpcPart part)
+    {
+        XElement loaded = null;
+        bool standalone = false;
+
+        if (part.Length > 0)
+        {
+            using Stream stream = part.GetReadStream();
+            try
             {
-                Pages pages = new();
-                foreach (
-                    XLPivotCacheSourceConsolidationPage xlPageFilter in consolidationSource.Pages
-                )
-                {
-                    Page page = new();
-                    foreach (string xlPageItem in xlPageFilter.PageItems)
-                    {
-                        page.AppendChild(new PageItem { Name = xlPageItem });
-                    }
+                XDocument existing = XDocument.Load(stream);
+                loaded = existing.Root;
+                standalone = string.Equals(
+                    existing.Declaration?.Standalone,
+                    "yes",
+                    StringComparison.OrdinalIgnoreCase
+                );
+            }
+            catch (XmlException)
+            {
+                // A cache definition we cannot read is one we are about to replace anyway.
+            }
+        }
 
-                    pages.AppendChild(page);
+        if (loaded is null)
+        {
+            return (
+                new XDocument(
+                    new XElement(
+                        Main + "pivotCacheDefinition",
+                        new XAttribute(XNamespace.Xmlns + "r", Rel.NamespaceName),
+                        new XAttribute(XNamespace.Xmlns + "x", Main.NamespaceName)
+                    )
+                ),
+                true
+            );
+        }
+
+        XElement root = new(Main + "pivotCacheDefinition");
+
+        // Carry over every declaration except the default one, then make sure the two the writer
+        // itself needs are there.
+        foreach (XAttribute attribute in loaded.Attributes())
+        {
+            if (attribute.IsNamespaceDeclaration)
+            {
+                if (attribute.Name.LocalName != "xmlns")
+                {
+                    root.Add(new XAttribute(attribute));
                 }
 
-                consolidation.AddChild(pages);
+                continue;
             }
 
-            RangeSets rangeSets = new();
-            foreach (
-                XLPivotCacheSourceConsolidationRangeSet xlRangeSet in consolidationSource.RangeSets
-            )
+            root.Add(new XAttribute(attribute));
+        }
+
+        EnsureDeclaration(root, "r", Rel);
+        EnsureDeclaration(root, "x", Main);
+
+        foreach (XElement child in loaded.Elements())
+        {
+            XElement copy = new(child);
+            copy.DescendantsAndSelf()
+                .Attributes()
+                .Where(a => a.IsNamespaceDeclaration && a.Name.LocalName == "xmlns")
+                .ToList()
+                .ForEach(a => a.Remove());
+
+            root.Add(copy);
+        }
+
+        HoistDeclarations(root);
+
+        return (
+            standalone
+                ? new XDocument(new XDeclaration("1.0", "utf-8", "yes"), root)
+                : new XDocument(root),
+            false
+        );
+    }
+
+    /// <summary>
+    /// Copies the namespace declarations of the descendants up onto the root, leaving them where
+    /// they are as well.
+    /// </summary>
+    /// <remarks>
+    /// This is what the SDK did when it re-serialised a part: a prefix that a workbook from Excel
+    /// declares only where it is used, on an <c>ext</c> for instance, comes back out declared on
+    /// the root too. Without it the root is one declaration short of what the reference workbooks
+    /// record.
+    /// </remarks>
+    private static void HoistDeclarations(XElement root)
+    {
+        foreach (XElement descendant in root.Descendants())
+        {
+            foreach (XAttribute attribute in descendant.Attributes().ToList())
             {
-                IReadOnlyList<uint?> indexes = xlRangeSet.Indexes;
-                RangeSet rangeSet = new()
+                if (!attribute.IsNamespaceDeclaration || attribute.Name.LocalName == "xmlns")
                 {
-                    FieldItemIndexPage1 = indexes.Count > 0 ? indexes[0] : null,
-                    FieldItemIndexPage2 = indexes.Count > 1 ? indexes[1] : null,
-                    FieldItemIndexPage3 = indexes.Count > 2 ? indexes[2] : null,
-                    FieldItemIndexPage4 = indexes.Count > 3 ? indexes[3] : null,
-                };
-
-                // Properties can't be set to null and be skipped, OpenXML SDK would
-                // write out empty string. Don't touch them unless setting a value.
-                if (xlRangeSet.RelId is not null)
-                {
-                    rangeSet.Id = xlRangeSet.RelId;
+                    continue;
                 }
 
-                if (xlRangeSet.UsesName)
-                {
-                    rangeSet.Name = xlRangeSet.TableOrName;
-                }
-                else
-                {
-                    SheetArea rangeArea = xlRangeSet.Area.Value;
-                    rangeSet.Sheet = rangeArea.Name;
-                    rangeSet.Reference = rangeArea.Area.ToString();
-                }
+                bool taken = root.Attributes()
+                    .Any(a => a.IsNamespaceDeclaration && a.Name == attribute.Name);
 
-                rangeSets.AppendChild(rangeSet);
+                if (!taken)
+                {
+                    root.Add(new XAttribute(attribute));
+                }
+            }
+        }
+    }
+
+    private static void EnsureDeclaration(XElement root, string prefix, XNamespace ns)
+    {
+        bool declared = root.Attributes()
+            .Any(a => a.IsNamespaceDeclaration && a.Value == ns.NamespaceName);
+
+        if (!declared)
+        {
+            root.Add(new XAttribute(XNamespace.Xmlns + prefix, ns.NamespaceName));
+        }
+    }
+
+    private static void SetVersion(XElement root, string name, byte version)
+    {
+        XAttribute existing = root.Attribute(name);
+        byte value =
+            existing is not null && byte.TryParse(existing.Value, out byte loaded)
+                ? Math.Max(version, loaded)
+                : version;
+
+        root.SetAttributeValue(name, value.ToInvariantString());
+    }
+
+    /// <summary>
+    /// Replaces a child the writer owns, keeping its position when the part already had it and
+    /// otherwise putting it where <see cref="ElementOrder"/> says.
+    /// </summary>
+    private static void SetElement(
+        XElement root,
+        string localName,
+        XElement replacement,
+        bool keepAttributes = false
+    )
+    {
+        XElement existing = root.Element(Main + localName);
+        if (existing is not null)
+        {
+            if (keepAttributes)
+            {
+                foreach (XAttribute attribute in existing.Attributes())
+                {
+                    replacement.SetAttributeValue(attribute.Name, attribute.Value);
+                }
             }
 
-            consolidation.AddChild(rangeSets);
-            cacheSource.AddChild(consolidation);
+            existing.ReplaceWith(replacement);
+            return;
         }
-        else if (pivotCache.Source is XLPivotSourceScenario)
+
+        XElement predecessor = null;
+        int position = Array.IndexOf(ElementOrder, localName);
+        for (int i = 0; i < position; i++)
         {
-            cacheSource.Type = SourceValues.Scenario;
+            XElement candidate = root.Element(Main + ElementOrder[i]);
+            if (candidate is not null)
+            {
+                predecessor = candidate;
+            }
+        }
+
+        if (predecessor is null)
+        {
+            root.AddFirst(replacement);
         }
         else
         {
-            throw new UnreachableException();
+            predecessor.AddAfterSelf(replacement);
         }
+    }
 
-        pivotCacheDefinition.CacheSource = cacheSource;
+    private static XElement BuildCacheSource(XLPivotCache pivotCache)
+    {
+        XElement cacheSource = new(Main + "cacheSource");
 
-        // End CacheSource
-
-        // Begin CacheFields
-        CacheFields cacheFields = pivotCacheDefinition.CacheFields;
-        if (cacheFields == null)
+        switch (pivotCache.Source)
         {
-            cacheFields = new CacheFields();
-            pivotCacheDefinition.CacheFields = cacheFields;
+            case XLPivotSourceReference localSource:
+            {
+                cacheSource.SetAttributeValue("type", "worksheet");
+
+                // Do not quote a worksheet name with whitespace here, see issue #955.
+                XElement worksheetSource = new(Main + "worksheetSource");
+                if (localSource.UsesName)
+                {
+                    worksheetSource.SetAttributeValue("name", localSource.Name);
+                }
+                else
+                {
+                    worksheetSource.SetAttributeValue(
+                        "ref",
+                        localSource.Area.Value.Area.ToString()
+                    );
+
+                    worksheetSource.SetAttributeValue("sheet", localSource.Area.Value.Name);
+                }
+
+                cacheSource.Add(worksheetSource);
+                break;
+            }
+
+            case XLPivotSourceExternalWorkbook externalSource:
+            {
+                cacheSource.SetAttributeValue("type", "worksheet");
+
+                XElement worksheetSource = new(Main + "worksheetSource");
+                worksheetSource.SetAttributeValue(Rel + "id", externalSource.RelId);
+                if (externalSource.UsesName)
+                {
+                    worksheetSource.SetAttributeValue("name", externalSource.TableOrName);
+                }
+                else
+                {
+                    worksheetSource.SetAttributeValue(
+                        "ref",
+                        externalSource.Area.Value.Area.ToString()
+                    );
+
+                    worksheetSource.SetAttributeValue("sheet", externalSource.Area.Value.Name);
+                }
+
+                cacheSource.Add(worksheetSource);
+                break;
+            }
+
+            case XLPivotSourceConnection connectionSource:
+                cacheSource.SetAttributeValue("type", "external");
+                cacheSource.SetAttributeValue(
+                    "connectionId",
+                    connectionSource.ConnectionId.ToInvariantString()
+                );
+
+                break;
+
+            case XLPivotSourceConsolidation consolidationSource:
+                cacheSource.SetAttributeValue("type", "consolidation");
+                cacheSource.Add(BuildConsolidation(consolidationSource));
+                break;
+
+            case XLPivotSourceScenario:
+                cacheSource.SetAttributeValue("type", "scenario");
+                break;
+
+            default:
+                throw new UnreachableException();
         }
+
+        return cacheSource;
+    }
+
+    private static XElement BuildConsolidation(XLPivotSourceConsolidation source)
+    {
+        XElement consolidation = new(Main + "consolidation");
+        consolidation.SetAttributeValue("autoPage", Bool(source.AutoPage));
+
+        if (source.Pages.Count > 0)
+        {
+            XElement pages = new(Main + "pages");
+            foreach (XLPivotCacheSourceConsolidationPage xlPageFilter in source.Pages)
+            {
+                XElement page = new(Main + "page");
+                foreach (string xlPageItem in xlPageFilter.PageItems)
+                {
+                    page.Add(new XElement(Main + "pageItem", new XAttribute("name", xlPageItem)));
+                }
+
+                pages.Add(page);
+            }
+
+            consolidation.Add(pages);
+        }
+
+        XElement rangeSets = new(Main + "rangeSets");
+        foreach (XLPivotCacheSourceConsolidationRangeSet xlRangeSet in source.RangeSets)
+        {
+            IReadOnlyList<uint?> indexes = xlRangeSet.Indexes;
+            XElement rangeSet = new(Main + "rangeSet");
+            SetIndex(rangeSet, "i1", indexes, 0);
+            SetIndex(rangeSet, "i2", indexes, 1);
+            SetIndex(rangeSet, "i3", indexes, 2);
+            SetIndex(rangeSet, "i4", indexes, 3);
+
+            // An unset value has to stay absent rather than become an empty string.
+            if (xlRangeSet.RelId is not null)
+            {
+                rangeSet.SetAttributeValue(Rel + "id", xlRangeSet.RelId);
+            }
+
+            if (xlRangeSet.UsesName)
+            {
+                rangeSet.SetAttributeValue("name", xlRangeSet.TableOrName);
+            }
+            else
+            {
+                SheetArea rangeArea = xlRangeSet.Area.Value;
+                rangeSet.SetAttributeValue("sheet", rangeArea.Name);
+                rangeSet.SetAttributeValue("ref", rangeArea.Area.ToString());
+            }
+
+            rangeSets.Add(rangeSet);
+        }
+
+        consolidation.Add(rangeSets);
+        return consolidation;
+    }
+
+    private static void SetIndex(
+        XElement rangeSet,
+        string name,
+        IReadOnlyList<uint?> indexes,
+        int position
+    )
+    {
+        uint? value = indexes.Count > position ? indexes[position] : null;
+        if (value is not null)
+        {
+            rangeSet.SetAttributeValue(name, value.Value.ToInvariantString());
+        }
+    }
+
+    private static XElement BuildCacheFields(XLPivotCache pivotCache)
+    {
+        XElement cacheFields = new(Main + "cacheFields");
 
         for (int fieldIdx = 0; fieldIdx < pivotCache.FieldCount; ++fieldIdx)
         {
-            string cacheFieldName = pivotCache.FieldNames[fieldIdx];
             XLPivotCacheValues fieldValues = pivotCache.GetFieldValues(fieldIdx);
             XLCellValue[] xlSharedItems =
             [
                 .. pivotCache.GetFieldSharedItems(fieldIdx).GetCellValues(),
             ];
 
-            // .CacheFields is cleared when workbook is begin saved
-            // So if there are any entries, it would be from previous pivot tables
-            // with an identical source range.
-            // When pivot sources get its refactoring, this will not be necessary
-            CacheField cacheField = pivotCacheDefinition
-                .CacheFields.Elements<CacheField>()
-                .FirstOrDefault(f => f.Name == cacheFieldName);
+            XElement cacheField = new(Main + "cacheField");
+            cacheField.SetAttributeValue("name", pivotCache.FieldNames[fieldIdx]);
+            cacheField.Add(BuildSharedItems(fieldValues, xlSharedItems));
+            cacheFields.Add(cacheField);
+        }
 
-            if (cacheField == null)
-            {
-                cacheField = new CacheField
-                {
-                    Name = cacheFieldName,
-                    SharedItems = new SharedItems(),
-                };
-                cacheFields.AppendChild(cacheField);
-            }
-            SharedItems sharedItems = cacheField.SharedItems;
+        return cacheFields;
+    }
 
-            XLPivotCacheValuesStats stats = fieldValues.Stats;
+    private static XElement BuildSharedItems(
+        XLPivotCacheValues fieldValues,
+        XLCellValue[] xlSharedItems
+    )
+    {
+        XLPivotCacheValuesStats stats = fieldValues.Stats;
+        XElement sharedItems = new(Main + "sharedItems");
 
-            sharedItems.Count =
-                fieldValues.SharedCount != 0 ? checked((uint)xlSharedItems.Length) : null;
-
-            // https://docs.microsoft.com/en-us/dotnet/api/documentformat.openxml.spreadsheet.shareditems?view=openxml-2.8.1#remarks
-            // The following attributes are not required or used if there are no items in sharedItems.
-            // - containsBlank
-            // - containsSemiMixedTypes
-            // - containsMixedTypes
-            // - longText
-
-            // Specifies a boolean value that indicates whether this field contains a blank value.
-            sharedItems.ContainsBlank = OpenXmlHelper.GetBooleanValue(stats.ContainsBlank, false);
-
-            sharedItems.ContainsDate = OpenXmlHelper.GetBooleanValue(stats.ContainsDate, false);
-
-            // Remember: Blank is not a type in OOXML, but is a value
-            int typesCount = 0;
-            if (stats.ContainsNumber)
-            {
-                typesCount++;
-            }
-
-            if (stats.ContainsString)
-            {
-                typesCount++;
-            }
-
-            if (stats.ContainsDate)
-            {
-                typesCount++;
-            }
-
-            // ISO29500: Specifies a boolean value that indicates whether this field contains more than one data type.
-            // MS-OI29500: In Office, the containsMixedTypes attribute assumes that boolean and error shall be considered part of the string type.
-            sharedItems.ContainsMixedTypes = OpenXmlHelper.GetBooleanValue(typesCount > 1, false);
-
-            // ISO29500: Specifies a boolean value that indicates that the field contains at least one value that is not a date.
-            bool containsNonDate = stats.ContainsString || stats.ContainsNumber;
-            sharedItems.ContainsNonDate = OpenXmlHelper.GetBooleanValue(containsNonDate, true);
-
-            // Excel will have to repair the cache definition, if both @containsNumber and @containsDate are specified. Likely because
-            // ultimately they are both numbers, but date has preference.
-            if (stats.ContainsDate)
-            {
-                // If the field contains a date, the number values are considered serial date times.
-
-                // This is an exception to the "1900 is a leap year". Values are saved correctly, i.e starting at 1899-12-30.
-                long? minValueAsDateTime = stats.MinValue is not null
-                    ? DateTime.FromOADate(stats.MinValue.Value).Ticks
-                    : null;
-                long? maxValueAsDateTime = stats.MaxValue is not null
-                    ? DateTime.FromOADate(stats.MaxValue.Value).Ticks
-                    : null;
-
-                long? minDateTicks = Min(stats.MinDate?.Ticks, minValueAsDateTime);
-                long? maxDateTicks = Max(stats.MaxDate?.Ticks, maxValueAsDateTime);
-
-                // @minDate/@maxDate can be present, only if at least one child is a d element.
-                sharedItems.MinDate = minDateTicks is not null
-                    ? new DateTime(minDateTicks.Value)
-                    : null;
-                sharedItems.MaxDate = maxDateTicks is not null
-                    ? new DateTime(maxDateTicks.Value)
-                    : null;
-
-                static long? Min(long? val1, long? val2)
-                {
-                    if (val1 is null || val2 is null)
-                    {
-                        return val1 ?? val2;
-                    }
-
-                    return Math.Min(val1.Value, val2.Value);
-                }
-
-                static long? Max(long? val1, long? val2)
-                {
-                    if (val1 is null || val2 is null)
-                    {
-                        return val1 ?? val2;
-                    }
-
-                    return Math.Max(val1.Value, val2.Value);
-                }
-            }
-            else if (stats.ContainsNumber)
-            {
-                // Don't indicate that date field with numbers contains numbers, Excel would refuse to load the file
-                sharedItems.ContainsNumber = OpenXmlHelper.GetBooleanValue(
-                    stats.ContainsNumber,
-                    false
-                );
-
-                // @containsInteger has a prerequisite @containsNumber, MS-OI29500: In Office, @containsNumber shall be 1 or true when @containsInteger is specified.
-                // MS-OI29500: In Office, a value of 1 or true for the containsInteger attribute indicates this field contains only integer values and does not contain non - integer numeric values.
-                sharedItems.ContainsInteger = OpenXmlHelper.GetBooleanValue(
-                    stats.ContainsInteger,
-                    false
-                );
-
-                sharedItems.MinValue = stats.MinValue;
-                sharedItems.MaxValue = stats.MaxValue;
-            }
-
-            // ISO29500: A value of 1 or true indicates at least one text value, and can also contain a mix of other data types and blank values.
-            // MS-OI29500: Office expects that the containsSemiMixedTypes attribute is true when the field contains text, blank, boolean or error values.
-            bool containsSemiMixedTypes = stats.ContainsString || stats.ContainsBlank;
-            sharedItems.ContainsSemiMixedTypes = OpenXmlHelper.GetBooleanValue(
-                containsSemiMixedTypes,
-                true
+        if (fieldValues.SharedCount != 0)
+        {
+            sharedItems.SetAttributeValue(
+                "count",
+                checked((uint)xlSharedItems.Length).ToInvariantString()
             );
+        }
 
-            // MS-OI29500: In Office, boolean and error are considered strings in the context of the containsString attribute.
-            sharedItems.ContainsString = OpenXmlHelper.GetBooleanValue(stats.ContainsString, true);
+        // https://docs.microsoft.com/en-us/dotnet/api/documentformat.openxml.spreadsheet.shareditems
+        // The attributes below are not required or used when there are no items in sharedItems.
+        SetOptionalBool(sharedItems, "containsBlank", stats.ContainsBlank, false);
+        SetOptionalBool(sharedItems, "containsDate", stats.ContainsDate, false);
 
-            sharedItems.LongText = OpenXmlHelper.GetBooleanValue(stats.LongText, false);
+        // Blank is not a type in OOXML, it is a value, so it does not count here.
+        int typesCount =
+            (stats.ContainsNumber ? 1 : 0)
+            + (stats.ContainsString ? 1 : 0)
+            + (stats.ContainsDate ? 1 : 0);
 
-            foreach (XLCellValue value in xlSharedItems)
+        // ISO29500: whether this field contains more than one data type.
+        // MS-OI29500: Office counts boolean and error as part of the string type.
+        SetOptionalBool(sharedItems, "containsMixedTypes", typesCount > 1, false);
+
+        // ISO29500: whether the field contains at least one value that is not a date.
+        SetOptionalBool(
+            sharedItems,
+            "containsNonDate",
+            stats.ContainsString || stats.ContainsNumber,
+            true
+        );
+
+        if (stats.ContainsDate)
+        {
+            // A field with a date treats its numbers as serial date times. Excel repairs the
+            // cache definition if both containsNumber and containsDate are given, so only the
+            // date bounds go out.
+
+            // The serial to date conversion is the exception to "1900 is a leap year": values
+            // are stored counting from 1899-12-30.
+            long? minValueAsDateTime = stats.MinValue is not null
+                ? DateTime.FromOADate(stats.MinValue.Value).Ticks
+                : null;
+            long? maxValueAsDateTime = stats.MaxValue is not null
+                ? DateTime.FromOADate(stats.MaxValue.Value).Ticks
+                : null;
+
+            long? minDateTicks = Min(stats.MinDate?.Ticks, minValueAsDateTime);
+            long? maxDateTicks = Max(stats.MaxDate?.Ticks, maxValueAsDateTime);
+
+            // minDate and maxDate may only be present if at least one child is a d element.
+            if (minDateTicks is not null)
             {
-                OpenXmlElement toAdd = value.Type switch
-                {
-                    XLDataType.Blank => new MissingItem(),
-                    XLDataType.Boolean => new BooleanItem { Val = value.GetBoolean() },
-                    XLDataType.Number => new NumberItem { Val = value.GetNumber() },
-                    XLDataType.Text => new StringItem { Val = value.GetText() },
-                    XLDataType.Error => new ErrorItem { Val = value.GetError().ToDisplayString() },
-                    XLDataType.DateTime => new DateTimeItem { Val = value.GetDateTime() },
-                    XLDataType.TimeSpan => new DateTimeItem
-                    {
-                        Val = DateTime.FromOADate(value.GetUnifiedNumber()),
-                    },
-                    _ => throw new InvalidOperationException(),
-                };
-                sharedItems.AppendChild(toAdd);
+                sharedItems.SetAttributeValue("minDate", DateTimeValue(new(minDateTicks.Value)));
+            }
+
+            if (maxDateTicks is not null)
+            {
+                sharedItems.SetAttributeValue("maxDate", DateTimeValue(new(maxDateTicks.Value)));
+            }
+
+            static long? Min(long? val1, long? val2) =>
+                val1 is null || val2 is null ? val1 ?? val2 : Math.Min(val1.Value, val2.Value);
+
+            static long? Max(long? val1, long? val2) =>
+                val1 is null || val2 is null ? val1 ?? val2 : Math.Max(val1.Value, val2.Value);
+        }
+        else if (stats.ContainsNumber)
+        {
+            SetOptionalBool(sharedItems, "containsNumber", stats.ContainsNumber, false);
+
+            // containsInteger requires containsNumber, MS-OI29500: Office expects containsNumber
+            // to be true when containsInteger is given, and reads containsInteger as "only
+            // integers, no non-integer numbers".
+            SetOptionalBool(sharedItems, "containsInteger", stats.ContainsInteger, false);
+
+            if (stats.MinValue is not null)
+            {
+                sharedItems.SetAttributeValue("minValue", stats.MinValue.Value.ToInvariantString());
+            }
+
+            if (stats.MaxValue is not null)
+            {
+                sharedItems.SetAttributeValue("maxValue", stats.MaxValue.Value.ToInvariantString());
             }
         }
 
-        // End CacheFields
+        // ISO29500: at least one text value, possibly mixed with other types and blanks.
+        // MS-OI29500: Office expects this when the field contains text, blank, boolean or error.
+        SetOptionalBool(
+            sharedItems,
+            "containsSemiMixedTypes",
+            stats.ContainsString || stats.ContainsBlank,
+            true
+        );
+
+        // MS-OI29500: Office counts boolean and error as strings here.
+        SetOptionalBool(sharedItems, "containsString", stats.ContainsString, true);
+        SetOptionalBool(sharedItems, "longText", stats.LongText, false);
+
+        foreach (XLCellValue value in xlSharedItems)
+        {
+            sharedItems.Add(BuildSharedItem(value));
+        }
+
+        return sharedItems;
     }
+
+    private static XElement BuildSharedItem(XLCellValue value) =>
+        value.Type switch
+        {
+            XLDataType.Blank => new XElement(Main + "m"),
+            XLDataType.Boolean => Item("b", Bool(value.GetBoolean())),
+            XLDataType.Number => Item("n", value.GetNumber().ToInvariantString()),
+            XLDataType.Text => Item("s", value.GetText()),
+            XLDataType.Error => Item("e", value.GetError().ToDisplayString()),
+            XLDataType.DateTime => Item("d", DateTimeValue(value.GetDateTime())),
+            XLDataType.TimeSpan => Item(
+                "d",
+                DateTimeValue(DateTime.FromOADate(value.GetUnifiedNumber()))
+            ),
+            _ => throw new InvalidOperationException(),
+        };
+
+    private static XElement Item(string localName, string value) =>
+        new(Main + localName, new XAttribute("v", value));
+
+    /// <summary>
+    /// Writes the attribute only when it differs from the value a reader would assume, which is
+    /// what the SDK's optional boolean values did.
+    /// </summary>
+    private static void SetOptionalBool(
+        XElement element,
+        string name,
+        bool value,
+        bool defaultValue
+    )
+    {
+        if (value != defaultValue)
+        {
+            element.SetAttributeValue(name, Bool(value));
+        }
+    }
+
+    private static string Bool(bool value) => value ? "1" : "0";
+
+    private static string DateTimeValue(DateTime value) =>
+        value.ToString("yyyy-MM-ddTHH:mm:ss", System.Globalization.CultureInfo.InvariantCulture);
 }

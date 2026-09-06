@@ -495,8 +495,8 @@ internal class DependencyTreeTests
             // Unary implicit intersection is propagated
             yield return
             [
-                // Due to issue ClosedParser#1, implicit intersection is not a part
-                // of ref_expression and I can't use `D3:@A1:C2` as a test case
+                // Implicit intersection is not a part of ref_expression in the parser,
+                // so `D3:@A1:C2` cannot be used as a test case
                 "@A1:A4",
                 new[]
                 {

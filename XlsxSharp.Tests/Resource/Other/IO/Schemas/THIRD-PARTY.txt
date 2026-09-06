@@ -1,0 +1,11 @@
+The .xlsx/.xlsm/.xltx/.xltm files in this directory (and in Robustness/ and OpenXmlSdkCorpus/) are
+test assets taken from https://github.com/dotnet/Open-XML-SDK, licensed under the MIT license.
+They are real, Excel-authored files the Open XML SDK itself uses to exercise markup-compatibility
+handling, extLst/ext content, a missing calcChain relationship, and general robustness against
+real-world files (its own "OFCAT" corpus, plus the rest of its test asset library covering pivot
+tables, charts, OLE/ActiveX objects, external links, web extensions and Office templates) - see
+RealWorldFixtureTests.cs for how XlsxSharp uses them, including its documented, individually
+investigated list of the few that are known not to work yet.
+
+OpenXmlSdkCorpus/ mirrors the SDK's own assets/ directory layout, minus files whose content is
+byte-for-byte identical to one already kept under a different name or location.

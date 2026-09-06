@@ -9,6 +9,8 @@
   <ItemGroup>
     <EmbeddedResource Include="**\*.xlsx" Exclude="**\~$*.xlsx;bin\**" />
     <EmbeddedResource Include="**\*.xlsm" Exclude="**\~$*.xlsm;bin\**" />
+    <EmbeddedResource Include="**\*.xltx" Exclude="**\~$*.xltx;bin\**" />
+    <EmbeddedResource Include="**\*.xltm" Exclude="**\~$*.xltm;bin\**" />
     <EmbeddedResource Include="Resource\Images\**\*.*" />
     <EmbeddedResource Include="Resource\Fonts\*.*" />
     <EmbeddedResource Include="Resource\Other\**\*.txt" />
@@ -16,6 +18,10 @@
 
   <ItemGroup>
     <PackageReference Include="TUnit" Version="1.65.51" />
+    <!-- Several tests check XlsxSharp's own OOXML reading/writing against the reference SDK
+         directly - EnumConverter (Utils/EnumConverter.cs) chief among them, an enum-mapping test
+         oracle that used to live in XlsxSharp itself before that dependency was removed there. -->
+    <PackageReference Include="DocumentFormat.OpenXml" Version="[3.5.1,4.0.0)" />
   </ItemGroup>
 
   <ItemGroup>

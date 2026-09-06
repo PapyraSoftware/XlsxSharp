@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "ClosedXML.Parser.Function": {
+    "XlsxSharp.Parser.Function": {
       "commandName": "Project",
       "commandLineArgs": "--port 7190",
       "launchBrowser": false

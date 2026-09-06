@@ -1,15 +1,9 @@
 #nullable disable
 
 using System.Globalization;
-using System.Reflection;
 using System.Xml;
-using DocumentFormat.OpenXml;
-using DocumentFormat.OpenXml.Drawing;
-using DocumentFormat.OpenXml.Packaging;
-using DocumentFormat.OpenXml.Spreadsheet;
+using System.Xml.Linq;
 using XlsxSharp.Excel.ConditionalFormats;
-using XlsxSharp.Excel.ConditionalFormats.Save;
-using XlsxSharp.Excel.ContentManagers;
 using XlsxSharp.Excel.DataValidation;
 using XlsxSharp.Excel.Drawings;
 using XlsxSharp.Excel.Exceptions;
@@ -20,17 +14,11 @@ using XlsxSharp.Excel.Rows;
 using XlsxSharp.Excel.Sort;
 using XlsxSharp.Excel.Tables;
 using XlsxSharp.Extensions;
+using XlsxSharp.IO;
+using XlsxSharp.IO.Packaging;
 using XlsxSharp.Utils;
 using static XlsxSharp.Excel.IO.OpenXmlConst;
 using static XlsxSharp.Excel.XLWorkbook;
-using Break = DocumentFormat.OpenXml.Spreadsheet.Break;
-using Column = DocumentFormat.OpenXml.Spreadsheet.Column;
-using Columns = DocumentFormat.OpenXml.Spreadsheet.Columns;
-using Drawing = DocumentFormat.OpenXml.Spreadsheet.Drawing;
-using Hyperlink = DocumentFormat.OpenXml.Spreadsheet.Hyperlink;
-using OfficeExcel = DocumentFormat.OpenXml.Office.Excel;
-using X14 = DocumentFormat.OpenXml.Office2010.Excel;
-using Xdr = DocumentFormat.OpenXml.Drawing.Spreadsheet;
 
 namespace XlsxSharp.Excel.IO;
 
@@ -38,25 +26,8 @@ internal class WorksheetPartWriter
 {
     internal static void GenerateWorksheetPartContent(
         bool partIsEmpty,
-        WorksheetPart worksheetPart,
-        XLWorksheet xlWorksheet,
-        SaveOptions options,
-        SaveContext context
-    )
-    {
-        Worksheet worksheetDom = GetWorksheetDom(
-            partIsEmpty,
-            worksheetPart,
-            xlWorksheet,
-            options,
-            context
-        );
-        StreamToPart(worksheetDom, worksheetPart, xlWorksheet, context, options);
-    }
-
-    private static Worksheet GetWorksheetDom(
-        bool partIsEmpty,
-        WorksheetPart worksheetPart,
+        OpcPackage package,
+        OpcPart worksheetPart,
         XLWorksheet xlWorksheet,
         SaveOptions options,
         SaveContext context
@@ -67,1842 +38,206 @@ internal class WorksheetPartWriter
             xlWorksheet.ConditionalFormats.Consolidate();
         }
 
-        #region Worksheet
+        XElement worksheet = ReadOrCreateWorksheet(partIsEmpty, worksheetPart);
 
-        Worksheet worksheet;
+        // The cells are written from the workbook model rather than from what the part held, so
+        // the rows loaded above are dropped before the rest of the sheet is turned into XML.
+        worksheet.Element(SpreadsheetXml.Main + "sheetData")?.RemoveNodes();
+        WorksheetXml.Child(worksheet, "sheetData");
+
+        WriteTableParts(worksheet, (XLTables)xlWorksheet.Tables);
+        WritePictures(worksheet, package, worksheetPart, xlWorksheet, context);
+        WriteLegacyDrawing(worksheet, xlWorksheet);
+        WriteSheetProperties(worksheet, xlWorksheet);
+        WriteDimension(worksheet, xlWorksheet);
+        WriteSheetViews(worksheet, xlWorksheet);
+        WriteSheetFormatProperties(worksheet, xlWorksheet);
+        WriteColumns(worksheet, xlWorksheet, context);
+        WriteConditionalFormats(worksheet, xlWorksheet, context);
+        WriteDataValidations(worksheet, xlWorksheet, options);
+        WriteSparklines(worksheet, xlWorksheet);
+        WriteSheetProtection(worksheet, xlWorksheet.Protection);
+        WriteAutoFilter(worksheet, xlWorksheet.AutoFilter);
+        WriteMergedCells(worksheet, xlWorksheet.Internals.MergedRanges);
+        WriteHyperlinks(worksheet, worksheetPart, xlWorksheet, context);
+        WritePageSetup(worksheet, xlWorksheet.PageSetup);
+        WriteHeaderFooter(worksheet, xlWorksheet.PageSetup);
+        WriteBreaks(
+            worksheet,
+            "rowBreaks",
+            xlWorksheet.PageSetup.RowBreaks,
+            (uint)xlWorksheet.RangeAddress.LastAddress.RowNumber
+        );
+        WriteBreaks(
+            worksheet,
+            "colBreaks",
+            xlWorksheet.PageSetup.ColumnBreaks,
+            (uint)xlWorksheet.RangeAddress.LastAddress.ColumnNumber
+        );
+
+        StreamToPart(worksheet, worksheetPart, xlWorksheet, context, options);
+    }
+
+    /// <summary>
+    /// The sheet as it was loaded, patched rather than replaced, or a fresh one for a part that
+    /// has no content yet.
+    /// </summary>
+    private static XElement ReadOrCreateWorksheet(bool partIsEmpty, OpcPart worksheetPart)
+    {
+        XElement worksheet;
         if (!partIsEmpty)
         {
-            // Accessing the worksheet through worksheetPart.Worksheet creates an attached DOM
-            // worksheet that is tracked and later saved automatically to the part.
-            // Using the reader, we get a detached DOM.
-            // The OpenXmlReader.Create method only reads xml declaration, but doesn't read content.
-            using OpenXmlReader reader = OpenXmlReader.Create(worksheetPart);
-            if (!reader.Read())
-            {
-                throw new ArgumentException(
-                    "Worksheet part should contain worksheet xml, but is empty."
-                );
-            }
-
-            worksheet = (Worksheet)reader.LoadCurrentElement();
+            using Stream stream = worksheetPart.GetReadStream();
+            worksheet = ReadWorksheetSkippingSheetData(stream);
         }
         else
         {
-            worksheet = new Worksheet();
-        }
-
-        if (worksheet.NamespaceDeclarations.All(ns => ns.Value != RelationshipsNs))
-        {
-            worksheet.AddNamespaceDeclaration("r", RelationshipsNs);
-        }
-
-        // We store the x14ac:dyDescent attribute (if set by a xlRow) in a row element. It's an optional attribute and it
-        // needs a declared namespace. To avoid writing namespace to each <x:row> element during streaming, write it to
-        // every sheet part ahead of time. The namespace has to be marked as ignorable, because OpenXML SDK validator will
-        // refuse to validate it because it's an optional extension (see ISO29500 part 3).
-        if (worksheet.NamespaceDeclarations.All(ns => ns.Value != X14Ac2009SsNs))
-        {
-            worksheet.AddNamespaceDeclaration("x14ac", X14Ac2009SsNs);
-            worksheet.SetAttribute(
-                new OpenXmlAttribute("mc", "Ignorable", MarkupCompatibilityNs, "x14ac")
+            worksheet = new XElement(
+                SpreadsheetXml.Main + "worksheet",
+                new XAttribute(XNamespace.Xmlns + "x", SpreadsheetXml.Main.NamespaceName)
             );
         }
 
-        #endregion Worksheet
-
-        XLWorksheetContentManager cm = new(worksheet);
-
-        #region SheetProperties
-
-        if (worksheet.SheetProperties == null)
-        {
-            worksheet.SheetProperties = new SheetProperties();
-        }
-
-        worksheet.SheetProperties.TabColor = xlWorksheet.TabColor.HasValue
-            ? new TabColor().FromClosedXMLColor<TabColor>(xlWorksheet.TabColor)
-            : null;
-
-        cm.SetElement(XLWorksheetContents.SheetProperties, worksheet.SheetProperties);
-
-        if (worksheet.SheetProperties.OutlineProperties == null)
-        {
-            worksheet.SheetProperties.OutlineProperties = new OutlineProperties();
-        }
-
-        worksheet.SheetProperties.OutlineProperties.SummaryBelow = (
-            xlWorksheet.Outline.SummaryVLocation == XLOutlineSummaryVLocation.Bottom
-        );
-        worksheet.SheetProperties.OutlineProperties.SummaryRight = (
-            xlWorksheet.Outline.SummaryHLocation == XLOutlineSummaryHLocation.Right
-        );
-
-        if (
-            worksheet.SheetProperties.PageSetupProperties == null
-            && (xlWorksheet.PageSetup.PagesTall > 0 || xlWorksheet.PageSetup.PagesWide > 0)
-        )
-        {
-            worksheet.SheetProperties.PageSetupProperties = new PageSetupProperties
-            {
-                FitToPage = true,
-            };
-        }
-
-        #endregion SheetProperties
-
-        // Empty worksheets have dimension A1 (not A1:A1)
-        string sheetDimensionReference = "A1";
-        if (!xlWorksheet.Internals.CellsCollection.IsEmpty)
-        {
-            int maxColumn = xlWorksheet.Internals.CellsCollection.MaxColumnUsed;
-            int maxRow = xlWorksheet.Internals.CellsCollection.MaxRowUsed;
-            sheetDimensionReference =
-                "A1:"
-                + XlsxSharp.XLHelper.GetColumnLetterFromNumber(maxColumn)
-                + maxRow.ToInvariantString();
-        }
-
-        #region SheetViews
-
-        if (worksheet.SheetDimension == null)
-        {
-            worksheet.SheetDimension = new SheetDimension { Reference = sheetDimensionReference };
-        }
-
-        cm.SetElement(XLWorksheetContents.SheetDimension, worksheet.SheetDimension);
-
-        if (worksheet.SheetViews == null)
-        {
-            worksheet.SheetViews = new SheetViews();
-        }
-
-        cm.SetElement(XLWorksheetContents.SheetViews, worksheet.SheetViews);
-
-        SheetView sheetView = (SheetView)worksheet.SheetViews.FirstOrDefault();
-        if (sheetView == null)
-        {
-            sheetView = new SheetView { WorkbookViewId = 0U };
-            worksheet.SheetViews.AppendChild(sheetView);
-        }
-
-        XLSheetViewContentManager svcm = new(sheetView);
-
-        if (xlWorksheet.TabSelected)
-        {
-            sheetView.TabSelected = true;
-        }
-        else
-        {
-            sheetView.TabSelected = null;
-        }
-
-        if (xlWorksheet.RightToLeft)
-        {
-            sheetView.RightToLeft = true;
-        }
-        else
-        {
-            sheetView.RightToLeft = null;
-        }
-
-        if (xlWorksheet.ShowFormulas)
-        {
-            sheetView.ShowFormulas = true;
-        }
-        else
-        {
-            sheetView.ShowFormulas = null;
-        }
-
-        if (xlWorksheet.ShowGridLines)
-        {
-            sheetView.ShowGridLines = null;
-        }
-        else
-        {
-            sheetView.ShowGridLines = false;
-        }
-
-        if (xlWorksheet.ShowOutlineSymbols)
-        {
-            sheetView.ShowOutlineSymbols = null;
-        }
-        else
-        {
-            sheetView.ShowOutlineSymbols = false;
-        }
-
-        if (xlWorksheet.ShowRowColHeaders)
-        {
-            sheetView.ShowRowColHeaders = null;
-        }
-        else
-        {
-            sheetView.ShowRowColHeaders = false;
-        }
-
-        if (xlWorksheet.ShowRuler)
-        {
-            sheetView.ShowRuler = null;
-        }
-        else
-        {
-            sheetView.ShowRuler = false;
-        }
-
-        if (xlWorksheet.ShowWhiteSpace)
-        {
-            sheetView.ShowWhiteSpace = null;
-        }
-        else
-        {
-            sheetView.ShowWhiteSpace = false;
-        }
-
-        if (xlWorksheet.ShowZeros)
-        {
-            sheetView.ShowZeros = null;
-        }
-        else
-        {
-            sheetView.ShowZeros = false;
-        }
-
-        if (xlWorksheet.RightToLeft)
-        {
-            sheetView.RightToLeft = true;
-        }
-        else
-        {
-            sheetView.RightToLeft = null;
-        }
-
-        if (xlWorksheet.SheetView.View == XLSheetViewOptions.Normal)
-        {
-            sheetView.View = null;
-        }
-        else
-        {
-            sheetView.View = xlWorksheet.SheetView.View.ToOpenXml();
-        }
-
-        Pane pane = sheetView.Elements<Pane>().FirstOrDefault();
-        if (pane == null)
-        {
-            pane = new Pane();
-            sheetView.InsertAt(pane, 0);
-        }
-
-        svcm.SetElement(XLSheetViewContents.Pane, pane);
-
-        pane.State = PaneStateValues.FrozenSplit;
-        int hSplit = xlWorksheet.SheetView.SplitColumn;
-        int ySplit = xlWorksheet.SheetView.SplitRow;
-
-        pane.HorizontalSplit = hSplit;
-        pane.VerticalSplit = ySplit;
-
-        // When panes are frozen, which part should move.
-        PaneValues split;
-        if (ySplit == 0 && hSplit == 0)
-        {
-            split = PaneValues.TopLeft;
-        }
-        else if (ySplit == 0 && hSplit != 0)
-        {
-            split = PaneValues.TopRight;
-        }
-        else if (ySplit != 0 && hSplit == 0)
-        {
-            split = PaneValues.BottomLeft;
-        }
-        else if (ySplit != 0 && hSplit != 0)
-        {
-            split = PaneValues.BottomRight;
-        }
-
-        pane.ActivePane = split;
-
-        pane.TopLeftCell =
-            XlsxSharp.XLHelper.GetColumnLetterFromNumber(xlWorksheet.SheetView.SplitColumn + 1)
-            + (xlWorksheet.SheetView.SplitRow + 1);
-
-        if (hSplit == 0 && ySplit == 0)
-        {
-            // We don't have a pane. Just a regular sheet.
-            pane = null;
-            sheetView.RemoveAllChildren<Pane>();
-            svcm.SetElement(XLSheetViewContents.Pane, null);
-        }
-
-        // Do sheet view. Whether it's for a regular sheet or for the bottom-right pane
-        if (
-            !xlWorksheet.SheetView.TopLeftCellAddress.IsValid
-            || xlWorksheet.SheetView.TopLeftCellAddress
-                == new XLAddress(1, 1, fixedRow: false, fixedColumn: false)
-        )
-        {
-            sheetView.TopLeftCell = null;
-        }
-        else
-        {
-            sheetView.TopLeftCell = xlWorksheet.SheetView.TopLeftCellAddress.ToString();
-        }
-
-        if (xlWorksheet.SelectedRanges.Any() || xlWorksheet.ActiveCell is not null)
-        {
-            sheetView.RemoveAllChildren<Selection>();
-            svcm.SetElement(XLSheetViewContents.Selection, null);
-
-            IXLRange firstSelection = xlWorksheet.SelectedRanges.FirstOrDefault();
-
-            Action<Selection> populateSelection = (Selection selection) =>
-            {
-                if (xlWorksheet.ActiveCell is not null)
-                {
-                    selection.ActiveCell = xlWorksheet.ActiveCell.Value.ToString();
-                }
-                else if (firstSelection != null)
-                {
-                    selection.ActiveCell =
-                        firstSelection.RangeAddress.FirstAddress.ToStringRelative(false);
-                }
-
-                List<string> seqRef =
-                [
-                    selection.ActiveCell.Value,
-                    .. xlWorksheet.SelectedRanges.Select(range =>
-                    {
-                        if (range.RangeAddress.FirstAddress.Equals(range.RangeAddress.LastAddress))
-                        {
-                            return range.RangeAddress.FirstAddress.ToStringRelative(false);
-                        }
-                        else
-                        {
-                            return range.RangeAddress.ToStringRelative(false);
-                        }
-                    }),
-                ];
-
-                selection.SequenceOfReferences = new ListValue<StringValue>
-                {
-                    InnerText = string.Join(" ", seqRef.Distinct().ToArray()),
-                };
-
-                sheetView.InsertAfter(
-                    selection,
-                    svcm.GetPreviousElementFor(XLSheetViewContents.Selection)
-                );
-                svcm.SetElement(XLSheetViewContents.Selection, selection);
-            };
-
-            // If a pane exists, we need to set the active pane too
-            // Yes, this might lead to 2 Selection elements!
-            if (pane != null)
-            {
-                populateSelection(new Selection() { Pane = pane.ActivePane });
-            }
-            populateSelection(new Selection());
-        }
-
-        if (xlWorksheet.SheetView.ZoomScale == 100)
-        {
-            sheetView.ZoomScale = null;
-        }
-        else
-        {
-            sheetView.ZoomScale = (uint)
-                Math.Max(10, Math.Min(400, xlWorksheet.SheetView.ZoomScale));
-        }
-
-        if (xlWorksheet.SheetView.ZoomScaleNormal == 100)
-        {
-            sheetView.ZoomScaleNormal = null;
-        }
-        else
-        {
-            sheetView.ZoomScaleNormal = (uint)
-                Math.Max(10, Math.Min(400, xlWorksheet.SheetView.ZoomScaleNormal));
-        }
-
-        if (xlWorksheet.SheetView.ZoomScalePageLayoutView == 100)
-        {
-            sheetView.ZoomScalePageLayoutView = null;
-        }
-        else
-        {
-            sheetView.ZoomScalePageLayoutView = (uint)
-                Math.Max(10, Math.Min(400, xlWorksheet.SheetView.ZoomScalePageLayoutView));
-        }
-
-        if (xlWorksheet.SheetView.ZoomScaleSheetLayoutView == 100)
-        {
-            sheetView.ZoomScaleSheetLayoutView = null;
-        }
-        else
-        {
-            sheetView.ZoomScaleSheetLayoutView = (uint)
-                Math.Max(10, Math.Min(400, xlWorksheet.SheetView.ZoomScaleSheetLayoutView));
-        }
-
-        #endregion SheetViews
-
-        int maxOutlineColumn = 0;
-        if (xlWorksheet.ColumnCount() > 0)
-        {
-            maxOutlineColumn = xlWorksheet.GetMaxColumnOutline();
-        }
-
-        int maxOutlineRow = 0;
-        if (xlWorksheet.RowCount() > 0)
-        {
-            maxOutlineRow = xlWorksheet.GetMaxRowOutline();
-        }
-
-        #region SheetFormatProperties
-
-        if (worksheet.SheetFormatProperties == null)
-        {
-            worksheet.SheetFormatProperties = new SheetFormatProperties();
-        }
-
-        cm.SetElement(XLWorksheetContents.SheetFormatProperties, worksheet.SheetFormatProperties);
-
-        worksheet.SheetFormatProperties.DefaultRowHeight = xlWorksheet.RowHeight.SaveRound();
-
-        if (xlWorksheet.RowHeightChanged)
-        {
-            worksheet.SheetFormatProperties.CustomHeight = true;
-        }
-        else
-        {
-            worksheet.SheetFormatProperties.CustomHeight = null;
-        }
-
-        double worksheetColumnWidth = GetColumnWidth(xlWorksheet.ColumnWidth).SaveRound();
-        if (xlWorksheet.ColumnWidthChanged)
-        {
-            worksheet.SheetFormatProperties.DefaultColumnWidth = worksheetColumnWidth;
-        }
-        else
-        {
-            worksheet.SheetFormatProperties.DefaultColumnWidth = null;
-        }
-
-        if (maxOutlineColumn > 0)
-        {
-            worksheet.SheetFormatProperties.OutlineLevelColumn = (byte)maxOutlineColumn;
-        }
-        else
-        {
-            worksheet.SheetFormatProperties.OutlineLevelColumn = null;
-        }
-
-        if (maxOutlineRow > 0)
-        {
-            worksheet.SheetFormatProperties.OutlineLevelRow = (byte)maxOutlineRow;
-        }
-        else
-        {
-            worksheet.SheetFormatProperties.OutlineLevelRow = null;
-        }
-
-        #endregion SheetFormatProperties
-
-        #region Columns
-
-        uint worksheetStyleId = context.GetStyleId(xlWorksheet.FormatValue);
-        if (
-            xlWorksheet.Internals.CellsCollection.IsEmpty
-            && xlWorksheet.Internals.ColumnsCollection.Count == 0
-            && worksheetStyleId == 0
-        )
-        {
-            worksheet.RemoveAllChildren<Columns>();
-        }
-        else
-        {
-            if (!worksheet.Elements<Columns>().Any())
-            {
-                OpenXmlElement previousElement = cm.GetPreviousElementFor(
-                    XLWorksheetContents.Columns
-                );
-                worksheet.InsertAfter(new Columns(), previousElement);
-            }
-
-            Columns columns = worksheet.Elements<Columns>().First();
-            cm.SetElement(XLWorksheetContents.Columns, columns);
-
-            Dictionary<uint, Column> sheetColumnsByMin = columns
-                .Elements<Column>()
-                .ToDictionary(c => c.Min.Value, c => c);
-            //Dictionary<UInt32, Column> sheetColumnsByMax = columns.Elements<Column>().ToDictionary(c => c.Max.Value, c => c);
-
-            int minInColumnsCollection;
-            int maxInColumnsCollection;
-            if (xlWorksheet.Internals.ColumnsCollection.Count > 0)
-            {
-                minInColumnsCollection = xlWorksheet.Internals.ColumnsCollection.Keys.Min();
-                maxInColumnsCollection = xlWorksheet.Internals.ColumnsCollection.Keys.Max();
-            }
-            else
-            {
-                minInColumnsCollection = 1;
-                maxInColumnsCollection = 0;
-            }
-
-            if (minInColumnsCollection > 1)
-            {
-                UInt32Value min = 1;
-                UInt32Value max = (uint)(minInColumnsCollection - 1);
-
-                for (UInt32Value co = min; co <= max; co++)
-                {
-                    Column column = new()
-                    {
-                        Min = co,
-                        Max = co,
-                        Style = worksheetStyleId,
-                        Width = worksheetColumnWidth,
-                        CustomWidth = true,
-                    };
-
-                    UpdateColumn(column, columns, sheetColumnsByMin); //, sheetColumnsByMax);
-                }
-            }
-
-            for (int co = minInColumnsCollection; co <= maxInColumnsCollection; co++)
-            {
-                uint styleId;
-                double columnWidth;
-                bool isHidden = false;
-                bool collapsed = false;
-                int outlineLevel = 0;
-                if (xlWorksheet.Internals.ColumnsCollection.TryGetValue(co, out XLColumn col))
-                {
-                    styleId = col.FormatValue is null
-                        ? worksheetStyleId
-                        : context.GetStyleId(col.FormatValue);
-                    columnWidth = GetColumnWidth(col.Width).SaveRound();
-                    isHidden = col.IsHidden;
-                    collapsed = col.Collapsed;
-                    outlineLevel = col.OutlineLevel;
-                }
-                else
-                {
-                    styleId = worksheetStyleId;
-                    columnWidth = worksheetColumnWidth;
-                }
-
-                Column column = new()
-                {
-                    Min = (uint)co,
-                    Max = (uint)co,
-                    Style = styleId,
-                    Width = columnWidth,
-                    CustomWidth = true,
-                };
-
-                if (isHidden)
-                {
-                    column.Hidden = true;
-                }
-
-                if (collapsed)
-                {
-                    column.Collapsed = true;
-                }
-
-                if (outlineLevel > 0)
-                {
-                    column.OutlineLevel = (byte)outlineLevel;
-                }
-
-                UpdateColumn(column, columns, sheetColumnsByMin); //, sheetColumnsByMax);
-            }
-
-            int collection = maxInColumnsCollection;
-            foreach (
-                Column col in columns
-                    .Elements<Column>()
-                    .Where(c => c.Min > (uint)(collection))
-                    .OrderBy(c => c.Min.Value)
-            )
-            {
-                col.Style = worksheetStyleId;
-                col.Width = worksheetColumnWidth;
-                col.CustomWidth = true;
-
-                if ((int)col.Max.Value > maxInColumnsCollection)
-                {
-                    maxInColumnsCollection = (int)col.Max.Value;
-                }
-            }
-
-            if (
-                maxInColumnsCollection < XlsxSharp.XLHelper.MaxColumnNumber
-                && worksheetStyleId != 0
-            )
-            {
-                Column column = new()
-                {
-                    Min = (uint)(maxInColumnsCollection + 1),
-                    Max = (uint)(XlsxSharp.XLHelper.MaxColumnNumber),
-                    Style = worksheetStyleId,
-                    Width = worksheetColumnWidth,
-                    CustomWidth = true,
-                };
-                columns.AppendChild(column);
-            }
-
-            CollapseColumns(columns, sheetColumnsByMin);
-
-            if (!columns.Any())
-            {
-                worksheet.RemoveAllChildren<Columns>();
-                cm.SetElement(XLWorksheetContents.Columns, null);
-            }
-        }
-
-        #endregion Columns
-
-        #region SheetData
-
-        if (!worksheet.Elements<SheetData>().Any())
-        {
-            OpenXmlElement previousElement = cm.GetPreviousElementFor(
-                XLWorksheetContents.SheetData
-            );
-            worksheet.InsertAfter(new SheetData(), previousElement);
-        }
-
-        SheetData sheetData = worksheet.Elements<SheetData>().First();
-        cm.SetElement(XLWorksheetContents.SheetData, sheetData);
-
-        // Sheet data is not updated in the Worksheet DOM here, because it is later being streamed directly to the file
-        // without an intermediate DOM representation. This is done to save memory, which is especially problematic
-        // for large sheets.
-
-        #endregion SheetData
-
-        #region SheetProtection
-
-        if (xlWorksheet.Protection.IsProtected)
-        {
-            if (!worksheet.Elements<SheetProtection>().Any())
-            {
-                OpenXmlElement previousElement = cm.GetPreviousElementFor(
-                    XLWorksheetContents.SheetProtection
-                );
-                worksheet.InsertAfter(new SheetProtection(), previousElement);
-            }
-
-            SheetProtection sheetProtection = worksheet.Elements<SheetProtection>().First();
-            cm.SetElement(XLWorksheetContents.SheetProtection, sheetProtection);
-
-            XLSheetProtection protection = xlWorksheet.Protection;
-            sheetProtection.Sheet = OpenXmlHelper.GetBooleanValue(protection.IsProtected, false);
-
-            sheetProtection.Password = null;
-            sheetProtection.AlgorithmName = null;
-            sheetProtection.HashValue = null;
-            sheetProtection.SpinCount = null;
-            sheetProtection.SaltValue = null;
-
-            if (protection.Algorithm == XLProtectionAlgorithm.Algorithm.SimpleHash)
-            {
-                if (!string.IsNullOrWhiteSpace(protection.PasswordHash))
-                {
-                    sheetProtection.Password = protection.PasswordHash;
-                }
-            }
-            else
-            {
-                sheetProtection.AlgorithmName =
-                    DescribedEnumParser<XLProtectionAlgorithm.Algorithm>.ToDescription(
-                        protection.Algorithm
-                    );
-                sheetProtection.HashValue = protection.PasswordHash;
-                sheetProtection.SpinCount = protection.SpinCount;
-                sheetProtection.SaltValue = protection.Base64EncodedSalt;
-            }
-
-            // default value of "1"
-            sheetProtection.FormatCells = OpenXmlHelper.GetBooleanValue(
-                !protection.AllowedElements.HasFlag(XLSheetProtectionElements.FormatCells),
-                true
-            );
-            sheetProtection.FormatColumns = OpenXmlHelper.GetBooleanValue(
-                !protection.AllowedElements.HasFlag(XLSheetProtectionElements.FormatColumns),
-                true
-            );
-            sheetProtection.FormatRows = OpenXmlHelper.GetBooleanValue(
-                !protection.AllowedElements.HasFlag(XLSheetProtectionElements.FormatRows),
-                true
-            );
-            sheetProtection.InsertColumns = OpenXmlHelper.GetBooleanValue(
-                !protection.AllowedElements.HasFlag(XLSheetProtectionElements.InsertColumns),
-                true
-            );
-            sheetProtection.InsertRows = OpenXmlHelper.GetBooleanValue(
-                !protection.AllowedElements.HasFlag(XLSheetProtectionElements.InsertRows),
-                true
-            );
-            sheetProtection.InsertHyperlinks = OpenXmlHelper.GetBooleanValue(
-                !protection.AllowedElements.HasFlag(XLSheetProtectionElements.InsertHyperlinks),
-                true
-            );
-            sheetProtection.DeleteColumns = OpenXmlHelper.GetBooleanValue(
-                !protection.AllowedElements.HasFlag(XLSheetProtectionElements.DeleteColumns),
-                true
-            );
-            sheetProtection.DeleteRows = OpenXmlHelper.GetBooleanValue(
-                !protection.AllowedElements.HasFlag(XLSheetProtectionElements.DeleteRows),
-                true
-            );
-            sheetProtection.Sort = OpenXmlHelper.GetBooleanValue(
-                !protection.AllowedElements.HasFlag(XLSheetProtectionElements.Sort),
-                true
-            );
-            sheetProtection.AutoFilter = OpenXmlHelper.GetBooleanValue(
-                !protection.AllowedElements.HasFlag(XLSheetProtectionElements.AutoFilter),
-                true
-            );
-            sheetProtection.PivotTables = OpenXmlHelper.GetBooleanValue(
-                !protection.AllowedElements.HasFlag(XLSheetProtectionElements.PivotTables),
-                true
-            );
-            sheetProtection.Scenarios = OpenXmlHelper.GetBooleanValue(
-                !protection.AllowedElements.HasFlag(XLSheetProtectionElements.EditScenarios),
-                true
-            );
-
-            // default value of "0"
-            sheetProtection.Objects = OpenXmlHelper.GetBooleanValue(
-                !protection.AllowedElements.HasFlag(XLSheetProtectionElements.EditObjects),
-                false
-            );
-            sheetProtection.SelectLockedCells = OpenXmlHelper.GetBooleanValue(
-                !protection.AllowedElements.HasFlag(XLSheetProtectionElements.SelectLockedCells),
-                false
-            );
-            sheetProtection.SelectUnlockedCells = OpenXmlHelper.GetBooleanValue(
-                !protection.AllowedElements.HasFlag(XLSheetProtectionElements.SelectUnlockedCells),
-                false
-            );
-        }
-        else
-        {
-            worksheet.RemoveAllChildren<SheetProtection>();
-            cm.SetElement(XLWorksheetContents.SheetProtection, null);
-        }
-
-        #endregion SheetProtection
-
-        #region AutoFilter
-
-        worksheet.RemoveAllChildren<AutoFilter>();
-        if (xlWorksheet.AutoFilter.IsEnabled)
-        {
-            OpenXmlElement previousElement = cm.GetPreviousElementFor(
-                XLWorksheetContents.AutoFilter
-            );
-            worksheet.InsertAfter(new AutoFilter(), previousElement);
-
-            AutoFilter autoFilter = worksheet.Elements<AutoFilter>().First();
-            cm.SetElement(XLWorksheetContents.AutoFilter, autoFilter);
-
-            PopulateAutoFilter(xlWorksheet.AutoFilter, autoFilter);
-        }
-        else
-        {
-            cm.SetElement(XLWorksheetContents.AutoFilter, null);
-        }
-
-        #endregion AutoFilter
-
-        #region MergeCells
-
-        if (xlWorksheet.Internals.MergedRanges.Count > 0)
-        {
-            if (!worksheet.Elements<MergeCells>().Any())
-            {
-                OpenXmlElement previousElement = cm.GetPreviousElementFor(
-                    XLWorksheetContents.MergeCells
-                );
-                worksheet.InsertAfter(new MergeCells(), previousElement);
-            }
-
-            MergeCells mergeCells = worksheet.Elements<MergeCells>().First();
-            cm.SetElement(XLWorksheetContents.MergeCells, mergeCells);
-            mergeCells.RemoveAllChildren<MergeCell>();
-
-            foreach (
-                MergeCell mergeCell in xlWorksheet
-                    .Internals.MergedRanges.Select<XLRange, string>(m =>
-                        m.RangeAddress.FirstAddress.ToString()
-                        + ":"
-                        + m.RangeAddress.LastAddress.ToString()
-                    )
-                    .Select(merged => new MergeCell { Reference = merged })
-            )
-            {
-                mergeCells.AppendChild(mergeCell);
-            }
-
-            mergeCells.Count = (uint)mergeCells.Count();
-        }
-        else
-        {
-            worksheet.RemoveAllChildren<MergeCells>();
-            cm.SetElement(XLWorksheetContents.MergeCells, null);
-        }
-
-        #endregion MergeCells
-
-        #region Conditional Formatting
-
-        HashSet<XLConditionalFormat> xlSheetPivotCfs = xlWorksheet
-            .PivotTables.SelectMany<XLPivotTable, XLConditionalFormat>(pt =>
-                pt.ConditionalFormats.Select(cf => cf.Format)
-            )
-            .ToHashSet();
-
-        // Elements in sheet.ConditionalFormats were sorted according to priority during load,
-        // but new ones have priority 0. CFs are also interleaved with sheet CF. To deal with
-        // these situations, set correct unique priority (also required for pivot CF).
-        List<XLConditionalFormat> xlConditionalFormats =
-        [
-            .. xlWorksheet
-                .ConditionalFormats.Cast<XLConditionalFormat>()
-                .Concat(xlSheetPivotCfs)
-                .OrderBy(x => x.Priority),
-        ];
-        for (int i = 0; i < xlConditionalFormats.Count; ++i)
-        {
-            xlConditionalFormats[i].Priority = i + 1;
-        }
-
-        if (!xlConditionalFormats.Any())
-        {
-            worksheet.RemoveAllChildren<ConditionalFormatting>();
-            cm.SetElement(XLWorksheetContents.ConditionalFormatting, null);
-        }
-        else
-        {
-            worksheet.RemoveAllChildren<ConditionalFormatting>();
-            OpenXmlElement previousElement = cm.GetPreviousElementFor(
-                XLWorksheetContents.ConditionalFormatting
-            );
-
-            foreach (
-                var cfGroup in xlConditionalFormats.GroupBy(
-                    c => new
-                    {
-                        SeqRefs = string.Join(
-                            " ",
-                            c.Ranges.Select(r => r.RangeAddress.ToStringRelative(false))
-                        ),
-                        IsPivot = xlSheetPivotCfs.Contains(c),
-                    },
-                    c => c,
-                    (key, g) =>
-                        new
-                        {
-                            key.SeqRefs,
-                            key.IsPivot,
-                            CfList = g.ToList(),
-                        }
+        // The main namespace is always declared under the prefix "x", the way the SDK's own
+        // writer always did regardless of what a loaded file used - a file that declares it as
+        // the default namespace, or under some other prefix, is normalised here.
+        if (worksheet.GetPrefixOfNamespace(SpreadsheetXml.Main) is not "x")
+        {
+            worksheet
+                .Attributes()
+                .Where(attribute =>
+                    attribute.IsNamespaceDeclaration
+                    && attribute.Value == SpreadsheetXml.Main.NamespaceName
                 )
-            )
-            {
-                ConditionalFormatting conditionalFormatting = new()
-                {
-                    SequenceOfReferences = new ListValue<StringValue>
-                    {
-                        InnerText = cfGroup.SeqRefs,
-                    },
-                    Pivot = cfGroup.IsPivot ? true : null,
-                };
-                foreach (XLConditionalFormat cf in cfGroup.CfList)
-                {
-                    ConditionalFormattingRule xlCf = XLCFConverters.Convert(
-                        cf,
-                        cf.Priority,
-                        context
-                    );
-                    conditionalFormatting.Append(xlCf);
-                }
-                worksheet.InsertAfter(conditionalFormatting, previousElement);
-                previousElement = conditionalFormatting;
-                cm.SetElement(XLWorksheetContents.ConditionalFormatting, conditionalFormatting);
-            }
+                .ToList()
+                .ForEach(attribute => attribute.Remove());
+            worksheet.SetAttributeValue(XNamespace.Xmlns + "x", SpreadsheetXml.Main.NamespaceName);
         }
 
-        XLConditionalFormat[] exlst =
-        [
-            .. xlWorksheet.ConditionalFormats.Where<XLConditionalFormat>(c =>
-                c.ConditionalFormatType == XLConditionalFormatType.DataBar
-            ),
-        ];
-        if (exlst.Any())
-        {
-            if (!worksheet.Elements<WorksheetExtensionList>().Any())
-            {
-                OpenXmlElement previousElement = cm.GetPreviousElementFor(
-                    XLWorksheetContents.WorksheetExtensionList
-                );
-                worksheet.InsertAfter<WorksheetExtensionList>(
-                    new WorksheetExtensionList(),
-                    previousElement
-                );
-            }
-
-            WorksheetExtensionList worksheetExtensionList = worksheet
-                .Elements<WorksheetExtensionList>()
-                .First();
-            cm.SetElement(XLWorksheetContents.WorksheetExtensionList, worksheetExtensionList);
-
-            X14.ConditionalFormattings conditionalFormattings = worksheetExtensionList
-                .Descendants<DocumentFormat.OpenXml.Office2010.Excel.ConditionalFormattings>()
-                .SingleOrDefault();
-            if (conditionalFormattings == null || !conditionalFormattings.Any())
-            {
-                WorksheetExtension worksheetExtension1 = new()
-                {
-                    Uri = "{78C0D931-6437-407d-A8EE-F0AAD7539E65}",
-                };
-                worksheetExtension1.AddNamespaceDeclaration("x14", X14Main2009SsNs);
-                worksheetExtensionList.Append(worksheetExtension1);
-
-                conditionalFormattings =
-                    new DocumentFormat.OpenXml.Office2010.Excel.ConditionalFormattings();
-                worksheetExtension1.Append(conditionalFormattings);
-            }
-
-            foreach (
-                var cfGroup in exlst.GroupBy(
-                    c =>
-                        string.Join(
-                            " ",
-                            c.Ranges.Select(r => r.RangeAddress.ToStringRelative(false))
-                        ),
-                    c => c,
-                    (key, g) => new { RangeId = key, CfList = g.ToList<IXLConditionalFormat>() }
-                )
-            )
-            {
-                foreach (
-                    XLConditionalFormat xlConditionalFormat in cfGroup.CfList.Cast<XLConditionalFormat>()
-                )
-                {
-                    X14.ConditionalFormattingRule conditionalFormattingRule = conditionalFormattings
-                        .Descendants<DocumentFormat.OpenXml.Office2010.Excel.ConditionalFormattingRule>()
-                        .SingleOrDefault(r => r.Id == xlConditionalFormat.Id.WrapInBraces());
-                    if (conditionalFormattingRule != null)
-                    {
-                        X14.ConditionalFormatting conditionalFormat = conditionalFormattingRule
-                            .Ancestors<DocumentFormat.OpenXml.Office2010.Excel.ConditionalFormatting>()
-                            .SingleOrDefault();
-                        conditionalFormattings.RemoveChild<DocumentFormat.OpenXml.Office2010.Excel.ConditionalFormatting>(
-                            conditionalFormat
-                        );
-                    }
-
-                    X14.ConditionalFormatting conditionalFormatting = new();
-                    conditionalFormatting.AddNamespaceDeclaration("xm", XmMain2006);
-                    conditionalFormatting.Append(
-                        XLCFConvertersExtension.Convert(xlConditionalFormat, context)
-                    );
-                    OfficeExcel.ReferenceSequence referenceSequence = new()
-                    {
-                        Text = cfGroup.RangeId,
-                    };
-                    conditionalFormatting.Append(referenceSequence);
-
-                    conditionalFormattings.Append(conditionalFormatting);
-                }
-            }
-        }
-
-        #endregion Conditional Formatting
-
-        #region Sparklines
-
-        const string sparklineGroupsExtensionUri = "{05C60535-1F16-4fd2-B633-F4F36F0B64E0}";
-
-        if (!xlWorksheet.SparklineGroups.Any())
-        {
-            WorksheetExtensionList worksheetExtensionList = worksheet
-                .Elements<WorksheetExtensionList>()
-                .FirstOrDefault();
-            WorksheetExtension worksheetExtension = worksheetExtensionList
-                ?.Elements<WorksheetExtension>()
-                .FirstOrDefault(ext =>
-                    string.Equals(
-                        ext.Uri,
-                        sparklineGroupsExtensionUri,
-                        StringComparison.InvariantCultureIgnoreCase
-                    )
-                );
-
-            worksheetExtension?.RemoveAllChildren<X14.SparklineGroups>();
-
-            if (worksheetExtensionList != null)
-            {
-                if (worksheetExtension != null && !worksheetExtension.HasChildren)
-                {
-                    worksheetExtensionList.RemoveChild(worksheetExtension);
-                }
-
-                if (!worksheetExtensionList.HasChildren)
-                {
-                    worksheet.RemoveChild(worksheetExtensionList);
-                    cm.SetElement(XLWorksheetContents.WorksheetExtensionList, null);
-                }
-            }
-        }
-        else
-        {
-            if (!worksheet.Elements<WorksheetExtensionList>().Any())
-            {
-                OpenXmlElement previousElement = cm.GetPreviousElementFor(
-                    XLWorksheetContents.WorksheetExtensionList
-                );
-                worksheet.InsertAfter(new WorksheetExtensionList(), previousElement);
-            }
-
-            WorksheetExtensionList worksheetExtensionList = worksheet
-                .Elements<WorksheetExtensionList>()
-                .First();
-            cm.SetElement(XLWorksheetContents.WorksheetExtensionList, worksheetExtensionList);
-
-            X14.SparklineGroups sparklineGroups = worksheetExtensionList
-                .Descendants<X14.SparklineGroups>()
-                .SingleOrDefault();
-
-            if (sparklineGroups == null || !sparklineGroups.Any())
-            {
-                WorksheetExtension worksheetExtension1 = new()
-                {
-                    Uri = sparklineGroupsExtensionUri,
-                };
-                worksheetExtension1.AddNamespaceDeclaration("x14", X14Main2009SsNs);
-                worksheetExtensionList.Append(worksheetExtension1);
-
-                sparklineGroups = new X14.SparklineGroups();
-                sparklineGroups.AddNamespaceDeclaration("xm", XmMain2006);
-                worksheetExtension1.Append(sparklineGroups);
-            }
-            else
-            {
-                sparklineGroups.RemoveAllChildren();
-            }
-
-            foreach (XLSparklineGroup xlSparklineGroup in xlWorksheet.SparklineGroupsInternal)
-            {
-                // Do not create an empty Sparkline group
-                if (!xlSparklineGroup.Sparklines.Any())
-                {
-                    continue;
-                }
-
-                X14.SparklineGroup sparklineGroup = new();
-                sparklineGroup.SetAttribute(
-                    new OpenXmlAttribute(
-                        "xr2",
-                        "uid",
-                        "http://schemas.microsoft.com/office/spreadsheetml/2015/revision2",
-                        "{A98FF5F8-AE60-43B5-8001-AD89004F45D3}"
-                    )
-                );
-
-                sparklineGroup.FirstMarkerColor =
-                    new X14.FirstMarkerColor().FromClosedXMLColor<X14.FirstMarkerColor>(
-                        xlSparklineGroup.Style.FirstMarkerColor
-                    );
-                sparklineGroup.LastMarkerColor =
-                    new X14.LastMarkerColor().FromClosedXMLColor<X14.LastMarkerColor>(
-                        xlSparklineGroup.Style.LastMarkerColor
-                    );
-                sparklineGroup.HighMarkerColor =
-                    new X14.HighMarkerColor().FromClosedXMLColor<X14.HighMarkerColor>(
-                        xlSparklineGroup.Style.HighMarkerColor
-                    );
-                sparklineGroup.LowMarkerColor =
-                    new X14.LowMarkerColor().FromClosedXMLColor<X14.LowMarkerColor>(
-                        xlSparklineGroup.Style.LowMarkerColor
-                    );
-                sparklineGroup.SeriesColor =
-                    new X14.SeriesColor().FromClosedXMLColor<X14.SeriesColor>(
-                        xlSparklineGroup.Style.SeriesColor
-                    );
-                sparklineGroup.NegativeColor =
-                    new X14.NegativeColor().FromClosedXMLColor<X14.NegativeColor>(
-                        xlSparklineGroup.Style.NegativeColor
-                    );
-                sparklineGroup.MarkersColor =
-                    new X14.MarkersColor().FromClosedXMLColor<X14.MarkersColor>(
-                        xlSparklineGroup.Style.MarkersColor
-                    );
-
-                sparklineGroup.High = xlSparklineGroup.ShowMarkers.HasFlag(
-                    XLSparklineMarkers.HighPoint
-                );
-                sparklineGroup.Low = xlSparklineGroup.ShowMarkers.HasFlag(
-                    XLSparklineMarkers.LowPoint
-                );
-                sparklineGroup.First = xlSparklineGroup.ShowMarkers.HasFlag(
-                    XLSparklineMarkers.FirstPoint
-                );
-                sparklineGroup.Last = xlSparklineGroup.ShowMarkers.HasFlag(
-                    XLSparklineMarkers.LastPoint
-                );
-                sparklineGroup.Negative = xlSparklineGroup.ShowMarkers.HasFlag(
-                    XLSparklineMarkers.NegativePoints
-                );
-                sparklineGroup.Markers = xlSparklineGroup.ShowMarkers.HasFlag(
-                    XLSparklineMarkers.Markers
-                );
-
-                sparklineGroup.DisplayHidden = xlSparklineGroup.DisplayHidden;
-                sparklineGroup.LineWeight = xlSparklineGroup.LineWeight;
-                sparklineGroup.Type = xlSparklineGroup.Type.ToOpenXml();
-                sparklineGroup.DisplayEmptyCellsAs =
-                    xlSparklineGroup.DisplayEmptyCellsAs.ToOpenXml();
-
-                sparklineGroup.AxisColor = new X14.AxisColor()
-                {
-                    Rgb = xlSparklineGroup.HorizontalAxis.Color.Color.ToHex(),
-                };
-                sparklineGroup.DisplayXAxis = xlSparklineGroup.HorizontalAxis.IsVisible;
-                sparklineGroup.RightToLeft = xlSparklineGroup.HorizontalAxis.RightToLeft;
-                sparklineGroup.DateAxis = xlSparklineGroup.HorizontalAxis.DateAxis;
-                if (xlSparklineGroup.HorizontalAxis.DateAxis)
-                {
-                    sparklineGroup.Formula = new OfficeExcel.Formula(
-                        xlSparklineGroup.DateRange.RangeAddress.ToString(XLReferenceStyle.A1, true)
-                    );
-                }
-
-                sparklineGroup.MinAxisType = xlSparklineGroup.VerticalAxis.MinAxisType.ToOpenXml();
-                if (xlSparklineGroup.VerticalAxis.MinAxisType == XLSparklineAxisMinMax.Custom)
-                {
-                    sparklineGroup.ManualMin = xlSparklineGroup.VerticalAxis.ManualMin;
-                }
-
-                sparklineGroup.MaxAxisType = xlSparklineGroup.VerticalAxis.MaxAxisType.ToOpenXml();
-                if (xlSparklineGroup.VerticalAxis.MaxAxisType == XLSparklineAxisMinMax.Custom)
-                {
-                    sparklineGroup.ManualMax = xlSparklineGroup.VerticalAxis.ManualMax;
-                }
-
-                X14.Sparklines sparklines = new(
-                    xlSparklineGroup.Sparklines.Select(xlSparkline => new X14.Sparkline
-                    {
-                        // When sparkline source data area is deleted, Excel shows it as #REF! and is saved in file as an empty string
-                        Formula = new OfficeExcel.Formula(
-                            xlSparkline.SourceDataFormula ?? string.Empty
-                        ),
-                        ReferenceSequence = new OfficeExcel.ReferenceSequence(
-                            xlSparkline.Location.ToString()
-                        ),
-                    })
-                );
-
-                sparklineGroup.Append(sparklines);
-                sparklineGroups.Append(sparklineGroup);
-            }
-
-            // if all Sparkline groups had no Sparklines, remove the entire SparklineGroup element
-            if (sparklineGroups.ChildElements.Count == 0)
-            {
-                sparklineGroups.Remove();
-            }
-        }
-
-        #endregion Sparklines
-
-        #region DataValidations
-
-        // Saving of data validations happens in 2 phases because depending on the data validation
-        // content, it gets saved into 1 of 2 possible locations in the XML structure.
-        // First phase, save all the data validations that aren't references to other sheets into
-        // the standard data validations section.
-        List<(
-            IXLDataValidation DataValidation,
-            string MinValue,
-            string MaxValue
-        )> dataValidationsStandard = [];
-        List<(
-            IXLDataValidation DataValidation,
-            string MinValue,
-            string MaxValue
-        )> dataValidationsExtension = [];
-        if (options.ConsolidateDataValidationRanges)
-        {
-            xlWorksheet.DataValidations.Consolidate();
-        }
-
-        foreach (XLDataValidation dv in xlWorksheet.DataValidations)
-        {
-            (bool minReferencesAnotherSheet, string minValue) = UsesExternalSheet(
-                xlWorksheet,
-                dv.MinValue
-            );
-            (bool maxReferencesAnotherSheet, string maxValue) = UsesExternalSheet(
-                xlWorksheet,
-                dv.MaxValue
-            );
-
-            static (bool, string) UsesExternalSheet(XLWorksheet sheet, string value)
-            {
-                if (!XlsxSharp.XLHelper.IsValidRangeAddress(value))
-                {
-                    return (false, value);
-                }
-
-                int separatorIndex = value.LastIndexOf('!');
-                bool hasSheet = separatorIndex >= 0;
-                if (!hasSheet)
-                {
-                    return (false, value);
-                }
-
-                string sheetName = value[..separatorIndex].UnescapeSheetName();
-                if (XlsxSharp.XLHelper.SheetComparer.Equals(sheet.Name, sheetName))
-                {
-                    // The spec wants us to include references to ranges on the same worksheet without the sheet name
-                    return (false, value.Substring(separatorIndex + 1));
-                }
-
-                return (true, value);
-            }
-
-            if (minReferencesAnotherSheet || maxReferencesAnotherSheet)
-            {
-                // We're dealing with a data validation that references another sheet so has to be saved to extensions
-                dataValidationsExtension.Add((dv, minValue, maxValue));
-            }
-            else
-            {
-                // We're dealing with a standard data validation
-                dataValidationsStandard.Add((dv, minValue, maxValue));
-            }
-        }
-
-        // Save validations that don't use another sheet. It must have at least 1 child, XML doesn't allow 0.
-        if (!dataValidationsStandard.Any(d => d.DataValidation.IsDirty()))
-        {
-            worksheet.RemoveAllChildren<DataValidations>();
-            cm.SetElement(XLWorksheetContents.DataValidations, null);
-        }
-        else
-        {
-            if (!worksheet.Elements<DataValidations>().Any())
-            {
-                OpenXmlElement previousElement = cm.GetPreviousElementFor(
-                    XLWorksheetContents.DataValidations
-                );
-                worksheet.InsertAfter(new DataValidations(), previousElement);
-            }
-
-            DataValidations dataValidations = worksheet.Elements<DataValidations>().First();
-            cm.SetElement(XLWorksheetContents.DataValidations, dataValidations);
-            dataValidations.RemoveAllChildren<DocumentFormat.OpenXml.Spreadsheet.DataValidation>();
-
-            foreach (
-                (IXLDataValidation dv, string minValue, string maxValue) in dataValidationsStandard
-            )
-            {
-                string sequence = string.Join(" ", dv.Ranges.Select(x => x.RangeAddress));
-                DocumentFormat.OpenXml.Spreadsheet.DataValidation dataValidation = new()
-                {
-                    AllowBlank = dv.IgnoreBlanks,
-                    Formula1 = new Formula1(minValue),
-                    Formula2 = new Formula2(maxValue),
-                    Type = dv.AllowedValues.ToOpenXml(),
-                    ShowErrorMessage = dv.ShowErrorMessage,
-                    Prompt = dv.InputMessage,
-                    PromptTitle = dv.InputTitle,
-                    ErrorTitle = dv.ErrorTitle,
-                    Error = dv.ErrorMessage,
-                    ShowDropDown = !dv.InCellDropdown,
-                    ShowInputMessage = dv.ShowInputMessage,
-                    ErrorStyle = dv.ErrorStyle.ToOpenXml(),
-                    Operator = dv.Operator.ToOpenXml(),
-                    SequenceOfReferences = new ListValue<StringValue> { InnerText = sequence },
-                };
-
-                dataValidations.AppendChild(dataValidation);
-            }
-            dataValidations.Count = (uint)dataValidationsStandard.Count;
-        }
-
-        // Second phase, save all the data validations that reference other sheets into the worksheet extensions.
-        const string dataValidationsExtensionUri = "{CCE6A557-97BC-4b89-ADB6-D9C93CAAB3DF}";
-        if (dataValidationsExtension.Count == 0)
-        {
-            WorksheetExtensionList worksheetExtensionList = worksheet
-                .Elements<WorksheetExtensionList>()
-                .FirstOrDefault();
-            WorksheetExtension worksheetExtension = worksheetExtensionList
-                ?.Elements<WorksheetExtension>()
-                .FirstOrDefault(ext =>
-                    string.Equals(
-                        ext.Uri,
-                        dataValidationsExtensionUri,
-                        StringComparison.OrdinalIgnoreCase
-                    )
-                );
-
-            worksheetExtension?.RemoveAllChildren<X14.DataValidations>();
-
-            if (worksheetExtensionList != null)
-            {
-                if (worksheetExtension != null && !worksheetExtension.HasChildren)
-                {
-                    worksheetExtensionList.RemoveChild(worksheetExtension);
-                }
-
-                if (!worksheetExtensionList.HasChildren)
-                {
-                    worksheet.RemoveChild(worksheetExtensionList);
-                    cm.SetElement(XLWorksheetContents.WorksheetExtensionList, null);
-                }
-            }
-        }
-        else
-        {
-            if (!worksheet.Elements<WorksheetExtensionList>().Any())
-            {
-                OpenXmlElement previousElement = cm.GetPreviousElementFor(
-                    XLWorksheetContents.WorksheetExtensionList
-                );
-                worksheet.InsertAfter(new WorksheetExtensionList(), previousElement);
-            }
-
-            WorksheetExtensionList worksheetExtensionList = worksheet
-                .Elements<WorksheetExtensionList>()
-                .First();
-            cm.SetElement(XLWorksheetContents.WorksheetExtensionList, worksheetExtensionList);
-
-            X14.DataValidations extensionDataValidations = worksheetExtensionList
-                .Descendants<X14.DataValidations>()
-                .SingleOrDefault();
-
-            if (extensionDataValidations == null || !extensionDataValidations.Any())
-            {
-                WorksheetExtension worksheetExtension = new() { Uri = dataValidationsExtensionUri };
-                worksheetExtension.AddNamespaceDeclaration("x14", X14Main2009SsNs);
-                worksheetExtensionList.Append(worksheetExtension);
-
-                extensionDataValidations = new X14.DataValidations();
-                extensionDataValidations.AddNamespaceDeclaration("xm", XmMain2006);
-                worksheetExtension.Append(extensionDataValidations);
-            }
-            else
-            {
-                extensionDataValidations.RemoveAllChildren();
-            }
-
-            foreach (
-                (IXLDataValidation dv, string minValue, string maxValue) in dataValidationsExtension
-            )
-            {
-                string sequence = string.Join(" ", dv.Ranges.Select(x => x.RangeAddress));
-                X14.DataValidation dataValidation = new()
-                {
-                    AllowBlank = dv.IgnoreBlanks,
-                    DataValidationForumla1 = !string.IsNullOrWhiteSpace(minValue)
-                        ? new X14.DataValidationForumla1(new OfficeExcel.Formula(minValue))
-                        : null,
-                    DataValidationForumla2 = !string.IsNullOrWhiteSpace(maxValue)
-                        ? new X14.DataValidationForumla2(new OfficeExcel.Formula(maxValue))
-                        : null,
-                    Type = dv.AllowedValues.ToOpenXml(),
-                    ShowErrorMessage = dv.ShowErrorMessage,
-                    Prompt = dv.InputMessage,
-                    PromptTitle = dv.InputTitle,
-                    ErrorTitle = dv.ErrorTitle,
-                    Error = dv.ErrorMessage,
-                    ShowDropDown = !dv.InCellDropdown,
-                    ShowInputMessage = dv.ShowInputMessage,
-                    ErrorStyle = dv.ErrorStyle.ToOpenXml(),
-                    Operator = dv.Operator.ToOpenXml(),
-                    ReferenceSequence = new OfficeExcel.ReferenceSequence() { Text = sequence },
-                };
-                extensionDataValidations.AppendChild(dataValidation);
-            }
-            extensionDataValidations.Count = (uint)dataValidationsExtension.Count;
-        }
-
-        #endregion DataValidations
-
-        #region Hyperlinks
-
-        List<HyperlinkRelationship> relToRemove = [.. worksheetPart.HyperlinkRelationships];
-        relToRemove.ForEach(worksheetPart.DeleteReferenceRelationship);
-        if (!xlWorksheet.Hyperlinks.Any())
-        {
-            worksheet.RemoveAllChildren<Hyperlinks>();
-            cm.SetElement(XLWorksheetContents.Hyperlinks, null);
-        }
-        else
-        {
-            if (!worksheet.Elements<Hyperlinks>().Any())
-            {
-                OpenXmlElement previousElement = cm.GetPreviousElementFor(
-                    XLWorksheetContents.Hyperlinks
-                );
-                worksheet.InsertAfter(new Hyperlinks(), previousElement);
-            }
-
-            Hyperlinks hyperlinks = worksheet.Elements<Hyperlinks>().First();
-            cm.SetElement(XLWorksheetContents.Hyperlinks, hyperlinks);
-            hyperlinks.RemoveAllChildren<Hyperlink>();
-            foreach (XLHyperlink hl in xlWorksheet.Hyperlinks)
-            {
-                Hyperlink hyperlink;
-                if (hl.IsExternal)
-                {
-                    string rId = context.RelIdGenerator.GetNext(XLWorkbook.RelType.Workbook);
-                    hyperlink = new Hyperlink { Reference = hl.Cell.Address.ToString(), Id = rId };
-                    worksheetPart.AddHyperlinkRelationship(hl.ExternalAddress, true, rId);
-                }
-                else
-                {
-                    hyperlink = new Hyperlink
-                    {
-                        Reference = hl.Cell.Address.ToString(),
-                        Location = hl.InternalAddress,
-                        Display = hl.Cell.GetFormattedString(),
-                    };
-                }
-                if (!string.IsNullOrWhiteSpace(hl.Tooltip))
-                {
-                    hyperlink.Tooltip = hl.Tooltip;
-                }
-
-                hyperlinks.AppendChild(hyperlink);
-            }
-        }
-
-        #endregion Hyperlinks
-
-        #region PrintOptions
-
-        if (!worksheet.Elements<PrintOptions>().Any())
-        {
-            OpenXmlElement previousElement = cm.GetPreviousElementFor(
-                XLWorksheetContents.PrintOptions
-            );
-            worksheet.InsertAfter(new PrintOptions(), previousElement);
-        }
-
-        PrintOptions printOptions = worksheet.Elements<PrintOptions>().First();
-        cm.SetElement(XLWorksheetContents.PrintOptions, printOptions);
-
-        printOptions.HorizontalCentered = xlWorksheet.PageSetup.CenterHorizontally;
-        printOptions.VerticalCentered = xlWorksheet.PageSetup.CenterVertically;
-        printOptions.Headings = xlWorksheet.PageSetup.ShowRowAndColumnHeadings;
-        printOptions.GridLines = xlWorksheet.PageSetup.ShowGridlines;
-
-        #endregion PrintOptions
-
-        #region PageMargins
-
-        if (!worksheet.Elements<PageMargins>().Any())
-        {
-            OpenXmlElement previousElement = cm.GetPreviousElementFor(
-                XLWorksheetContents.PageMargins
-            );
-            worksheet.InsertAfter(new PageMargins(), previousElement);
-        }
-
-        PageMargins pageMargins = worksheet.Elements<PageMargins>().First();
-        cm.SetElement(XLWorksheetContents.PageMargins, pageMargins);
-        pageMargins.Left = xlWorksheet.PageSetup.Margins.Left;
-        pageMargins.Right = xlWorksheet.PageSetup.Margins.Right;
-        pageMargins.Top = xlWorksheet.PageSetup.Margins.Top;
-        pageMargins.Bottom = xlWorksheet.PageSetup.Margins.Bottom;
-        pageMargins.Header = xlWorksheet.PageSetup.Margins.Header;
-        pageMargins.Footer = xlWorksheet.PageSetup.Margins.Footer;
-
-        #endregion PageMargins
-
-        #region PageSetup
-
-        if (!worksheet.Elements<DocumentFormat.OpenXml.Spreadsheet.PageSetup>().Any())
-        {
-            OpenXmlElement previousElement = cm.GetPreviousElementFor(
-                XLWorksheetContents.PageSetup
-            );
-            worksheet.InsertAfter(
-                new DocumentFormat.OpenXml.Spreadsheet.PageSetup(),
-                previousElement
-            );
-        }
-
-        DocumentFormat.OpenXml.Spreadsheet.PageSetup pageSetup = worksheet
-            .Elements<DocumentFormat.OpenXml.Spreadsheet.PageSetup>()
-            .First();
-        cm.SetElement(XLWorksheetContents.PageSetup, pageSetup);
-
-        pageSetup.Orientation = xlWorksheet.PageSetup.PageOrientation.ToOpenXml();
-        pageSetup.PaperSize = (uint)xlWorksheet.PageSetup.PaperSize;
-        pageSetup.BlackAndWhite = xlWorksheet.PageSetup.BlackAndWhite;
-        pageSetup.Draft = xlWorksheet.PageSetup.DraftQuality;
-        pageSetup.PageOrder = xlWorksheet.PageSetup.PageOrder.ToOpenXml();
-        pageSetup.CellComments = xlWorksheet.PageSetup.ShowComments.ToOpenXml();
-        pageSetup.Errors = xlWorksheet.PageSetup.PrintErrorValue.ToOpenXml();
-
-        if (xlWorksheet.PageSetup.FirstPageNumber.HasValue)
-        {
-            // Negative first page numbers are written as uint, e.g. -1 is 4294967295.
-            pageSetup.FirstPageNumber = UInt32Value.FromUInt32(
-                (uint)xlWorksheet.PageSetup.FirstPageNumber.Value
-            );
-            pageSetup.UseFirstPageNumber = true;
-        }
-        else
-        {
-            pageSetup.FirstPageNumber = null;
-            pageSetup.UseFirstPageNumber = null;
-        }
-
-        if (xlWorksheet.PageSetup.HorizontalDpi > 0)
-        {
-            pageSetup.HorizontalDpi = (uint)xlWorksheet.PageSetup.HorizontalDpi;
-        }
-        else
-        {
-            pageSetup.HorizontalDpi = null;
-        }
-
-        if (xlWorksheet.PageSetup.VerticalDpi > 0)
-        {
-            pageSetup.VerticalDpi = (uint)xlWorksheet.PageSetup.VerticalDpi;
-        }
-        else
-        {
-            pageSetup.VerticalDpi = null;
-        }
-
-        if (xlWorksheet.PageSetup.Scale > 0)
-        {
-            pageSetup.Scale = (uint)xlWorksheet.PageSetup.Scale;
-            pageSetup.FitToWidth = null;
-            pageSetup.FitToHeight = null;
-        }
-        else
-        {
-            pageSetup.Scale = null;
-
-            if (xlWorksheet.PageSetup.PagesWide >= 0 && xlWorksheet.PageSetup.PagesWide != 1)
-            {
-                pageSetup.FitToWidth = (uint)xlWorksheet.PageSetup.PagesWide;
-            }
-
-            if (xlWorksheet.PageSetup.PagesTall >= 0 && xlWorksheet.PageSetup.PagesTall != 1)
-            {
-                pageSetup.FitToHeight = (uint)xlWorksheet.PageSetup.PagesTall;
-            }
-        }
-
-        // For some reason some Excel files already contains pageSetup.Copies = 0
-        // The validation fails for this
-        // Let's remove the attribute of that's the case.
-        if ((pageSetup?.Copies ?? 0) <= 0)
-        {
-            pageSetup.Copies = null;
-        }
-
-        #endregion PageSetup
-
-        #region HeaderFooter
-
-        HeaderFooter headerFooter = worksheet.Elements<HeaderFooter>().FirstOrDefault();
-        if (headerFooter == null)
-        {
-            headerFooter = new HeaderFooter();
-        }
-        else
-        {
-            worksheet.RemoveAllChildren<HeaderFooter>();
-        }
-
-        {
-            OpenXmlElement previousElement = cm.GetPreviousElementFor(
-                XLWorksheetContents.HeaderFooter
-            );
-            worksheet.InsertAfter(headerFooter, previousElement);
-            cm.SetElement(XLWorksheetContents.HeaderFooter, headerFooter);
-        }
         if (
-            ((XLHeaderFooter)xlWorksheet.PageSetup.Header).Changed
-            || ((XLHeaderFooter)xlWorksheet.PageSetup.Footer).Changed
+            worksheet
+                .Attributes()
+                .Where(attribute => attribute.IsNamespaceDeclaration)
+                .All(attribute => attribute.Value != RelationshipsNs)
         )
         {
-            headerFooter.RemoveAllChildren();
-
-            headerFooter.ScaleWithDoc = xlWorksheet.PageSetup.ScaleHFWithDocument;
-            headerFooter.AlignWithMargins = xlWorksheet.PageSetup.AlignHFWithMargins;
-            headerFooter.DifferentFirst = xlWorksheet.PageSetup.DifferentFirstPageOnHF;
-            headerFooter.DifferentOddEven = xlWorksheet.PageSetup.DifferentOddEvenPagesOnHF;
-
-            OddHeader oddHeader = new(
-                xlWorksheet.PageSetup.Header.GetText(XLHFOccurrence.OddPages)
-            );
-            headerFooter.AppendChild(oddHeader);
-            OddFooter oddFooter = new(
-                xlWorksheet.PageSetup.Footer.GetText(XLHFOccurrence.OddPages)
-            );
-            headerFooter.AppendChild(oddFooter);
-
-            EvenHeader evenHeader = new(
-                xlWorksheet.PageSetup.Header.GetText(XLHFOccurrence.EvenPages)
-            );
-            headerFooter.AppendChild(evenHeader);
-            EvenFooter evenFooter = new(
-                xlWorksheet.PageSetup.Footer.GetText(XLHFOccurrence.EvenPages)
-            );
-            headerFooter.AppendChild(evenFooter);
-
-            FirstHeader firstHeader = new(
-                xlWorksheet.PageSetup.Header.GetText(XLHFOccurrence.FirstPage)
-            );
-            headerFooter.AppendChild(firstHeader);
-            FirstFooter firstFooter = new(
-                xlWorksheet.PageSetup.Footer.GetText(XLHFOccurrence.FirstPage)
-            );
-            headerFooter.AppendChild(firstFooter);
+            worksheet.SetAttributeValue(XNamespace.Xmlns + "r", RelationshipsNs);
         }
 
-        #endregion HeaderFooter
-
-        #region RowBreaks
-
-        int rowBreakCount = xlWorksheet.PageSetup.RowBreaks.Count;
-        if (rowBreakCount > 0)
-        {
-            if (!worksheet.Elements<RowBreaks>().Any())
-            {
-                OpenXmlElement previousElement = cm.GetPreviousElementFor(
-                    XLWorksheetContents.RowBreaks
-                );
-                worksheet.InsertAfter(new RowBreaks(), previousElement);
-            }
-
-            RowBreaks rowBreaks = worksheet.Elements<RowBreaks>().First();
-
-            Break[] existingBreaks = [.. rowBreaks.ChildElements.OfType<Break>()];
-            List<Break> rowBreaksToDelete =
-            [
-                .. existingBreaks.Where(rb =>
-                    !rb.Id.HasValue || !xlWorksheet.PageSetup.RowBreaks.Contains((int)rb.Id.Value)
-                ),
-            ];
-
-            foreach (Break rb in rowBreaksToDelete)
-            {
-                rowBreaks.RemoveChild(rb);
-            }
-
-            IEnumerable<int> rowBreaksToAdd = xlWorksheet.PageSetup.RowBreaks.Where(xlRb =>
-                !existingBreaks.Any(rb => rb.Id.HasValue && rb.Id.Value == xlRb)
-            );
-
-            rowBreaks.Count = (uint)rowBreakCount;
-            rowBreaks.ManualBreakCount = (uint)rowBreakCount;
-            uint lastRowNum = (uint)xlWorksheet.RangeAddress.LastAddress.RowNumber;
-            foreach (
-                Break break1 in rowBreaksToAdd.Select(rb => new Break
-                {
-                    Id = (uint)rb,
-                    Max = lastRowNum,
-                    ManualPageBreak = true,
-                })
-            )
-            {
-                rowBreaks.AppendChild(break1);
-            }
-
-            cm.SetElement(XLWorksheetContents.RowBreaks, rowBreaks);
-        }
-        else
-        {
-            worksheet.RemoveAllChildren<RowBreaks>();
-            cm.SetElement(XLWorksheetContents.RowBreaks, null);
-        }
-
-        #endregion RowBreaks
-
-        #region ColumnBreaks
-
-        int columnBreakCount = xlWorksheet.PageSetup.ColumnBreaks.Count;
-        if (columnBreakCount > 0)
-        {
-            if (!worksheet.Elements<ColumnBreaks>().Any())
-            {
-                OpenXmlElement previousElement = cm.GetPreviousElementFor(
-                    XLWorksheetContents.ColumnBreaks
-                );
-                worksheet.InsertAfter(new ColumnBreaks(), previousElement);
-            }
-
-            ColumnBreaks columnBreaks = worksheet.Elements<ColumnBreaks>().First();
-
-            Break[] existingBreaks = [.. columnBreaks.ChildElements.OfType<Break>()];
-            List<Break> columnBreaksToDelete =
-            [
-                .. existingBreaks.Where(cb =>
-                    !cb.Id.HasValue
-                    || !xlWorksheet.PageSetup.ColumnBreaks.Contains((int)cb.Id.Value)
-                ),
-            ];
-
-            foreach (Break rb in columnBreaksToDelete)
-            {
-                columnBreaks.RemoveChild(rb);
-            }
-
-            IEnumerable<int> columnBreaksToAdd = xlWorksheet.PageSetup.ColumnBreaks.Where(xlCb =>
-                !existingBreaks.Any(cb => cb.Id.HasValue && cb.Id.Value == xlCb)
-            );
-
-            columnBreaks.Count = (uint)columnBreakCount;
-            columnBreaks.ManualBreakCount = (uint)columnBreakCount;
-            uint maxColumnNumber = (uint)xlWorksheet.RangeAddress.LastAddress.ColumnNumber;
-            foreach (
-                Break break1 in columnBreaksToAdd.Select(cb => new Break
-                {
-                    Id = (uint)cb,
-                    Max = maxColumnNumber,
-                    ManualPageBreak = true,
-                })
-            )
-            {
-                columnBreaks.AppendChild(break1);
-            }
-
-            cm.SetElement(XLWorksheetContents.ColumnBreaks, columnBreaks);
-        }
-        else
-        {
-            worksheet.RemoveAllChildren<ColumnBreaks>();
-            cm.SetElement(XLWorksheetContents.ColumnBreaks, null);
-        }
-
-        #endregion ColumnBreaks
-
-        #region Tables
-
-        PopulateTablePartReferences((XLTables)xlWorksheet.Tables, worksheet, cm);
-
-        #endregion Tables
-
-        #region Drawings
-
-        if (worksheetPart.DrawingsPart != null)
-        {
-            XLPictures xlPictures = xlWorksheet.Pictures as Drawings.XLPictures;
-            foreach (string removedPicture in xlPictures.Deleted)
-            {
-                worksheetPart.DrawingsPart.DeletePart(removedPicture);
-            }
-            xlPictures.Deleted.Clear();
-        }
-
-        foreach (XLPicture pic in xlWorksheet.Pictures)
-        {
-            AddPictureAnchor(worksheetPart, pic, context);
-        }
-
-        if (xlWorksheet.Pictures.Count > 0)
-        {
-            RebaseNonVisualDrawingPropertiesIds(worksheetPart);
-        }
-
-        TableParts tableParts = worksheet.Elements<TableParts>().First();
-        if (xlWorksheet.Pictures.Count > 0 && !worksheet.OfType<Drawing>().Any())
-        {
-            Drawing worksheetDrawing = new()
-            {
-                Id = worksheetPart.GetIdOfPart(worksheetPart.DrawingsPart),
-            };
-            worksheetDrawing.AddNamespaceDeclaration(
-                "r",
-                "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
-            );
-            worksheet.InsertBefore(worksheetDrawing, tableParts);
-            cm.SetElement(XLWorksheetContents.Drawing, worksheet.Elements<Drawing>().First());
-        }
-
-        // Instead of saving a file with an empty Drawings.xml file, rather remove the .xml file
-        bool hasCharts =
-            worksheetPart.DrawingsPart is not null && worksheetPart.DrawingsPart.Parts.Any();
+        // We store the x14ac:dyDescent attribute (if set by a xlRow) in a row element. It's an
+        // optional attribute and it needs a declared namespace. To avoid writing namespace to
+        // each <x:row> element during streaming, write it to every sheet part ahead of time. The
+        // namespace has to be marked as ignorable, because Excel's own validator refuses to
+        // validate it otherwise, being an optional extension (see ISO29500 part 3).
         if (
-            worksheetPart.DrawingsPart is not null
-            && // There is a drawing part for the sheet that could be deleted
-            xlWorksheet.LegacyDrawingId is null
-            && // and sheet doesn't contain any form controls or comments or other shapes
-            xlWorksheet.Pictures.Count == 0
-            && // and also no pictures.
-            !hasCharts
-        ) // and no charts
+            worksheet
+                .Attributes()
+                .Where(attribute => attribute.IsNamespaceDeclaration)
+                .All(attribute => attribute.Value != X14Ac2009SsNs)
+        )
         {
-            string id = worksheetPart.GetIdOfPart(worksheetPart.DrawingsPart);
-            worksheet.RemoveChild(worksheet.OfType<Drawing>().FirstOrDefault(p => p.Id == id));
-            worksheetPart.DeletePart(worksheetPart.DrawingsPart);
-            cm.SetElement(XLWorksheetContents.Drawing, null);
+            worksheet.SetAttributeValue(XNamespace.Xmlns + "x14ac", X14Ac2009SsNs);
+            worksheet.SetAttributeValue(XNamespace.Xmlns + "mc", MarkupCompatibilityNs);
+            worksheet.SetAttributeValue(XName.Get("Ignorable", MarkupCompatibilityNs), "x14ac");
         }
-
-        #endregion Drawings
-
-        #region LegacyDrawing
-
-        // Does worksheet have any comments (stored in legacy VML drawing)
-        if (!string.IsNullOrEmpty(xlWorksheet.LegacyDrawingId))
-        {
-            worksheet.RemoveAllChildren<LegacyDrawing>();
-            OpenXmlElement previousElement = cm.GetPreviousElementFor(
-                XLWorksheetContents.LegacyDrawing
-            );
-            worksheet.InsertAfter(
-                new LegacyDrawing { Id = xlWorksheet.LegacyDrawingId },
-                previousElement
-            );
-
-            cm.SetElement(
-                XLWorksheetContents.LegacyDrawing,
-                worksheet.Elements<LegacyDrawing>().First()
-            );
-        }
-        else
-        {
-            worksheet.RemoveAllChildren<LegacyDrawing>();
-            cm.SetElement(XLWorksheetContents.LegacyDrawing, null);
-        }
-
-        #endregion LegacyDrawing
-
-        #region LegacyDrawingHeaderFooter
-
-        //LegacyDrawingHeaderFooter legacyHeaderFooter = worksheetPart.Worksheet.Elements<LegacyDrawingHeaderFooter>().FirstOrDefault();
-        //if (legacyHeaderFooter != null)
-        //{
-        //    worksheetPart.Worksheet.RemoveAllChildren<LegacyDrawingHeaderFooter>();
-        //    {
-        //            var previousElement = cm.GetPreviousElementFor(XLWSContentManager.XLWSContents.LegacyDrawingHeaderFooter);
-        //            worksheetPart.Worksheet.InsertAfter(new LegacyDrawingHeaderFooter { Id = xlWorksheet.LegacyDrawingId },
-        //                                                previousElement);
-        //    }
-        //}
-
-        #endregion LegacyDrawingHeaderFooter
 
         return worksheet;
+    }
+
+    /// <summary>
+    /// The root element of a loaded worksheet part, with an empty <c>sheetData</c> in place of
+    /// whatever rows it held.
+    /// </summary>
+    /// <remarks>
+    /// <see cref="GenerateWorksheetPartContent"/> throws every row away and rebuilds
+    /// <c>sheetData</c> wholesale from the workbook model regardless of what the part held, so a
+    /// full <see cref="XDocument.Load(Stream)"/> here would materialise a sheet's entire row/cell
+    /// tree only to discard it - expensive for a large sheet, and the one part of the document
+    /// whose loaded content is never actually read. Everything else about the sheet - dimension,
+    /// views, columns, merges, hyperlinks, page setup, an unrecognised extension element, and so
+    /// on - is small regardless of row count and is still read in full, through the exact same
+    /// <see cref="XNode.ReadFrom(XmlReader)"/> the BCL itself uses to build a <see cref="XDocument"/>
+    /// from a reader, so it is preserved exactly as before.
+    /// </remarks>
+    private static XElement ReadWorksheetSkippingSheetData(Stream stream)
+    {
+        XmlReaderSettings settings = new()
+        {
+            IgnoreWhitespace = true,
+            DtdProcessing = DtdProcessing.Prohibit,
+        };
+
+        using XmlReader reader = XmlReader.Create(stream, settings);
+        reader.MoveToContent();
+        if (reader.NodeType != XmlNodeType.Element)
+        {
+            throw PartStructureException.ExpectedElementNotFound("worksheet");
+        }
+
+        XElement worksheet = new(XName.Get(reader.LocalName, reader.NamespaceURI));
+        CopyAttributes(reader, worksheet);
+
+        bool isEmpty = reader.IsEmptyElement;
+        reader.Read();
+        if (isEmpty)
+        {
+            return worksheet;
+        }
+
+        while (reader.NodeType != XmlNodeType.EndElement)
+        {
+            if (
+                reader.NodeType == XmlNodeType.Element
+                && reader.LocalName == "sheetData"
+                && reader.NamespaceURI == SpreadsheetXml.Main.NamespaceName
+            )
+            {
+                XElement sheetData = new(XName.Get(reader.LocalName, reader.NamespaceURI));
+                CopyAttributes(reader, sheetData);
+                worksheet.Add(sheetData);
+                reader.Skip();
+            }
+            else
+            {
+                worksheet.Add(XNode.ReadFrom(reader));
+            }
+        }
+
+        return worksheet;
+    }
+
+    /// <summary>
+    /// Copies the reader's current element's attributes onto <paramref name="element"/>, leaving
+    /// the reader back on the element itself.
+    /// </summary>
+    /// <remarks>
+    /// The namespace URI a namespace-aware <see cref="XmlReader"/> reports for an attribute
+    /// already resolves to exactly the <see cref="XName"/> <see cref="XAttribute"/> expects for
+    /// an ordinary attribute, prefixed or not, and for a prefixed namespace declaration such as
+    /// <c>xmlns:x</c> - <see cref="XName.Get(string, string)"/> with the reported namespace URI
+    /// matches <see cref="XNamespace.Xmlns"/> plus the local name in both cases. The one exception
+    /// is the bare default-namespace declaration <c>xmlns="..."</c>: the reader reports its
+    /// namespace URI as the reserved xmlns namespace too, but <see cref="XAttribute"/> represents
+    /// it as the plain unprefixed name "xmlns" with no namespace, and rejects the namespace-
+    /// qualified form outright.
+    /// </remarks>
+    private static void CopyAttributes(XmlReader reader, XElement element)
+    {
+        if (!reader.MoveToFirstAttribute())
+        {
+            return;
+        }
+
+        do
+        {
+            XName name =
+                reader.Prefix.Length == 0 && reader.LocalName == "xmlns"
+                    ? XName.Get("xmlns")
+                    : XName.Get(reader.LocalName, reader.NamespaceURI);
+            element.Add(new XAttribute(name, reader.Value));
+        } while (reader.MoveToNextAttribute());
+
+        reader.MoveToElement();
     }
 
     private static void WriteCellValue(XmlWriter w, XLCell xlCell, SaveContext context)
@@ -2000,380 +335,658 @@ internal class WorksheetPartWriter
         }
     }
 
-    internal static void PopulateAutoFilter(XLAutoFilter xlAutoFilter, AutoFilter autoFilter)
+    /// <summary>
+    /// <c>autoFilter</c>, which is written only when the sheet has one.
+    /// </summary>
+    private static void WriteAutoFilter(XElement worksheet, XLAutoFilter xlAutoFilter)
+    {
+        worksheet.Element(SpreadsheetXml.Main + "autoFilter")?.Remove();
+        if (xlAutoFilter.IsEnabled)
+        {
+            PopulateAutoFilter(xlAutoFilter, WorksheetXml.Child(worksheet, "autoFilter"));
+        }
+    }
+
+    /// <summary>
+    /// The filter, its columns and its sort state. A sheet has one of these and so does every
+    /// table, which is why it is filled into an element it is handed.
+    /// </summary>
+    internal static void PopulateAutoFilter(XLAutoFilter xlAutoFilter, XElement autoFilter)
     {
         IXLRange filterRange = xlAutoFilter.Range;
-        autoFilter.Reference = filterRange.RangeAddress.ToString();
+        autoFilter.SetAttributeValue("ref", filterRange.RangeAddress.ToString());
 
         foreach ((int columnNumber, XLFilterColumn xlFilterColumn) in xlAutoFilter.Columns)
         {
-            FilterColumn filterColumn = new() { ColumnId = (uint)columnNumber - 1 };
+            XElement filterColumn = new(
+                SpreadsheetXml.Main + "filterColumn",
+                new XAttribute("colId", (uint)columnNumber - 1)
+            );
 
-            switch (xlFilterColumn.FilterType)
+            // None means the column has a filter button but nothing is actively filtered on it -
+            // CT_FilterColumn's filter content is optional, so such a column is written bare.
+            XElement? filterContent = xlFilterColumn.FilterType switch
             {
-                case XLFilterType.Custom:
-                    CustomFilters customFilters = new();
-                    foreach (XLFilter xlFilter in xlFilterColumn)
-                    {
-                        // Since OOXML allows only string, the operand for custom filter must be serialized.
-                        string filterValue = xlFilter.CustomValue.ToString(
-                            CultureInfo.InvariantCulture
-                        );
-                        CustomFilter customFilter = new() { Val = filterValue };
+                XLFilterType.Custom => CustomFilters(xlFilterColumn),
+                XLFilterType.TopBottom => TopBottomFilter(xlFilterColumn),
+                XLFilterType.Dynamic => DynamicFilter(xlFilterColumn),
+                XLFilterType.Regular => RegularFilters(xlFilterColumn),
+                XLFilterType.None => null,
+                _ => throw new NotSupportedException(),
+            };
 
-                        if (xlFilter.Operator != XLFilterOperator.Equal)
-                        {
-                            customFilter.Operator = xlFilter.Operator.ToOpenXml();
-                        }
-
-                        if (xlFilter.Connector == XLConnector.And)
-                        {
-                            customFilters.And = true;
-                        }
-
-                        customFilters.Append(customFilter);
-                    }
-                    filterColumn.Append(customFilters);
-                    break;
-
-                case XLFilterType.TopBottom:
-                    // Although there is FilterValue attribute, populating it seems like more
-                    // trouble than it's worth due to consistency issues. It's optional, so we
-                    // can't rely on it during load anyway.
-                    Top10 top101 = new()
-                    {
-                        Val = xlFilterColumn.TopBottomValue,
-                        Percent = OpenXmlHelper.GetBooleanValue(
-                            xlFilterColumn.TopBottomType == XLTopBottomType.Percent,
-                            false
-                        ),
-                        Top = OpenXmlHelper.GetBooleanValue(
-                            xlFilterColumn.TopBottomPart == XLTopBottomPart.Top,
-                            true
-                        ),
-                    };
-                    filterColumn.Append(top101);
-                    break;
-
-                case XLFilterType.Dynamic:
-                    DynamicFilter dynamicFilter = new()
-                    {
-                        Type = xlFilterColumn.DynamicType.ToOpenXml(),
-                        Val = xlFilterColumn.DynamicValue,
-                    };
-                    filterColumn.Append(dynamicFilter);
-                    break;
-
-                case XLFilterType.Regular:
-                    Filters filters = new();
-                    foreach (XLFilter filter in xlFilterColumn)
-                    {
-                        if (filter.Value is string s)
-                        {
-                            filters.Append(new Filter { Val = s });
-                        }
-                    }
-
-                    foreach (XLFilter filter in xlFilterColumn)
-                    {
-                        if (filter.Value is DateTime)
-                        {
-                            DateTime d = (DateTime)filter.Value;
-                            DateGroupItem dgi = new()
-                            {
-                                Year = (ushort)d.Year,
-                                DateTimeGrouping = filter.DateTimeGrouping.ToOpenXml(),
-                            };
-
-                            if (filter.DateTimeGrouping >= XLDateTimeGrouping.Month)
-                            {
-                                dgi.Month = (ushort)d.Month;
-                            }
-
-                            if (filter.DateTimeGrouping >= XLDateTimeGrouping.Day)
-                            {
-                                dgi.Day = (ushort)d.Day;
-                            }
-
-                            if (filter.DateTimeGrouping >= XLDateTimeGrouping.Hour)
-                            {
-                                dgi.Hour = (ushort)d.Hour;
-                            }
-
-                            if (filter.DateTimeGrouping >= XLDateTimeGrouping.Minute)
-                            {
-                                dgi.Minute = (ushort)d.Minute;
-                            }
-
-                            if (filter.DateTimeGrouping >= XLDateTimeGrouping.Second)
-                            {
-                                dgi.Second = (ushort)d.Second;
-                            }
-
-                            filters.Append(dgi);
-                        }
-                    }
-
-                    filterColumn.Append(filters);
-                    break;
-
-                default:
-                    throw new NotSupportedException();
+            if (filterContent is not null)
+            {
+                filterColumn.Add(filterContent);
             }
-            autoFilter.Append(filterColumn);
+
+            autoFilter.Add(filterColumn);
         }
 
         if (xlAutoFilter.Sorted)
         {
-            string reference = null;
+            autoFilter.Add(SortState(xlAutoFilter, filterRange));
+        }
+    }
 
-            if (
-                filterRange.FirstCell().Address.RowNumber < filterRange.LastCell().Address.RowNumber
-            )
+    private static XElement CustomFilters(XLFilterColumn xlFilterColumn)
+    {
+        XElement customFilters = new(SpreadsheetXml.Main + "customFilters");
+        foreach (XLFilter xlFilter in xlFilterColumn)
+        {
+            // Since OOXML allows only string, the operand for custom filter must be serialized.
+            XElement customFilter = new(
+                SpreadsheetXml.Main + "customFilter",
+                new XAttribute("val", xlFilter.CustomValue.ToString(CultureInfo.InvariantCulture))
+            );
+
+            if (xlFilter.Operator != XLFilterOperator.Equal)
             {
-                reference = filterRange
+                customFilter.SetAttributeValue("operator", xlFilter.Operator.ToXml());
+            }
+
+            if (xlFilter.Connector == XLConnector.And)
+            {
+                WorksheetXml.SetBool(customFilters, "and", true);
+            }
+
+            customFilters.Add(customFilter);
+        }
+
+        return customFilters;
+    }
+
+    private static XElement TopBottomFilter(XLFilterColumn xlFilterColumn)
+    {
+        // Although there is a filterVal attribute, populating it seems like more trouble than
+        // it's worth due to consistency issues. It's optional, so we can't rely on it during
+        // load anyway.
+        XElement top10 = new(SpreadsheetXml.Main + "top10");
+        WorksheetXml.Set(top10, "val", xlFilterColumn.TopBottomValue);
+        WorksheetXml.SetBoolDefault(
+            top10,
+            "percent",
+            xlFilterColumn.TopBottomType == XLTopBottomType.Percent,
+            false
+        );
+        WorksheetXml.SetBoolDefault(
+            top10,
+            "top",
+            xlFilterColumn.TopBottomPart == XLTopBottomPart.Top,
+            true
+        );
+        return top10;
+    }
+
+    private static XElement DynamicFilter(XLFilterColumn xlFilterColumn)
+    {
+        XElement dynamicFilter = new(
+            SpreadsheetXml.Main + "dynamicFilter",
+            new XAttribute("type", xlFilterColumn.DynamicType.ToXml())
+        );
+        WorksheetXml.Set(dynamicFilter, "val", xlFilterColumn.DynamicValue);
+        return dynamicFilter;
+    }
+
+    /// <summary>
+    /// The plain value filters, and the date group filters after them - the schema puts every
+    /// filter before every dateGroupItem, whatever order the workbook model holds them in.
+    /// </summary>
+    private static XElement RegularFilters(XLFilterColumn xlFilterColumn)
+    {
+        XElement filters = new(SpreadsheetXml.Main + "filters");
+
+        foreach (XLFilter filter in xlFilterColumn)
+        {
+            if (filter.Value is string value)
+            {
+                filters.Add(
+                    new XElement(SpreadsheetXml.Main + "filter", new XAttribute("val", value))
+                );
+            }
+        }
+
+        foreach (XLFilter filter in xlFilterColumn)
+        {
+            if (filter.Value is DateTime date)
+            {
+                filters.Add(DateGroupItem(date, filter.DateTimeGrouping));
+            }
+        }
+
+        return filters;
+    }
+
+    /// <summary>
+    /// A date named only down to the unit the filter groups by.
+    /// </summary>
+    private static XElement DateGroupItem(DateTime date, XLDateTimeGrouping grouping)
+    {
+        XElement dateGroupItem = new(
+            SpreadsheetXml.Main + "dateGroupItem",
+            new XAttribute("year", (ushort)date.Year),
+            new XAttribute("dateTimeGrouping", grouping.ToXml())
+        );
+
+        Part(XLDateTimeGrouping.Month, "month", date.Month);
+        Part(XLDateTimeGrouping.Day, "day", date.Day);
+        Part(XLDateTimeGrouping.Hour, "hour", date.Hour);
+        Part(XLDateTimeGrouping.Minute, "minute", date.Minute);
+        Part(XLDateTimeGrouping.Second, "second", date.Second);
+        return dateGroupItem;
+
+        void Part(XLDateTimeGrouping unit, string name, int value)
+        {
+            if (grouping >= unit)
+            {
+                dateGroupItem.SetAttributeValue(name, (ushort)value);
+            }
+        }
+    }
+
+    private static XElement SortState(XLAutoFilter xlAutoFilter, IXLRange filterRange)
+    {
+        // The sorted range is the filtered one without its header row, unless there is only the
+        // one row to sort.
+        string reference =
+            filterRange.FirstCell().Address.RowNumber < filterRange.LastCell().Address.RowNumber
+                ? filterRange
                     .Range(filterRange.FirstCell().CellBelow(), filterRange.LastCell())
-                    .RangeAddress.ToString();
-            }
-            else
-            {
-                reference = filterRange.RangeAddress.ToString();
-            }
+                    .RangeAddress.ToString()
+                : filterRange.RangeAddress.ToString();
 
-            SortState sortState = new() { Reference = reference };
-
-            SortCondition sortCondition = new()
-            {
-                Reference = filterRange
+        XElement sortCondition = new(
+            SpreadsheetXml.Main + "sortCondition",
+            new XAttribute(
+                "ref",
+                filterRange
                     .Range(
                         1,
                         xlAutoFilter.SortColumn,
                         filterRange.RowCount(),
                         xlAutoFilter.SortColumn
                     )
-                    .RangeAddress.ToString(),
-            };
-            if (xlAutoFilter.SortOrder == XLSortOrder.Descending)
-            {
-                sortCondition.Descending = true;
-            }
+                    .RangeAddress.ToString()
+            )
+        );
 
-            sortState.Append(sortCondition);
-            autoFilter.Append(sortState);
+        if (xlAutoFilter.SortOrder == XLSortOrder.Descending)
+        {
+            WorksheetXml.SetBool(sortCondition, "descending", true);
+        }
+
+        return new XElement(
+            SpreadsheetXml.Main + "sortState",
+            new XAttribute("ref", reference),
+            sortCondition
+        );
+    }
+
+    /// <summary>
+    /// <c>legacyDrawing</c>, the reference to the VML part that carries the sheet's comments.
+    /// </summary>
+    private static void WriteLegacyDrawing(XElement worksheet, XLWorksheet xlWorksheet)
+    {
+        worksheet.Elements(SpreadsheetXml.Main + "legacyDrawing").Remove();
+        if (!string.IsNullOrEmpty(xlWorksheet.LegacyDrawingId))
+        {
+            WorksheetXml
+                .Child(worksheet, "legacyDrawing")
+                .SetAttributeValue(SpreadsheetXml.Rel + "id", xlWorksheet.LegacyDrawingId);
         }
     }
 
-    private static void CollapseColumns(Columns columns, Dictionary<uint, Column> sheetColumns)
+    /// <summary>
+    /// The columns, patched onto whatever the sheet already had rather than written fresh - a
+    /// loaded workbook can carry column spans this pass never touches (past the last column the
+    /// model names explicitly, say), and those are updated in place rather than discarded.
+    /// </summary>
+    private static void WriteColumns(
+        XElement worksheet,
+        XLWorksheet xlWorksheet,
+        SaveContext context
+    )
     {
-        uint lastMin = 1;
-        int count = sheetColumns.Count;
-        KeyValuePair<uint, Column>[] arr = [.. sheetColumns.OrderBy(kp => kp.Key)];
-        // sheetColumns[kp.Key + 1]
-        //Int32 i = 0;
-        //foreach (KeyValuePair<uint, Column> kp in arr
-        //    //.Where(kp => !(kp.Key < count && ColumnsAreEqual(kp.Value, )))
-        //    )
-        for (int i = 0; i < count; i++)
+        double worksheetColumnWidth = GetColumnWidth(xlWorksheet.ColumnWidth).SaveRound();
+        uint worksheetStyleId = context.GetStyleId(xlWorksheet.FormatValue);
+
+        if (
+            xlWorksheet.Internals.CellsCollection.IsEmpty
+            && xlWorksheet.Internals.ColumnsCollection.Count == 0
+            && worksheetStyleId == 0
+        )
         {
-            KeyValuePair<uint, Column> kp = arr[i];
-            if (i + 1 != count && ColumnsAreEqual(kp.Value, arr[i + 1].Value))
+            worksheet.Element(SpreadsheetXml.Main + "cols")?.Remove();
+            return;
+        }
+
+        XElement columns = WorksheetXml.Child(worksheet, "cols");
+        Dictionary<uint, XElement> sheetColumnsByMin = columns
+            .Elements(SpreadsheetXml.Main + "col")
+            .ToDictionary(col => SpreadsheetXml.UInt(col, "min")!.Value, col => col);
+
+        int minInColumnsCollection;
+        int maxInColumnsCollection;
+        if (xlWorksheet.Internals.ColumnsCollection.Count > 0)
+        {
+            minInColumnsCollection = xlWorksheet.Internals.ColumnsCollection.Keys.Min();
+            maxInColumnsCollection = xlWorksheet.Internals.ColumnsCollection.Keys.Max();
+        }
+        else
+        {
+            minInColumnsCollection = 1;
+            maxInColumnsCollection = 0;
+        }
+
+        // Columns before the first one the workbook model names explicitly get the sheet's own
+        // default, one column at a time - matching the granularity UpdateColumn works at.
+        for (int co = 1; co < minInColumnsCollection; co++)
+        {
+            UpdateColumn(
+                NewColumn((uint)co, (uint)co, worksheetStyleId, worksheetColumnWidth),
+                columns,
+                sheetColumnsByMin
+            );
+        }
+
+        for (int co = minInColumnsCollection; co <= maxInColumnsCollection; co++)
+        {
+            uint styleId = worksheetStyleId;
+            double columnWidth = worksheetColumnWidth;
+            bool isHidden = false;
+            bool collapsed = false;
+            int outlineLevel = 0;
+            if (xlWorksheet.Internals.ColumnsCollection.TryGetValue(co, out XLColumn col))
             {
-                continue;
+                styleId = col.FormatValue is null
+                    ? worksheetStyleId
+                    : context.GetStyleId(col.FormatValue);
+                columnWidth = GetColumnWidth(col.Width).SaveRound();
+                isHidden = col.IsHidden;
+                collapsed = col.Collapsed;
+                outlineLevel = col.OutlineLevel;
             }
 
-            Column newColumn = (Column)kp.Value.CloneNode(true);
-            newColumn.Min = lastMin;
-            uint newColumnMax = newColumn.Max.Value;
-            List<Column> columnsToRemove =
-            [
-                .. columns
-                    .Elements<Column>()
-                    .Where(co => co.Min >= lastMin && co.Max <= newColumnMax)
-                    .Select(co => co),
-            ];
-            columnsToRemove.ForEach(c => columns.RemoveChild(c));
+            UpdateColumn(
+                NewColumn(
+                    (uint)co,
+                    (uint)co,
+                    styleId,
+                    columnWidth,
+                    isHidden ? true : null,
+                    collapsed ? true : null,
+                    outlineLevel > 0 ? (byte)outlineLevel : null
+                ),
+                columns,
+                sheetColumnsByMin
+            );
+        }
 
-            columns.AppendChild(newColumn);
-            lastMin = kp.Key + 1;
-            //i++;
+        // Anything past what the model named explicitly - columns the sheet already carried from
+        // being loaded - takes on the sheet's own style and width too.
+        int lastExplicitColumn = maxInColumnsCollection;
+        foreach (
+            XElement col in columns
+                .Elements(SpreadsheetXml.Main + "col")
+                .Where(col => SpreadsheetXml.UInt(col, "min") > (uint)lastExplicitColumn)
+                .OrderBy(col => SpreadsheetXml.UInt(col, "min"))
+                .ToList()
+        )
+        {
+            col.SetAttributeValue("style", worksheetStyleId);
+            WorksheetXml.Set(col, "width", worksheetColumnWidth);
+            col.SetAttributeValue("customWidth", "1");
+
+            uint colMax = SpreadsheetXml.UInt(col, "max")!.Value;
+            if (colMax > maxInColumnsCollection)
+            {
+                maxInColumnsCollection = (int)colMax;
+            }
+        }
+
+        if (maxInColumnsCollection < XlsxSharp.XLHelper.MaxColumnNumber && worksheetStyleId != 0)
+        {
+            columns.Add(
+                NewColumn(
+                    (uint)(maxInColumnsCollection + 1),
+                    (uint)XlsxSharp.XLHelper.MaxColumnNumber,
+                    worksheetStyleId,
+                    worksheetColumnWidth
+                )
+            );
+        }
+
+        CollapseColumns(columns, sheetColumnsByMin);
+
+        if (!columns.Elements(SpreadsheetXml.Main + "col").Any())
+        {
+            columns.Remove();
         }
     }
 
     private static double GetColumnWidth(double columnWidth) =>
         Math.Min(255.0, Math.Max(0.0, columnWidth + XLConstants.ColumnWidthOffset));
 
-    private static void UpdateColumn(
-        Column column,
-        Columns columns,
-        Dictionary<uint, Column> sheetColumnsByMin
+    private static XElement NewColumn(
+        uint min,
+        uint max,
+        uint style,
+        double width,
+        bool? hidden = null,
+        bool? collapsed = null,
+        byte? outlineLevel = null
     )
     {
-        if (!sheetColumnsByMin.TryGetValue(column.Min.Value, out Column newColumn))
+        XElement column = new(
+            SpreadsheetXml.Main + "col",
+            new XAttribute("min", min),
+            new XAttribute("max", max),
+            new XAttribute("style", style),
+            new XAttribute("customWidth", "1")
+        );
+        WorksheetXml.Set(column, "width", width);
+        if (hidden == true)
         {
-            newColumn = (Column)column.CloneNode(true);
-            columns.AppendChild(newColumn);
-            sheetColumnsByMin.Add(column.Min.Value, newColumn);
+            column.SetAttributeValue("hidden", "1");
+        }
+
+        if (collapsed == true)
+        {
+            column.SetAttributeValue("collapsed", "1");
+        }
+
+        if (outlineLevel is { } level && level > 0)
+        {
+            column.SetAttributeValue("outlineLevel", level);
+        }
+
+        return column;
+    }
+
+    /// <summary>
+    /// Places one column's worth of formatting into the tree, splitting an existing span that
+    /// covers it if there is one. A span wider than a single column is shaved down one column at
+    /// a time as each of its columns is visited in turn, rather than replaced outright, so a
+    /// column the model never mentions keeps whatever of the span's own attributes it had.
+    /// </summary>
+    private static void UpdateColumn(
+        XElement column,
+        XElement columns,
+        Dictionary<uint, XElement> sheetColumnsByMin
+    )
+    {
+        uint columnMin = SpreadsheetXml.UInt(column, "min")!.Value;
+        if (!sheetColumnsByMin.TryGetValue(columnMin, out XElement existingColumn))
+        {
+            XElement newColumn = new(column);
+            columns.Add(newColumn);
+            sheetColumnsByMin.Add(columnMin, newColumn);
+            return;
+        }
+
+        XElement replacement = new(existingColumn);
+        replacement.SetAttributeValue("min", columnMin);
+        replacement.SetAttributeValue("max", SpreadsheetXml.UInt(column, "max"));
+        replacement.SetAttributeValue("style", SpreadsheetXml.UInt(column, "style"));
+        WorksheetXml.Set(
+            replacement,
+            "width",
+            SpreadsheetXml.Double(column, "width")!.Value.SaveRound()
+        );
+        replacement.SetAttributeValue("customWidth", column.Attribute("customWidth")?.Value);
+        replacement.SetAttributeValue(
+            "hidden",
+            column.Attribute("hidden") is not null ? "1" : null
+        );
+        replacement.SetAttributeValue(
+            "collapsed",
+            column.Attribute("collapsed") is not null ? "1" : null
+        );
+        replacement.SetAttributeValue(
+            "outlineLevel",
+            SpreadsheetXml.UInt(column, "outlineLevel") is { } level && level > 0 ? level : null
+        );
+
+        sheetColumnsByMin.Remove(columnMin);
+        uint existingMin = SpreadsheetXml.UInt(existingColumn, "min")!.Value;
+        uint existingMax = SpreadsheetXml.UInt(existingColumn, "max")!.Value;
+        if (existingMin + 1 > existingMax)
+        {
+            // The existing span was exactly one column wide, so it is fully replaced.
+            existingColumn.Remove();
+            columns.Add(replacement);
+            sheetColumnsByMin.Add(columnMin, replacement);
         }
         else
         {
-            Column existingColumn = sheetColumnsByMin[column.Min.Value];
-            newColumn = (Column)existingColumn.CloneNode(true);
-            newColumn.Min = column.Min;
-            newColumn.Max = column.Max;
-            newColumn.Style = column.Style;
-            newColumn.Width = column.Width.SaveRound();
-            newColumn.CustomWidth = column.CustomWidth;
-
-            if (column.Hidden != null)
-            {
-                newColumn.Hidden = true;
-            }
-            else
-            {
-                newColumn.Hidden = null;
-            }
-
-            if (column.Collapsed != null)
-            {
-                newColumn.Collapsed = true;
-            }
-            else
-            {
-                newColumn.Collapsed = null;
-            }
-
-            if (column.OutlineLevel != null && column.OutlineLevel > 0)
-            {
-                newColumn.OutlineLevel = (byte)column.OutlineLevel;
-            }
-            else
-            {
-                newColumn.OutlineLevel = null;
-            }
-
-            sheetColumnsByMin.Remove(column.Min.Value);
-            if (existingColumn.Min + 1 > existingColumn.Max)
-            {
-                //existingColumn.Min = existingColumn.Min + 1;
-                //columns.InsertBefore(existingColumn, newColumn);
-                //existingColumn.Remove();
-                columns.RemoveChild(existingColumn);
-                columns.AppendChild(newColumn);
-                sheetColumnsByMin.Add(newColumn.Min.Value, newColumn);
-            }
-            else
-            {
-                //columns.InsertBefore(existingColumn, newColumn);
-                columns.AppendChild(newColumn);
-                sheetColumnsByMin.Add(newColumn.Min.Value, newColumn);
-                existingColumn.Min = existingColumn.Min + 1;
-                sheetColumnsByMin.Add(existingColumn.Min.Value, existingColumn);
-            }
+            // The existing span continues past this column; shrink it from the front instead of
+            // removing it, so what is left of it can be found under its new starting column.
+            columns.Add(replacement);
+            sheetColumnsByMin.Add(columnMin, replacement);
+            existingColumn.SetAttributeValue("min", existingMin + 1);
+            sheetColumnsByMin.Add(existingMin + 1, existingColumn);
         }
     }
 
-    private static bool ColumnsAreEqual(Column left, Column right) =>
-        (
-            (left.Style == null && right.Style == null)
-            || (left.Style != null && right.Style != null && left.Style.Value == right.Style.Value)
-        )
-        && (
-            (left.Width == null && right.Width == null)
-            || (
-                left.Width != null
-                && right.Width != null
-                && (Math.Abs(left.Width.Value - right.Width.Value) < XlsxSharp.XLHelper.Epsilon)
+    /// <summary>
+    /// Merges adjacent columns that carry the same formatting into a single span, the way Excel
+    /// itself writes them.
+    /// </summary>
+    private static void CollapseColumns(XElement columns, Dictionary<uint, XElement> sheetColumns)
+    {
+        uint lastMin = 1;
+        int count = sheetColumns.Count;
+        KeyValuePair<uint, XElement>[] ordered = [.. sheetColumns.OrderBy(entry => entry.Key)];
+        for (int i = 0; i < count; i++)
+        {
+            KeyValuePair<uint, XElement> entry = ordered[i];
+            if (i + 1 != count && ColumnsAreEqual(entry.Value, ordered[i + 1].Value))
+            {
+                continue;
+            }
+
+            XElement mergedColumn = new(entry.Value);
+            mergedColumn.SetAttributeValue("min", lastMin);
+            uint mergedMax = SpreadsheetXml.UInt(mergedColumn, "max")!.Value;
+
+            foreach (
+                XElement toRemove in columns
+                    .Elements(SpreadsheetXml.Main + "col")
+                    .Where(col =>
+                        SpreadsheetXml.UInt(col, "min") >= lastMin
+                        && SpreadsheetXml.UInt(col, "max") <= mergedMax
+                    )
+                    .ToList()
             )
+            {
+                toRemove.Remove();
+            }
+
+            columns.Add(mergedColumn);
+            lastMin = entry.Key + 1;
+        }
+    }
+
+    private static bool ColumnsAreEqual(XElement left, XElement right) =>
+        NullableEquals(SpreadsheetXml.UInt(left, "style"), SpreadsheetXml.UInt(right, "style"))
+        && NullableEquals(
+            SpreadsheetXml.Double(left, "width"),
+            SpreadsheetXml.Double(right, "width"),
+            XlsxSharp.XLHelper.Epsilon
         )
-        && (
-            (left.Hidden == null && right.Hidden == null)
-            || (
-                left.Hidden != null
-                && right.Hidden != null
-                && left.Hidden.Value == right.Hidden.Value
-            )
+        && NullableEquals(SpreadsheetXml.Bool(left, "hidden"), SpreadsheetXml.Bool(right, "hidden"))
+        && NullableEquals(
+            SpreadsheetXml.Bool(left, "collapsed"),
+            SpreadsheetXml.Bool(right, "collapsed")
         )
-        && (
-            (left.Collapsed == null && right.Collapsed == null)
-            || (
-                left.Collapsed != null
-                && right.Collapsed != null
-                && left.Collapsed.Value == right.Collapsed.Value
-            )
-        )
-        && (
-            (left.OutlineLevel == null && right.OutlineLevel == null)
-            || (
-                left.OutlineLevel != null
-                && right.OutlineLevel != null
-                && left.OutlineLevel.Value == right.OutlineLevel.Value
-            )
+        && NullableEquals(
+            SpreadsheetXml.UInt(left, "outlineLevel"),
+            SpreadsheetXml.UInt(right, "outlineLevel")
         );
 
+    private static bool NullableEquals<T>(T? left, T? right)
+        where T : struct, IEquatable<T> =>
+        (left is null && right is null)
+        || (left is not null && right is not null && left.Value.Equals(right.Value));
+
+    private static bool NullableEquals(double? left, double? right, double epsilon) =>
+        (left is null && right is null)
+        || (left is not null && right is not null && Math.Abs(left.Value - right.Value) < epsilon);
+
+    // http://polymathprogrammer.com/2009/10/22/english-metric-units-and-open-xml/
+    // http://archive.oreilly.com/pub/post/what_is_an_emu.html
+    // https://en.wikipedia.org/wiki/Office_Open_XML_file_formats#DrawingML
     // http://polymathprogrammer.com/2009/10/22/english-metric-units-and-open-xml/
     // http://archive.oreilly.com/pub/post/what_is_an_emu.html
     // https://en.wikipedia.org/wiki/Office_Open_XML_file_formats#DrawingML
     private static long ConvertToEnglishMetricUnits(int pixels, double resolution) =>
         Convert.ToInt64(914400L * pixels / resolution);
 
+    /// <summary>
+    /// The drawing part as it was, patched with the picture anchors that changed rather than
+    /// rebuilt - a loaded sheet's shapes, text boxes and connectors have no place in the picture
+    /// model and are carried through untouched, in the order they were in.
+    /// </summary>
+    private static (XElement Root, bool Standalone) ReadOrCreateWorksheetDrawing(
+        OpcPart drawingsPart
+    )
+    {
+        if (drawingsPart.Length > 0)
+        {
+            using Stream stream = drawingsPart.GetReadStream();
+            XDocument existing = XDocument.Load(stream);
+            XElement root =
+                existing.Root ?? throw PartStructureException.ExpectedElementNotFound("wsDr");
+            bool standalone = string.Equals(
+                existing.Declaration?.Standalone,
+                "yes",
+                StringComparison.OrdinalIgnoreCase
+            );
+            return (root, standalone);
+        }
+
+        XElement fresh = new(
+            DrawingXml.Xdr + "wsDr",
+            new XAttribute(XNamespace.Xmlns + "xdr", DrawingXml.Xdr.NamespaceName),
+            new XAttribute(XNamespace.Xmlns + "a", DrawingXml.A.NamespaceName),
+            new XAttribute(XNamespace.Xmlns + "r", SpreadsheetXml.Rel.NamespaceName)
+        );
+        return (fresh, false);
+    }
+
+    private static void SaveWorksheetDrawing(
+        OpcPart drawingsPart,
+        XElement worksheetDrawing,
+        bool standalone
+    )
+    {
+        using Stream stream = drawingsPart.GetWriteStream();
+        using XmlWriter xml = XmlWriter.Create(
+            stream,
+            new XmlWriterSettings { CloseOutput = true, Encoding = XlsxSharp.XLHelper.NoBomUTF8 }
+        );
+        XDocument document = standalone
+            ? new XDocument(new XDeclaration("1.0", "utf-8", "yes"), worksheetDrawing)
+            : new XDocument(worksheetDrawing);
+        document.Save(xml);
+    }
+
+    /// <summary>
+    /// The content type and file extension of a picture's format. Every format but the two
+    /// XlsxSharp added itself (Unknown, Webp) mirrors what the SDK declared for the equivalent
+    /// <c>ImagePartType</c>.
+    /// </summary>
+    private static readonly Dictionary<
+        XLPictureFormat,
+        (string ContentType, string Extension)
+    > ImageContentTypes = new()
+    {
+        [XLPictureFormat.Unknown] = ("image/unknown", ".bin"),
+        [XLPictureFormat.Bmp] = ("image/bmp", ".bmp"),
+        [XLPictureFormat.Gif] = ("image/gif", ".gif"),
+        [XLPictureFormat.Png] = ("image/png", ".png"),
+        [XLPictureFormat.Tiff] = ("image/tiff", ".tiff"),
+        [XLPictureFormat.Icon] = ("image/x-icon", ".ico"),
+        [XLPictureFormat.Pcx] = ("image/x-pcx", ".pcx"),
+        [XLPictureFormat.Jpeg] = ("image/jpeg", ".jpg"),
+        [XLPictureFormat.Emf] = ("image/x-emf", ".emf"),
+        [XLPictureFormat.Wmf] = ("image/x-wmf", ".wmf"),
+        [XLPictureFormat.Webp] = ("image/webp", ".webp"),
+    };
+
+    /// <summary>
+    /// The first image part name of that extension no part uses yet. The SDK counts separately
+    /// per extension and, unlike every other numbered part kind, leaves the first of each
+    /// extension unnumbered.
+    /// </summary>
+    private static string NextFreeImagePartName(OpcPackage package, string extension)
+    {
+        string first = $"/xl/media/image{extension}";
+        if (!package.TryGetPart(first, out _))
+        {
+            return first;
+        }
+
+        for (int number = 2; ; number++)
+        {
+            string candidate = $"/xl/media/image{number}{extension}";
+            if (!package.TryGetPart(candidate, out _))
+            {
+                return candidate;
+            }
+        }
+    }
+
     private static void AddPictureAnchor(
-        WorksheetPart worksheetPart,
+        XElement worksheetDrawing,
+        OpcPackage package,
+        OpcPart drawingsPart,
         Drawings.IXLPicture picture,
         SaveContext context
     )
     {
         XLPicture pic = picture as Drawings.XLPicture;
-        DrawingsPart drawingsPart =
-            worksheetPart.DrawingsPart
-            ?? worksheetPart.AddNewPart<DrawingsPart>(
-                context.RelIdGenerator.GetNext(RelType.Workbook)
-            );
-
-        if (drawingsPart.WorksheetDrawing == null)
-        {
-            drawingsPart.WorksheetDrawing = new Xdr.WorksheetDrawing();
-        }
-
-        Xdr.WorksheetDrawing worksheetDrawing = drawingsPart.WorksheetDrawing;
-
-        // Add namespaces
-        if (
-            !worksheetDrawing.NamespaceDeclarations.Any(nd =>
-                nd.Value.Equals("http://schemas.openxmlformats.org/drawingml/2006/main")
-            )
-        )
-        {
-            worksheetDrawing.AddNamespaceDeclaration(
-                "a",
-                "http://schemas.openxmlformats.org/drawingml/2006/main"
-            );
-        }
-
-        if (
-            !worksheetDrawing.NamespaceDeclarations.Any(nd =>
-                nd.Value.Equals(
-                    "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
-                )
-            )
-        )
-        {
-            worksheetDrawing.AddNamespaceDeclaration(
-                "r",
-                "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
-            );
-        }
-        /////////
 
         // Overwrite actual image binary data
-        ImagePart imagePart;
-        if (drawingsPart.HasPartWithId(pic.RelId))
+        OpcPart imagePart;
+        if (
+            !string.IsNullOrEmpty(pic.RelId)
+            && drawingsPart.Relationships.TryGetById(pic.RelId, out _)
+        )
         {
-            imagePart = drawingsPart.GetPartById(pic.RelId) as ImagePart;
+            imagePart = drawingsPart.GetRelatedPart(pic.RelId);
         }
         else
         {
             pic.RelId = context.RelIdGenerator.GetNext(RelType.Workbook);
-            imagePart = drawingsPart.AddImagePart(pic.Format.ToOpenXml(), pic.RelId);
+            (string contentType, string extension) = ImageContentTypes[pic.Format];
+            (imagePart, _) = drawingsPart.AddPartOfType(
+                package,
+                OoxmlPartTypes.Image,
+                contentType: contentType,
+                partName: NextFreeImagePartName(package, extension),
+                relationshipId: pic.RelId
+            );
         }
 
         using (MemoryStream stream = new())
@@ -2381,234 +994,298 @@ internal class WorksheetPartWriter
             pic.ImageStream.Position = 0;
             pic.ImageStream.CopyTo(stream);
             stream.Seek(0, SeekOrigin.Begin);
-            imagePart.FeedData(stream);
+            using Stream writeStream = imagePart.GetWriteStream();
+            stream.CopyTo(writeStream);
         }
-        /////////
 
-        // Clear current anchors
-        OpenXmlElement existingAnchor = GetAnchorFromImageId(drawingsPart, pic.RelId);
+        string embedId = drawingsPart.Relationships.GetIdOfTarget(imagePart.Name);
+
+        // Find the anchor this picture already had, if it has one, so it can be replaced in
+        // place rather than moved to the end.
+        XElement existingAnchor = worksheetDrawing
+            .Elements()
+            .FirstOrDefault(anchor => DrawingXml.PictureRelId(anchor) == pic.RelId);
 
         XLWorkbook wb = pic.Worksheet.Workbook;
         long extentsCx = ConvertToEnglishMetricUnits(pic.Width, wb.DpiX);
         long extentsCy = ConvertToEnglishMetricUnits(pic.Height, wb.DpiY);
+        uint nvpId = NextNonVisualDrawingPropertiesId(worksheetDrawing);
 
-        IEnumerable<Xdr.NonVisualDrawingProperties> nvps =
-            worksheetDrawing.Descendants<Xdr.NonVisualDrawingProperties>();
-        uint nvpId = nvps.Any()
-            ? (UInt32Value)
-                worksheetDrawing.Descendants<Xdr.NonVisualDrawingProperties>().Max(p => p.Id.Value)
-                + 1
-            : 1U;
-
-        Xdr.FromMarker fMark;
-        Xdr.ToMarker tMark;
-        switch (pic.Placement)
+        XElement anchor = pic.Placement switch
         {
-            case Drawings.XLPicturePlacement.FreeFloating:
-                Xdr.AbsoluteAnchor absoluteAnchor = new(
-                    new Xdr.Position
-                    {
-                        X = ConvertToEnglishMetricUnits(pic.Left, wb.DpiX),
-                        Y = ConvertToEnglishMetricUnits(pic.Top, wb.DpiY),
-                    },
-                    new Xdr.Extent { Cx = extentsCx, Cy = extentsCy },
-                    new Xdr.Picture(
-                        new Xdr.NonVisualPictureProperties(
-                            new Xdr.NonVisualDrawingProperties { Id = nvpId, Name = pic.Name },
-                            new Xdr.NonVisualPictureDrawingProperties(
-                                new PictureLocks { NoChangeAspect = true }
-                            )
-                        ),
-                        new Xdr.BlipFill(
-                            new Blip
-                            {
-                                Embed = drawingsPart.GetIdOfPart(imagePart),
-                                CompressionState = BlipCompressionValues.Print,
-                            },
-                            new Stretch((FillRectangle)[])
-                        ),
-                        new Xdr.ShapeProperties(
-                            new Transform2D(
-                                new Offset { X = 0, Y = 0 },
-                                new Extents { Cx = extentsCx, Cy = extentsCy }
-                            ),
-                            new PresetGeometry { Preset = ShapeTypeValues.Rectangle }
-                        )
-                    ),
-                    new Xdr.ClientData()
-                );
+            Drawings.XLPicturePlacement.FreeFloating => AbsoluteAnchor(
+                pic,
+                wb,
+                extentsCx,
+                extentsCy,
+                nvpId,
+                embedId
+            ),
+            Drawings.XLPicturePlacement.MoveAndSize => TwoCellAnchor(
+                pic,
+                wb,
+                extentsCx,
+                extentsCy,
+                nvpId,
+                embedId
+            ),
+            Drawings.XLPicturePlacement.Move => OneCellAnchor(
+                pic,
+                wb,
+                extentsCx,
+                extentsCy,
+                nvpId,
+                embedId
+            ),
+            _ => null,
+        };
 
-                AttachAnchor(absoluteAnchor, existingAnchor);
-                break;
-
-            case Drawings.XLPicturePlacement.MoveAndSize:
-                XLMarker moveAndSizeFromMarker = pic.Markers[Drawings.XLMarkerPosition.TopLeft];
-                if (moveAndSizeFromMarker == null)
-                {
-                    moveAndSizeFromMarker = new Drawings.XLMarker(picture.Worksheet.Cell("A1"));
-                }
-
-                fMark = new Xdr.FromMarker
-                {
-                    ColumnId = new Xdr.ColumnId(
-                        (moveAndSizeFromMarker.ColumnNumber - 1).ToInvariantString()
-                    ),
-                    RowId = new Xdr.RowId(
-                        (moveAndSizeFromMarker.RowNumber - 1).ToInvariantString()
-                    ),
-                    ColumnOffset = new Xdr.ColumnOffset(
-                        ConvertToEnglishMetricUnits(moveAndSizeFromMarker.Offset.X, wb.DpiX)
-                            .ToInvariantString()
-                    ),
-                    RowOffset = new Xdr.RowOffset(
-                        ConvertToEnglishMetricUnits(moveAndSizeFromMarker.Offset.Y, wb.DpiY)
-                            .ToInvariantString()
-                    ),
-                };
-
-                XLMarker moveAndSizeToMarker = pic.Markers[Drawings.XLMarkerPosition.BottomRight];
-                if (moveAndSizeToMarker == null)
-                {
-                    moveAndSizeToMarker = new Drawings.XLMarker(
-                        picture.Worksheet.Cell("A1"),
-                        new System.Drawing.Point(picture.Width, picture.Height)
-                    );
-                }
-
-                tMark = new Xdr.ToMarker
-                {
-                    ColumnId = new Xdr.ColumnId(
-                        (moveAndSizeToMarker.ColumnNumber - 1).ToInvariantString()
-                    ),
-                    RowId = new Xdr.RowId((moveAndSizeToMarker.RowNumber - 1).ToInvariantString()),
-                    ColumnOffset = new Xdr.ColumnOffset(
-                        ConvertToEnglishMetricUnits(moveAndSizeToMarker.Offset.X, wb.DpiX)
-                            .ToInvariantString()
-                    ),
-                    RowOffset = new Xdr.RowOffset(
-                        ConvertToEnglishMetricUnits(moveAndSizeToMarker.Offset.Y, wb.DpiY)
-                            .ToInvariantString()
-                    ),
-                };
-
-                Xdr.TwoCellAnchor twoCellAnchor = new(
-                    fMark,
-                    tMark,
-                    new Xdr.Picture(
-                        new Xdr.NonVisualPictureProperties(
-                            new Xdr.NonVisualDrawingProperties { Id = nvpId, Name = pic.Name },
-                            new Xdr.NonVisualPictureDrawingProperties(
-                                new PictureLocks { NoChangeAspect = true }
-                            )
-                        ),
-                        new Xdr.BlipFill(
-                            new Blip
-                            {
-                                Embed = drawingsPart.GetIdOfPart(imagePart),
-                                CompressionState = BlipCompressionValues.Print,
-                            },
-                            new Stretch((FillRectangle)[])
-                        ),
-                        new Xdr.ShapeProperties(
-                            new Transform2D(
-                                new Offset { X = 0, Y = 0 },
-                                new Extents { Cx = extentsCx, Cy = extentsCy }
-                            ),
-                            new PresetGeometry { Preset = ShapeTypeValues.Rectangle }
-                        )
-                    ),
-                    new Xdr.ClientData()
-                );
-
-                AttachAnchor(twoCellAnchor, existingAnchor);
-                break;
-
-            case Drawings.XLPicturePlacement.Move:
-                XLMarker moveFromMarker = pic.Markers[Drawings.XLMarkerPosition.TopLeft];
-                if (moveFromMarker == null)
-                {
-                    moveFromMarker = new Drawings.XLMarker(picture.Worksheet.Cell("A1"));
-                }
-
-                fMark = new Xdr.FromMarker
-                {
-                    ColumnId = new Xdr.ColumnId(
-                        (moveFromMarker.ColumnNumber - 1).ToInvariantString()
-                    ),
-                    RowId = new Xdr.RowId((moveFromMarker.RowNumber - 1).ToInvariantString()),
-                    ColumnOffset = new Xdr.ColumnOffset(
-                        ConvertToEnglishMetricUnits(moveFromMarker.Offset.X, wb.DpiX)
-                            .ToInvariantString()
-                    ),
-                    RowOffset = new Xdr.RowOffset(
-                        ConvertToEnglishMetricUnits(moveFromMarker.Offset.Y, wb.DpiY)
-                            .ToInvariantString()
-                    ),
-                };
-
-                Xdr.OneCellAnchor oneCellAnchor = new(
-                    fMark,
-                    new Xdr.Extent { Cx = extentsCx, Cy = extentsCy },
-                    new Xdr.Picture(
-                        new Xdr.NonVisualPictureProperties(
-                            new Xdr.NonVisualDrawingProperties { Id = nvpId, Name = pic.Name },
-                            new Xdr.NonVisualPictureDrawingProperties(
-                                new PictureLocks { NoChangeAspect = true }
-                            )
-                        ),
-                        new Xdr.BlipFill(
-                            new Blip
-                            {
-                                Embed = drawingsPart.GetIdOfPart(imagePart),
-                                CompressionState = BlipCompressionValues.Print,
-                            },
-                            new Stretch((FillRectangle)[])
-                        ),
-                        new Xdr.ShapeProperties(
-                            new Transform2D(
-                                new Offset { X = 0, Y = 0 },
-                                new Extents { Cx = extentsCx, Cy = extentsCy }
-                            ),
-                            new PresetGeometry { Preset = ShapeTypeValues.Rectangle }
-                        )
-                    ),
-                    new Xdr.ClientData()
-                );
-
-                AttachAnchor(oneCellAnchor, existingAnchor);
-                break;
+        if (anchor is null)
+        {
+            return;
         }
 
-        void AttachAnchor(OpenXmlElement pictureAnchor, OpenXmlElement existingAnchor)
+        if (existingAnchor is not null)
         {
-            if (existingAnchor is not null)
-            {
-                worksheetDrawing.ReplaceChild(pictureAnchor, existingAnchor);
-            }
-            else
-            {
-                worksheetDrawing.Append(pictureAnchor);
-            }
+            existingAnchor.ReplaceWith(anchor);
+        }
+        else
+        {
+            worksheetDrawing.Add(anchor);
         }
     }
 
-    private static void RebaseNonVisualDrawingPropertiesIds(WorksheetPart worksheetPart)
-    {
-        Xdr.WorksheetDrawing worksheetDrawing = worksheetPart.DrawingsPart.WorksheetDrawing;
+    private static XElement AbsoluteAnchor(
+        XLPicture pic,
+        XLWorkbook wb,
+        long extentsCx,
+        long extentsCy,
+        uint nvpId,
+        string embedId
+    ) =>
+        new(
+            DrawingXml.Xdr + "absoluteAnchor",
+            new XElement(
+                DrawingXml.Xdr + "pos",
+                new XAttribute("x", ConvertToEnglishMetricUnits(pic.Left, wb.DpiX)),
+                new XAttribute("y", ConvertToEnglishMetricUnits(pic.Top, wb.DpiY))
+            ),
+            Extent(extentsCx, extentsCy),
+            PictureElement(pic, nvpId, extentsCx, extentsCy, embedId),
+            new XElement(DrawingXml.Xdr + "clientData")
+        );
 
-        List<Xdr.NonVisualDrawingProperties> toRebase =
-        [
-            .. worksheetDrawing.Descendants<Xdr.NonVisualDrawingProperties>(),
-        ];
-
-        toRebase.ForEach(nvdpr => nvdpr.Id = Convert.ToUInt32(toRebase.IndexOf(nvdpr) + 1));
-    }
-
-    private static void PopulateTablePartReferences(
-        XLTables xlTables,
-        Worksheet worksheet,
-        XLWorksheetContentManager cm
+    private static XElement TwoCellAnchor(
+        XLPicture pic,
+        XLWorkbook wb,
+        long extentsCx,
+        long extentsCy,
+        uint nvpId,
+        string embedId
     )
+    {
+        XLMarker from =
+            pic.Markers[Drawings.XLMarkerPosition.TopLeft]
+            ?? new Drawings.XLMarker(pic.Worksheet.Cell("A1"));
+        XLMarker to =
+            pic.Markers[Drawings.XLMarkerPosition.BottomRight]
+            ?? new Drawings.XLMarker(
+                pic.Worksheet.Cell("A1"),
+                new System.Drawing.Point(pic.Width, pic.Height)
+            );
+
+        return new XElement(
+            DrawingXml.Xdr + "twoCellAnchor",
+            Marker("from", from, wb),
+            Marker("to", to, wb),
+            PictureElement(pic, nvpId, extentsCx, extentsCy, embedId),
+            new XElement(DrawingXml.Xdr + "clientData")
+        );
+    }
+
+    private static XElement OneCellAnchor(
+        XLPicture pic,
+        XLWorkbook wb,
+        long extentsCx,
+        long extentsCy,
+        uint nvpId,
+        string embedId
+    )
+    {
+        XLMarker from =
+            pic.Markers[Drawings.XLMarkerPosition.TopLeft]
+            ?? new Drawings.XLMarker(pic.Worksheet.Cell("A1"));
+
+        return new XElement(
+            DrawingXml.Xdr + "oneCellAnchor",
+            Marker("from", from, wb),
+            Extent(extentsCx, extentsCy),
+            PictureElement(pic, nvpId, extentsCx, extentsCy, embedId),
+            new XElement(DrawingXml.Xdr + "clientData")
+        );
+    }
+
+    /// <summary>
+    /// A <c>from</c> or <c>to</c> marker: a cell and pixel offset written as EMU child elements
+    /// rather than attributes.
+    /// </summary>
+    private static XElement Marker(string name, XLMarker marker, XLWorkbook wb) =>
+        new(
+            DrawingXml.Xdr + name,
+            new XElement(DrawingXml.Xdr + "col", marker.ColumnNumber - 1),
+            new XElement(
+                DrawingXml.Xdr + "colOff",
+                ConvertToEnglishMetricUnits(marker.Offset.X, wb.DpiX)
+            ),
+            new XElement(DrawingXml.Xdr + "row", marker.RowNumber - 1),
+            new XElement(
+                DrawingXml.Xdr + "rowOff",
+                ConvertToEnglishMetricUnits(marker.Offset.Y, wb.DpiY)
+            )
+        );
+
+    private static XElement Extent(long cx, long cy) =>
+        new(DrawingXml.Xdr + "ext", new XAttribute("cx", cx), new XAttribute("cy", cy));
+
+    /// <summary>
+    /// The extents of a shape's own transform, in the drawingml namespace rather than the
+    /// spreadsheet drawing one the anchor-level extent uses.
+    /// </summary>
+    private static XElement TransformExtent(long cx, long cy) =>
+        new(DrawingXml.A + "ext", new XAttribute("cx", cx), new XAttribute("cy", cy));
+
+    private static XElement PictureElement(
+        XLPicture pic,
+        uint nvpId,
+        long extentsCx,
+        long extentsCy,
+        string embedId
+    ) =>
+        new(
+            DrawingXml.Xdr + "pic",
+            new XElement(
+                DrawingXml.Xdr + "nvPicPr",
+                new XElement(
+                    DrawingXml.Xdr + "cNvPr",
+                    new XAttribute("id", nvpId),
+                    new XAttribute("name", pic.Name)
+                ),
+                new XElement(
+                    DrawingXml.Xdr + "cNvPicPr",
+                    new XElement(DrawingXml.A + "picLocks", new XAttribute("noChangeAspect", "1"))
+                )
+            ),
+            new XElement(
+                DrawingXml.Xdr + "blipFill",
+                new XElement(
+                    DrawingXml.A + "blip",
+                    new XAttribute(SpreadsheetXml.Rel + "embed", embedId),
+                    new XAttribute("cstate", "print")
+                ),
+                new XElement(DrawingXml.A + "stretch", new XElement(DrawingXml.A + "fillRect"))
+            ),
+            new XElement(
+                DrawingXml.Xdr + "spPr",
+                new XElement(
+                    DrawingXml.A + "xfrm",
+                    new XElement(
+                        DrawingXml.A + "off",
+                        new XAttribute("x", 0),
+                        new XAttribute("y", 0)
+                    ),
+                    TransformExtent(extentsCx, extentsCy)
+                ),
+                new XElement(DrawingXml.A + "prstGeom", new XAttribute("prst", "rect"))
+            )
+        );
+
+    /// <summary>
+    /// Makes sure the root declares every namespace the drawing uses - which is where the SDK
+    /// always put them in addition to wherever else they were declared, regardless of where a
+    /// loaded part itself declared them. A shape written by Excel typically declares an
+    /// extension's namespace locally, on the element that first needs it, and a newly built
+    /// picture anchor has nowhere of its own to declare "r" at all; both are topped up here,
+    /// under whatever prefix is already in use, without touching a declaration that already
+    /// exists somewhere in the tree.
+    /// </summary>
+    private static void HoistNamespaceDeclarations(XElement root)
+    {
+        // Seeded with the three namespaces a freshly built anchor introduces, since a picture
+        // anchor being replaced can take its own local declaration of one of these down with it
+        // - the relationships namespace in particular is often declared only on the blip that
+        // uses it, never on the root, in a file Excel wrote.
+        Dictionary<XNamespace, string> prefixes = new()
+        {
+            [DrawingXml.Xdr] = "xdr",
+            [DrawingXml.A] = "a",
+            [SpreadsheetXml.Rel] = "r",
+        };
+        foreach (XElement element in root.DescendantsAndSelf())
+        {
+            Record(element.Name);
+            foreach (XAttribute attribute in element.Attributes())
+            {
+                if (!attribute.IsNamespaceDeclaration)
+                {
+                    Record(attribute.Name);
+                }
+            }
+
+            void Record(XName name)
+            {
+                if (name.Namespace != XNamespace.None && !prefixes.ContainsKey(name.Namespace))
+                {
+                    prefixes[name.Namespace] =
+                        element.GetPrefixOfNamespace(name.Namespace)
+                        ?? throw new InvalidOperationException(
+                            $"No prefix in scope for namespace '{name.NamespaceName}'."
+                        );
+                }
+            }
+        }
+
+        foreach ((XNamespace ns, string prefix) in prefixes)
+        {
+            if (root.GetPrefixOfNamespace(ns) is null)
+            {
+                root.SetAttributeValue(XNamespace.Xmlns + prefix, ns.NamespaceName);
+            }
+        }
+    }
+
+    /// <summary>
+    /// One more than the largest id any shape, connector or picture in the drawing already
+    /// carries - ids are shared across every kind of anchor, not just pictures.
+    /// </summary>
+    private static uint NextNonVisualDrawingPropertiesId(XElement worksheetDrawing)
+    {
+        List<uint> ids =
+        [
+            .. worksheetDrawing
+                .Descendants(DrawingXml.Xdr + "cNvPr")
+                .Select(el => SpreadsheetXml.UInt(el, "id")!.Value),
+        ];
+        return ids.Count == 0 ? 1U : ids.Max() + 1;
+    }
+
+    /// <summary>
+    /// Ids are shared across every anchor in the drawing, picture or not, so they are renumbered
+    /// as a whole in document order whenever a picture is added or changed.
+    /// </summary>
+    private static void RebaseNonVisualDrawingPropertiesIds(XElement worksheetDrawing)
+    {
+        List<XElement> toRebase = [.. worksheetDrawing.Descendants(DrawingXml.Xdr + "cNvPr")];
+        for (int i = 0; i < toRebase.Count; i++)
+        {
+            toRebase[i].SetAttributeValue("id", i + 1);
+        }
+    }
+
+    /// <summary>
+    /// <c>tableParts</c>, which the sheet always carries once any table has ever been added -
+    /// an empty tableParts is written rather than removed, matching what the loaded sheet had.
+    /// </summary>
+    private static void WriteTableParts(XElement worksheet, XLTables xlTables)
     {
         XLTable emptyTable = xlTables.FirstOrDefault<XLTable>(t => t.DataRange is null);
         if (emptyTable != null)
@@ -2616,98 +1293,1355 @@ internal class WorksheetPartWriter
             throw new EmptyTableException($"Table '{emptyTable.Name}' should have at least 1 row.");
         }
 
-        TableParts tableParts;
-        if (worksheet.Elements<TableParts>().Any())
-        {
-            tableParts = worksheet.Elements<TableParts>().First();
-        }
-        else
-        {
-            OpenXmlElement previousElement = cm.GetPreviousElementFor(
-                XLWorksheetContents.TableParts
-            );
-            tableParts = new TableParts();
-            worksheet.InsertAfter(tableParts, previousElement);
-        }
-        cm.SetElement(XLWorksheetContents.TableParts, tableParts);
+        XElement tableParts = WorksheetXml.Child(worksheet, "tableParts");
 
         xlTables.Deleted.Clear();
-        tableParts.RemoveAllChildren();
+        tableParts.RemoveNodes();
         foreach (XLTable xlTable in xlTables.Cast<XLTable>())
         {
-            tableParts.AppendChild(new TablePart { Id = xlTable.RelId });
+            tableParts.Add(
+                new XElement(
+                    SpreadsheetXml.Main + "tablePart",
+                    new XAttribute(SpreadsheetXml.Rel + "id", xlTable.RelId)
+                )
+            );
         }
 
-        tableParts.Count = (uint)xlTables.Count<XLTable>();
+        WorksheetXml.Set(tableParts, "count", (uint)xlTables.Count<XLTable>());
+    }
+
+    /// <summary>
+    /// Everything to do with pictures that isn't the anchors themselves: the parts of deleted
+    /// pictures, the sheet's own reference to the drawing part, and dropping that part and the
+    /// reference to it once nothing needs it any more.
+    /// </summary>
+    private static void WritePictures(
+        XElement worksheet,
+        OpcPackage package,
+        OpcPart worksheetPart,
+        XLWorksheet xlWorksheet,
+        SaveContext context
+    )
+    {
+        OpcPart existingDrawingsPart = worksheetPart.PartOfType(OoxmlPartTypes.Drawing);
+        if (existingDrawingsPart is not null)
+        {
+            XLPictures xlPictures = xlWorksheet.Pictures as Drawings.XLPictures;
+            foreach (string removedPicture in xlPictures.Deleted)
+            {
+                if (existingDrawingsPart.GetRelatedPartOrDefault(removedPicture) is { } imagePart)
+                {
+                    package.DeletePart(imagePart.Name);
+                }
+            }
+            xlPictures.Deleted.Clear();
+        }
+
+        if (xlWorksheet.Pictures.Count > 0)
+        {
+            OpcPart drawingsPart =
+                existingDrawingsPart
+                ?? worksheetPart
+                    .AddPartOfType(
+                        package,
+                        OoxmlPartTypes.Drawing,
+                        relationshipId: context.RelIdGenerator.GetNext(RelType.Workbook)
+                    )
+                    .Part;
+            (XElement worksheetDrawingXml, bool standalone) = ReadOrCreateWorksheetDrawing(
+                drawingsPart
+            );
+
+            foreach (XLPicture pic in xlWorksheet.Pictures)
+            {
+                AddPictureAnchor(worksheetDrawingXml, package, drawingsPart, pic, context);
+            }
+
+            RebaseNonVisualDrawingPropertiesIds(worksheetDrawingXml);
+            HoistNamespaceDeclarations(worksheetDrawingXml);
+            SaveWorksheetDrawing(drawingsPart, worksheetDrawingXml, standalone);
+
+            // A sheet that already carries a drawing reference keeps it exactly as it was
+            // loaded; only a sheet gaining pictures for the first time gets one written.
+            if (worksheet.Element(SpreadsheetXml.Main + "drawing") is null)
+            {
+                XElement drawingElement = WorksheetXml.Child(worksheet, "drawing");
+                // The SDK always redeclared "r" locally on a newly created element too,
+                // redundantly with the root's own declaration, and the reference workbooks
+                // record that redundancy.
+                drawingElement.SetAttributeValue(XNamespace.Xmlns + "r", RelationshipsNs);
+                drawingElement.SetAttributeValue(
+                    SpreadsheetXml.Rel + "id",
+                    worksheetPart.Relationships.GetIdOfTarget(drawingsPart.Name)
+                );
+            }
+        }
+
+        // Instead of saving a file with an empty Drawings.xml file, rather remove the .xml file
+        OpcPart drawingsPartNow = worksheetPart.PartOfType(OoxmlPartTypes.Drawing);
+        bool hasCharts =
+            drawingsPartNow is not null
+            && drawingsPartNow.Relationships.Any(r => r.TargetMode == OpcTargetMode.Internal);
+        if (
+            drawingsPartNow is not null
+            && // There is a drawing part for the sheet that could be deleted
+            xlWorksheet.LegacyDrawingId is null
+            && // and sheet doesn't contain any form controls or comments or other shapes
+            xlWorksheet.Pictures.Count == 0
+            && // and also no pictures.
+            !hasCharts
+        ) // and no charts
+        {
+            worksheet.Element(SpreadsheetXml.Main + "drawing")?.Remove();
+            package.DeletePart(drawingsPartNow.Name);
+        }
     }
 
     /// <summary>
     /// Stream detached worksheet DOM to the worksheet part stream.
     /// Replaces the content of the part.
     /// </summary>
+    /// <summary>
+    /// <c>sheetPr</c>, which carries the tab colour and how the sheet's outlines are laid out.
+    /// </summary>
+    private static void WriteSheetProperties(XElement worksheet, XLWorksheet xlWorksheet)
+    {
+        XElement sheetProperties = WorksheetXml.Child(worksheet, "sheetPr");
+
+        sheetProperties.Element(SpreadsheetXml.Main + "tabColor")?.Remove();
+        if (xlWorksheet.TabColor.HasValue)
+        {
+            SpreadsheetXml.SetColor(
+                WorksheetXml.Child(sheetProperties, "tabColor", WorksheetXml.SheetPropertyOrder),
+                xlWorksheet.TabColor
+            );
+        }
+
+        XElement outline = WorksheetXml.Child(
+            sheetProperties,
+            "outlinePr",
+            WorksheetXml.SheetPropertyOrder
+        );
+        WorksheetXml.SetBool(
+            outline,
+            "summaryBelow",
+            xlWorksheet.Outline.SummaryVLocation == XLOutlineSummaryVLocation.Bottom
+        );
+        WorksheetXml.SetBool(
+            outline,
+            "summaryRight",
+            xlWorksheet.Outline.SummaryHLocation == XLOutlineSummaryHLocation.Right
+        );
+
+        // A sheet set to fit to a number of pages says so here; the counts themselves are on
+        // pageSetup. A sheet that already says it is left alone.
+        if (
+            sheetProperties.Element(SpreadsheetXml.Main + "pageSetUpPr") is null
+            && (xlWorksheet.PageSetup.PagesTall > 0 || xlWorksheet.PageSetup.PagesWide > 0)
+        )
+        {
+            WorksheetXml.SetBool(
+                WorksheetXml.Child(sheetProperties, "pageSetUpPr", WorksheetXml.SheetPropertyOrder),
+                "fitToPage",
+                true
+            );
+        }
+    }
+
+    /// <summary>
+    /// <c>dimension</c>, which is only ever set once - a sheet that already has one from being
+    /// loaded keeps whatever it said, stale or not.
+    /// </summary>
+    private static void WriteDimension(XElement worksheet, XLWorksheet xlWorksheet)
+    {
+        if (worksheet.Element(SpreadsheetXml.Main + "dimension") is not null)
+        {
+            return;
+        }
+
+        // Empty worksheets have dimension A1 (not A1:A1)
+        string reference = "A1";
+        if (!xlWorksheet.Internals.CellsCollection.IsEmpty)
+        {
+            int maxColumn = xlWorksheet.Internals.CellsCollection.MaxColumnUsed;
+            int maxRow = xlWorksheet.Internals.CellsCollection.MaxRowUsed;
+            reference =
+                "A1:"
+                + XlsxSharp.XLHelper.GetColumnLetterFromNumber(maxColumn)
+                + maxRow.ToInvariantString();
+        }
+
+        WorksheetXml.Child(worksheet, "dimension").SetAttributeValue("ref", reference);
+    }
+
+    /// <summary>
+    /// <c>sheetViews</c>, and within it the one <c>sheetView</c> the workbook model tracks.
+    /// </summary>
+    private static void WriteSheetViews(XElement worksheet, XLWorksheet xlWorksheet)
+    {
+        XElement sheetViews = WorksheetXml.Child(worksheet, "sheetViews");
+        XElement sheetView = sheetViews.Element(SpreadsheetXml.Main + "sheetView");
+        if (sheetView is null)
+        {
+            sheetView = new XElement(
+                SpreadsheetXml.Main + "sheetView",
+                new XAttribute("workbookViewId", 0)
+            );
+            sheetViews.Add(sheetView);
+        }
+
+        WorksheetXml.SetBoolOptional(
+            sheetView,
+            "tabSelected",
+            xlWorksheet.TabSelected ? true : null
+        );
+        WorksheetXml.SetBoolOptional(
+            sheetView,
+            "rightToLeft",
+            xlWorksheet.RightToLeft ? true : null
+        );
+        WorksheetXml.SetBoolOptional(
+            sheetView,
+            "showFormulas",
+            xlWorksheet.ShowFormulas ? true : null
+        );
+
+        // These five default to shown; only an explicit "0" turns them off.
+        HideWhenFalse(sheetView, "showGridLines", xlWorksheet.ShowGridLines);
+        HideWhenFalse(sheetView, "showOutlineSymbols", xlWorksheet.ShowOutlineSymbols);
+        HideWhenFalse(sheetView, "showRowColHeaders", xlWorksheet.ShowRowColHeaders);
+        HideWhenFalse(sheetView, "showRuler", xlWorksheet.ShowRuler);
+        HideWhenFalse(sheetView, "showWhiteSpace", xlWorksheet.ShowWhiteSpace);
+        HideWhenFalse(sheetView, "showZeros", xlWorksheet.ShowZeros);
+
+        sheetView.SetAttributeValue(
+            "view",
+            xlWorksheet.SheetView.View == XLSheetViewOptions.Normal
+                ? null
+                : xlWorksheet.SheetView.View.ToXml()
+        );
+
+        XElement pane = WritePane(sheetView, xlWorksheet, out int hSplit, out int ySplit);
+
+        // Whether it's for a regular sheet or the bottom-right pane, the top left cell of the
+        // view is only written when it differs from the sheet's own default.
+        sheetView.SetAttributeValue(
+            "topLeftCell",
+            !xlWorksheet.SheetView.TopLeftCellAddress.IsValid
+            || xlWorksheet.SheetView.TopLeftCellAddress
+                == new XLAddress(1, 1, fixedRow: false, fixedColumn: false)
+                ? null
+                : xlWorksheet.SheetView.TopLeftCellAddress.ToString()
+        );
+
+        WriteSelections(sheetView, xlWorksheet, pane);
+
+        WriteZoom(sheetView, "zoomScale", xlWorksheet.SheetView.ZoomScale);
+        WriteZoom(sheetView, "zoomScaleNormal", xlWorksheet.SheetView.ZoomScaleNormal);
+        WriteZoom(
+            sheetView,
+            "zoomScalePageLayoutView",
+            xlWorksheet.SheetView.ZoomScalePageLayoutView
+        );
+        WriteZoom(
+            sheetView,
+            "zoomScaleSheetLayoutView",
+            xlWorksheet.SheetView.ZoomScaleSheetLayoutView
+        );
+
+        static void HideWhenFalse(XElement element, string name, bool shown) =>
+            element.SetAttributeValue(name, shown ? null : "0");
+
+        static void WriteZoom(XElement element, string name, int zoom) =>
+            element.SetAttributeValue(
+                name,
+                zoom == 100 ? null : (uint)Math.Max(10, Math.Min(400, zoom))
+            );
+    }
+
+    /// <summary>
+    /// The frozen pane, if the sheet has a split. Only <see cref="XLSheetViewOptions"/> that split
+    /// the sheet ever get written - a plain scroll split has nowhere to go in the workbook model.
+    /// </summary>
+    private static XElement WritePane(
+        XElement sheetView,
+        XLWorksheet xlWorksheet,
+        out int hSplit,
+        out int ySplit
+    )
+    {
+        hSplit = xlWorksheet.SheetView.SplitColumn;
+        ySplit = xlWorksheet.SheetView.SplitRow;
+
+        if (hSplit == 0 && ySplit == 0)
+        {
+            sheetView.Elements(SpreadsheetXml.Main + "pane").Remove();
+            return null;
+        }
+
+        XElement pane =
+            sheetView.Element(SpreadsheetXml.Main + "pane")
+            ?? WorksheetXml.Child(sheetView, "pane", WorksheetXml.SheetViewOrder);
+
+        pane.RemoveAttributes();
+        pane.SetAttributeValue("state", "frozenSplit");
+        pane.SetAttributeValue("xSplit", hSplit);
+        pane.SetAttributeValue("ySplit", ySplit);
+
+        // When panes are frozen, which part should move.
+        string activePane = (ySplit: ySplit != 0, hSplit: hSplit != 0) switch
+        {
+            (false, false) => "topLeft",
+            (false, true) => "topRight",
+            (true, false) => "bottomLeft",
+            (true, true) => "bottomRight",
+        };
+        pane.SetAttributeValue("activePane", activePane);
+        pane.SetAttributeValue(
+            "topLeftCell",
+            XlsxSharp.XLHelper.GetColumnLetterFromNumber(hSplit + 1) + (ySplit + 1)
+        );
+
+        return pane;
+    }
+
+    private static void WriteSelections(XElement sheetView, XLWorksheet xlWorksheet, XElement pane)
+    {
+        if (!xlWorksheet.SelectedRanges.Any() && xlWorksheet.ActiveCell is null)
+        {
+            return;
+        }
+
+        sheetView.Elements(SpreadsheetXml.Main + "selection").Remove();
+
+        IXLRange firstSelection = xlWorksheet.SelectedRanges.FirstOrDefault();
+
+        // If a pane exists, we need to set the active pane too. Yes, this might lead to 2
+        // Selection elements!
+        if (pane is not null)
+        {
+            AddSelection(pane.Attribute("activePane")?.Value);
+        }
+
+        AddSelection(null);
+
+        void AddSelection(string activePane)
+        {
+            XElement selection = new(SpreadsheetXml.Main + "selection");
+            if (activePane is not null)
+            {
+                selection.SetAttributeValue("pane", activePane);
+            }
+
+            string activeCell = xlWorksheet.ActiveCell is not null
+                ? xlWorksheet.ActiveCell.Value.ToString()
+                : firstSelection?.RangeAddress.FirstAddress.ToStringRelative(false);
+            selection.SetAttributeValue("activeCell", activeCell);
+
+            List<string> sequence =
+            [
+                activeCell,
+                .. xlWorksheet.SelectedRanges.Select(range =>
+                    range.RangeAddress.FirstAddress.Equals(range.RangeAddress.LastAddress)
+                        ? range.RangeAddress.FirstAddress.ToStringRelative(false)
+                        : range.RangeAddress.ToStringRelative(false)
+                ),
+            ];
+            selection.SetAttributeValue("sqref", string.Join(" ", sequence.Distinct()));
+
+            WorksheetXml.Insert(sheetView, "selection", selection, WorksheetXml.SheetViewOrder);
+        }
+    }
+
+    /// <summary>
+    /// <c>sheetFormatPr</c>, which carries the sheet's default row height and column width and
+    /// how deep its outlines go.
+    /// </summary>
+    private static void WriteSheetFormatProperties(XElement worksheet, XLWorksheet xlWorksheet)
+    {
+        XElement element = WorksheetXml.Child(worksheet, "sheetFormatPr");
+
+        WorksheetXml.Set(element, "defaultRowHeight", xlWorksheet.RowHeight.SaveRound());
+        WorksheetXml.SetBoolOptional(
+            element,
+            "customHeight",
+            xlWorksheet.RowHeightChanged ? true : null
+        );
+        WorksheetXml.SetOptional<double>(
+            element,
+            "defaultColWidth",
+            xlWorksheet.ColumnWidthChanged
+                ? GetColumnWidth(xlWorksheet.ColumnWidth).SaveRound()
+                : null
+        );
+
+        int maxOutlineColumn =
+            xlWorksheet.ColumnCount() > 0 ? xlWorksheet.GetMaxColumnOutline() : 0;
+        int maxOutlineRow = xlWorksheet.RowCount() > 0 ? xlWorksheet.GetMaxRowOutline() : 0;
+        WorksheetXml.SetOptional<byte>(
+            element,
+            "outlineLevelCol",
+            maxOutlineColumn > 0 ? (byte)maxOutlineColumn : null
+        );
+        WorksheetXml.SetOptional<byte>(
+            element,
+            "outlineLevelRow",
+            maxOutlineRow > 0 ? (byte)maxOutlineRow : null
+        );
+    }
+
+    /// <summary>
+    /// The sparkline groups, which live in an x14 extension of their own - the 2006 schema
+    /// predates them.
+    /// </summary>
+    private static void WriteSparklines(XElement worksheet, XLWorksheet xlWorksheet)
+    {
+        const string uri = "{05C60535-1F16-4fd2-B633-F4F36F0B64E0}";
+
+        if (!xlWorksheet.SparklineGroups.Any())
+        {
+            RemoveExtension(worksheet, uri, SpreadsheetXml.X14 + "sparklineGroups");
+            return;
+        }
+
+        XElement sparklineGroups = Extension(worksheet, uri, "sparklineGroups");
+
+        foreach (XLSparklineGroup xlSparklineGroup in xlWorksheet.SparklineGroupsInternal)
+        {
+            // Do not create an empty Sparkline group
+            if (!xlSparklineGroup.Sparklines.Any())
+            {
+                continue;
+            }
+
+            sparklineGroups.Add(WriteSparklineGroup(xlSparklineGroup));
+        }
+
+        // if all Sparkline groups had no Sparklines, remove the entire SparklineGroup element
+        if (!sparklineGroups.Elements().Any())
+        {
+            sparklineGroups.Remove();
+        }
+    }
+
+    private static XElement WriteSparklineGroup(XLSparklineGroup xlSparklineGroup)
+    {
+        XNamespace revision2 = "http://schemas.microsoft.com/office/spreadsheetml/2015/revision2";
+        XElement sparklineGroup = new(
+            SpreadsheetXml.X14 + "sparklineGroup",
+            new XAttribute(XNamespace.Xmlns + "xr2", revision2.NamespaceName),
+            new XAttribute(revision2 + "uid", "{A98FF5F8-AE60-43B5-8001-AD89004F45D3}")
+        );
+
+        WorksheetXml.Set(sparklineGroup, "lineWeight", xlSparklineGroup.LineWeight);
+        sparklineGroup.SetAttributeValue("type", xlSparklineGroup.Type.ToXml());
+        sparklineGroup.SetAttributeValue(
+            "displayEmptyCellsAs",
+            xlSparklineGroup.DisplayEmptyCellsAs.ToXml()
+        );
+        WorksheetXml.SetBool(sparklineGroup, "displayHidden", xlSparklineGroup.DisplayHidden);
+
+        Marker("markers", XLSparklineMarkers.Markers);
+        Marker("high", XLSparklineMarkers.HighPoint);
+        Marker("low", XLSparklineMarkers.LowPoint);
+        Marker("first", XLSparklineMarkers.FirstPoint);
+        Marker("last", XLSparklineMarkers.LastPoint);
+        Marker("negative", XLSparklineMarkers.NegativePoints);
+
+        IXLSparklineHorizontalAxis horizontalAxis = xlSparklineGroup.HorizontalAxis;
+        WorksheetXml.SetBool(sparklineGroup, "displayXAxis", horizontalAxis.IsVisible);
+        WorksheetXml.SetBool(sparklineGroup, "rightToLeft", horizontalAxis.RightToLeft);
+        WorksheetXml.SetBool(sparklineGroup, "dateAxis", horizontalAxis.DateAxis);
+
+        IXLSparklineVerticalAxis verticalAxis = xlSparklineGroup.VerticalAxis;
+        sparklineGroup.SetAttributeValue("minAxisType", verticalAxis.MinAxisType.ToXml());
+        sparklineGroup.SetAttributeValue("maxAxisType", verticalAxis.MaxAxisType.ToXml());
+
+        // A bound is only named when the axis is set to a bound of its own.
+        if (verticalAxis.MinAxisType == XLSparklineAxisMinMax.Custom)
+        {
+            WorksheetXml.SetOptional(sparklineGroup, "manualMin", verticalAxis.ManualMin);
+        }
+
+        if (verticalAxis.MaxAxisType == XLSparklineAxisMinMax.Custom)
+        {
+            WorksheetXml.SetOptional(sparklineGroup, "manualMax", verticalAxis.ManualMax);
+        }
+
+        IXLSparklineStyle style = xlSparklineGroup.Style;
+        Color("colorSeries", style.SeriesColor);
+        Color("colorNegative", style.NegativeColor);
+        Color("colorAxis", horizontalAxis.Color);
+        Color("colorMarkers", style.MarkersColor);
+        Color("colorFirst", style.FirstMarkerColor);
+        Color("colorLast", style.LastMarkerColor);
+        Color("colorHigh", style.HighMarkerColor);
+        Color("colorLow", style.LowMarkerColor);
+
+        if (horizontalAxis.DateAxis)
+        {
+            sparklineGroup.Add(
+                new XElement(
+                    SpreadsheetXml.Xm + "f",
+                    xlSparklineGroup.DateRange.RangeAddress.ToString(XLReferenceStyle.A1, true)
+                )
+            );
+        }
+
+        sparklineGroup.Add(
+            new XElement(
+                SpreadsheetXml.X14 + "sparklines",
+                xlSparklineGroup.Sparklines.Select(xlSparkline => new XElement(
+                    SpreadsheetXml.X14 + "sparkline",
+                    // When sparkline source data area is deleted, Excel shows it as #REF! and is
+                    // saved in file as an empty string
+                    new XElement(
+                        SpreadsheetXml.Xm + "f",
+                        xlSparkline.SourceDataFormula ?? string.Empty
+                    ),
+                    new XElement(SpreadsheetXml.Xm + "sqref", xlSparkline.Location.ToString())
+                ))
+            )
+        );
+
+        return sparklineGroup;
+
+        void Marker(string name, XLSparklineMarkers marker) =>
+            WorksheetXml.SetBool(
+                sparklineGroup,
+                name,
+                xlSparklineGroup.ShowMarkers.HasFlag(marker)
+            );
+
+        void Color(string name, XLColor color)
+        {
+            XElement element = new(SpreadsheetXml.X14 + name);
+            SpreadsheetXml.SetColor(element, color);
+            sparklineGroup.Add(element);
+        }
+    }
+
+    /// <summary>
+    /// The named extension's content element, made along with the extension and the list around
+    /// it if the sheet has none, and emptied if it has.
+    /// </summary>
+    private static XElement Extension(XElement worksheet, string uri, string contentName)
+    {
+        XElement extensionList = WorksheetXml.Child(worksheet, "extLst");
+        XElement content = extensionList
+            .Descendants(SpreadsheetXml.X14 + contentName)
+            .SingleOrDefault();
+        if (content is not null && content.Elements().Any())
+        {
+            content.RemoveNodes();
+            return content;
+        }
+
+        content = new XElement(
+            SpreadsheetXml.X14 + contentName,
+            new XAttribute(XNamespace.Xmlns + "xm", SpreadsheetXml.Xm.NamespaceName)
+        );
+        extensionList.Add(
+            new XElement(
+                SpreadsheetXml.Main + "ext",
+                new XAttribute(XNamespace.Xmlns + "x14", SpreadsheetXml.X14.NamespaceName),
+                new XAttribute("uri", uri),
+                content
+            )
+        );
+        return content;
+    }
+
+    /// <summary>
+    /// Drops the named extension, and the list around it if nothing else is in it.
+    /// </summary>
+    private static void RemoveExtension(XElement worksheet, string uri, XName contentName)
+    {
+        XElement extensionList = worksheet.Element(SpreadsheetXml.Main + "extLst");
+        XElement extension = extensionList
+            ?.Elements(SpreadsheetXml.Main + "ext")
+            .FirstOrDefault(candidate =>
+                string.Equals(
+                    SpreadsheetXml.String(candidate, "uri"),
+                    uri,
+                    StringComparison.OrdinalIgnoreCase
+                )
+            );
+
+        extension?.Elements(contentName).Remove();
+        if (extension is not null && !extension.Elements().Any())
+        {
+            extension.Remove();
+        }
+
+        if (extensionList is not null && !extensionList.Elements().Any())
+        {
+            extensionList.Remove();
+        }
+    }
+
+    /// <summary>
+    /// The sheet's data validations, which go to one of two places. A validation whose list or
+    /// bounds point at another sheet cannot be said in the 2006 schema at all, so it is written
+    /// in the x14 extension instead; the rest go in dataValidations where they belong.
+    /// </summary>
+    private static void WriteDataValidations(
+        XElement worksheet,
+        XLWorksheet xlWorksheet,
+        SaveOptions options
+    )
+    {
+        if (options.ConsolidateDataValidationRanges)
+        {
+            xlWorksheet.DataValidations.Consolidate();
+        }
+
+        List<(IXLDataValidation Validation, string MinValue, string MaxValue)> standard = [];
+        List<(IXLDataValidation Validation, string MinValue, string MaxValue)> extension = [];
+        foreach (XLDataValidation validation in xlWorksheet.DataValidations)
+        {
+            (bool minIsElsewhere, string minValue) = OnAnotherSheet(
+                xlWorksheet,
+                validation.MinValue
+            );
+            (bool maxIsElsewhere, string maxValue) = OnAnotherSheet(
+                xlWorksheet,
+                validation.MaxValue
+            );
+
+            (minIsElsewhere || maxIsElsewhere ? extension : standard).Add(
+                (validation, minValue, maxValue)
+            );
+        }
+
+        WriteStandardDataValidations(worksheet, standard);
+        WriteExtensionDataValidations(worksheet, extension);
+
+        // The spec wants a reference to a range on this sheet written without the sheet name,
+        // and one to another sheet is what forces the validation into the extension.
+        static (bool, string) OnAnotherSheet(XLWorksheet sheet, string value)
+        {
+            if (!XlsxSharp.XLHelper.IsValidRangeAddress(value))
+            {
+                return (false, value);
+            }
+
+            int separatorIndex = value.LastIndexOf('!');
+            if (separatorIndex < 0)
+            {
+                return (false, value);
+            }
+
+            string sheetName = value[..separatorIndex].UnescapeSheetName();
+            return XlsxSharp.XLHelper.SheetComparer.Equals(sheet.Name, sheetName)
+                ? (false, value[(separatorIndex + 1)..])
+                : (true, value);
+        }
+    }
+
+    private static void WriteStandardDataValidations(
+        XElement worksheet,
+        List<(IXLDataValidation Validation, string MinValue, string MaxValue)> validations
+    )
+    {
+        // The element must have at least one child, so a sheet whose validations all say nothing
+        // has none at all.
+        if (!validations.Any(validation => validation.Validation.IsDirty()))
+        {
+            worksheet.Element(SpreadsheetXml.Main + "dataValidations")?.Remove();
+            return;
+        }
+
+        XElement dataValidations = WorksheetXml.Child(worksheet, "dataValidations");
+        dataValidations.Elements(SpreadsheetXml.Main + "dataValidation").Remove();
+
+        foreach ((IXLDataValidation validation, string minValue, string maxValue) in validations)
+        {
+            XElement element = new(SpreadsheetXml.Main + "dataValidation");
+            SetDataValidationAttributes(element, validation);
+            element.SetAttributeValue(
+                "sqref",
+                string.Join(" ", validation.Ranges.Select(range => range.RangeAddress))
+            );
+            element.Add(
+                new XElement(SpreadsheetXml.Main + "formula1", minValue),
+                new XElement(SpreadsheetXml.Main + "formula2", maxValue)
+            );
+            dataValidations.Add(element);
+        }
+
+        WorksheetXml.Set(dataValidations, "count", (uint)validations.Count);
+    }
+
+    private static void WriteExtensionDataValidations(
+        XElement worksheet,
+        List<(IXLDataValidation Validation, string MinValue, string MaxValue)> validations
+    )
+    {
+        const string uri = "{CCE6A557-97BC-4b89-ADB6-D9C93CAAB3DF}";
+        XElement extensionList = worksheet.Element(SpreadsheetXml.Main + "extLst");
+
+        if (validations.Count == 0)
+        {
+            // The extension the sheet was loaded with goes, and the list around it goes too if
+            // nothing else is in it.
+            XElement extension = extensionList
+                ?.Elements(SpreadsheetXml.Main + "ext")
+                .FirstOrDefault(candidate =>
+                    string.Equals(
+                        SpreadsheetXml.String(candidate, "uri"),
+                        uri,
+                        StringComparison.OrdinalIgnoreCase
+                    )
+                );
+
+            extension?.Elements(SpreadsheetXml.X14 + "dataValidations").Remove();
+            if (extension is not null && !extension.Elements().Any())
+            {
+                extension.Remove();
+            }
+
+            if (extensionList is not null && !extensionList.Elements().Any())
+            {
+                extensionList.Remove();
+            }
+
+            return;
+        }
+
+        extensionList = WorksheetXml.Child(worksheet, "extLst");
+        XElement dataValidations = extensionList
+            .Descendants(SpreadsheetXml.X14 + "dataValidations")
+            .SingleOrDefault();
+        if (dataValidations is null || !dataValidations.Elements().Any())
+        {
+            dataValidations = new XElement(
+                SpreadsheetXml.X14 + "dataValidations",
+                new XAttribute(XNamespace.Xmlns + "xm", SpreadsheetXml.Xm.NamespaceName)
+            );
+            extensionList.Add(
+                new XElement(
+                    SpreadsheetXml.Main + "ext",
+                    new XAttribute(XNamespace.Xmlns + "x14", SpreadsheetXml.X14.NamespaceName),
+                    new XAttribute("uri", uri),
+                    dataValidations
+                )
+            );
+        }
+        else
+        {
+            dataValidations.RemoveNodes();
+        }
+
+        foreach ((IXLDataValidation validation, string minValue, string maxValue) in validations)
+        {
+            XElement element = new(SpreadsheetXml.X14 + "dataValidation");
+            SetDataValidationAttributes(element, validation);
+            Formula("formula1", minValue);
+            Formula("formula2", maxValue);
+            element.Add(
+                new XElement(
+                    SpreadsheetXml.Xm + "sqref",
+                    string.Join(" ", validation.Ranges.Select(range => range.RangeAddress))
+                )
+            );
+            dataValidations.Add(element);
+
+            void Formula(string name, string value)
+            {
+                if (!string.IsNullOrWhiteSpace(value))
+                {
+                    element.Add(
+                        new XElement(
+                            SpreadsheetXml.X14 + name,
+                            new XElement(SpreadsheetXml.Xm + "f", value)
+                        )
+                    );
+                }
+            }
+        }
+
+        WorksheetXml.Set(dataValidations, "count", (uint)validations.Count);
+    }
+
+    /// <summary>
+    /// The attributes a data validation carries, which the 2006 schema and the x14 extension
+    /// spell the same way.
+    /// </summary>
+    private static void SetDataValidationAttributes(XElement element, IXLDataValidation validation)
+    {
+        element.SetAttributeValue("type", validation.AllowedValues.ToXml());
+        element.SetAttributeValue("errorStyle", validation.ErrorStyle.ToXml());
+        element.SetAttributeValue("operator", validation.Operator.ToXml());
+        WorksheetXml.SetBool(element, "allowBlank", validation.IgnoreBlanks);
+        WorksheetXml.SetBool(element, "showDropDown", !validation.InCellDropdown);
+        WorksheetXml.SetBool(element, "showInputMessage", validation.ShowInputMessage);
+        WorksheetXml.SetBool(element, "showErrorMessage", validation.ShowErrorMessage);
+        element.SetAttributeValue("errorTitle", validation.ErrorTitle);
+        element.SetAttributeValue("error", validation.ErrorMessage);
+        element.SetAttributeValue("promptTitle", validation.InputTitle);
+        element.SetAttributeValue("prompt", validation.InputMessage);
+    }
+
+    /// <summary>
+    /// The <c>conditionalFormatting</c> groups, one per set of ranges, and the x14 extension the
+    /// data bars among them need.
+    /// </summary>
+    private static void WriteConditionalFormats(
+        XElement worksheet,
+        XLWorksheet xlWorksheet,
+        SaveContext context
+    )
+    {
+        HashSet<XLConditionalFormat> pivotFormats =
+        [
+            .. xlWorksheet.PivotTables.SelectMany<XLPivotTable, XLConditionalFormat>(pivotTable =>
+                pivotTable.ConditionalFormats.Select(cf => cf.Format)
+            ),
+        ];
+
+        // Elements in sheet.ConditionalFormats were sorted according to priority during load,
+        // but new ones have priority 0. CFs are also interleaved with sheet CF. To deal with
+        // these situations, set correct unique priority (also required for pivot CF).
+        List<XLConditionalFormat> formats =
+        [
+            .. xlWorksheet
+                .ConditionalFormats.Cast<XLConditionalFormat>()
+                .Concat(pivotFormats)
+                .OrderBy(format => format.Priority),
+        ];
+        for (int i = 0; i < formats.Count; ++i)
+        {
+            formats[i].Priority = i + 1;
+        }
+
+        worksheet.Elements(SpreadsheetXml.Main + "conditionalFormatting").Remove();
+
+        XElement previous = null;
+        foreach (
+            IGrouping<(string Ranges, bool IsPivot), XLConditionalFormat> group in formats.GroupBy(
+                format => (Ranges(format), IsPivot: pivotFormats.Contains(format))
+            )
+        )
+        {
+            XElement conditionalFormatting = new(
+                SpreadsheetXml.Main + "conditionalFormatting",
+                new XAttribute("sqref", group.Key.Ranges),
+                group.Select(format => ConditionalFormatXml.Rule(format, format.Priority, context))
+            );
+
+            if (group.Key.IsPivot)
+            {
+                WorksheetXml.SetBool(conditionalFormatting, "pivot", true);
+            }
+
+            if (previous is null)
+            {
+                WorksheetXml.Insert(worksheet, "conditionalFormatting", conditionalFormatting);
+            }
+            else
+            {
+                previous.AddAfterSelf(conditionalFormatting);
+            }
+
+            previous = conditionalFormatting;
+        }
+
+        WriteConditionalFormatExtensions(worksheet, xlWorksheet);
+
+        static string Ranges(XLConditionalFormat format) =>
+            string.Join(
+                " ",
+                format.Ranges.Select(range => range.RangeAddress.ToStringRelative(false))
+            );
+    }
+
+    /// <summary>
+    /// The x14 rules of the sheet's data bars, which carry the negative colour and the axis the
+    /// 2006 schema has no place for. A rule already in the extension list is replaced along with
+    /// the formatting around it, so a workbook that is loaded and saved keeps one of each.
+    /// </summary>
+    private static void WriteConditionalFormatExtensions(
+        XElement worksheet,
+        XLWorksheet xlWorksheet
+    )
+    {
+        List<XLConditionalFormat> dataBars =
+        [
+            .. xlWorksheet.ConditionalFormats.Where<XLConditionalFormat>(format =>
+                format.ConditionalFormatType == XLConditionalFormatType.DataBar
+            ),
+        ];
+        if (dataBars.Count == 0)
+        {
+            return;
+        }
+
+        XElement extensionList = WorksheetXml.Child(worksheet, "extLst");
+        XElement conditionalFormattings = extensionList
+            .Descendants(SpreadsheetXml.X14 + "conditionalFormattings")
+            .SingleOrDefault();
+        if (conditionalFormattings is null || !conditionalFormattings.Elements().Any())
+        {
+            conditionalFormattings = new XElement(SpreadsheetXml.X14 + "conditionalFormattings");
+            extensionList.Add(
+                new XElement(
+                    SpreadsheetXml.Main + "ext",
+                    new XAttribute(XNamespace.Xmlns + "x14", SpreadsheetXml.X14.NamespaceName),
+                    new XAttribute("uri", "{78C0D931-6437-407d-A8EE-F0AAD7539E65}"),
+                    conditionalFormattings
+                )
+            );
+        }
+
+        foreach (XLConditionalFormat dataBar in dataBars)
+        {
+            string id = dataBar.Id.WrapInBraces();
+            conditionalFormattings
+                .Elements(SpreadsheetXml.X14 + "conditionalFormatting")
+                .Where(formatting =>
+                    formatting
+                        .Elements(SpreadsheetXml.X14 + "cfRule")
+                        .Any(rule => SpreadsheetXml.String(rule, "id") == id)
+                )
+                .Remove();
+
+            conditionalFormattings.Add(
+                new XElement(
+                    SpreadsheetXml.X14 + "conditionalFormatting",
+                    new XAttribute(XNamespace.Xmlns + "xm", SpreadsheetXml.Xm.NamespaceName),
+                    ConditionalFormatXml.ExtensionRule(dataBar),
+                    new XElement(
+                        SpreadsheetXml.Xm + "sqref",
+                        string.Join(
+                            " ",
+                            dataBar.Ranges.Select(range =>
+                                range.RangeAddress.ToStringRelative(false)
+                            )
+                        )
+                    )
+                )
+            );
+        }
+    }
+
+    /// <summary>
+    /// <c>sheetProtection</c>, which is written only for a protected sheet.
+    /// </summary>
+    private static void WriteSheetProtection(XElement worksheet, XLSheetProtection protection)
+    {
+        if (!protection.IsProtected)
+        {
+            worksheet.Element(SpreadsheetXml.Main + "sheetProtection")?.Remove();
+            return;
+        }
+
+        XElement element = WorksheetXml.Child(worksheet, "sheetProtection");
+        WorksheetXml.SetBoolDefault(element, "sheet", true, false);
+
+        // The password is written one way or the other, never both, so the way not taken is
+        // cleared off whatever the loaded sheet carried.
+        element.SetAttributeValue("password", null);
+        element.SetAttributeValue("algorithmName", null);
+        element.SetAttributeValue("hashValue", null);
+        element.SetAttributeValue("spinCount", null);
+        element.SetAttributeValue("saltValue", null);
+
+        if (protection.Algorithm == XLProtectionAlgorithm.Algorithm.SimpleHash)
+        {
+            if (!string.IsNullOrWhiteSpace(protection.PasswordHash))
+            {
+                element.SetAttributeValue("password", protection.PasswordHash);
+            }
+        }
+        else
+        {
+            element.SetAttributeValue(
+                "algorithmName",
+                DescribedEnumParser<XLProtectionAlgorithm.Algorithm>.ToDescription(
+                    protection.Algorithm
+                )
+            );
+            element.SetAttributeValue("hashValue", protection.PasswordHash);
+            WorksheetXml.Set(element, "spinCount", protection.SpinCount);
+            element.SetAttributeValue("saltValue", protection.Base64EncodedSalt);
+        }
+
+        // Every attribute says what is denied, so an element the sheet allows turns its attribute
+        // off. They differ only in what the schema already says about them.
+        Deny(XLSheetProtectionElements.FormatCells, "formatCells", true);
+        Deny(XLSheetProtectionElements.FormatColumns, "formatColumns", true);
+        Deny(XLSheetProtectionElements.FormatRows, "formatRows", true);
+        Deny(XLSheetProtectionElements.InsertColumns, "insertColumns", true);
+        Deny(XLSheetProtectionElements.InsertRows, "insertRows", true);
+        Deny(XLSheetProtectionElements.InsertHyperlinks, "insertHyperlinks", true);
+        Deny(XLSheetProtectionElements.DeleteColumns, "deleteColumns", true);
+        Deny(XLSheetProtectionElements.DeleteRows, "deleteRows", true);
+        Deny(XLSheetProtectionElements.Sort, "sort", true);
+        Deny(XLSheetProtectionElements.AutoFilter, "autoFilter", true);
+        Deny(XLSheetProtectionElements.PivotTables, "pivotTables", true);
+        Deny(XLSheetProtectionElements.EditScenarios, "scenarios", true);
+        Deny(XLSheetProtectionElements.EditObjects, "objects", false);
+        Deny(XLSheetProtectionElements.SelectLockedCells, "selectLockedCells", false);
+        Deny(XLSheetProtectionElements.SelectUnlockedCells, "selectUnlockedCells", false);
+
+        void Deny(XLSheetProtectionElements allowed, string name, bool deniedByDefault) =>
+            WorksheetXml.SetBoolDefault(
+                element,
+                name,
+                !protection.AllowedElements.HasFlag(allowed),
+                deniedByDefault
+            );
+    }
+
+    /// <summary>
+    /// <c>mergeCells</c>, which is written whole from the workbook model.
+    /// </summary>
+    private static void WriteMergedCells(XElement worksheet, XLRanges mergedRanges)
+    {
+        if (mergedRanges.Count == 0)
+        {
+            worksheet.Element(SpreadsheetXml.Main + "mergeCells")?.Remove();
+            return;
+        }
+
+        XElement element = WorksheetXml.Child(worksheet, "mergeCells");
+        element.RemoveNodes();
+        foreach (XLRange range in mergedRanges)
+        {
+            element.Add(
+                new XElement(
+                    SpreadsheetXml.Main + "mergeCell",
+                    new XAttribute(
+                        "ref",
+                        $"{range.RangeAddress.FirstAddress}:{range.RangeAddress.LastAddress}"
+                    )
+                )
+            );
+        }
+
+        WorksheetXml.Set(element, "count", (uint)mergedRanges.Count);
+    }
+
+    /// <summary>
+    /// <c>hyperlinks</c>, with a relationship for each link that points outside the workbook.
+    /// The relationships of the sheet's previous links go first, so a link removed from the
+    /// workbook takes its relationship with it.
+    /// </summary>
+    private static void WriteHyperlinks(
+        XElement worksheet,
+        OpcPart worksheetPart,
+        XLWorksheet xlWorksheet,
+        SaveContext context
+    )
+    {
+        foreach (
+            string relationshipId in worksheetPart
+                .Relationships.OfType(OoxmlPartTypes.HyperlinkRelationshipType)
+                .Select(r => r.Id)
+                .ToList()
+        )
+        {
+            worksheetPart.Relationships.Remove(relationshipId);
+        }
+
+        if (!xlWorksheet.Hyperlinks.Any())
+        {
+            worksheet.Element(SpreadsheetXml.Main + "hyperlinks")?.Remove();
+            return;
+        }
+
+        XElement element = WorksheetXml.Child(worksheet, "hyperlinks");
+        element.RemoveNodes();
+        foreach (XLHyperlink hyperlink in xlWorksheet.Hyperlinks)
+        {
+            XElement written = new(
+                SpreadsheetXml.Main + "hyperlink",
+                new XAttribute("ref", hyperlink.Cell.Address.ToString())
+            );
+
+            if (hyperlink.IsExternal)
+            {
+                string relId = context.RelIdGenerator.GetNext(XLWorkbook.RelType.Workbook);
+                written.SetAttributeValue(SpreadsheetXml.Rel + "id", relId);
+                worksheetPart.Relationships.AddExternal(
+                    hyperlink.ExternalAddress.OriginalString,
+                    OoxmlPartTypes.HyperlinkRelationshipType,
+                    relId
+                );
+            }
+            else
+            {
+                written.SetAttributeValue("location", hyperlink.InternalAddress);
+                written.SetAttributeValue("display", hyperlink.Cell.GetFormattedString());
+            }
+
+            if (!string.IsNullOrWhiteSpace(hyperlink.Tooltip))
+            {
+                written.SetAttributeValue("tooltip", hyperlink.Tooltip);
+            }
+
+            element.Add(written);
+        }
+    }
+
+    /// <summary>
+    /// <c>printOptions</c>, <c>pageMargins</c> and <c>pageSetup</c>, which say how the sheet is
+    /// printed. All three are always written, and all three replace whatever the loaded sheet
+    /// carried - the workbook model holds every one of their attributes.
+    /// </summary>
+    private static void WritePageSetup(XElement worksheet, IXLPageSetup pageSetup)
+    {
+        XElement printOptions = WorksheetXml.Child(worksheet, "printOptions");
+        WorksheetXml.SetBool(printOptions, "horizontalCentered", pageSetup.CenterHorizontally);
+        WorksheetXml.SetBool(printOptions, "verticalCentered", pageSetup.CenterVertically);
+        WorksheetXml.SetBool(printOptions, "headings", pageSetup.ShowRowAndColumnHeadings);
+        WorksheetXml.SetBool(printOptions, "gridLines", pageSetup.ShowGridlines);
+
+        XElement margins = WorksheetXml.Child(worksheet, "pageMargins");
+        WorksheetXml.Set(margins, "left", pageSetup.Margins.Left);
+        WorksheetXml.Set(margins, "right", pageSetup.Margins.Right);
+        WorksheetXml.Set(margins, "top", pageSetup.Margins.Top);
+        WorksheetXml.Set(margins, "bottom", pageSetup.Margins.Bottom);
+        WorksheetXml.Set(margins, "header", pageSetup.Margins.Header);
+        WorksheetXml.Set(margins, "footer", pageSetup.Margins.Footer);
+
+        WritePageSetupElement(WorksheetXml.Child(worksheet, "pageSetup"), pageSetup);
+    }
+
+    private static void WritePageSetupElement(XElement element, IXLPageSetup pageSetup)
+    {
+        WorksheetXml.Set(element, "paperSize", (uint)pageSetup.PaperSize);
+        element.SetAttributeValue("orientation", pageSetup.PageOrientation.ToXml());
+        element.SetAttributeValue("pageOrder", pageSetup.PageOrder.ToXml());
+        element.SetAttributeValue("cellComments", pageSetup.ShowComments.ToXml());
+        element.SetAttributeValue("errors", pageSetup.PrintErrorValue.ToXml());
+        WorksheetXml.SetBool(element, "blackAndWhite", pageSetup.BlackAndWhite);
+        WorksheetXml.SetBool(element, "draft", pageSetup.DraftQuality);
+
+        if (pageSetup.FirstPageNumber is { } firstPageNumber)
+        {
+            // Negative first page numbers are written as uint, e.g. -1 is 4294967295.
+            WorksheetXml.Set(element, "firstPageNumber", (uint)firstPageNumber);
+            WorksheetXml.SetBool(element, "useFirstPageNumber", true);
+        }
+        else
+        {
+            element.SetAttributeValue("firstPageNumber", null);
+            element.SetAttributeValue("useFirstPageNumber", null);
+        }
+
+        WorksheetXml.SetOptional<uint>(
+            element,
+            "horizontalDpi",
+            pageSetup.HorizontalDpi > 0 ? (uint)pageSetup.HorizontalDpi : null
+        );
+        WorksheetXml.SetOptional<uint>(
+            element,
+            "verticalDpi",
+            pageSetup.VerticalDpi > 0 ? (uint)pageSetup.VerticalDpi : null
+        );
+
+        // A sheet is either scaled or fitted to a number of pages, never both, and a count of one
+        // page is the default the attribute exists to override.
+        if (pageSetup.Scale > 0)
+        {
+            WorksheetXml.Set(element, "scale", (uint)pageSetup.Scale);
+            element.SetAttributeValue("fitToWidth", null);
+            element.SetAttributeValue("fitToHeight", null);
+        }
+        else
+        {
+            element.SetAttributeValue("scale", null);
+            WorksheetXml.SetOptional<uint>(
+                element,
+                "fitToWidth",
+                pageSetup.PagesWide >= 0 && pageSetup.PagesWide != 1
+                    ? (uint)pageSetup.PagesWide
+                    : null
+            );
+            WorksheetXml.SetOptional<uint>(
+                element,
+                "fitToHeight",
+                pageSetup.PagesTall >= 0 && pageSetup.PagesTall != 1
+                    ? (uint)pageSetup.PagesTall
+                    : null
+            );
+        }
+
+        // For some reason some Excel files already contains copies="0", which the validator
+        // refuses. Drop the attribute when that is the case.
+        if (SpreadsheetXml.UInt(element, "copies") is null or 0)
+        {
+            element.SetAttributeValue("copies", null);
+        }
+    }
+
+    /// <summary>
+    /// <c>headerFooter</c>, which is always written even when it says nothing - an empty element
+    /// is what a sheet with untouched headers gets. Only a header or footer the workbook model
+    /// has changed replaces what the loaded sheet carried.
+    /// </summary>
+    private static void WriteHeaderFooter(XElement worksheet, IXLPageSetup pageSetup)
+    {
+        XElement headerFooter = WorksheetXml.Child(worksheet, "headerFooter");
+        if (
+            !((XLHeaderFooter)pageSetup.Header).Changed
+            && !((XLHeaderFooter)pageSetup.Footer).Changed
+        )
+        {
+            return;
+        }
+
+        headerFooter.RemoveNodes();
+
+        WorksheetXml.SetBool(headerFooter, "scaleWithDoc", pageSetup.ScaleHFWithDocument);
+        WorksheetXml.SetBool(headerFooter, "alignWithMargins", pageSetup.AlignHFWithMargins);
+        WorksheetXml.SetBool(headerFooter, "differentFirst", pageSetup.DifferentFirstPageOnHF);
+        WorksheetXml.SetBool(headerFooter, "differentOddEven", pageSetup.DifferentOddEvenPagesOnHF);
+
+        Text("oddHeader", pageSetup.Header, XLHFOccurrence.OddPages);
+        Text("oddFooter", pageSetup.Footer, XLHFOccurrence.OddPages);
+        Text("evenHeader", pageSetup.Header, XLHFOccurrence.EvenPages);
+        Text("evenFooter", pageSetup.Footer, XLHFOccurrence.EvenPages);
+        Text("firstHeader", pageSetup.Header, XLHFOccurrence.FirstPage);
+        Text("firstFooter", pageSetup.Footer, XLHFOccurrence.FirstPage);
+
+        void Text(string name, IXLHeaderFooter source, XLHFOccurrence occurrence) =>
+            headerFooter.Add(new XElement(SpreadsheetXml.Main + name, source.GetText(occurrence)));
+    }
+
+    /// <summary>
+    /// A list of manual page breaks. The breaks the sheet already carries are left where they
+    /// are, so a file that names a break's width or its first row keeps saying so; only the ones
+    /// the workbook model no longer has go, and the ones it has gained are added at the end.
+    /// </summary>
+    private static void WriteBreaks(
+        XElement worksheet,
+        string name,
+        List<int> breaks,
+        uint lastLine
+    )
+    {
+        if (breaks.Count == 0)
+        {
+            worksheet.Element(SpreadsheetXml.Main + name)?.Remove();
+            return;
+        }
+
+        XElement element = WorksheetXml.Child(worksheet, name);
+        List<uint> kept = [];
+        foreach (XElement brk in element.Elements(SpreadsheetXml.Main + "brk").ToList())
+        {
+            if (SpreadsheetXml.UInt(brk, "id") is { } id && breaks.Contains(checked((int)id)))
+            {
+                kept.Add(id);
+            }
+            else
+            {
+                brk.Remove();
+            }
+        }
+
+        WorksheetXml.Set(element, "count", (uint)breaks.Count);
+        WorksheetXml.Set(element, "manualBreakCount", (uint)breaks.Count);
+
+        foreach (int id in breaks.Where(id => !kept.Contains((uint)id)))
+        {
+            element.Add(
+                new XElement(
+                    SpreadsheetXml.Main + "brk",
+                    new XAttribute("id", id),
+                    new XAttribute("max", lastLine),
+                    new XAttribute("man", "1")
+                )
+            );
+        }
+    }
+
     private static void StreamToPart(
-        Worksheet worksheet,
-        WorksheetPart worksheetPart,
+        XElement worksheet,
+        OpcPart worksheetPart,
         XLWorksheet xlWorksheet,
         SaveContext context,
         SaveOptions options
     )
     {
-        // Worksheet part might have some data, but the writer truncates everything upon creation.
-        using OpenXmlWriter writer = OpenXmlWriter.Create(worksheetPart);
-        using OpenXmlReader reader = OpenXmlReader.Create(worksheet);
+        // Worksheet part might have some data, but creating the stream truncates everything.
+        using Stream partStream = worksheetPart.GetWriteStream();
+        using XmlWriter xml = XmlWriter.Create(
+            partStream,
+            new XmlWriterSettings { CloseOutput = true, Encoding = XlsxSharp.XLHelper.NoBomUTF8 }
+        );
 
-        writer.WriteStartDocument(true);
+        xml.WriteStartDocument(true);
+        xml.WriteStartElement(
+            worksheet.GetPrefixOfNamespace(worksheet.Name.Namespace),
+            worksheet.Name.LocalName,
+            worksheet.Name.NamespaceName
+        );
 
-        while (reader.Read())
+        foreach (XAttribute attribute in worksheet.Attributes())
         {
-            if (reader.ElementType == typeof(SheetData))
-            {
-                StreamSheetData(writer, xlWorksheet, context, options);
+            WriteAttribute(xml, worksheet, attribute);
+        }
 
-                // Skip whole SheetData elements from original file, already written
-                reader.Skip();
-            }
-
-            if (reader.IsStartElement)
+        foreach (XElement child in worksheet.Elements())
+        {
+            if (child.Name == SpreadsheetXml.Main + "sheetData")
             {
-                writer.WriteStartElement(reader);
-                bool canContainText = typeof(OpenXmlLeafTextElement).IsAssignableFrom(
-                    reader.ElementType
-                );
-                if (canContainText)
-                {
-                    string text = reader.GetText();
-                    if (text.Length > 0)
-                    {
-                        writer.WriteString(text);
-                    }
-                }
+                StreamSheetData(xml, xlWorksheet, context, options);
             }
-            else if (reader.IsEndElement)
+            else
             {
-                writer.WriteEndElement();
+                child.WriteTo(xml);
             }
         }
-        writer.Close();
+
+        xml.WriteEndElement();
+        xml.WriteEndDocument();
+    }
+
+    private static void WriteAttribute(XmlWriter xml, XElement element, XAttribute attribute)
+    {
+        if (attribute.IsNamespaceDeclaration)
+        {
+            // A prefixed declaration is an attribute in the xmlns namespace; the default one is
+            // an attribute called xmlns in no namespace at all.
+            if (attribute.Name.Namespace == XNamespace.Xmlns)
+            {
+                xml.WriteAttributeString(
+                    "xmlns",
+                    attribute.Name.LocalName,
+                    XNamespace.Xmlns.NamespaceName,
+                    attribute.Value
+                );
+            }
+            else
+            {
+                xml.WriteAttributeString("xmlns", attribute.Value);
+            }
+
+            return;
+        }
+
+        xml.WriteAttributeString(
+            attribute.Name.Namespace == XNamespace.None
+                ? null
+                : element.GetPrefixOfNamespace(attribute.Name.Namespace),
+            attribute.Name.LocalName,
+            attribute.Name.NamespaceName,
+            attribute.Value
+        );
     }
 
     private static void StreamSheetData(
-        OpenXmlWriter writer,
+        XmlWriter xml,
         XLWorksheet xlWorksheet,
         SaveContext context,
         SaveOptions options
     )
     {
-        // Steal through reflection for now, whole OpenXmlPartWriter will be replaced by XmlWriter soon. OpenXmlPartWriter has basically
-        // no inner state, unless it is in a string leaf node. By writing SheetData through XmlWriter only, we bypass all that.
-        FieldInfo xmlWriterFieldInfo = typeof(OpenXmlPartWriter).GetField(
-            "_xmlWriter",
-            BindingFlags.Instance | BindingFlags.NonPublic
-        )!;
-        object untypedXmlWriter = xmlWriterFieldInfo.GetValue(writer);
-        XmlWriter xml = (XmlWriter)untypedXmlWriter;
-
         int maxColumn = GetMaxColumn(xlWorksheet);
 
         xml.WriteStartElement("sheetData", Main2006SsNs);

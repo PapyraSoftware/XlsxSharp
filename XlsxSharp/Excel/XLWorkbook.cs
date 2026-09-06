@@ -3,7 +3,6 @@
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
-using DocumentFormat.OpenXml;
 using XlsxSharp.Excel.CalcEngine;
 using XlsxSharp.Excel.CustomProperties;
 using XlsxSharp.Excel.Misc;
@@ -570,12 +569,14 @@ public sealed partial class XLWorkbook : IXLWorkbook
         }
         else if (this._loadSource == XLLoadSource.Stream)
         {
-            this._originalStream.Position = 0;
-
             using (FileStream fileStream = File.Create(file))
             {
-                CopyStream(this._originalStream, fileStream);
-                this.CreatePackage(fileStream, false, this._spreadsheetDocumentType, options);
+                this.CreatePackage(
+                    this._originalStream,
+                    fileStream,
+                    this._spreadsheetDocumentType,
+                    options
+                );
             }
         }
 
@@ -584,7 +585,7 @@ public sealed partial class XLWorkbook : IXLWorkbook
         this._originalStream = null;
     }
 
-    private static SpreadsheetDocumentType GetSpreadsheetDocumentType(string filePath)
+    private static XLSpreadsheetDocumentType GetSpreadsheetDocumentType(string filePath)
     {
         string extension = Path.GetExtension(filePath);
 
@@ -598,16 +599,16 @@ public sealed partial class XLWorkbook : IXLWorkbook
         switch (extension)
         {
             case "xlsm":
-                return SpreadsheetDocumentType.MacroEnabledWorkbook;
+                return XLSpreadsheetDocumentType.MacroEnabledWorkbook;
 
             case "xltm":
-                return SpreadsheetDocumentType.MacroEnabledTemplate;
+                return XLSpreadsheetDocumentType.MacroEnabledTemplate;
 
             case "xlsx":
-                return SpreadsheetDocumentType.Workbook;
+                return XLSpreadsheetDocumentType.Workbook;
 
             case "xltx":
-                return SpreadsheetDocumentType.Template;
+                return XLSpreadsheetDocumentType.Template;
 
             default:
                 throw new ArgumentException(
@@ -690,19 +691,24 @@ public sealed partial class XLWorkbook : IXLWorkbook
         {
             using (FileStream fileStream = new(this._originalFile, FileMode.Open, FileAccess.Read))
             {
-                CopyStream(fileStream, stream);
+                this.CreatePackage(fileStream, stream, this._spreadsheetDocumentType, options);
             }
-            this.CreatePackage(stream, false, this._spreadsheetDocumentType, options);
         }
         else if (this._loadSource == XLLoadSource.Stream)
         {
-            this._originalStream.Position = 0;
-            if (this._originalStream != stream)
+            if (this._originalStream == stream)
             {
-                CopyStream(this._originalStream, stream);
+                this.CreatePackage(stream, false, this._spreadsheetDocumentType, options);
             }
-
-            this.CreatePackage(stream, false, this._spreadsheetDocumentType, options);
+            else
+            {
+                this.CreatePackage(
+                    this._originalStream,
+                    stream,
+                    this._spreadsheetDocumentType,
+                    options
+                );
+            }
         }
 
         this._loadSource = XLLoadSource.Stream;
@@ -1164,7 +1170,7 @@ public sealed partial class XLWorkbook : IXLWorkbook
     }
 
     private static XLCalcEngine _calcEngineExpr;
-    private SpreadsheetDocumentType _spreadsheetDocumentType;
+    private XLSpreadsheetDocumentType _spreadsheetDocumentType;
 
     private static XLCalcEngine CalcEngineExpr =>
         _calcEngineExpr ??= new XLCalcEngine(CultureInfo.InvariantCulture);

@@ -1,77 +1,52 @@
 #nullable disable
 
 using System.Diagnostics;
-using System.Globalization;
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
-using DocumentFormat.OpenXml;
-using DocumentFormat.OpenXml.Packaging;
-using DocumentFormat.OpenXml.Spreadsheet;
-using DocumentFormat.OpenXml.Validation;
 using XlsxSharp.Excel.IO;
+using XlsxSharp.Excel.IO.Schemas;
 using XlsxSharp.Excel.Tables;
 using XlsxSharp.Extensions;
+using XlsxSharp.IO.Packaging;
 using Path = System.IO.Path;
 
 namespace XlsxSharp.Excel;
 
 public partial class XLWorkbook
 {
-    private static void Validate(SpreadsheetDocument package)
+    /// <summary>
+    /// Package validation used to run the SDK's own schema validator; <see cref="SchemaValidator"/>
+    /// replaces it with XlsxSharp's own, checking every schema-mapped part against the OOXML
+    /// schemas directly rather than through the SDK's object model.
+    /// </summary>
+    private static void Validate(OpcPackage package)
     {
-        CultureInfo backupCulture = Thread.CurrentThread.CurrentCulture;
-
-        IList<ValidationErrorInfo> errors;
-        try
+        IReadOnlyList<string> errors = SchemaValidator.Validate(package);
+        if (errors.Count > 0)
         {
-            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
-            OpenXmlValidator validator = new();
-            errors = validator.Validate(package).ToArray();
-
-            // The styles part is written directly into the part stream, without intermediate OOXML SDK
-            // representation. The validation loads the written XML into a memory so it can validate it.
-            // But the loaded in-memory represenation from validation is then picked up by
-            // the SpreadsheetDocument saving code and the XML would be re-serialized and the original XML
-            // from part writer would be discarded. That is a problem for the following reasons:
-            // * XML of a part would be different when saved with a validation and without a validation
-            // * There is no control over XML serialization. The writer is attempting to mimic Excel for
-            //   easier comparison against Excel (e.g. default namespace doesn't have a prefix), but part
-            //   writer just uses default serialization setting.
-            // To solve this, we discard the in-memory represenation created by the validator. Thus the save
-            // code will not re-serialize the part that has already been written.
-            if (package.WorkbookPart.WorkbookStylesPart is { } stylesPart)
-            {
-                stylesPart.UnloadRootElement();
-            }
-        }
-        finally
-        {
-            Thread.CurrentThread.CurrentCulture = backupCulture;
-        }
-
-        if (errors.Any())
-        {
-            string message = string.Join(
-                "\r\n",
-                errors
-                    .Select(e =>
-                        string.Format(
-                            "Part {0}, Path {1}: {2}",
-                            e.Part.Uri,
-                            e.Path.XPath,
-                            e.Description
-                        )
-                    )
-                    .ToArray()
-            );
-            throw new ApplicationException(message);
+            throw new ApplicationException(string.Join("\r\n", errors));
         }
     }
 
+    /// <summary>
+    /// The one place the workbook's own document type meets the packaging layer's, so that
+    /// nothing else in the model has to know the four kinds only differ in content type.
+    /// </summary>
+    private static OoxmlPartType WorkbookPartType(XLSpreadsheetDocumentType documentType) =>
+        documentType switch
+        {
+            XLSpreadsheetDocumentType.Workbook => OoxmlPartTypes.Workbook,
+            XLSpreadsheetDocumentType.Template => OoxmlPartTypes.WorkbookTemplate,
+            XLSpreadsheetDocumentType.MacroEnabledWorkbook => OoxmlPartTypes.MacroEnabledWorkbook,
+            XLSpreadsheetDocumentType.MacroEnabledTemplate =>
+                OoxmlPartTypes.MacroEnabledWorkbookTemplate,
+            _ => throw new ArgumentOutOfRangeException(nameof(documentType)),
+        };
+
     private void CreatePackage(
         string filePath,
-        SpreadsheetDocumentType spreadsheetDocumentType,
+        XLSpreadsheetDocumentType spreadsheetDocumentType,
         SaveOptions options
     )
     {
@@ -81,18 +56,13 @@ public partial class XLWorkbook
             Directory.CreateDirectory(directoryName);
         }
 
-        SpreadsheetDocument package = File.Exists(filePath)
-            ? SpreadsheetDocument.Open(filePath, true)
-            : SpreadsheetDocument.Create(filePath, spreadsheetDocumentType);
+        OpcPackage package = File.Exists(filePath)
+            ? OpcPackage.Open(filePath, writable: true)
+            : OpcPackage.Create(filePath);
 
         using (package)
         {
-            if (package.DocumentType != spreadsheetDocumentType)
-            {
-                package.ChangeDocumentType(spreadsheetDocumentType);
-            }
-
-            this.CreateParts(package, options);
+            this.CreateParts(package, WorkbookPartType(spreadsheetDocumentType), options);
             if (options.ValidatePackage)
             {
                 Validate(package);
@@ -103,177 +73,190 @@ public partial class XLWorkbook
     private void CreatePackage(
         Stream stream,
         bool newStream,
-        SpreadsheetDocumentType spreadsheetDocumentType,
+        XLSpreadsheetDocumentType spreadsheetDocumentType,
         SaveOptions options
     )
     {
-        SpreadsheetDocument package = newStream
-            ? SpreadsheetDocument.Create(stream, spreadsheetDocumentType)
-            : SpreadsheetDocument.Open(stream, true);
-
-        using (package)
+        if (newStream)
         {
-            this.CreateParts(package, options);
+            OoxmlPartType workbookPartType = WorkbookPartType(spreadsheetDocumentType);
+            using OpcPackage package = OpcPackage.Create();
+            this.CreateParts(package, workbookPartType, options);
             if (options.ValidatePackage)
             {
                 Validate(package);
             }
+
+            package.SaveTo(stream);
+            return;
+        }
+
+        this.CreatePackage(stream, stream, spreadsheetDocumentType, options);
+    }
+
+    /// <summary>
+    /// Reads the existing package from <paramref name="source"/> and saves the result to the
+    /// separate <paramref name="destination"/>, without a caller-side copy from one to the other
+    /// first: <see cref="OpcPackage.Open(Stream, Stream)"/> already reads all of
+    /// <paramref name="source"/> into its own buffer, so staging the same bytes into
+    /// <paramref name="destination"/> beforehand would only copy the whole package a second time
+    /// for nothing.
+    /// </summary>
+    private void CreatePackage(
+        Stream source,
+        Stream destination,
+        XLSpreadsheetDocumentType spreadsheetDocumentType,
+        SaveOptions options
+    )
+    {
+        using OpcPackage package = OpcPackage.Open(source, destination);
+        this.CreateParts(package, WorkbookPartType(spreadsheetDocumentType), options);
+        if (options.ValidatePackage)
+        {
+            Validate(package);
         }
     }
 
-    // http://blogs.msdn.com/b/vsod/archive/2010/02/05/how-to-delete-a-worksheet-from-excel-using-open-xml-sdk-2-0.aspx
-    private static void DeleteSheetAndDependencies(WorkbookPart wbPart, string sheetId)
+    /// <summary>
+    /// Drops the parts a deleted sheet leaves orphaned: its own worksheet part, and any pivot
+    /// cache definition part whose source was that sheet. The sheet element, defined names and
+    /// calculation chain entries that referenced it need no equivalent cleanup here - the parts
+    /// that carry them (<see cref="WorkbookPartWriter"/>, <see cref="CalculationChainPartWriter"/>)
+    /// are rebuilt wholesale from the model on every save rather than patched, so a deleted sheet
+    /// is simply absent from what they write.
+    /// </summary>
+    private static void DeleteSheetAndDependencies(
+        OpcPackage package,
+        OpcPart wbPart,
+        string sheetId
+    )
     {
-        //Get the SheetToDelete from workbook.xml
-        Sheet worksheet = wbPart.Workbook.Descendants<Sheet>().FirstOrDefault(s => s.Id == sheetId);
-        if (worksheet == null)
+        string? sheetName = WorkbookXml
+            .Read(wbPart)
+            .Element(SpreadsheetXml.Main + "sheets")
+            ?.Elements(SpreadsheetXml.Main + "sheet")
+            .FirstOrDefault(s => s.Attribute(SpreadsheetXml.Rel + "id")?.Value == sheetId)
+            ?.Attribute("name")
+            ?.Value;
+
+        if (sheetName is null)
         {
             return;
         }
 
-        string sheetName = worksheet.Name;
-        // Get the pivot Table Parts
-        IEnumerable<PivotTableCacheDefinitionPart> pvtTableCacheParts =
-            wbPart.PivotTableCacheDefinitionParts;
-        Dictionary<PivotTableCacheDefinitionPart, string> pvtTableCacheDefinitionPart = new();
-        foreach (PivotTableCacheDefinitionPart Item in pvtTableCacheParts)
-        {
-            PivotCacheDefinition pvtCacheDef = Item.PivotCacheDefinition;
-            //Check if this CacheSource is linked to SheetToDelete
-            if (
-                pvtCacheDef
-                    .Descendants<CacheSource>()
-                    .Any(cacheSource => cacheSource.WorksheetSource?.Sheet == sheetName)
-            )
-            {
-                pvtTableCacheDefinitionPart.Add(Item, Item.ToString());
-            }
-        }
         foreach (
-            KeyValuePair<PivotTableCacheDefinitionPart, string> Item in pvtTableCacheDefinitionPart
+            OpcPart cacheDefinitionPart in wbPart
+                .PartsOfType(OoxmlPartTypes.PivotCacheDefinition)
+                .Where(part => ReadsFromSheet(part, sheetName))
+                .ToList()
         )
         {
-            wbPart.DeletePart(Item.Key);
+            package.DeletePart(cacheDefinitionPart.Name);
         }
 
-        // Remove the sheet reference from the workbook.
-        WorksheetPart worksheetPart = (WorksheetPart)(wbPart.GetPartById(sheetId));
-        worksheet.Remove();
+        OpcPart worksheetPart = wbPart.GetRelatedPart(sheetId);
+        package.DeletePart(worksheetPart.Name);
+    }
 
-        // Delete the worksheet part.
-        wbPart.DeletePart(worksheetPart);
-
-        //Get the DefinedNames
-        DefinedNames definedNames = wbPart.Workbook.Descendants<DefinedNames>().FirstOrDefault();
-        if (definedNames != null)
-        {
-            List<DefinedName> defNamesToDelete = [];
-
-            foreach (DefinedName Item in definedNames.OfType<DefinedName>())
-            {
-                // This condition checks to delete only those names which are part of Sheet in question
-                if (Item.Text.Contains(worksheet.Name + "!"))
-                {
-                    defNamesToDelete.Add(Item);
-                }
-            }
-
-            foreach (DefinedName Item in defNamesToDelete)
-            {
-                Item.Remove();
-            }
-        }
-        // Get the CalculationChainPart
-        //Note: An instance of this part type contains an ordered set of references to all cells in all worksheets in the
-        //workbook whose value is calculated from any formula
-
-        CalculationChainPart calChainPart;
-        calChainPart = wbPart.CalculationChainPart;
-        if (calChainPart != null)
-        {
-            IEnumerable<CalculationCell> calChainEntries = calChainPart
-                .CalculationChain.Descendants<CalculationCell>()
-                .Where(c => c.SheetId == sheetId);
-            List<CalculationCell> calcsToDelete = [];
-            foreach (CalculationCell Item in calChainEntries)
-            {
-                calcsToDelete.Add(Item);
-            }
-
-            foreach (CalculationCell Item in calcsToDelete)
-            {
-                Item.Remove();
-            }
-
-            if (!calChainPart.CalculationChain.Any())
-            {
-                wbPart.DeletePart(calChainPart);
-            }
-        }
+    private static bool ReadsFromSheet(OpcPart part, string sheetName)
+    {
+        using Stream stream = part.GetReadStream();
+        return XDocument
+                .Load(stream)
+                .Root?.Element(SpreadsheetXml.Main + "cacheSource")
+                ?.Element(SpreadsheetXml.Main + "worksheetSource")
+                ?.Attribute("sheet")
+                ?.Value == sheetName;
     }
 
     // Adds child parts and generates content of the specified part.
-    private void CreateParts(SpreadsheetDocument document, SaveOptions options)
+    private void CreateParts(
+        OpcPackage package,
+        OoxmlPartType workbookPartType,
+        SaveOptions options
+    )
     {
         SaveContext context = new();
 
-        WorkbookPart workbookPart = document.WorkbookPart ?? document.AddWorkbookPart();
+        // Not from RelIdGenerator: that pool is what hands out every "rIdN" from here on for
+        // /_rels/.rels as much as for xl/_rels/workbook.xml.rels, and the sheets' own ids are
+        // among them - the reference workbooks were recorded with the SDK's own numbering, which
+        // starts those at "rId1" because the SDK gives the officeDocument relationship a GUID-
+        // shaped id of its own rather than drawing an "rIdN" that would shift everything after
+        // it. This id is package-level and never appears in anything the save compares - .rels
+        // parts are excluded from the comparison - so any id outside the "rIdN" shape the pool
+        // hands out keeps the two from colliding without needing to reserve a slot for it.
+        OpcPart workbookPart =
+            package.PartOfType(OoxmlPartTypes.Workbook)
+            ?? package.AddPartOfType(workbookPartType, relationshipId: "officeDocument").Part;
+
+        // The workbook, template and macro-enabled variants all point at the same part through
+        // the same "officeDocument" relationship, differing only in declared content type - a
+        // template loaded and saved as an ordinary workbook (or vice versa) keeps the same part
+        // and relationships, but needs that declaration brought in line with what was asked for.
+        if (workbookPart.ContentType != workbookPartType.ContentType)
+        {
+            package.ChangeContentType(workbookPart, workbookPartType.ContentType);
+        }
 
         XLWorksheets worksheets = this.WorksheetsInternal;
 
-        List<IdPartPair> partsToRemove =
+        List<OpcPart> partsToRemove =
         [
-            .. workbookPart.Parts.Where(s => worksheets.Deleted.Contains(s.RelationshipId)),
+            .. workbookPart
+                .Relationships.Where(r =>
+                    r.TargetMode == OpcTargetMode.Internal && worksheets.Deleted.Contains(r.Id)
+                )
+                .Select(r => package.GetPart(r.TargetPartName!)),
         ];
 
-        List<PivotTableCacheDefinitionPart> pivotCacheDefinitionsToRemove =
+        // Deleting a worksheet part orphans the pivot cache definition parts owned by pivot
+        // tables that lived on it - WorkbookPartWriter rebuilds <pivotCaches> from the surviving
+        // pivot tables afterwards, so no reference to these parts needs cleaning up here.
+        List<OpcPart> pivotCacheDefinitionsToRemove =
         [
             .. partsToRemove
                 .SelectMany(s =>
-                    ((WorksheetPart)s.OpenXmlPart).PivotTableParts.Select(pt =>
-                        pt.PivotTableCacheDefinitionPart
-                    )
+                    s.PartsOfType(OoxmlPartTypes.PivotTable)
+                        .Select(pt => pt.PartOfType(OoxmlPartTypes.PivotCacheDefinition))
                 )
+                .Where(c => c is not null)
                 .Distinct(),
         ];
-        pivotCacheDefinitionsToRemove.ForEach(c => workbookPart.DeletePart(c));
+        pivotCacheDefinitionsToRemove.ForEach(c => package.DeletePart(c!.Name));
 
-        if (workbookPart.Workbook != null && workbookPart.Workbook.PivotCaches != null)
-        {
-            List<OpenXmlElement> pivotCachesToRemove =
-            [
-                .. workbookPart
-                    .Workbook.PivotCaches.Where(pc =>
-                        pivotCacheDefinitionsToRemove
-                            .Select(pcd => workbookPart.GetIdOfPart(pcd))
-                            .ToList()
-                            .Contains(((PivotCache)pc).Id)
-                    )
-                    .Distinct(),
-            ];
-            pivotCachesToRemove.ForEach(c => workbookPart.Workbook.PivotCaches.RemoveChild(c));
-        }
-
-        worksheets.Deleted.ToList().ForEach(ws => DeleteSheetAndDependencies(workbookPart, ws));
+        worksheets
+            .Deleted.ToList()
+            .ForEach(ws => DeleteSheetAndDependencies(package, workbookPart, ws));
 
         // Ensure all RelId's have been added to the context
         context.RelIdGenerator.AddExistingValues(workbookPart, this);
 
-        ExtendedFilePropertiesPart extendedFilePropertiesPart =
-            document.ExtendedFilePropertiesPart
-            ?? document.AddNewPart<ExtendedFilePropertiesPart>(
-                context.RelIdGenerator.GetNext(RelType.Workbook)
-            );
+        OpcPart extendedFilePropertiesPart =
+            package.PartOfType(OoxmlPartTypes.ExtendedFileProperties)
+            ?? package
+                .AddPartOfType(
+                    OoxmlPartTypes.ExtendedFileProperties,
+                    relationshipId: context.RelIdGenerator.GetNext(RelType.Workbook)
+                )
+                .Part;
 
         ExtendedFilePropertiesPartWriter.GenerateContent(extendedFilePropertiesPart, this);
 
-        WorkbookPartWriter.GenerateContent(workbookPart, this, options, context);
+        // Only the relationship ids here. The XML goes out at the end of this method, once the
+        // pivot caches exist, but the ids have to be handed out at this point so that the parts
+        // created below get the same ones they did before.
+        WorkbookPartWriter.AssignSheetRelIds(this, context);
 
-        WorkbookStylesPart workbookStylesPart =
-            workbookPart.WorkbookStylesPart
-            ?? workbookPart.AddNewPart<WorkbookStylesPart>(
-                context.RelIdGenerator.GetNext(RelType.Workbook)
-            );
+        OpcPart workbookStylesPart =
+            workbookPart.PartOfType(OoxmlPartTypes.Styles)
+            ?? workbookPart
+                .AddPartOfType(
+                    package,
+                    OoxmlPartTypes.Styles,
+                    relationshipId: context.RelIdGenerator.GetNext(RelType.Workbook)
+                )
+                .Part;
 
         new StylesWriter().WriteContent(
             workbookStylesPart,
@@ -283,33 +266,21 @@ public partial class XLWorkbook
             context
         );
 
-        SharedStringTablePart sharedStringTablePart =
-            workbookPart.SharedStringTablePart
-            ?? workbookPart.AddNewPart<SharedStringTablePart>(
-                context.RelIdGenerator.GetNext(RelType.Workbook)
-            );
+        OpcPart sharedStringTablePart =
+            workbookPart.PartOfType(OoxmlPartTypes.SharedStringTable)
+            ?? workbookPart
+                .AddPartOfType(
+                    package,
+                    OoxmlPartTypes.SharedStringTable,
+                    relationshipId: context.RelIdGenerator.GetNext(RelType.Workbook)
+                )
+                .Part;
 
         SharedStringTableWriter.GenerateSharedStringTablePartContent(
             this,
             sharedStringTablePart,
             context
         );
-
-        IEnumerable<string> cacheRelIds = this
-            .PivotCachesInternal.Select<XLPivotCache, string>(ps => ps.WorkbookCacheRelId)
-            .Where(relId => !string.IsNullOrWhiteSpace(relId))
-            .Distinct();
-
-        foreach (string relId in cacheRelIds)
-        {
-            if (
-                workbookPart.GetPartById(relId)
-                is PivotTableCacheDefinitionPart pivotTableCacheDefinitionPart
-            )
-            {
-                pivotTableCacheDefinitionPart.PivotCacheDefinition.CacheFields.RemoveAllChildren();
-            }
-        }
 
         List<IXLPivotTable> allPivotTables =
         [
@@ -320,12 +291,12 @@ public partial class XLWorkbook
         // source that will be saved has all required parts created and relationship
         // ids are set (in this case `Workbook.PivotCaches` relationship table).
         // Only sources that are used by a table are saved.
-        SynchronizePivotTableParts(workbookPart, allPivotTables, context);
+        SynchronizePivotTableParts(package, workbookPart, allPivotTables, context);
 
         // Phase 2 - All parts and relationships are set, fill in the parts.
         if (allPivotTables.Any())
         {
-            this.GeneratePivotCaches(workbookPart, context);
+            this.GeneratePivotCaches(package, workbookPart, context);
         }
 
         foreach (
@@ -334,17 +305,21 @@ public partial class XLWorkbook
                 .OrderBy(w => w.Position)
         )
         {
-            WorksheetPart worksheetPart;
+            OpcPart worksheetPart;
             string wsRelId = worksheet.RelId;
             bool partIsEmpty;
-            if (workbookPart.Parts.Any(p => p.RelationshipId == wsRelId))
+            if (workbookPart.Relationships.TryGetById(wsRelId, out _))
             {
-                worksheetPart = (WorksheetPart)workbookPart.GetPartById(wsRelId);
+                worksheetPart = workbookPart.GetRelatedPart(wsRelId);
                 partIsEmpty = false;
             }
             else
             {
-                worksheetPart = workbookPart.AddNewPart<WorksheetPart>(wsRelId);
+                (worksheetPart, _) = workbookPart.AddPartOfType(
+                    package,
+                    OoxmlPartTypes.Worksheet,
+                    relationshipId: wsRelId
+                );
                 partIsEmpty = true;
             }
 
@@ -352,12 +327,12 @@ public partial class XLWorkbook
                 .Internals.CellsCollection.GetCells(c => c.HasComment)
                 .Any();
 
-            WorksheetCommentsPart commentsPart = worksheetPart.WorksheetCommentsPart;
+            OpcPart commentsPart = worksheetPart.PartOfType(OoxmlPartTypes.Comments);
 
             // VML part is the source of truth for shapes of comments, form controls and likely others.
             // Excel won't display any shape without VML. The drawing part is always present, but is likely
             // only different rendering of VML (more precisely the shapes behind VML).
-            VmlDrawingPart vmlDrawingPart = worksheetPart.VmlDrawingParts.FirstOrDefault();
+            OpcPart vmlDrawingPart = worksheetPart.PartOfType(OoxmlPartTypes.VmlDrawing);
             bool hasAnyVmlElements = DeleteExistingCommentsShapes(vmlDrawingPart);
 
             if (worksheetHasComments)
@@ -366,8 +341,10 @@ public partial class XLWorkbook
                 // as well as comments part for semantic reasons.
                 if (commentsPart == null)
                 {
-                    commentsPart = worksheetPart.AddNewPart<WorksheetCommentsPart>(
-                        context.RelIdGenerator.GetNext(RelType.Workbook)
+                    (commentsPart, _) = worksheetPart.AddPartOfType(
+                        package,
+                        OoxmlPartTypes.Comments,
+                        relationshipId: context.RelIdGenerator.GetNext(RelType.Workbook)
                     );
                 }
 
@@ -380,8 +357,11 @@ public partial class XLWorkbook
                         );
                     }
 
-                    vmlDrawingPart = worksheetPart.AddNewPart<VmlDrawingPart>(
-                        worksheet.LegacyDrawingId
+                    (vmlDrawingPart, _) = worksheetPart.AddPartOfType(
+                        package,
+                        OoxmlPartTypes.VmlDrawing,
+                        partName: NextFreeVmlDrawingPartName(package),
+                        relationshipId: worksheet.LegacyDrawingId
                     );
                 }
 
@@ -394,14 +374,14 @@ public partial class XLWorkbook
                 // but VML part might contain other shapes, like form controls.
                 if (commentsPart is not null)
                 {
-                    worksheetPart.DeletePart(commentsPart);
+                    package.DeletePart(commentsPart.Name);
                 }
             }
 
             if (!hasAnyVmlElements && vmlDrawingPart is not null)
             {
                 worksheet.LegacyDrawingId = null;
-                worksheetPart.DeletePart(vmlDrawingPart);
+                package.DeletePart(vmlDrawingPart.Name);
             }
 
             XLTables xlTables = worksheet.Tables;
@@ -413,7 +393,7 @@ public partial class XLWorkbook
             // table has a corresponding part and part that don't are deleted.
             // This phase doesn't modify the content, it only ensures that RelIds are set
             // corresponding parts exist and the parts that don't exist are removed
-            TablePartWriter.SynchronizeTableParts(xlTables, worksheetPart, context);
+            TablePartWriter.SynchronizeTableParts(package, xlTables, worksheetPart, context);
 
             // Phase 2 - At this point, all pieces must have corresponding parts
             // The only way to link between parts is through RelIds that were already
@@ -423,6 +403,7 @@ public partial class XLWorkbook
 
             WorksheetPartWriter.GenerateWorksheetPartContent(
                 partIsEmpty,
+                package,
                 worksheetPart,
                 worksheet,
                 options,
@@ -431,26 +412,28 @@ public partial class XLWorkbook
 
             if (worksheet.PivotTables.Any<XLPivotTable>())
             {
-                GeneratePivotTables(workbookPart, worksheetPart, worksheet, context);
+                GeneratePivotTables(package, workbookPart, worksheetPart, worksheet, context);
             }
         }
 
         if (options.GenerateCalculationChain)
         {
-            CalculationChainPartWriter.GenerateContent(workbookPart, this, context);
+            CalculationChainPartWriter.GenerateContent(package, workbookPart, this, context);
         }
         else
         {
-            if (workbookPart.CalculationChainPart is not null)
+            if (workbookPart.PartOfType(OoxmlPartTypes.CalculationChain) is { } calcChainPart)
             {
-                workbookPart.DeletePart(workbookPart.CalculationChainPart);
+                package.DeletePart(calcChainPart.Name);
             }
         }
 
-        if (workbookPart.ThemePart == null)
+        if (workbookPart.PartOfType(OoxmlPartTypes.Theme) is null)
         {
-            ThemePart themePart = workbookPart.AddNewPart<ThemePart>(
-                context.RelIdGenerator.GetNext(RelType.Workbook)
+            (OpcPart themePart, _) = workbookPart.AddPartOfType(
+                package,
+                OoxmlPartTypes.Theme,
+                relationshipId: context.RelIdGenerator.GetNext(RelType.Workbook)
             );
             ThemePartWriter.GenerateContent(themePart, (XLTheme)this.Theme);
         }
@@ -458,28 +441,38 @@ public partial class XLWorkbook
         // Custom properties
         if (this.CustomProperties.Any())
         {
-            CustomFilePropertiesPart customFilePropertiesPart =
-                document.CustomFilePropertiesPart
-                ?? document.AddNewPart<CustomFilePropertiesPart>(
-                    context.RelIdGenerator.GetNext(RelType.Workbook)
-                );
+            OpcPart customFilePropertiesPart =
+                package.PartOfType(OoxmlPartTypes.CustomFileProperties)
+                ?? package
+                    .AddPartOfType(
+                        OoxmlPartTypes.CustomFileProperties,
+                        relationshipId: context.RelIdGenerator.GetNext(RelType.Workbook)
+                    )
+                    .Part;
 
             CustomFilePropertiesPartWriter.GenerateContent(customFilePropertiesPart, this);
         }
         else
         {
-            if (document.CustomFilePropertiesPart != null)
+            if (
+                package.PartOfType(OoxmlPartTypes.CustomFileProperties) is
+                { } customFilePropertiesPart
+            )
             {
-                document.DeletePart(document.CustomFilePropertiesPart);
+                package.DeletePart(customFilePropertiesPart.Name);
             }
         }
-        this.SetPackageProperties(document);
+        this.SetPackageProperties(package);
+
+        // Last, because the pivot cache references it writes are only known once the cache parts
+        // above have been created.
+        WorkbookPartWriter.GenerateContent(workbookPart, this, options, context);
 
         // Clear list of deleted worksheets to prevent errors on multiple saves
         worksheets.Deleted.Clear();
     }
 
-    private static bool DeleteExistingCommentsShapes(VmlDrawingPart vmlDrawingPart)
+    private static bool DeleteExistingCommentsShapes(OpcPart vmlDrawingPart)
     {
         if (vmlDrawingPart == null)
         {
@@ -487,114 +480,129 @@ public partial class XLWorkbook
         }
 
         // Nuke the VmlDrawingPart elements for comments.
-        using (Stream vmlStream = vmlDrawingPart.GetStream(FileMode.Open))
+        XDocument xdoc;
+        using (Stream vmlStream = vmlDrawingPart.GetReadStream())
         {
-            XDocument xdoc = XDocumentExtensions.Load(vmlStream);
-            if (xdoc == null)
-            {
-                return false;
-            }
-
-            // Remove existing shapes for comments
-            xdoc.Root.Elements()
-                .Where(e =>
-                    e.Name.LocalName == "shapetype"
-                    && e.Attribute("id").Value == XLConstants.Comment.ShapeTypeId
-                )
-                .Remove();
-
-            xdoc.Root.Elements()
-                .Where(e =>
-                    e.Name.LocalName == "shape"
-                    && e.Attribute("type").Value == "#" + XLConstants.Comment.ShapeTypeId
-                )
-                .Remove();
-
-            vmlStream.Position = 0;
-
-            using (XmlTextWriter writer = new(vmlStream, Encoding.UTF8))
-            {
-                string contents = xdoc.ToXmlString();
-                writer.WriteRaw(contents);
-                vmlStream.SetLength(contents.Length);
-            }
-
-            return xdoc.Root.HasElements;
+            xdoc = XDocumentExtensions.Load(vmlStream);
         }
+
+        if (xdoc == null)
+        {
+            return false;
+        }
+
+        // Remove existing shapes for comments
+        xdoc.Root.Elements()
+            .Where(e =>
+                e.Name.LocalName == "shapetype"
+                && e.Attribute("id").Value == XLConstants.Comment.ShapeTypeId
+            )
+            .Remove();
+
+        xdoc.Root.Elements()
+            .Where(e =>
+                e.Name.LocalName == "shape"
+                && e.Attribute("type").Value == "#" + XLConstants.Comment.ShapeTypeId
+            )
+            .Remove();
+
+        using (Stream vmlStream = vmlDrawingPart.GetWriteStream())
+        using (XmlTextWriter writer = new(vmlStream, Encoding.UTF8))
+        {
+            writer.WriteRaw(xdoc.ToXmlString());
+        }
+
+        return xdoc.Root.HasElements;
     }
 
-    private void SetPackageProperties(OpenXmlPackage document)
+    private void SetPackageProperties(OpcPackage package)
     {
         DateTime created =
             this.Properties.Created == DateTime.MinValue ? DateTime.Now : this.Properties.Created;
         DateTime modified =
             this.Properties.Modified == DateTime.MinValue ? DateTime.Now : this.Properties.Modified;
-        document.PackageProperties.Created = created;
-        document.PackageProperties.Modified = modified;
+        package.Properties.Created = created;
+        package.Properties.Modified = modified;
 
 #if true // Workaround: https://github.com/OfficeDev/Open-XML-SDK/issues/235
 
         if (this.Properties.LastModifiedBy == null)
         {
-            document.PackageProperties.LastModifiedBy = "";
+            package.Properties.LastModifiedBy = "";
         }
 
         if (this.Properties.Author == null)
         {
-            document.PackageProperties.Creator = "";
+            package.Properties.Creator = "";
         }
 
         if (this.Properties.Title == null)
         {
-            document.PackageProperties.Title = "";
+            package.Properties.Title = "";
         }
 
         if (this.Properties.Subject == null)
         {
-            document.PackageProperties.Subject = "";
+            package.Properties.Subject = "";
         }
 
         if (this.Properties.Category == null)
         {
-            document.PackageProperties.Category = "";
+            package.Properties.Category = "";
         }
 
         if (this.Properties.Keywords == null)
         {
-            document.PackageProperties.Keywords = "";
+            package.Properties.Keywords = "";
         }
 
         if (this.Properties.Comments == null)
         {
-            document.PackageProperties.Description = "";
+            package.Properties.Description = "";
         }
 
         if (this.Properties.Status == null)
         {
-            document.PackageProperties.ContentStatus = "";
+            package.Properties.ContentStatus = "";
         }
 
 #endif
 
-        document.PackageProperties.LastModifiedBy = this.Properties.LastModifiedBy;
+        package.Properties.LastModifiedBy = this.Properties.LastModifiedBy;
 
-        document.PackageProperties.Creator = this.Properties.Author;
-        document.PackageProperties.Title = this.Properties.Title;
-        document.PackageProperties.Subject = this.Properties.Subject;
-        document.PackageProperties.Category = this.Properties.Category;
-        document.PackageProperties.Keywords = this.Properties.Keywords;
-        document.PackageProperties.Description = this.Properties.Comments;
-        document.PackageProperties.ContentStatus = this.Properties.Status;
+        package.Properties.Creator = this.Properties.Author;
+        package.Properties.Title = this.Properties.Title;
+        package.Properties.Subject = this.Properties.Subject;
+        package.Properties.Category = this.Properties.Category;
+        package.Properties.Keywords = this.Properties.Keywords;
+        package.Properties.Description = this.Properties.Comments;
+        package.Properties.ContentStatus = this.Properties.Status;
     }
 
     private static void SynchronizePivotTableParts(
-        WorkbookPart workbookPart,
+        OpcPackage package,
+        OpcPart workbookPart,
         IReadOnlyList<IXLPivotTable> allPivotTables,
         SaveContext context
     )
     {
-        RemoveUnusedPivotCacheDefinitionParts(workbookPart, allPivotTables);
-        AddUsedPivotCacheDefinitionParts(workbookPart, allPivotTables, context);
+        // The SDK numbers a new pivot cache definition part from how many the package has ever
+        // had, not from the first name that happens to be free: a cache dropped by
+        // RemoveUnusedPivotCacheDefinitionParts below still counts, so a package that had one
+        // gets "pivotCacheDefinition2.xml" for its replacement even though "...1.xml" is free
+        // again by the time it is added.
+        int pivotCacheDefinitionCount = workbookPart
+            .PartsOfType(OoxmlPartTypes.PivotCacheDefinition)
+            .Count();
+
+        RemoveUnusedPivotCacheDefinitionParts(package, workbookPart, allPivotTables);
+        AddUsedPivotCacheDefinitionParts(
+            package,
+            workbookPart,
+            allPivotTables,
+            context,
+            pivotCacheDefinitionCount
+        );
 
         // Ensure this in workbook.xml:
         //  <pivotCaches>
@@ -606,33 +614,18 @@ public partial class XLWorkbook
         [
             .. allPivotTables.Select(pt => pt.PivotCache).Distinct().Cast<XLPivotCache>(),
         ];
-        if (xlUsedCaches.Any())
+        // Only the cache ids are handed out here. The <pivotCaches> element they end up in is
+        // written by WorkbookPartWriter, which runs after this and reads them back off the model.
+        foreach (XLPivotCache source in xlUsedCaches)
         {
-            // Recreate the workbook pivot cache references to remove previous gunk
-            PivotCaches pivotCaches = new();
-            workbookPart.Workbook.PivotCaches = pivotCaches;
-
-            foreach (XLPivotCache source in xlUsedCaches)
-            {
-                uint cacheId = context.PivotSourceCacheId++;
-                source.CacheId = cacheId;
-                PivotCache pivotCache = new() { CacheId = cacheId, Id = source.WorkbookCacheRelId };
-                pivotCaches.AppendChild(pivotCache);
-            }
-        }
-        else
-        {
-            // Remove empty pivot cache part
-            if (workbookPart.Workbook.PivotCaches is not null)
-            {
-                workbookPart.Workbook.RemoveChild(workbookPart.Workbook.PivotCaches);
-            }
+            source.CacheId = context.PivotSourceCacheId++;
         }
 
         // Remove pivot cache parts that are a part of the loaded document, but aren't used by a pivot table of the xlWorkbook
         // part of the first phase of saving
         static void RemoveUnusedPivotCacheDefinitionParts(
-            WorkbookPart workbookPart,
+            OpcPackage package,
+            OpcPart workbookPart,
             IReadOnlyList<IXLPivotTable> allPivotTables
         )
         {
@@ -643,34 +636,34 @@ public partial class XLWorkbook
                     .Distinct(),
             ];
 
-            List<PivotTableCacheDefinitionPart> orphanedParts =
+            List<OpcPart> orphanedParts =
             [
                 .. workbookPart
-                    .GetPartsOfType<PivotTableCacheDefinitionPart>()
-                    .Where(pcdp => !workbookCacheRelIds.Contains(workbookPart.GetIdOfPart(pcdp))),
+                    .PartsOfType(OoxmlPartTypes.PivotCacheDefinition)
+                    .Where(pcdp =>
+                        !workbookCacheRelIds.Contains(
+                            workbookPart.Relationships.GetIdOfTarget(pcdp.Name)
+                        )
+                    ),
             ];
 
-            foreach (PivotTableCacheDefinitionPart orphanPart in orphanedParts)
+            foreach (OpcPart orphanPart in orphanedParts)
             {
-                orphanPart.DeletePart(orphanPart.PivotTableCacheRecordsPart);
-                workbookPart.DeletePart(orphanPart);
-            }
+                if (orphanPart.PartOfType(OoxmlPartTypes.PivotCacheRecords) is { } recordsPart)
+                {
+                    package.DeletePart(recordsPart.Name);
+                }
 
-            // Remove deleted pivot cache parts
-            if (workbookPart.Workbook.PivotCaches is not null)
-            {
-                workbookPart
-                    .Workbook.PivotCaches.Elements<PivotCache>()
-                    .Where(pc => !workbookPart.HasPartWithId(pc.Id))
-                    .ToList()
-                    .ForEach(pc => pc.Remove());
+                package.DeletePart(orphanPart.Name);
             }
         }
 
         static void AddUsedPivotCacheDefinitionParts(
-            WorkbookPart workbookPart,
+            OpcPackage package,
+            OpcPart workbookPart,
             IReadOnlyList<IXLPivotTable> allPivotTables,
-            SaveContext context
+            SaveContext context,
+            int existingPivotCacheCount
         )
         {
             // Add ids and part for the caches to workbooks
@@ -681,24 +674,35 @@ public partial class XLWorkbook
                     .Select(pt => pt.PivotCache.CastTo<XLPivotCache>())
                     .Where(ps =>
                         string.IsNullOrEmpty(ps.WorkbookCacheRelId)
-                        || !workbookPart.HasPartWithId(ps.WorkbookCacheRelId)
+                        || !workbookPart.Relationships.TryGetById(ps.WorkbookCacheRelId, out _)
                     )
                     .Distinct(),
             ];
 
+            int count = existingPivotCacheCount;
             foreach (XLPivotCache pivotSource in newPivotSources)
             {
                 string cacheRelId = context.RelIdGenerator.GetNext(RelType.Workbook);
                 pivotSource.WorkbookCacheRelId = cacheRelId;
 
-                workbookPart.AddNewPart<PivotTableCacheDefinitionPart>(
-                    pivotSource.WorkbookCacheRelId
+                string partName;
+                do
+                {
+                    count++;
+                    partName = $"/pivotCache/pivotCacheDefinition{count}.xml";
+                } while (package.TryGetPart(partName, out _));
+
+                workbookPart.AddPartOfType(
+                    package,
+                    OoxmlPartTypes.PivotCacheDefinition,
+                    partName: partName,
+                    relationshipId: cacheRelId
                 );
             }
         }
     }
 
-    private void GeneratePivotCaches(WorkbookPart workbookPart, SaveContext context)
+    private void GeneratePivotCaches(OpcPackage package, OpcPart workbookPart, SaveContext context)
     {
         IEnumerable<XLPivotTable> pivotTables = this.WorksheetsInternal.SelectMany<
             XLWorksheet,
@@ -710,12 +714,14 @@ public partial class XLWorkbook
             .Distinct();
         foreach (XLPivotCache xlPivotCache in xlPivotCaches)
         {
-            Debug.Assert(workbookPart.Workbook.PivotCaches is not null);
+            // The <pivotCaches> element is written later, from the model; what has to hold here
+            // is that the cache knows which part it lives in.
+            Debug.Assert(xlPivotCache.CacheId is not null);
             Debug.Assert(!string.IsNullOrEmpty(xlPivotCache.WorkbookCacheRelId));
 
-            PivotTableCacheDefinitionPart pivotTableCacheDefinitionPart =
-                (PivotTableCacheDefinitionPart)
-                    workbookPart.GetPartById(xlPivotCache.WorkbookCacheRelId);
+            OpcPart pivotTableCacheDefinitionPart = workbookPart.GetRelatedPart(
+                xlPivotCache.WorkbookCacheRelId
+            );
 
             PivotTableCacheDefinitionPartWriter.GenerateContent(
                 pivotTableCacheDefinitionPart,
@@ -723,53 +729,138 @@ public partial class XLWorkbook
                 context
             );
 
-            PivotTableCacheRecordsPart pivotTableCacheRecordsPart = pivotTableCacheDefinitionPart
-                .GetPartsOfType<PivotTableCacheRecordsPart>()
-                .Any()
-                ? pivotTableCacheDefinitionPart
-                    .GetPartsOfType<PivotTableCacheRecordsPart>()
-                    .Single()
-                : pivotTableCacheDefinitionPart.AddNewPart<PivotTableCacheRecordsPart>("rId1");
+            OpcPart pivotTableCacheRecordsPart =
+                pivotTableCacheDefinitionPart.PartOfType(OoxmlPartTypes.PivotCacheRecords)
+                ?? pivotTableCacheDefinitionPart
+                    .AddPartOfType(
+                        package,
+                        OoxmlPartTypes.PivotCacheRecords,
+                        partName: PivotCacheRecordsPartName(pivotTableCacheDefinitionPart),
+                        relationshipId: "rId1"
+                    )
+                    .Part;
 
             PivotCacheRecordsWriter.WriteContent(pivotTableCacheRecordsPart, xlPivotCache);
         }
     }
 
+    /// <summary>
+    /// The SDK puts a new pivot cache records part in the same directory as its owning
+    /// definition part, under the same number - normally the package root (<c>/pivotCache/</c>),
+    /// but a definition part loaded from a file that used the conventional
+    /// <c>/xl/pivotCache/</c> location keeps its records part there too, since the SDK computes
+    /// the child's URI relative to the parent part it was added to rather than from a fixed
+    /// template. Deriving the name from the definition part's own name, rather than probing the
+    /// directory for a free slot, also keeps it immune to <see cref="SynchronizePivotTableParts"/>
+    /// freeing up a lower number earlier in the same save by deleting an orphaned cache.
+    /// </summary>
+    private static string PivotCacheRecordsPartName(OpcPart definitionPart) =>
+        definitionPart.Name.Replace(
+            "pivotCacheDefinition",
+            "pivotCacheRecords",
+            StringComparison.Ordinal
+        );
+
+    /// <summary>The SDK's own numbering for a legacy drawing part - see <see cref="NextFreePivotTablePartName"/>.</summary>
+    private static string NextFreeVmlDrawingPartName(OpcPackage package)
+    {
+        const string first = "/xl/drawings/vmldrawing.vml";
+        if (!package.TryGetPart(first, out _))
+        {
+            return first;
+        }
+
+        for (int number = 2; ; number++)
+        {
+            string candidate = $"/xl/drawings/vmldrawing{number}.vml";
+            if (!package.TryGetPart(candidate, out _))
+            {
+                return candidate;
+            }
+        }
+    }
+
+    /// <summary>
+    /// The SDK numbers a package's first <c>pivotTable</c> part with no number at all, and only
+    /// numbers the ones after it - unlike every other numbered part kind, which numbers its first
+    /// instance "1". The number itself comes from how many pivot table parts the package already
+    /// has, not from the first name that happens to be free: a package loaded with an existing
+    /// <c>pivotTable1.xml</c> gets a new <c>pivotTable2.xml</c> even though the unnumbered name is
+    /// technically unused.
+    /// </summary>
+    private static string NextFreePivotTablePartName(OpcPackage package)
+    {
+        int count = package.Parts.Count(part =>
+            part.ContentType == OoxmlPartTypes.PivotTable.ContentType
+        );
+        string candidate =
+            count == 0
+                ? "/xl/pivotTables/pivotTable.xml"
+                : $"/xl/pivotTables/pivotTable{count + 1}.xml";
+
+        for (; package.TryGetPart(candidate, out _); count++)
+        {
+            candidate = $"/xl/pivotTables/pivotTable{count + 1}.xml";
+        }
+
+        return candidate;
+    }
+
     private static void GeneratePivotTables(
-        WorkbookPart workbookPart,
-        WorksheetPart worksheetPart,
+        OpcPackage package,
+        OpcPart workbookPart,
+        OpcPart worksheetPart,
         XLWorksheet xlWorksheet,
         SaveContext context
     )
     {
         foreach (XLPivotTable pt in xlWorksheet.PivotTables)
         {
-            PivotTablePart pivotTablePart;
+            OpcPart pivotTablePart;
             bool createNewPivotTablePart = string.IsNullOrWhiteSpace(pt.RelId);
             if (createNewPivotTablePart)
             {
                 string relId = context.RelIdGenerator.GetNext(RelType.Workbook);
                 pt.RelId = relId;
-                pivotTablePart = worksheetPart.AddNewPart<PivotTablePart>(relId);
+                (pivotTablePart, _) = worksheetPart.AddPartOfType(
+                    package,
+                    OoxmlPartTypes.PivotTable,
+                    partName: NextFreePivotTablePartName(package),
+                    relationshipId: relId
+                );
             }
             else
             {
-                pivotTablePart = (PivotTablePart)worksheetPart.GetPartById(pt.RelId);
+                pivotTablePart = worksheetPart.GetRelatedPart(pt.RelId);
             }
 
             XLPivotCache pivotSource = pt.PivotCache;
-            PivotTableCacheDefinitionPart pivotTableCacheDefinitionPart =
-                pivotTablePart.PivotTableCacheDefinitionPart;
-            if (
-                !workbookPart
-                    .GetPartById(pivotSource.WorkbookCacheRelId)
-                    .Equals(pivotTableCacheDefinitionPart)
-            )
+            OpcPart pivotTableCacheDefinitionPart = pivotTablePart.PartOfType(
+                OoxmlPartTypes.PivotCacheDefinition
+            );
+            OpcPart expectedCacheDefinitionPart = workbookPart.GetRelatedPart(
+                pivotSource.WorkbookCacheRelId
+            );
+
+            if (!ReferenceEquals(expectedCacheDefinitionPart, pivotTableCacheDefinitionPart))
             {
-                pivotTablePart.DeletePart(pivotTableCacheDefinitionPart);
-                pivotTablePart.CreateRelationshipToPart(
-                    workbookPart.GetPartById(pivotSource.WorkbookCacheRelId),
-                    context.RelIdGenerator.GetNext(XLWorkbook.RelType.Workbook)
+                // The cache definition part is shared with the workbook part, so only the
+                // relationship pointing at it from here is dropped, never the part itself.
+                if (
+                    pivotTableCacheDefinitionPart is not null
+                    && pivotTablePart.Relationships.GetIdOfTarget(
+                        pivotTableCacheDefinitionPart.Name
+                    )
+                        is { } existingRelId
+                )
+                {
+                    pivotTablePart.Relationships.Remove(existingRelId);
+                }
+
+                pivotTablePart.Relationships.Add(
+                    expectedCacheDefinitionPart.Name,
+                    OoxmlPartTypes.PivotCacheDefinition.RelationshipType,
+                    context.RelIdGenerator.GetNext(RelType.Workbook)
                 );
             }
 

@@ -1,10 +1,10 @@
 #nullable disable
 
 using System.Xml;
-using DocumentFormat.OpenXml.Packaging;
 using XlsxSharp.Excel.Comments;
 using XlsxSharp.Excel.RichText;
 using XlsxSharp.Extensions;
+using XlsxSharp.IO.Packaging;
 using static XlsxSharp.Excel.IO.OpenXmlConst;
 
 namespace XlsxSharp.Excel.IO;
@@ -12,7 +12,7 @@ namespace XlsxSharp.Excel.IO;
 internal class CommentPartWriter
 {
     internal static void GenerateWorksheetCommentsPartContent(
-        WorksheetCommentsPart worksheetCommentsPart,
+        OpcPart worksheetCommentsPart,
         XLWorksheet xlWorksheet
     )
     {
@@ -21,7 +21,7 @@ internal class CommentPartWriter
             CloseOutput = true,
             Encoding = XlsxSharp.XLHelper.NoBomUTF8,
         };
-        Stream partStream = worksheetCommentsPart.GetStream(FileMode.Create);
+        Stream partStream = worksheetCommentsPart.GetWriteStream();
         using XmlWriter xml = XmlWriter.Create(partStream, settings);
 
         List<XLCell> commentCells = [];

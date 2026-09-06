@@ -161,7 +161,7 @@ public class ConditionalFormatTests
     public void CellIsTypeReadsOnlyRequiredFormulaArguments()
     {
         // The CellIs uses formula tags as arguments. Some producers generate extra empty
-        // formula tags and ClosedXml should be able to load CellIs conditional formatting
+        // formula tags and XlsxSharp should be able to load CellIs conditional formatting
         // with such extra tags without an exception. The test file has been modified to
         // include extra formula tags and test checks that extra tags are ignored.
         TestHelper.LoadAndAssert(
@@ -195,7 +195,7 @@ public class ConditionalFormatTests
     public void ExpressionTypeSkipsEmptyFormulaTags()
     {
         // The Expression uses formula tag as arguments. Some producers generate extra empty
-        // formula tags and ClosedXml should be able to load Expression conditional formatting
+        // formula tags and XlsxSharp should be able to load Expression conditional formatting
         // with such extra tags without an exception. The test file has been modified to
         // include extra formula tags and test checks that extra tags are ignored.
         TestHelper.LoadAndAssert(

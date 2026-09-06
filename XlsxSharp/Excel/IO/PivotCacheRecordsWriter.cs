@@ -1,20 +1,17 @@
 ﻿using System.Xml;
-using DocumentFormat.OpenXml.Packaging;
 using XlsxSharp.Extensions;
+using XlsxSharp.IO.Packaging;
 using static XlsxSharp.Excel.IO.OpenXmlConst;
 
 namespace XlsxSharp.Excel.IO;
 
 internal class PivotCacheRecordsWriter
 {
-    internal static void WriteContent(
-        PivotTableCacheRecordsPart recordsPart,
-        XLPivotCache pivotCache
-    )
+    internal static void WriteContent(OpcPart recordsPart, XLPivotCache pivotCache)
     {
         XmlWriterSettings settings = new() { Encoding = XlsxSharp.XLHelper.NoBomUTF8 };
 
-        using Stream partStream = recordsPart.GetStream(FileMode.Create);
+        using Stream partStream = recordsPart.GetWriteStream();
         using XmlWriter xml = XmlWriter.Create(partStream, settings);
 
         xml.WriteStartDocument();
