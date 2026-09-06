@@ -65,6 +65,25 @@ public class OpcPackageTests
         ClassicAssert.AreEqual("worksheets/sheet1.xml", sheetRelationship.Target);
         ClassicAssert.AreEqual("/xl/worksheets/sheet1.xml", sheetRelationship.TargetPartName);
         ClassicAssert.AreEqual("<worksheet/>", Read(workbookPart.GetRelatedPart("rId7")));
+        ClassicAssert.AreSame(
+            workbookPart.GetRelatedPart("rId7"),
+            workbookPart.GetRelatedPartOrDefault("rId7")
+        );
+        ClassicAssert.IsNull(workbookPart.GetRelatedPartOrDefault("rIdMissing"));
+    }
+
+    [Test]
+    public void GetRelatedPartOrDefaultIsNullForAnExternalRelationship()
+    {
+        using OpcPackage package = OpcPackage.Create();
+        OpcPart workbook = package.AddPart("/xl/workbook.xml", WorkbookContentType);
+        workbook.Relationships.AddExternal(
+            "https://example.com",
+            "http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink",
+            "rId1"
+        );
+
+        ClassicAssert.IsNull(workbook.GetRelatedPartOrDefault("rId1"));
     }
 
     [Test]
@@ -287,6 +306,30 @@ public class OpcPackageTests
         {
             File.Delete(path);
         }
+    }
+
+    [Test]
+    public void PackagesRoundTripThroughAWritableStream()
+    {
+        using MemoryStream stream = new();
+        using (OpcPackage package = OpcPackage.Create())
+        {
+            OpcPart workbook = package.AddPart("/xl/workbook.xml", WorkbookContentType);
+            Write(workbook, "<workbook/>");
+            package.Relationships.Add(workbook.Name, OfficeDocumentRel);
+            package.SaveTo(stream);
+        }
+
+        // The same stream the package is opened from is also where a writable open saves back to
+        // - it must not still be readable by anyone still holding the entries it was opened with.
+        using (OpcPackage package = OpcPackage.Open(stream, writable: true))
+        {
+            Write(package.GetPart("/xl/workbook.xml"), "<edited/>");
+        }
+
+        stream.Position = 0;
+        using OpcPackage reopened = OpcPackage.Open(stream);
+        ClassicAssert.AreEqual("<edited/>", Read(reopened.GetPart("/xl/workbook.xml")));
     }
 
     private static void Write(OpcPart part, string content)

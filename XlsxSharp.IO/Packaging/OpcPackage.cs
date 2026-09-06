@@ -95,11 +95,38 @@ public sealed class OpcPackage : IDisposable
         return OpenCore(buffer, ownsStream: true, readOnly: false, saveTo: path);
     }
 
-    /// <summary>Opens a package from a stream. The stream stays the caller's to dispose.</summary>
+    /// <summary>
+    /// Opens a package from a stream. The stream stays the caller's to dispose.
+    /// </summary>
+    /// <param name="stream">The stream to read the package from.</param>
+    /// <param name="writable">
+    /// When true the package can be modified and <see cref="Save"/> writes it back to
+    /// <paramref name="stream"/>. The stream is read into memory first, exactly as
+    /// <see cref="Open(string, bool)"/> does for a file, so that saving does not have to read and
+    /// write the same stream at once - overwriting a live ZIP archive while parts still point into
+    /// it would corrupt the package.
+    /// </param>
     public static OpcPackage Open(Stream stream, bool writable = false)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        return OpenCore(stream, ownsStream: false, readOnly: !writable, saveTo: null);
+
+        if (!writable)
+        {
+            return OpenCore(stream, ownsStream: false, readOnly: true, saveTo: null);
+        }
+
+        if (stream.CanSeek)
+        {
+            stream.Position = 0;
+        }
+
+        MemoryStream buffer = new();
+        stream.CopyTo(buffer);
+        buffer.Position = 0;
+
+        OpcPackage package = OpenCore(buffer, ownsStream: true, readOnly: false, saveTo: null);
+        package.SaveToStream = stream;
+        return package;
     }
 
     /// <summary>Creates an empty package that <see cref="Save"/> writes to <paramref name="path"/>.</summary>
@@ -129,7 +156,14 @@ public sealed class OpcPackage : IDisposable
         );
 
     /// <summary>Where <see cref="Dispose"/> writes the package to, when anywhere.</summary>
-    private string? SavePath { get; init; }
+    private string? SavePath { get; set; }
+
+    /// <summary>
+    /// The stream <see cref="Dispose"/> writes the package back to, for a package opened writable
+    /// from a stream. Never the same stream the package reads from - see
+    /// <see cref="Open(Stream, bool)"/>.
+    /// </summary>
+    private Stream? SaveToStream { get; set; }
 
     /// <summary>Looks up a part by name.</summary>
     public bool TryGetPart(string partName, [NotNullWhen(true)] out OpcPart? part)
@@ -216,6 +250,14 @@ public sealed class OpcPackage : IDisposable
         this.ThrowIfDisposed();
         this.ThrowIfReadOnly();
 
+        if (this.SaveToStream is { } stream)
+        {
+            stream.Position = 0;
+            stream.SetLength(0);
+            this.SaveTo(stream);
+            return;
+        }
+
         if (this.SavePath is null)
         {
             throw new InvalidOperationException(
@@ -290,7 +332,7 @@ public sealed class OpcPackage : IDisposable
 
         try
         {
-            if (!this.IsReadOnly && this.SavePath is not null)
+            if (!this.IsReadOnly && (this.SavePath is not null || this.SaveToStream is not null))
             {
                 this.Save();
             }

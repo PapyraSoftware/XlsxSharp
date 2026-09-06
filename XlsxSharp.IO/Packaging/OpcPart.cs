@@ -99,6 +99,18 @@ public sealed class OpcPart
     }
 
     /// <summary>
+    /// The part this part's relationship <paramref name="id"/> points at, or <c>null</c> when
+    /// there is no such relationship, it targets something outside the package, or the part it
+    /// targets does not exist.
+    /// </summary>
+    public OpcPart? GetRelatedPartOrDefault(string id) =>
+        this.Relationships.TryGetById(id, out OpcRelationship? relationship)
+        && relationship.TargetPartName is not null
+        && this._package.TryGetPart(relationship.TargetPartName, out OpcPart? part)
+            ? part
+            : null;
+
+    /// <summary>
     /// The parts related from here with the given relationship type, in document order.
     /// </summary>
     public IEnumerable<OpcPart> GetRelatedParts(string relationshipType) =>

@@ -48,11 +48,17 @@ public static class OoxmlPartExtensions
     /// <param name="partName">
     /// Overrides where the part goes. By default the next free name from the kind's template.
     /// </param>
+    /// <param name="relationshipId">
+    /// The relationship id to use, when the caller already has one - a save has to keep handing
+    /// out the same ids it would have before, since a part's own content can carry another part's
+    /// id as a plain attribute value. By default the next free id in the collection.
+    /// </param>
     public static (OpcPart Part, string RelationshipId) AddPartOfType(
         this OpcPackage package,
         OoxmlPartType partType,
         string? contentType = null,
-        string? partName = null
+        string? partName = null,
+        string? relationshipId = null
     )
     {
         ArgumentNullException.ThrowIfNull(package);
@@ -61,7 +67,8 @@ public static class OoxmlPartExtensions
         OpcPart part = AddPartCore(package, partType, contentType, partName);
         OpcRelationship relationship = package.Relationships.Add(
             part.Name,
-            partType.RelationshipType
+            partType.RelationshipType,
+            relationshipId
         );
 
         return (part, relationship.Id);
@@ -75,12 +82,14 @@ public static class OoxmlPartExtensions
     /// <param name="partType">The kind of part to add.</param>
     /// <param name="contentType">Overrides the content type of the kind.</param>
     /// <param name="partName">Overrides where the part goes.</param>
+    /// <param name="relationshipId">The relationship id to use, by default the next free one.</param>
     public static (OpcPart Part, string RelationshipId) AddPartOfType(
         this OpcPart source,
         OpcPackage package,
         OoxmlPartType partType,
         string? contentType = null,
-        string? partName = null
+        string? partName = null,
+        string? relationshipId = null
     )
     {
         ArgumentNullException.ThrowIfNull(source);
@@ -90,7 +99,8 @@ public static class OoxmlPartExtensions
         OpcPart part = AddPartCore(package, partType, contentType, partName);
         OpcRelationship relationship = source.Relationships.Add(
             part.Name,
-            partType.RelationshipType
+            partType.RelationshipType,
+            relationshipId
         );
 
         return (part, relationship.Id);

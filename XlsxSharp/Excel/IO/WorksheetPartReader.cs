@@ -1361,14 +1361,6 @@ internal class WorksheetPartReader
         }
     }
 
-    /// <summary>
-    /// A hyperlink has no part of its own - it is an external relationship, so it does not fit
-    /// <see cref="XlsxSharp.IO.Packaging.OoxmlPartTypes"/>, which only carries the kinds of parts a
-    /// package holds.
-    /// </summary>
-    private const string HyperlinkRelationshipType =
-        "http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink";
-
     private static void LoadHyperlinks(XElement hyperlinks, OpcPart worksheetPart, XLWorksheet ws)
     {
         if (hyperlinks is null)
@@ -1377,7 +1369,7 @@ internal class WorksheetPartReader
         }
 
         Dictionary<string, Uri> hyperlinkDictionary = worksheetPart
-            .Relationships.OfType(HyperlinkRelationshipType)
+            .Relationships.OfType(OoxmlPartTypes.HyperlinkRelationshipType)
             .Where(r => r.TargetMode == OpcTargetMode.External)
             .ToDictionary(r => r.Id, r => new Uri(r.Target, UriKind.RelativeOrAbsolute));
 

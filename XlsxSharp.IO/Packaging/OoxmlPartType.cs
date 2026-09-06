@@ -30,6 +30,13 @@ public static class OoxmlPartTypes
     private const string SpreadsheetType =
         "application/vnd.openxmlformats-officedocument.spreadsheetml.";
 
+    /// <summary>
+    /// A hyperlink is a relationship with no part of its own - a cell's hyperlink points outside
+    /// the package as often as it points at one of its parts - so it does not fit
+    /// <see cref="OoxmlPartType"/>, which only carries the kinds of parts a package holds.
+    /// </summary>
+    public const string HyperlinkRelationshipType = OfficeRel + "hyperlink";
+
     /// <summary>The workbook part of an <c>.xlsx</c>, i.e. the package's office document.</summary>
     public static OoxmlPartType Workbook { get; } =
         new(OfficeRel + "officeDocument", SpreadsheetType + "sheet.main+xml", "/xl/workbook.xml");
