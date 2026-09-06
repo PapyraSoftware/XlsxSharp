@@ -3,8 +3,8 @@
 using System.Diagnostics;
 using System.Xml;
 using System.Xml.Linq;
-using DocumentFormat.OpenXml.Packaging;
 using XlsxSharp.Extensions;
+using XlsxSharp.IO.Packaging;
 using static XlsxSharp.Excel.XLWorkbook;
 
 namespace XlsxSharp.Excel.IO;
@@ -45,7 +45,7 @@ internal class PivotTableCacheDefinitionPartWriter
     ];
 
     internal static void GenerateContent(
-        PivotTableCacheDefinitionPart pivotTableCacheDefinitionPart,
+        OpcPart pivotTableCacheDefinitionPart,
         XLPivotCache pivotCache,
         SaveContext context
     )
@@ -86,7 +86,7 @@ internal class PivotTableCacheDefinitionPartWriter
         // writer kept it because it emptied the element instead of replacing it.
         SetElement(root, "cacheFields", BuildCacheFields(pivotCache), keepAttributes: true);
 
-        using Stream partStream = pivotTableCacheDefinitionPart.GetStream(FileMode.Create);
+        using Stream partStream = pivotTableCacheDefinitionPart.GetWriteStream();
         using XmlWriter xml = XmlWriter.Create(
             partStream,
             new XmlWriterSettings { Encoding = XlsxSharp.XLHelper.NoBomUTF8 }
@@ -106,18 +106,21 @@ internal class PivotTableCacheDefinitionPartWriter
     /// the default one, so that declaration is dropped and the prefixed pair put in its place,
     /// which is what the SDK did when it re-serialised the part.
     /// </remarks>
-    private static (XDocument Document, bool IsNew) ReadExisting(PivotTableCacheDefinitionPart part)
+    private static (XDocument Document, bool IsNew) ReadExisting(OpcPart part)
     {
         XElement loaded = null;
         bool standalone = false;
 
-        using (Stream stream = part.GetStream(FileMode.OpenOrCreate, FileAccess.Read))
+        using (Stream stream = part.GetReadStream())
+        using (MemoryStream buffer = new())
         {
-            if (stream.Length > 0)
+            stream.CopyTo(buffer);
+            if (buffer.Length > 0)
             {
+                buffer.Position = 0;
                 try
                 {
-                    XDocument existing = XDocument.Load(stream);
+                    XDocument existing = XDocument.Load(buffer);
                     loaded = existing.Root;
                     standalone = string.Equals(
                         existing.Declaration?.Standalone,

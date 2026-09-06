@@ -3,11 +3,11 @@
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
-using DocumentFormat.OpenXml.Packaging;
 using XlsxSharp.Excel.Comments;
 using XlsxSharp.Excel.Drawings;
 using XlsxSharp.Excel.Drawings.Style;
 using XlsxSharp.Extensions;
+using XlsxSharp.IO.Packaging;
 
 namespace XlsxSharp.Excel.IO;
 
@@ -27,48 +27,49 @@ internal class VmlDrawingPartWriter
     private const string OfficeNs = "urn:schemas-microsoft-com:office:office";
     private const string ExcelNs = "urn:schemas-microsoft-com:office:excel";
 
-    internal static bool GenerateContent(VmlDrawingPart vmlDrawingPart, XLWorksheet xlWorksheet)
+    internal static bool GenerateContent(OpcPart vmlDrawingPart, XLWorksheet xlWorksheet)
     {
-        using (MemoryStream ms = new())
-        using (Stream stream = vmlDrawingPart.GetStream(FileMode.OpenOrCreate))
+        using MemoryStream ms = new();
+        using (Stream readStream = vmlDrawingPart.GetReadStream())
         {
-            XLWorkbook.CopyStream(stream, ms);
-            stream.Position = 0;
-
-            // Namespaces off: the qualified names and the xmlns attributes are written by hand,
-            // so that they land in the same places the SDK put them.
-            XmlTextWriter writer = new(stream, Encoding.UTF8) { Namespaces = false };
-
-            writer.WriteStartElement("xml");
-
-            WriteShapeType(writer);
-
-            IEnumerable<XLCell> cellWithComments = xlWorksheet.Internals.CellsCollection.GetCells(
-                c => c.HasComment
-            );
-
-            bool hasAnyVmlElements = false;
-
-            foreach (XLCell c in cellWithComments)
-            {
-                WriteCommentShape(writer, c);
-                hasAnyVmlElements |= true;
-            }
-
-            if (ms.Length > 0)
-            {
-                ms.Position = 0;
-                XDocument xdoc = XDocumentExtensions.Load(ms);
-                xdoc.Root.Elements().ForEach(e => writer.WriteRaw(e.ToXmlString()));
-                hasAnyVmlElements |= xdoc.Root.HasElements;
-            }
-
-            writer.WriteEndElement();
-            writer.Flush();
-            writer.Close();
-
-            return hasAnyVmlElements;
+            XLWorkbook.CopyStream(readStream, ms);
         }
+
+        using Stream stream = vmlDrawingPart.GetWriteStream();
+
+        // Namespaces off: the qualified names and the xmlns attributes are written by hand,
+        // so that they land in the same places the SDK put them.
+        XmlTextWriter writer = new(stream, Encoding.UTF8) { Namespaces = false };
+
+        writer.WriteStartElement("xml");
+
+        WriteShapeType(writer);
+
+        IEnumerable<XLCell> cellWithComments = xlWorksheet.Internals.CellsCollection.GetCells(c =>
+            c.HasComment
+        );
+
+        bool hasAnyVmlElements = false;
+
+        foreach (XLCell c in cellWithComments)
+        {
+            WriteCommentShape(writer, c);
+            hasAnyVmlElements |= true;
+        }
+
+        if (ms.Length > 0)
+        {
+            ms.Position = 0;
+            XDocument xdoc = XDocumentExtensions.Load(ms);
+            xdoc.Root.Elements().ForEach(e => writer.WriteRaw(e.ToXmlString()));
+            hasAnyVmlElements |= xdoc.Root.HasElements;
+        }
+
+        writer.WriteEndElement();
+        writer.Flush();
+        writer.Close();
+
+        return hasAnyVmlElements;
     }
 
     /// <summary>

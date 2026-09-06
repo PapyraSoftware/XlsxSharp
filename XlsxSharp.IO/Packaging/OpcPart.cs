@@ -41,7 +41,7 @@ public sealed class OpcPart
     public string Name { get; }
 
     /// <summary>The content type declared for this part in <c>[Content_Types].xml</c>.</summary>
-    public string ContentType { get; }
+    public string ContentType { get; internal set; }
 
     /// <summary>The relationships declared by this part.</summary>
     public OpcRelationshipCollection Relationships { get; internal set; }

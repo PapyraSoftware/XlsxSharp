@@ -1,9 +1,9 @@
 using System.Globalization;
 using System.Xml;
 using System.Xml.Linq;
-using DocumentFormat.OpenXml.Packaging;
 using XlsxSharp.Excel.CustomProperties;
 using XlsxSharp.Extensions;
+using XlsxSharp.IO.Packaging;
 
 namespace XlsxSharp.Excel.IO;
 
@@ -25,10 +25,7 @@ internal class CustomFilePropertiesPartWriter
     /// </summary>
     private const string UserDefinedFormatId = "{D5CDD505-2E9C-101B-9397-08002B2CF9AE}";
 
-    internal static void GenerateContent(
-        CustomFilePropertiesPart customFilePropertiesPart,
-        XLWorkbook workbook
-    )
+    internal static void GenerateContent(OpcPart customFilePropertiesPart, XLWorkbook workbook)
     {
         XElement properties = new(
             Op + "Properties",
@@ -53,7 +50,7 @@ internal class CustomFilePropertiesPartWriter
             );
         }
 
-        using Stream partStream = customFilePropertiesPart.GetStream(FileMode.Create);
+        using Stream partStream = customFilePropertiesPart.GetWriteStream();
         using XmlWriter xml = XmlWriter.Create(
             partStream,
             new XmlWriterSettings { Encoding = XlsxSharp.XLHelper.NoBomUTF8 }

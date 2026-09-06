@@ -1,6 +1,5 @@
 #nullable disable
 
-using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 using XlsxSharp.Excel.ConditionalFormats;
 using XlsxSharp.Excel.DataValidation;
@@ -482,24 +481,6 @@ internal static class EnumConverter
             XLTimePeriod.NextMonth => TimePeriodValues.NextMonth,
             _ => throw new ArgumentOutOfRangeException(nameof(value), "Not implemented value!"),
         };
-
-    private static readonly IReadOnlyDictionary<XLPictureFormat, PartTypeInfo> PictureFormatMap =
-        new Dictionary<XLPictureFormat, PartTypeInfo>
-        {
-            { XLPictureFormat.Unknown, new PartTypeInfo("image/unknown", ".bin") },
-            { XLPictureFormat.Bmp, ImagePartType.Bmp },
-            { XLPictureFormat.Gif, ImagePartType.Gif },
-            { XLPictureFormat.Png, ImagePartType.Png },
-            { XLPictureFormat.Tiff, ImagePartType.Tiff },
-            { XLPictureFormat.Icon, ImagePartType.Icon },
-            { XLPictureFormat.Pcx, ImagePartType.Pcx },
-            { XLPictureFormat.Jpeg, ImagePartType.Jpeg },
-            { XLPictureFormat.Emf, ImagePartType.Emf },
-            { XLPictureFormat.Wmf, ImagePartType.Wmf },
-            { XLPictureFormat.Webp, new PartTypeInfo("image/webp", ".webp") },
-        };
-
-    public static PartTypeInfo ToOpenXml(this XLPictureFormat value) => PictureFormatMap[value];
 
     public static Xdr.EditAsValues ToOpenXml(this XLPicturePlacement value) =>
         value switch

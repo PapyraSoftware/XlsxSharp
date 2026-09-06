@@ -106,18 +106,23 @@ public static class OoxmlPartTypes
             "/xl/pivotTables/pivotTable{0}.xml"
         );
 
+    /// <summary>
+    /// Not under <c>/xl</c> - the one part kind the SDK itself puts at the package root rather
+    /// than alongside the rest of the workbook's own parts.
+    /// </summary>
     public static OoxmlPartType PivotCacheDefinition { get; } =
         new(
             OfficeRel + "pivotCacheDefinition",
             SpreadsheetType + "pivotCacheDefinition+xml",
-            "/xl/pivotCache/pivotCacheDefinition{0}.xml"
+            "/pivotCache/pivotCacheDefinition{0}.xml"
         );
 
+    /// <summary>Not under <c>/xl</c>; see <see cref="PivotCacheDefinition"/>.</summary>
     public static OoxmlPartType PivotCacheRecords { get; } =
         new(
             OfficeRel + "pivotCacheRecords",
             SpreadsheetType + "pivotCacheRecords+xml",
-            "/xl/pivotCache/pivotCacheRecords{0}.xml"
+            "/pivotCache/pivotCacheRecords{0}.xml"
         );
 
     public static OoxmlPartType Table { get; } =
@@ -135,13 +140,16 @@ public static class OoxmlPartTypes
 
     /// <summary>
     /// Legacy VML, which carries the shapes of the comments. It is not XML by content type, even
-    /// though its content is.
+    /// though its content is. The SDK's own default name is all lower case, unlike every other
+    /// part kind's, and unlike them it also leaves its first instance unnumbered - so this
+    /// template is never handed to <c>AddPartOfType</c> without an explicit part name computed
+    /// the same way the SDK numbers it.
     /// </summary>
     public static OoxmlPartType VmlDrawing { get; } =
         new(
             OfficeRel + "vmlDrawing",
             "application/vnd.openxmlformats-officedocument.vmlDrawing",
-            "/xl/drawings/vmlDrawing{0}.vml"
+            "/xl/drawings/vmldrawing{0}.vml"
         );
 
     public static OoxmlPartType ExtendedFileProperties { get; } =

@@ -211,6 +211,22 @@ public sealed class OpcPackage : IDisposable
     }
 
     /// <summary>
+    /// Changes what content type an existing part is declared with, e.g. when a package that was
+    /// created as a template is saved as an ordinary workbook - same part, same relationships,
+    /// only the declared content type changes.
+    /// </summary>
+    public void ChangeContentType(OpcPart part, string contentType)
+    {
+        ArgumentNullException.ThrowIfNull(part);
+        ArgumentException.ThrowIfNullOrEmpty(contentType);
+        this.ThrowIfDisposed();
+        this.ThrowIfReadOnly();
+
+        part.ContentType = contentType;
+        this._contentTypes.SetContentType(part.Name, contentType);
+    }
+
+    /// <summary>
     /// Removes a part and every relationship pointing at it, from the package and from the other
     /// parts. Removing a part that does not exist is a no-op.
     /// </summary>

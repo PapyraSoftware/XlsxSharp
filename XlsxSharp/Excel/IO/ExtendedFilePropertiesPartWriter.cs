@@ -2,8 +2,8 @@
 
 using System.Xml;
 using System.Xml.Linq;
-using DocumentFormat.OpenXml.Packaging;
 using XlsxSharp.Extensions;
+using XlsxSharp.IO.Packaging;
 
 namespace XlsxSharp.Excel.IO;
 
@@ -40,10 +40,7 @@ internal class ExtendedFilePropertiesPartWriter
         "ScaleCrop",
     ];
 
-    internal static void GenerateContent(
-        ExtendedFilePropertiesPart extendedFilePropertiesPart,
-        XLWorkbook workbook
-    )
+    internal static void GenerateContent(OpcPart extendedFilePropertiesPart, XLWorkbook workbook)
     {
         XDocument document = ReadExisting(extendedFilePropertiesPart);
         XElement properties = document.Root;
@@ -99,7 +96,7 @@ internal class ExtendedFilePropertiesPartWriter
         SetOptional(properties, "Manager", workbook.Properties.Manager);
         SetOptional(properties, "Company", workbook.Properties.Company);
 
-        using Stream partStream = extendedFilePropertiesPart.GetStream(FileMode.Create);
+        using Stream partStream = extendedFilePropertiesPart.GetWriteStream();
         using XmlWriter xml = XmlWriter.Create(
             partStream,
             new XmlWriterSettings { Encoding = XlsxSharp.XLHelper.NoBomUTF8 }
@@ -119,18 +116,21 @@ internal class ExtendedFilePropertiesPartWriter
     /// root of that shape and their own namespace declarations dropped, which leaves the prefix
     /// to be resolved from the new root.
     /// </remarks>
-    private static XDocument ReadExisting(ExtendedFilePropertiesPart part)
+    private static XDocument ReadExisting(OpcPart part)
     {
         XElement loaded = null;
         bool standalone = false;
 
-        using (Stream stream = part.GetStream(FileMode.OpenOrCreate, FileAccess.Read))
+        using (Stream stream = part.GetReadStream())
+        using (MemoryStream buffer = new())
         {
-            if (stream.Length > 0)
+            stream.CopyTo(buffer);
+            if (buffer.Length > 0)
             {
+                buffer.Position = 0;
                 try
                 {
-                    XDocument existing = XDocument.Load(stream);
+                    XDocument existing = XDocument.Load(buffer);
                     loaded = existing.Root;
                     standalone = string.Equals(
                         existing.Declaration?.Standalone,

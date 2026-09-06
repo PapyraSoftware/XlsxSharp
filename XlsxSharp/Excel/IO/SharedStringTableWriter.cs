@@ -1,8 +1,8 @@
 using System.Xml;
-using DocumentFormat.OpenXml.Packaging;
 using XlsxSharp.Excel.RichText;
 using XlsxSharp.Excel.Tables;
 using XlsxSharp.Extensions;
+using XlsxSharp.IO.Packaging;
 using XlsxSharp.Utils;
 using static XlsxSharp.Excel.IO.OpenXmlConst;
 using static XlsxSharp.Excel.XLWorkbook;
@@ -13,7 +13,7 @@ internal class SharedStringTableWriter
 {
     internal static void GenerateSharedStringTablePartContent(
         XLWorkbook workbook,
-        SharedStringTablePart sharedStringTablePart,
+        OpcPart sharedStringTablePart,
         SaveContext context
     )
     {
@@ -25,7 +25,7 @@ internal class SharedStringTableWriter
             CloseOutput = true,
             Encoding = XlsxSharp.XLHelper.NoBomUTF8,
         };
-        Stream partStream = sharedStringTablePart.GetStream(FileMode.Create);
+        Stream partStream = sharedStringTablePart.GetWriteStream();
         using XmlWriter xml = XmlWriter.Create(partStream, settings);
 
         xml.WriteStartDocument();

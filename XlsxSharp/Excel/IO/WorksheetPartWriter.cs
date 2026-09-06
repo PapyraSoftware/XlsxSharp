@@ -3,7 +3,6 @@
 using System.Globalization;
 using System.Xml;
 using System.Xml.Linq;
-using DocumentFormat.OpenXml.Packaging;
 using XlsxSharp.Excel.ConditionalFormats;
 using XlsxSharp.Excel.DataValidation;
 using XlsxSharp.Excel.Drawings;
@@ -16,6 +15,7 @@ using XlsxSharp.Excel.Sort;
 using XlsxSharp.Excel.Tables;
 using XlsxSharp.Extensions;
 using XlsxSharp.IO;
+using XlsxSharp.IO.Packaging;
 using XlsxSharp.Utils;
 using static XlsxSharp.Excel.IO.OpenXmlConst;
 using static XlsxSharp.Excel.XLWorkbook;
@@ -26,7 +26,8 @@ internal class WorksheetPartWriter
 {
     internal static void GenerateWorksheetPartContent(
         bool partIsEmpty,
-        WorksheetPart worksheetPart,
+        OpcPackage package,
+        OpcPart worksheetPart,
         XLWorksheet xlWorksheet,
         SaveOptions options,
         SaveContext context
@@ -45,7 +46,7 @@ internal class WorksheetPartWriter
         WorksheetXml.Child(worksheet, "sheetData");
 
         WriteTableParts(worksheet, (XLTables)xlWorksheet.Tables);
-        WritePictures(worksheet, worksheetPart, xlWorksheet, context);
+        WritePictures(worksheet, package, worksheetPart, xlWorksheet, context);
         WriteLegacyDrawing(worksheet, xlWorksheet);
         WriteSheetProperties(worksheet, xlWorksheet);
         WriteDimension(worksheet, xlWorksheet);
@@ -81,12 +82,12 @@ internal class WorksheetPartWriter
     /// The sheet as it was loaded, patched rather than replaced, or a fresh one for a part that
     /// has no content yet.
     /// </summary>
-    private static XElement ReadOrCreateWorksheet(bool partIsEmpty, WorksheetPart worksheetPart)
+    private static XElement ReadOrCreateWorksheet(bool partIsEmpty, OpcPart worksheetPart)
     {
         XElement worksheet;
         if (!partIsEmpty)
         {
-            using Stream stream = worksheetPart.GetStream(FileMode.Open, FileAccess.Read);
+            using Stream stream = worksheetPart.GetReadStream();
             worksheet =
                 XDocument.Load(stream).Root
                 ?? throw PartStructureException.ExpectedElementNotFound("worksheet");
@@ -767,14 +768,17 @@ internal class WorksheetPartWriter
     /// model and are carried through untouched, in the order they were in.
     /// </summary>
     private static (XElement Root, bool Standalone) ReadOrCreateWorksheetDrawing(
-        DrawingsPart drawingsPart
+        OpcPart drawingsPart
     )
     {
-        using (Stream stream = drawingsPart.GetStream(FileMode.OpenOrCreate, FileAccess.Read))
+        using (Stream stream = drawingsPart.GetReadStream())
+        using (MemoryStream buffer = new())
         {
-            if (stream.Length > 0)
+            stream.CopyTo(buffer);
+            if (buffer.Length > 0)
             {
-                XDocument existing = XDocument.Load(stream);
+                buffer.Position = 0;
+                XDocument existing = XDocument.Load(buffer);
                 XElement root =
                     existing.Root ?? throw PartStructureException.ExpectedElementNotFound("wsDr");
                 bool standalone = string.Equals(
@@ -796,12 +800,12 @@ internal class WorksheetPartWriter
     }
 
     private static void SaveWorksheetDrawing(
-        DrawingsPart drawingsPart,
+        OpcPart drawingsPart,
         XElement worksheetDrawing,
         bool standalone
     )
     {
-        using Stream stream = drawingsPart.GetStream(FileMode.Create);
+        using Stream stream = drawingsPart.GetWriteStream();
         using XmlWriter xml = XmlWriter.Create(
             stream,
             new XmlWriterSettings { CloseOutput = true, Encoding = XlsxSharp.XLHelper.NoBomUTF8 }
@@ -812,9 +816,56 @@ internal class WorksheetPartWriter
         document.Save(xml);
     }
 
+    /// <summary>
+    /// The content type and file extension of a picture's format. Every format but the two
+    /// XlsxSharp added itself (Unknown, Webp) mirrors what the SDK declared for the equivalent
+    /// <c>ImagePartType</c>.
+    /// </summary>
+    private static readonly Dictionary<
+        XLPictureFormat,
+        (string ContentType, string Extension)
+    > ImageContentTypes = new()
+    {
+        [XLPictureFormat.Unknown] = ("image/unknown", ".bin"),
+        [XLPictureFormat.Bmp] = ("image/bmp", ".bmp"),
+        [XLPictureFormat.Gif] = ("image/gif", ".gif"),
+        [XLPictureFormat.Png] = ("image/png", ".png"),
+        [XLPictureFormat.Tiff] = ("image/tiff", ".tiff"),
+        [XLPictureFormat.Icon] = ("image/x-icon", ".ico"),
+        [XLPictureFormat.Pcx] = ("image/x-pcx", ".pcx"),
+        [XLPictureFormat.Jpeg] = ("image/jpeg", ".jpg"),
+        [XLPictureFormat.Emf] = ("image/x-emf", ".emf"),
+        [XLPictureFormat.Wmf] = ("image/x-wmf", ".wmf"),
+        [XLPictureFormat.Webp] = ("image/webp", ".webp"),
+    };
+
+    /// <summary>
+    /// The first image part name of that extension no part uses yet. The SDK counts separately
+    /// per extension and, unlike every other numbered part kind, leaves the first of each
+    /// extension unnumbered.
+    /// </summary>
+    private static string NextFreeImagePartName(OpcPackage package, string extension)
+    {
+        string first = $"/xl/media/image{extension}";
+        if (!package.TryGetPart(first, out _))
+        {
+            return first;
+        }
+
+        for (int number = 2; ; number++)
+        {
+            string candidate = $"/xl/media/image{number}{extension}";
+            if (!package.TryGetPart(candidate, out _))
+            {
+                return candidate;
+            }
+        }
+    }
+
     private static void AddPictureAnchor(
         XElement worksheetDrawing,
-        DrawingsPart drawingsPart,
+        OpcPackage package,
+        OpcPart drawingsPart,
         Drawings.IXLPicture picture,
         SaveContext context
     )
@@ -822,15 +873,25 @@ internal class WorksheetPartWriter
         XLPicture pic = picture as Drawings.XLPicture;
 
         // Overwrite actual image binary data
-        ImagePart imagePart;
-        if (drawingsPart.HasPartWithId(pic.RelId))
+        OpcPart imagePart;
+        if (
+            !string.IsNullOrEmpty(pic.RelId)
+            && drawingsPart.Relationships.TryGetById(pic.RelId, out _)
+        )
         {
-            imagePart = drawingsPart.GetPartById(pic.RelId) as ImagePart;
+            imagePart = drawingsPart.GetRelatedPart(pic.RelId);
         }
         else
         {
             pic.RelId = context.RelIdGenerator.GetNext(RelType.Workbook);
-            imagePart = drawingsPart.AddImagePart(pic.Format.ToOpenXml(), pic.RelId);
+            (string contentType, string extension) = ImageContentTypes[pic.Format];
+            (imagePart, _) = drawingsPart.AddPartOfType(
+                package,
+                OoxmlPartTypes.Image,
+                contentType: contentType,
+                partName: NextFreeImagePartName(package, extension),
+                relationshipId: pic.RelId
+            );
         }
 
         using (MemoryStream stream = new())
@@ -838,10 +899,11 @@ internal class WorksheetPartWriter
             pic.ImageStream.Position = 0;
             pic.ImageStream.CopyTo(stream);
             stream.Seek(0, SeekOrigin.Begin);
-            imagePart.FeedData(stream);
+            using Stream writeStream = imagePart.GetWriteStream();
+            stream.CopyTo(writeStream);
         }
 
-        string embedId = drawingsPart.GetIdOfPart(imagePart);
+        string embedId = drawingsPart.Relationships.GetIdOfTarget(imagePart.Name);
 
         // Find the anchor this picture already had, if it has one, so it can be replaced in
         // place rather than moved to the end.
@@ -1160,35 +1222,44 @@ internal class WorksheetPartWriter
     /// </summary>
     private static void WritePictures(
         XElement worksheet,
-        WorksheetPart worksheetPart,
+        OpcPackage package,
+        OpcPart worksheetPart,
         XLWorksheet xlWorksheet,
         SaveContext context
     )
     {
-        if (worksheetPart.DrawingsPart != null)
+        OpcPart existingDrawingsPart = worksheetPart.PartOfType(OoxmlPartTypes.Drawing);
+        if (existingDrawingsPart is not null)
         {
             XLPictures xlPictures = xlWorksheet.Pictures as Drawings.XLPictures;
             foreach (string removedPicture in xlPictures.Deleted)
             {
-                worksheetPart.DrawingsPart.DeletePart(removedPicture);
+                if (existingDrawingsPart.GetRelatedPartOrDefault(removedPicture) is { } imagePart)
+                {
+                    package.DeletePart(imagePart.Name);
+                }
             }
             xlPictures.Deleted.Clear();
         }
 
         if (xlWorksheet.Pictures.Count > 0)
         {
-            DrawingsPart drawingsPart =
-                worksheetPart.DrawingsPart
-                ?? worksheetPart.AddNewPart<DrawingsPart>(
-                    context.RelIdGenerator.GetNext(RelType.Workbook)
-                );
+            OpcPart drawingsPart =
+                existingDrawingsPart
+                ?? worksheetPart
+                    .AddPartOfType(
+                        package,
+                        OoxmlPartTypes.Drawing,
+                        relationshipId: context.RelIdGenerator.GetNext(RelType.Workbook)
+                    )
+                    .Part;
             (XElement worksheetDrawingXml, bool standalone) = ReadOrCreateWorksheetDrawing(
                 drawingsPart
             );
 
             foreach (XLPicture pic in xlWorksheet.Pictures)
             {
-                AddPictureAnchor(worksheetDrawingXml, drawingsPart, pic, context);
+                AddPictureAnchor(worksheetDrawingXml, package, drawingsPart, pic, context);
             }
 
             RebaseNonVisualDrawingPropertiesIds(worksheetDrawingXml);
@@ -1206,16 +1277,18 @@ internal class WorksheetPartWriter
                 drawingElement.SetAttributeValue(XNamespace.Xmlns + "r", RelationshipsNs);
                 drawingElement.SetAttributeValue(
                     SpreadsheetXml.Rel + "id",
-                    worksheetPart.GetIdOfPart(drawingsPart)
+                    worksheetPart.Relationships.GetIdOfTarget(drawingsPart.Name)
                 );
             }
         }
 
         // Instead of saving a file with an empty Drawings.xml file, rather remove the .xml file
+        OpcPart drawingsPartNow = worksheetPart.PartOfType(OoxmlPartTypes.Drawing);
         bool hasCharts =
-            worksheetPart.DrawingsPart is not null && worksheetPart.DrawingsPart.Parts.Any();
+            drawingsPartNow is not null
+            && drawingsPartNow.Relationships.Any(r => r.TargetMode == OpcTargetMode.Internal);
         if (
-            worksheetPart.DrawingsPart is not null
+            drawingsPartNow is not null
             && // There is a drawing part for the sheet that could be deleted
             xlWorksheet.LegacyDrawingId is null
             && // and sheet doesn't contain any form controls or comments or other shapes
@@ -1225,7 +1298,7 @@ internal class WorksheetPartWriter
         ) // and no charts
         {
             worksheet.Element(SpreadsheetXml.Main + "drawing")?.Remove();
-            worksheetPart.DeletePart(worksheetPart.DrawingsPart);
+            package.DeletePart(drawingsPartNow.Name);
         }
     }
 
@@ -2162,16 +2235,19 @@ internal class WorksheetPartWriter
     /// </summary>
     private static void WriteHyperlinks(
         XElement worksheet,
-        WorksheetPart worksheetPart,
+        OpcPart worksheetPart,
         XLWorksheet xlWorksheet,
         SaveContext context
     )
     {
         foreach (
-            HyperlinkRelationship relationship in worksheetPart.HyperlinkRelationships.ToList()
+            string relationshipId in worksheetPart
+                .Relationships.OfType(OoxmlPartTypes.HyperlinkRelationshipType)
+                .Select(r => r.Id)
+                .ToList()
         )
         {
-            worksheetPart.DeleteReferenceRelationship(relationship);
+            worksheetPart.Relationships.Remove(relationshipId);
         }
 
         if (!xlWorksheet.Hyperlinks.Any())
@@ -2193,7 +2269,11 @@ internal class WorksheetPartWriter
             {
                 string relId = context.RelIdGenerator.GetNext(XLWorkbook.RelType.Workbook);
                 written.SetAttributeValue(SpreadsheetXml.Rel + "id", relId);
-                worksheetPart.AddHyperlinkRelationship(hyperlink.ExternalAddress, true, relId);
+                worksheetPart.Relationships.AddExternal(
+                    hyperlink.ExternalAddress.OriginalString,
+                    OoxmlPartTypes.HyperlinkRelationshipType,
+                    relId
+                );
             }
             else
             {
@@ -2386,14 +2466,14 @@ internal class WorksheetPartWriter
 
     private static void StreamToPart(
         XElement worksheet,
-        WorksheetPart worksheetPart,
+        OpcPart worksheetPart,
         XLWorksheet xlWorksheet,
         SaveContext context,
         SaveOptions options
     )
     {
         // Worksheet part might have some data, but creating the stream truncates everything.
-        using Stream partStream = worksheetPart.GetStream(FileMode.Create);
+        using Stream partStream = worksheetPart.GetWriteStream();
         using XmlWriter xml = XmlWriter.Create(
             partStream,
             new XmlWriterSettings { CloseOutput = true, Encoding = XlsxSharp.XLHelper.NoBomUTF8 }

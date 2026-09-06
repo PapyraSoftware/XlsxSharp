@@ -1,8 +1,8 @@
 using System.Reflection;
 using System.Xml;
 using System.Xml.Linq;
-using DocumentFormat.OpenXml.Packaging;
 using XlsxSharp.Extensions;
+using XlsxSharp.IO.Packaging;
 
 namespace XlsxSharp.Excel.IO;
 
@@ -22,7 +22,7 @@ internal static class ThemePartWriter
     private static readonly XNamespace Drawing =
         "http://schemas.openxmlformats.org/drawingml/2006/main";
 
-    internal static void GenerateContent(ThemePart themePart, XLTheme theme)
+    internal static void GenerateContent(OpcPart themePart, XLTheme theme)
     {
         XDocument document = ReadTemplate();
         XElement colorScheme =
@@ -44,7 +44,7 @@ internal static class ThemePartWriter
         SetColor("hlink", theme.Hyperlink);
         SetColor("folHlink", theme.FollowedHyperlink);
 
-        using Stream partStream = themePart.GetStream(FileMode.Create);
+        using Stream partStream = themePart.GetWriteStream();
         using XmlWriter xml = XmlWriter.Create(
             partStream,
             new XmlWriterSettings { CloseOutput = true, Encoding = XlsxSharp.XLHelper.NoBomUTF8 }

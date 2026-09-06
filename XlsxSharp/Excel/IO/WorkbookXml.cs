@@ -1,5 +1,4 @@
 using System.Xml.Linq;
-using DocumentFormat.OpenXml.Packaging;
 using XlsxSharp.IO;
 using XlsxSharp.IO.Packaging;
 
@@ -15,17 +14,6 @@ internal static class WorkbookXml
     internal static XElement Read(OpcPart part)
     {
         using Stream stream = part.GetReadStream();
-        return XDocument.Load(stream).Root
-            ?? throw PartStructureException.ExpectedElementNotFound("workbook");
-    }
-
-    /// <summary>
-    /// Reads the part while the save path still opens the package through the SDK. Goes away once
-    /// saving moves onto <see cref="OpcPackage"/> too.
-    /// </summary>
-    internal static XElement Read(WorkbookPart part)
-    {
-        using Stream stream = part.GetStream(FileMode.Open, FileAccess.Read);
         return XDocument.Load(stream).Root
             ?? throw PartStructureException.ExpectedElementNotFound("workbook");
     }

@@ -23,8 +23,15 @@ public sealed class OpcPackageProperties
     private const string DcmiTypeNs = "http://purl.org/dc/dcmitype/";
     private const string XsiNs = "http://www.w3.org/2001/XMLSchema-instance";
 
-    /// <summary>Where the part is created when the package does not have one yet.</summary>
-    internal const string DefaultPartName = "/docProps/core.xml";
+    /// <summary>
+    /// Where the part is created when the package does not have one yet. Not the conventional
+    /// <c>/docProps/core.xml</c> - a package the SDK creates fresh puts its core properties at an
+    /// SDK-chosen <c>.psmdcp</c> path instead, through the underlying <c>System.IO.Packaging</c>
+    /// machinery rather than as an ordinary part, and reference workbooks recorded that. A loaded
+    /// package's own core properties part, wherever it lives, is patched in place regardless -
+    /// this name is only ever used for a package that had none.
+    /// </summary>
+    internal const string DefaultPartName = "/docProps/core.psmdcp";
 
     private string? _category;
     private string? _contentStatus;
@@ -251,28 +258,30 @@ public sealed class OpcPackageProperties
 
         using XmlWriter writer = XmlWriter.Create(stream, settings);
         writer.WriteStartDocument(standalone: true);
-        writer.WriteStartElement("cp", "coreProperties", CoreNs);
+        // The core namespace is the default one, unprefixed - dc/dcterms/xsi are the only
+        // prefixes an element or attribute actually uses. dcmitype is part of the schema but
+        // nothing here writes a dcmitype:-qualified value, so it is not declared.
+        writer.WriteStartElement("coreProperties", CoreNs);
         writer.WriteAttributeString("xmlns", "dc", null, DcNs);
         writer.WriteAttributeString("xmlns", "dcterms", null, DcTermsNs);
-        writer.WriteAttributeString("xmlns", "dcmitype", null, DcmiTypeNs);
         writer.WriteAttributeString("xmlns", "xsi", null, XsiNs);
 
         // The order follows the sequence in the core properties schema, which is what consumers
         // that validate against it expect.
         WriteText(writer, "dc", "creator", DcNs, this._creator);
-        WriteText(writer, "cp", "keywords", CoreNs, this._keywords);
+        WriteText(writer, null, "keywords", CoreNs, this._keywords);
         WriteText(writer, "dc", "description", DcNs, this._description);
         WriteText(writer, "dc", "title", DcNs, this._title);
         WriteText(writer, "dc", "subject", DcNs, this._subject);
-        WriteText(writer, "cp", "lastModifiedBy", CoreNs, this._lastModifiedBy);
+        WriteText(writer, null, "lastModifiedBy", CoreNs, this._lastModifiedBy);
         WriteDate(writer, "dcterms", "created", DcTermsNs, this._created);
         WriteDate(writer, "dcterms", "modified", DcTermsNs, this._modified);
-        WriteDate(writer, "cp", "lastPrinted", CoreNs, this._lastPrinted);
-        WriteText(writer, "cp", "contentType", CoreNs, this._contentType);
-        WriteText(writer, "cp", "contentStatus", CoreNs, this._contentStatus);
-        WriteText(writer, "cp", "category", CoreNs, this._category);
-        WriteText(writer, "cp", "version", CoreNs, this._version);
-        WriteText(writer, "cp", "revision", CoreNs, this._revision);
+        WriteDate(writer, null, "lastPrinted", CoreNs, this._lastPrinted);
+        WriteText(writer, null, "contentType", CoreNs, this._contentType);
+        WriteText(writer, null, "contentStatus", CoreNs, this._contentStatus);
+        WriteText(writer, null, "category", CoreNs, this._category);
+        WriteText(writer, null, "version", CoreNs, this._version);
+        WriteText(writer, null, "revision", CoreNs, this._revision);
         WriteText(writer, "dc", "identifier", DcNs, this._identifier);
         WriteText(writer, "dc", "language", DcNs, this._language);
 
@@ -282,7 +291,7 @@ public sealed class OpcPackageProperties
 
     private static void WriteText(
         XmlWriter writer,
-        string prefix,
+        string? prefix,
         string localName,
         string ns,
         string? value
@@ -296,7 +305,7 @@ public sealed class OpcPackageProperties
 
     private static void WriteDate(
         XmlWriter writer,
-        string prefix,
+        string? prefix,
         string localName,
         string ns,
         DateTime? value

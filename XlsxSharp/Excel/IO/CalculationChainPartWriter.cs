@@ -1,8 +1,8 @@
 #nullable disable
 
 using System.Xml;
-using DocumentFormat.OpenXml.Packaging;
 using XlsxSharp.Extensions;
+using XlsxSharp.IO.Packaging;
 using static XlsxSharp.Excel.IO.OpenXmlConst;
 using static XlsxSharp.Excel.XLWorkbook;
 
@@ -11,7 +11,8 @@ namespace XlsxSharp.Excel.IO;
 internal class CalculationChainPartWriter
 {
     internal static void GenerateContent(
-        WorkbookPart workbookPart,
+        OpcPackage package,
+        OpcPart workbookPart,
         XLWorkbook workbook,
         SaveContext context
     )
@@ -20,25 +21,27 @@ internal class CalculationChainPartWriter
         // below when it turns out to be. That order matters: creating it takes the next
         // relationship id, and the ids of every part created after this one depend on whether
         // this one took one.
-        if (workbookPart.CalculationChainPart is null)
-        {
-            workbookPart.AddNewPart<CalculationChainPart>(
-                context.RelIdGenerator.GetNext(RelType.Workbook)
-            );
-        }
+        OpcPart calcChainPart = workbookPart.PartOfType(OoxmlPartTypes.CalculationChain);
+        calcChainPart ??= workbookPart
+            .AddPartOfType(
+                package,
+                OoxmlPartTypes.CalculationChain,
+                relationshipId: context.RelIdGenerator.GetNext(RelType.Workbook)
+            )
+            .Part;
 
         List<(string CellReference, int SheetId, bool IsArrayHead)> chain = BuildChain(workbook);
 
         // Excel does not keep an empty calcChain part around, and neither should we.
         if (chain.Count == 0)
         {
-            workbookPart.DeletePart(workbookPart.CalculationChainPart);
+            package.DeletePart(calcChainPart.Name);
             return;
         }
 
         XmlWriterSettings settings = new() { Encoding = XlsxSharp.XLHelper.NoBomUTF8 };
 
-        using Stream partStream = workbookPart.CalculationChainPart.GetStream(FileMode.Create);
+        using Stream partStream = calcChainPart.GetWriteStream();
         using XmlWriter xml = XmlWriter.Create(partStream, settings);
 
         xml.WriteStartDocument();

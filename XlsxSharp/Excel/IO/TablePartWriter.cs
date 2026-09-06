@@ -1,6 +1,5 @@
 using System.Xml;
 using System.Xml.Linq;
-using DocumentFormat.OpenXml.Packaging;
 using XlsxSharp.Excel.Tables;
 using XlsxSharp.Extensions;
 using XlsxSharp.IO;
@@ -15,23 +14,22 @@ namespace XlsxSharp.Excel.IO;
 internal class TablePartWriter
 {
     internal static void SynchronizeTableParts(
+        OpcPackage package,
         XLTables tables,
-        WorksheetPart worksheetPart,
+        OpcPart worksheetPart,
         SaveContext context
     )
     {
         // Remove table definition parts that are not a part of workbook
         foreach (
-            TableDefinitionPart tableDefinitionPart in worksheetPart
-                .GetPartsOfType<TableDefinitionPart>()
-                .ToList()
+            OpcPart tableDefinitionPart in worksheetPart.PartsOfType(OoxmlPartTypes.Table).ToList()
         )
         {
-            string partId = worksheetPart.GetIdOfPart(tableDefinitionPart);
+            string partId = worksheetPart.Relationships.GetIdOfTarget(tableDefinitionPart.Name);
             bool xlWorkbookContainsTable = tables.Cast<XLTable>().Any(t => t.RelId == partId);
             if (!xlWorkbookContainsTable)
             {
-                worksheetPart.DeletePart(tableDefinitionPart);
+                package.DeletePart(tableDefinitionPart.Name);
             }
         }
 
@@ -40,28 +38,31 @@ internal class TablePartWriter
             if (string.IsNullOrEmpty(xlTable.RelId))
             {
                 xlTable.RelId = context.RelIdGenerator.GetNext(RelType.Workbook);
-                worksheetPart.AddNewPart<TableDefinitionPart>(xlTable.RelId);
+                worksheetPart.AddPartOfType(
+                    package,
+                    OoxmlPartTypes.Table,
+                    relationshipId: xlTable.RelId
+                );
             }
         }
     }
 
     internal static void GenerateTableParts(
         XLTables tables,
-        WorksheetPart worksheetPart,
+        OpcPart worksheetPart,
         SaveContext context
     )
     {
         foreach (XLTable xlTable in tables.Cast<XLTable>())
         {
             string relId = xlTable.RelId;
-            TableDefinitionPart tableDefinitionPart = (TableDefinitionPart)
-                worksheetPart.GetPartById(relId);
+            OpcPart tableDefinitionPart = worksheetPart.GetRelatedPart(relId);
             GenerateTableDefinitionPartContent(tableDefinitionPart, xlTable, context);
         }
     }
 
     private static void GenerateTableDefinitionPartContent(
-        TableDefinitionPart tableDefinitionPart,
+        OpcPart tableDefinitionPart,
         XLTable xlTable,
         SaveContext context
     )
@@ -116,7 +117,7 @@ internal class TablePartWriter
         table.Add(WriteTableColumns(xlTable, context));
         table.Add(WriteTableStyleInfo(xlTable));
 
-        using Stream partStream = tableDefinitionPart.GetStream(FileMode.Create);
+        using Stream partStream = tableDefinitionPart.GetWriteStream();
         using XmlWriter xml = XmlWriter.Create(
             partStream,
             new XmlWriterSettings { CloseOutput = true, Encoding = XlsxSharp.XLHelper.NoBomUTF8 }

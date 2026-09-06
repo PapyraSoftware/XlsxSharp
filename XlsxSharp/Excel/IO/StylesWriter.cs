@@ -1,11 +1,11 @@
 using System.Xml;
-using DocumentFormat.OpenXml.Packaging;
 using XlsxSharp.Excel.ConditionalFormats;
 using XlsxSharp.Excel.Formatting;
 using XlsxSharp.Excel.Rows;
 using XlsxSharp.Excel.Tables;
 using XlsxSharp.Extensions;
 using XlsxSharp.IO;
+using XlsxSharp.IO.Packaging;
 using XlsxSharp.Utils;
 using static XlsxSharp.Excel.IO.OpenXmlConst;
 using PivotRegion = XlsxSharp.Excel.Formatting.XLPivotStyleRegionValues;
@@ -57,7 +57,7 @@ internal class StylesWriter
     private readonly string _ns = Main2006SsNs;
 
     internal void WriteContent(
-        WorkbookStylesPart stylesPart,
+        OpcPart stylesPart,
         IEnumMapper mapper,
         XLWorkbookStyles styles,
         XLWorkbook workbook,
@@ -227,7 +227,7 @@ internal class StylesWriter
 
         XmlWriterSettings settings = new() { Encoding = XlsxSharp.XLHelper.NoBomUTF8 };
 
-        using Stream partStream = stylesPart.GetStream(FileMode.Create);
+        using Stream partStream = stylesPart.GetWriteStream();
         using XmlTreeWriter xml = new(XmlWriter.Create(partStream, settings), mapper);
 
         xml.WriteStartDocument("styleSheet", this._ns);

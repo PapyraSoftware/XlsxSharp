@@ -2,9 +2,9 @@
 
 using System.Xml;
 using System.Xml.Linq;
-using DocumentFormat.OpenXml.Packaging;
 using XlsxSharp.Excel.Protection;
 using XlsxSharp.Extensions;
+using XlsxSharp.IO.Packaging;
 using XlsxSharp.Utils;
 
 namespace XlsxSharp.Excel.IO;
@@ -79,7 +79,7 @@ internal class WorkbookPartWriter
     }
 
     internal static void GenerateContent(
-        WorkbookPart workbookPart,
+        OpcPart workbookPart,
         XLWorkbook xlWorkbook,
         SaveOptions options,
         XLWorkbook.SaveContext context
@@ -96,7 +96,7 @@ internal class WorkbookPartWriter
         WriteCalculationProperties(workbook, xlWorkbook);
         WritePivotCaches(workbook, xlWorkbook);
 
-        using Stream partStream = workbookPart.GetStream(FileMode.Create);
+        using Stream partStream = workbookPart.GetWriteStream();
         using XmlWriter xml = XmlWriter.Create(
             partStream,
             new XmlWriterSettings { Encoding = XlsxSharp.XLHelper.NoBomUTF8 }
@@ -108,17 +108,20 @@ internal class WorkbookPartWriter
     /// <summary>
     /// The part's document with the two prefixes the writer needs on the root, or a fresh one.
     /// </summary>
-    private static XDocument ReadExisting(WorkbookPart part)
+    private static XDocument ReadExisting(OpcPart part)
     {
         XElement? loaded = null;
 
-        using (Stream stream = part.GetStream(FileMode.OpenOrCreate, FileAccess.Read))
+        using (Stream stream = part.GetReadStream())
+        using (MemoryStream buffer = new())
         {
-            if (stream.Length > 0)
+            stream.CopyTo(buffer);
+            if (buffer.Length > 0)
             {
+                buffer.Position = 0;
                 try
                 {
-                    loaded = XDocument.Load(stream).Root;
+                    loaded = XDocument.Load(buffer).Root;
                 }
                 catch (XmlException)
                 {
