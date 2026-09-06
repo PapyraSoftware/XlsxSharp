@@ -8,7 +8,10 @@ namespace XlsxSharp.Tests.Excel.IO.Schemas;
 /// Exercises <see cref="SchemaValidator"/> and the general load/save round trip against real,
 /// Excel-authored files taken from the Open XML SDK's own test suite (see THIRD-PARTY.txt) rather
 /// than synthetic ones, the same way its "OFCAT"/Robustness corpus, its markup-compatibility
-/// fixture and its missing-calcChain fixture are used there.
+/// fixture and its missing-calcChain fixture are used there - plus the rest of its test asset
+/// library (<see cref="CorpusFiles"/>), covering pivot tables, charts, OLE/ActiveX objects,
+/// external links, web extensions and Office templates, minus the individually investigated
+/// <see cref="KnownLimitations"/>.
 /// </summary>
 public class RealWorldFixtureTests
 {
@@ -97,6 +100,86 @@ public class RealWorldFixtureTests
         using (OpcPackage package = OpcPackage.Open(original))
         {
             ClassicAssert.IsFalse(package.Parts.Any(p => p.Name == "/xl/calcChain.xml"));
+        }
+
+        original.Position = 0;
+        using XLWorkbook wb = new(original);
+        using MemoryStream resaved = new();
+        ClassicAssert.DoesNotThrow(() => wb.SaveAs(resaved));
+    }
+
+    /// <summary>
+    /// Files under OpenXmlSdkCorpus that validate or round-trip cleanly against this file's own
+    /// architecture (typed model, version-aware namespace handling) but not against XlsxSharp's -
+    /// each is a real, separately investigated finding, not a blanket "some files fail" excuse.
+    /// </summary>
+    private static readonly string[] KnownLimitations =
+    [
+        // ISO/IEC 29500 "Strict" - a parallel OOXML variant with a different root namespace
+        // throughout (e.g. http://purl.oclc.org/ooxml/spreadsheetml/main instead of the
+        // Transitional http://schemas.openxmlformats.org/spreadsheetml/2006/main XlsxSharp reads
+        // and SchemaValidator's vendored schemas describe) - a whole separate schema/reader
+        // XlsxSharp does not implement. Excel itself barely ever produces Strict files.
+        "TestFiles.Comments.xlsx",
+
+        // Pre-final-spec, Excel-2007-beta-era content types (e.g.
+        // application/vnd.ms-excel.worksheet+xml instead of the final
+        // application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml) - an obsolete
+        // draft vocabulary from before OOXML was standardized.
+        "O12_templates.ProjectStatusReport_TP10094814.xltx",
+
+        // ConditionalFormatXml.Rule has no writer case for XLConditionalFormatType.AboveAverage -
+        // a real, acknowledged feature gap (the reader has nowhere to keep the rule's
+        // aboveAverage/equalAverage/stdDev flags either), not something these files expose
+        // incorrectly.
+        "spreadsheet.NoExtDataB1.xlsx",
+        "spreadsheet.NoExtDataF1.xlsx",
+        "spreadsheet.noextdatab4.xlsx",
+
+        // A numeric value typed as a date but outside DateTime.FromOADate's representable range
+        // throws while writing instead of being tolerated the way Excel itself tolerates it.
+        "spreadsheet.NoExtDataA1.xlsx",
+
+        // Loading a table's totals-row formula copies a number format from another cell in a way
+        // that (rarely) leaves the copied format's font not registered by reference identity yet,
+        // tripping an internal Debug.Assert in XLWorkbookStyles.RegisterCellFormat.
+        "O12_templates.EmployeeTimeCard_TP10192140.xltx",
+
+        // A pivot cache record is expected to carry one value per cacheField, but a calculated
+        // (formula=...) or grouped (fieldGroup) field - both marked databaseField="0" - is
+        // correctly absent from every record; PivotCacheRecordsReader and XLPivotCache.FieldCount
+        // count every cache field instead of only the ones actually stored in records.
+        "spreadsheet.Pivot2.xlsx",
+
+        // The SDK's own fixtures for a lenient, non-standard URI-parsing compatibility mode it
+        // implements for malformed hyperlink relationship targets - unrelated to schema validation
+        // or general round-tripping.
+        "TestFiles.malformed_uri.xlsx",
+        "TestFiles.malformed_uri_long.xlsx",
+    ];
+
+    internal static IEnumerable<string> CorpusFiles =>
+        TestHelper.ListResourceFiles(s =>
+            s.Contains(".Schemas.OpenXmlSdkCorpus.")
+            && !s.Contains(".Schemas.OpenXmlSdkCorpus.TestDataStorage.O14ISOStrict.")
+            && !KnownLimitations.Any(s.Contains)
+        );
+
+    /// <summary>
+    /// A broader sweep of the same corpus, covering pivot tables, charts, OLE/ActiveX objects,
+    /// external links, web extensions and Office templates - well beyond what
+    /// <see cref="RealWorldFileValidatesAndRoundTrips"/>'s Robustness slice happens to exercise.
+    /// </summary>
+    [Test]
+    [MethodDataSource(nameof(CorpusFiles))]
+    public void SdkCorpusFileValidatesAndRoundTrips(string file)
+    {
+        using MemoryStream original = LoadResource(file);
+
+        using (OpcPackage package = OpcPackage.Open(original))
+        {
+            IReadOnlyList<string> errors = SchemaValidator.Validate(package);
+            ClassicAssert.IsEmpty(errors, string.Join(Environment.NewLine, errors));
         }
 
         original.Position = 0;

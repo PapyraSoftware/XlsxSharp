@@ -36,6 +36,14 @@ internal class SequentialMap<TKey, T>
         firstValues ??= new Dictionary<T, int>();
         foreach ((T firstValue, int savedId) in firstValues)
         {
+            // A predefined number format's usual id can be occupied by a differently-spelled but
+            // equivalent format code instead (e.g. a real file writing "$"#,##0.00 rather than the
+            // bare $#,##0.00 this predefined entry uses) - nothing reserves that saved id then.
+            if (!allValuesMap.ContainsValue(firstValue))
+            {
+                continue;
+            }
+
             TKey actualId = allValuesMap[firstValue];
             map.Add(actualId, savedId);
         }

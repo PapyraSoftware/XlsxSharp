@@ -9,6 +9,8 @@
   <ItemGroup>
     <EmbeddedResource Include="**\*.xlsx" Exclude="**\~$*.xlsx;bin\**" />
     <EmbeddedResource Include="**\*.xlsm" Exclude="**\~$*.xlsm;bin\**" />
+    <EmbeddedResource Include="**\*.xltx" Exclude="**\~$*.xltx;bin\**" />
+    <EmbeddedResource Include="**\*.xltm" Exclude="**\~$*.xltm;bin\**" />
     <EmbeddedResource Include="Resource\Images\**\*.*" />
     <EmbeddedResource Include="Resource\Fonts\*.*" />
     <EmbeddedResource Include="Resource\Other\**\*.txt" />

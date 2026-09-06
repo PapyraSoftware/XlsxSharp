@@ -3408,6 +3408,7 @@
     <xsd:attribute name="relativeIndent" type="xsd:int" use="optional"/>
     <xsd:attribute name="justifyLastLine" type="xsd:boolean" use="optional"/>
     <xsd:attribute name="shrinkToFit" type="xsd:boolean" use="optional"/>
+    <xsd:attribute name="mergeCell" type="xsd:boolean" use="optional" default="false"/>
     <xsd:attribute name="readingOrder" type="xsd:unsignedInt" use="optional"/>
   </xsd:complexType>
   <xsd:simpleType name="ST_TextRotation">
