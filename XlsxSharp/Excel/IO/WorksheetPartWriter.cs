@@ -88,9 +88,7 @@ internal class WorksheetPartWriter
         if (!partIsEmpty)
         {
             using Stream stream = worksheetPart.GetReadStream();
-            worksheet =
-                XDocument.Load(stream).Root
-                ?? throw PartStructureException.ExpectedElementNotFound("worksheet");
+            worksheet = ReadWorksheetSkippingSheetData(stream);
         }
         else
         {
@@ -144,6 +142,102 @@ internal class WorksheetPartWriter
         }
 
         return worksheet;
+    }
+
+    /// <summary>
+    /// The root element of a loaded worksheet part, with an empty <c>sheetData</c> in place of
+    /// whatever rows it held.
+    /// </summary>
+    /// <remarks>
+    /// <see cref="GenerateWorksheetPartContent"/> throws every row away and rebuilds
+    /// <c>sheetData</c> wholesale from the workbook model regardless of what the part held, so a
+    /// full <see cref="XDocument.Load(Stream)"/> here would materialise a sheet's entire row/cell
+    /// tree only to discard it - expensive for a large sheet, and the one part of the document
+    /// whose loaded content is never actually read. Everything else about the sheet - dimension,
+    /// views, columns, merges, hyperlinks, page setup, an unrecognised extension element, and so
+    /// on - is small regardless of row count and is still read in full, through the exact same
+    /// <see cref="XNode.ReadFrom(XmlReader)"/> the BCL itself uses to build a <see cref="XDocument"/>
+    /// from a reader, so it is preserved exactly as before.
+    /// </remarks>
+    private static XElement ReadWorksheetSkippingSheetData(Stream stream)
+    {
+        XmlReaderSettings settings = new()
+        {
+            IgnoreWhitespace = true,
+            DtdProcessing = DtdProcessing.Prohibit,
+        };
+
+        using XmlReader reader = XmlReader.Create(stream, settings);
+        reader.MoveToContent();
+        if (reader.NodeType != XmlNodeType.Element)
+        {
+            throw PartStructureException.ExpectedElementNotFound("worksheet");
+        }
+
+        XElement worksheet = new(XName.Get(reader.LocalName, reader.NamespaceURI));
+        CopyAttributes(reader, worksheet);
+
+        bool isEmpty = reader.IsEmptyElement;
+        reader.Read();
+        if (isEmpty)
+        {
+            return worksheet;
+        }
+
+        while (reader.NodeType != XmlNodeType.EndElement)
+        {
+            if (
+                reader.NodeType == XmlNodeType.Element
+                && reader.LocalName == "sheetData"
+                && reader.NamespaceURI == SpreadsheetXml.Main.NamespaceName
+            )
+            {
+                XElement sheetData = new(XName.Get(reader.LocalName, reader.NamespaceURI));
+                CopyAttributes(reader, sheetData);
+                worksheet.Add(sheetData);
+                reader.Skip();
+            }
+            else
+            {
+                worksheet.Add(XNode.ReadFrom(reader));
+            }
+        }
+
+        return worksheet;
+    }
+
+    /// <summary>
+    /// Copies the reader's current element's attributes onto <paramref name="element"/>, leaving
+    /// the reader back on the element itself.
+    /// </summary>
+    /// <remarks>
+    /// The namespace URI a namespace-aware <see cref="XmlReader"/> reports for an attribute
+    /// already resolves to exactly the <see cref="XName"/> <see cref="XAttribute"/> expects for
+    /// an ordinary attribute, prefixed or not, and for a prefixed namespace declaration such as
+    /// <c>xmlns:x</c> - <see cref="XName.Get(string, string)"/> with the reported namespace URI
+    /// matches <see cref="XNamespace.Xmlns"/> plus the local name in both cases. The one exception
+    /// is the bare default-namespace declaration <c>xmlns="..."</c>: the reader reports its
+    /// namespace URI as the reserved xmlns namespace too, but <see cref="XAttribute"/> represents
+    /// it as the plain unprefixed name "xmlns" with no namespace, and rejects the namespace-
+    /// qualified form outright.
+    /// </remarks>
+    private static void CopyAttributes(XmlReader reader, XElement element)
+    {
+        if (!reader.MoveToFirstAttribute())
+        {
+            return;
+        }
+
+        do
+        {
+            XName name =
+                reader.Prefix.Length == 0 && reader.LocalName == "xmlns"
+                    ? XName.Get("xmlns")
+                    : XName.Get(reader.LocalName, reader.NamespaceURI);
+            element.Add(new XAttribute(name, reader.Value));
+        } while (reader.MoveToNextAttribute());
+
+        reader.MoveToElement();
     }
 
     private static void WriteCellValue(XmlWriter w, XLCell xlCell, SaveContext context)
