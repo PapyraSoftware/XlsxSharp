@@ -14,12 +14,16 @@
     <EmbeddedResource Include="Graphics\Fonts\CarlitoBare-Italic.ttf" />
     <EmbeddedResource Include="Graphics\Fonts\CarlitoBare-Regular.ttf" />
     <EmbeddedResource Include="Excel\IO\OfficeTheme.xml" />
+    <!-- The OOXML/OPC schemas SaveOptions.ValidatePackage validates against - see
+         Excel\IO\Schemas\PROVENANCE.md for what these are and where they come from. -->
+    <EmbeddedResource Include="Excel\IO\Schemas\*.xsd" />
   </ItemGroup>
 
   <ItemGroup>
     <None Include="..\.editorconfig" Link=".editorconfig" />
     <None Include="..\resources\logo\nuget-logo.png" Pack="true" PackagePath="\" />
     <None Include="..\README.md" Pack="true" PackagePath="\" />
+    <None Include="Excel\IO\Schemas\PROVENANCE.md" />
   </ItemGroup>
 
   <ItemGroup>

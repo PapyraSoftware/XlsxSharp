@@ -5,6 +5,7 @@ using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 using XlsxSharp.Excel.IO;
+using XlsxSharp.Excel.IO.Schemas;
 using XlsxSharp.Excel.Tables;
 using XlsxSharp.Extensions;
 using XlsxSharp.IO.Packaging;
@@ -15,12 +16,18 @@ namespace XlsxSharp.Excel;
 public partial class XLWorkbook
 {
     /// <summary>
-    /// Package validation used to run the SDK's schema validator, which has no equivalent now
-    /// that saving no longer goes through the SDK. Stubbed out until a replacement is decided;
-    /// <see cref="SaveOptions.ValidatePackage"/> stays part of the public surface and defaults to
-    /// true in debug builds, so this has to stay a safe no-op rather than throw.
+    /// Package validation used to run the SDK's own schema validator; <see cref="SchemaValidator"/>
+    /// replaces it with XlsxSharp's own, checking every schema-mapped part against the OOXML
+    /// schemas directly rather than through the SDK's object model.
     /// </summary>
-    private static void Validate(OpcPackage package) { }
+    private static void Validate(OpcPackage package)
+    {
+        IReadOnlyList<string> errors = SchemaValidator.Validate(package);
+        if (errors.Count > 0)
+        {
+            throw new ApplicationException(string.Join("\r\n", errors));
+        }
+    }
 
     /// <summary>
     /// The one place the workbook's own document type meets the packaging layer's, so that

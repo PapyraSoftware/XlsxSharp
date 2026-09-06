@@ -13,6 +13,8 @@ namespace XlsxSharp.Tests.Excel.IO;
 public class WorksheetPartWriterTests
 {
     private const string WorksheetPartName = "/xl/worksheets/sheet1.xml";
+    private const string MainNamespace =
+        "http://schemas.openxmlformats.org/spreadsheetml/2006/main";
     private const string ForeignNamespace = "urn:test:foreign";
 
     [Test]
@@ -25,15 +27,26 @@ public class WorksheetPartWriterTests
             wb.SaveAs(original);
         }
 
-        // Inject an element XlsxSharp has no concept of directly into the worksheet part, the way
-        // a newer Excel feature this version of the schema does not know about would show up.
+        // Inject an element XlsxSharp has no concept of into the worksheet part's extLst, the way
+        // a newer Excel feature this version of the schema does not know about would show up -
+        // extLst/ext is the one place CT_Worksheet actually allows unrecognised content; a bare
+        // unknown element directly under <worksheet> would not be valid OOXML in the first place.
         using MemoryStream withForeignContent = new();
         original.Position = 0;
         using (OpcPackage package = OpcPackage.Open(original, withForeignContent))
         {
             OpcPart worksheetPart = package.GetPart(WorksheetPartName);
             XDocument document = Load(worksheetPart);
-            document.Root!.Add(new XElement(XNamespace.Get(ForeignNamespace) + "custom", "hello"));
+            document.Root!.Add(
+                new XElement(
+                    XNamespace.Get(MainNamespace) + "extLst",
+                    new XElement(
+                        XNamespace.Get(MainNamespace) + "ext",
+                        new XAttribute("uri", "{12345678-1234-1234-1234-123456789012}"),
+                        new XElement(XNamespace.Get(ForeignNamespace) + "custom", "hello")
+                    )
+                )
+            );
             Save(worksheetPart, document);
         }
 
@@ -51,7 +64,9 @@ public class WorksheetPartWriterTests
         using (OpcPackage reopened = OpcPackage.Open(resaved))
         {
             XElement? foreignElement = Load(reopened.GetPart(WorksheetPartName))
-                .Root!.Element(XNamespace.Get(ForeignNamespace) + "custom");
+                .Root!.Element(XNamespace.Get(MainNamespace) + "extLst")
+                ?.Element(XNamespace.Get(MainNamespace) + "ext")
+                ?.Element(XNamespace.Get(ForeignNamespace) + "custom");
             ClassicAssert.IsNotNull(foreignElement);
             ClassicAssert.AreEqual("hello", foreignElement!.Value);
         }
