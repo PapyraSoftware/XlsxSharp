@@ -1,10 +1,8 @@
 #nullable enable
 
 using System.Collections.Generic;
-using XlsxSharp.Excel;
-using XlsxSharp.Excel.Formatting;
-using XlsxSharp.Excel.IO;
 using XlsxSharp.IO;
+using XlsxSharp.Excel.Formatting;
 
 namespace XlsxSharp.Excel.IO;
 
@@ -206,6 +204,10 @@ internal partial class StylesReader
         var diagonalDown = _reader.GetOptionalBool("diagonalDown");
         var outline = _reader.GetOptionalBool("outline") ?? true;
 
+        var startResult = ParseBorderPr("start", _ns);
+        var start = startResult.IsSuccess ? startResult.Value : default(XLBorderLine?);
+        var endResult = ParseBorderPr("end", _ns);
+        var end = endResult.IsSuccess ? endResult.Value : default(XLBorderLine?);
         var leftResult = ParseBorderPr("left", _ns);
         var left = leftResult.IsSuccess ? leftResult.Value : default(XLBorderLine?);
         var rightResult = ParseBorderPr("right", _ns);
@@ -222,7 +224,7 @@ internal partial class StylesReader
         var horizontal = horizontalResult.IsSuccess ? horizontalResult.Value : default(XLBorderLine?);
         _reader.Close(elementName, ns);
 
-        return Xpr.From(OnBorderParsed(left, right, top, bottom, diagonal, vertical, horizontal, diagonalUp, diagonalDown, outline));
+        return Xpr.From(OnBorderParsed(start, end, left, right, top, bottom, diagonal, vertical, horizontal, diagonalUp, diagonalDown, outline));
     }
 
     private Xpr<XLBorderLine> ParseBorderPr(string elementName, string ns)
@@ -317,11 +319,12 @@ internal partial class StylesReader
         var relativeIndent = _reader.GetOptionalInt("relativeIndent");
         var justifyLastLine = _reader.GetOptionalBool("justifyLastLine");
         var shrinkToFit = _reader.GetOptionalBool("shrinkToFit");
+        var mergeCell = _reader.GetOptionalBool("mergeCell") ?? false;
         var readingOrder = _reader.GetOptionalUInt("readingOrder");
 
         _reader.Close(elementName, ns);
 
-        return Xpr.From(OnCellAlignmentParsed(horizontal, vertical, textRotation, wrapText, indent, relativeIndent, justifyLastLine, shrinkToFit, readingOrder));
+        return Xpr.From(OnCellAlignmentParsed(horizontal, vertical, textRotation, wrapText, indent, relativeIndent, justifyLastLine, shrinkToFit, mergeCell, readingOrder));
     }
 
     private Xpr<XLDifferentialProtectionValue> ParseCellProtection(string elementName, string ns)

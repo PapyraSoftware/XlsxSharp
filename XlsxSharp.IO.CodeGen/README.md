@@ -55,8 +55,9 @@ Of course CodeGen parser is limited in other ways, but for purposes of OOXML it 
 
 # Regenerating the parsers
 
-`Schemas/sml.xsd` is the official ECMA-376 5th edition (Transitional) SpreadsheetML
-schema. To regenerate `XlsxSharp/Excel/IO/StylesReader.g.cs` and
+The generator reads `XlsxSharp/Excel/IO/Schemas/sml.xsd`, the same Transitional
+SpreadsheetML schema `SaveOptions.ValidatePackage` validates against (see `PROVENANCE.md`
+there), so what is parsed and what is validated cannot drift apart. To regenerate `XlsxSharp/Excel/IO/StylesReader.g.cs` and
 `XlsxSharp/Excel/IO/PivotCacheRecordsReader.g.cs` from it, run:
 
 ```sh

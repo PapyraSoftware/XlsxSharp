@@ -19,3 +19,13 @@ Not every part kind is validated: legacy VML (`xl/drawings/vmldrawing*.vml`) and
 `docProps/core.xml` are skipped deliberately (see `SchemaValidator.cs`) rather than
 pulling in schemas with far larger transitive closures (the full WordprocessingML
 schema tree, external Dublin Core schemas) for parts that are small and rarely wrong.
+
+## Local deviations
+
+- `sml.xsd` declares `mergeCell` on `CT_CellAlignment`. Excel writes that attribute on the
+  alignment of merged cells and the Open XML SDK's schema data lists it, but the published
+  Transitional schema does not; without it nearly every Excel-authored file with merged cells
+  fails validation.
+
+`sml.xsd` is also the schema `XlsxSharp.IO.CodeGen` generates the styles and pivot cache
+records parsers from, so parsing and validation always agree on it.

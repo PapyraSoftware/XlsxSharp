@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
-# Regenerates the CodeGen-produced parser files (*.g.cs) from the OOXML XSD in Schemas/.
+# Regenerates the CodeGen-produced parser files (*.g.cs) from the OOXML XSD the library
+# validates against, XlsxSharp/Excel/IO/Schemas/sml.xsd - one schema for both.
 #
 # Usage: XlsxSharp.IO.CodeGen/regenerate.sh
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-SCHEMA="$SCRIPT_DIR/Schemas/sml.xsd"
+SCHEMA="$REPO_ROOT/XlsxSharp/Excel/IO/Schemas/sml.xsd"
 
 STYLES_TARGET="$REPO_ROOT/XlsxSharp/Excel/IO/StylesReader.g.cs"
 CACHE_RECORDS_TARGET="$REPO_ROOT/XlsxSharp/Excel/IO/PivotCacheRecordsReader.g.cs"

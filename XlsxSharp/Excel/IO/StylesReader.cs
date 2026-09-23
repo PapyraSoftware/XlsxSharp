@@ -533,7 +533,13 @@ internal partial class StylesReader
         // Spec requires stop positions to be 0..1, but doesn't have a type for that. Excel repairs workbook when it receives values outside 0..1.
         (position, color);
 
+    /// <remarks>
+    /// <c>start</c> and <c>end</c> are the schema's writing-direction-neutral names for the
+    /// left and right edges; Excel writes <c>left</c>/<c>right</c>, which win when both are there.
+    /// </remarks>
     private XLDifferentialBorderValue OnBorderParsed(
+        XLBorderLine? start,
+        XLBorderLine? end,
         XLBorderLine? left,
         XLBorderLine? right,
         XLBorderLine? top,
@@ -548,8 +554,8 @@ internal partial class StylesReader
     {
         XLDifferentialBorderValue dxfBorder = new()
         {
-            Left = left,
-            Right = right,
+            Left = left ?? start,
+            Right = right ?? end,
             Top = top,
             Bottom = bottom,
             Diagonal = diagonal,
@@ -809,9 +815,14 @@ internal partial class StylesReader
         int? relativeIndent,
         bool? justifyLastLine,
         bool? shrinkToFit,
+        bool mergeCell,
         uint? readingOrder
     )
     {
+        // mergeCell is a hint Excel writes on the format of a merged range; the merge itself is
+        // what the worksheet's mergeCells say, so there is nothing to keep from it.
+        _ = mergeCell;
+
         if (readingOrder is not null && readingOrder is not (0 or 1 or 2))
         {
             throw PartStructureException.InvalidAttributeFormat();

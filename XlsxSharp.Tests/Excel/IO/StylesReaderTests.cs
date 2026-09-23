@@ -1190,6 +1190,36 @@ internal class StylesReaderTests
         );
     }
 
+    [Test]
+    public void Border_start_and_end_read_as_left_and_right()
+    {
+        string xml = """
+            <styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+              <borders>
+                <border>
+                  <start style="thin"/>
+                  <end style="thick"/>
+                </border>
+                <border>
+                  <start style="thin"/>
+                  <left style="double"/>
+                </border>
+              </borders>
+            </styleSheet>
+            """;
+        AssertFormat(
+            styles =>
+            {
+                ClassicAssert.AreEqual(XLBorderStyleValues.Thin, styles.Borders[0].Left.Style);
+                ClassicAssert.AreEqual(XLBorderStyleValues.Thick, styles.Borders[0].Right.Style);
+
+                // left is what Excel writes, and wins over its writing-direction-neutral twin.
+                ClassicAssert.AreEqual(XLBorderStyleValues.Double, styles.Borders[1].Left.Style);
+            },
+            xml
+        );
+    }
+
     private static void AssertNumberFormats(
         string numberFormatsXml,
         Action<XLWorkbookStyles> assert
