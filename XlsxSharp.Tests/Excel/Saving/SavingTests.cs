@@ -1,7 +1,5 @@
 using System.Globalization;
 using System.Xml.Linq;
-using DocumentFormat.OpenXml;
-using DocumentFormat.OpenXml.Packaging;
 using XlsxSharp.Examples;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.CalcEngine;
@@ -10,6 +8,7 @@ using XlsxSharp.Excel.DataValidation;
 using XlsxSharp.Excel.Drawings;
 using XlsxSharp.Excel.IO;
 using XlsxSharp.Excel.Tables;
+using XlsxSharp.IO.Packaging;
 using Assembly = System.Reflection.Assembly;
 using SaveOptions = XlsxSharp.Excel.SaveOptions;
 
@@ -417,14 +416,17 @@ public class SavingTests
         );
 
     [Test]
-    [Arguments("xlsx", SpreadsheetDocumentType.Workbook)]
-    [Arguments("xlsm", SpreadsheetDocumentType.MacroEnabledWorkbook)]
-    [Arguments("xltx", SpreadsheetDocumentType.Template)]
-    [Arguments("xltm", SpreadsheetDocumentType.MacroEnabledTemplate)]
-    public void SavesAsProperSpreadsheetDocumentType(
-        string extension,
-        SpreadsheetDocumentType expectedType
-    )
+    [Arguments(
+        "xlsx",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"
+    )]
+    [Arguments("xlsm", "application/vnd.ms-excel.sheet.macroEnabled.main+xml")]
+    [Arguments(
+        "xltx",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.template.main+xml"
+    )]
+    [Arguments("xltm", "application/vnd.ms-excel.template.macroEnabled.main+xml")]
+    public void SavesAsProperSpreadsheetDocumentType(string extension, string expectedContentType)
     {
         using (TemporaryFile tf = new(Path.ChangeExtension(Path.GetTempFileName(), extension)))
         {
@@ -434,10 +436,7 @@ public class SavingTests
                 wb.SaveAs(tf.Path);
             }
 
-            using (SpreadsheetDocument package = SpreadsheetDocument.Open(tf.Path, false))
-            {
-                ClassicAssert.AreEqual(expectedType, package.DocumentType);
-            }
+            ClassicAssert.AreEqual(expectedContentType, WorkbookContentType(tf.Path));
         }
     }
 
@@ -457,10 +456,10 @@ public class SavingTests
             {
                 wb.SaveAs(workbook.Path);
             }
-            using (SpreadsheetDocument package = SpreadsheetDocument.Open(workbook.Path, false))
-            {
-                ClassicAssert.AreEqual(SpreadsheetDocumentType.Workbook, package.DocumentType);
-            }
+            ClassicAssert.AreEqual(
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml",
+                WorkbookContentType(workbook.Path)
+            );
         }
     }
 
@@ -840,10 +839,7 @@ public class SavingTests
 
         ms.Seek(0, SeekOrigin.Begin);
 
-        using (SpreadsheetDocument wb = SpreadsheetDocument.Open(ms, false))
-        {
-            ClassicAssert.IsTrue(wb.WorkbookPart.Workbook.WorkbookProperties.FilterPrivacy);
-        }
+        ClassicAssert.AreEqual("1", FilterPrivacy(ms));
     }
 
     [Test]
@@ -859,10 +855,7 @@ public class SavingTests
 
         ms.Seek(0, SeekOrigin.Begin);
 
-        using (SpreadsheetDocument wb = SpreadsheetDocument.Open(ms, false))
-        {
-            ClassicAssert.IsNull(wb.WorkbookPart.Workbook.WorkbookProperties.FilterPrivacy);
-        }
+        ClassicAssert.IsNull(FilterPrivacy(ms));
     }
 
     [Test]
@@ -873,9 +866,11 @@ public class SavingTests
                 TestHelper.GetResourcePath(@"TryToLoad\FilterPrivacyEnabledWorkbook.xlsx")
             )
         )
-        using (SpreadsheetDocument wb = SpreadsheetDocument.Open(stream, false))
         {
-            ClassicAssert.IsTrue(wb.WorkbookPart.Workbook.WorkbookProperties.FilterPrivacy);
+            ClassicAssert.IsTrue(
+                FilterPrivacy(stream) is "1" or "true",
+                "the file is expected to carry filterPrivacy"
+            );
         }
     }
 
@@ -1012,4 +1007,23 @@ public class SavingTests
             @"Other\Shapes\sheet-with-form-controls-input.xlsx",
             @"Other\Shapes\sheet-with-form-controls-output.xlsx"
         );
+
+    private static string WorkbookContentType(string path)
+    {
+        using OpcPackage package = OpcPackage.Open(path);
+        return package.PartOfType(OoxmlPartTypes.Workbook)!.ContentType;
+    }
+
+    /// <summary>The raw <c>filterPrivacy</c> attribute of the workbook's <c>workbookPr</c>.</summary>
+    private static string? FilterPrivacy(Stream stream)
+    {
+        using OpcPackage package = OpcPackage.Open(stream);
+        using Stream workbook = package.PartOfType(OoxmlPartTypes.Workbook)!.GetReadStream();
+        XNamespace main = OoxmlConst.Main2006SsNs;
+        return XDocument
+            .Load(workbook)
+            .Root!.Element(main + "workbookPr")
+            ?.Attribute("filterPrivacy")
+            ?.Value;
+    }
 }

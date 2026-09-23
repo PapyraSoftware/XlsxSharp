@@ -13,8 +13,9 @@ namespace XlsxSharp.Excel.IO;
 /// </summary>
 /// <remarks>
 /// The attribute names are not always what the workbook model calls them, and a name that does
-/// not match reads as absent and silently takes the default. They were taken from the SDK rather
-/// than from the schema; <see cref="PivotXmlEnums"/> does the same for the enumerations.
+/// not match reads as absent and silently takes the default. Every name read here is one
+/// <c>sml.xsd</c> declares, except the two x14 extension attributes, which come from [MS-XLSX];
+/// <see cref="PivotXmlEnums"/> covers the enumerations.
 /// </remarks>
 internal class PivotTableDefinitionPartReader
 {

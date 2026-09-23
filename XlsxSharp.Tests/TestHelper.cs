@@ -178,7 +178,7 @@ internal static class TestHelper
     /// <param name="workbookGenerator">A function that gets an empty workbook and fills it with data.</param>
     /// <param name="referenceResource">Reference workbook saved in resources</param>
     /// <param name="evaluateFormulae">Should formulas of created workbook be evaluated and values saved?</param>
-    /// <param name="validate">Should the created workbook be validated during by OpenXmlSdk validator?</param>
+    /// <param name="validate">Should the created workbook be validated against the OOXML schemas while saving?</param>
     public static void CreateAndCompare(
         Action<XLWorkbook> workbookGenerator,
         string referenceResource,
@@ -390,7 +390,7 @@ internal static class TestHelper
     /// </summary>
     /// <param name="createWorksheet">Code to create a workbook.</param>
     /// <param name="assertLoadedWorkbook">Method to assert that workbook was loaded correctly.</param>
-    /// <param name="validate">Validate created workbook that it is a valid OOXML file by OpenXML SDK.</param>
+    /// <param name="validate">Validate the created workbook against the OOXML schemas while saving.</param>
     /// <param name="evaluateFormulas">Evaluate formulas during saving and save the evaluated results to the workbook file.</param>
     public static void CreateSaveLoadAssert(
         Action<XLWorkbook, IXLWorksheet> createWorksheet,

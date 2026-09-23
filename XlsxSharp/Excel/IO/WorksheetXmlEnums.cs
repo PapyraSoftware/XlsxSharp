@@ -13,10 +13,9 @@ namespace XlsxSharp.Excel.IO;
 /// drawings and the x14 sparkline extension), keyed by the string OOXML writes for them.
 /// </summary>
 /// <remarks>
-/// These replace the SDK enum values the worksheet reader and writer converted through. The
-/// strings are the ones the SDK serialises, and the tests check every entry in both directions
-/// against the conversion it replaces, so a wrong spelling shows up as a failing test rather than
-/// as a worksheet that silently loads with the wrong page order or the wrong icon set.
+/// <c>SchemaEnumerationTests</c> checks every entry in both directions against the enumerations
+/// of the vendored schemas, so a wrong spelling shows up as a failing test rather than as a
+/// worksheet that silently loads with the wrong page order or the wrong icon set.
 /// </remarks>
 internal static class WorksheetXmlEnums
 {

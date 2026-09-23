@@ -7,9 +7,6 @@ public class RegularFilterTests
 {
     [Test]
     public void DateTimeGroupingAndRegularValuesCanBeUsedTogether() =>
-        // OpenXML SDK validator considers filter and dateTimeGroup filter elements together to
-        // be an error, but it isn't (XSD allows and Excel reads). Therefore, disable
-        // validation for the test.
         TestHelper.CreateSaveLoadAssert(
             (_, ws) =>
             {
@@ -35,8 +32,7 @@ public class RegularFilterTests
                 ws.AutoFilter.Reapply();
                 IEnumerable<bool> dataVisibility = ws.Rows("2:5").Select(row => !row.IsHidden);
                 CollectionAssert.AreEqual(new[] { true, false, false, true }, dataVisibility);
-            },
-            false
+            }
         );
 
     [Test]

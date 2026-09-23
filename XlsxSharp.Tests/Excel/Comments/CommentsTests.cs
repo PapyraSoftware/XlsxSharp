@@ -1,7 +1,7 @@
-using DocumentFormat.OpenXml.Packaging;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.Drawings.Style;
 using XlsxSharp.Extensions;
+using XlsxSharp.IO.Packaging;
 using Point = System.Drawing.Point;
 
 namespace XlsxSharp.Tests.Excel.Comments;
@@ -126,18 +126,11 @@ public class CommentsTests
             string vmlPartId;
             string vmlPartUri;
 
-            using (SpreadsheetDocument ssd = SpreadsheetDocument.Open(stream, isEditable: false))
+            using (OpcPackage package = OpcPackage.Open(stream))
             {
-                WorkbookPart wbp = ssd.GetPartsOfType<WorkbookPart>().Single();
-                WorksheetPart wsp = wbp.GetPartsOfType<WorksheetPart>().Last();
-
-                WorksheetCommentsPart wscp = wsp.GetPartsOfType<WorksheetCommentsPart>().Single();
-                commentPartId = wsp.GetIdOfPart(wscp);
-                commentPartUri = wscp.Uri.ToString();
-
-                VmlDrawingPart vmlp = wsp.GetPartsOfType<VmlDrawingPart>().Single();
-                vmlPartId = wsp.GetIdOfPart(vmlp);
-                vmlPartUri = vmlp.Uri.ToString();
+                OpcPart wsp = LastWorksheet(package);
+                (commentPartId, commentPartUri) = Related(wsp, OoxmlPartTypes.Comments);
+                (vmlPartId, vmlPartUri) = Related(wsp, OoxmlPartTypes.VmlDrawing);
             }
 
             stream.Position = 0;
@@ -154,18 +147,29 @@ public class CommentsTests
 
             ms.Position = 0;
 
-            using (SpreadsheetDocument ssd = SpreadsheetDocument.Open(ms, isEditable: false))
+            using (OpcPackage package = OpcPackage.Open(ms))
             {
-                WorkbookPart wbp = ssd.GetPartsOfType<WorkbookPart>().Single();
-                WorksheetPart wsp = wbp.GetPartsOfType<WorksheetPart>().Last();
+                OpcPart wsp = LastWorksheet(package);
+                ClassicAssert.AreEqual(
+                    (commentPartId, commentPartUri),
+                    Related(wsp, OoxmlPartTypes.Comments)
+                );
+                ClassicAssert.AreEqual(
+                    (vmlPartId, vmlPartUri),
+                    Related(wsp, OoxmlPartTypes.VmlDrawing)
+                );
+            }
 
-                WorksheetCommentsPart wscp = wsp.GetPartsOfType<WorksheetCommentsPart>().Single();
-                ClassicAssert.AreEqual(commentPartUri, wscp.Uri.ToString());
-                ClassicAssert.AreEqual(commentPartId, wsp.GetIdOfPart(wscp));
+            static OpcPart LastWorksheet(OpcPackage package) =>
+                package
+                    .PartOfType(OoxmlPartTypes.Workbook)!
+                    .PartsOfType(OoxmlPartTypes.Worksheet)
+                    .Last();
 
-                VmlDrawingPart vmlp = wsp.GetPartsOfType<VmlDrawingPart>().Single();
-                ClassicAssert.AreEqual(vmlPartUri, vmlp.Uri.ToString());
-                ClassicAssert.AreEqual(vmlPartId, wsp.GetIdOfPart(vmlp));
+            static (string Id, string Name) Related(OpcPart source, OoxmlPartType partType)
+            {
+                OpcPart target = source.PartsOfType(partType).Single();
+                return (source.Relationships.GetIdOfTarget(target.Name)!, target.Name);
             }
         }
     }

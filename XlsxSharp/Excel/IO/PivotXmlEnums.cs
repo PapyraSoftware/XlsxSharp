@@ -7,10 +7,9 @@ namespace XlsxSharp.Excel.IO;
 /// The enumerations of the pivot table parts, keyed by the string OOXML writes for them.
 /// </summary>
 /// <remarks>
-/// These replace the SDK enum values the pivot readers used to convert from. The strings are the
-/// ones the SDK serialises, and the tests check every entry against the conversion it replaces
-/// rather than against the schema, so a wrong spelling shows up as a failing test instead of a
-/// pivot table that silently loads with the wrong aggregation.
+/// <c>SchemaEnumerationTests</c> checks every entry against the enumerations of
+/// <c>sml.xsd</c>, so a wrong spelling shows up as a failing test instead of a pivot table that
+/// silently loads with the wrong aggregation.
 /// </remarks>
 internal static class PivotXmlEnums
 {

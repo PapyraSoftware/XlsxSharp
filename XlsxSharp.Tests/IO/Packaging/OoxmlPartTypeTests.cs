@@ -1,4 +1,4 @@
-using DocumentFormat.OpenXml.Packaging;
+using System.IO.Packaging;
 using XlsxSharp.Excel;
 using XlsxSharp.Excel.Drawings;
 using XlsxSharp.IO.Packaging;
@@ -6,9 +6,9 @@ using XlsxSharp.IO.Packaging;
 namespace XlsxSharp.Tests.IO.Packaging;
 
 /// <summary>
-/// The part type table is a transcription of what the SDK's typed part classes know. These tests
-/// check it against the SDK rather than against itself, so that a wrong content type or
-/// relationship type shows up here and not as a workbook Excel refuses to open.
+/// How XlsxSharp lays out the parts of the workbooks it writes, as seen through the part type
+/// table and through <see cref="System.IO.Packaging"/>, an OPC implementation independent of
+/// XlsxSharp's own. <see cref="OoxmlPartTypeCorpusTests"/> checks the table against Excel's files.
 /// </summary>
 public class OoxmlPartTypeTests
 {
@@ -18,11 +18,11 @@ public class OoxmlPartTypeTests
         using MemoryStream stream = RichWorkbook();
 
         stream.Position = 0;
-        Dictionary<string, string> sdkContentTypes;
-        using (SpreadsheetDocument document = SpreadsheetDocument.Open(stream, false))
+        Dictionary<string, string> independentContentTypes;
+        using (Package independent = Package.Open(stream, FileMode.Open, FileAccess.Read))
         {
-            sdkContentTypes = document
-                .GetAllParts()
+            independentContentTypes = independent
+                .GetParts()
                 .ToDictionary(p => p.Uri.OriginalString, p => p.ContentType, OpcPartName.Comparer);
         }
 
@@ -30,10 +30,10 @@ public class OoxmlPartTypeTests
         using OpcPackage package = OpcPackage.Open(stream);
 
         // Walk the package the way the table says to, and check that each part found that way has
-        // the content type the SDK reports for it.
+        // the content type an independent OPC reader reports for it.
         OpcPart workbook = package.PartOfType(OoxmlPartTypes.Workbook)!;
         ClassicAssert.IsNotNull(workbook);
-        AssertMatchesSdk(workbook, OoxmlPartTypes.Workbook);
+        AssertMatchesIndependentReader(workbook, OoxmlPartTypes.Workbook);
 
         foreach (
             (OoxmlPartType partType, int expectedCount) in new[]
@@ -52,30 +52,33 @@ public class OoxmlPartTypeTests
                 $"unexpected number of {partType.PathTemplate} parts"
             );
 
-            parts.ForEach(p => AssertMatchesSdk(p, partType));
+            parts.ForEach(p => AssertMatchesIndependentReader(p, partType));
         }
 
         OpcPart sheet = workbook.PartsOfType(OoxmlPartTypes.Worksheet).First();
-        AssertMatchesSdk(sheet.PartsOfType(OoxmlPartTypes.Table).Single(), OoxmlPartTypes.Table);
-        AssertMatchesSdk(
+        AssertMatchesIndependentReader(
+            sheet.PartsOfType(OoxmlPartTypes.Table).Single(),
+            OoxmlPartTypes.Table
+        );
+        AssertMatchesIndependentReader(
             sheet.PartsOfType(OoxmlPartTypes.Drawing).Single(),
             OoxmlPartTypes.Drawing
         );
 
-        AssertMatchesSdk(
+        AssertMatchesIndependentReader(
             package.PartOfType(OoxmlPartTypes.ExtendedFileProperties)!,
             OoxmlPartTypes.ExtendedFileProperties
         );
 
-        void AssertMatchesSdk(OpcPart part, OoxmlPartType partType)
+        void AssertMatchesIndependentReader(OpcPart part, OoxmlPartType partType)
         {
             ClassicAssert.IsTrue(
-                sdkContentTypes.ContainsKey(part.Name),
-                $"the SDK does not know a part named {part.Name}"
+                independentContentTypes.ContainsKey(part.Name),
+                $"System.IO.Packaging does not know a part named {part.Name}"
             );
 
             ClassicAssert.AreEqual(
-                sdkContentTypes[part.Name],
+                independentContentTypes[part.Name],
                 part.ContentType,
                 $"content type of {part.Name}"
             );
@@ -89,7 +92,7 @@ public class OoxmlPartTypeTests
     }
 
     [Test]
-    public void PartsAreFoundWhereTheSdkPutsThem()
+    public void PartsAreFoundWhereTheTemplatesPutThem()
     {
         using MemoryStream stream = RichWorkbook();
 

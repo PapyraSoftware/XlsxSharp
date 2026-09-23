@@ -1,4 +1,4 @@
-using DocumentFormat.OpenXml.Packaging;
+using System.IO.Packaging;
 using XlsxSharp.Excel;
 using XlsxSharp.IO.Packaging;
 
@@ -80,7 +80,7 @@ public class OpcPackagePropertiesTests
     }
 
     [Test]
-    public void TheSdkReadsBackWhatTheLayerWrote()
+    public void AnotherImplementationReadsBackWhatTheLayerWrote()
     {
         DateTime created = new(2024, 3, 17, 8, 30, 0, DateTimeKind.Utc);
 
@@ -100,15 +100,38 @@ public class OpcPackagePropertiesTests
         }
 
         stream.Position = 0;
-        using SpreadsheetDocument document = SpreadsheetDocument.Open(stream, false);
+        using Package independent = Package.Open(stream, FileMode.Open, FileAccess.Read);
 
-        ClassicAssert.AreEqual("Ada", document.PackageProperties.Creator);
-        ClassicAssert.AreEqual("Quarterly", document.PackageProperties.Title);
-        ClassicAssert.AreEqual(created, document.PackageProperties.Created);
+        ClassicAssert.AreEqual("Ada", independent.PackageProperties.Creator);
+        ClassicAssert.AreEqual("Quarterly", independent.PackageProperties.Title);
+        ClassicAssert.AreEqual(created, independent.PackageProperties.Created?.ToUniversalTime());
     }
 
     [Test]
-    public void TheLayerReadsWhatTheSdkWrote()
+    public void TheLayerReadsWhatAnotherImplementationWrote()
+    {
+        DateTime created = new(2024, 3, 17, 8, 30, 0, DateTimeKind.Utc);
+
+        using MemoryStream stream = new();
+        using (Package independent = Package.Open(stream, FileMode.Create, FileAccess.ReadWrite))
+        {
+            independent.PackageProperties.Creator = "Ada";
+            independent.PackageProperties.Title = "Quarterly";
+            independent.PackageProperties.Category = "Reports";
+            independent.PackageProperties.Created = created;
+        }
+
+        stream.Position = 0;
+        using OpcPackage package = OpcPackage.Open(stream);
+
+        ClassicAssert.AreEqual("Ada", package.Properties.Creator);
+        ClassicAssert.AreEqual("Quarterly", package.Properties.Title);
+        ClassicAssert.AreEqual("Reports", package.Properties.Category);
+        ClassicAssert.AreEqual(created, package.Properties.Created);
+    }
+
+    [Test]
+    public void TheLayerReadsWhatXlsxSharpWrote()
     {
         DateTime created = new(2024, 3, 17, 8, 30, 0, DateTimeKind.Utc);
 
