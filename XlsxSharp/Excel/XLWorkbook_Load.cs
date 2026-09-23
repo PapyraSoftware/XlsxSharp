@@ -114,17 +114,14 @@ public partial class XLWorkbook
         this.ShapeIdManager = new XLIdManager();
         this.SetProperties(package);
 
-        XElement[] sharedStrings = null;
+        SharedString[] sharedStrings = [];
         OpcPart workbookPart =
             package.PartOfType(OoxmlPartTypes.Workbook)
             ?? throw PartStructureException.RequiredElementIsMissing("workbook");
         if (workbookPart.PartOfType(OoxmlPartTypes.SharedStringTable) is { } shareStringPart)
         {
             using Stream sharedStringsStream = shareStringPart.GetReadStream();
-            XElement sharedStringTable =
-                XDocument.Load(sharedStringsStream).Root
-                ?? throw PartStructureException.ExpectedElementNotFound("sst");
-            sharedStrings = [.. sharedStringTable.Elements(SpreadsheetXml.Main + "si")];
+            sharedStrings = SharedStringTableReader.Read(sharedStringsStream);
         }
 
         LoadWorkbookTheme(workbookPart.PartOfType(OoxmlPartTypes.Theme), this);

@@ -73,7 +73,7 @@ internal class WorksheetPartReader
     internal void LoadWorksheet(
         XLWorksheet ws,
         OpcPart worksheetPart,
-        XElement[] sharedStrings,
+        SharedString[] sharedStrings,
         LoadContext context
     )
     {
@@ -177,7 +177,7 @@ internal class WorksheetPartReader
     /// The cells are the bulk of a worksheet, so they are read straight off the stream rather
     /// than materialised the way the elements around them are.
     /// </summary>
-    private void LoadSheetData(XLWorksheet ws, XElement[] sharedStrings, XmlReader reader)
+    private void LoadSheetData(XLWorksheet ws, SharedString[] sharedStrings, XmlReader reader)
     {
         if (reader.IsEmptyElement)
         {
@@ -363,7 +363,7 @@ internal class WorksheetPartReader
         }
     }
 
-    private void LoadRow(XLWorksheet ws, XElement[] sharedStrings, XmlReader reader)
+    private void LoadRow(XLWorksheet ws, SharedString[] sharedStrings, XmlReader reader)
     {
         // Row number is an optional attribute. If not specified, it should be a next row from the last read row.
         int rowIndex = Int(reader, "r") ?? ++this._lastRow;
@@ -440,7 +440,12 @@ internal class WorksheetPartReader
         reader.ReadEndElement();
     }
 
-    private void LoadCell(XElement[] sharedStrings, XLWorksheet ws, XmlReader reader, int rowIndex)
+    private void LoadCell(
+        SharedString[] sharedStrings,
+        XLWorksheet ws,
+        XmlReader reader,
+        int rowIndex
+    )
     {
         Point cellAddress = CellRef(reader, "r") ?? new Point(rowIndex, this._lastColumnNumber + 1);
         this._lastColumnNumber = cellAddress.Column;
@@ -482,7 +487,7 @@ internal class WorksheetPartReader
         XLCellFormula formula = null;
         string cellValue = null;
         bool cellHasValue = false;
-        XElement inlineString = null;
+        StringItem inlineString = null;
 
         if (reader.IsEmptyElement)
         {
@@ -510,7 +515,7 @@ internal class WorksheetPartReader
                         break;
                     case "is":
                         // Inline text is dealt separately, because it is in a separate element.
-                        inlineString = ReadElement(reader);
+                        inlineString = StringItem.Read(reader);
                         break;
                     default:
                         reader.Skip();
@@ -544,13 +549,13 @@ internal class WorksheetPartReader
         if (inlineString is not null && dataType == CellType.InlineString)
         {
             xlCell.ShareString = false;
-            if (inlineString.Element(SpreadsheetXml.Main + "t") is { } text)
+            if (inlineString.Text is { } text)
             {
-                xlCell.SetOnlyValue(text.Value.FixNewLines());
+                xlCell.SetOnlyValue(text.FixNewLines());
             }
             else
             {
-                this.SetCellText(xlCell, inlineString);
+                SetCellText(xlCell, inlineString);
             }
         }
 
@@ -693,7 +698,7 @@ internal class WorksheetPartReader
         string cellValue,
         XLCell xlCell,
         XLCellFormatValue format,
-        XElement[] sharedStrings
+        SharedString[] sharedStrings
     )
     {
         if (dataType == CellType.Number)
@@ -733,9 +738,15 @@ internal class WorksheetPartReader
                 && sharedStringId < sharedStrings.Length
             )
             {
-                XElement sharedString = sharedStrings[sharedStringId];
-
-                this.SetCellText(xlCell, sharedString);
+                SharedString sharedString = sharedStrings[sharedStringId];
+                if (sharedString.Item is { } item)
+                {
+                    SetCellText(xlCell, item);
+                }
+                else
+                {
+                    xlCell.SetOnlyValue(sharedString.Text);
+                }
             }
             else
             {
@@ -781,46 +792,39 @@ internal class WorksheetPartReader
     }
 
     /// <summary>
-    /// Parses the cell value for normal or rich text
-    /// Input element should either be a shared string or inline string
+    /// Sets the text of a shared or inline string that is more than plain text: its runs, or the
+    /// plain text next to a phonetic guide.
     /// </summary>
-    /// <param name="xlCell">The cell.</param>
-    /// <param name="element">The element (either a shared string or inline string)</param>
-    private void SetCellText(XLCell xlCell, XElement element)
+    private static void SetCellText(XLCell xlCell, StringItem item)
     {
         // TODO Styles: Create XLImmutableRichText and assign directly instead of using the API.
-        bool hasRuns = false;
-        foreach (XElement run in element.Elements(SpreadsheetXml.Main + "r"))
+        if (item.Runs is { } runs)
         {
-            hasRuns = true;
-            XElement runProperties = run.Element(SpreadsheetXml.Main + "rPr");
-            string text = run.Element(SpreadsheetXml.Main + "t").Value.FixNewLines();
-
-            if (runProperties is null)
+            foreach ((XElement runProperties, string runText) in runs)
             {
-                xlCell.GetRichText().AddText(text, xlCell.Style.Font);
-            }
-            else
-            {
-                IXLRichString rt = xlCell.GetRichText().AddText(text);
-                StyleXml.LoadFont(runProperties, rt);
+                string text = runText.FixNewLines();
+                if (runProperties is null)
+                {
+                    xlCell.GetRichText().AddText(text, xlCell.Style.Font);
+                }
+                else
+                {
+                    IXLRichString rt = xlCell.GetRichText().AddText(text);
+                    StyleXml.LoadFont(runProperties, rt);
+                }
             }
         }
-
-        if (!hasRuns)
+        else
         {
-            xlCell.SetOnlyValue(
-                XStringConvert.Decode(element.Element(SpreadsheetXml.Main + "t")?.Value)
-                    ?? string.Empty
-            );
+            xlCell.SetOnlyValue(XStringConvert.Decode(item.Text) ?? string.Empty);
         }
 
-        LoadPhonetics(xlCell, element);
+        LoadPhonetics(xlCell, item);
     }
 
-    private static void LoadPhonetics(XLCell xlCell, XElement element)
+    private static void LoadPhonetics(XLCell xlCell, StringItem item)
     {
-        if (element.Element(SpreadsheetXml.Main + "phoneticPr") is { } pp)
+        if (item.PhoneticProperties is { } pp)
         {
             XLPhonetics xlPhoneticPr = xlCell.GetRichText().Phonetics;
 
@@ -855,15 +859,9 @@ internal class WorksheetPartReader
             }
         }
 
-        foreach (XElement pr in element.Elements(SpreadsheetXml.Main + "rPh"))
+        foreach ((string text, int start, int end) in item.Phonetics ?? [])
         {
-            xlCell
-                .GetRichText()
-                .Phonetics.Add(
-                    pr.Element(SpreadsheetXml.Main + "t").Value.FixNewLines(),
-                    checked((int)SpreadsheetXml.UInt(pr, "sb")),
-                    checked((int)SpreadsheetXml.UInt(pr, "eb"))
-                );
+            xlCell.GetRichText().Phonetics.Add(text.FixNewLines(), start, end);
         }
     }
 
