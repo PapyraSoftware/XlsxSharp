@@ -1,7 +1,7 @@
 ﻿using System.Xml;
 using XlsxSharp.Extensions;
 using XlsxSharp.IO.Packaging;
-using static XlsxSharp.Excel.IO.OpenXmlConst;
+using static XlsxSharp.Excel.IO.OoxmlConst;
 
 namespace XlsxSharp.Excel.IO;
 

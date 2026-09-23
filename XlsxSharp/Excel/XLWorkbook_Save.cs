@@ -864,7 +864,7 @@ public partial class XLWorkbook
                 );
             }
 
-            PivotTableDefinitionPartWriter2.WriteContent(pivotTablePart, pt, context);
+            PivotTableDefinitionPartWriter.WriteContent(pivotTablePart, pt, context);
         }
     }
 }

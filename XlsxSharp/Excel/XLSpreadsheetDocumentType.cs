@@ -5,10 +5,9 @@ namespace XlsxSharp.Excel;
 /// content type of its workbook part records.
 /// </summary>
 /// <remarks>
-/// This replaces the SDK's <c>SpreadsheetDocumentType</c> in the workbook model, so that deciding
-/// what a <c>.xlsm</c> is does not need the SDK. The save path still maps it to the SDK's enum
-/// where it creates the package; <see cref="XlsxSharp.IO.Packaging.OoxmlPartTypes"/> carries the
-/// content type each of these ends up with.
+/// The save path maps each of these to its workbook part type in
+/// <see cref="XlsxSharp.IO.Packaging.OoxmlPartTypes"/>, which carries the content type the
+/// workbook part is declared with.
 /// </remarks>
 internal enum XLSpreadsheetDocumentType
 {

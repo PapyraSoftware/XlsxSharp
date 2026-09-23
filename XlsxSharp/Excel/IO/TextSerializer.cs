@@ -4,7 +4,7 @@ using System.Xml;
 using XlsxSharp.Excel.Formatting;
 using XlsxSharp.Excel.RichText;
 using XlsxSharp.Extensions;
-using static XlsxSharp.Excel.IO.OpenXmlConst;
+using static XlsxSharp.Excel.IO.OoxmlConst;
 using static XlsxSharp.Excel.XLWorkbook;
 
 namespace XlsxSharp.Excel.IO;

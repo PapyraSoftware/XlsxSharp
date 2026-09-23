@@ -3,7 +3,7 @@
 using System.Xml;
 using XlsxSharp.Extensions;
 using XlsxSharp.IO.Packaging;
-using static XlsxSharp.Excel.IO.OpenXmlConst;
+using static XlsxSharp.Excel.IO.OoxmlConst;
 using static XlsxSharp.Excel.XLWorkbook;
 
 namespace XlsxSharp.Excel.IO;

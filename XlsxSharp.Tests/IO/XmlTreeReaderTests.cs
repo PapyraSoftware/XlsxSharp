@@ -10,8 +10,8 @@ internal class XmlTreeReaderTests
     public void Can_transparently_processes_MCE()
     {
         const string xml = $"""
-            <font xmlns="{OpenXmlConst.Main2006SsNs}"
-                   xmlns:mc="{OpenXmlConst.MarkupCompatibilityNs}">
+            <font xmlns="{OoxmlConst.Main2006SsNs}"
+                   xmlns:mc="{OoxmlConst.MarkupCompatibilityNs}">
               <mc:AlternateContent>
                 <mc:Choice xmlns:cs="http://example.com/custom" Requires="cs">
                   <cs:bold weight="10"/>
@@ -27,9 +27,9 @@ internal class XmlTreeReaderTests
             XmlToEnumMapper.Instance,
             true
         );
-        reader.Open("font", OpenXmlConst.Main2006SsNs);
-        reader.Open("b", OpenXmlConst.Main2006SsNs);
-        reader.Close("b", OpenXmlConst.Main2006SsNs);
-        reader.Close("font", OpenXmlConst.Main2006SsNs);
+        reader.Open("font", OoxmlConst.Main2006SsNs);
+        reader.Open("b", OoxmlConst.Main2006SsNs);
+        reader.Close("b", OoxmlConst.Main2006SsNs);
+        reader.Close("font", OoxmlConst.Main2006SsNs);
     }
 }

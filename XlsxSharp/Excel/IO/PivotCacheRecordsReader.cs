@@ -6,7 +6,7 @@ namespace XlsxSharp.Excel.IO;
 
 internal partial class PivotCacheRecordsReader
 {
-    private readonly string _ns = OpenXmlConst.Main2006SsNs;
+    private readonly string _ns = OoxmlConst.Main2006SsNs;
     private readonly XmlTreeReader _reader;
     private readonly XLPivotCache _pivotCache;
 

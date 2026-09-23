@@ -3,13 +3,13 @@ using System.Xml;
 using XlsxSharp.Excel.PivotValues;
 using XlsxSharp.Extensions;
 using XlsxSharp.IO.Packaging;
-using static XlsxSharp.Excel.IO.OpenXmlConst;
+using static XlsxSharp.Excel.IO.OoxmlConst;
 using static XlsxSharp.Excel.XLWorkbook;
 using Array = System.Array;
 
 namespace XlsxSharp.Excel.IO;
 
-internal class PivotTableDefinitionPartWriter2
+internal class PivotTableDefinitionPartWriter
 {
     internal static void WriteContent(OpcPart pivotTablePart, XLPivotTable pt, SaveContext context)
     {

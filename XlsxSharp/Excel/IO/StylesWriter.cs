@@ -7,7 +7,7 @@ using XlsxSharp.Extensions;
 using XlsxSharp.IO;
 using XlsxSharp.IO.Packaging;
 using XlsxSharp.Utils;
-using static XlsxSharp.Excel.IO.OpenXmlConst;
+using static XlsxSharp.Excel.IO.OoxmlConst;
 using PivotRegion = XlsxSharp.Excel.Formatting.XLPivotStyleRegionValues;
 using TableRegion = XlsxSharp.Excel.Formatting.XLTableStyleRegionValues;
 

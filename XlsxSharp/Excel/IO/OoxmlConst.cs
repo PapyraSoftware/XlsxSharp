@@ -3,7 +3,7 @@ namespace XlsxSharp.Excel.IO;
 /// <summary>
 /// Constants used across writers.
 /// </summary>
-internal static class OpenXmlConst
+internal static class OoxmlConst
 {
     public const string Main2006SsNs = "http://schemas.openxmlformats.org/spreadsheetml/2006/main";
 

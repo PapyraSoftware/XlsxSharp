@@ -134,11 +134,11 @@ internal static class XmlWriterExtensions
         w.WriteValue(value.ToInvariantString());
 
     public static void WritePreserveSpaceAttr(this XmlWriter w) =>
-        w.WriteAttributeString("xml", "space", OpenXmlConst.Xml1998Ns, "preserve");
+        w.WriteAttributeString("xml", "space", OoxmlConst.Xml1998Ns, "preserve");
 
     public static void WriteEmptyElement(this XmlWriter w, string elName)
     {
-        w.WriteStartElement(elName, OpenXmlConst.Main2006SsNs);
+        w.WriteStartElement(elName, OoxmlConst.Main2006SsNs);
         w.WriteEndElement();
     }
 
@@ -149,7 +149,7 @@ internal static class XmlWriterExtensions
         bool isDifferential = false
     )
     {
-        w.WriteStartElement(elName, OpenXmlConst.Main2006SsNs);
+        w.WriteStartElement(elName, OoxmlConst.Main2006SsNs);
         switch (xlColor.ColorType)
         {
             case XLColorType.Color:

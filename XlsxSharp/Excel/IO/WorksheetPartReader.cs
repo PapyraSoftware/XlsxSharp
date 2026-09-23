@@ -93,7 +93,7 @@ internal class WorksheetPartReader
         reader.ReadStartElement();
         while (reader.NodeType == XmlNodeType.Element)
         {
-            if (reader.NamespaceURI != OpenXmlConst.Main2006SsNs)
+            if (reader.NamespaceURI != OoxmlConst.Main2006SsNs)
             {
                 reader.Skip();
                 continue;
@@ -156,7 +156,7 @@ internal class WorksheetPartReader
                     LoadExtensions(ReadElement(reader), ws);
                     break;
                 case "legacyDrawing":
-                    ws.LegacyDrawingId = reader.GetAttribute("id", OpenXmlConst.RelationshipsNs);
+                    ws.LegacyDrawingId = reader.GetAttribute("id", OoxmlConst.RelationshipsNs);
                     reader.Skip();
                     break;
                 default:
@@ -188,7 +188,7 @@ internal class WorksheetPartReader
         reader.ReadStartElement();
         while (reader.NodeType == XmlNodeType.Element)
         {
-            if (reader.LocalName == "row" && reader.NamespaceURI == OpenXmlConst.Main2006SsNs)
+            if (reader.LocalName == "row" && reader.NamespaceURI == OoxmlConst.Main2006SsNs)
             {
                 this.LoadRow(ws, sharedStrings, reader);
             }
@@ -383,7 +383,7 @@ internal class WorksheetPartReader
             xlRow.Loading = false;
         }
 
-        double? dyDescent = Double(reader, "dyDescent", OpenXmlConst.X14Ac2009SsNs);
+        double? dyDescent = Double(reader, "dyDescent", OoxmlConst.X14Ac2009SsNs);
         if (dyDescent is not null)
         {
             xlRow.DyDescent = dyDescent.Value;
@@ -426,7 +426,7 @@ internal class WorksheetPartReader
         reader.ReadStartElement();
         while (reader.NodeType == XmlNodeType.Element)
         {
-            if (reader.LocalName == "c" && reader.NamespaceURI == OpenXmlConst.Main2006SsNs)
+            if (reader.LocalName == "c" && reader.NamespaceURI == OoxmlConst.Main2006SsNs)
             {
                 this.LoadCell(sharedStrings, ws, reader, rowIndex);
             }
@@ -493,7 +493,7 @@ internal class WorksheetPartReader
             reader.ReadStartElement();
             while (reader.NodeType == XmlNodeType.Element)
             {
-                if (reader.NamespaceURI != OpenXmlConst.Main2006SsNs)
+                if (reader.NamespaceURI != OoxmlConst.Main2006SsNs)
                 {
                     reader.Skip();
                     continue;

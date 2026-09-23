@@ -770,12 +770,12 @@ public class SavingTests
             sheet =>
             {
                 IEnumerable<XElement> conditionalFormatting = sheet.Descendants(
-                    XName.Get("conditionalFormatting", OpenXmlConst.Main2006SsNs)
+                    XName.Get("conditionalFormatting", OoxmlConst.Main2006SsNs)
                 );
                 XmlAssert.MatchesXml(
                     conditionalFormatting,
                     $"""
-                    <conditionalFormatting xmlns="{OpenXmlConst.Main2006SsNs}"
+                    <conditionalFormatting xmlns="{OoxmlConst.Main2006SsNs}"
                                            pivot="1"
                                            sqref="G2:G3">
                       <cfRule type="cellIs"
@@ -792,12 +792,12 @@ public class SavingTests
             styles =>
             {
                 IEnumerable<XElement> dxfs = styles.Descendants(
-                    XName.Get("dxfs", OpenXmlConst.Main2006SsNs)
+                    XName.Get("dxfs", OoxmlConst.Main2006SsNs)
                 );
                 XmlAssert.MatchesXml(
                     dxfs,
                     $"""
-                    <dxfs count="1" xmlns="{OpenXmlConst.Main2006SsNs}">
+                    <dxfs count="1" xmlns="{OoxmlConst.Main2006SsNs}">
                       <dxf>
                         <fill>
                           <patternFill patternType="solid">

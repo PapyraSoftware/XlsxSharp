@@ -18,7 +18,7 @@ internal class PivotCacheRecordsReaderTests
         ReadRecords(
             new[] { "Field 1" },
             $"""
-            <pivotCacheRecords xmlns="{OpenXmlConst.Main2006SsNs}">
+            <pivotCacheRecords xmlns="{OoxmlConst.Main2006SsNs}">
               <r>
                 <m/>
               </r>
@@ -74,7 +74,7 @@ internal class PivotCacheRecordsReaderTests
         ReadRecords(
             new[] { "Field 1", "Field 2" },
             $"""
-            <pivotCacheRecords xmlns="{OpenXmlConst.Main2006SsNs}">
+            <pivotCacheRecords xmlns="{OoxmlConst.Main2006SsNs}">
               <r>{recordItems}</r>
             </pivotCacheRecords>
             """,

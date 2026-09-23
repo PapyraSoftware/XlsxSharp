@@ -4,7 +4,7 @@ using XlsxSharp.Excel.Tables;
 using XlsxSharp.Extensions;
 using XlsxSharp.IO.Packaging;
 using XlsxSharp.Utils;
-using static XlsxSharp.Excel.IO.OpenXmlConst;
+using static XlsxSharp.Excel.IO.OoxmlConst;
 using static XlsxSharp.Excel.XLWorkbook;
 
 namespace XlsxSharp.Excel.IO;

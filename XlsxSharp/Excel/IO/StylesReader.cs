@@ -12,7 +12,7 @@ internal partial class StylesReader
 {
     private readonly XmlTreeReader _reader;
     private readonly XLWorkbookStyles _styles;
-    private readonly string _ns = OpenXmlConst.Main2006SsNs;
+    private readonly string _ns = OoxmlConst.Main2006SsNs;
     private readonly SequentialNameGenerator _styleNameGenerator = new("Style ", 1);
 
     // Format components to use when not specified in xf record
@@ -817,7 +817,7 @@ internal partial class StylesReader
             throw PartStructureException.InvalidAttributeFormat();
         }
 
-        int normalizedTextRotation = OpenXmlHelper.NormalizeRotation(textRotation ?? 0);
+        int normalizedTextRotation = NormalizeRotation(textRotation ?? 0);
         return new XLDifferentialAlignmentValue
         {
             Horizontal = horizontal,
@@ -1016,4 +1016,17 @@ internal partial class StylesReader
         { "pageFieldLabels", (null, PTS.PageFieldLabels) },
         { "pageFieldValues", (null, PTS.PageFieldValues) },
     };
+
+    /// <summary>
+    /// Maps the <c>textRotation</c> of an alignment (0-90 counterclockwise, 91-180 clockwise as
+    /// 90 - value, 255 vertical text) to the signed degrees the model uses.
+    /// </summary>
+    private static int NormalizeRotation(uint textRotation) =>
+        textRotation switch
+        {
+            <= 90 => (int)textRotation,
+            <= 180 => 90 - (int)textRotation,
+            255 => 255,
+            _ => throw new ArgumentOutOfRangeException(nameof(textRotation)),
+        };
 }
