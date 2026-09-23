@@ -69,11 +69,8 @@ internal class TablePartWriter
     {
         context.TableId++;
         string tableName = GetTableName(xlTable.Name, context);
-        XElement table = new(
-            SpreadsheetXml.Main + "table",
-            // The parts are written with the prefix the schema's own examples use, which is the
-            // one every other part of the package is written with.
-            new XAttribute(XNamespace.Xmlns + "x", SpreadsheetXml.Main.NamespaceName),
+        XElement table = SpreadsheetXml.NewRoot(
+            "table",
             new XAttribute("id", context.TableId),
             new XAttribute("name", tableName),
             new XAttribute("displayName", tableName),

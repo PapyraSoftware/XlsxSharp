@@ -198,9 +198,18 @@ public static class StreamHelper
             emptyElement.RemoveNodes();
         }
 
+        // Which prefix a namespace is declared under - or whether it is the default one - says
+        // nothing about the content: XName carries the namespace itself, so comparing without the
+        // declarations still tells x:row in the main namespace apart from a row anywhere else.
         foreach (XElement element in document.Descendants().Where(e => e.Attributes().Any()))
         {
-            List<XAttribute> attrs = [.. element.Attributes().OrderBy(a => a.Name.LocalName)];
+            List<XAttribute> attrs =
+            [
+                .. element
+                    .Attributes()
+                    .Where(a => !a.IsNamespaceDeclaration)
+                    .OrderBy(a => a.Name.LocalName),
+            ];
             element.ReplaceAttributes(attrs);
         }
     }

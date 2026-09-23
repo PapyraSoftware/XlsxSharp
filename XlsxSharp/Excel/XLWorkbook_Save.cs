@@ -16,9 +16,8 @@ namespace XlsxSharp.Excel;
 public partial class XLWorkbook
 {
     /// <summary>
-    /// Package validation used to run the SDK's own schema validator; <see cref="SchemaValidator"/>
-    /// replaces it with XlsxSharp's own, checking every schema-mapped part against the OOXML
-    /// schemas directly rather than through the SDK's object model.
+    /// Checks every schema-mapped part of the saved package against the OOXML schemas, see
+    /// <see cref="SchemaValidator"/>.
     /// </summary>
     private static void Validate(OpcPackage package)
     {
@@ -178,17 +177,11 @@ public partial class XLWorkbook
     {
         SaveContext context = new();
 
-        // Not from RelIdGenerator: that pool is what hands out every "rIdN" from here on for
-        // /_rels/.rels as much as for xl/_rels/workbook.xml.rels, and the sheets' own ids are
-        // among them - the reference workbooks were recorded with the SDK's own numbering, which
-        // starts those at "rId1" because the SDK gives the officeDocument relationship a GUID-
-        // shaped id of its own rather than drawing an "rIdN" that would shift everything after
-        // it. This id is package-level and never appears in anything the save compares - .rels
-        // parts are excluded from the comparison - so any id outside the "rIdN" shape the pool
-        // hands out keeps the two from colliding without needing to reserve a slot for it.
+        // Package-level relationships live in /_rels/.rels, an id space of their own, so they take
+        // the next free id there rather than one from RelIdGenerator's pool for the workbook.
         OpcPart workbookPart =
             package.PartOfType(OoxmlPartTypes.Workbook)
-            ?? package.AddPartOfType(workbookPartType, relationshipId: "officeDocument").Part;
+            ?? package.AddPartOfType(workbookPartType).Part;
 
         // The workbook, template and macro-enabled variants all point at the same part through
         // the same "officeDocument" relationship, differing only in declared content type - a
@@ -234,12 +227,7 @@ public partial class XLWorkbook
 
         OpcPart extendedFilePropertiesPart =
             package.PartOfType(OoxmlPartTypes.ExtendedFileProperties)
-            ?? package
-                .AddPartOfType(
-                    OoxmlPartTypes.ExtendedFileProperties,
-                    relationshipId: context.RelIdGenerator.GetNext(RelType.Workbook)
-                )
-                .Part;
+            ?? package.AddPartOfType(OoxmlPartTypes.ExtendedFileProperties).Part;
 
         ExtendedFilePropertiesPartWriter.GenerateContent(extendedFilePropertiesPart, this);
 
@@ -360,7 +348,6 @@ public partial class XLWorkbook
                     (vmlDrawingPart, _) = worksheetPart.AddPartOfType(
                         package,
                         OoxmlPartTypes.VmlDrawing,
-                        partName: NextFreeVmlDrawingPartName(package),
                         relationshipId: worksheet.LegacyDrawingId
                     );
                 }
@@ -524,50 +511,6 @@ public partial class XLWorkbook
         package.Properties.Created = created;
         package.Properties.Modified = modified;
 
-#if true // Workaround: https://github.com/OfficeDev/Open-XML-SDK/issues/235
-
-        if (this.Properties.LastModifiedBy == null)
-        {
-            package.Properties.LastModifiedBy = "";
-        }
-
-        if (this.Properties.Author == null)
-        {
-            package.Properties.Creator = "";
-        }
-
-        if (this.Properties.Title == null)
-        {
-            package.Properties.Title = "";
-        }
-
-        if (this.Properties.Subject == null)
-        {
-            package.Properties.Subject = "";
-        }
-
-        if (this.Properties.Category == null)
-        {
-            package.Properties.Category = "";
-        }
-
-        if (this.Properties.Keywords == null)
-        {
-            package.Properties.Keywords = "";
-        }
-
-        if (this.Properties.Comments == null)
-        {
-            package.Properties.Description = "";
-        }
-
-        if (this.Properties.Status == null)
-        {
-            package.Properties.ContentStatus = "";
-        }
-
-#endif
-
         package.Properties.LastModifiedBy = this.Properties.LastModifiedBy;
 
         package.Properties.Creator = this.Properties.Author;
@@ -586,23 +529,8 @@ public partial class XLWorkbook
         SaveContext context
     )
     {
-        // The SDK numbers a new pivot cache definition part from how many the package has ever
-        // had, not from the first name that happens to be free: a cache dropped by
-        // RemoveUnusedPivotCacheDefinitionParts below still counts, so a package that had one
-        // gets "pivotCacheDefinition2.xml" for its replacement even though "...1.xml" is free
-        // again by the time it is added.
-        int pivotCacheDefinitionCount = workbookPart
-            .PartsOfType(OoxmlPartTypes.PivotCacheDefinition)
-            .Count();
-
         RemoveUnusedPivotCacheDefinitionParts(package, workbookPart, allPivotTables);
-        AddUsedPivotCacheDefinitionParts(
-            package,
-            workbookPart,
-            allPivotTables,
-            context,
-            pivotCacheDefinitionCount
-        );
+        AddUsedPivotCacheDefinitionParts(package, workbookPart, allPivotTables, context);
 
         // Ensure this in workbook.xml:
         //  <pivotCaches>
@@ -662,8 +590,7 @@ public partial class XLWorkbook
             OpcPackage package,
             OpcPart workbookPart,
             IReadOnlyList<IXLPivotTable> allPivotTables,
-            SaveContext context,
-            int existingPivotCacheCount
+            SaveContext context
         )
         {
             // Add ids and part for the caches to workbooks
@@ -679,23 +606,14 @@ public partial class XLWorkbook
                     .Distinct(),
             ];
 
-            int count = existingPivotCacheCount;
             foreach (XLPivotCache pivotSource in newPivotSources)
             {
                 string cacheRelId = context.RelIdGenerator.GetNext(RelType.Workbook);
                 pivotSource.WorkbookCacheRelId = cacheRelId;
 
-                string partName;
-                do
-                {
-                    count++;
-                    partName = $"/pivotCache/pivotCacheDefinition{count}.xml";
-                } while (package.TryGetPart(partName, out _));
-
                 workbookPart.AddPartOfType(
                     package,
                     OoxmlPartTypes.PivotCacheDefinition,
-                    partName: partName,
                     relationshipId: cacheRelId
                 );
             }
@@ -735,75 +653,12 @@ public partial class XLWorkbook
                     .AddPartOfType(
                         package,
                         OoxmlPartTypes.PivotCacheRecords,
-                        partName: PivotCacheRecordsPartName(pivotTableCacheDefinitionPart),
                         relationshipId: "rId1"
                     )
                     .Part;
 
             PivotCacheRecordsWriter.WriteContent(pivotTableCacheRecordsPart, xlPivotCache);
         }
-    }
-
-    /// <summary>
-    /// The SDK puts a new pivot cache records part in the same directory as its owning
-    /// definition part, under the same number - normally the package root (<c>/pivotCache/</c>),
-    /// but a definition part loaded from a file that used the conventional
-    /// <c>/xl/pivotCache/</c> location keeps its records part there too, since the SDK computes
-    /// the child's URI relative to the parent part it was added to rather than from a fixed
-    /// template. Deriving the name from the definition part's own name, rather than probing the
-    /// directory for a free slot, also keeps it immune to <see cref="SynchronizePivotTableParts"/>
-    /// freeing up a lower number earlier in the same save by deleting an orphaned cache.
-    /// </summary>
-    private static string PivotCacheRecordsPartName(OpcPart definitionPart) =>
-        definitionPart.Name.Replace(
-            "pivotCacheDefinition",
-            "pivotCacheRecords",
-            StringComparison.Ordinal
-        );
-
-    /// <summary>The SDK's own numbering for a legacy drawing part - see <see cref="NextFreePivotTablePartName"/>.</summary>
-    private static string NextFreeVmlDrawingPartName(OpcPackage package)
-    {
-        const string first = "/xl/drawings/vmldrawing.vml";
-        if (!package.TryGetPart(first, out _))
-        {
-            return first;
-        }
-
-        for (int number = 2; ; number++)
-        {
-            string candidate = $"/xl/drawings/vmldrawing{number}.vml";
-            if (!package.TryGetPart(candidate, out _))
-            {
-                return candidate;
-            }
-        }
-    }
-
-    /// <summary>
-    /// The SDK numbers a package's first <c>pivotTable</c> part with no number at all, and only
-    /// numbers the ones after it - unlike every other numbered part kind, which numbers its first
-    /// instance "1". The number itself comes from how many pivot table parts the package already
-    /// has, not from the first name that happens to be free: a package loaded with an existing
-    /// <c>pivotTable1.xml</c> gets a new <c>pivotTable2.xml</c> even though the unnumbered name is
-    /// technically unused.
-    /// </summary>
-    private static string NextFreePivotTablePartName(OpcPackage package)
-    {
-        int count = package.Parts.Count(part =>
-            part.ContentType == OoxmlPartTypes.PivotTable.ContentType
-        );
-        string candidate =
-            count == 0
-                ? "/xl/pivotTables/pivotTable.xml"
-                : $"/xl/pivotTables/pivotTable{count + 1}.xml";
-
-        for (; package.TryGetPart(candidate, out _); count++)
-        {
-            candidate = $"/xl/pivotTables/pivotTable{count + 1}.xml";
-        }
-
-        return candidate;
     }
 
     private static void GeneratePivotTables(
@@ -825,7 +680,6 @@ public partial class XLWorkbook
                 (pivotTablePart, _) = worksheetPart.AddPartOfType(
                     package,
                     OoxmlPartTypes.PivotTable,
-                    partName: NextFreePivotTablePartName(package),
                     relationshipId: relId
                 );
             }

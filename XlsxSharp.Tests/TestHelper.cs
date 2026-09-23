@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.IO.Compression;
 using System.IO.Packaging;
 using System.Xml.Linq;
 using XlsxSharp.Examples;
@@ -167,6 +168,11 @@ internal static class TestHelper
                     message
                 );
 
+                if (!success && UpdateReference(@"Examples\" + filePartName, filePath2))
+                {
+                    return;
+                }
+
                 ClassicAssert.IsTrue(success, formattedMessage);
             }
         }
@@ -244,6 +250,11 @@ internal static class TestHelper
                     resourcePath,
                     message
                 );
+
+                if (!success && UpdateReference(referenceResource, filePath2))
+                {
+                    return;
+                }
 
                 ClassicAssert.IsTrue(success, formattedMessage);
             }
@@ -330,6 +341,107 @@ internal static class TestHelper
             loadResourcePath,
             options
         );
+
+    /// <summary>
+    /// With <c>XLSXSHARP_UPDATE_REFERENCES=1</c> set, a reference workbook that differs from what
+    /// the test produced is overwritten in the source tree with the new output, and the test
+    /// passes. This is for a deliberate change of what XlsxSharp writes: run the tests once with
+    /// it, then review every changed reference in the diff before committing.
+    /// </summary>
+    /// <returns>Whether the reference was updated.</returns>
+    private static bool UpdateReference(string referenceResource, string actualFile)
+    {
+        if (Environment.GetEnvironmentVariable("XLSXSHARP_UPDATE_REFERENCES") != "1")
+        {
+            return false;
+        }
+
+        string? projectDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+        while (
+            projectDirectory is not null
+            && !File.Exists(Path.Combine(projectDirectory, "XlsxSharp.Tests.csproj"))
+        )
+        {
+            projectDirectory = Path.GetDirectoryName(projectDirectory);
+        }
+
+        if (projectDirectory is null)
+        {
+            return false;
+        }
+
+        string reference = Path.Combine([
+            projectDirectory,
+            "Resource",
+            .. referenceResource.Split('\\', StringSplitOptions.RemoveEmptyEntries),
+        ]);
+        byte[] previous = File.ReadAllBytes(reference);
+        File.Copy(actualFile, reference, overwrite: true);
+        if (StripColumnWidths)
+        {
+            KeepColumnWidths(previous, reference);
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Column widths come from font metrics, which differ between platforms - that is why the
+    /// comparison ignores them off Windows. A reference regenerated there keeps the widths it had.
+    /// </summary>
+    private static void KeepColumnWidths(byte[] previousReference, string reference)
+    {
+        XNamespace main = "http://schemas.openxmlformats.org/spreadsheetml/2006/main";
+        using ZipArchive previous = new(new MemoryStream(previousReference), ZipArchiveMode.Read);
+        using ZipArchive updated = ZipFile.Open(reference, ZipArchiveMode.Update);
+
+        foreach (
+            ZipArchiveEntry entry in updated
+                .Entries.Where(e =>
+                    e.FullName.StartsWith("xl/worksheets/", StringComparison.Ordinal)
+                )
+                .ToList()
+        )
+        {
+            if (previous.GetEntry(entry.FullName) is not { } previousEntry)
+            {
+                continue;
+            }
+
+            Dictionary<(string?, string?), string?> widths;
+            using (Stream stream = previousEntry.Open())
+            {
+                widths = XDocument
+                    .Load(stream)
+                    .Descendants(main + "col")
+                    .GroupBy(c => ((string?)c.Attribute("min"), (string?)c.Attribute("max")))
+                    .ToDictionary(g => g.Key, g => (string?)g.First().Attribute("width"));
+            }
+
+            XDocument sheet;
+            using (Stream stream = entry.Open())
+            {
+                sheet = XDocument.Load(stream);
+            }
+
+            foreach (XElement col in sheet.Descendants(main + "col"))
+            {
+                if (
+                    widths.TryGetValue(
+                        ((string?)col.Attribute("min"), (string?)col.Attribute("max")),
+                        out string? width
+                    ) && width is not null
+                )
+                {
+                    col.SetAttributeValue("width", width);
+                }
+            }
+
+            entry.Delete();
+            using Stream target = updated.CreateEntry(entry.FullName).Open();
+            sheet.Save(target, System.Xml.Linq.SaveOptions.DisableFormatting);
+        }
+    }
 
     public static string GetResourcePath(string filePartName) =>
         filePartName.Replace('\\', '.').TrimStart('.');

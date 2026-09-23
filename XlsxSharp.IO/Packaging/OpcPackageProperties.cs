@@ -24,14 +24,11 @@ public sealed class OpcPackageProperties
     private const string XsiNs = "http://www.w3.org/2001/XMLSchema-instance";
 
     /// <summary>
-    /// Where the part is created when the package does not have one yet. Not the conventional
-    /// <c>/docProps/core.xml</c> - a package the SDK creates fresh puts its core properties at an
-    /// SDK-chosen <c>.psmdcp</c> path instead, through the underlying <c>System.IO.Packaging</c>
-    /// machinery rather than as an ordinary part, and reference workbooks recorded that. A loaded
-    /// package's own core properties part, wherever it lives, is patched in place regardless -
-    /// this name is only ever used for a package that had none.
+    /// Where the part is created when the package does not have one yet, which is where Excel
+    /// puts it. A loaded package's own core properties part, wherever it lives, is patched in
+    /// place - this name is only ever used for a package that had none.
     /// </summary>
-    internal const string DefaultPartName = "/docProps/core.psmdcp";
+    internal const string DefaultPartName = "/docProps/core.xml";
 
     private string? _category;
     private string? _contentStatus;

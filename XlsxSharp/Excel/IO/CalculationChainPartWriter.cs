@@ -48,11 +48,11 @@ internal class CalculationChainPartWriter
 
         // The "x" prefix rather than a default namespace, which is what Excel and the
         // rest of our writers emit for this part.
-        xml.WriteStartElement("x", "calcChain", Main2006SsNs);
+        xml.WriteStartElement("calcChain", Main2006SsNs);
 
         foreach ((string cellReference, int sheetId, bool isArrayHead) in chain)
         {
-            xml.WriteStartElement("x", "c", Main2006SsNs);
+            xml.WriteStartElement("c", Main2006SsNs);
             xml.WriteAttributeString("r", cellReference);
             xml.WriteAttributeString("i", sheetId.ToInvariantString());
             if (isArrayHead)

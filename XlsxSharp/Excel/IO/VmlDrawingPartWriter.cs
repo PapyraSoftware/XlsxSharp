@@ -17,8 +17,9 @@ namespace XlsxSharp.Excel.IO;
 /// <remarks>
 /// The namespace declarations are repeated on every shape instead of sitting on the root, and the
 /// attributes come in the order the VML schema declares rather than the order they are set here.
-/// Both are what the SDK produced and what Excel has been reading from XlsxSharp all along, so
-/// the writer works with namespace handling switched off and writes the qualified names itself.
+/// That is the shape Excel has been reading from XlsxSharp all along - legacy VML is parsed far
+/// less forgivingly than the rest of the package - so the writer works with namespace handling
+/// switched off and writes the qualified names itself.
 /// <see cref="XlsxSharp.Tests"/> records the output of this class; see CommentVmlOutputTests.
 /// </remarks>
 internal class VmlDrawingPartWriter
@@ -42,7 +43,7 @@ internal class VmlDrawingPartWriter
         using Stream stream = vmlDrawingPart.GetWriteStream();
 
         // Namespaces off: the qualified names and the xmlns attributes are written by hand,
-        // so that they land in the same places the SDK put them.
+        // so that they land exactly where the remarks above say.
         XmlTextWriter writer = new(stream, Encoding.UTF8) { Namespaces = false };
 
         writer.WriteStartElement("xml");

@@ -29,6 +29,25 @@ internal static class SpreadsheetXml
     internal static readonly XNamespace Xm = "http://schemas.microsoft.com/office/excel/2006/main";
 
     /// <summary>
+    /// A new root element in the main namespace, declared as the default namespace - the way
+    /// Excel writes its own parts.
+    /// </summary>
+    internal static XElement NewRoot(string localName, params object?[] content) =>
+        new(Main + localName, new XAttribute("xmlns", Main.NamespaceName), content);
+
+    /// <summary>
+    /// Declares <paramref name="ns"/> on <paramref name="root"/> under <paramref name="prefix"/>,
+    /// unless the root already declares it - under whatever prefix the part was loaded with.
+    /// </summary>
+    internal static void EnsureDeclared(XElement root, string prefix, XNamespace ns)
+    {
+        if (!root.Attributes().Any(a => a.IsNamespaceDeclaration && a.Value == ns.NamespaceName))
+        {
+            root.Add(new XAttribute(XNamespace.Xmlns + prefix, ns.NamespaceName));
+        }
+    }
+
+    /// <summary>
     /// An <c>xsd:boolean</c> attribute: <c>true</c>, <c>false</c>, <c>1</c> or <c>0</c>, and
     /// nothing else.
     /// </summary>
@@ -99,7 +118,7 @@ internal static class SpreadsheetXml
     /// </summary>
     /// <remarks>
     /// A color that names none of rgb, indexed or theme - or an index outside the palette - is
-    /// automatic, which is how the SDK conversion this replaces read it.
+    /// automatic.
     /// </remarks>
     internal static XLColor ReadColor(XElement? element)
     {

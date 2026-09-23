@@ -1,9 +1,8 @@
 namespace XlsxSharp.IO.Packaging;
 
 /// <summary>
-/// Navigating a SpreadsheetML package by part kind rather than by part name. This is what
-/// replaces the SDK's <c>GetPartsOfType&lt;T&gt;</c> and <c>AddNewPart&lt;T&gt;</c>: the kind
-/// carries the relationship type to look for and the content type to declare.
+/// Navigating a SpreadsheetML package by part kind rather than by part name: the kind carries
+/// the relationship type to look for and the content type to declare.
 /// </summary>
 public static class OoxmlPartExtensions
 {

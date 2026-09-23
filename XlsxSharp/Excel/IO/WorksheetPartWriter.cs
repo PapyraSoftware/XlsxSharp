@@ -92,26 +92,7 @@ internal class WorksheetPartWriter
         }
         else
         {
-            worksheet = new XElement(
-                SpreadsheetXml.Main + "worksheet",
-                new XAttribute(XNamespace.Xmlns + "x", SpreadsheetXml.Main.NamespaceName)
-            );
-        }
-
-        // The main namespace is always declared under the prefix "x", the way the SDK's own
-        // writer always did regardless of what a loaded file used - a file that declares it as
-        // the default namespace, or under some other prefix, is normalised here.
-        if (worksheet.GetPrefixOfNamespace(SpreadsheetXml.Main) is not "x")
-        {
-            worksheet
-                .Attributes()
-                .Where(attribute =>
-                    attribute.IsNamespaceDeclaration
-                    && attribute.Value == SpreadsheetXml.Main.NamespaceName
-                )
-                .ToList()
-                .ForEach(attribute => attribute.Remove());
-            worksheet.SetAttributeValue(XNamespace.Xmlns + "x", SpreadsheetXml.Main.NamespaceName);
+            worksheet = SpreadsheetXml.NewRoot("worksheet");
         }
 
         if (
@@ -298,7 +279,6 @@ internal class WorksheetPartWriter
         }
         else if (dataType == XLDataType.DateTime)
         {
-            // OpenXML SDK validator requires a specific format, in addition to the spec, but can reads many more
             DateTime date = xlCell.GetDateTime();
             if (xlCell.Worksheet.Workbook.Use1904DateSystem)
             {
@@ -912,9 +892,7 @@ internal class WorksheetPartWriter
     }
 
     /// <summary>
-    /// The content type and file extension of a picture's format. Every format but the two
-    /// XlsxSharp added itself (Unknown, Webp) mirrors what the SDK declared for the equivalent
-    /// <c>ImagePartType</c>.
+    /// The content type and file extension of a picture's format.
     /// </summary>
     private static readonly Dictionary<
         XLPictureFormat,
@@ -935,24 +913,25 @@ internal class WorksheetPartWriter
     };
 
     /// <summary>
-    /// The first image part name of that extension no part uses yet. The SDK counts separately
-    /// per extension and, unlike every other numbered part kind, leaves the first of each
-    /// extension unnumbered.
+    /// The first image part name no part uses yet, numbered the way Excel numbers them: one
+    /// sequence across all formats, <c>image1.png</c>, <c>image2.jpg</c> and so on.
     /// </summary>
     private static string NextFreeImagePartName(OpcPackage package, string extension)
     {
-        string first = $"/xl/media/image{extension}";
-        if (!package.TryGetPart(first, out _))
-        {
-            return first;
-        }
+        HashSet<string> taken =
+        [
+            .. package
+                .Parts.Select(p => p.Name)
+                .Where(n => n.StartsWith("/xl/media/image", StringComparison.OrdinalIgnoreCase))
+                .Select(n => Path.GetFileNameWithoutExtension(n).ToLowerInvariant()),
+        ];
 
-        for (int number = 2; ; number++)
+        for (int number = 1; ; number++)
         {
-            string candidate = $"/xl/media/image{number}{extension}";
-            if (!package.TryGetPart(candidate, out _))
+            string stem = $"image{number.ToString(CultureInfo.InvariantCulture)}";
+            if (!taken.Contains(stem))
             {
-                return candidate;
+                return $"/xl/media/{stem}{extension}";
             }
         }
     }
@@ -1200,13 +1179,12 @@ internal class WorksheetPartWriter
         );
 
     /// <summary>
-    /// Makes sure the root declares every namespace the drawing uses - which is where the SDK
-    /// always put them in addition to wherever else they were declared, regardless of where a
-    /// loaded part itself declared them. A shape written by Excel typically declares an
-    /// extension's namespace locally, on the element that first needs it, and a newly built
-    /// picture anchor has nowhere of its own to declare "r" at all; both are topped up here,
-    /// under whatever prefix is already in use, without touching a declaration that already
-    /// exists somewhere in the tree.
+    /// Makes sure the root declares every namespace the drawing uses, so that elements added to
+    /// the tree are written with the usual prefixes instead of generated ones. A shape written by
+    /// Excel typically declares an extension's namespace locally, on the element that first
+    /// needs it, and a newly built picture anchor has nowhere of its own to declare "r" at all;
+    /// both are topped up here, under whatever prefix is already in use, without touching a
+    /// declaration that already exists somewhere in the tree.
     /// </summary>
     private static void HoistNamespaceDeclarations(XElement root)
     {
@@ -1366,10 +1344,6 @@ internal class WorksheetPartWriter
             if (worksheet.Element(SpreadsheetXml.Main + "drawing") is null)
             {
                 XElement drawingElement = WorksheetXml.Child(worksheet, "drawing");
-                // The SDK always redeclared "r" locally on a newly created element too,
-                // redundantly with the root's own declaration, and the reference workbooks
-                // record that redundancy.
-                drawingElement.SetAttributeValue(XNamespace.Xmlns + "r", RelationshipsNs);
                 drawingElement.SetAttributeValue(
                     SpreadsheetXml.Rel + "id",
                     worksheetPart.Relationships.GetIdOfTarget(drawingsPart.Name)

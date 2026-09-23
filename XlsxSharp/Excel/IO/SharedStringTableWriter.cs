@@ -32,7 +32,7 @@ internal class SharedStringTableWriter
 
         // Due to streaming and XLWorkbook structure, we don't know count before strings are written.
         // Attributes count and uniqueCount are optional thus are omitted.
-        xml.WriteStartElement("x", "sst", Main2006SsNs);
+        xml.WriteStartElement("sst", Main2006SsNs);
 
         SharedStringTable sst = workbook.SharedStringTable;
         List<int> map = sst.GetConsecutiveMap();

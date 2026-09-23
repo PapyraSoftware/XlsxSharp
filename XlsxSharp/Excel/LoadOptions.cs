@@ -66,8 +66,8 @@ public class LoadOptions
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This option only affects <c>XlsxSharp.IO</c> parser. OOXML parts that are parsed by
-    /// OpenXML SDK are not affected. Also, fix an OOXML producer that does this stuff.
+    /// This option only affects the parts read by the generated <c>XlsxSharp.IO</c> parsers
+    /// (styles and pivot cache records). Also, fix an OOXML producer that does this stuff.
     /// </remarks>
     public bool StrictAttributeParsing { get; set; } = true;
 

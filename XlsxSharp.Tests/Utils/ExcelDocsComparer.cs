@@ -30,8 +30,14 @@ internal static class ExcelDocsComparer
 
     private static bool ExcludeMethod(Uri uri)
     {
-        //Exclude service data
-        if (uri.OriginalString.EndsWith(".rels") || uri.OriginalString.EndsWith(".psmdcp"))
+        // Relationships are compared through the parts that use them, and the core properties
+        // carry the time of saving. The .psmdcp name is where System.IO.Packaging put them in
+        // references written before XlsxSharp had its own packaging layer.
+        if (
+            uri.OriginalString.EndsWith(".rels")
+            || uri.OriginalString.EndsWith(".psmdcp")
+            || uri.OriginalString == "/docProps/core.xml"
+        )
         {
             return true;
         }

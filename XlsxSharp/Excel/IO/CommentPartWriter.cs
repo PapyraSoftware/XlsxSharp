@@ -26,7 +26,7 @@ internal class CommentPartWriter
 
         List<XLCell> commentCells = [];
         Dictionary<string, int> authorsDict = new();
-        xml.WriteStartElement("x", "comments", Main2006SsNs);
+        xml.WriteStartElement("comments", Main2006SsNs);
         foreach (XLCell c in xlWorksheet.Internals.CellsCollection.GetCells(c => c.HasComment))
         {
             string authorName = c.GetComment().Author;

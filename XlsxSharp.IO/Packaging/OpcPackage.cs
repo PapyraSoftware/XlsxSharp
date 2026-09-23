@@ -436,16 +436,33 @@ public sealed class OpcPackage : IDisposable
         }
         else
         {
-            part = this.AddPart(
-                OpcPackageProperties.DefaultPartName,
-                OpcContentType.CoreProperties
-            );
+            part = this.AddPart(this.FreeCorePropertiesPartName(), OpcContentType.CoreProperties);
 
             this.Relationships.Add(part.Name, OpcRelationshipType.CoreProperties);
         }
 
         using Stream stream = part.GetWriteStream();
         this._properties.Write(stream);
+    }
+
+    /// <summary>
+    /// <see cref="OpcPackageProperties.DefaultPartName"/>, unless a part of that name is already
+    /// there without being related as the core properties - a file whose relationship type is
+    /// misspelt has one - in which case the next free numbered name next to it.
+    /// </summary>
+    private string FreeCorePropertiesPartName()
+    {
+        string name = OpcPackageProperties.DefaultPartName;
+        for (int number = 1; this._parts.ContainsKey(name); number++)
+        {
+            name = OpcPackageProperties.DefaultPartName.Replace(
+                ".xml",
+                $"{number.ToString(System.Globalization.CultureInfo.InvariantCulture)}.xml",
+                StringComparison.Ordinal
+            );
+        }
+
+        return name;
     }
 
     internal OpcPart ResolveRelatedPart(OpcRelationship relationship)

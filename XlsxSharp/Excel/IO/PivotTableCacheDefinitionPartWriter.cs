@@ -96,16 +96,8 @@ internal class PivotTableCacheDefinitionPartWriter
     }
 
     /// <summary>
-    /// The part's document with the namespaces the writer needs declared on the root, or a fresh
-    /// one when the part is empty.
+    /// The part's document as it was loaded, or a fresh one when the part is empty.
     /// </summary>
-    /// <remarks>
-    /// The prefixes matter: the reference workbooks record which declarations sit on the root,
-    /// and a default namespace where a prefixed one is expected counts as a difference even
-    /// though the elements are the same. A part loaded from Excel declares the main namespace as
-    /// the default one, so that declaration is dropped and the prefixed pair put in its place,
-    /// which is what the SDK did when it re-serialised the part.
-    /// </remarks>
     private static (XDocument Document, bool IsNew) ReadExisting(OpcPart part)
     {
         XElement loaded = null;
@@ -132,53 +124,14 @@ internal class PivotTableCacheDefinitionPartWriter
 
         if (loaded is null)
         {
-            return (
-                new XDocument(
-                    new XElement(
-                        Main + "pivotCacheDefinition",
-                        new XAttribute(XNamespace.Xmlns + "r", Rel.NamespaceName),
-                        new XAttribute(XNamespace.Xmlns + "x", Main.NamespaceName)
-                    )
-                ),
-                true
-            );
+            XElement fresh = SpreadsheetXml.NewRoot("pivotCacheDefinition");
+            SpreadsheetXml.EnsureDeclared(fresh, "r", Rel);
+            return (new XDocument(fresh), true);
         }
 
-        XElement root = new(Main + "pivotCacheDefinition");
-
-        // Carry over every declaration except the default one, then make sure the two the writer
-        // itself needs are there.
-        foreach (XAttribute attribute in loaded.Attributes())
-        {
-            if (attribute.IsNamespaceDeclaration)
-            {
-                if (attribute.Name.LocalName != "xmlns")
-                {
-                    root.Add(new XAttribute(attribute));
-                }
-
-                continue;
-            }
-
-            root.Add(new XAttribute(attribute));
-        }
-
-        EnsureDeclaration(root, "r", Rel);
-        EnsureDeclaration(root, "x", Main);
-
-        foreach (XElement child in loaded.Elements())
-        {
-            XElement copy = new(child);
-            copy.DescendantsAndSelf()
-                .Attributes()
-                .Where(a => a.IsNamespaceDeclaration && a.Name.LocalName == "xmlns")
-                .ToList()
-                .ForEach(a => a.Remove());
-
-            root.Add(copy);
-        }
-
-        HoistDeclarations(root);
+        // The root keeps the declarations and prefixes the part was loaded with.
+        XElement root = new(loaded);
+        SpreadsheetXml.EnsureDeclared(root, "r", Rel);
 
         return (
             standalone
@@ -186,49 +139,6 @@ internal class PivotTableCacheDefinitionPartWriter
                 : new XDocument(root),
             false
         );
-    }
-
-    /// <summary>
-    /// Copies the namespace declarations of the descendants up onto the root, leaving them where
-    /// they are as well.
-    /// </summary>
-    /// <remarks>
-    /// This is what the SDK did when it re-serialised a part: a prefix that a workbook from Excel
-    /// declares only where it is used, on an <c>ext</c> for instance, comes back out declared on
-    /// the root too. Without it the root is one declaration short of what the reference workbooks
-    /// record.
-    /// </remarks>
-    private static void HoistDeclarations(XElement root)
-    {
-        foreach (XElement descendant in root.Descendants())
-        {
-            foreach (XAttribute attribute in descendant.Attributes().ToList())
-            {
-                if (!attribute.IsNamespaceDeclaration || attribute.Name.LocalName == "xmlns")
-                {
-                    continue;
-                }
-
-                bool taken = root.Attributes()
-                    .Any(a => a.IsNamespaceDeclaration && a.Name == attribute.Name);
-
-                if (!taken)
-                {
-                    root.Add(new XAttribute(attribute));
-                }
-            }
-        }
-    }
-
-    private static void EnsureDeclaration(XElement root, string prefix, XNamespace ns)
-    {
-        bool declared = root.Attributes()
-            .Any(a => a.IsNamespaceDeclaration && a.Value == ns.NamespaceName);
-
-        if (!declared)
-        {
-            root.Add(new XAttribute(XNamespace.Xmlns + prefix, ns.NamespaceName));
-        }
     }
 
     private static void SetVersion(XElement root, string name, byte version)
@@ -594,8 +504,7 @@ internal class PivotTableCacheDefinitionPartWriter
         new(Main + localName, new XAttribute("v", value));
 
     /// <summary>
-    /// Writes the attribute only when it differs from the value a reader would assume, which is
-    /// what the SDK's optional boolean values did.
+    /// Writes the attribute only when it differs from the schema default a reader assumes.
     /// </summary>
     private static void SetOptionalBool(
         XElement element,

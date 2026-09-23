@@ -26,8 +26,8 @@ internal class ExtendedFilePropertiesPartWriter
         "http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes";
 
     /// <summary>
-    /// The order the owned elements are created in when the part does not have them yet. It is
-    /// the order the SDK produced, which the reference workbooks are recorded with.
+    /// The order the owned elements are created in when the part does not have them yet. The
+    /// schema takes them in any order; a fixed one keeps the output stable.
     /// </summary>
     private static readonly string[] OwnedOrder =
     [

@@ -1539,8 +1539,7 @@ public partial class XLWorkbook
 
     /// <summary>
     /// Only the plain sRGB form of a theme colour is read - a system colour (e.g. a stock lt1/dk1
-    /// pair left as <c>sysClr</c>) is left at the model's default, matching the SDK-backed reader
-    /// this replaces.
+    /// pair left as <c>sysClr</c>) is left at the model's default.
     /// </summary>
     private static void SetThemeColor(
         XElement colorScheme,

@@ -24,7 +24,7 @@ internal class WorksheetPartReader
 {
     private static readonly string[] DateCellFormats =
     [
-        "yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff", // Format accepted by OpenXML SDK
+        "yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff", // ISO 8601 with milliseconds
         "yyyy-MM-ddTHH:mm",
         "yyyy-MM-dd", // Formats accepted by Excel.
     ];
@@ -1051,8 +1051,7 @@ internal class WorksheetPartReader
             .DifferentialFormats;
         foreach (XElement fr in conditionalFormatting.Elements(SpreadsheetXml.Main + "cfRule"))
         {
-            // The reference is a whitespace separated list, which is what the SDK's list value
-            // parsed it as.
+            // sqref is an ST_Sqref, a whitespace separated list of references.
             IEnumerable<XLRange> ranges = SpreadsheetXml
                 .String(conditionalFormatting, "sqref")
                 .Split((char[])null, StringSplitOptions.RemoveEmptyEntries)

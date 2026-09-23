@@ -183,6 +183,43 @@ public class OpcPackagePropertiesTests
         ClassicAssert.AreEqual("Quarterly", reopened.Properties.Title);
     }
 
+    [Test]
+    public void AnUnrelatedPartUnderTheDefaultNameIsLeftAlone()
+    {
+        // A file whose core properties relationship type is misspelt still has its
+        // /docProps/core.xml, just not related as the core properties.
+        using MemoryStream original = new();
+        using (OpcPackage package = OpcPackage.Create())
+        {
+            OpcPart stray = package.AddPart("/docProps/core.xml", OpcContentType.CoreProperties);
+            using (StreamWriter writer = new(stray.GetWriteStream()))
+            {
+                writer.Write("<stray/>");
+            }
+
+            package.Relationships.Add(
+                stray.Name,
+                "http://schemas.openxmlformats.org/package/2006/relationships/meatadata/core-properties"
+            );
+            package.SaveTo(original);
+        }
+
+        using MemoryStream rewritten = new();
+        original.Position = 0;
+        using (OpcPackage package = OpcPackage.Open(original, writable: true))
+        {
+            package.Properties.Creator = "Ada";
+            package.SaveTo(rewritten);
+        }
+
+        rewritten.Position = 0;
+        using OpcPackage reopened = OpcPackage.Open(rewritten);
+        ClassicAssert.AreEqual("Ada", reopened.Properties.Creator);
+        ClassicAssert.IsTrue(reopened.TryGetPart("/docProps/core.xml", out OpcPart? kept));
+        using StreamReader reader = new(kept!.GetReadStream());
+        ClassicAssert.AreEqual("<stray/>", reader.ReadToEnd());
+    }
+
     private static OpcPart MinimalWorkbook(OpcPackage package)
     {
         OpcPart workbook = package.AddPart(

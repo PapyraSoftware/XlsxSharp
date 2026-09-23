@@ -106,7 +106,7 @@ internal class WorkbookPartWriter
     }
 
     /// <summary>
-    /// The part's document with the two prefixes the writer needs on the root, or a fresh one.
+    /// The part's document as it was loaded, or a fresh one.
     /// </summary>
     private static XDocument ReadExisting(OpcPart part)
     {
@@ -125,69 +125,14 @@ internal class WorkbookPartWriter
             }
         }
 
-        XElement workbook = new(
-            Main + "workbook",
-            new XAttribute(XNamespace.Xmlns + "r", Rel.NamespaceName),
-            new XAttribute(XNamespace.Xmlns + "x", Main.NamespaceName)
-        );
-
-        if (loaded is not null)
-        {
-            foreach (XAttribute attribute in loaded.Attributes())
-            {
-                if (
-                    attribute.IsNamespaceDeclaration
-                    && (attribute.Name.LocalName == "xmlns" || IsDeclared(workbook, attribute))
-                )
-                {
-                    continue;
-                }
-
-                workbook.Add(new XAttribute(attribute));
-            }
-
-            foreach (XElement child in loaded.Elements())
-            {
-                XElement copy = new(child);
-                copy.DescendantsAndSelf()
-                    .Attributes()
-                    .Where(a => a.IsNamespaceDeclaration && a.Name.LocalName == "xmlns")
-                    .ToList()
-                    .ForEach(a => a.Remove());
-
-                workbook.Add(copy);
-            }
-
-            HoistDeclarations(workbook);
-        }
+        // A loaded workbook.xml keeps its root as it was, declarations and prefixes included;
+        // only the relationships namespace the writer needs is added when it is missing.
+        XElement workbook = loaded is not null
+            ? new XElement(loaded)
+            : SpreadsheetXml.NewRoot("workbook");
+        SpreadsheetXml.EnsureDeclared(workbook, "r", Rel);
 
         return new XDocument(workbook);
-    }
-
-    private static bool IsDeclared(XElement root, XAttribute declaration) =>
-        root.Attributes().Any(a => a.IsNamespaceDeclaration && a.Value == declaration.Value);
-
-    /// <summary>
-    /// Copies the namespace declarations of the descendants onto the root, which is what the SDK
-    /// did when it re-serialised a part.
-    /// </summary>
-    private static void HoistDeclarations(XElement root)
-    {
-        foreach (XElement descendant in root.Descendants())
-        {
-            foreach (XAttribute attribute in descendant.Attributes().ToList())
-            {
-                if (
-                    attribute.IsNamespaceDeclaration
-                    && attribute.Name.LocalName != "xmlns"
-                    && !root.Attributes()
-                        .Any(a => a.IsNamespaceDeclaration && a.Name == attribute.Name)
-                )
-                {
-                    root.Add(new XAttribute(attribute));
-                }
-            }
-        }
     }
 
     private static void WriteWorkbookProperties(
