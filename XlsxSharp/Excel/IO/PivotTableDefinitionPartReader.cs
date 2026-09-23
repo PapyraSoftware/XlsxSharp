@@ -623,17 +623,8 @@ internal class PivotTableDefinitionPartReader
     private static int RequiredInt(XElement element, string name) =>
         OptionalInt(element, name) ?? throw PartStructureException.MissingAttribute(name);
 
-    /// <summary>
-    /// OOXML booleans are written as 1/0 or true/false, and both have to be accepted.
-    /// </summary>
-    private static bool? Bool(XElement? element, string name) =>
-        element?.Attribute(name)?.Value switch
-        {
-            null => null,
-            "1" or "true" or "on" or "True" => true,
-            "0" or "false" or "off" or "False" => false,
-            _ => throw PartStructureException.InvalidAttributeFormat(),
-        };
+    /// <inheritdoc cref="SpreadsheetXml.Bool"/>
+    private static bool? Bool(XElement? element, string name) => SpreadsheetXml.Bool(element, name);
 
     private static uint? OptionalUInt(XElement element, string name) =>
         element.Attribute(name)?.Value is not { } value ? null

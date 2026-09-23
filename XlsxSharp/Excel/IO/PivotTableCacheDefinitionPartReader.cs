@@ -378,18 +378,9 @@ internal class PivotTableCacheDefinitionPartReader
     private static XAttribute RequireValue(XElement item) =>
         item.Attribute("v") ?? throw PartStructureException.MissingAttribute();
 
-    /// <summary>
-    /// OOXML booleans are written as 1/0 or true/false, and both have to be accepted on the way
-    /// in even though only the short form is written back.
-    /// </summary>
+    /// <inheritdoc cref="SpreadsheetXml.Bool"/>
     private static bool? ParseBool(XAttribute? attribute) =>
-        attribute?.Value switch
-        {
-            null => null,
-            "1" or "true" or "on" or "True" => true,
-            "0" or "false" or "off" or "False" => false,
-            _ => throw PartStructureException.InvalidAttributeFormat(),
-        };
+        SpreadsheetXml.ParseBoolean(attribute?.Value);
 
     private static uint? ParseUInt(XAttribute? attribute) =>
         attribute is null ? null

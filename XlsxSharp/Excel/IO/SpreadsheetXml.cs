@@ -29,21 +29,30 @@ internal static class SpreadsheetXml
     internal static readonly XNamespace Xm = "http://schemas.microsoft.com/office/excel/2006/main";
 
     /// <summary>
-    /// OOXML booleans are written as 1/0 or true/false, and both have to be accepted.
+    /// An <c>xsd:boolean</c> attribute: <c>true</c>, <c>false</c>, <c>1</c> or <c>0</c>, and
+    /// nothing else.
     /// </summary>
     /// <remarks>
-    /// A value that cannot be read reads as absent rather than as an error, which is what the
-    /// SDK's typed values did: an unparseable attribute left HasValue false and the caller took
-    /// its default. Files in the wild rely on it - one of the test workbooks carries
-    /// activeTab="-1", and the sheet it does not point at is meant to fall back to the first.
+    /// A value that is not one of those - including the <c>on</c>/<c>off</c> and <c>True</c> forms
+    /// the schema does not allow - reads as absent rather than as an error, and the caller takes
+    /// its default. Files in the wild rely on that leniency for out-of-range values: one of the
+    /// test workbooks carries activeTab="-1", and the sheet it does not point at is meant to fall
+    /// back to the first.
     /// </remarks>
     internal static bool? Bool(XElement? element, string name) =>
-        element?.Attribute(name)?.Value switch
+        ParseBoolean(element?.Attribute(name)?.Value);
+
+    /// <inheritdoc cref="Bool"/>
+    internal static bool? ParseBoolean(string? value) =>
+        value?.Trim(XmlWhitespace) switch
         {
-            "1" or "true" or "on" or "True" => true,
-            "0" or "false" or "off" or "False" => false,
+            "1" or "true" => true,
+            "0" or "false" => false,
             _ => null,
         };
+
+    /// <summary>The characters <c>xsd:whiteSpace="collapse"</c> strips around a value.</summary>
+    private static readonly char[] XmlWhitespace = [' ', '\t', '\n', '\r'];
 
     /// <inheritdoc cref="Bool"/>
     internal static uint? UInt(XElement? element, string name) =>

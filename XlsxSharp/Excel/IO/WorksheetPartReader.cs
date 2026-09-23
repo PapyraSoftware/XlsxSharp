@@ -1886,26 +1886,9 @@ internal class WorksheetPartReader
 
     #region Attributes of the streamed elements
 
-    private static bool? Bool(XmlReader reader, string name)
-    {
-        string value = reader.GetAttribute(name);
-        if (string.IsNullOrEmpty(value))
-        {
-            return null;
-        }
-
-        if (value == "1" || string.Equals("true", value, StringComparison.OrdinalIgnoreCase))
-        {
-            return true;
-        }
-
-        if (value == "0" || string.Equals("false", value, StringComparison.OrdinalIgnoreCase))
-        {
-            return false;
-        }
-
-        throw new FormatException($"Unable to parse '{value}' to bool.");
-    }
+    /// <inheritdoc cref="SpreadsheetXml.Bool"/>
+    private static bool? Bool(XmlReader reader, string name) =>
+        SpreadsheetXml.ParseBoolean(reader.GetAttribute(name));
 
     private static int? Int(XmlReader reader, string name) =>
         reader.GetAttribute(name) is { Length: > 0 } value
