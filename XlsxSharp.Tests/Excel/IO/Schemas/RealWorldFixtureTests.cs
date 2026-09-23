@@ -36,8 +36,7 @@ public class RealWorldFixtureTests
 
         original.Position = 0;
         using XLWorkbook wb = new(original);
-        using MemoryStream resaved = new();
-        ClassicAssert.DoesNotThrow(() => wb.SaveAs(resaved));
+        AssertResavedFileValidates(wb);
     }
 
     /// <summary>
@@ -60,8 +59,7 @@ public class RealWorldFixtureTests
         original.Position = 0;
         using XLWorkbook wb = new(original);
         ClassicAssert.AreEqual("abc", wb.Worksheets.First().Cell("A1").GetString());
-        using MemoryStream resaved = new();
-        ClassicAssert.DoesNotThrow(() => wb.SaveAs(resaved));
+        AssertResavedFileValidates(wb);
     }
 
     /// <summary>
@@ -81,8 +79,7 @@ public class RealWorldFixtureTests
 
         original.Position = 0;
         using XLWorkbook wb = new(original);
-        using MemoryStream resaved = new();
-        ClassicAssert.DoesNotThrow(() => wb.SaveAs(resaved));
+        AssertResavedFileValidates(wb);
     }
 
     /// <summary>
@@ -104,8 +101,7 @@ public class RealWorldFixtureTests
 
         original.Position = 0;
         using XLWorkbook wb = new(original);
-        using MemoryStream resaved = new();
-        ClassicAssert.DoesNotThrow(() => wb.SaveAs(resaved));
+        AssertResavedFileValidates(wb);
     }
 
     /// <summary>
@@ -178,8 +174,22 @@ public class RealWorldFixtureTests
 
         original.Position = 0;
         using XLWorkbook wb = new(original);
+        AssertResavedFileValidates(wb);
+    }
+
+    /// <summary>
+    /// Saves <paramref name="wb"/> and checks that what XlsxSharp wrote is schema-valid, too - a
+    /// round trip that only does not throw says nothing about whether Excel can open the result.
+    /// </summary>
+    private static void AssertResavedFileValidates(XLWorkbook wb)
+    {
         using MemoryStream resaved = new();
-        ClassicAssert.DoesNotThrow(() => wb.SaveAs(resaved));
+        wb.SaveAs(resaved, new SaveOptions { ValidatePackage = false });
+        resaved.Position = 0;
+
+        using OpcPackage package = OpcPackage.Open(resaved);
+        IReadOnlyList<string> errors = SchemaValidator.Validate(package);
+        ClassicAssert.IsEmpty(errors, string.Join(Environment.NewLine, errors));
     }
 
     private static MemoryStream LoadResource(string resourcePath)
