@@ -57,7 +57,7 @@ internal static class StyleXml
         if (fontSource.Element(SpreadsheetXml.Main + "u") is { } underline)
         {
             fontBase.Underline = SpreadsheetXml.String(underline, "val") is { } underlineValue
-                ? StyleXmlEnums.ParseUnderline(underlineValue)
+                ? XmlToEnumMapper.Instance.Parse<XLFontUnderlineValues>(underlineValue)
                 : XLFontUnderlineValues.Single;
         }
 
@@ -65,14 +65,16 @@ internal static class StyleXml
         {
             fontBase.VerticalAlignment = SpreadsheetXml.String(verticalAlignment, "val")
                 is { } verticalAlignmentValue
-                ? StyleXmlEnums.ParseVerticalTextAlignment(verticalAlignmentValue)
+                ? XmlToEnumMapper.Instance.Parse<XLFontVerticalTextAlignmentValues>(
+                    verticalAlignmentValue
+                )
                 : XLFontVerticalTextAlignmentValues.Baseline;
         }
 
         if (fontSource.Element(SpreadsheetXml.Main + "scheme") is { } scheme)
         {
             fontBase.FontScheme = SpreadsheetXml.String(scheme, "val") is { } schemeValue
-                ? StyleXmlEnums.ParseFontScheme(schemeValue)
+                ? XmlToEnumMapper.Instance.Parse<XLFontScheme>(schemeValue)
                 : XLFontScheme.None;
         }
     }

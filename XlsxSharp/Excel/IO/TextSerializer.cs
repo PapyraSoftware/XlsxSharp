@@ -112,10 +112,10 @@ internal class TextSerializer
 
         if (font.Underline != defaultFont.Underline)
         {
-            WriteRunProperty(w, "u", font.Underline.ToXml());
+            WriteRunProperty(w, "u", XmlToEnumMapper.Instance.GetText(font.Underline));
         }
 
-        WriteRunProperty(w, @"vertAlign", font.VerticalAlignment.ToXml());
+        WriteRunProperty(w, @"vertAlign", XmlToEnumMapper.Instance.GetText(font.VerticalAlignment));
         WriteRunProperty(w, "sz", font.Size.Points);
         w.WriteColor("color", font.Color);
         WriteRunProperty(w, "rFont", font.Name.Text);
@@ -128,7 +128,7 @@ internal class TextSerializer
 
         if (font.Scheme != defaultFont.Scheme)
         {
-            WriteRunProperty(w, "scheme", font.Scheme.ToXml());
+            WriteRunProperty(w, "scheme", XmlToEnumMapper.Instance.GetText(font.Scheme));
         }
 
         w.WriteEndElement(); // rPr

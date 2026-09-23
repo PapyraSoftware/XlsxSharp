@@ -34,6 +34,25 @@ internal sealed class XmlToEnumMapper : IEnumMapper
         return enumMap.ValueToKey.TryGetValue(enumValue, out text);
     }
 
+    /// <summary>The enum value OOXML writes as <paramref name="text"/>.</summary>
+    /// <exception cref="PartStructureException">The text is not one of the enumeration's values.</exception>
+    internal TEnum Parse<TEnum>(string text)
+        where TEnum : struct, Enum =>
+        this.TryGetEnum(text, out TEnum value)
+            ? value
+            : throw PartStructureException.InvalidAttributeValue(text);
+
+    /// <summary>The text OOXML writes for <paramref name="value"/>.</summary>
+    internal string GetText<TEnum>(TEnum value)
+        where TEnum : struct, Enum =>
+        this.TryGetText(value, out string text)
+            ? text
+            : throw new ArgumentOutOfRangeException(
+                nameof(value),
+                value,
+                $"Unknown {typeof(TEnum).Name} value."
+            );
+
     private BiDictionary<string, TEnum> GetEnumMap<TEnum>()
         where TEnum : struct, Enum => (BiDictionary<string, TEnum>)this._enumMaps[typeof(TEnum)];
 
